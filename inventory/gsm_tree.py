@@ -21,29 +21,28 @@ def relabel_nodes(tree, start_index=0):
 
 	Parameters
 	----------
-	adjacency_matrix : graph
-		NetworkX directed graph indicating flows among nodes. Current node labels are
-		ignored and may be anything.
-	start_index : int
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Current node labels are ignored and may be anything.
+	start_index : int, optional
 		Integer to use as starting (smallest) node label.
 
 	Returns
 	-------
-	new_labels: dict
+	relabeled_tree : graph
+		NetworkX directed graph representing the relabeled tree network.
+	new_labels : dict
 		Dict containing each node's new label; for example, if new_labels[3] = 8, then
 		node 3 has been re-labeled as 8.
 
 	"""
-
-	# Determine number of nodes.
-	num_nodes = nx.number_of_nodes(tree)
 
 	# Initialize all nodes to "unlabeled", and initialize list of new labels.
 	labeled = {i: False for i in tree.nodes()}
 	new_labels = {}
 
 	# Find nodes that are adjacent to at most 1 unlabeled node and label them.
-	for k in range(start_index, start_index+num_nodes):
+	for k in range(start_index, start_index+nx.number_of_nodes(tree)):
 
 		# Find a node for labeling.
 		for i in tree.nodes():
@@ -62,25 +61,73 @@ def relabel_nodes(tree, start_index=0):
 					# Break out of 'for i' loop
 					break
 
-	return new_labels
+	# Relabel the nodes
+	relabeled_tree = nx.relabel_nodes(tree, new_labels)
+	return relabeled_tree, new_labels
 
 
+def find_larger_adjacent_nodes(tree):
+	"""Find larger-indexed adjacent node, for each node in tree.
 
-# Network from Figure 6.12.
-G = nx.DiGraph()
-G.add_nodes_from(range(1, 8))
-G.add_edge(1, 2)
-G.add_edge(1, 3)
-G.add_edge(3, 5)
-G.add_edge(4, 5)
-G.add_edge(5, 6)
-G.add_edge(5, 7)
-new_labels = relabel_nodes(G, start_index=71)
-print(new_labels)
+	After the nodes are relabeled by relabel_nodes(), each node (except the
+	node with the largest index) is adjacent to exactly one node with a
+	larger index. Node k's neighbor with larger index is denoted p(k) in
+	Graves and Willems (2003). This function finds p(k) for all k and also
+	indicates whether p(k) is upstream or downstream from k.
 
-new_G = nx.relabel_nodes(G, new_labels)
-nx.draw_networkx(new_G, with_labels=True)
-plt.show()
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Nodes are assumed to have been relabeled using relabel_nodes().
+
+	Returns
+	-------
+	larger_adjacent: dict
+		Dict containing index of each node's larger-indexed adjacent node,
+		for all nodes except the largest-indexed node.
+	downstream: dict
+		Dict containing, for each node, True if the larger-indexed adjacent
+		node is downstream from the node, False if it is upstream, for all
+		nodes except the largest-indexed node.
+	"""
+
+	# Initialize dicts.
+	larger_adjacent = {}
+	downstream = {}
+
+	# Loop through nodes.
+	for k in tree.nodes:
+		if k < np.max(tree.nodes):
+			# Get list of nodes that are adjacent to k and have a larger index,
+			# but the list will only contain a single item; set larger_adjacent[k] to it.
+			larger_adjacent_list = [i for i in nx.all_neighbors(tree, k) if i > k]
+			larger_adjacent[k] = larger_adjacent_list[0]
+
+			# Set downstream flag.
+			if larger_adjacent[k] in tree.successors(k):
+				downstream[k] = True
+			else:
+				downstream[k] = False
+
+	return larger_adjacent, downstream
+
+
+# # Network from Figure 6.12.
+# G = nx.DiGraph()
+# G.add_nodes_from(range(1, 8))
+# G.add_edge(1, 2)
+# G.add_edge(1, 3)
+# G.add_edge(3, 5)
+# G.add_edge(4, 5)
+# G.add_edge(5, 6)
+# G.add_edge(5, 7)
+# new_labels = relabel_nodes(G, start_index=71)
+# print(new_labels)
+#
+# new_G = nx.relabel_nodes(G, new_labels)
+# nx.draw_networkx(new_G, with_labels=True)
+# plt.show()
 # A = nx.adjacency_matrix(G)
 # print(G)
 # print(nx.to_numpy_matrix(G))
