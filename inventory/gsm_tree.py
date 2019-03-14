@@ -12,6 +12,7 @@ import numpy as np
 import scipy as sp
 import networkx as nx
 import matplotlib.pyplot as plt
+import pprint
 
 
 ### GRAPH MANIPULATION ###
@@ -113,7 +114,60 @@ def find_larger_adjacent_nodes(tree):
 	return larger_adjacent, downstream
 
 
-# # Network from Figure 6.12.
+def longest_path(tree, proc_times, external_lead_times):
+	"""Determine the length of the longest path from any source node to to each node k.
+
+	Arc lengths are determined by processing times. External lead times are considered
+	source nodes, so having an external LT at node i of 5 is like having another node
+	that serves node i with a processing time of 5.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Nodes are assumed to have been relabeled using relabel_nodes().
+
+	proc_times : dict
+		Dict of processing times, where keys are node indices.
+
+	external_lead_times : dict
+		Dict of external lead times, where keys are node indices.
+
+	Returns
+	-------
+	longest_lengths : dict
+		Dict of longest paths to each node (M_k).
+
+	"""
+
+	# Copy the tree. Set the weight of each edge into a given node k to the processing
+	# time of node k. Add dummy nodes for external lead times, and set weight of edge
+	# from dummy node to node k equal to processing time of node k + external lead time.
+	temp_tree = tree.copy()
+	for k in tree.nodes:
+		for p in tree.predecessors(k):
+			temp_tree[p][k]['weight'] = proc_times[k]
+		if external_lead_times.get(k, 0) > 0:
+			temp_tree.add_edge('dummy_' + str(k), k, weight=proc_times[k] + external_lead_times[k])
+
+	# Determine shortest path between every pair of nodes.
+	# (Really there's only one path, but shortest path is the
+	# most straightforward algorithm to use here.)
+	path_lengths = dict(nx.shortest_path_length(temp_tree, weight='weight'))
+
+	# Determine longest shortest path to each node k, among all
+	# source nodes that are ancestors to k.
+	longest_lengths = {}
+	for k in tree.nodes:
+		longest_lengths[k] = max([path_lengths[i][k] for i in nx.ancestors(temp_tree, k)], default=0)
+
+	return longest_lengths
+
+
+
+
+
+# Network from Figure 6.12.
 # G = nx.DiGraph()
 # G.add_nodes_from(range(1, 8))
 # G.add_edge(1, 2)
@@ -122,8 +176,20 @@ def find_larger_adjacent_nodes(tree):
 # G.add_edge(4, 5)
 # G.add_edge(5, 6)
 # G.add_edge(5, 7)
-# new_labels = relabel_nodes(G, start_index=71)
-# print(new_labels)
+
+# Network from Figure 6.13.
+G = nx.DiGraph()
+G.add_nodes_from(range(1, 4))
+G.add_edge(1, 3)
+G.add_edge(3, 2)
+G.add_edge(3, 4)
+proc_times = {1: 2, 2: 1, 3: 1, 4: 1}
+external_lead_times = {1: 1}
+new_G, new_labels = relabel_nodes(G, start_index=1)
+
+longest_paths = longest_path(new_G, proc_times, external_lead_times)
+
+#print(new_labels)
 #
 # new_G = nx.relabel_nodes(G, new_labels)
 # nx.draw_networkx(new_G, with_labels=True)
