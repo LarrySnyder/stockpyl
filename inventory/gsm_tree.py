@@ -114,7 +114,7 @@ def find_larger_adjacent_nodes(tree):
 	return larger_adjacent, downstream
 
 
-def longest_path(tree, proc_times, external_lead_times):
+def longest_path(tree):
 	"""Determine the length of the longest path from any source node to to each node k.
 
 	Arc lengths are determined by processing times. External lead times are considered
@@ -127,12 +127,6 @@ def longest_path(tree, proc_times, external_lead_times):
 		NetworkX directed graph representing the multi-echelon tree network.
 		Nodes are assumed to have been relabeled using relabel_nodes().
 
-	proc_times : dict
-		Dict of processing times, where keys are node indices.
-
-	external_lead_times : dict
-		Dict of external lead times, where keys are node indices.
-
 	Returns
 	-------
 	longest_lengths : dict
@@ -140,15 +134,19 @@ def longest_path(tree, proc_times, external_lead_times):
 
 	"""
 
+	# Get dict of external lead times. (Some nodes may have no entry.)
+	external_lead_time = nx.get_node_attributes(tree, 'external_lead_time')
+
 	# Copy the tree. Set the weight of each edge into a given node k to the processing
 	# time of node k. Add dummy nodes for external lead times, and set weight of edge
 	# from dummy node to node k equal to processing time of node k + external lead time.
 	temp_tree = tree.copy()
 	for k in tree.nodes:
 		for p in tree.predecessors(k):
-			temp_tree[p][k]['weight'] = proc_times[k]
-		if external_lead_times.get(k, 0) > 0:
-			temp_tree.add_edge('dummy_' + str(k), k, weight=proc_times[k] + external_lead_times[k])
+			temp_tree[p][k]['weight'] = tree.nodes[k]['processing_time']
+		if external_lead_time.get(k, 0) > 0:
+			temp_tree.add_edge('dummy_' + str(k), k,
+							   weight=tree.nodes[k]['processing_time'] + external_lead_time.get(k, 0))
 
 	# Determine shortest path between every pair of nodes.
 	# (Really there's only one path, but shortest path is the
@@ -178,16 +176,16 @@ def longest_path(tree, proc_times, external_lead_times):
 # G.add_edge(5, 7)
 
 # Network from Figure 6.13.
-G = nx.DiGraph()
-G.add_nodes_from(range(1, 4))
-G.add_edge(1, 3)
-G.add_edge(3, 2)
-G.add_edge(3, 4)
-proc_times = {1: 2, 2: 1, 3: 1, 4: 1}
-external_lead_times = {1: 1}
-new_G, new_labels = relabel_nodes(G, start_index=1)
-
-longest_paths = longest_path(new_G, proc_times, external_lead_times)
+# G = nx.DiGraph()
+# G.add_nodes_from(range(1, 4))
+# G.add_edge(1, 3)
+# G.add_edge(3, 2)
+# G.add_edge(3, 4)
+# proc_times = {1: 2, 2: 1, 3: 1, 4: 1}
+# external_lead_times = {1: 1}
+# new_G, new_labels = relabel_nodes(G, start_index=1)
+#
+# longest_paths = longest_path(new_G, proc_times, external_lead_times)
 
 #print(new_labels)
 #
