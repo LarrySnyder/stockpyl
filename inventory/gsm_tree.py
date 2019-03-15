@@ -186,11 +186,11 @@ def longest_path(tree):
 	return longest_lengths
 
 
-def net_standard_deviations(tree):
-	"""Calculate net standard deviation for all nodes in tree.
+def net_demand(tree):
+	"""Calculate net demand mean and standard deviation for all nodes in tree.
 
-	Net standard deviation is the standard deviation of the demand stream
-	consisting of the external demand for the node plus all downstream demand.
+	Net demand is the demand stream consisting of the external demand for the
+	node plus all downstream demand.
 
 	Does not modify the input tree.
 
@@ -201,29 +201,36 @@ def net_standard_deviations(tree):
 
 	Returns
 	-------
-	net_standard_deviations : dict
-		Dict of net standard deviations for each node.
+	net_means : dict
+		Dict of net mean for each node.
+
+	net_demand : dict
+		Dict of net standard deviation for each node.
 
 	"""
 
-	# Initialize net_variance to each node's external SD.
-	net_variance = {k: tree.nodes[k].get('external_demand_standard_deviation', 0)**2
+	# Initialize net_mean and net_variances using each node's external demand.
+	net_means = {k: tree.nodes[k].get('external_demand_mean', 0) for k in
+				tree.nodes}
+	net_variances = {k: tree.nodes[k].get('external_demand_standard_deviation', 0)**2
 				for k in tree.nodes}
 
 	# Make temp copy of tree.
 	temp_tree = tree.copy()
 
 	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
-	# no successors), adding their net_variance to the net_variance of their
+	# no successors), adding their net_means and net_variances to those of their
 	# predecessors. Then remove the leaf nodes and iterate.
 	while temp_tree.number_of_nodes() > 0:
 		leaf_nodes = [k for k in temp_tree.nodes if temp_tree.out_degree(k) == 0]
 		for k in leaf_nodes:
 			for i in temp_tree.predecessors(k):
-				net_variance[i] += net_variance[k]
+				net_means[i] += net_means[k]
+				net_variances[i] += net_variances[k]
 			temp_tree.remove_node(k)
 
-	return {k: np.sqrt(net_variance[k]) for k in tree.nodes}
+	net_standard_deviations = {k: np.sqrt(net_variances[k]) for k in tree.nodes}
+	return net_means, net_standard_deviations
 
 
 

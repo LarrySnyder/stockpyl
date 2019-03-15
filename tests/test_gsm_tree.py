@@ -79,10 +79,12 @@ def setUpModule():
 	instance_problem_6_9.add_node(1, processing_time=7,
 								  holding_cost=220,
 								  external_committed_service_time=3,
+								  external_demand_mean=22.0,
 								  external_demand_standard_deviation=4.1)
 	instance_problem_6_9.add_node(2, processing_time=7,
 								  holding_cost=140,
 								  external_committed_service_time=3,
+								  external_demand_mean=15.3,
 								  external_demand_standard_deviation=6.2)
 	instance_problem_6_9.add_node(3, processing_time=21, holding_cost=90)
 	instance_problem_6_9.add_node(4, processing_time=3, holding_cost=5)
@@ -321,63 +323,68 @@ class TestLongestPath(unittest.TestCase):
 		self.assertDictEqual(longest_lengths, correct_longest_lengths)
 
 
-class TestNetStandardDeviations(unittest.TestCase):
+class TestNetDemand(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
 		"""Called once, before any tests."""
-		print_status('TestNetStandardDeviations', 'setUpClass()')
+		print_status('TestNetDemand', 'setUpClass()')
 
 	@classmethod
 	def tearDownClass(cls):
 		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNetStandardDeviations', 'tearDownClass()')
+		print_status('TestNetDemand', 'tearDownClass()')
 
 	def test_example_6_5(self):
-		"""Test that net_standard_deviations() works for network in Example 6.5.
+		"""Test that net_demand() works for network in Example 6.5.
 		"""
 
-		print_status('TestNetStandardDeviations', 'test_example_6_5()')
+		print_status('TestNetDemand', 'test_example_6_5()')
 
-		net_standard_deviations = \
-			gsm_tree.net_standard_deviations(instance_example_6_5)
+		net_means, net_standard_deviations = gsm_tree.net_demand(instance_example_6_5)
 
-		# Build correct dictionary.
+		# Build correct dictionaries.
+		correct_net_means = {k: 0 for k in instance_example_6_5.nodes}
 		correct_net_standard_deviations = {1: np.sqrt(2), 2: 1, 3: np.sqrt(2),
 										   4: 1}
 
+		self.assertDictEqual(net_means, correct_net_means)
 		self.assertDictEqual(net_standard_deviations,
 							 correct_net_standard_deviations)
 
 	def test_figure_6_14(self):
-		"""Test that net_standard_deviations() works for network in Figure 6.14.
+		"""Test that net_demand() works for network in Figure 6.14.
 		"""
 
-		print_status('TestNetStandardDeviations', 'test_figure_6_14()')
+		print_status('TestNetDemand', 'test_figure_6_14()')
 
-		net_standard_deviations = \
-			gsm_tree.net_standard_deviations(instance_figure_6_14)
+		new_G, _ = gsm_tree.relabel_nodes(instance_figure_6_14)
+		net_means, net_standard_deviations = gsm_tree.net_demand(new_G)
 
-		# Build correct dictionary.
-		correct_net_standard_deviations = {k: 10 for k in instance_figure_6_14.nodes}
+		# Build correct dictionaries.
+		correct_net_means = {k: 0 for k in new_G.nodes}
+		correct_net_standard_deviations = {k: 10 for k in new_G.nodes}
 
+		self.assertDictEqual(net_means, correct_net_means)
 		self.assertDictEqual(net_standard_deviations,
 							 correct_net_standard_deviations)
 
 	def test_problem_6_9(self):
-		"""Test that net_standard_deviations() works for network in Problem 6.9.
+		"""Test that net_demand() works for network in Problem 6.9.
 		"""
 
-		print_status('TestNetStandardDeviations', 'test_problem_6_9()')
+		print_status('TestNetDemand', 'test_problem_6_9()')
 
 		new_G, _ = gsm_tree.relabel_nodes(instance_problem_6_9)
-		net_standard_deviations = \
-			gsm_tree.net_standard_deviations(new_G)
+		net_means, net_standard_deviations = gsm_tree.net_demand(new_G)
 
-		# Build correct dictionary.
+		# Build correct dictionaries.
+		correct_net_means = {0: 22.0, 1: 15.3}
 		correct_net_standard_deviations = {0: 4.1, 1: 6.2}
 		for k in range(2, 6):
+			correct_net_means[k] = 22.0 + 15.3
 			correct_net_standard_deviations[k] = np.sqrt(4.1**2 + 6.2**2)
 
+		self.assertDictEqual(net_means, correct_net_means)
 		self.assertDictEqual(net_standard_deviations,
 							 correct_net_standard_deviations)
