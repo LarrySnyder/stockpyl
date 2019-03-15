@@ -138,13 +138,14 @@ def longest_path(tree):
 	external_lead_time = nx.get_node_attributes(tree, 'external_lead_time')
 
 	# Copy the tree. Set the weight of each edge into a given node k to the processing
-	# time of node k. Add dummy nodes for external lead times, and set weight of edge
-	# from dummy node to node k equal to processing time of node k + external lead time.
+	# time of node k. If node k is a source node and/or it has an external lead time,
+	# add a dummy node before node k and set weight of edge from dummy node to node k
+	# equal to processing time of node k + external lead time for node k.
 	temp_tree = tree.copy()
 	for k in tree.nodes:
 		for p in tree.predecessors(k):
 			temp_tree[p][k]['weight'] = tree.nodes[k]['processing_time']
-		if external_lead_time.get(k, 0) > 0:
+		if tree.in_degree(k) == 0 or external_lead_time.get(k, 0) > 0:
 			temp_tree.add_edge('dummy_' + str(k), k,
 							   weight=tree.nodes[k]['processing_time'] + external_lead_time.get(k, 0))
 
