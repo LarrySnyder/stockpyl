@@ -3,6 +3,25 @@ for multi-echelon inventory systems with tree structures by Graves and Willems (
 
 'node' and 'stage' are used interchangeably in the documentation.
 
+The primary data object is the NetworkX DiGraph, which contains all of the data
+for the GSM instance.
+
+Problem data are specified by specifying the following node attributes:
+	- processing_time [T]
+	- external_lead_time [si]
+	- external_committed_service_time [s]
+	- holding_cost [h]
+	- external_demand_standard_deviation [sigma]
+
+The following node attributes are used internally to store intermediate values:
+	- net_demand_standard_deviation (standard deviation of combined demand
+	stream consisting of external demand and downstream demand)
+
+The following edge attributes are supported:
+	- units_required (e.g., on edge i->j, units_required units of item i are
+	required to make 1 unit of item j)
+
+
 (c) Lawrence V. Snyder
 Lehigh University and Opex Analytics
 
@@ -18,7 +37,10 @@ import pprint
 ### GRAPH MANIPULATION ###
 
 def relabel_nodes(tree, start_index=0):
-	"""Perform the node-labeling algorithm described in Section 5 of Graves and Willems.
+	"""Perform the node-labeling algorithm described in Section 5 of Graves and
+	Willems (2003).
+
+	Does not modify the input tree.
 
 	Parameters
 	----------
@@ -33,8 +55,8 @@ def relabel_nodes(tree, start_index=0):
 	relabeled_tree : graph
 		NetworkX directed graph representing the relabeled tree network.
 	new_labels : dict
-		Dict containing each node's new label; for example, if new_labels[3] = 8, then
-		node 3 has been re-labeled as 8.
+		Dict containing each node's new label; for example, if
+		new_labels[3] = 8, then node 3 has been re-labeled as 8.
 
 	"""
 
@@ -158,10 +180,50 @@ def longest_path(tree):
 	# source nodes that are ancestors to k.
 	longest_lengths = {}
 	for k in tree.nodes:
-		longest_lengths[k] = max([path_lengths[i][k] for i in nx.ancestors(temp_tree, k)], default=0)
+		longest_lengths[k] = max([path_lengths[i][k] for i in
+								  nx.ancestors(temp_tree, k)], default=0)
 
 	return longest_lengths
 
+
+def net_standard_deviations(tree):
+	"""Calculate net standard deviation for all nodes in tree.
+
+	Net standard deviation is the standard deviation of the demand stream
+	consisting of the external demand for the node plus all downstream demand.
+
+	Does not modify the input tree.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+
+	Returns
+	-------
+	net_standard_deviations : dict
+		Dict of net standard deviations for each node.
+
+	"""
+
+	# Initialize net_variance to each node's external SD.
+	net_variance = {k: tree.nodes[k].get('external_demand_standard_deviation', 0)**2
+				for k in tree.nodes}
+
+	# Make temp copy of tree.
+	temp_tree = tree.copy()
+
+	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
+	# no successors), adding their net_variance to the net_variance of their
+	# predecessors. Then remove the leaf nodes and iterate.
+	while temp_tree.number_of_nodes() > 0:
+		leaf_nodes = [k for k in temp_tree.nodes if temp_tree.out_degree(k) == 0]
+		for k in leaf_nodes:
+			for i in temp_tree.predecessors(k):
+				net_variance[i] += net_variance[k]
+			temp_tree.remove_node(k)
+
+	return {k: np.sqrt(net_variance[k]) for k in tree.nodes}
 
 
 
