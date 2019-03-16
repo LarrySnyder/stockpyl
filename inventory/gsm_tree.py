@@ -6,26 +6,29 @@ for multi-echelon inventory systems with tree structures by Graves and Willems (
 The primary data object is the NetworkX DiGraph, which contains all of the data
 for the GSM instance.
 
-Problem data are specified by specifying the following node attributes:
-	- processing_time [T]
-	- external_lead_time [si]
-	- external_committed_service_time [s]
-	- holding_cost [h]
-	- external_demand_mean [mu]
-	- external_demand_standard_deviation [sigma]
-
-The following node attributes are used internally to store outputs and
-intermediate values:
-	- original_label
-	- net_demand_standard_deviation (standard deviation of combined demand
-	stream consisting of external demand and downstream demand)
-	- larger_adjacent_node [p]
-	- larger_adjacent_node_is_downstream
-	- max_replenishment_time [M]
-
-The following edge attributes are supported:
-	- units_required (e.g., on edge i->j, units_required units of item i are
+The following attributes are used to specify input data:
+	* Node-level attributes
+		- processing_time [T]
+		- external_lead_time [si]
+		- external_committed_service_time [s]
+		- holding_cost [h]
+		- demand_bound_constant [z_alpha]
+		- external_demand_mean [mu]
+		- external_demand_standard_deviation [sigma]
+	* Edge-level attributes
+		- units_required (e.g., on edge i->j, units_required units of item i are
 	required to make 1 unit of item j)
+
+The following attributes are used to store outputs and intermediate values:
+	* Graph-level attributes
+		- max_max_replenishment_time
+	* Node-level attributes:
+		- original_label
+		- net_demand_standard_deviation (standard deviation of combined demand
+		stream consisting of external demand and downstream demand)
+		- larger_adjacent_node [p]
+		- larger_adjacent_node_is_downstream
+		- max_replenishment_time [M]
 
 (c) Lawrence V. Snyder
 Lehigh University and Opex Analytics
@@ -46,7 +49,9 @@ def preprocess_tree(tree, start_index=0):
 
 	Relabel the nodes; fill original_label, net_demand_mean,
 	net_demand_standard_deviation, larger_adjacent_node,
-	max_replenishment_time attributes.
+	max_replenishment_time node-level attributes.
+
+	Fill max_max_replenishment_time graph-level attribute.
 
 	Parameters
 	----------
@@ -80,6 +85,11 @@ def preprocess_tree(tree, start_index=0):
 	# Calculate max replenishment times.
 	max_replenishment_times = longest_paths(new_tree)
 	nx.set_node_attributes(new_tree, max_replenishment_times, 'max_replenishment_time')
+
+	# Calculate maximum value of max_replenishment_time.
+	new_tree.graph['max_max_replenishment_time'] = \
+		np.max(list(nx.get_node_attributes(new_tree,
+										   'max_replenishment_time').values()))
 
 	return new_tree
 
@@ -359,14 +369,42 @@ def CST_DP(tree):
 
 	"""
 
-	# Calculate maximum value of max_replenishment_time.
-	max_max_replenishment_time = np.max(nx.get_node_attributes(tree,
-									'max_replenishment_time'))
 
 	# Initialize dicts to store values of theta_in(.) and theta_out(.) functions
 	# (called f(.) and g(.) in Graves and Willems).
 	theta_in = {k: {} for k in tree.nodes}
 	theta_out = {k: {} for k in tree.nodes}
 
+
+def calculate_c(tree, k, S, SI):
+	"""Calculate c_k(S,SI), the expected holding cost for N_k as function of
+	inbound and outbound CSTs at node k.
+
+	Assumes demand bound is of the form z_alpha * sigma * sqrt(net lead time).
+	# TODO: allow more general demand bound.
+
+	Upstream nodes are allowed to use outbound lead times greater than SI and
+	downstream nodes are allowed to use inbound lead times greater than S.
+	In effect, this allows multiple inbound/outbound lead times for a single
+	node.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Tree must be pre-processed already.
+	k : int
+		Index of node.
+	S : int
+		Outbound committed service time.
+	SI : int
+		Inbound committed service time.
+
+	Returns
+	-------
+	cost : float
+		Value of c_k(S,SI).
+
+	"""
 
 

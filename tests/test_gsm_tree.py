@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from scipy import stats
 import networkx as nx
 
 from inventory import gsm_tree
@@ -79,16 +80,20 @@ def setUpModule():
 	# Build instance corresponding to Example 6.5.
 	instance_example_6_5.add_node(1, processing_time=2,
 								  external_lead_time=1,
-								  holding_cost=1)
+								  holding_cost=1,
+								  demand_bound_constant=1)
 	instance_example_6_5.add_node(2, processing_time=1,
 								  external_committed_service_time=0,
 								  holding_cost=3,
+								  demand_bound_constant=1,
 								  external_demand_standard_deviation=1)
 	instance_example_6_5.add_node(3, processing_time=1,
-								  holding_cost=2)
+								  holding_cost=2,
+								  demand_bound_constant=1)
 	instance_example_6_5.add_node(4, processing_time=1,
 								  external_committed_service_time=1,
 								  holding_cost=3,
+								  demand_bound_constant=1,
 								  external_demand_standard_deviation=1)
 	instance_example_6_5.add_edge(1, 3)
 	instance_example_6_5.add_edge(3, 2)
@@ -96,15 +101,33 @@ def setUpModule():
 
 	# Build instance corresponding to Figure 6.14.
 	# Must be relabeled before used.
-	instance_figure_6_14.add_node('Raw_Material', processing_time=2, holding_cost=1)
-	instance_figure_6_14.add_node('Process_Wafers', processing_time=3, holding_cost=3)
-	instance_figure_6_14.add_node('Package_Test_Wafers', processing_time=2, holding_cost=4)
-	instance_figure_6_14.add_node('Imager_Base', processing_time=4, holding_cost=6)
-	instance_figure_6_14.add_node('Imager_Assembly', processing_time=2, holding_cost=12)
-	instance_figure_6_14.add_node('Ship_to_Final_Assembly', processing_time=3, holding_cost=13)
-	instance_figure_6_14.add_node('Camera', processing_time=6, holding_cost=20)
-	instance_figure_6_14.add_node('Circuit_Board', processing_time=4, holding_cost=8)
-	instance_figure_6_14.add_node('Other_Parts', processing_time=3, holding_cost=4)
+	instance_figure_6_14.add_node('Raw_Material', processing_time=2,
+								  holding_cost=1,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Process_Wafers', processing_time=3,
+								  holding_cost=3,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Package_Test_Wafers', processing_time=2,
+								  holding_cost=4,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Imager_Base', processing_time=4,
+								  holding_cost=6,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Imager_Assembly', processing_time=2,
+								  holding_cost=12,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Ship_to_Final_Assembly', processing_time=3,
+								  holding_cost=13,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Camera', processing_time=6,
+								  holding_cost=20,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Circuit_Board', processing_time=4,
+								  holding_cost=8,
+								  demand_bound_constant=stats.norm.ppf(0.95))
+	instance_figure_6_14.add_node('Other_Parts', processing_time=3,
+								  holding_cost=4,
+								  demand_bound_constant=stats.norm.ppf(0.95))
 	instance_figure_6_14.add_node('Build_Test_Pack', processing_time=2,
 								  holding_cost=50,
 								  external_committed_service_time=2,
@@ -123,18 +146,28 @@ def setUpModule():
 	# Must be relabeled before used.
 	instance_problem_6_9.add_node(1, processing_time=7,
 								  holding_cost=220,
+								  demand_bound_constant=4,
 								  external_committed_service_time=3,
 								  external_demand_mean=22.0,
 								  external_demand_standard_deviation=4.1)
 	instance_problem_6_9.add_node(2, processing_time=7,
 								  holding_cost=140,
+								  demand_bound_constant=4,
 								  external_committed_service_time=3,
 								  external_demand_mean=15.3,
 								  external_demand_standard_deviation=6.2)
-	instance_problem_6_9.add_node(3, processing_time=21, holding_cost=90)
-	instance_problem_6_9.add_node(4, processing_time=3, holding_cost=5)
-	instance_problem_6_9.add_node(5, processing_time=8, holding_cost=20)
-	instance_problem_6_9.add_node(6, processing_time=2, holding_cost=7.5)
+	instance_problem_6_9.add_node(3, processing_time=21,
+								  holding_cost=90,
+								  demand_bound_constant=4)
+	instance_problem_6_9.add_node(4, processing_time=3,
+								  holding_cost=5,
+								  demand_bound_constant=4)
+	instance_problem_6_9.add_node(5, processing_time=8,
+								  holding_cost=20,
+								  demand_bound_constant=4)
+	instance_problem_6_9.add_node(6, processing_time=2,
+								  holding_cost=7.5,
+								  demand_bound_constant=4)
 	instance_problem_6_9.add_edge(6, 5)
 	instance_problem_6_9.add_edge(4, 3)
 	instance_problem_6_9.add_edge(5, 3)
@@ -565,10 +598,11 @@ class TestPreprocessTree(unittest.TestCase):
 		new_tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph()
+		correct_tree = nx.DiGraph(max_max_replenishment_time=5)
 		correct_tree.add_node(1, processing_time=2,
 							external_lead_time=1,
 							holding_cost=1,
+							demand_bound_constant=1,
 							original_label=1,
 						  	net_demand_standard_deviation=np.sqrt(2),
 							larger_adjacent_node=3,
@@ -577,6 +611,7 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_node(2, processing_time=1,
 							external_committed_service_time=0,
 							holding_cost=3,
+							demand_bound_constant=1,
 							original_label=2,
 							external_demand_standard_deviation=1,
 							net_demand_standard_deviation=1,
@@ -585,6 +620,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=5)
 		correct_tree.add_node(3, processing_time=1,
 							holding_cost=2,
+							demand_bound_constant=1,
 							original_label=3,
 							net_demand_standard_deviation=np.sqrt(2),
 							larger_adjacent_node=4,
@@ -593,6 +629,7 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_node(4, processing_time=1,
 							external_committed_service_time=1,
 							holding_cost=3,
+							demand_bound_constant=1,
 							original_label=4,
 							external_demand_standard_deviation=1,
 							net_demand_standard_deviation=1,
@@ -604,6 +641,8 @@ class TestPreprocessTree(unittest.TestCase):
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
 
 		self.assertEqual(trees_equal, True)
+		# Check graph attributes.
+		self.assertDictEqual(new_tree.graph, correct_tree.graph)
 
 	def test_figure_6_14(self):
 		"""Test that preprocess_tree() works for network in Figure 6.14.
@@ -614,9 +653,10 @@ class TestPreprocessTree(unittest.TestCase):
 		new_tree = gsm_tree.preprocess_tree(instance_figure_6_14, start_index=1)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph()
+		correct_tree = nx.DiGraph(max_max_replenishment_time=14)
 		correct_tree.add_node(1, processing_time=2,
 							  holding_cost=1,
+							  demand_bound_constant=1.6448536269514722,
 							  original_label='Raw_Material',
 							  net_demand_standard_deviation=10,
 							  larger_adjacent_node=2,
@@ -624,6 +664,7 @@ class TestPreprocessTree(unittest.TestCase):
 							  max_replenishment_time=2)
 		correct_tree.add_node(2, processing_time=3,
 							holding_cost=3,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Process_Wafers',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=3,
@@ -631,6 +672,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=5)
 		correct_tree.add_node(3, processing_time=2,
 							holding_cost=4,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Package_Test_Wafers',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=5,
@@ -638,6 +680,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=7)
 		correct_tree.add_node(4, processing_time=4,
 							holding_cost=6,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Imager_Base',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=5,
@@ -645,6 +688,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=4)
 		correct_tree.add_node(5, processing_time=2,
 							holding_cost=12,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Imager_Assembly',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=6,
@@ -652,6 +696,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=9)
 		correct_tree.add_node(6, processing_time=3,
 							holding_cost=13,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Ship_to_Final_Assembly',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
@@ -659,6 +704,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=12)
 		correct_tree.add_node(7, processing_time=6,
 							holding_cost=20,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Camera',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
@@ -666,6 +712,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=6)
 		correct_tree.add_node(8, processing_time=4,
 							holding_cost=8,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Circuit_Board',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
@@ -673,6 +720,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=4)
 		correct_tree.add_node(9, processing_time=3,
 							holding_cost=4,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Other_Parts',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
@@ -680,6 +728,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=3)
 		correct_tree.add_node(10, processing_time=2,
 							holding_cost=50,
+							demand_bound_constant=1.6448536269514722,
 							original_label='Build_Test_Pack',
 							external_committed_service_time=2,
 							external_demand_standard_deviation=10,
@@ -698,6 +747,8 @@ class TestPreprocessTree(unittest.TestCase):
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
 
 		self.assertEqual(trees_equal, True)
+		# Check graph attributes.
+		self.assertDictEqual(new_tree.graph, correct_tree.graph)
 
 	def test_problem_6_9(self):
 		"""Test that preprocess_tree() works for network in Problem 6.9.
@@ -708,9 +759,10 @@ class TestPreprocessTree(unittest.TestCase):
 		new_tree = gsm_tree.preprocess_tree(instance_problem_6_9)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph()
+		correct_tree = nx.DiGraph(max_max_replenishment_time=38)
 		correct_tree.add_node(0, processing_time=7,
 							holding_cost=220,
+							demand_bound_constant=4,
 							original_label=1,
 							external_demand_mean=22.0,
 							external_demand_standard_deviation=4.1,
@@ -722,6 +774,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=38)
 		correct_tree.add_node(1, processing_time=7,
 							holding_cost=140,
+							demand_bound_constant=4,
 							original_label=2,
 							external_demand_mean=15.3,
 							external_demand_standard_deviation=6.2,
@@ -733,6 +786,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=38)
 		correct_tree.add_node(2, processing_time=3,
 							holding_cost=5,
+							demand_bound_constant=4,
 							original_label=4,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
@@ -741,6 +795,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=3)
 		correct_tree.add_node(3, processing_time=21,
 							holding_cost=90,
+							demand_bound_constant=4,
 							original_label=3,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
@@ -749,6 +804,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=31)
 		correct_tree.add_node(4, processing_time=8,
 							holding_cost=20,
+							demand_bound_constant=4,
 							original_label=5,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
@@ -757,6 +813,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=10)
 		correct_tree.add_node(5, processing_time=2,
 							holding_cost=7.5,
+							demand_bound_constant=4,
 							original_label=6,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
@@ -770,3 +827,5 @@ class TestPreprocessTree(unittest.TestCase):
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
 
 		self.assertEqual(trees_equal, True)
+		# Check graph attributes.
+		self.assertDictEqual(new_tree.graph, correct_tree.graph)
