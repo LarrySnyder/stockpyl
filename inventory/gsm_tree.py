@@ -11,16 +11,18 @@ Problem data are specified by specifying the following node attributes:
 	- external_lead_time [si]
 	- external_committed_service_time [s]
 	- holding_cost [h]
+	- external_demand_mean [mu]
 	- external_demand_standard_deviation [sigma]
 
-The following node attributes are used internally to store intermediate values:
+The following node attributes are used internally to store outputs and
+intermediate values:
 	- net_demand_standard_deviation (standard deviation of combined demand
 	stream consisting of external demand and downstream demand)
+	- longest_path_length [M]
 
 The following edge attributes are supported:
 	- units_required (e.g., on edge i->j, units_required units of item i are
 	required to make 1 unit of item j)
-
 
 (c) Lawrence V. Snyder
 Lehigh University and Opex Analytics
@@ -34,7 +36,67 @@ import matplotlib.pyplot as plt
 import pprint
 
 
+### DATA AND OUTPUT OBJECTS ###
+#
+# class NodeData:
+# 	def __init__(self):
+# 		self.processing_time = None
+# 		self.external_lead_time = None
+# 		self.external_committed_service_time = None
+# 		self.holding_cost = None
+# 		self.external_demand_mean = None
+# 		self.external_demand_standard_deviation = None
+#
+#
+# class NodeOutputs:
+# 	def __init__(self):
+# 		self.net_demand_mean = None
+# 		self.net_demand_standard_deviations = None
+#
+#
+# class EdgeData:
+# 	def __init__(self):
+# 		self.units_required = None
+
+
 ### GRAPH MANIPULATION ###
+
+def preprocess_tree(tree, start_index=0):
+	"""Preprocess the GSM tree. Returns an independent copy.
+
+	Relabel the nodes; fill net_demand_mean and net_demand_standard_deviation
+	attributes.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Current node labels are ignored and may be anything.
+	start_index : int, optional
+		Integer to use as starting (smallest) node label.
+
+	Returns
+	-------
+	new_tree : graph
+		Pre-processed multi-echelon tree network.
+
+	"""
+
+	# Relabel nodes.
+	new_tree, _ = relabel_nodes(tree, start_index)
+
+	# Calculate net demand parameters.
+	net_demand_means, net_demand_standard_deviations = net_demand(new_tree)
+	nx.set_node_attributes(new_tree, net_demand_means, 'net_demand_mean')
+	nx.set_node_attributes(new_tree, net_demand_standard_deviations,
+						   'net_demand_standard_deviation')
+
+	# Calculate longest paths.
+	longest_path_lengths = longest_paths(new_tree)
+	nx.set_node_attributes(new_tree, longest_path_lengths, 'longest_path_length')
+
+	return new_tree
+
 
 def relabel_nodes(tree, start_index=0):
 	"""Perform the node-labeling algorithm described in Section 5 of Graves and
@@ -136,12 +198,13 @@ def find_larger_adjacent_nodes(tree):
 	return larger_adjacent, downstream
 
 
-def longest_path(tree):
-	"""Determine the length of the longest path from any source node to to each node k.
+def longest_paths(tree):
+	"""Determine the length of the longest path from any source node to to each
+	node k.
 
-	Arc lengths are determined by processing times. External lead times are considered
-	source nodes, so having an external LT at node i of 5 is like having another node
-	that serves node i with a processing time of 5.
+	Arc lengths are determined by processing times. External lead times are
+	considered source nodes, so having an external LT at node i of 5 is like
+	having another node that serves node i with a processing time of 5.
 
 	Parameters
 	----------
@@ -255,7 +318,7 @@ def net_demand(tree):
 # external_lead_times = {1: 1}
 # new_G, new_labels = relabel_nodes(G, start_index=1)
 #
-# longest_paths = longest_path(new_G, proc_times, external_lead_times)
+# longest_paths = longest_paths(new_G, proc_times, external_lead_times)
 
 #print(new_labels)
 #
