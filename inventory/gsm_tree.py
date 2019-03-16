@@ -1,5 +1,5 @@
 """Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
-for multi-echelon inventory systems with tree structures by Graves and Willems (2003).
+for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -16,9 +16,12 @@ Problem data are specified by specifying the following node attributes:
 
 The following node attributes are used internally to store outputs and
 intermediate values:
+	- original_label
 	- net_demand_standard_deviation (standard deviation of combined demand
 	stream consisting of external demand and downstream demand)
-	- longest_path_length [M]
+	- larger_adjacent_node [p]
+	- larger_adjacent_node_is_downstream
+	- max_replenishment_time [M]
 
 The following edge attributes are supported:
 	- units_required (e.g., on edge i->j, units_required units of item i are
@@ -36,36 +39,14 @@ import matplotlib.pyplot as plt
 import pprint
 
 
-### DATA AND OUTPUT OBJECTS ###
-#
-# class NodeData:
-# 	def __init__(self):
-# 		self.processing_time = None
-# 		self.external_lead_time = None
-# 		self.external_committed_service_time = None
-# 		self.holding_cost = None
-# 		self.external_demand_mean = None
-# 		self.external_demand_standard_deviation = None
-#
-#
-# class NodeOutputs:
-# 	def __init__(self):
-# 		self.net_demand_mean = None
-# 		self.net_demand_standard_deviations = None
-#
-#
-# class EdgeData:
-# 	def __init__(self):
-# 		self.units_required = None
-
-
 ### GRAPH MANIPULATION ###
 
 def preprocess_tree(tree, start_index=0):
 	"""Preprocess the GSM tree. Returns an independent copy.
 
-	Relabel the nodes; fill net_demand_mean and net_demand_standard_deviation
-	attributes.
+	Relabel the nodes; fill original_label, net_demand_mean,
+	net_demand_standard_deviation, larger_adjacent_node,
+	max_replenishment_time attributes.
 
 	Parameters
 	----------
@@ -83,7 +64,7 @@ def preprocess_tree(tree, start_index=0):
 	"""
 
 	# Relabel nodes.
-	new_tree, _ = relabel_nodes(tree, start_index)
+	new_tree = relabel_nodes(tree, start_index)
 
 	# Calculate net demand parameters.
 	net_demand_means, net_demand_standard_deviations = net_demand(new_tree)
@@ -91,18 +72,24 @@ def preprocess_tree(tree, start_index=0):
 	nx.set_node_attributes(new_tree, net_demand_standard_deviations,
 						   'net_demand_standard_deviation')
 
-	# Calculate longest paths.
-	longest_path_lengths = longest_paths(new_tree)
-	nx.set_node_attributes(new_tree, longest_path_lengths, 'longest_path_length')
+	# Determine larger adjacent nodes.
+	larger_adjacent, downstream = find_larger_adjacent_nodes(new_tree)
+	nx.set_node_attributes(new_tree, larger_adjacent, 'larger_adjacent_node')
+	nx.set_node_attributes(new_tree, downstream, 'larger_adjacent_node_is_downstream')
+
+	# Calculate max replenishment times.
+	max_replenishment_times = longest_paths(new_tree)
+	nx.set_node_attributes(new_tree, max_replenishment_times, 'max_replenishment_time')
 
 	return new_tree
 
 
 def relabel_nodes(tree, start_index=0):
 	"""Perform the node-labeling algorithm described in Section 5 of Graves and
-	Willems (2003).
+	Willems (2000).
 
-	Does not modify the input tree.
+	Does not modify the input tree. Fills 'original_label' attribute of nodes
+	in new tree with old node labels.
 
 	Parameters
 	----------
@@ -116,9 +103,6 @@ def relabel_nodes(tree, start_index=0):
 	-------
 	relabeled_tree : graph
 		NetworkX directed graph representing the relabeled tree network.
-	new_labels : dict
-		Dict containing each node's new label; for example, if
-		new_labels[3] = 8, then node 3 has been re-labeled as 8.
 
 	"""
 
@@ -148,7 +132,12 @@ def relabel_nodes(tree, start_index=0):
 
 	# Relabel the nodes
 	relabeled_tree = nx.relabel_nodes(tree, new_labels)
-	return relabeled_tree, new_labels
+
+	# Fill original_label attribute of relabeled tree.
+	original_labels = {new_labels[k]: k for k in tree.nodes}
+	nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
+
+	return relabeled_tree
 
 
 def find_larger_adjacent_nodes(tree):
@@ -157,7 +146,7 @@ def find_larger_adjacent_nodes(tree):
 	After the nodes are relabeled by relabel_nodes(), each node (except the
 	node with the largest index) is adjacent to exactly one node with a
 	larger index. Node k's neighbor with larger index is denoted p(k) in
-	Graves and Willems (2003). This function finds p(k) for all k and also
+	Graves and Willems (2000). This function finds p(k) for all k and also
 	indicates whether p(k) is upstream or downstream from k.
 
 	Parameters
@@ -296,35 +285,51 @@ def net_demand(tree):
 	return net_means, net_standard_deviations
 
 
+### OPTIMIZATION ###
+
+def optimize_committed_service_times(raw_tree):
+	"""Optimize committed service times.
+
+	Optimization is performed using the dynamic programming (DP) algorithm of
+	Graves and Willems (2000).
+
+	raw_tree is the DiGraph containing the instance. It need not be
+	pre-processed (nodes relabeled, etc.); this function will do the
+	pre-processing.
+
+	Parameters
+	----------
+	raw_tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Current node labels are ignored and may be anything.
+
+	Returns
+	-------
+
+	"""
+
+	# Preprocess tree.
+	tree = preprocess_tree(raw_tree)
+
+	# Solve.
 
 
-# Network from Figure 6.12.
-# G = nx.DiGraph()
-# G.add_nodes_from(range(1, 8))
-# G.add_edge(1, 2)
-# G.add_edge(1, 3)
-# G.add_edge(3, 5)
-# G.add_edge(4, 5)
-# G.add_edge(5, 6)
-# G.add_edge(5, 7)
+def CST_DP(tree):
+	"""Find optimal committed service times by dynamic programming (DP)
+	algorithm by Graves and Willems (2000).
 
-# Network from Figure 6.13.
-# G = nx.DiGraph()
-# G.add_nodes_from(range(1, 4))
-# G.add_edge(1, 3)
-# G.add_edge(3, 2)
-# G.add_edge(3, 4)
-# proc_times = {1: 2, 2: 1, 3: 1, 4: 1}
-# external_lead_times = {1: 1}
-# new_G, new_labels = relabel_nodes(G, start_index=1)
-#
-# longest_paths = longest_paths(new_G, proc_times, external_lead_times)
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Tree must be pre-processed already.
 
-#print(new_labels)
-#
-# new_G = nx.relabel_nodes(G, new_labels)
-# nx.draw_networkx(new_G, with_labels=True)
-# plt.show()
-# A = nx.adjacency_matrix(G)
-# print(G)
-# print(nx.to_numpy_matrix(G))
+	Returns
+	-------
+
+	"""
+
+	# Calculate maximum value of max_replenishment_time.
+	max_max_replenishment_time = np.max(nx.get_node_attributes(tree,
+									'max_replenishment_time'))
+
