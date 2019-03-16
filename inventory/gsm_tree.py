@@ -244,8 +244,6 @@ def net_demand(tree):
 	Net demand is the demand stream consisting of the external demand for the
 	node plus all downstream demand.
 
-	Does not modify the input tree.
-
 	Parameters
 	----------
 	tree : graph
@@ -256,7 +254,7 @@ def net_demand(tree):
 	net_means : dict
 		Dict of net mean for each node.
 
-	net_demand : dict
+	net_standard_deviations : dict
 		Dict of net standard deviation for each node.
 
 	"""
@@ -283,6 +281,38 @@ def net_demand(tree):
 
 	net_standard_deviations = {k: np.sqrt(net_variances[k]) for k in tree.nodes}
 	return net_means, net_standard_deviations
+
+
+def connected_subgraph_nodes(tree):
+	"""Determine nodes connected to k in subgraph on {min_k,...,k}, for each k,
+	where min_k is smallest index in graph. [N_k]
+
+	Connected does not necessarily mean adjacent.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+
+	Returns
+	-------
+	connected_nodes : dict
+		Dict of set of connected subgraph nodes for each node.
+
+	"""
+
+	# Intiailize output dict.
+	connected_nodes = {}
+
+	# Loop through nodes.
+	for k in tree.nodes:
+		# Build subgraph on {min_k,...,k}.
+		subgraph = tree.to_undirected().subgraph(range(np.min(tree.nodes), k+1))
+		# Build set of connected nodes.
+		connected_nodes[k] = set(i for i in subgraph.nodes if
+							  nx.has_path(subgraph, i, k))
+
+	return connected_nodes
 
 
 ### OPTIMIZATION ###
@@ -332,4 +362,11 @@ def CST_DP(tree):
 	# Calculate maximum value of max_replenishment_time.
 	max_max_replenishment_time = np.max(nx.get_node_attributes(tree,
 									'max_replenishment_time'))
+
+	# Initialize dicts to store values of theta_in(.) and theta_out(.) functions
+	# (called f(.) and g(.) in Graves and Willems).
+	theta_in = {k: {} for k in tree.nodes}
+	theta_out = {k: {} for k in tree.nodes}
+
+
 

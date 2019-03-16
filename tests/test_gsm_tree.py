@@ -455,7 +455,7 @@ class TestNetDemand(unittest.TestCase):
 
 		print_status('TestNetDemand', 'test_figure_6_14()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_14)
+		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
 		net_means, net_standard_deviations = gsm_tree.net_demand(new_G)
 
 		# Build correct dictionaries.
@@ -485,6 +485,63 @@ class TestNetDemand(unittest.TestCase):
 		self.assertDictEqual(net_means, correct_net_means)
 		self.assertDictEqual(net_standard_deviations,
 							 correct_net_standard_deviations)
+
+
+class TestConnectedSubgraphNodes(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestConnectedSubgraphNodes', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestConnectedSubgraphNodes', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that net_demand() works for network in Example 6.5.
+		"""
+
+		print_status('TestConnectedSubgraphNodes', 'test_example_6_5()')
+
+		connected_nodes = gsm_tree.connected_subgraph_nodes(instance_example_6_5)
+
+		# Build correct dictionaries.
+		correct_connected_nodes = {1: {1}, 2: {2}, 3: {1, 2, 3}, 4: {1, 2, 3, 4}}
+
+		self.assertDictEqual(connected_nodes, correct_connected_nodes)
+
+	def test_figure_6_14(self):
+		"""Test that net_demand() works for network in Figure 6.14.
+		"""
+
+		print_status('TestConnectedSubgraphNodes', 'test_figure_6_14()')
+
+		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
+		connected_nodes = gsm_tree.connected_subgraph_nodes(new_G)
+
+		# Build correct dictionaries.
+		correct_connected_nodes = {1: {1}, 2: {1, 2}, 3: {1, 2, 3}, 4: {4},
+								   5: {1, 2, 3, 4, 5}, 6: {1, 2, 3, 4, 5, 6},
+								   7: {7}, 8: {8}, 9: {9}, 10: set(range(1, 11))}
+
+		self.assertDictEqual(connected_nodes, correct_connected_nodes)
+
+	def test_problem_6_9(self):
+		"""Test that net_demand() works for network in Problem 6.9.
+		"""
+
+		print_status('TestConnectedSubgraphNodes', 'test_problem_6_9()')
+
+		new_G = gsm_tree.relabel_nodes(instance_problem_6_9)
+		connected_nodes = gsm_tree.connected_subgraph_nodes(new_G)
+
+		# Build correct dictionaries.
+		correct_connected_nodes = {0: {0}, 1: {1}, 2: {2}, 3: {0, 1, 2, 3},
+								   4: {0, 1, 2, 3, 4}, 5: {0, 1, 2, 3, 4, 5}}
+
+		self.assertDictEqual(connected_nodes, correct_connected_nodes)
 
 
 class TestPreprocessTree(unittest.TestCase):
