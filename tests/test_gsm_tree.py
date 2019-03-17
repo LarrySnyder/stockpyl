@@ -269,6 +269,32 @@ class TestRelabelNodes(unittest.TestCase):
 
 		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
 
+	def test_figure_6_12_already_correct(self):
+		"""Test that relabel_nodes() correctly relabels network
+		in Figure 6.12 even though they are already correct, with force_relabel=
+		True.
+		"""
+
+		print_status('TestRelabelNodes', 'test_figure_6_12_already_correct()')
+
+		new_G = nx.relabel_nodes(instance_figure_6_12, {1: 3, 2: 2, 3: 4, 4: 5, 5: 7, 6: 6, 7: 8})
+		new_G = gsm_tree.relabel_nodes(new_G, force_relabel=True)
+
+		# Build correct relabeled network, and list of correct labels.
+		correct_G = nx.DiGraph()
+		correct_G.add_nodes_from(range(1, 8))
+		correct_original_labels = {2: 0, 1: 1, 3: 2, 4: 3, 6: 4, 5: 5, 7: 6}
+		nx.set_node_attributes(correct_G, correct_original_labels,
+							   'original_label')
+		correct_G.add_edge(1, 0)
+		correct_G.add_edge(1, 2)
+		correct_G.add_edge(2, 5)
+		correct_G.add_edge(3, 5)
+		correct_G.add_edge(5, 4)
+		correct_G.add_edge(5, 6)
+
+		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
+
 	def test_example_6_5(self):
 		"""Test that relabel_nodes() correctly relabels network in Example 6.13.
 		"""
@@ -342,12 +368,12 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 		"""Called once, after all tests, if setUpClass successful."""
 		print_status('TestIsCorrectlyLabeled', 'tearDownClass()')
 
-	def test_is_correctly_labeled_correct(self):
+	def test_correct(self):
 		"""Test that is_correctly_labeled() works for if network is labeled
 		correctly.
 		"""
 
-		print_status('TestFindLargerAdjacentNodes', 'test_is_correctly_labeled_correct()')
+		print_status('TestFindLargerAdjacentNodes', 'test_correct()')
 
 		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
 
@@ -355,12 +381,12 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		self.assertEqual(is_correct, True)
 
-	def test_is_correctly_labeled_nonnumeric(self):
+	def test_nonnumeric(self):
 		"""Test that is_correctly_labeled() works for if network has a
 		nonnumeric label.
 		"""
 
-		print_status('TestFindLargerAdjacentNodes', 'test_is_correctly_labeled_nonnumeric()')
+		print_status('TestFindLargerAdjacentNodes', 'test_nonnumeric()')
 
 		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
 		nx.relabel_nodes(new_G, {1: 'asdf', 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
@@ -370,12 +396,12 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		self.assertEqual(is_correct, False)
 
-	def test_is_correctly_labeled_noninteger(self):
+	def test_noninteger(self):
 		"""Test that is_correctly_labeled() works for if network has a
 		non-integer label.
 		"""
 
-		print_status('TestFindLargerAdjacentNodes', 'test_is_correctly_labeled_noninteger()')
+		print_status('TestFindLargerAdjacentNodes', 'test_noninteger()')
 
 		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
 		nx.relabel_nodes(new_G, {1: 1.3, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
@@ -385,12 +411,12 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		self.assertEqual(is_correct, False)
 
-	def test_is_correctly_labeled_nonconsecutive(self):
+	def test_nonconsecutive(self):
 		"""Test that is_correctly_labeled() works for if network labels are
 		non-consecutive integers.
 		"""
 
-		print_status('TestFindLargerAdjacentNodes', 'test_is_correctly_labeled_nonconsecutive()')
+		print_status('TestFindLargerAdjacentNodes', 'test_nonconsecutive()')
 
 		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
 		nx.relabel_nodes(new_G, {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7, 7: 8},
@@ -400,12 +426,12 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		self.assertEqual(is_correct, False)
 
-	def test_is_correctly_labeled_more_than_1_adj(self):
+	def test_more_than_1_adj(self):
 		"""Test that is_correctly_labeled() works for if some node has more than
 		one adjacent node with a greater index.
 		"""
 
-		print_status('TestFindLargerAdjacentNodes', 'test_is_correctly_labeled_more_than_1_adj()')
+		print_status('TestFindLargerAdjacentNodes', 'test_more_than_1_adj()')
 
 		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
 		nx.relabel_nodes(new_G, {1: 0, 2: 1, 3: 2, 4: 3, 5: 5, 6: 4, 7: 6},
@@ -415,12 +441,12 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		self.assertEqual(is_correct, False)
 
-	def test_is_correctly_labeled_more_no_adj(self):
+	def test_no_adj(self):
 		"""Test that is_correctly_labeled() works for if some node has no
 		adjacent node with a greater index.
 		"""
 
-		print_status('TestFindLargerAdjacentNodes', 'test_is_correctly_labeled_more_no_adj()')
+		print_status('TestFindLargerAdjacentNodes', 'test_no_adj()')
 
 		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
 		nx.relabel_nodes(new_G, {1: 1, 2: 0, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6},

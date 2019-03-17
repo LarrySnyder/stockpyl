@@ -49,8 +49,11 @@ BIG_INT = 1e100
 
 ### GRAPH MANIPULATION ###
 
-def preprocess_tree(tree, start_index=0):
+def preprocess_tree(tree, start_index=0, force_relabel=False):
 	"""Preprocess the GSM tree. Returns an independent copy.
+
+	If tree is already correctly labeled, does not relabel it,
+	unless force_relabel is True.
 
 	Relabel the nodes; fill original_label, net_demand_mean,
 	net_demand_standard_deviation, larger_adjacent_node,
@@ -67,6 +70,9 @@ def preprocess_tree(tree, start_index=0):
 		Current node labels are ignored and may be anything.
 	start_index : int, optional
 		Integer to use as starting (smallest) node label.
+	force_relabel : bool, optional
+		If True, function will relabel nodes even if original tree is correctly
+		labeled.
 
 	Returns
 	-------
@@ -76,7 +82,7 @@ def preprocess_tree(tree, start_index=0):
 	"""
 
 	# Relabel nodes.
-	new_tree = relabel_nodes(tree, start_index)
+	new_tree = relabel_nodes(tree, start_index, force_relabel)
 
 	# Fill external inbound and outbound CST parameters, if not provided.
 	# Default value of external outbound CST = BIG_INT.
@@ -155,39 +161,45 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 	"""
 
 	# Check whether tree is already correctly labeled.
+	is_correct = is_correctly_labeled(tree)
 
-	# Initialize all nodes to "unlabeled", and initialize list of new labels.
-	labeled = {i: False for i in tree.nodes()}
-	new_labels = {}
+	# Do relabel?
+	if is_correct and not force_relabel:
+		return tree.copy()
+	else:
 
-	# Find nodes that are adjacent to at most 1 unlabeled node and label them.
-	for k in range(start_index, start_index+nx.number_of_nodes(tree)):
+		# Initialize all nodes to "unlabeled", and initialize list of new labels.
+		labeled = {i: False for i in tree.nodes()}
+		new_labels = {}
 
-		# Find a node for labeling.
-		for i in tree.nodes():
+		# Find nodes that are adjacent to at most 1 unlabeled node and label them.
+		for k in range(start_index, start_index+nx.number_of_nodes(tree)):
 
-			# Make sure i is unlabeled.
-			if not labeled[i]:
-				# Count unlabeled nodes that are adjacent to node i.
-				num_adj = len([j for j in nx.all_neighbors(tree, i) if not labeled[j]])
+			# Find a node for labeling.
+			for i in tree.nodes():
 
-				# If i is adjacent to at most 1 unlabeled node, label it.
-				if num_adj <= 1:
-					# Change i's label to k.
-					new_labels[i] = k
-					# Mark i as labeled.
-					labeled[i] = True
-					# Break out of 'for i' loop
-					break
+				# Make sure i is unlabeled.
+				if not labeled[i]:
+					# Count unlabeled nodes that are adjacent to node i.
+					num_adj = len([j for j in nx.all_neighbors(tree, i) if not labeled[j]])
 
-	# Relabel the nodes
-	relabeled_tree = nx.relabel_nodes(tree, new_labels)
+					# If i is adjacent to at most 1 unlabeled node, label it.
+					if num_adj <= 1:
+						# Change i's label to k.
+						new_labels[i] = k
+						# Mark i as labeled.
+						labeled[i] = True
+						# Break out of 'for i' loop
+						break
 
-	# Fill original_label attribute of relabeled tree.
-	original_labels = {new_labels[k]: k for k in tree.nodes}
-	nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
+		# Relabel the nodes
+		relabeled_tree = nx.relabel_nodes(tree, new_labels)
 
-	return relabeled_tree
+		# Fill original_label attribute of relabeled tree.
+		original_labels = {new_labels[k]: k for k in tree.nodes}
+		nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
+
+		return relabeled_tree
 
 
 def is_correctly_labeled(tree):
