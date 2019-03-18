@@ -959,6 +959,7 @@ class TestPreprocessTree(unittest.TestCase):
 							demand_bound_constant=4,
 							external_inbound_cst=1,
 							external_outbound_cst=gsm_tree.BIG_INT,
+							original_label=3,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
 							max_replenishment_time=2)
@@ -967,6 +968,7 @@ class TestPreprocessTree(unittest.TestCase):
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
+							original_label=2,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
 							larger_adjacent_node=3,
@@ -979,6 +981,7 @@ class TestPreprocessTree(unittest.TestCase):
 							external_outbound_cst=0,
 							external_demand_mean=45,
 							external_demand_standard_deviation=10,
+							original_label=1,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
 							larger_adjacent_node=2,
@@ -1849,9 +1852,8 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		print_status('TestOptimizeCommittedServiceTimes', 'test_example_6_5')
 
-		opt_cost, opt_cst = gsm_tree.optimize_committed_service_times(
-			instance_example_6_5, start_index=1
-		)
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(instance_example_6_5)
 
 		self.assertEqual(opt_cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
 		self.assertDictEqual(opt_cst, {1: 0, 2: 0, 3: 0, 4: 1})

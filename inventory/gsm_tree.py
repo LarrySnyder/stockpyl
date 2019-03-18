@@ -167,9 +167,11 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 
 	If tree is already correctly labeled, returns the original tree,
 	unless force_relabel is True, in which case performs the relabeling.
+	Even if original
 
 	Does not modify the input tree. Fills 'original_label' attribute of nodes
-	in new tree with old node labels.
+	in new tree with old node labels, even if original tree was already
+	correctly labeled.
 
 	Parameters
 	----------
@@ -195,7 +197,8 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 
 	# Do relabel?
 	if is_correct and not force_relabel:
-		return tree.copy()
+		relabeled_tree = tree.copy()
+		new_labels = {k: k for k in tree.nodes}
 	else:
 
 		# Initialize all nodes to "unlabeled", and initialize list of new labels.
@@ -225,11 +228,11 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 		# Relabel the nodes
 		relabeled_tree = nx.relabel_nodes(tree, new_labels)
 
-		# Fill original_label attribute of relabeled tree.
-		original_labels = {new_labels[k]: k for k in tree.nodes}
-		nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
+	# Fill original_label attribute of relabeled tree.
+	original_labels = {new_labels[k]: k for k in tree.nodes}
+	nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
 
-		return relabeled_tree
+	return relabeled_tree
 
 
 def is_correctly_labeled(tree):
@@ -453,7 +456,7 @@ def connected_subgraph_nodes(tree):
 
 ### OPTIMIZATION ###
 
-def optimize_committed_service_times(tree, start_index=0, force_relabel=False):
+def optimize_committed_service_times(tree):
 	"""Optimize committed service times.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
@@ -463,16 +466,13 @@ def optimize_committed_service_times(tree, start_index=0, force_relabel=False):
 	pre-processed (nodes relabeled, etc.); this function will do the
 	pre-processing.
 
+	Output parameters are expressed using the original labeling of tree.
+
 	Parameters
 	----------
 	tree : graph
 		NetworkX directed graph representing the multi-echelon tree network.
 		Current node labels are ignored and may be anything.
-	start_index : int, optional
-		Integer to use as starting (smallest) node label.
-	force_relabel : bool, optional
-		If True, function will relabel nodes even if original tree is correctly
-		labeled.
 
 	Returns
 	-------
@@ -484,7 +484,42 @@ def optimize_committed_service_times(tree, start_index=0, force_relabel=False):
 	"""
 
 	# Preprocess tree.
-	tree = preprocess_tree(tree, start_index, force_relabel)
+	tree = preprocess_tree(tree)
+
+	# Solve.
+	opt_cost, opt_cst_relabeled = cst_dp(tree)
+
+	# Prepare optimal solution in terms of original labels.
+	opt_cst = {tree.nodes[k]['original_label']: opt_cst_relabeled[k]
+			   for k in tree.nodes}
+
+	return opt_cost, opt_cst
+
+
+def cst_dp(tree):
+	"""Optimize committed service times on pre-processed tree.
+
+	Optimization is performed using the dynamic programming (DP) algorithm of
+	Graves and Willems (2000).
+
+	tree is the DiGraph containing the instance. It must be pre-processed
+	before calling this function.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Current node labels are ignored and may be anything.
+
+	Returns
+	-------
+	opt_cost : float
+		Optimal expected cost of system.
+	opt_cst : dict
+		Dict of optimal CSTs.
+
+	"""
+
 
 	# Initialize dicts to store values of theta_in(.) and theta_out(.) functions
 	# (called f(.) and g(.) in Graves and Willems).
