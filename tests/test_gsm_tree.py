@@ -189,6 +189,41 @@ def tearDownModule():
 	print_status('---', 'tearDownModule()')
 
 
+class TestMinOfDict(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestMinOfDict', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestMinOfDict', 'tearDownClass()')
+
+	def test_small_dict(self):
+		"""Test that min_of_dict() returns correct result for a small dict.
+		"""
+		print_status('TestMinOfDict', 'test_small_dict()')
+
+		d = {'a': 7.5, 'b': 6.1, 'c': 8.0}
+
+		min_value, min_key = gsm_tree.min_of_dict(d)
+
+		self.assertEqual(min_value, 6.1)
+		self.assertEqual(min_key, 'b')
+
+	def test_nonnumeric(self):
+		"""Test that min_of_dict() correctly raises TypeError if dict
+		contains nonnumeric value."""
+		print_status('TestMinOfDict', 'test_nonnumeric()')
+
+		d = {'a': 7.5, 'b': 6.1, 'c': 'potato'}
+
+		with self.assertRaises(TypeError):
+			min_value, min_key = gsm_tree.min_of_dict(d)
+
+
 class TestDictMatch(unittest.TestCase):
 
 	@classmethod
@@ -1620,4 +1655,208 @@ class TestCalculateC(unittest.TestCase):
 		self.assertAlmostEqual(stage_cost, 2 * 4 * 10 * np.sqrt(SI + 1 - S))
 		self.assertDictEqual(best_upstream_S, {})
 		self.assertDictEqual(best_downstream_SI, {2: S})
+
+
+class TestCalculateThetaOut(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestCalculateThetaOut', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestCalculateThetaOut', 'tearDownClass()')
+
+	def test_example_6_5_k1(self):
+		"""Test that calculate_theta_out() works for network in Example 6.5 with k=1.
+		"""
+
+		print_status('TestCalculateThetaOut', 'test_example_6_5_k1()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+
+		k = 1
+		SI = 1
+		theta_in_partial = {}
+		theta_out_partial = {}
+
+		for S in range(4):
+			theta_out, best_cst_adjacent = \
+				gsm_tree.calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial)
+			self.assertAlmostEqual(theta_out, np.sqrt(2) * np.sqrt(3 - S))
+			self.assertDictEqual(best_cst_adjacent, {1: SI})
+
+	def test_example_6_5_k3(self):
+		"""Test that calculate_theta_out() works for network in Example 6.5 with k=3.
+		"""
+
+		print_status('TestCalculateThetaOut', 'test_example_6_5_k1()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+
+		k = 3
+		theta_in_partial = {2: {SI: 3 * np.sqrt(SI + 1) for SI in range(6)}}
+		theta_out_partial = {1: {S: np.sqrt(2) * np.sqrt(3 - S) for S in range(4)}}
+
+		# Test all S = 0,...,4. (Optimal SI values are stored in opt_SI dict.)
+		opt_SI = {0: 0, 1: 0, 2: 1, 3: 2, 4: 3}
+		for S in range(5):
+			theta_out, best_cst_adjacent = \
+				gsm_tree.calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial)
+			self.assertAlmostEqual(theta_out, 2 * np.sqrt(2) * np.sqrt(opt_SI[S] + 1 - S)
+								   + theta_out_partial[1][opt_SI[S]]
+								   + theta_in_partial[2][S])
+			self.assertDictEqual(best_cst_adjacent, {1: opt_SI[S], 2: S, 3: opt_SI[S]})
+
+	def test_problem_6_7_k3(self):
+		"""Test that calculate_theta_out() works for network in Problem 6.7 with k=3.
+		"""
+
+		print_status('TestCalculateThetaOut', 'test_problem_6_7_k3()')
+
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+
+		k = 3
+		theta_in_partial = {1: {SI: 160 * np.sqrt(SI + 2) for SI in range(6)},
+							2: {SI: 160 * np.sqrt(SI + 3) for SI in range(6)}}
+		theta_out_partial = {}
+
+		SI = 1
+		S = 2
+		theta_in, best_cst_adjacent = \
+			gsm_tree.calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial)
+		self.assertAlmostEqual(theta_in, 80 * np.sqrt(SI + 1 - S)
+							   + theta_in_partial[2][S])
+		self.assertDictEqual(best_cst_adjacent, {2: S,
+												 3: S})
+
+class TestCalculateThetaIn(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestCalculateThetaIn', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestCalculateThetaIn', 'tearDownClass()')
+
+	def test_example_6_5_k2(self):
+		"""Test that calculate_theta_in() works for network in Example 6.5 with k=2.
+		"""
+
+		print_status('TestCalculateThetaIn', 'test_example_6_5_k2()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+
+		k = 2
+		S = 0
+		theta_in_partial = {}
+		theta_out_partial = {1: {S: np.sqrt(2) * np.sqrt(3 - S) for S in range(4)}}
+
+		for SI in range(5):
+			theta_in, best_cst_adjacent = \
+				gsm_tree.calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial)
+			self.assertAlmostEqual(theta_in, 3 * np.sqrt(SI + 1 - S))
+			self.assertDictEqual(best_cst_adjacent, {2: S})
+
+	def test_example_6_5_k4(self):
+		"""Test that calculate_theta_in() works for network in Example 6.5 with k=4.
+		"""
+
+		print_status('TestCalculateThetaIn', 'test_example_6_5_k4()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+
+		k = 4
+		theta_in_partial = {2: {SI: 3 * np.sqrt(SI + 1) for SI in range(6)}}
+		theta_out_partial = {1: {S: np.sqrt(2) * np.sqrt(3 - S) for S in range(4)},
+							 3: {0: 2 * np.sqrt(2) + np.sqrt(2) * np.sqrt(3) + theta_in_partial[2][0],
+								 1: 0.0 + np.sqrt(2) * np.sqrt(3) + theta_in_partial[2][1],
+								 2: 0.0 + 2.0 + theta_in_partial[2][2],
+								 3: 0.0 + np.sqrt(2) + theta_in_partial[2][3],
+								 4: 0.0 + 0.0 + theta_in_partial[2][4]}}
+
+
+		# Test all SI = 0,..., 4. (Optimal S values are stored in opt_S dict.)
+		opt_S = {0: 0, 1: 1, 2: 1, 3: 1, 4: 1}
+		for SI in range(5):
+			theta_in, best_cst_adjacent = \
+				gsm_tree.calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial)
+			self.assertAlmostEqual(theta_in, 3 * np.sqrt(SI) + theta_out_partial[3][opt_S[SI]])
+			self.assertDictEqual(best_cst_adjacent, {3: opt_S[SI], 4: 1})
+
+	def test_problem_6_7_k1(self):
+		"""Test that calculate_theta_in() works for network in Problem 6.7 with k=1.
+		"""
+
+		print_status('TestCalculateThetaIn', 'test_problem_6_7_k1()')
+
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+
+		k = 1
+		S = 0
+		theta_in_partial = {}
+		theta_out_partial = {}
+
+		for SI in range(6):
+			theta_in, best_cst_adjacent = \
+				gsm_tree.calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial)
+			self.assertAlmostEqual(theta_in, 160 * np.sqrt(SI + 2))
+			self.assertDictEqual(best_cst_adjacent, {1: S})
+
+	def test_problem_6_7_k2(self):
+		"""Test that calculate_theta_in() works for network in Problem 6.7 with k=2.
+		"""
+
+		print_status('TestCalculateThetaIn', 'test_problem_6_7_k1()')
+
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+
+		k = 2
+		theta_in_partial = {1: {SI: 160 * np.sqrt(SI + 2) for SI in range(6)}}
+		theta_out_partial = {}
+
+		opt_S = {0: 1, 1: 2, 2: 3}
+		for SI in range(3):
+			theta_in, best_cst_adjacent = \
+				gsm_tree.calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial)
+			self.assertAlmostEqual(theta_in, 120 * np.sqrt(SI + 1 - opt_S[SI])
+								   + theta_in_partial[1][opt_S[SI]])
+			self.assertDictEqual(best_cst_adjacent, {1: opt_S[SI],
+													 2: opt_S[SI]})
+
+
+class TestOptimizeCommittedServiceTimes(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestOptimizeCommittedServiceTimes', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestOptimizeCommittedServiceTimes', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Example 6.5.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_example_6_5')
+
+		opt_cost, opt_cst = gsm_tree.optimize_committed_service_times(
+			instance_example_6_5, start_index=1
+		)
+
+		self.assertEqual(opt_cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
+		self.assertDictEqual(opt_cst, {1: 0, 2: 0, 3: 0, 4: 1})
+
+
+
+
 

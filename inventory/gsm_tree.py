@@ -47,6 +47,36 @@ import pprint
 BIG_INT = 1e100
 
 
+### UTILITY FUNCTIONS ###
+
+def min_of_dict(d):
+	"""Determine min value of dict and return min and argmin (key).
+
+	Values must be numeric.
+
+	Parameters
+	----------
+	d : dict
+		The dict.
+
+	Returns
+	-------
+	min_value : float
+		Minimum value in dict.
+	min_key
+		Key that attains minimum value.
+
+	Raises
+	------
+	TypeError
+		If dict contains a non-numeric value.
+	"""
+	min_key = min(d, key=d.get)
+	min_value = d[min_key]
+
+	return min_value, min_key
+
+
 ### GRAPH MANIPULATION ###
 
 def preprocess_tree(tree, start_index=0, force_relabel=False):
@@ -423,52 +453,173 @@ def connected_subgraph_nodes(tree):
 
 ### OPTIMIZATION ###
 
-def optimize_committed_service_times(raw_tree):
+def optimize_committed_service_times(tree, start_index=0, force_relabel=False):
 	"""Optimize committed service times.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
 	Graves and Willems (2000).
 
-	raw_tree is the DiGraph containing the instance. It need not be
+	tree is the DiGraph containing the instance. It need not be
 	pre-processed (nodes relabeled, etc.); this function will do the
 	pre-processing.
 
 	Parameters
 	----------
-	raw_tree : graph
+	tree : graph
 		NetworkX directed graph representing the multi-echelon tree network.
 		Current node labels are ignored and may be anything.
+	start_index : int, optional
+		Integer to use as starting (smallest) node label.
+	force_relabel : bool, optional
+		If True, function will relabel nodes even if original tree is correctly
+		labeled.
 
 	Returns
 	-------
+	opt_cost : float
+		Optimal expected cost of system.
+	opt_cst : dict
+		Dict of optimal CSTs.
 
 	"""
 
 	# Preprocess tree.
-	tree = preprocess_tree(raw_tree)
-
-	# Solve.
-
-
-def CST_DP(tree):
-	"""Find optimal committed service times by dynamic programming (DP)
-	algorithm by Graves and Willems (2000).
-
-	Parameters
-	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Tree must be pre-processed already.
-
-	Returns
-	-------
-
-	"""
+	tree = preprocess_tree(tree, start_index, force_relabel)
 
 	# Initialize dicts to store values of theta_in(.) and theta_out(.) functions
 	# (called f(.) and g(.) in Graves and Willems).
 	theta_in = {k: {} for k in tree.nodes}
 	theta_out = {k: {} for k in tree.nodes}
+
+	# Get min and max node indices (for convenience).
+	min_k = np.min(tree.nodes)
+	max_k = np.max(tree.nodes)
+
+	# Initialize best_cst_adjacent.
+	# best_cst_adjacent[k][S][i] = CST chosen for stage i when calculating
+	# theta_out(S) or theta_in(SI) for stage k.
+	best_cst_adjacent = {k: {S: {} for S in
+		range(tree.nodes[k]['max_replenishment_time'])} for k in tree.nodes}
+
+	# Loop through stages.
+	for k in tree.nodes:
+
+		# Get shortcuts to some parameters (for convenience).
+		max_replen_time = tree.nodes[k]['max_replenishment_time']
+		proc_time = tree.nodes[k]['processing_time']
+
+		# Evaluate theta_out(k, S) if p(k) is downstream from k and
+		# and k < final k, evaluate theta_in(k, SI) otherwise.
+		if k < max_k and tree.nodes[k]['larger_adjacent_node_is_downstream']:
+
+			# p(k) is downstream from k -- evaluate theta_out(k, S).
+			for S in range(max_replen_time+1):
+				# Calculate theta_out.
+				theta_out[k][S], temp_best_cst_adjacent = \
+					calculate_theta_out(tree, k, S, theta_in, theta_out)
+				# Copy temp_best_cst_adjacent to best_cst_adjacent.
+				best_cst_adjacent[k][S] = {i: temp_best_cst_adjacent[i]
+										   for i in temp_best_cst_adjacent}
+
+			# Set values of theta_out and best_cst_adjacent for
+			# max_replenishment_time+1 to max_max_replenishment_time to
+			# theta_out(max_replenishment_time).
+			# Needed so that stages with larger max_replenishment_time don't
+			# encounter undefined values of theta_out.
+			for S in range(max_replen_time+1,
+						   tree.graph['max_max_replenishment_time'] + 1):
+				theta_out[k][S] = theta_out[k][max_replen_time]
+				best_cst_adjacent[k][S] = best_cst_adjacent[k][max_replen_time]
+
+		else:
+
+			# p(k) is upstream from k -- evaluate theta_in(k, SI).
+			for SI in range(max_replen_time - proc_time + 1):
+				# Calculate theta_in.
+				theta_in[k][SI], temp_best_cst_adjacent = \
+					calculate_theta_in(tree, k, SI, theta_in, theta_out)
+				# Copy temp_best_cst_adjacent to best_cst_adjacent.
+				best_cst_adjacent[k][SI] = {i: temp_best_cst_adjacent[i]
+											for i in temp_best_cst_adjacent}
+
+			# Set values of theta_in and best_cst_adjacent for
+			# max_replenishment_time+1 to max_max_replenishment_time to
+			# theta_in(max_replenishment_time - processing_time).
+			# Needed so that stages with larger max_replenishment_time don't
+			# encounter undefined values of theta_in.
+			for SI in range(max_replen_time - proc_time + 1,
+							tree.graph['max_max_replenishment_time'] + 1):
+				theta_in[k][SI] = theta_in[k][max_replen_time - proc_time]
+				best_cst_adjacent[k][SI] = \
+					best_cst_adjacent[k][max_replen_time - proc_time]
+
+	# Determine best value of SI for final stage.
+	SI_dict = {SI: theta_in[max_k][SI] for SI in
+			   range(tree.nodes[max_k]['max_replenishment_time'] -
+					 tree.nodes[max_k]['processing_time'])} # smaller range of SI
+	best_theta_in, best_SI = min_of_dict(SI_dict)
+
+	# Initialize dict of optimal CSTs and optimal inbound CSTs.
+	opt_cst = {}
+	opt_in_cst = {}
+
+	# Backtrack to find optimal CSTs: Loop backwards through stages k;
+	# if p(k) is downstream from k, then set k's outbound CST to p(k)'s
+	# optimal inbound CST (which we get from best_cst_adjacent[p(k)][CST(p(k))]);
+	# if p(k) is upstream from k, then set k's inbound CST to p(k)'s optimal
+	# outbound CST and set k's outbound CST to the optimal for that inbound
+	# CST (from best_cst_adjacent[p(k)][CST(p(k))]).
+	# For each stage, remember optimal outbound _and_ inbound CSTs.
+	for k in range(max_k, min_k-1, -1):
+
+		# Get p(k), and determine whether p(k) and p(p(k)) are upstream or
+		# downstream (for convenience).
+		if k < max_k:
+			pk = tree.nodes[k]['larger_adjacent_node']
+			pk_is_downstream = tree.nodes[k]['larger_adjacent_node_is_downstream']
+			if pk < max_k:
+				ppk_is_downstream = tree.nodes[pk]['larger_adjacent_node_is_downstream']
+
+		# Where is p(k)?
+		if k == max_k:
+			# This is final stage.
+			opt_cst[k] = best_cst_adjacent[k][best_SI][k]
+			opt_in_cst[k] = best_SI
+		elif pk_is_downstream:
+			# p(k) is downstream from k. Is p(p(k)) upstream or downstream from p(k)?
+			if pk != max_k and ppk_is_downstream:
+				# p(p(k)) is downstream from p(k) -- that means that optimal
+				# CST values are stored in best_cst_adjacent[pk][opt_cst[pk]][.].
+				opt_cst[k] = best_cst_adjacent[pk][opt_cst[pk]][k]
+			else:
+				# p(p(k)) is upstream from p(k) (or it's the final node) --
+				# that means that optimal CST values are stored in
+				# best_cst_adjacent[pk][opt_in_cst[ppk]][.].
+				# TODO: best_cst_adjacent[pk][opt_in_cst[pk]][.] ???
+				opt_cst[k] = best_cst_adjacent[pk][opt_in_cst[pk]][k]
+			opt_in_cst[k] = best_cst_adjacent[k][opt_cst[k]][k]
+		else:
+			# p(k) is upstream from k. Is p(p(k)) upstream or downstream from p(k)?
+			if pk != max_k and ppk_is_downstream:
+				# p(p(k)) is downstream from p(k) -- that means that optimal
+				# inbound CST values are stored in
+				# best_cst_adjacent[pk][opt_cst[pk]][.].
+				opt_in_cst[k] = best_cst_adjacent[pk][opt_cst[pk]][k]
+			else:
+				# p(p(k)) is upstream from p(k) (or it's the final node) --
+				# that means that optimal inbound CST values are stored in
+				# best_cst_adjacent[pk][opt_in_cst[pk]][.].
+				opt_in_cst[k] = best_cst_adjacent[pk][opt_in_cst[pk]][k]
+			opt_cst[k] = best_cst_adjacent[k][opt_in_cst[k]][k]
+
+		# If outbound CST for k is greater than k's external outbound CST,
+		# reset it.
+		opt_cst[k] = min(opt_cst[k], tree.nodes[k]['external_outbound_cst'])
+
+	# Get optimal cost.
+	opt_cost = best_theta_in
+
+	return opt_cost, opt_cst
 
 
 def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
@@ -511,7 +662,7 @@ def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
 	theta_out_k_S : float
 		The value of theta_out(k, S).
 	best_cst_adjacent : dict
-		Dict indicating, for each adjacent stage i with i < k, the CST value
+		Dict indicating, for each adjacent stage i with i <= k, the CST value
 		that minimized theta_out(.) for the optimal value of SI.
 		* If i serves k, then best_CST_adjacent[i] = the value of S_i that
 		minimizes theta_out(i, S_i).
@@ -519,7 +670,7 @@ def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
 		that minimizes theta_in(i, SI_i).
 		* If i = k, then best_CST_adjacent[i] = the best value of SI chosen in
 		minimization of theta_out(.).
-		* If none of the above, then best_CST_adjacent[i] = 0.
+#		* If none of the above, then best_CST_adjacent[i] = 0.
 	"""
 
 	# Get node k, for convenience.
@@ -567,8 +718,8 @@ def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
 						best_cst_adjacent[i] = best_upstream_S[i]
 					elif i in tree.successors(k):
 						best_cst_adjacent[i] = best_downstream_SI[i]
-					else:
-						best_cst_adjacent[i] = 0
+#					else:
+#						best_cst_adjacent[i] = 0
 
 	# Capture theta_out_k_S.
 	theta_out_k_S = min_c
@@ -614,7 +765,7 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 	theta_in_k_SI : float
 		The value of theta_in(k, SI).
 	best_cst_adjacent : dict
-		Dict indicating, for each adjacent stage i with i < k, the CST value
+		Dict indicating, for each adjacent stage i with i <= k, the CST value
 		that minimized theta_in(.) for the optimal value of S.
 		* If i serves k, then best_CST_adjacent[i] = the value of S_i that
 		minimizes theta_out(i, S_i).
@@ -622,7 +773,7 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 		that minimizes theta_in(i, SI_i).
 		* If i = k, then best_CST_adjacent[i] = the best value of S chosen in
 		minimization of theta_in(.).
-		* If none of the above, then best_CST_adjacent[i] = 0.
+#		* If none of the above, then best_CST_adjacent[i] = 0.
 	"""
 
 	# Get node k, for convenience.
@@ -664,8 +815,8 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 					best_cst_adjacent[i] = best_upstream_S[i]
 				elif i in tree.successors(k):
 					best_cst_adjacent[i] = best_downstream_SI[i]
-				else:
-					best_cst_adjacent[i] = 0
+#				else:
+#					best_cst_adjacent[i] = 0
 
 	# Capture theta_in_k_SI.
 	theta_in_k_SI = min_c
@@ -744,8 +895,9 @@ def calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial):
 			# Build dict of theta_out_partial(i, S2) values for S2 <= SI.
 			theta_out_values = {S2: theta_out_partial[i][S2] for S2 in range(SI + 1)}
 			# Find min value and argmin of theta_out_partial(i, S2) where S2 <= SI.
-			best_upstream_S[i] = min(theta_out_values, key=theta_out_values.get)
-			min_theta_out = theta_out_values[best_upstream_S[i]]
+			min_theta_out, best_upstream_S[i] = min_of_dict(theta_out_values)
+#			best_upstream_S[i] = min(theta_out_values, key=theta_out_values.get)
+#			min_theta_out = theta_out_values[best_upstream_S[i]]
 			# Add min value of theta_out_partial to cost.
 			cost += min_theta_out
 
@@ -758,8 +910,9 @@ def calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial):
 			theta_in_values = {SI2: theta_in_partial[j][SI2] for SI2 in
 							   range(S, tree.graph['max_max_replenishment_time'] + 1)}
 			# Find min value and argmin of theta_in_partial(i, SI2) for SI2 >= S.
-			best_downstream_SI[j] = min(theta_in_values, key=theta_in_values.get)
-			min_theta_in = theta_in_values[best_downstream_SI[j]]
+			min_theta_in, best_downstream_SI[j] = min_of_dict(theta_in_values)
+#			best_downstream_SI[j] = min(theta_in_values, key=theta_in_values.get)
+#			min_theta_in = theta_in_values[best_downstream_SI[j]]
 			# Add min value of theta_in_partial to cost.
 			cost += min_theta_in
 
