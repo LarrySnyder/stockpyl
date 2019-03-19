@@ -132,13 +132,12 @@ def solution_cost(tree, cst):
 	for k in tree.nodes:
 
 		# Calculate net lead time.
-		SI = inbound_cst(tree, k, cst)
-		net_lead_time = SI + tree.nodes[k]['processing_time'] - cst[k]
+		nlt = net_lead_time(tree, tree.nodes, cst)
 
 		# Calculate safety stock and holding cost.
 		safety_stock = tree.nodes[k]['demand_bound_constant'] * \
 					   tree.nodes[k]['net_demand_standard_deviation'] * \
-					   np.sqrt(net_lead_time)
+					   np.sqrt(nlt[k])
 		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
 
 		# Set stage_cost equal to holding cost at node_k k.
@@ -238,7 +237,8 @@ def net_lead_time(tree, n, cst):
 
 
 def base_stock_levels(tree, cst):
-	"""Determine base-stock levels for given committed service times (CST).
+	"""Determine base-stock levels for one or more stages, for given committed
+	service times (CST).
 
 	Parameters
 	----------
@@ -260,26 +260,46 @@ def base_stock_levels(tree, cst):
 				   np.sqrt(SI + node_k['processing_time'] - S)
 
 
-def safety_stock_levels(tree, cst):
-	"""Determine safety stock levels for given committed service times (CST).
+def safety_stock_levels(tree, n, cst):
+	"""Determine safety stock levels for one or more nodes, for given committed
+	service times (CST).
 	
 	Parameters
 	----------
 	tree : graph
 		NetworkX directed graph representing the multi-echelon tree network.
 		Graph need not have been relabeled.
+	n : node OR iterable container
+		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict
 		Dict of CSTs for each node, using the same node labeling as tree.
 
 	Returns
 	-------
-	safety_stock : dict
-		Dict of safety stock levels.
+	safety_stock : float OR dict
+		Safety stock of node n (if n is a single node); OR a dictionary of
+		safety stock values keyed by node (if n is an iterable container).
 
 	"""
 
+	# Determine whether n is singleton or iterable.
+	if is_iterable(n):
+		n_is_iterable = True
+	else:
+		# n is a singleton; replace it with a list.
+		n = [n]
+		n_is_iterable = False
+
+	# Calculate net lead times.
+	nlt = net_lead_time(tree, n, cst)
+
 	safety_stock = {}
-	for k in tree.nodes:
+	for k in n:
 		safety_stock[k] = tree.nodes[k]['demand_bound_constant'] * \
 						  tree.nodes[k]['net_demand_standard_deviation'] * \
-						  np.sqrt(SI + tree.nodes[k]['processing_time'] - S)
+						  np.sqrt(nlt[k])
+
+	if n_is_iterable:
+		return safety_stock
+	else:
+		return safety_stock[n[0]]

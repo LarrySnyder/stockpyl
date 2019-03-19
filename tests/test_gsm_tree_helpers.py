@@ -319,3 +319,103 @@ class TestNetLeadTime(unittest.TestCase):
 		correct_nlt = {1: 0, 2: 2, 3: 2, 4: 4, 5: 2, 6: 1, 7: 5, 8: 3, 9: 3, 10: 5}
 		nlt = gsm_tree_helpers.net_lead_time(tree, tree.nodes, cst)
 		self.assertDictEqual(nlt, correct_nlt)
+
+
+class TestSafetyStockLevels(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestSafetyStockLevels', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestSafetyStockLevels', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that safety_stock_levels() correctly reports safety stock for
+		solutions for Example_6_5.
+		"""
+
+		print_status('TestSafetyStockLevels', 'test_example_6_5()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, force_relabel=False)
+
+		# Optimal solution: S = (0,0,0,1).
+		cst = {1: 0, 2: 0, 3: 0, 4: 1}
+		correct_ss = {1: 2.44948974278318, 2: 1, 3: 1.41421356237309, 4: 0}
+		ss = gsm_tree_helpers.safety_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(ss[k], correct_ss[k])
+
+		# Test a few singletons.
+		ss = gsm_tree_helpers.safety_stock_levels(tree, 1, cst)
+		self.assertAlmostEqual(ss, 2.44948974278318)
+		ss = gsm_tree_helpers.safety_stock_levels(tree, 3, cst)
+		self.assertAlmostEqual(ss, 1.41421356237309)
+
+		# Sub-optimal solution: S = (2,0,2,1).
+		cst = {1: 2, 2: 0, 3: 2, 4: 1}
+		correct_ss = {1: 1.41421356237309, 2: 1.73205080756888, 3: 1.41421356237309, 4: 1.41421356237309}
+		ss = gsm_tree_helpers.safety_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(ss[k], correct_ss[k])
+
+		# Test a few singletons.
+		ss = gsm_tree_helpers.safety_stock_levels(tree, 1, cst)
+		self.assertAlmostEqual(ss, 1.41421356237309)
+		ss = gsm_tree_helpers.safety_stock_levels(tree, 2, cst)
+		self.assertAlmostEqual(ss, 1.73205080756888)
+
+
+	def test_figure_6_14(self):
+		"""Test that safety_stock_levels() correctly reports safety stock for
+		solutions for Figure 6.14.
+		"""
+
+		print_status('TestSafetyStockLevels', 'test_figure_6_14()')
+
+		tree = gsm_tree.preprocess_tree(instance_figure_6_14, start_index=1)
+
+		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
+		cst = {1: 0, 2: 3, 3: 5, 4: 4, 5: 7, 6: 0, 7: 0, 8: 0, 9: 0, 10: 2}
+		correct_ss = {1: 23.2617430735335,
+						2: 0,
+						3: 0,
+						4: 0,
+						5: 0,
+						6: 52.0148387875557,
+						7: 40.2905208759734,
+						8: 32.8970725390294,
+						9: 28.4897005289389,
+						10: 0}
+		ss = gsm_tree_helpers.safety_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(ss[k], correct_ss[k])
+
+		# Test a few singletons.
+		ss = gsm_tree_helpers.safety_stock_levels(tree, 1, cst)
+		self.assertAlmostEqual(ss, correct_ss[1])
+		ss = gsm_tree_helpers.safety_stock_levels(tree, 3, cst)
+		self.assertAlmostEqual(ss, correct_ss[3])
+
+		# Test a list.
+		ss = gsm_tree_helpers.safety_stock_levels(tree, [2, 3, 5], cst)
+		for k in ss:
+			self.assertAlmostEqual(ss[k], correct_ss[k])
+
+		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
+		cst = {1: 2, 2: 3, 3: 3, 4: 0, 5: 3, 6: 5, 7: 1, 8: 1, 9: 0, 10: 2}
+		correct_ss = {1: 0,
+						2: 23.2617430735335,
+						3: 23.2617430735335,
+						4: 32.8970725390294,
+						5: 23.2617430735335,
+						6: 16.4485362695147,
+						7: 36.7800452290057,
+						8: 28.4897005289389,
+						9: 28.4897005289389,
+						10: 36.7800452290057}
+		ss = gsm_tree_helpers.safety_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(ss[k], correct_ss[k])
