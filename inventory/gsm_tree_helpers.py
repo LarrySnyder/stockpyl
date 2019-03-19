@@ -236,7 +236,7 @@ def net_lead_time(tree, n, cst):
 		return nlt[n[0]]
 
 
-def base_stock_levels(tree, cst):
+def base_stock_levels(tree, n, cst):
 	"""Determine base-stock levels for one or more stages, for given committed
 	service times (CST).
 
@@ -245,19 +245,39 @@ def base_stock_levels(tree, cst):
 	tree : graph
 		NetworkX directed graph representing the multi-echelon tree network.
 		Graph need not have been relabeled.
+	n : node OR iterable container
+		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict
 		Dict of CSTs for each node, using the same node labeling as tree.
 
 	Returns
 	-------
-	base_stock_levels : dict
-		Dict of base-stock levels.
+	base_stock : float OR dict
+		Base-stock level of node n (if n is a single node); OR a dictionary of
+		base-stock levels keyed by node (if n is an iterable container).
 
 	"""
 
-	safety_stock = node_k['demand_bound_constant'] * \
-				   node_k['net_demand_standard_deviation'] * \
-				   np.sqrt(SI + node_k['processing_time'] - S)
+	# Determine whether n is singleton or iterable.
+	if is_iterable(n):
+		n_is_iterable = True
+	else:
+		# n is a singleton; replace it with a list.
+		n = [n]
+		n_is_iterable = False
+
+	# Calculate net lead times and safety stock levels.
+	nlt = net_lead_time(tree, n, cst)
+	ss = safety_stock_levels(tree, n, cst)
+
+	base_stock = {}
+	for k in n:
+		base_stock[k] = tree.nodes[k]['net_demand_mean'] * nlt[k] + ss[k]
+
+	if n_is_iterable:
+		return base_stock
+	else:
+		return base_stock[n[0]]
 
 
 def safety_stock_levels(tree, n, cst):

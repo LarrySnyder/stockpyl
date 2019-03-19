@@ -419,3 +419,112 @@ class TestSafetyStockLevels(unittest.TestCase):
 		ss = gsm_tree_helpers.safety_stock_levels(tree, tree.nodes, cst)
 		for k in tree.nodes:
 			self.assertAlmostEqual(ss[k], correct_ss[k])
+
+
+class TestBaseStockLevels(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestBaseStockLevels', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestBaseStockLevels', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that base_stock_levels() correctly reports base-stock levels for
+		solutions for Example 6.5.
+
+		NOTE: Example 6.5 does not contain data for mu. Here, we assume mu = 5.
+		"""
+
+		print_status('TestBaseStockLevels', 'test_example_6_5()')
+
+		tree = instance_example_6_5.copy()
+		tree.nodes[2]['external_demand_mean'] = 5
+		tree.nodes[4]['external_demand_mean'] = 5
+		tree = gsm_tree.preprocess_tree(tree, force_relabel=False)
+
+		# Optimal solution: S = (0,0,0,1).
+		cst = {1: 0, 2: 0, 3: 0, 4: 1}
+		correct_bs = {1: 32.4494897427832, 2: 6, 3: 11.4142135623731, 4: 0}
+		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(bs[k], correct_bs[k])
+
+		# Test a few singletons.
+		bs = gsm_tree_helpers.base_stock_levels(tree, 1, cst)
+		self.assertAlmostEqual(bs, correct_bs[1])
+		bs = gsm_tree_helpers.base_stock_levels(tree, 3, cst)
+		self.assertAlmostEqual(bs, correct_bs[3])
+
+		# Sub-optimal solution: S = (2,0,2,1).
+		cst = {1: 2, 2: 0, 3: 2, 4: 1}
+		correct_bs = {1: 11.4142135623731, 2: 16.7320508075689, 3: 11.4142135623731, 4: 11.4142135623731}
+		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(bs[k], correct_bs[k])
+
+		# Test a few singletons.
+		bs = gsm_tree_helpers.base_stock_levels(tree, 1, cst)
+		self.assertAlmostEqual(bs, correct_bs[1])
+		bs = gsm_tree_helpers.base_stock_levels(tree, 2, cst)
+		self.assertAlmostEqual(bs, correct_bs[2])
+
+
+	def test_figure_6_14(self):
+		"""Test that base_stock_levels() correctly reports base-stock levels for
+		solutions for Figure 6.14.
+
+		NOTE: Figure 6.14 does not contain data for mu. Here, we assume mu = 100.
+		"""
+
+		print_status('TestBaseStockLevels', 'test_figure_6_14()')
+
+		tree = instance_figure_6_14.copy()
+		tree.nodes['Build_Test_Pack']['external_demand_mean'] = 100
+		tree = gsm_tree.preprocess_tree(tree, start_index=1)
+
+		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
+		cst = {1: 0, 2: 3, 3: 5, 4: 4, 5: 7, 6: 0, 7: 0, 8: 0, 9: 0, 10: 2}
+		correct_bs = {1: 223.261743073533,
+						2: 0,
+						3: 0,
+						4: 0,
+						5: 0,
+						6: 1052.01483878756,
+						7: 640.290520875973,
+						8: 432.897072539029,
+						9: 328.489700528939,
+						10: 0}
+		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(bs[k], correct_bs[k])
+
+		# Test a few singletons.
+		bs = gsm_tree_helpers.base_stock_levels(tree, 1, cst)
+		self.assertAlmostEqual(bs, correct_bs[1])
+		bs = gsm_tree_helpers.base_stock_levels(tree, 3, cst)
+		self.assertAlmostEqual(bs, correct_bs[3])
+
+		# Test a list.
+		bs = gsm_tree_helpers.base_stock_levels(tree, [2, 3, 5], cst)
+		for k in bs:
+			self.assertAlmostEqual(bs[k], correct_bs[k])
+
+		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
+		cst = {1: 2, 2: 3, 3: 3, 4: 0, 5: 3, 6: 5, 7: 1, 8: 1, 9: 0, 10: 2}
+		correct_bs = {1: 0,
+						2: 223.261743073533,
+						3: 223.261743073533,
+						4: 432.897072539029,
+						5: 223.261743073533,
+						6: 116.448536269515,
+						7: 536.780045229006,
+						8: 328.489700528939,
+						9: 328.489700528939,
+						10: 536.780045229006}
+		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		for k in tree.nodes:
+			self.assertAlmostEqual(bs[k], correct_bs[k])
