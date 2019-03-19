@@ -5,7 +5,6 @@ import networkx as nx
 
 from inventory import gsm_tree
 from inventory import gsm_tree_helpers
-#from inventory import test_gsm_tree
 
 
 # Class-level data objects. (Data will be filled in setUp functions.)
