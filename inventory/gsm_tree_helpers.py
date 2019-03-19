@@ -86,6 +86,28 @@ def dict_match(d1, d2, require_presence=False):
 	return match
 
 
+def is_iterable(x):
+	"""Determine whether x is an iterable or a singleton.
+
+	Parameters
+	----------
+	x
+		Object to test for iterable vs. singleton.
+
+	Returns
+	-------
+	True if x is iterable, False if it is a singleton.
+
+	"""
+	# Determine whether n is singleton or iterable.
+	try:
+		_ = (y for y in x)
+	except TypeError:
+		return False
+	else:
+		return True
+
+
 ### SOLUTION HANDLING ###
 
 def solution_cost(tree, cst):
@@ -125,33 +147,50 @@ def solution_cost(tree, cst):
 	return cost
 
 
-def inbound_cst(tree, k, cst):
-	"""Determine the inbound CST (SI) for a stage, given the outbound CSTs.
+def inbound_cst(tree, n, cst):
+	"""Determine the inbound CST (SI) for one or more stages, given the
+	outbound CSTs.
 
 	Parameters
 	----------
 	tree : graph
 		NetworkX directed graph representing the multi-echelon tree network.
 		Graph need not have been relabeled.
-	k
-		Index of node_k.
+	n : node OR iterable container
+		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict
 		Dict of CSTs for each node, using the same node labeling as tree.
 
 	Returns
 	-------
-	SI : int
-		Inbound CST (SI).
+	SI : int OR dict
+		Inbound CST (SI) of node n (if n is a single node); OR a dictionary of
+		inbound CST (SI) values keyed by node (if n is an iterable container).
+		node,
 
 	"""
 
-	# Determine inbound CST (= max of CST for all predecessors, and external
-	# inbound CST).
-	SI = tree.nodes[k]['external_inbound_cst']
-	if tree.in_degree[k] > 0:
-		SI = max(SI, np.max([cst[i] for i in tree.predecessors(k)]))
+	# Determine whether n is singleton or iterable.
+	if is_iterable(n):
+		n_is_iterable = True
+	else:
+		# n is a singleton; replace it with a list.
+		n = [n]
+		n_is_iterable = False
 
-	return SI
+	# Build dict of SI values.
+	SI = {}
+	for k in n:
+		# Determine inbound CST (= max of CST for all predecessors, and external
+		# inbound CST).
+		SI[k] = tree.nodes[k]['external_inbound_cst']
+		if tree.in_degree[k] > 0:
+			SI[k] = max(SI[k], np.max([cst[i] for i in tree.predecessors(k)]))
+
+	if n_is_iterable:
+		return SI
+	else:
+		return SI[n[0]]
 
 
 def base_stock_levels(tree, cst):

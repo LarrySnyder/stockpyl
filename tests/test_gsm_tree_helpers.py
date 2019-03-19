@@ -1,21 +1,9 @@
 import unittest
 import numpy as np
-from scipy import stats
-import networkx as nx
 
 from inventory import gsm_tree
 from inventory import gsm_tree_helpers
-
-
-# Class-level data objects. (Data will be filled in setUp functions.)
-instance_figure_6_12 = nx.DiGraph()
-instance_example_6_5 = nx.DiGraph()
-instance_figure_6_4 = nx.DiGraph()
-instance_figure_6_14 = nx.DiGraph()
-instance_problem_6_7 = nx.DiGraph()
-instance_problem_6_9 = nx.DiGraph()
-
-
+from tests.instances_gsm_tree import *
 
 
 # Module-level functions.
@@ -28,124 +16,126 @@ def setUpModule():
 	"""Called once, before anything else in this module."""
 	print_status('---', 'setUpModule()')
 
-	# Build instance corresponding to network in Figure 6.12.
-	instance_figure_6_12.add_nodes_from(range(1, 8))
-	instance_figure_6_12.add_edge(1, 2)
-	instance_figure_6_12.add_edge(1, 3)
-	instance_figure_6_12.add_edge(3, 5)
-	instance_figure_6_12.add_edge(4, 5)
-	instance_figure_6_12.add_edge(5, 6)
-	instance_figure_6_12.add_edge(5, 7)
-
-	# Build instance corresponding to Example 6.5.
-	instance_example_6_5.add_node(1, processing_time=2,
-								  external_inbound_cst=1,
-								  holding_cost=1,
-								  demand_bound_constant=1)
-	instance_example_6_5.add_node(2, processing_time=1,
-								  external_outbound_cst=0,
-								  holding_cost=3,
-								  demand_bound_constant=1,
-								  external_demand_standard_deviation=1)
-	instance_example_6_5.add_node(3, processing_time=1,
-								  holding_cost=2,
-								  demand_bound_constant=1)
-	instance_example_6_5.add_node(4, processing_time=1,
-								  external_outbound_cst=1,
-								  holding_cost=3,
-								  demand_bound_constant=1,
-								  external_demand_standard_deviation=1)
-	instance_example_6_5.add_edge(1, 3)
-	instance_example_6_5.add_edge(3, 2)
-	instance_example_6_5.add_edge(3, 4)
-
-	# Build instance corresponding to Figure 6.14.
-	# Must be relabeled before used.
-	instance_figure_6_14.add_node('Raw_Material', processing_time=2,
-								  holding_cost=0.01)
-	instance_figure_6_14.add_node('Process_Wafers', processing_time=3,
-								  holding_cost=0.03)
-	instance_figure_6_14.add_node('Package_Test_Wafers', processing_time=2,
-								  holding_cost=0.04)
-	instance_figure_6_14.add_node('Imager_Base', processing_time=4,
-								  holding_cost=0.06)
-	instance_figure_6_14.add_node('Imager_Assembly', processing_time=2,
-								  holding_cost=0.12)
-	instance_figure_6_14.add_node('Ship_to_Final_Assembly', processing_time=3,
-								  holding_cost=0.13)
-	instance_figure_6_14.add_node('Camera', processing_time=6,
-								  holding_cost=0.20)
-	instance_figure_6_14.add_node('Circuit_Board', processing_time=4,
-								  holding_cost=0.08)
-	instance_figure_6_14.add_node('Other_Parts', processing_time=3,
-								  holding_cost=0.04)
-	instance_figure_6_14.add_node('Build_Test_Pack', processing_time=2,
-								  holding_cost=0.50,
-								  external_outbound_cst=2,
-								  external_demand_standard_deviation=10,
-								  demand_bound_constant=stats.norm.ppf(0.95))
-	instance_figure_6_14.add_edge('Raw_Material', 'Process_Wafers')
-	instance_figure_6_14.add_edge('Process_Wafers', 'Package_Test_Wafers')
-	instance_figure_6_14.add_edge('Package_Test_Wafers', 'Imager_Assembly')
-	instance_figure_6_14.add_edge('Imager_Base', 'Imager_Assembly')
-	instance_figure_6_14.add_edge('Imager_Assembly', 'Ship_to_Final_Assembly')
-	instance_figure_6_14.add_edge('Camera', 'Build_Test_Pack')
-	instance_figure_6_14.add_edge('Ship_to_Final_Assembly', 'Build_Test_Pack')
-	instance_figure_6_14.add_edge('Circuit_Board', 'Build_Test_Pack')
-	instance_figure_6_14.add_edge('Other_Parts', 'Build_Test_Pack')
-
-	# Build instance corresponding to Problem 6.7.
-	# Must be relabeled before used.
-	instance_problem_6_7.add_node(3, processing_time=1, # Forming
-								  external_inbound_cst=1,
-								  holding_cost=2)
-	instance_problem_6_7.add_node(2, processing_time=1, # Firing
-								  holding_cost=3)
-	instance_problem_6_7.add_node(1, processing_time=2, # Glazing
-								  external_demand_mean=45,
-								  external_demand_standard_deviation=10,
-								  external_outbound_cst=0,
-								  demand_bound_constant=4,
-								  holding_cost=4)
-	instance_problem_6_7.add_edge(3, 2)
-	instance_problem_6_7.add_edge(2, 1)
-
-	# Build instance corresponding to Problem 6.9.
-	# Must be relabeled before used.
-	instance_problem_6_9.add_node(1, processing_time=7,
-								  holding_cost=220*0.2/365,
-								  demand_bound_constant=4,
-								  external_outbound_cst=3,
-								  external_demand_mean=22.0,
-								  external_demand_standard_deviation=4.1)
-	instance_problem_6_9.add_node(2, processing_time=7,
-								  holding_cost=140*0.2/365,
-								  demand_bound_constant=4,
-								  external_outbound_cst=3,
-								  external_demand_mean=15.3,
-								  external_demand_standard_deviation=6.2)
-	instance_problem_6_9.add_node(3, processing_time=21,
-								  holding_cost=90*0.2/365,
-								  demand_bound_constant=4)
-	instance_problem_6_9.add_node(4, processing_time=3,
-								  holding_cost=5*0.2/365,
-								  demand_bound_constant=4)
-	instance_problem_6_9.add_node(5, processing_time=8,
-								  holding_cost=20*0.2/365,
-								  demand_bound_constant=4)
-	instance_problem_6_9.add_node(6, processing_time=2,
-								  holding_cost=7.5*0.2/365,
-								  demand_bound_constant=4)
-	instance_problem_6_9.add_edge(6, 5)
-	instance_problem_6_9.add_edge(4, 3)
-	instance_problem_6_9.add_edge(5, 3)
-	instance_problem_6_9.add_edge(3, 1)
-	instance_problem_6_9.add_edge(3, 2)
-
 
 def tearDownModule():
 	"""Called once, after everything else in this module."""
 	print_status('---', 'tearDownModule()')
+
+
+class TestMinOfDict(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestMinOfDict', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestMinOfDict', 'tearDownClass()')
+
+	def test_small_dict(self):
+		"""Test that min_of_dict() returns correct result for a small dict.
+		"""
+		print_status('TestMinOfDict', 'test_small_dict()')
+
+		d = {'a': 7.5, 'b': 6.1, 'c': 8.0}
+
+		min_value, min_key = gsm_tree.min_of_dict(d)
+
+		self.assertEqual(min_value, 6.1)
+		self.assertEqual(min_key, 'b')
+
+	def test_nonnumeric(self):
+		"""Test that min_of_dict() correctly raises TypeError if dict
+		contains nonnumeric value."""
+		print_status('TestMinOfDict', 'test_nonnumeric()')
+
+		d = {'a': 7.5, 'b': 6.1, 'c': 'potato'}
+
+		with self.assertRaises(TypeError):
+			min_value, min_key = gsm_tree.min_of_dict(d)
+
+
+class TestDictMatch(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestDictMatch', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestDictMatch', 'tearDownClass()')
+
+	def test_all_keys_present(self):
+		"""Test that dict_match() returns correct results if all keys are
+		present.
+		"""
+		print_status('TestDictMatch', 'test_all_keys_present()')
+
+		d1 = {'k1': 3, 'k2': 7}
+		d2 = {'k1': 3, 'k2': 6}
+		d3 = {'k1': 3, 'k2': 7}
+
+		eq_d1_d2 = gsm_tree_helpers.dict_match(d1, d2)
+		eq_d1_d3 = gsm_tree_helpers.dict_match(d1, d3)
+
+		self.assertEqual(eq_d1_d2, False)
+		self.assertEqual(eq_d1_d3, True)
+
+	def test_missing_key(self):
+		"""Test that dict_match() returns correct results if a key is
+		missing.
+		"""
+		print_status('TestNodeMatch', 'test_missing_key()')
+
+		d1 = {'k1': 3, 'k2': 0}
+		d2 = {'k1': 3}
+
+		eq_require_presence_t = gsm_tree_helpers.dict_match(d1, d2, True)
+		eq_require_presence_f = gsm_tree_helpers.dict_match(d1, d2, False)
+
+		self.assertEqual(eq_require_presence_t, False)
+		self.assertEqual(eq_require_presence_f, True)
+
+
+class TestIsIterable(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsIterable', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestIsIterable', 'tearDownClass()')
+
+	def test_list(self):
+		"""Test that is_iterable() correctly returns True when input is a list.
+		"""
+		a = [1, 2, 3]
+		self.assertEqual(gsm_tree_helpers.is_iterable(a), True)
+
+	def test_set(self):
+		"""Test that is_iterable() correctly returns True when input is a set.
+		"""
+		a = {1, 2, 3}
+		self.assertEqual(gsm_tree_helpers.is_iterable(a), True)
+
+	def test_dict(self):
+		"""Test that is_iterable() correctly returns True when input is a dict.
+		"""
+		a = {1: 0, 2: 5, 3: 'potato'}
+		self.assertEqual(gsm_tree_helpers.is_iterable(a), True)
+
+	def test_singleton(self):
+		"""Test that is_iterable() correctly returns False when input is a
+		singleton.
+		"""
+		a = 3.14
+		self.assertEqual(gsm_tree_helpers.is_iterable(a), False)
 
 
 class TestSolutionCost(unittest.TestCase):
@@ -178,3 +168,78 @@ class TestSolutionCost(unittest.TestCase):
 		cost = gsm_tree.solution_cost(tree, cst)
 		self.assertAlmostEqual(cost, 13.6814337969452)
 
+
+class TestInboundCST(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestInboundCST', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestInboundCST', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that inbound_cst() correctly reports cost for solutions
+		for Example_6_5.
+		"""
+
+		print_status('TestInboundCST', 'test_example_6_5()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, force_relabel=False)
+
+		# Optimal solution: S = (0,0,0,1).
+		cst = {1: 0, 2: 0, 3: 0, 4: 1}
+		correct_SI = {1: 1, 2: 0, 3: 0, 4: 0}
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		self.assertDictEqual(SI, correct_SI)
+
+		# Test a few singletons.
+		SI = gsm_tree_helpers.inbound_cst(tree, 1, cst)
+		self.assertEqual(SI, 1)
+		SI = gsm_tree_helpers.inbound_cst(tree, 3, cst)
+		self.assertEqual(SI, 0)
+
+		# Sub-optimal solution: S = (2,0,2,1).
+		cst = {1: 2, 2: 0, 3: 2, 4: 1}
+		correct_SI = {1: 1, 2: 2, 3: 2, 4: 2}
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		self.assertDictEqual(SI, correct_SI)
+
+		# Test a few singletons.
+		SI = gsm_tree_helpers.inbound_cst(tree, 1, cst)
+		self.assertEqual(SI, 1)
+		SI = gsm_tree_helpers.inbound_cst(tree, 3, cst)
+		self.assertEqual(SI, 2)
+
+	def test_figure_6_14(self):
+		"""Test that inbound_cst() correctly reports cost for solutions
+		for Figure 6.14.
+		"""
+
+		print_status('TestInboundCST', 'test_figure_6_14()')
+
+		tree = gsm_tree.preprocess_tree(instance_figure_6_14, start_index=1)
+
+		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
+		cst = {1: 0, 2: 3, 3: 5, 4: 4, 5: 7, 6: 0, 7: 0, 8: 0, 9: 0, 10: 2}
+		correct_SI = {1: 0, 2: 0, 3: 3, 4: 0, 5: 5, 6: 7, 7: 0, 8: 0, 9: 0, 10: 0}
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		self.assertDictEqual(SI, correct_SI)
+
+		# Test a few singletons.
+		SI = gsm_tree_helpers.inbound_cst(tree, 4, cst)
+		self.assertEqual(SI, 0)
+		SI = gsm_tree_helpers.inbound_cst(tree, 6, cst)
+		self.assertEqual(SI, 7)
+
+		# Test a list.
+		SI = gsm_tree_helpers.inbound_cst(tree, [2, 3, 5], cst)
+		self.assertDictEqual(SI, {2: 0, 3: 3, 5: 5})
+
+		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
+		cst = {1: 2, 2: 3, 3: 3, 4: 0, 5: 3, 6: 5, 7: 1, 8: 1, 9: 0, 10: 2}
+		correct_SI = {1: 0, 2: 2, 3: 3, 4: 0, 5: 3, 6: 3, 7: 0, 8: 0, 9: 0, 10: 5}
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		self.assertDictEqual(SI, correct_SI)
