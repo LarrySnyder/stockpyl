@@ -36,10 +36,7 @@ Lehigh University and Opex Analytics
 """
 
 import numpy as np
-import scipy as sp
 import networkx as nx
-import matplotlib.pyplot as plt
-import pprint
 
 
 ### CONSTANTS ###
@@ -75,6 +72,50 @@ def min_of_dict(d):
 	min_value = d[min_key]
 
 	return min_value, min_key
+
+
+### SOLUTION HANDLING ###
+
+def solution_cost(tree, cst):
+	"""Calculate expected cost of given solution.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Graph need not have been relabeled.
+	cst : dict
+		Dict of CSTs for each node, using the same node labeling as tree.
+
+	Returns
+	-------
+	cost : float
+		Expected cost of the solution.
+
+	"""
+
+	cost = 0
+	for k in tree.nodes:
+
+		# Determine inbound CST (= max of CST for all predecessors, and external
+		# inbound CST).
+		SI = tree.nodes[k]['external_inbound_cst']
+		if tree.in_degree[k] > 0:
+			SI = max(SI, np.max([cst[i] for i in tree.predecessors(k)]))
+
+		# Calculate net lead time.
+		net_lead_time = SI + tree.nodes[k]['processing_time'] - cst[k]
+
+		# Calculate safety stock and holding cost.
+		safety_stock = tree.nodes[k]['demand_bound_constant'] * \
+					   tree.nodes[k]['net_demand_standard_deviation'] * \
+					   np.sqrt(net_lead_time)
+		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
+
+		# Set stage_cost equal to holding cost at node_k k.
+		cost += holding_cost
+
+	return cost
 
 
 ### GRAPH MANIPULATION ###
@@ -259,7 +300,7 @@ def is_correctly_labeled(tree):
 	if not np.all([str(k).isdigit() for k in ind]):
 		is_correct = False
 	else:
-		# Check whether labels are consecutive intgers starting at min_index.
+		# Check whether labels are consecutive integers starting at min_index.
 		min_index = np.min(ind)
 		if set(ind) != set(range(min_index, min_index + len(ind))):
 			is_correct = False
@@ -534,10 +575,10 @@ def cst_dp(tree):
 	# best_cst_adjacent[k][S][i] = CST chosen for stage i when calculating
 	# theta_out(S) or theta_in(SI) for stage k.
 	best_cst_adjacent = {k: {S: {} for S in
-		range(tree.nodes[k]['max_replenishment_time'])} for k in tree.nodes}
+		range(tree.nodes[k]['max_replenishment_time']+1)} for k in tree.nodes}
 
 	# Loop through stages.
-	for k in tree.nodes:
+	for k in range(min_k, max_k + 1):
 
 		# Get shortcuts to some parameters (for convenience).
 		max_replen_time = tree.nodes[k]['max_replenishment_time']
@@ -591,7 +632,7 @@ def cst_dp(tree):
 	# Determine best value of SI for final stage.
 	SI_dict = {SI: theta_in[max_k][SI] for SI in
 			   range(tree.nodes[max_k]['max_replenishment_time'] -
-					 tree.nodes[max_k]['processing_time'])} # smaller range of SI
+					 tree.nodes[max_k]['processing_time'] + 1)} # smaller range of SI
 	best_theta_in, best_SI = min_of_dict(SI_dict)
 
 	# Initialize dict of optimal CSTs and optimal inbound CSTs.
@@ -705,7 +746,6 @@ def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
 		that minimizes theta_in(i, SI_i).
 		* If i = k, then best_CST_adjacent[i] = the best value of SI chosen in
 		minimization of theta_out(.).
-#		* If none of the above, then best_CST_adjacent[i] = 0.
 	"""
 
 	# Get node k, for convenience.
@@ -740,7 +780,7 @@ def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
 
 			# Calculate c_k(S, SI).
 			c_SI[SI], stage_cost, best_upstream_S, best_downstream_SI = \
-				calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial)
+				calculate_c(tree, k, local_S, SI, theta_in_partial, theta_out_partial)
 
 			# Compare to min.
 			if c_SI[SI] < min_c:
@@ -753,8 +793,6 @@ def calculate_theta_out(tree, k, S, theta_in_partial, theta_out_partial):
 						best_cst_adjacent[i] = best_upstream_S[i]
 					elif i in tree.successors(k):
 						best_cst_adjacent[i] = best_downstream_SI[i]
-#					else:
-#						best_cst_adjacent[i] = 0
 
 	# Capture theta_out_k_S.
 	theta_out_k_S = min_c
@@ -808,7 +846,6 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 		that minimizes theta_in(i, SI_i).
 		* If i = k, then best_CST_adjacent[i] = the best value of S chosen in
 		minimization of theta_in(.).
-#		* If none of the above, then best_CST_adjacent[i] = 0.
 	"""
 
 	# Get node k, for convenience.
@@ -832,12 +869,12 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 	# Loop through S values between 0 and min(SI + T_k, external outbound CST[k]).
 	# Note that external outbound CST defaults to BIG_INT if not provided.
 	lo_S = 0
-	hi_S = min(SI + node_k['processing_time'], node_k['external_outbound_cst'])
+	hi_S = min(local_SI + node_k['processing_time'], node_k['external_outbound_cst'])
 	for S in range(lo_S, hi_S+1):
 
 		# Calculate c_k(S, SI).
 		c_S[S], stage_cost, best_upstream_S, best_downstream_SI = \
-			calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial)
+			calculate_c(tree, k, S, local_SI, theta_in_partial, theta_out_partial)
 
 		# Compare to min.
 		if c_S[S] < min_c:
@@ -850,8 +887,6 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 					best_cst_adjacent[i] = best_upstream_S[i]
 				elif i in tree.successors(k):
 					best_cst_adjacent[i] = best_downstream_SI[i]
-#				else:
-#					best_cst_adjacent[i] = 0
 
 	# Capture theta_in_k_SI.
 	theta_in_k_SI = min_c
@@ -931,8 +966,6 @@ def calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial):
 			theta_out_values = {S2: theta_out_partial[i][S2] for S2 in range(SI + 1)}
 			# Find min value and argmin of theta_out_partial(i, S2) where S2 <= SI.
 			min_theta_out, best_upstream_S[i] = min_of_dict(theta_out_values)
-#			best_upstream_S[i] = min(theta_out_values, key=theta_out_values.get)
-#			min_theta_out = theta_out_values[best_upstream_S[i]]
 			# Add min value of theta_out_partial to cost.
 			cost += min_theta_out
 
@@ -946,8 +979,6 @@ def calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial):
 							   range(S, tree.graph['max_max_replenishment_time'] + 1)}
 			# Find min value and argmin of theta_in_partial(i, SI2) for SI2 >= S.
 			min_theta_in, best_downstream_SI[j] = min_of_dict(theta_in_values)
-#			best_downstream_SI[j] = min(theta_in_values, key=theta_in_values.get)
-#			min_theta_in = theta_in_values[best_downstream_SI[j]]
 			# Add min value of theta_in_partial to cost.
 			cost += min_theta_in
 

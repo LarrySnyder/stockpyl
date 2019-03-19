@@ -103,25 +103,25 @@ def setUpModule():
 	# Build instance corresponding to Figure 6.14.
 	# Must be relabeled before used.
 	instance_figure_6_14.add_node('Raw_Material', processing_time=2,
-								  holding_cost=1)
+								  holding_cost=0.01)
 	instance_figure_6_14.add_node('Process_Wafers', processing_time=3,
-								  holding_cost=3)
+								  holding_cost=0.03)
 	instance_figure_6_14.add_node('Package_Test_Wafers', processing_time=2,
-								  holding_cost=4)
+								  holding_cost=0.04)
 	instance_figure_6_14.add_node('Imager_Base', processing_time=4,
-								  holding_cost=6)
+								  holding_cost=0.06)
 	instance_figure_6_14.add_node('Imager_Assembly', processing_time=2,
-								  holding_cost=12)
+								  holding_cost=0.12)
 	instance_figure_6_14.add_node('Ship_to_Final_Assembly', processing_time=3,
-								  holding_cost=13)
+								  holding_cost=0.13)
 	instance_figure_6_14.add_node('Camera', processing_time=6,
-								  holding_cost=20)
+								  holding_cost=0.20)
 	instance_figure_6_14.add_node('Circuit_Board', processing_time=4,
-								  holding_cost=8)
+								  holding_cost=0.08)
 	instance_figure_6_14.add_node('Other_Parts', processing_time=3,
-								  holding_cost=4)
+								  holding_cost=0.04)
 	instance_figure_6_14.add_node('Build_Test_Pack', processing_time=2,
-								  holding_cost=50,
+								  holding_cost=0.50,
 								  external_outbound_cst=2,
 								  external_demand_standard_deviation=10,
 								  demand_bound_constant=stats.norm.ppf(0.95))
@@ -154,28 +154,28 @@ def setUpModule():
 	# Build instance corresponding to Problem 6.9.
 	# Must be relabeled before used.
 	instance_problem_6_9.add_node(1, processing_time=7,
-								  holding_cost=220,
+								  holding_cost=220*0.2/365,
 								  demand_bound_constant=4,
 								  external_outbound_cst=3,
 								  external_demand_mean=22.0,
 								  external_demand_standard_deviation=4.1)
 	instance_problem_6_9.add_node(2, processing_time=7,
-								  holding_cost=140,
+								  holding_cost=140*0.2/365,
 								  demand_bound_constant=4,
 								  external_outbound_cst=3,
 								  external_demand_mean=15.3,
 								  external_demand_standard_deviation=6.2)
 	instance_problem_6_9.add_node(3, processing_time=21,
-								  holding_cost=90,
+								  holding_cost=90*0.2/365,
 								  demand_bound_constant=4)
 	instance_problem_6_9.add_node(4, processing_time=3,
-								  holding_cost=5,
+								  holding_cost=5*0.2/365,
 								  demand_bound_constant=4)
 	instance_problem_6_9.add_node(5, processing_time=8,
-								  holding_cost=20,
+								  holding_cost=20*0.2/365,
 								  demand_bound_constant=4)
 	instance_problem_6_9.add_node(6, processing_time=2,
-								  holding_cost=7.5,
+								  holding_cost=7.5*0.2/365,
 								  demand_bound_constant=4)
 	instance_problem_6_9.add_edge(6, 5)
 	instance_problem_6_9.add_edge(4, 3)
@@ -266,6 +266,37 @@ class TestDictMatch(unittest.TestCase):
 
 		self.assertEqual(eq_require_presence_t, False)
 		self.assertEqual(eq_require_presence_f, True)
+
+
+class TestSolutionCost(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestSolutionCost', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestSolutionCost', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that solution_cost() correctly reports cost for solutions
+		for Example_6_5.
+		"""
+
+		print_status('TestSolutionCost', 'test_example_6_5()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, force_relabel=False)
+
+		# Optimal solution: S = (0,0,0,1).
+		cst = {1: 0, 2: 0, 3: 0, 4: 1}
+		cost = gsm_tree.solution_cost(tree, cst)
+		self.assertAlmostEqual(cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
+
+		# Sub-optimal solution: S = (2,0,2,1).
+		cst = {1: 2, 2: 0, 3: 2, 4: 1}
+		cost = gsm_tree.solution_cost(tree, cst)
+		self.assertAlmostEqual(cost, 13.6814337969452)
 
 
 class TestRelabelNodes(unittest.TestCase):
@@ -829,7 +860,7 @@ class TestPreprocessTree(unittest.TestCase):
 		# Build correct tree.
 		correct_tree = nx.DiGraph(max_max_replenishment_time=14)
 		correct_tree.add_node(1, processing_time=2,
-							  holding_cost=1,
+							  holding_cost=0.01,
 							  external_inbound_cst=0,
 							  external_outbound_cst=gsm_tree.BIG_INT,
 							  demand_bound_constant=1.6448536269514722,
@@ -839,7 +870,7 @@ class TestPreprocessTree(unittest.TestCase):
 							  larger_adjacent_node_is_downstream=True,
 							  max_replenishment_time=2)
 		correct_tree.add_node(2, processing_time=3,
-							holding_cost=3,
+							holding_cost=0.03,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -849,7 +880,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=5)
 		correct_tree.add_node(3, processing_time=2,
-							holding_cost=4,
+							holding_cost=0.04,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -859,7 +890,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=7)
 		correct_tree.add_node(4, processing_time=4,
-							holding_cost=6,
+							holding_cost=0.06,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -869,7 +900,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=4)
 		correct_tree.add_node(5, processing_time=2,
-							holding_cost=12,
+							holding_cost=0.12,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -879,7 +910,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=9)
 		correct_tree.add_node(6, processing_time=3,
-							holding_cost=13,
+							holding_cost=0.13,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -889,7 +920,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=12)
 		correct_tree.add_node(7, processing_time=6,
-							holding_cost=20,
+							holding_cost=0.20,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -899,7 +930,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=6)
 		correct_tree.add_node(8, processing_time=4,
-							holding_cost=8,
+							holding_cost=0.08,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -909,7 +940,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=4)
 		correct_tree.add_node(9, processing_time=3,
-							holding_cost=4,
+							holding_cost=0.04,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
@@ -919,7 +950,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=3)
 		correct_tree.add_node(10, processing_time=2,
-							holding_cost=50,
+							holding_cost=0.50,
 							external_inbound_cst=0,
 							external_outbound_cst=2,
 							demand_bound_constant=1.6448536269514722,
@@ -1007,7 +1038,7 @@ class TestPreprocessTree(unittest.TestCase):
 		# Build correct tree.
 		correct_tree = nx.DiGraph(max_max_replenishment_time=38)
 		correct_tree.add_node(0, processing_time=7,
-							holding_cost=220,
+							holding_cost=220*0.2/365,
 							demand_bound_constant=4,
 							original_label=1,
 							external_demand_mean=22.0,
@@ -1020,7 +1051,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=38)
 		correct_tree.add_node(1, processing_time=7,
-							holding_cost=140,
+							holding_cost=140*0.2/365,
 							demand_bound_constant=4,
 							original_label=2,
 							external_demand_mean=15.3,
@@ -1033,7 +1064,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=38)
 		correct_tree.add_node(2, processing_time=3,
-							holding_cost=5,
+							holding_cost=5*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
@@ -1044,7 +1075,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=3)
 		correct_tree.add_node(3, processing_time=21,
-							holding_cost=90,
+							holding_cost=90*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
@@ -1055,7 +1086,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=31)
 		correct_tree.add_node(4, processing_time=8,
-							holding_cost=20,
+							holding_cost=20*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
@@ -1066,7 +1097,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=10)
 		correct_tree.add_node(5, processing_time=2,
-							holding_cost=7.5,
+							holding_cost=7.5*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
@@ -1858,7 +1889,156 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		self.assertEqual(opt_cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
 		self.assertDictEqual(opt_cst, {1: 0, 2: 0, 3: 0, 4: 1})
 
+	def test_figure_6_14(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Figure 6.14.
+		"""
 
+		print_status('TestOptimizeCommittedServiceTimes', 'test_figure_6_14')
 
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(instance_figure_6_14)
 
+		self.assertAlmostEqual(opt_cost, 18.8240044725922)
+		self.assertDictEqual(opt_cst, {'Raw_Material': 0,
+									   'Process_Wafers': 3,
+									   'Package_Test_Wafers': 5,
+									   'Imager_Base': 4,
+									   'Imager_Assembly': 7,
+									   'Camera': 0,
+									   'Ship_to_Final_Assembly': 0,
+									   'Circuit_Board': 0,
+									   'Other_Parts': 0,
+									   'Build_Test_Pack': 2})
 
+	def test_figure_6_14_s5(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Figure 6.14 with CST to external customer = 5.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_figure_6_14_s5')
+
+		tree = instance_figure_6_14.copy()
+		tree.nodes['Build_Test_Pack']['external_outbound_cst'] = 5
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
+
+		self.assertAlmostEqual(opt_cost, 12.4686888061037)
+		self.assertDictEqual(opt_cst, {'Raw_Material': 0,
+									   'Process_Wafers': 3,
+									   'Package_Test_Wafers': 5,
+									   'Imager_Base': 4,
+									   'Imager_Assembly': 0,
+									   'Camera': 3,
+									   'Ship_to_Final_Assembly': 3,
+									   'Circuit_Board': 3,
+									   'Other_Parts': 3,
+									   'Build_Test_Pack': 5})
+
+	def test_figure_6_14_s8(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Figure 6.14 with CST to external customer = 8.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_figure_6_14_s8')
+
+		tree = instance_figure_6_14.copy()
+		tree.nodes['Build_Test_Pack']['external_outbound_cst'] = 8
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
+
+		self.assertAlmostEqual(opt_cost, 3.25788236403285)
+		self.assertDictEqual(opt_cst, {'Raw_Material': 0,
+									   'Process_Wafers': 3,
+									   'Package_Test_Wafers': 1,
+									   'Imager_Base': 1,
+									   'Imager_Assembly': 3,
+									   'Camera': 6,
+									   'Ship_to_Final_Assembly': 6,
+									   'Circuit_Board': 4,
+									   'Other_Parts': 3,
+									   'Build_Test_Pack': 8})
+
+	def test_figure_6_14_s12(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Figure 6.14 with CST to external customer = 12.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_figure_6_14_s12')
+
+		tree = instance_figure_6_14.copy()
+		tree.nodes['Build_Test_Pack']['external_outbound_cst'] = 12
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
+
+		self.assertAlmostEqual(opt_cost, 0.232617430735335)
+		self.assertDictEqual(opt_cst, {'Raw_Material': 0,
+									   'Process_Wafers': 3,
+									   'Package_Test_Wafers': 5,
+									   'Imager_Base': 4,
+									   'Imager_Assembly': 7,
+									   'Camera': 6,
+									   'Ship_to_Final_Assembly': 10,
+									   'Circuit_Board': 4,
+									   'Other_Parts': 3,
+									   'Build_Test_Pack': 12})
+
+	def test_problem_6_7(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Problem 6.7.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_7')
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(instance_problem_6_7)
+
+		self.assertAlmostEqual(opt_cost, 160 * np.sqrt(5))
+		self.assertDictEqual(opt_cst, {1: 0, 2: 3, 3: 2})
+
+	def test_problem_6_9(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Problem 6.9."""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_9')
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(instance_problem_6_9)
+
+		self.assertAlmostEqual(opt_cost, 15.649530249501)
+		self.assertDictEqual(opt_cst, {1: 3, 2: 3, 3: 0, 4: 0, 5: 0, 6: 2})
+
+	def test_problem_6_9_s1_0_s2_7(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Problem 6.9 with s_1 = 0 and s_2 = 7."""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_9_s1_0_s2_7')
+
+		tree = instance_problem_6_9.copy()
+		tree.nodes[1]['external_outbound_cst'] = 0
+		tree.nodes[2]['external_outbound_cst'] = 7
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
+
+		self.assertAlmostEqual(opt_cost, 13.121240238718)
+		self.assertDictEqual(opt_cst, {1: 0, 2: 7, 3: 0, 4: 0, 5: 0, 6: 2})
+
+	def test_problem_6_9_s1_21_s2_5(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Problem 6.9 with s_1 = 21 and s_2 = 5."""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_9_s1_21_s2_5')
+
+		tree = instance_problem_6_9.copy()
+		tree.nodes[1]['external_outbound_cst'] = 21
+		tree.nodes[2]['external_outbound_cst'] = 5
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
+
+		self.assertAlmostEqual(opt_cost, 10.5811190103555)
+		self.assertDictEqual(opt_cst, {1: 7, 2: 5, 3: 0, 4: 0, 5: 0, 6: 2})
