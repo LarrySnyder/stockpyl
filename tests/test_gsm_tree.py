@@ -4,6 +4,7 @@ from scipy import stats
 import networkx as nx
 
 from inventory import gsm_tree
+from inventory import gsm_tree_helpers
 
 
 # Class-level data objects. (Data will be filled in setUp functions.)
@@ -15,55 +16,12 @@ instance_problem_6_7 = nx.DiGraph()
 instance_problem_6_9 = nx.DiGraph()
 
 
-# Utility functions.
+# Module-level functions.
 
 def print_status(class_name, function_name):
 	"""Print status message."""
 	print("module : test_gsm_tree   class : {:30s} function : {:30s}".format(class_name, function_name))
 
-
-def dict_match(d1, d2, require_presence=False):
-	"""Check whether two dicts have equal keys and values.
-
-	A missing key is treated as 0 if the key is present in the other dict,
-	unless require_presence is True, in which case the dict must have the
-	key to count as a match.
-
-	Parameters
-	----------
-	d1 : node
-		First dict for comparison.
-	d2 : node
-		Second dict for comparison.
-	require_presence : bool, optional
-		Set to True to require dicts to have the same keys, or False
-		(default) to treat missing keys as 0s.
-	"""
-
-	match = True
-
-	# Check d1 against d2.
-	for key in d1.keys():
-		if key in d2:
-			if d1[key] != d2[key]:
-				match = False
-		else:
-			if d1[key] != 0 or require_presence:
-				match = False
-
-	# Check d2 against d1.
-	for key in d2.keys():
-		if key in d2:
-			# We already checked in this case.
-			pass
-		else:
-			if d2[key] != 0 or require_presence:
-				match = False
-
-	return match
-
-
-# Module-level functions.
 
 def setUpModule():
 	"""Called once, before anything else in this module."""
@@ -246,8 +204,8 @@ class TestDictMatch(unittest.TestCase):
 		d2 = {'k1': 3, 'k2': 6}
 		d3 = {'k1': 3, 'k2': 7}
 
-		eq_d1_d2 = dict_match(d1, d2)
-		eq_d1_d3 = dict_match(d1, d3)
+		eq_d1_d2 = gsm_tree_helpers.dict_match(d1, d2)
+		eq_d1_d3 = gsm_tree_helpers.dict_match(d1, d3)
 
 		self.assertEqual(eq_d1_d2, False)
 		self.assertEqual(eq_d1_d3, True)
@@ -261,43 +219,11 @@ class TestDictMatch(unittest.TestCase):
 		d1 = {'k1': 3, 'k2': 0}
 		d2 = {'k1': 3}
 
-		eq_require_presence_t = dict_match(d1, d2, True)
-		eq_require_presence_f = dict_match(d1, d2, False)
+		eq_require_presence_t = gsm_tree_helpers.dict_match(d1, d2, True)
+		eq_require_presence_f = gsm_tree_helpers.dict_match(d1, d2, False)
 
 		self.assertEqual(eq_require_presence_t, False)
 		self.assertEqual(eq_require_presence_f, True)
-
-
-class TestSolutionCost(unittest.TestCase):
-	@classmethod
-	def setUpClass(cls):
-		"""Called once, before any tests."""
-		print_status('TestSolutionCost', 'setUpClass()')
-
-	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestSolutionCost', 'tearDownClass()')
-
-	def test_example_6_5(self):
-		"""Test that solution_cost() correctly reports cost for solutions
-		for Example_6_5.
-		"""
-
-		print_status('TestSolutionCost', 'test_example_6_5()')
-
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, force_relabel=False)
-
-		# Optimal solution: S = (0,0,0,1).
-		cst = {1: 0, 2: 0, 3: 0, 4: 1}
-		cost = gsm_tree.solution_cost(tree, cst)
-		self.assertAlmostEqual(cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
-
-		# Sub-optimal solution: S = (2,0,2,1).
-		cst = {1: 2, 2: 0, 3: 2, 4: 1}
-		cost = gsm_tree.solution_cost(tree, cst)
-		self.assertAlmostEqual(cost, 13.6814337969452)
-
 
 class TestRelabelNodes(unittest.TestCase):
 
@@ -843,7 +769,9 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(3, 2)
 		correct_tree.add_edge(3, 4)
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
+		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
+									   gsm_tree_helpers.dict_match,
+									   gsm_tree_helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -968,7 +896,9 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(8, 10)
 		correct_tree.add_edge(9, 10)
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
+		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
+									   gsm_tree_helpers.dict_match,
+									   gsm_tree_helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -1021,7 +951,9 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(2, 1)
 		correct_tree.add_edge(3, 2)
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
+		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
+									   gsm_tree_helpers.dict_match,
+									   gsm_tree_helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -1111,7 +1043,9 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(3, 0)
 		correct_tree.add_edge(3, 1)
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree, dict_match, dict_match)
+		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
+									   gsm_tree_helpers.dict_match,
+									   gsm_tree_helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.

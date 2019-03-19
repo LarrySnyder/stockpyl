@@ -35,87 +35,9 @@ Lehigh University and Opex Analytics
 
 """
 
-import numpy as np
 import networkx as nx
 
-
-### CONSTANTS ###
-
-BIG_INT = 1e100
-
-
-### UTILITY FUNCTIONS ###
-
-def min_of_dict(d):
-	"""Determine min value of dict and return min and argmin (key).
-
-	Values must be numeric.
-
-	Parameters
-	----------
-	d : dict
-		The dict.
-
-	Returns
-	-------
-	min_value : float
-		Minimum value in dict.
-	min_key
-		Key that attains minimum value.
-
-	Raises
-	------
-	TypeError
-		If dict contains a non-numeric value.
-	"""
-	min_key = min(d, key=d.get)
-	min_value = d[min_key]
-
-	return min_value, min_key
-
-
-### SOLUTION HANDLING ###
-
-def solution_cost(tree, cst):
-	"""Calculate expected cost of given solution.
-
-	Parameters
-	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
-	cst : dict
-		Dict of CSTs for each node, using the same node labeling as tree.
-
-	Returns
-	-------
-	cost : float
-		Expected cost of the solution.
-
-	"""
-
-	cost = 0
-	for k in tree.nodes:
-
-		# Determine inbound CST (= max of CST for all predecessors, and external
-		# inbound CST).
-		SI = tree.nodes[k]['external_inbound_cst']
-		if tree.in_degree[k] > 0:
-			SI = max(SI, np.max([cst[i] for i in tree.predecessors(k)]))
-
-		# Calculate net lead time.
-		net_lead_time = SI + tree.nodes[k]['processing_time'] - cst[k]
-
-		# Calculate safety stock and holding cost.
-		safety_stock = tree.nodes[k]['demand_bound_constant'] * \
-					   tree.nodes[k]['net_demand_standard_deviation'] * \
-					   np.sqrt(net_lead_time)
-		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
-
-		# Set stage_cost equal to holding cost at node_k k.
-		cost += holding_cost
-
-	return cost
+from inventory.gsm_tree_helpers import *
 
 
 ### GRAPH MANIPULATION ###

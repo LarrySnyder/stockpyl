@@ -96,6 +96,500 @@ Lehigh University and Opex Analytics</p>
 </table>
 </dd></dl>
 
+<span class="target" id="module-inventory.gsm_tree"></span><p>Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
+for multi-echelon inventory systems with tree structures by Graves and Willems (2000).</p>
+<p>‘node’ and ‘stage’ are used interchangeably in the documentation.</p>
+<p>The primary data object is the NetworkX DiGraph, which contains all of the data
+for the GSM instance.</p>
+<dl class="docutils">
+<dt>The following attributes are used to specify input data:</dt>
+<dd><ul class="first simple">
+<li><dl class="first docutils">
+<dt>Node-level attributes</dt>
+<dd><ul class="first last">
+<li>processing_time [T]</li>
+<li>external_inbound_cst [si]</li>
+<li>external_outbound_cst [s]</li>
+<li>holding_cost [h]</li>
+<li>demand_bound_constant [z_alpha]</li>
+<li>external_demand_mean [mu]</li>
+<li>external_demand_standard_deviation [sigma]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Edge-level attributes</dt>
+<dd><ul class="first last">
+<li>units_required (e.g., on edge i-&gt;j, units_required units of item i are</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p class="last">required to make 1 unit of item j)</p>
+</dd>
+<dt>The following attributes are used to store outputs and intermediate values:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>Graph-level attributes</dt>
+<dd><ul class="first last simple">
+<li>max_max_replenishment_time</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Node-level attributes:</dt>
+<dd><ul class="first simple">
+<li>original_label</li>
+<li>net_demand_standard_deviation (standard deviation of combined demand</li>
+</ul>
+<p class="last">stream consisting of external demand and downstream demand)
+- larger_adjacent_node [p]
+- larger_adjacent_node_is_downstream
+- max_replenishment_time [M]</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>(c) Lawrence V. Snyder
+Lehigh University and Opex Analytics</p>
+<dl class="function">
+<dt id="inventory.gsm_tree.calculate_c">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">calculate_c</code><span class="sig-paren">(</span><em>tree</em>, <em>k</em>, <em>S</em>, <em>SI</em>, <em>theta_in_partial</em>, <em>theta_out_partial</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.calculate_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate c_k(S,SI), the expected holding cost for N_k as function of
+inbound and outbound CSTs at node_k k.</p>
+<p>Assumes demand bound over tau periods is of the form
+z_alpha * sigma * sqrt(tau).
+# TODO: allow more general demand bound.</p>
+<p>Upstream nodes are allowed to use outbound CSTs greater than SI and
+downstream nodes are allowed to use inbound CSTs greater than S.
+In effect, this allows multiple inbound/outbound CSTs for a single
+node_k.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Tree must be pre-processed already.</li>
+<li><strong>k</strong> (<em>int</em>) – Index of node_k.</li>
+<li><strong>S</strong> (<em>int</em>) – Outbound committed service time.</li>
+<li><strong>SI</strong> (<em>int</em>) – Inbound committed service time.</li>
+<li><strong>theta_in_partial</strong> (<em>dict</em>) – Dict of values of theta_in function that have been calculated so far
+(i.e., for i &lt; k).</li>
+<li><strong>theta_out_partial</strong> (<em>dict</em>) – Dict of values of theta_out function that have been calculated so far
+(i.e., for i &lt; k).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>cost</strong> (<em>float</em>) – Value of c_k(S,SI).</li>
+<li><strong>stage_cost</strong> (<em>float</em>) – Cost to hold inventory at stage k (only) given CSTs of SI and S.</li>
+<li><strong>best_upstream_S</strong> (<em>dict</em>) – Dict indicating, for each i that is immediately upstream from k,
+the best outbound CST for node_k i given k’s CSTs of SI and S.</li>
+<li><strong>best_downstream_SI</strong> (<em>dict</em>) – Dict indicating, for each i that is immediately downstream from k,
+the best inbound CST for node_k i given k’s CSTs of SI and S.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.calculate_theta_in">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">calculate_theta_in</code><span class="sig-paren">(</span><em>tree</em>, <em>k</em>, <em>SI</em>, <em>theta_in_partial</em>, <em>theta_out_partial</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.calculate_theta_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the function theta_in(k, SI) as described in Section 6.3.6.2 of
+Snyder and Shen (2019) [function g_i(SI) in Section 5 of Graves and Willems
+(2003)].</p>
+<p>Original function is modified in the following ways:
+1. If SI is less than the external inbound CST for stage k,
+theta_in(k, SI) is calculated as though SI = external inbound CST. (If k is a
+source stage, theta_in(k,.) will never be calculated [theta_out(k,.) will be], but
+k might have non-zero external inbound CST even if it is not a source stage.)
+2. The demand bound demand bound over tau periods is assumed to be of the form
+z_alpha * sigma * sqrt(tau).
+3. When calculating c_k(S, SI), upstream nodes are allowed to use outbound
+CSTs greater than SI, and downstream nodes are allowed to use inbound
+CSTs greater than S. In effect, this allows multiple inbound/outbound
+CSTs for a single nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Tree must be pre-processed already.</li>
+<li><strong>k</strong> (<em>int</em>) – Index of node.</li>
+<li><strong>SI</strong> (<em>int</em>) – Inbound committed service time.</li>
+<li><strong>theta_in_partial</strong> (<em>dict</em>) – Dict of values of theta_in function that have been calculated so far
+(i.e., for i &lt; k).</li>
+<li><strong>theta_out_partial</strong> (<em>dict</em>) – Dict of values of theta_out function that have been calculated so far
+(i.e., for i &lt; k).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>theta_in_k_SI</strong> (<em>float</em>) – The value of theta_in(k, SI).</li>
+<li><strong>best_cst_adjacent</strong> (<em>dict</em>) – Dict indicating, for each adjacent stage i with i &lt;= k, the CST value
+that minimized theta_in(.) for the optimal value of S.
+* If i serves k, then best_CST_adjacent[i] = the value of S_i that
+minimizes theta_out(i, S_i).
+* If i is served by k, then best_CST_adjacent[i] = the value of SI_i
+that minimizes theta_in(i, SI_i).
+* If i = k, then best_CST_adjacent[i] = the best value of S chosen in
+minimization of theta_in(.).</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.calculate_theta_out">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">calculate_theta_out</code><span class="sig-paren">(</span><em>tree</em>, <em>k</em>, <em>S</em>, <em>theta_in_partial</em>, <em>theta_out_partial</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.calculate_theta_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the function theta_out(k, S) as described in Section 6.3.6.2 of
+Snyder and Shen (2019) [function f_i(S) in Section 5 of Graves and Willems
+(2003)].</p>
+<p>Original function is modified in the following ways:
+1. If S is greater than the external outbound CST for stage k,
+theta_out(k, S) is calculated as though S = external outbound CST. (If k is a sink
+stage, theta_out(k,.) will never be calculated [theta_in(k,.) will be], but
+k might have non-zero external outbound CST even if it is not a sink stage.)
+2. The range of values of SI for which c_k(S,SI) is evaluated begins at
+max(external_inbound_cst, S - T_k), not max(0, S - T_k).
+3. The demand bound demand bound over tau periods is assumed to be of the form
+z_alpha * sigma * sqrt(tau).
+4. When calculating c_k(S, SI), upstream nodes are allowed to use outbound
+CSTs greater than SI, and downstream nodes are allowed to use inbound
+CSTs greater than S. In effect, this allows multiple inbound/outbound
+CSTs for a single nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Tree must be pre-processed already.</li>
+<li><strong>k</strong> (<em>int</em>) – Index of node.</li>
+<li><strong>S</strong> (<em>int</em>) – Outbound committed service time.</li>
+<li><strong>theta_in_partial</strong> (<em>dict</em>) – Dict of values of theta_in function that have been calculated so far
+(i.e., for i &lt; k).</li>
+<li><strong>theta_out_partial</strong> (<em>dict</em>) – Dict of values of theta_out function that have been calculated so far
+(i.e., for i &lt; k).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>theta_out_k_S</strong> (<em>float</em>) – The value of theta_out(k, S).</li>
+<li><strong>best_cst_adjacent</strong> (<em>dict</em>) – Dict indicating, for each adjacent stage i with i &lt;= k, the CST value
+that minimized theta_out(.) for the optimal value of SI.
+* If i serves k, then best_CST_adjacent[i] = the value of S_i that
+minimizes theta_out(i, S_i).
+* If i is served by k, then best_CST_adjacent[i] = the value of SI_i
+that minimizes theta_in(i, SI_i).
+* If i = k, then best_CST_adjacent[i] = the best value of SI chosen in
+minimization of theta_out(.).</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.connected_subgraph_nodes">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">connected_subgraph_nodes</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.connected_subgraph_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine nodes connected to k in subgraph on {min_k,…,k}, for each k,
+where min_k is smallest index in graph. [N_k]</p>
+<p>Connected does not necessarily mean adjacent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>connected_nodes</strong> – Dict of set of connected subgraph nodes for each node.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.cst_dp">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">cst_dp</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.cst_dp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize committed service times on pre-processed tree.</p>
+<p>Optimization is performed using the dynamic programming (DP) algorithm of
+Graves and Willems (2000).</p>
+<p>tree is the DiGraph containing the instance. It must be pre-processed
+before calling this function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Current node labels are ignored and may be anything.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>opt_cost</strong> (<em>float</em>) – Optimal expected cost of system.</li>
+<li><strong>opt_cst</strong> (<em>dict</em>) – Dict of optimal CSTs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.find_larger_adjacent_nodes">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">find_larger_adjacent_nodes</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.find_larger_adjacent_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find larger-indexed adjacent node, for each node in tree.</p>
+<p>After the nodes are relabeled by relabel_nodes(), each node (except the
+node with the largest index) is adjacent to exactly one node with a
+larger index. Node k’s neighbor with larger index is denoted p(k) in
+Graves and Willems (2000). This function finds p(k) for all k and also
+indicates whether p(k) is upstream or downstream from k.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Nodes are assumed to have been relabeled using relabel_nodes().</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>larger_adjacent</strong> (<em>dict</em>) – Dict containing index of each node’s larger-indexed adjacent node,
+for all nodes except the largest-indexed node.</li>
+<li><strong>downstream</strong> (<em>dict</em>) – Dict containing, for each node, True if the larger-indexed adjacent
+node is downstream from the node, False if it is upstream, for all
+nodes except the largest-indexed node.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.is_correctly_labeled">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">is_correctly_labeled</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.is_correctly_labeled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether tree is already correctly labeled.</p>
+<p>Tree is correctly labeled if all labels are integers, the integers are
+consecutive, and every stage (other than the highest-indexed one) has
+exactly one adjacent stage with a greater index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">True if tree is already correctly labeled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.longest_paths">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">longest_paths</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.longest_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the length of the longest path from any source node to to each
+node k.</p>
+<p>Arc lengths are determined by processing times. External inbound CSTs are
+considered source nodes, so having an external inbound CST at node i of 5 is
+like having another node that serves node i with a processing time of 5.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Nodes are assumed to have been relabeled using relabel_nodes().</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>longest_lengths</strong> – Dict of longest paths to each node (M_k).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.min_of_dict">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">min_of_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.min_of_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine min value of dict and return min and argmin (key).</p>
+<p>Values must be numeric.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – The dict.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>min_value</strong> (<em>float</em>) – Minimum value in dict.</li>
+<li><em>min_key</em> – Key that attains minimum value.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If dict contains a non-numeric value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.net_demand">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">net_demand</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.net_demand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate net demand mean and standard deviation for all nodes in tree.</p>
+<p>Net demand is the demand stream consisting of the external demand for the
+node plus all downstream demand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>net_means</strong> (<em>dict</em>) – Dict of net mean for each node.</li>
+<li><strong>net_standard_deviations</strong> (<em>dict</em>) – Dict of net standard deviation for each node.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.optimize_committed_service_times">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">optimize_committed_service_times</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.optimize_committed_service_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize committed service times.</p>
+<p>Optimization is performed using the dynamic programming (DP) algorithm of
+Graves and Willems (2000).</p>
+<p>tree is the DiGraph containing the instance. It need not be
+pre-processed (nodes relabeled, etc.); this function will do the
+pre-processing.</p>
+<p>Output parameters are expressed using the original labeling of tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Current node labels are ignored and may be anything.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>opt_cost</strong> (<em>float</em>) – Optimal expected cost of system.</li>
+<li><strong>opt_cst</strong> (<em>dict</em>) – Dict of optimal CSTs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.preprocess_tree">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">preprocess_tree</code><span class="sig-paren">(</span><em>tree</em>, <em>start_index=0</em>, <em>force_relabel=False</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.preprocess_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess the GSM tree. Returns an independent copy.</p>
+<p>If tree is already correctly labeled, does not relabel it,
+unless force_relabel is True.</p>
+<p>Relabel the nodes; fill original_label, net_demand_mean,
+net_demand_standard_deviation, larger_adjacent_node,
+max_replenishment_time node-level attributes.
+Fill missing data for demand_bound_constant, external_inbound_cst, and
+external_outbound_cst attributes.</p>
+<p>Fill max_max_replenishment_time graph-level attribute.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Current node labels are ignored and may be anything.</li>
+<li><strong>start_index</strong> (<em>int</em><em>, </em><em>optional</em>) – Integer to use as starting (smallest) node label.</li>
+<li><strong>force_relabel</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, function will relabel nodes even if original tree is correctly
+labeled.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_tree</strong> – Pre-processed multi-echelon tree network.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">graph</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.relabel_nodes">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">relabel_nodes</code><span class="sig-paren">(</span><em>tree</em>, <em>start_index=0</em>, <em>force_relabel=False</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.relabel_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the node-labeling algorithm described in Section 5 of Graves and
+Willems (2000).</p>
+<p>If tree is already correctly labeled, returns the original tree,
+unless force_relabel is True, in which case performs the relabeling.
+Even if original</p>
+<p>Does not modify the input tree. Fills ‘original_label’ attribute of nodes
+in new tree with old node labels, even if original tree was already
+correctly labeled.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Current node labels are ignored (unless the tree is already correctly
+labeled) and may be anything.</li>
+<li><strong>start_index</strong> (<em>int</em><em>, </em><em>optional</em>) – Integer to use as starting (smallest) node label.</li>
+<li><strong>force_relabel</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, function will relabel nodes even if original tree is correctly
+labeled.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>relabeled_tree</strong> – NetworkX directed graph representing the relabeled tree network.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">graph</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="inventory.gsm_tree.solution_cost">
+<code class="descclassname">inventory.gsm_tree.</code><code class="descname">solution_cost</code><span class="sig-paren">(</span><em>tree</em>, <em>cst</em><span class="sig-paren">)</span><a class="headerlink" href="#inventory.gsm_tree.solution_cost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate expected cost of given solution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<em>graph</em>) – NetworkX directed graph representing the multi-echelon tree network.
+Graph need not have been relabeled.</li>
+<li><strong>cst</strong> (<em>dict</em>) – Dict of CSTs for each node, using the same node labeling as tree.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost of the solution.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <div class="toctree-wrapper compound">
 </div>
 </div>
