@@ -181,7 +181,7 @@ class TestInboundCST(unittest.TestCase):
 		print_status('TestInboundCST', 'tearDownClass()')
 
 	def test_example_6_5(self):
-		"""Test that inbound_cst() correctly reports cost for solutions
+		"""Test that inbound_cst() correctly reports inbound CST for solutions
 		for Example_6_5.
 		"""
 
@@ -214,7 +214,7 @@ class TestInboundCST(unittest.TestCase):
 		self.assertEqual(SI, 2)
 
 	def test_figure_6_14(self):
-		"""Test that inbound_cst() correctly reports cost for solutions
+		"""Test that inbound_cst() correctly reports inbound CST for solutions
 		for Figure 6.14.
 		"""
 
@@ -243,3 +243,79 @@ class TestInboundCST(unittest.TestCase):
 		correct_SI = {1: 0, 2: 2, 3: 3, 4: 0, 5: 3, 6: 3, 7: 0, 8: 0, 9: 0, 10: 5}
 		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
 		self.assertDictEqual(SI, correct_SI)
+
+
+class TestNetLeadTime(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestNetLeadTime', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestNetLeadTime', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that net_lead_time() correctly reports NLT for solutions
+		for Example_6_5.
+		"""
+
+		print_status('TestNetLeadTime', 'test_example_6_5()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5, force_relabel=False)
+
+		# Optimal solution: S = (0,0,0,1).
+		cst = {1: 0, 2: 0, 3: 0, 4: 1}
+		correct_nlt = {1: 3, 2: 1, 3: 1, 4: 0}
+		nlt = gsm_tree_helpers.net_lead_time(tree, tree.nodes, cst)
+		self.assertDictEqual(nlt, correct_nlt)
+
+		# Test a few singletons.
+		nlt = gsm_tree_helpers.net_lead_time(tree, 1, cst)
+		self.assertEqual(nlt, 3)
+		nlt = gsm_tree_helpers.net_lead_time(tree, 3, cst)
+		self.assertEqual(nlt, 1)
+
+		# Sub-optimal solution: S = (2,0,2,1).
+		cst = {1: 2, 2: 0, 3: 2, 4: 1}
+		correct_nlt = {1: 1, 2: 3, 3: 1, 4: 2}
+		nlt = gsm_tree_helpers.net_lead_time(tree, tree.nodes, cst)
+		self.assertDictEqual(nlt, correct_nlt)
+
+		# Test a few singletons.
+		nlt = gsm_tree_helpers.net_lead_time(tree, 1, cst)
+		self.assertEqual(nlt, 1)
+		nlt = gsm_tree_helpers.net_lead_time(tree, 3, cst)
+		self.assertEqual(nlt, 1)
+
+	def test_figure_6_14(self):
+		"""Test that net_lead_time() correctly reports NLT for solutions
+		for Figure 6.14.
+		"""
+
+		print_status('TestNetLeadTime', 'test_figure_6_14()')
+
+		tree = gsm_tree.preprocess_tree(instance_figure_6_14, start_index=1)
+
+		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
+		cst = {1: 0, 2: 3, 3: 5, 4: 4, 5: 7, 6: 0, 7: 0, 8: 0, 9: 0, 10: 2}
+		correct_nlt = {1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 10, 7: 6, 8: 4, 9: 3, 10: 0}
+		nlt = gsm_tree_helpers.net_lead_time(tree, tree.nodes, cst)
+		self.assertDictEqual(nlt, correct_nlt)
+
+		# Test a few singletons.
+		nlt = gsm_tree_helpers.net_lead_time(tree, 1, cst)
+		self.assertEqual(nlt, 2)
+		nlt = gsm_tree_helpers.net_lead_time(tree, 3, cst)
+		self.assertEqual(nlt, 0)
+
+		# Test a list.
+		nlt = gsm_tree_helpers.net_lead_time(tree, [2, 3, 5], cst)
+		self.assertDictEqual(nlt, {2: 0, 3: 0, 5: 0})
+
+		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
+		cst = {1: 2, 2: 3, 3: 3, 4: 0, 5: 3, 6: 5, 7: 1, 8: 1, 9: 0, 10: 2}
+		correct_nlt = {1: 0, 2: 2, 3: 2, 4: 4, 5: 2, 6: 1, 7: 5, 8: 3, 9: 3, 10: 5}
+		nlt = gsm_tree_helpers.net_lead_time(tree, tree.nodes, cst)
+		self.assertDictEqual(nlt, correct_nlt)

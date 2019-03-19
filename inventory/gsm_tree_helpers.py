@@ -166,7 +166,6 @@ def inbound_cst(tree, n, cst):
 	SI : int OR dict
 		Inbound CST (SI) of node n (if n is a single node); OR a dictionary of
 		inbound CST (SI) values keyed by node (if n is an iterable container).
-		node,
 
 	"""
 
@@ -191,6 +190,51 @@ def inbound_cst(tree, n, cst):
 		return SI
 	else:
 		return SI[n[0]]
+
+
+def net_lead_time(tree, n, cst):
+	"""Determine the net lead time (NLT) for one or more stages, given the
+	outbound CSTs.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Graph need not have been relabeled.
+	n : node OR iterable container
+		A single node index OR a container of node indices (dict, list, set, etc.).
+	cst : dict
+		Dict of CSTs for each node, using the same node labeling as tree.
+
+	Returns
+	-------
+	nlt : int OR dict
+		NLT of node n (if n is a single node); OR a dictionary of NLT values
+		keyed by node (if n is an iterable container).
+
+	"""
+
+	# Determine whether n is singleton or iterable.
+	if is_iterable(n):
+		n_is_iterable = True
+	else:
+		# n is a singleton; replace it with a list.
+		n = [n]
+		n_is_iterable = False
+
+	# Get inbound CSTs.
+	SI = inbound_cst(tree, n, cst)
+
+	# Determine NLTs.
+	nlt = {}
+	for k in n:
+		# Determine NLT.
+		nlt[k] = SI[k] + tree.nodes[k]['processing_time'] - cst[k]
+
+	if n_is_iterable:
+		return nlt
+	else:
+		return nlt[n[0]]
 
 
 def base_stock_levels(tree, cst):
