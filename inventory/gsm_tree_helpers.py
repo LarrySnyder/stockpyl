@@ -99,13 +99,17 @@ def is_iterable(x):
 	True if x is iterable, False if it is a singleton.
 
 	"""
-	# Determine whether n is singleton or iterable.
-	try:
-		_ = (y for y in x)
-	except TypeError:
+	# First check whether x is a string (because strings act like iterables).
+	if isinstance(x, str):
 		return False
 	else:
-		return True
+		try:
+	#		_ = iter(x)
+			_ = (y for y in x)
+		except TypeError:
+			return False
+		else:
+			return True
 
 
 ### SOLUTION HANDLING ###

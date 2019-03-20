@@ -519,7 +519,7 @@ class TestPreprocessTree(unittest.TestCase):
 
 		print_status('TestPreprocessTree', 'test_example_6_5()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		new_tree = gsm_tree.preprocess_tree(instance_example_6_5)
 
 		# Build correct tree.
 		correct_tree = nx.DiGraph(max_max_replenishment_time=5)
@@ -581,118 +581,108 @@ class TestPreprocessTree(unittest.TestCase):
 
 		print_status('TestPreprocessTree', 'test_figure_6_14()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_figure_6_14, start_index=1)
+		new_tree = gsm_tree.preprocess_tree(instance_figure_6_14)
 
 		# Build correct tree.
 		correct_tree = nx.DiGraph(max_max_replenishment_time=14)
-		correct_tree.add_node(1, processing_time=2,
+		correct_tree.add_node('Raw_Material', processing_time=2,
 							  holding_cost=0.01,
 							  external_inbound_cst=0,
 							  external_outbound_cst=gsm_tree.BIG_INT,
 							  demand_bound_constant=1.6448536269514722,
-							  original_label='Raw_Material',
 							  net_demand_standard_deviation=10,
 							  larger_adjacent_node=2,
 							  larger_adjacent_node_is_downstream=True,
 							  max_replenishment_time=2)
-		correct_tree.add_node(2, processing_time=3,
+		correct_tree.add_node('Process_Wafers', processing_time=3,
 							holding_cost=0.03,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Process_Wafers',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=3,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=5)
-		correct_tree.add_node(3, processing_time=2,
+		correct_tree.add_node('Package_Test_Wafers', processing_time=2,
 							holding_cost=0.04,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Package_Test_Wafers',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=5,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=7)
-		correct_tree.add_node(4, processing_time=4,
+		correct_tree.add_node('Imager_Base', processing_time=4,
 							holding_cost=0.06,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Imager_Base',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=5,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=4)
-		correct_tree.add_node(5, processing_time=2,
+		correct_tree.add_node('Imager_Assembly', processing_time=2,
 							holding_cost=0.12,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Imager_Assembly',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=6,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=9)
-		correct_tree.add_node(6, processing_time=3,
+		correct_tree.add_node('Ship_to_Final_Assembly', processing_time=3,
 							holding_cost=0.13,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Ship_to_Final_Assembly',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=12)
-		correct_tree.add_node(7, processing_time=6,
+		correct_tree.add_node('Camera', processing_time=6,
 							holding_cost=0.20,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Camera',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=6)
-		correct_tree.add_node(8, processing_time=4,
+		correct_tree.add_node('Circuit_Board', processing_time=4,
 							holding_cost=0.08,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Circuit_Board',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=4)
-		correct_tree.add_node(9, processing_time=3,
+		correct_tree.add_node('Other_Parts', processing_time=3,
 							holding_cost=0.04,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Other_Parts',
 							net_demand_standard_deviation=10,
 							larger_adjacent_node=10,
 							larger_adjacent_node_is_downstream=True,
 							max_replenishment_time=3)
-		correct_tree.add_node(10, processing_time=2,
+		correct_tree.add_node('Build_Test_Pack', processing_time=2,
 							holding_cost=0.50,
 							external_inbound_cst=0,
 							external_outbound_cst=2,
 							demand_bound_constant=1.6448536269514722,
-							original_label='Build_Test_Pack',
 							external_demand_standard_deviation=10,
 							net_demand_standard_deviation=10,
 							max_replenishment_time=14)
-		correct_tree.add_edge(1, 2)
-		correct_tree.add_edge(2, 3)
-		correct_tree.add_edge(3, 5)
-		correct_tree.add_edge(4, 5)
-		correct_tree.add_edge(5, 6)
-		correct_tree.add_edge(7, 10)
-		correct_tree.add_edge(6, 10)
-		correct_tree.add_edge(8, 10)
-		correct_tree.add_edge(9, 10)
+		correct_tree.add_edge('Raw_Material', 'Process_Wafers')
+		correct_tree.add_edge('Process_Wafers', 'Package_Test_Wafers')
+		correct_tree.add_edge('Package_Test_Wafers', 'Imager_Assembly')
+		correct_tree.add_edge('Imager_Base', 'Imager_Assembly')
+		correct_tree.add_edge('Imager_Assembly', 'Ship_to_Final_Assembly')
+		correct_tree.add_edge('Camera', 'Build_Test_Pack')
+		correct_tree.add_edge('Ship_to_Final_Assembly', 'Build_Test_Pack')
+		correct_tree.add_edge('Circuit_Board', 'Build_Test_Pack')
+		correct_tree.add_edge('Other_Parts', 'Build_Test_Pack')
 
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
 									   gsm_tree_helpers.dict_match,
@@ -708,8 +698,7 @@ class TestPreprocessTree(unittest.TestCase):
 
 		print_status('TestPreprocessTree', 'test_problem_6_9()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_problem_6_7,
-											force_relabel=False)
+		new_tree = gsm_tree.preprocess_tree(instance_problem_6_7)
 
 		# Build correct tree.
 		correct_tree = nx.DiGraph(max_max_replenishment_time=5)
@@ -767,7 +756,7 @@ class TestPreprocessTree(unittest.TestCase):
 
 		# Build correct tree.
 		correct_tree = nx.DiGraph(max_max_replenishment_time=38)
-		correct_tree.add_node(0, processing_time=7,
+		correct_tree.add_node(1, processing_time=7,
 							holding_cost=220*0.2/365,
 							demand_bound_constant=4,
 							original_label=1,
@@ -780,7 +769,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node=3,
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=38)
-		correct_tree.add_node(1, processing_time=7,
+		correct_tree.add_node(2, processing_time=7,
 							holding_cost=140*0.2/365,
 							demand_bound_constant=4,
 							original_label=2,
@@ -793,7 +782,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node=3,
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=38)
-		correct_tree.add_node(2, processing_time=3,
+		correct_tree.add_node(4, processing_time=3,
 							holding_cost=5*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
@@ -815,7 +804,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node=4,
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=31)
-		correct_tree.add_node(4, processing_time=8,
+		correct_tree.add_node(5, processing_time=8,
 							holding_cost=20*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
@@ -826,7 +815,7 @@ class TestPreprocessTree(unittest.TestCase):
 							larger_adjacent_node=5,
 							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=10)
-		correct_tree.add_node(5, processing_time=2,
+		correct_tree.add_node(6, processing_time=2,
 							holding_cost=7.5*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
@@ -835,11 +824,11 @@ class TestPreprocessTree(unittest.TestCase):
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
 							max_replenishment_time=2)
-		correct_tree.add_edge(5, 4)
-		correct_tree.add_edge(2, 3)
+		correct_tree.add_edge(6, 5)
 		correct_tree.add_edge(4, 3)
-		correct_tree.add_edge(3, 0)
+		correct_tree.add_edge(5, 3)
 		correct_tree.add_edge(3, 1)
+		correct_tree.add_edge(3, 2)
 
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
 									   gsm_tree_helpers.dict_match,
@@ -868,7 +857,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_example_6_5_k1()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Test S = 0, SI = 1.
 		c_1_0_1, stage_cost, best_upstream_S, best_downstream_SI = \
@@ -912,7 +902,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_example_6_5_k2()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Test S = 0, SI = 0.
 		c_2_0_0, stage_cost, best_upstream_S, best_downstream_SI = \
@@ -966,7 +957,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_example_6_5_k3_S0()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {1: {0: np.sqrt(2) * np.sqrt(3),
@@ -1031,7 +1023,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_example_6_5_k3_S2()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {1: {0: np.sqrt(2) * np.sqrt(3),
@@ -1084,7 +1077,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_example_6_5_k4()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {1: {0: np.sqrt(2) * np.sqrt(3),
@@ -1164,7 +1158,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_problem_6_7_k1()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Test S = 0, SI = 0.
 		SI = 0
@@ -1233,7 +1228,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_problem_6_7_k2_SI0()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {}
@@ -1270,7 +1266,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_problem_6_7_k2_SI1()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {}
@@ -1319,7 +1316,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_problem_6_7_k2_SI2()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {}
@@ -1379,7 +1377,8 @@ class TestCalculateC(unittest.TestCase):
 
 		print_status('TestCalculateC', 'test_problem_6_7_k3()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		# Build theta_in_partial and theta_out_partial.
 		theta_out_partial = {}
@@ -1441,7 +1440,8 @@ class TestCalculateThetaOut(unittest.TestCase):
 
 		print_status('TestCalculateThetaOut', 'test_example_6_5_k1()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 1
 		SI = 1
@@ -1460,7 +1460,8 @@ class TestCalculateThetaOut(unittest.TestCase):
 
 		print_status('TestCalculateThetaOut', 'test_example_6_5_k1()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 3
 		theta_in_partial = {2: {SI: 3 * np.sqrt(SI + 1) for SI in range(6)}}
@@ -1482,7 +1483,8 @@ class TestCalculateThetaOut(unittest.TestCase):
 
 		print_status('TestCalculateThetaOut', 'test_problem_6_7_k3()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 3
 		theta_in_partial = {1: {SI: 160 * np.sqrt(SI + 2) for SI in range(6)},
@@ -1516,7 +1518,8 @@ class TestCalculateThetaIn(unittest.TestCase):
 
 		print_status('TestCalculateThetaIn', 'test_example_6_5_k2()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 2
 		S = 0
@@ -1535,7 +1538,8 @@ class TestCalculateThetaIn(unittest.TestCase):
 
 		print_status('TestCalculateThetaIn', 'test_example_6_5_k4()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 4
 		theta_in_partial = {2: {SI: 3 * np.sqrt(SI + 1) for SI in range(6)}}
@@ -1561,7 +1565,8 @@ class TestCalculateThetaIn(unittest.TestCase):
 
 		print_status('TestCalculateThetaIn', 'test_problem_6_7_k1()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 1
 		S = 0
@@ -1580,7 +1585,8 @@ class TestCalculateThetaIn(unittest.TestCase):
 
 		print_status('TestCalculateThetaIn', 'test_problem_6_7_k1()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_7, start_index=1)
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = gsm_tree.relabel_nodes(tree, start_index=1)
 
 		k = 2
 		theta_in_partial = {1: {SI: 160 * np.sqrt(SI + 2) for SI in range(6)}}
@@ -1615,8 +1621,10 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		print_status('TestOptimizeCommittedServiceTimes', 'test_example_6_5')
 
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+
 		opt_cost, opt_cst = \
-			gsm_tree.optimize_committed_service_times(instance_example_6_5)
+			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertEqual(opt_cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
 		self.assertDictEqual(opt_cst, {1: 0, 2: 0, 3: 0, 4: 1})
@@ -1628,8 +1636,10 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		print_status('TestOptimizeCommittedServiceTimes', 'test_figure_6_14')
 
+		tree = gsm_tree.preprocess_tree(instance_figure_6_14)
+
 		opt_cost, opt_cst = \
-			gsm_tree.optimize_committed_service_times(instance_figure_6_14)
+			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 18.8240044725922)
 		self.assertDictEqual(opt_cst, {'Raw_Material': 0,
@@ -1652,6 +1662,10 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = instance_figure_6_14.copy()
 		tree.nodes['Build_Test_Pack']['external_outbound_cst'] = 5
+		tree = gsm_tree.preprocess_tree(tree)
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
 
 		opt_cost, opt_cst = \
 			gsm_tree.optimize_committed_service_times(tree)
@@ -1677,6 +1691,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = instance_figure_6_14.copy()
 		tree.nodes['Build_Test_Pack']['external_outbound_cst'] = 8
+		tree = gsm_tree.preprocess_tree(tree)
 
 		opt_cost, opt_cst = \
 			gsm_tree.optimize_committed_service_times(tree)
@@ -1702,6 +1717,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = instance_figure_6_14.copy()
 		tree.nodes['Build_Test_Pack']['external_outbound_cst'] = 12
+		tree = gsm_tree.preprocess_tree(tree)
 
 		opt_cost, opt_cst = \
 			gsm_tree.optimize_committed_service_times(tree)
@@ -1725,8 +1741,10 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_7')
 
+		tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+
 		opt_cost, opt_cst = \
-			gsm_tree.optimize_committed_service_times(instance_problem_6_7)
+			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 160 * np.sqrt(5))
 		self.assertDictEqual(opt_cst, {1: 0, 2: 3, 3: 2})
@@ -1737,8 +1755,10 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_9')
 
+		tree = gsm_tree.preprocess_tree(instance_problem_6_9)
+
 		opt_cost, opt_cst = \
-			gsm_tree.optimize_committed_service_times(instance_problem_6_9)
+			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 15.649530249501)
 		self.assertDictEqual(opt_cst, {1: 3, 2: 3, 3: 0, 4: 0, 5: 0, 6: 2})
@@ -1752,6 +1772,8 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree = instance_problem_6_9.copy()
 		tree.nodes[1]['external_outbound_cst'] = 0
 		tree.nodes[2]['external_outbound_cst'] = 7
+
+		tree = gsm_tree.preprocess_tree(tree)
 
 		opt_cost, opt_cst = \
 			gsm_tree.optimize_committed_service_times(tree)
@@ -1768,6 +1790,8 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree = instance_problem_6_9.copy()
 		tree.nodes[1]['external_outbound_cst'] = 21
 		tree.nodes[2]['external_outbound_cst'] = 5
+
+		tree = gsm_tree.preprocess_tree(tree)
 
 		opt_cost, opt_cst = \
 			gsm_tree.optimize_committed_service_times(tree)

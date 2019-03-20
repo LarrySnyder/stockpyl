@@ -42,15 +42,15 @@ from inventory.gsm_tree_helpers import *
 
 ### GRAPH MANIPULATION ###
 
-def preprocess_tree(tree, start_index=0, force_relabel=False):
+def preprocess_tree(tree):
 	"""Preprocess the GSM tree. Returns an independent copy.
 
 	If tree is already correctly labeled, does not relabel it,
 	unless force_relabel is True.
 
-	Relabel the nodes; fill original_label, net_demand_mean,
+	Fill node-level attributes: original_label, net_demand_mean,
 	net_demand_standard_deviation, larger_adjacent_node,
-	max_replenishment_time node-level attributes.
+	max_replenishment_time.
 	Fill missing data for demand_bound_constant, external_inbound_cst, and
 	external_outbound_cst attributes.
 
@@ -74,8 +74,7 @@ def preprocess_tree(tree, start_index=0, force_relabel=False):
 
 	"""
 
-	# Relabel nodes.
-	new_tree = relabel_nodes(tree, start_index, force_relabel)
+	new_tree = tree.copy()
 
 	# Fill external inbound and outbound CST parameters, if not provided.
 	# Default value of external outbound CST = BIG_INT.
@@ -107,11 +106,6 @@ def preprocess_tree(tree, start_index=0, force_relabel=False):
 	nx.set_node_attributes(new_tree, net_demand_standard_deviations,
 						   'net_demand_standard_deviation')
 
-	# Determine larger adjacent nodes.
-	larger_adjacent, downstream = find_larger_adjacent_nodes(new_tree)
-	nx.set_node_attributes(new_tree, larger_adjacent, 'larger_adjacent_node')
-	nx.set_node_attributes(new_tree, downstream, 'larger_adjacent_node_is_downstream')
-
 	# Calculate max replenishment times.
 	max_replenishment_times = longest_paths(new_tree)
 	nx.set_node_attributes(new_tree, max_replenishment_times, 'max_replenishment_time')
@@ -130,10 +124,10 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 
 	If tree is already correctly labeled, returns the original tree,
 	unless force_relabel is True, in which case performs the relabeling.
-	Even if original
 
-	Does not modify the input tree. Fills 'original_label' attribute of nodes
-	in new tree with old node labels, even if original tree was already
+	Does not modify the input tree. Fills 'original_label',
+	'larger_adjacent_node', and 'larger_adjacent_node_is_downstream' attributes
+	of nodes in new tree, whether or not original tree was already
 	correctly labeled.
 
 	Parameters
@@ -194,6 +188,11 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 	# Fill original_label attribute of relabeled tree.
 	original_labels = {new_labels[k]: k for k in tree.nodes}
 	nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
+
+	# Fill larger-adjacent-node attributes.
+	larger_adjacent, downstream = find_larger_adjacent_nodes(relabeled_tree)
+	nx.set_node_attributes(relabeled_tree, larger_adjacent, 'larger_adjacent_node')
+	nx.set_node_attributes(relabeled_tree, downstream, 'larger_adjacent_node_is_downstream')
 
 	return relabeled_tree
 
@@ -425,9 +424,9 @@ def optimize_committed_service_times(tree):
 	Optimization is performed using the dynamic programming (DP) algorithm of
 	Graves and Willems (2000).
 
-	tree is the DiGraph containing the instance. It need not be
-	pre-processed (nodes relabeled, etc.); this function will do the
-	pre-processing.
+	tree is the DiGraph containing the instance. The tree must already have been
+	pre-processed using preprocess_tree(), but it need not have had its nodes
+	relabeled using relabel_nodes().
 
 	Output parameters are expressed using the original labeling of tree.
 
@@ -446,8 +445,8 @@ def optimize_committed_service_times(tree):
 
 	"""
 
-	# Preprocess tree.
-	tree = preprocess_tree(tree)
+	# Relabel nodes.
+	tree = relabel_nodes(tree)
 
 	# Solve.
 	opt_cost, opt_cst_relabeled = cst_dp(tree)
