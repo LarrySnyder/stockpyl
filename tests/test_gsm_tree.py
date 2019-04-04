@@ -1798,3 +1798,19 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		self.assertAlmostEqual(opt_cost, 10.5811190103555)
 		self.assertDictEqual(opt_cst, {1: 7, 2: 5, 3: 0, 4: 0, 5: 0, 6: 2})
+
+	def test_single_stage_instance(self):
+		"""Test that optimize_committed_service_times() works for a
+		single-stage instance."""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_single_stage_instance')
+
+		tree = instance_single_stage
+
+		tree = gsm_tree.preprocess_tree(tree)
+
+		opt_cost, opt_cst = \
+			gsm_tree.optimize_committed_service_times(tree)
+
+		self.assertAlmostEqual(opt_cost, 2)
+		self.assertDictEqual(opt_cst, {1: 0})

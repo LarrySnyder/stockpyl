@@ -120,3 +120,13 @@ instance_problem_6_9.add_edge(4, 3)
 instance_problem_6_9.add_edge(5, 3)
 instance_problem_6_9.add_edge(3, 1)
 instance_problem_6_9.add_edge(3, 2)
+
+
+# Build single-stage instance.
+instance_single_stage = nx.DiGraph()
+instance_single_stage.add_node(1, processing_time=1,
+                     external_inbound_cst=0,
+					 external_outbound_cst=0,
+                     holding_cost=1,
+                     demand_bound_constant=2,
+                     external_demand_standard_deviation=1)

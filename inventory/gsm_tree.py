@@ -215,7 +215,7 @@ def is_correctly_labeled(tree):
 	"""
 
 	# Get indices.
-	ind = tree.nodes
+	ind = list(tree.nodes)
 
 	# Check whether every label is a non-negative integer.
 	if not np.all([str(k).isdigit() for k in ind]):
@@ -273,7 +273,7 @@ def find_larger_adjacent_nodes(tree):
 
 	# Loop through nodes.
 	for k in tree.nodes:
-		if k < np.max(tree.nodes):
+		if k < np.max(list(tree.nodes)):
 			# Get list of nodes that are adjacent to k and have a larger index,
 			# but the list will only contain a single item; set larger_adjacent[k] to it.
 			larger_adjacent_list = [i for i in nx.all_neighbors(tree, k) if i > k]
@@ -489,8 +489,8 @@ def cst_dp(tree):
 	theta_out = {k: {} for k in tree.nodes}
 
 	# Get min and max node indices (for convenience).
-	min_k = np.min(tree.nodes)
-	max_k = np.max(tree.nodes)
+	min_k = np.min(list(tree.nodes))
+	max_k = np.max(list(tree.nodes))
 
 	# Initialize best_cst_adjacent.
 	# best_cst_adjacent[k][S][i] = CST chosen for stage i when calculating
@@ -803,7 +803,7 @@ def calculate_theta_in(tree, k, SI, theta_in_partial, theta_out_partial):
 			min_c = c_S[S]
 			best_cst_adjacent[k] = S
 			# Remember values of other CSTs that attained min cost.
-			for i in range(np.min(tree.nodes), k):
+			for i in range(np.min(list(tree.nodes)), k):
 				if i in tree.predecessors(k):
 					best_cst_adjacent[i] = best_upstream_S[i]
 				elif i in tree.successors(k):
