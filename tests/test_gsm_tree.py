@@ -501,6 +501,106 @@ class TestConnectedSubgraphNodes(unittest.TestCase):
 		self.assertDictEqual(connected_nodes, correct_connected_nodes)
 
 
+class TestGSMToSSM(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestGSMToSSM', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestGSMToSSM', 'tearDownClass()')
+
+	def test_example_6_5(self):
+		"""Test that GSM_to_SSM() works for network in Example 6.5.
+		"""
+
+		print_status('TestGSMToSSM', 'test_example_6_5()')
+
+		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+
+		SSM_tree = gsm_tree.GSM_to_SSM(tree)
+
+		correct_SSM_tree = nx.DiGraph()
+		correct_SSM_tree.add_node(1, lead_time=3, echelon_holding_cost=1)
+		correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		correct_SSM_tree.add_node(3, lead_time=1, echelon_holding_cost=1)
+		correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		correct_SSM_tree.add_edge(1, 3)
+		correct_SSM_tree.add_edge(3, 2)
+		correct_SSM_tree.add_edge(3, 4)
+
+		trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
+									   gsm_tree_helpers.dict_match,
+									   gsm_tree_helpers.dict_match)
+
+		self.assertEqual(trees_equal, True)
+		# Check graph attributes.
+		self.assertDictEqual(SSM_tree.graph, correct_SSM_tree.graph)
+
+	def test_figure_6_14(self):
+		"""Test that GSM_to_SSM() works for network in Figure 6.14.
+		"""
+
+		print_status('TestGSMToSSM', 'test_figure_6_14()')
+
+		tree = gsm_tree.preprocess_tree(instance_figure_6_14)
+
+		SSM_tree = gsm_tree.GSM_to_SSM(tree)
+
+		# TODO: this
+
+		# correct_SSM_tree = nx.DiGraph()
+		# correct_SSM_tree.add_node(1, lead_time=3, echelon_holding_cost=1)
+		# correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		# correct_SSM_tree.add_node(3, lead_time=1, echelon_holding_cost=1)
+		# correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		# correct_SSM_tree.add_edge(1, 3)
+		# correct_SSM_tree.add_edge(3, 2)
+		# correct_SSM_tree.add_edge(3, 4)
+		#
+		# trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
+		# 							   gsm_tree_helpers.dict_match,
+		# 							   gsm_tree_helpers.dict_match)
+		#
+		# self.assertEqual(trees_equal, True)
+		# # Check graph attributes.
+		# self.assertDictEqual(SSM_tree.graph, correct_SSM_tree.graph)
+
+	def test_problem_6_9(self):
+		"""Test that GSM_to_SSM() works for network in Problem 6.9.
+		"""
+
+		print_status('TestGSMToSSM', 'test_problem_6_9()')
+
+		tree = gsm_tree.preprocess_tree(instance_problem_6_9)
+
+		SSM_tree = gsm_tree.GSM_to_SSM(tree)
+
+		correct_SSM_tree = nx.DiGraph()
+		correct_SSM_tree.add_node(1, lead_time=7, echelon_holding_cost=130 * 0.2 / 365, demand_mean=22.0, demand_standard_deviation=4.1)
+		correct_SSM_tree.add_node(2, lead_time=7, echelon_holding_cost=50 * 0.2 / 365, demand_mean=15.3, demand_standard_deviation=6.2)
+		correct_SSM_tree.add_node(3, lead_time=21, echelon_holding_cost=65 * 0.2 / 365)
+		correct_SSM_tree.add_node(4, lead_time=3, echelon_holding_cost=5 * 0.2 / 365)
+		correct_SSM_tree.add_node(5, lead_time=8, echelon_holding_cost=12.5 * 0.2 / 365)
+		correct_SSM_tree.add_node(6, lead_time=2, echelon_holding_cost=7.5 * 0.2 / 365)
+		correct_SSM_tree.add_edge(6, 5)
+		correct_SSM_tree.add_edge(5, 3)
+		correct_SSM_tree.add_edge(4, 3)
+		correct_SSM_tree.add_edge(3, 1)
+		correct_SSM_tree.add_edge(3, 2)
+
+		trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
+									   gsm_tree_helpers.dict_match,
+									   gsm_tree_helpers.dict_match)
+
+		self.assertEqual(trees_equal, True)
+		# Check graph attributes.
+		self.assertDictEqual(SSM_tree.graph, correct_SSM_tree.graph)
+
+
 class TestPreprocessTree(unittest.TestCase):
 
 	@classmethod

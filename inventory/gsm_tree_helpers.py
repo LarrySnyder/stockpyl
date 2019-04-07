@@ -9,6 +9,7 @@ Lehigh University and Opex Analytics
 """
 
 import numpy as np
+import math
 
 ### CONSTANTS ###
 
@@ -45,7 +46,7 @@ def min_of_dict(d):
 	return min_value, min_key
 
 
-def dict_match(d1, d2, require_presence=False):
+def dict_match(d1, d2, require_presence=False, rel_tol=1e-9, abs_tol=0.0):
 	"""Check whether two dicts have equal keys and values.
 
 	A missing key is treated as 0 if the key is present in the other dict,
@@ -61,6 +62,10 @@ def dict_match(d1, d2, require_presence=False):
 	require_presence : bool, optional
 		Set to True to require dicts to have the same keys, or False
 		(default) to treat missing keys as 0s.
+	rel_tol : float
+		Relative tolerance.
+	abs_tol : float
+		Absolute tolerance.
 	"""
 
 	match = True
@@ -68,10 +73,11 @@ def dict_match(d1, d2, require_presence=False):
 	# Check d1 against d2.
 	for key in d1.keys():
 		if key in d2:
-			if d1[key] != d2[key]:
+			if not math.isclose(d1[key], d2[key], rel_tol=rel_tol, abs_tol=abs_tol):
 				match = False
 		else:
-			if d1[key] != 0 or require_presence:
+			if not math.isclose(d1[key], 0, rel_tol=rel_tol, abs_tol=abs_tol) \
+					or require_presence:
 				match = False
 
 	# Check d2 against d1.
@@ -80,7 +86,8 @@ def dict_match(d1, d2, require_presence=False):
 			# We already checked in this case.
 			pass
 		else:
-			if d2[key] != 0 or require_presence:
+			if not math.isclose(d2[key], 0, rel_tol=rel_tol, abs_tol=abs_tol) \
+					or require_presence:
 				match = False
 
 	return match

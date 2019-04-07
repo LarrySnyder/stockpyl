@@ -45,8 +45,7 @@ from inventory.gsm_tree_helpers import *
 def preprocess_tree(tree):
 	"""Preprocess the GSM tree. Returns an independent copy.
 
-	If tree is already correctly labeled, does not relabel it,
-	unless force_relabel is True.
+	If tree is already correctly labeled, does not relabel it.
 
 	Fill node-level attributes: original_label, net_demand_mean,
 	net_demand_standard_deviation, larger_adjacent_node,
@@ -63,9 +62,6 @@ def preprocess_tree(tree):
 		Current node labels are ignored and may be anything.
 	start_index : int, optional
 		Integer to use as starting (smallest) node label.
-	force_relabel : bool, optional
-		If True, function will relabel nodes even if original tree is correctly
-		labeled.
 
 	Returns
 	-------
@@ -414,6 +410,56 @@ def connected_subgraph_nodes(tree):
 							  nx.has_path(subgraph, i, k))
 
 	return connected_nodes
+
+
+def GSM_to_SSM(tree, p=None):
+	"""Convert GSM tree to SSM tree:
+		- Convert local to echelon holding costs.
+		- Convert processing times to lead times.
+		- Include stockout cost at demand nodes (if provided).
+
+	Tree must be pre-processed before calling.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+	p : float, optional
+		Stockout cost to use at demand nodes. If None, function does not fill
+		stockout_cost field.
+		# TODO: allow different p values at different demand nodes
+
+	Returns
+	-------
+	SSM_tree : graph
+		SSM representation of tree.
+	"""
+
+	# Build new graph.
+	SSM_tree = nx.DiGraph()
+
+	# Add nodes.
+	for n in tree.nodes:
+		upstream_h = np.sum([tree.nodes[k]['holding_cost'] for k in
+							 tree.predecessors(n)])
+		SSM_tree.add_node(n,
+			lead_time=tree.nodes[n]['processing_time']+tree.nodes[n]['external_inbound_cst'],
+			echelon_holding_cost=tree.nodes[n]['holding_cost'] - upstream_h)
+		if 'external_demand_mean' in tree.nodes[n]:
+			SSM_tree.nodes[n]['demand_mean'] = \
+				tree.nodes[n]['external_demand_mean']
+		if 'external_demand_standard_deviation' in tree.nodes[n]:
+			SSM_tree.nodes[n]['demand_standard_deviation'] = \
+				tree.nodes[n]['external_demand_standard_deviation']
+		if p is not None:
+			if tree.nodes[n]['external_demand_mean'] > 0 or \
+				tree.nodes[n]['external_demand_standard_deviation'] > 0:
+				SSM_tree.nodes[n]['stockout_cost'] = p
+
+	# Add edges.
+	SSM_tree.add_edges_from(tree.edges)
+
+	return SSM_tree
 
 
 ### OPTIMIZATION ###
@@ -904,4 +950,3 @@ def calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial):
 			cost += min_theta_in
 
 	return cost, stage_cost, best_upstream_S, best_downstream_SI
-
