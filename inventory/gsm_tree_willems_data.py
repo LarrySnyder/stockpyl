@@ -81,7 +81,7 @@ plt.show()
 # SI = inbound_cst(tree, tree.nodes, opt_cst)
 # nlt = net_lead_time(tree, tree.nodes, opt_cst)
 # safety_stock = safety_stock_levels(tree, tree.nodes, opt_cst)
-# base_stock = base_stock_levels(tree, tree.nodes, opt_cst)
+# base_stock = cst_to_base_stock_levels(tree, tree.nodes, opt_cst)
 #
 # # Display the results.
 # print('\nSolved {:s} in {:.4f} seconds.'.format(tree.graph['problem_name'],

@@ -121,8 +121,8 @@ def is_iterable(x):
 
 ### SOLUTION HANDLING ###
 
-def solution_cost(tree, cst):
-	"""Calculate expected cost of given solution.
+def solution_cost_from_cst(tree, cst):
+	"""Calculate expected cost of given solution as specified by CST.
 
 	Parameters
 	----------
@@ -149,6 +149,39 @@ def solution_cost(tree, cst):
 		safety_stock = tree.nodes[k]['demand_bound_constant'] * \
 					   tree.nodes[k]['net_demand_standard_deviation'] * \
 					   np.sqrt(nlt[k])
+		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
+
+		# Set stage_cost equal to holding cost at node_k k.
+		cost += holding_cost
+
+	return cost
+
+
+def solution_cost_from_base_stock_levels(tree, local_bsl):
+	"""Calculate expected cost of given solution as specified by base-stock
+	levels. Cost is based on safety stock, which is calculated as base-stock
+	level minus demand mean.
+
+	Parameters
+	----------
+	tree : graph
+		NetworkX directed graph representing the multi-echelon tree network.
+		Graph need not have been relabeled.
+	local_bsl : dict
+		Dict of local base-stock levels for each node, using the same node
+		labeling as tree.
+
+	Returns
+	-------
+	cost : float
+		Expected cost of the solution.
+
+	"""
+
+	cost = 0
+	for k in tree.nodes:
+		# Calculate safety stock and holding cost.
+		safety_stock = local_bsl[k] - tree.nodes[k]['net_demand_mean']
 		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
 
 		# Set stage_cost equal to holding cost at node_k k.
@@ -247,7 +280,7 @@ def net_lead_time(tree, n, cst):
 		return nlt[n[0]]
 
 
-def base_stock_levels(tree, n, cst):
+def cst_to_base_stock_levels(tree, n, cst):
 	"""Determine base-stock levels for one or more stages, for given committed
 	service times (CST).
 

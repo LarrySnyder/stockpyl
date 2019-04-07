@@ -150,7 +150,7 @@ class TestSolutionCost(unittest.TestCase):
 		print_status('TestSolutionCost', 'tearDownClass()')
 
 	def test_example_6_5(self):
-		"""Test that solution_cost() correctly reports cost for solutions
+		"""Test that solution_cost_from_cst() correctly reports cost for solutions
 		for Example_6_5.
 		"""
 
@@ -160,12 +160,12 @@ class TestSolutionCost(unittest.TestCase):
 
 		# Optimal solution: S = (0,0,0,1).
 		cst = {1: 0, 2: 0, 3: 0, 4: 1}
-		cost = gsm_tree.solution_cost(tree, cst)
+		cost = gsm_tree.solution_cost_from_cst(tree, cst)
 		self.assertAlmostEqual(cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
 
 		# Sub-optimal solution: S = (2,0,2,1).
 		cst = {1: 2, 2: 0, 3: 2, 4: 1}
-		cost = gsm_tree.solution_cost(tree, cst)
+		cost = gsm_tree.solution_cost_from_cst(tree, cst)
 		self.assertAlmostEqual(cost, 13.6814337969452)
 
 
@@ -524,7 +524,7 @@ class TestBaseStockLevels(unittest.TestCase):
 		print_status('TestBaseStockLevels', 'tearDownClass()')
 
 	def test_example_6_5(self):
-		"""Test that base_stock_levels() correctly reports base-stock levels for
+		"""Test that cst_to_base_stock_levels() correctly reports base-stock levels for
 		solutions for Example 6.5.
 
 		NOTE: Example 6.5 does not contain data for mu. Here, we assume mu = 5.
@@ -540,32 +540,32 @@ class TestBaseStockLevels(unittest.TestCase):
 		# Optimal solution: S = (0,0,0,1).
 		cst = {1: 0, 2: 0, 3: 0, 4: 1}
 		correct_bs = {1: 32.4494897427832, 2: 6, 3: 11.4142135623731, 4: 0}
-		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, tree.nodes, cst)
 		for k in tree.nodes:
 			self.assertAlmostEqual(bs[k], correct_bs[k])
 
 		# Test a few singletons.
-		bs = gsm_tree_helpers.base_stock_levels(tree, 1, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, 1, cst)
 		self.assertAlmostEqual(bs, correct_bs[1])
-		bs = gsm_tree_helpers.base_stock_levels(tree, 3, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, 3, cst)
 		self.assertAlmostEqual(bs, correct_bs[3])
 
 		# Sub-optimal solution: S = (2,0,2,1).
 		cst = {1: 2, 2: 0, 3: 2, 4: 1}
 		correct_bs = {1: 11.4142135623731, 2: 16.7320508075689, 3: 11.4142135623731, 4: 11.4142135623731}
-		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, tree.nodes, cst)
 		for k in tree.nodes:
 			self.assertAlmostEqual(bs[k], correct_bs[k])
 
 		# Test a few singletons.
-		bs = gsm_tree_helpers.base_stock_levels(tree, 1, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, 1, cst)
 		self.assertAlmostEqual(bs, correct_bs[1])
-		bs = gsm_tree_helpers.base_stock_levels(tree, 2, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, 2, cst)
 		self.assertAlmostEqual(bs, correct_bs[2])
 
 
 	def test_figure_6_14(self):
-		"""Test that base_stock_levels() correctly reports base-stock levels for
+		"""Test that cst_to_base_stock_levels() correctly reports base-stock levels for
 		solutions for Figure 6.14.
 
 		NOTE: Figure 6.14 does not contain data for mu. Here, we assume mu = 100.
@@ -598,19 +598,19 @@ class TestBaseStockLevels(unittest.TestCase):
 						'Circuit_Board': 432.897072539029,
 						'Other_Parts': 328.489700528939,
 						'Build_Test_Pack': 0}
-		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, tree.nodes, cst)
 		for k in tree.nodes:
 			self.assertAlmostEqual(bs[k], correct_bs[k])
 
 		# Test a few singletons.
-		bs = gsm_tree_helpers.base_stock_levels(tree, 'Raw_Material', cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, 'Raw_Material', cst)
 		self.assertAlmostEqual(bs, correct_bs['Raw_Material'])
-		bs = gsm_tree_helpers.base_stock_levels(tree, 'Package_Test_Wafers', cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, 'Package_Test_Wafers', cst)
 		self.assertAlmostEqual(bs, correct_bs['Package_Test_Wafers'])
 
 		# Test a list.
-		bs = gsm_tree_helpers.base_stock_levels(tree,
-			['Process_Wafers', 'Package_Test_Wafers', 'Imager_Assembly'], cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree,
+													   ['Process_Wafers', 'Package_Test_Wafers', 'Imager_Assembly'], cst)
 		for k in bs:
 			self.assertAlmostEqual(bs[k], correct_bs[k])
 
@@ -635,6 +635,6 @@ class TestBaseStockLevels(unittest.TestCase):
 						'Circuit_Board': 328.489700528939,
 						'Other_Parts': 328.489700528939,
 						'Build_Test_Pack': 536.780045229006}
-		bs = gsm_tree_helpers.base_stock_levels(tree, tree.nodes, cst)
+		bs = gsm_tree_helpers.cst_to_base_stock_levels(tree, tree.nodes, cst)
 		for k in tree.nodes:
 			self.assertAlmostEqual(bs[k], correct_bs[k])
