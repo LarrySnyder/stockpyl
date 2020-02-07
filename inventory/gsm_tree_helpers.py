@@ -184,7 +184,7 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 		safety_stock = local_bsl[k] - tree.nodes[k]['net_demand_mean']
 		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
 
-		# Set stage_cost equal to holding cost at node_k k.
+		# Set stage_cost equal to holding cost at node_k.
 		cost += holding_cost
 
 	return cost

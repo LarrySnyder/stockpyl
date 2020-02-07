@@ -425,8 +425,9 @@ def GSM_to_SSM(tree, p=None):
 	tree : graph
 		NetworkX directed graph representing the multi-echelon tree network.
 	p : float, optional
-		Stockout cost to use at demand nodes. If None, function does not fill
-		stockout_cost field.
+		Stockout cost to use at demand nodes. If None, copies stockout_cost
+		field from tree for nodes that have it, and does not fill stockout_cost
+		for nodes that do not.
 		# TODO: allow different p values at different demand nodes
 
 	Returns
@@ -455,6 +456,9 @@ def GSM_to_SSM(tree, p=None):
 			if tree.nodes[n]['external_demand_mean'] > 0 or \
 				tree.nodes[n]['external_demand_standard_deviation'] > 0:
 				SSM_tree.nodes[n]['stockout_cost'] = p
+		else:
+			if 'stockout_cost' in tree.nodes[n]:
+				SSM_tree.nodes[n]['stockout_cost'] = tree.nodes[n]['stockout_cost']
 
 	# Add edges.
 	SSM_tree.add_edges_from(tree.edges)

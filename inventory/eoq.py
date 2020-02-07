@@ -83,3 +83,43 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 	return order_quantity, stockout_fraction, cost
 
 
+def economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate):
+	"""Solve economic production quantity (EPQ) problem.
+
+	Notation below in brackets [...] is from Snyder and Shen (2019).
+
+	Parameters
+	----------
+	fixed_cost : float
+		Fixed cost per order. [K]
+	holding_cost : float
+		Holding cost per item per unit time. [h]
+	demand_rate : float
+		Demand (items) per unit time. [lambda]
+	production_rate : float
+		Production quantity (items) per unit time. [mu]
+
+	Returns
+	-------
+	order_quantity : float
+		Optimal order quantity (items). [Q^*]
+	cost : float
+		Optimal cost per unit time. [g^*]
+	"""
+
+	# Check that parameters are positive.
+	assert fixed_cost > 0, "fixed_cost must be positive."
+	assert holding_cost > 0, "holding_cost must be positive."
+	assert demand_rate > 0, "demand_rate must be positive."
+	assert production_rate > 0, "production_rate must be positive."
+
+	# Calculate rho.
+	rho = demand_rate / production_rate
+
+	# Calculate optimal order quantity and cost.
+	order_quantity = np.sqrt(2 * fixed_cost * demand_rate
+							 / (holding_cost * (1 - rho)))
+	cost = order_quantity * holding_cost * (1 - rho)
+
+	return order_quantity, cost
+

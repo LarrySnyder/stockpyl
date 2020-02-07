@@ -33,7 +33,7 @@ from scipy import stats
 import math
 import matplotlib.pyplot as plt
 
-from tests.instances_ssm_serial import *
+#from tests.instances_ssm_serial import *
 
 
 ### NETWORK-HANDLING FUNCTIONS ###
@@ -94,6 +94,42 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 										 x=None, x_num=x_num, d_num=d_num)
 
 	return cost
+
+
+def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
+	"""Calculate expected holding cost of given solution.
+
+	Basic idea: set stockout cost to 0 and call optimize_base_stock_levels()
+	without doing any optimization.
+
+	Parameters
+	----------
+	network : graph
+		NetworkX directed graph representing the multi-echelon serial network.
+	echelon_S : dict
+		Dict of echelon base-stock levels to be evaluated.
+	x_num : int, optional
+		Number of discretization intervals to use for x range. Ignored if
+		x is provided.
+	d_num : int, optional
+		Number of discretization intervals to use for d range.
+
+	Returns
+	-------
+	holding_cost : float
+		Expected holding cost of system.
+	"""
+
+	# Make copy of network and set stockout cost to 0.
+	network2 = network.copy()
+	for n in network2.nodes:
+		network2.nodes[n]['stockout_cost'] = 0
+
+	_, holding_cost = optimize_base_stock_levels(network2, S=echelon_S,
+								plots=False, x=None, x_num=x_num, d_num=d_num)
+
+	return holding_cost
+
 
 ### UTILITY FUNCTIONS ###
 
@@ -187,9 +223,12 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		else:
 			L[j] = 0
 		h[j] = network.nodes[j]['echelon_holding_cost']
-	p = network.nodes[1]['stockout_cost']
+	if 'stockout_cost' in network.nodes[1]:
+		p = network.nodes[1]['stockout_cost']
+	else:
+		p = 0
 
-	# Determine x array (truncated and discretized)
+	# Determine x array (truncated and discretized).
 	# TODO: handle this better
 	if x is None:
 		x_lo = -4 * sigma * np.sqrt(sum(L))

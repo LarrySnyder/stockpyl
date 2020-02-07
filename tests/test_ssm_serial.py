@@ -104,6 +104,57 @@ class TestExpectedCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 2.326562153947784e+03)
 
 
+class TestExpectedHoldingCost(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestExpectedHoldingCost', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestExpectedHoldingCost', 'tearDownClass()')
+
+	def test_example_6_1(self):
+		"""Test that expected_holding_cost() correctly calculates cost for
+		a few different sets of BS levels for network in Example 6.1.
+		"""
+
+		print_status('TestExpectedHoldingCost', 'test_example_6_1()')
+
+		S_echelon = {1: 4, 2: 9, 3: 10}
+		cost = ssm_serial.expected_holding_cost(instance_example_6_1, S_echelon, 100, 10)
+		self.assertAlmostEqual(cost, 30.290113004920954)
+
+		S_echelon = {1: 10, 2: 10, 3: 12}
+		cost = ssm_serial.expected_holding_cost(instance_example_6_1, S_echelon, 100, 10)
+		self.assertAlmostEqual(cost, 30.189019642459233)
+
+		S_echelon = {1: 3, 2: -1, 3: 4}
+		cost = ssm_serial.expected_holding_cost(instance_example_6_1, S_echelon, 100, 10)
+		self.assertAlmostEqual(cost, 30.134385552606360)
+
+	def test_problem_6_1(self):
+		"""Test that expected_holding_cost() correctly calculates cost for
+		a few different sets of BS levels for network in Problem 6.1.
+		"""
+
+		print_status('TestExpectedHoldingCost', 'test_problem_6_1()')
+
+		S_echelon = {1: 1.242440692221066e+02, 2: 2.287925107043527e+02}
+		cost = ssm_serial.expected_holding_cost(instance_problem_6_1, S_echelon, 100, 10)
+		self.assertAlmostEqual(cost, 1.507714604680893e+02)
+
+		S_echelon = {1: 50, 2: 125}
+		cost = ssm_serial.expected_holding_cost(instance_problem_6_1, S_echelon, 100, 10)
+		self.assertAlmostEqual(cost, 1.001438804274813e+02)
+
+		S_echelon = {1: 75, 2: 50}
+		cost = ssm_serial.expected_holding_cost(instance_problem_6_1, S_echelon, 100, 10)
+		self.assertAlmostEqual(cost, 99.955972907264330)
+
+
 class TestOptimizeBaseStockLevels(unittest.TestCase):
 
 	@classmethod
