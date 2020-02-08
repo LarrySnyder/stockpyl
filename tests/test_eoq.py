@@ -3,10 +3,38 @@ import unittest
 from inventory import eoq
 
 
+# Module-level functions.
+
+def print_status(class_name, function_name):
+	"""Print status message."""
+	print("module : test_eoq   class : {:30s} function : {:30s}".format(class_name, function_name))
+
+
+def setUpModule():
+	"""Called once, before anything else in this module."""
+	print_status('---', 'setUpModule()')
+
+
+def tearDownModule():
+	"""Called once, after everything else in this module."""
+	print_status('---', 'tearDownModule()')
+
+
 class TestEconomicOrderQuantity(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestEconomicOrderQuantity', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestEconomicOrderQuantity', 'tearDownClass()')
+
 	def test_example_3_1(self):
 		"""Test that EOQ function correctly solves Example 3.1.
 		"""
+		print_status('TestEconomicOrderQuantity', 'test_example_3_1()')
 
 		fixed_cost = 8
 		holding_cost = 0.75 * 0.3
@@ -18,6 +46,8 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 	def test_problem_3_1(self):
 		"""Test that EOQ function correctly solves Problem 3.1.
 		"""
+		print_status('TestEconomicOrderQuantity', 'test_problem_3_1()')
+
 		fixed_cost = 2250
 		holding_cost = 275
 		demand_rate = 500 * 365
@@ -28,6 +58,8 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 	def test_bad_type(self):
 		"""Test that EOQ function raises exception on bad type.
 		"""
+		print_status('TestEconomicOrderQuantity', 'test_bad_type()')
+
 		fixed_cost = "banana"
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
@@ -37,6 +69,8 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 	def test_negative_parameter(self):
 		"""Test that EOQ function raises exception on negative parameter.
 		"""
+		print_status('TestEconomicOrderQuantity', 'test_negative_parameter()')
+
 		fixed_cost = -8
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
@@ -45,9 +79,21 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 
 
 class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'tearDownClass()')
+
 	def test_example_3_8(self):
 		"""Test that EOQB function correctly solves Example 3.8.
 		"""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'test_example_3_8()')
+
 		fixed_cost = 8
 		holding_cost = 0.75 * 0.3
 		stockout_cost = 5
@@ -61,6 +107,8 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 	def test_problem_3_2b(self):
 		"""Test that EOQB function correctly solves Problem 3.2(b).
 		"""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'test_problem_3_2b()')
+
 		fixed_cost = 40
 		holding_cost = (165 * 0.17 + 12)
 		stockout_cost = 60
@@ -74,6 +122,8 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 	def test_bad_type(self):
 		"""Test that EOQB function raises exception on bad type.
 		"""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'test_bad_type()')
+
 		fixed_cost = "banana"
 		holding_cost = 0.75 * 0.3
 		stockout_cost = 5
@@ -85,6 +135,8 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 	def test_negative_parameter(self):
 		"""Test that EOQB function raises exception on negative parameter.
 		"""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'test_negative_parameter()')
+
 		fixed_cost = -8
 		holding_cost = 0.75 * 0.3
 		stockout_cost = 5
@@ -95,9 +147,20 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 
 
 class TestEconomicProductionQuantity(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestEconomicProductionQuantity', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestEconomicProductionQuantity', 'tearDownClass()')
+
 	def test_example_3_1(self):
 		"""Test that EPQ function correctly solves Example 3.1, plus mu = 2000.
 		"""
+		print_status('TestEconomicProductionQuantity', 'test_example_3_1()')
 
 		fixed_cost = 8
 		holding_cost = 0.75 * 0.3
@@ -110,6 +173,8 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 	def test_problem_3_22(self):
 		"""Test that EPQ function correctly solves Problem 3.22.
 		"""
+		print_status('TestEconomicProductionQuantity', 'test_problem_3_22()')
+
 		fixed_cost = 4
 		holding_cost = 0.08
 		demand_rate = 80
@@ -121,6 +186,8 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 	def test_bad_type(self):
 		"""Test that EPQ function raises exception on bad type.
 		"""
+		print_status('TestEconomicProductionQuantity', 'test_bad_type()')
+
 		fixed_cost = "banana"
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
@@ -131,6 +198,8 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 	def test_negative_parameter(self):
 		"""Test that EPQ function raises exception on negative parameter.
 		"""
+		print_status('TestEconomicProductionQuantity', 'test_negative_parameter()')
+
 		fixed_cost = -8
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
