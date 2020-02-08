@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 
+from inventory import helpers
 from inventory import gsm_tree
 from inventory import gsm_tree_helpers
 from tests.instances_gsm_tree import *
@@ -533,8 +534,8 @@ class TestGSMToSSM(unittest.TestCase):
 		correct_SSM_tree.add_edge(3, 4)
 
 		trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
-									   gsm_tree_helpers.dict_match,
-									   gsm_tree_helpers.dict_match)
+									   helpers.dict_match,
+									   helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -562,8 +563,8 @@ class TestGSMToSSM(unittest.TestCase):
 		# correct_SSM_tree.add_edge(3, 4)
 		#
 		# trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
-		# 							   gsm_tree_helpers.dict_match,
-		# 							   gsm_tree_helpers.dict_match)
+		# 							   helpers.dict_match,
+		# 							   helpers.dict_match)
 		#
 		# self.assertEqual(trees_equal, True)
 		# # Check graph attributes.
@@ -593,8 +594,8 @@ class TestGSMToSSM(unittest.TestCase):
 		correct_SSM_tree.add_edge(3, 2)
 
 		trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
-									   gsm_tree_helpers.dict_match,
-									   gsm_tree_helpers.dict_match)
+									   helpers.dict_match,
+									   helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -668,8 +669,8 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(3, 4)
 
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   gsm_tree_helpers.dict_match,
-									   gsm_tree_helpers.dict_match)
+									   helpers.dict_match,
+									   helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -785,8 +786,8 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge('Other_Parts', 'Build_Test_Pack')
 
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   gsm_tree_helpers.dict_match,
-									   gsm_tree_helpers.dict_match)
+									   helpers.dict_match,
+									   helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -839,8 +840,8 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(3, 2)
 
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   gsm_tree_helpers.dict_match,
-									   gsm_tree_helpers.dict_match)
+									   helpers.dict_match,
+									   helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.
@@ -931,8 +932,8 @@ class TestPreprocessTree(unittest.TestCase):
 		correct_tree.add_edge(3, 2)
 
 		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   gsm_tree_helpers.dict_match,
-									   gsm_tree_helpers.dict_match)
+									   helpers.dict_match,
+									   helpers.dict_match)
 
 		self.assertEqual(trees_equal, True)
 		# Check graph attributes.

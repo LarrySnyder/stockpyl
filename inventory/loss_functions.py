@@ -17,6 +17,8 @@ from types import *
 from numbers import Number
 from numbers import Integral
 
+from inventory.helpers import *
+
 
 ####################################################
 # CONTINUOUS DISTRIBUTIONS
@@ -194,7 +196,7 @@ def poisson_loss(x, mean):
 		Complementary loss function. [\bar{n}(x)]
 	"""
 	# Check for integer x.
-	assert isinstance(x, Integral), "x must be an integer"
+	assert is_integer(x), "x must be an integer"
 
 	n = -(x - mean) * (1 - poisson.cdf(x, mean)) + mean * poisson.pmf(x, mean)
 	n_bar = (x - mean) * poisson.cdf(x, mean) + mean * poisson.pmf(x, mean)
@@ -233,7 +235,7 @@ def negative_binomial_loss(x, mean, sd):
 		Complementary loss function. [\bar{n}(x)]
 	"""
 	# Check for integer x.
-	assert isinstance(x, Integral), "x must be an integer"
+	assert is_integer(x), "x must be an integer"
 
 	r = 1.0 * mean ** 2 / (sd ** 2 - mean)
 	p = 1 - (sd ** 2 - mean) / (sd ** 2)
@@ -278,7 +280,7 @@ def discrete_loss(x, distrib):
 		Complementary loss function. [\bar{n}(x)]
 	"""
 	# Check for integer x.
-	assert isinstance(x, Integral), "x must be an integer"
+	assert is_integer(x), "x must be an integer"
 
 	n = 0.0
 	y = x
