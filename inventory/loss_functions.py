@@ -251,10 +251,13 @@ def negative_binomial_loss(x, mean, sd):
 	return n, n_bar
 
 
-def discrete_loss(x, distrib):
+def discrete_loss(x, distrib=None, pmf=None):
 	"""
 	Return loss and complementary loss function for an arbitrary discrete
 	distribution.
+
+	Must provide either rv_discrete distribution (in distrib) or
+	demand pmf (in pmf, as a dict).
 
 	Assumes cdf(x) = 0 for x < 0.
 
@@ -269,8 +272,11 @@ def discrete_loss(x, distrib):
 	----------
 	x : int
 		Argument of loss function.
-	distrib : rv_discrete
+	distrib : rv_discrete, optional
 		Desired distribution.
+	pmf : dict, optional
+		pmf, as a dict in which keys are the support of the distribution and
+		values are their probabilities. Ignored if distrib is not None.
 
 	Returns
 	-------
@@ -282,17 +288,28 @@ def discrete_loss(x, distrib):
 	# Check for integer x.
 	assert is_integer(x), "x must be an integer"
 
-	n = 0.0
-	y = x
-	comp_cdf = 1 - distrib.cdf(y)
-	while comp_cdf > 1.0e-12:
-		n += comp_cdf
-		y += 1
-		comp_cdf = 1 - distrib.cdf(y)
+	# Check that either distribution or pmf have been supplied.
+	assert (distrib is not None) or (pmf is not None), "must provide distrib or pmf"
 
-	n_bar = 0.0
-	for y in range(0, int(x)):
-		n_bar += distrib.cdf(y)
+	if distrib is not None:
+		# rv_discrete object has been provided.
+		n = 0.0
+		y = x
+		comp_cdf = 1 - distrib.cdf(y)
+		while comp_cdf > 1.0e-12:
+			n += comp_cdf
+			y += 1
+			comp_cdf = 1 - distrib.cdf(y)
+
+		n_bar = 0.0
+		for y in range(0, int(x)):
+			n_bar += distrib.cdf(y)
+	else:
+		# pmf dict has been provided.
+		x_values = list(pmf.keys())
+		x_values.sort()
+		n = np.sum([(y - x) * pmf[y] for y in x_values if y >= x])
+		n_bar = np.sum([(x - y) * pmf[y] for y in x_values if y <= x])
 
 	return n, n_bar
 

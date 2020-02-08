@@ -339,3 +339,36 @@ class TestDiscreteLoss(unittest.TestCase):
 		self.assertAlmostEqual(n2, 0.011571370765832, places=3)
 		self.assertAlmostEqual(n_bar2, 2.583000000000000, places=3)
 
+	def test_pmf(self):
+		"""Test that discrete_loss function correctly calculates n and n_bar
+		if provided with a pmf instead of a distribution object.
+		"""
+		print_status('TestDiscreteLoss', 'test_pmf()')
+
+		d1 = range(1, 11)
+		f1 = [.13, .15, .02, .15, .10, .02, .04, .09, .15, .15]
+		pmf1 = dict(zip(d1, f1))
+		x1 = 6
+		n1, n_bar1 = loss_functions.discrete_loss(x1, None, pmf1)
+		self.assertAlmostEqual(n1, 1.27)
+		self.assertAlmostEqual(n_bar1, 1.71)
+
+		d2 = range(0, 41)
+		f2 = [poisson.pmf(d, 7) for d in d2]
+		pmf2 = dict(zip(d2, f2))
+		x2 = 11
+		n2, n_bar2 = loss_functions.discrete_loss(x2, None, pmf2)
+		self.assertAlmostEqual(n2, 0.102799704109245)
+		self.assertAlmostEqual(n_bar2, 4.102799704109247)
+
+	def test_no_distrib(self):
+		"""Test that discrete_loss function correctly raises exception if
+		both distrib and pmf are None.
+		"""
+		print_status('TestDiscreteLoss', 'test_pmf()')
+
+		with self.assertRaises(AssertionError):
+			n, n_bar = loss_functions.discrete_loss(0, None, None)
+
+
+
