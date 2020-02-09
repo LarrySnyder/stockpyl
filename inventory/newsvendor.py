@@ -6,13 +6,14 @@ Lehigh University and Opex Analytics
 """
 
 from scipy import stats
+import numpy as np
 
 import inventory.loss_functions as lf
 from inventory.helpers import *
 
 
 def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
-					  base_stock_level=None):
+					  lead_time=0, base_stock_level=None):
 	"""Solve newsvendor problem with normal distribution, or (if
 	base_stock_level is supplied) calculate cost of given solution.
 
@@ -28,6 +29,8 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 		Mean demand per period. [mu]
 	demand_sd : float
 		Standard deviation of demand per period. [sigma]
+	lead_time : int, optional
+		Lead time. Optional; default = 0. [L]
 	base_stock_level : float, optional
 		Base-stock level for cost evaluation. If supplied, no
 		optimization will be performed. [S]
@@ -46,17 +49,21 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	assert demand_mean > 0, "demand_mean must be positive."
 	assert demand_sd > 0, "demand_sd must be positive."
 
+	# Calculate lead-time demand parameters.
+	ltd_mean = demand_mean * (lead_time + 1)
+	ltd_sd = demand_sd * np.sqrt(lead_time + 1)
+
 	# Is S provided?
 	if base_stock_level is None:
 		# Calculate alpha.
 		alpha = stockout_cost / (stockout_cost + holding_cost)
 
 		# Calculate optimal order quantity and cost.
-		base_stock_level = stats.norm.ppf(alpha, demand_mean, demand_sd)
-		cost = (holding_cost + stockout_cost) * stats.norm.pdf(stats.norm.ppf(alpha, 0, 1)) * demand_sd
+		base_stock_level = stats.norm.ppf(alpha, ltd_mean, ltd_sd)
+		cost = (holding_cost + stockout_cost) * stats.norm.pdf(stats.norm.ppf(alpha, 0, 1)) * ltd_sd
 	else:
 		# Calculate loss functions.
-		n, n_bar = lf.normal_loss(base_stock_level, demand_mean, demand_sd)
+		n, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
 
 		# Calculate cost.
 		cost = holding_cost * n_bar + stockout_cost * n
@@ -70,6 +77,8 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	base_stock_level is supplied) calculate cost of given solution.
 
 	Notation below in brackets [...] is from Snyder and Shen (2019).
+
+	TODO: handle lead time
 
 	Parameters
 	----------

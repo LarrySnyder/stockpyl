@@ -47,7 +47,7 @@ class TestNewsvendorNormal(unittest.TestCase):
 		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
 		self.assertAlmostEqual(cost, 1.997605193176645)
 
-		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, 40)
+		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, base_stock_level=40)
 		self.assertAlmostEqual(base_stock_level, 40)
 		self.assertAlmostEqual(cost, 7.356131552870388)
 
@@ -65,9 +65,29 @@ class TestNewsvendorNormal(unittest.TestCase):
 		self.assertAlmostEqual(base_stock_level, 9.227214038234755e+02)
 		self.assertAlmostEqual(cost, 2.718196781782411e+03)
 
-		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, 1040)
+		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, base_stock_level=1040)
 		self.assertAlmostEqual(base_stock_level, 1040)
 		self.assertAlmostEqual(cost, 6.044298415188692e+03)
+
+	def test_example_4_4(self):
+		"""Test that newsvendor_normal function correctly solves the first
+		part of Example 4.4 (L=4, R=1).
+		"""
+		print_status('TestNewsvendorNormal', 'test_example_4_4()')
+
+		holding_cost = 0.18
+		stockout_cost = 0.7
+		demand_mean = 50
+		demand_sd = 8
+		lead_time = 4
+
+		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=lead_time)
+		self.assertAlmostEqual(base_stock_level, 2.647668943741548e+02)
+		self.assertAlmostEqual(cost, 4.466781004149578)
+
+		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=lead_time, base_stock_level=180)
+		self.assertAlmostEqual(base_stock_level, 180)
+		self.assertAlmostEqual(cost, 49.000164748034095)
 
 	def test_bad_type(self):
 		"""Test that newsvendor_normal function raises exception on bad type.
@@ -119,7 +139,7 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		self.assertEqual(base_stock_level, 8)
 		self.assertAlmostEqual(cost, 3.570106945770946)
 
-		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, 5)
+		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, base_stock_level=5)
 		self.assertEqual(base_stock_level, 5)
 		self.assertAlmostEqual(cost, 6.590296024616344)
 
@@ -136,7 +156,7 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		self.assertEqual(base_stock_level, 19)
 		self.assertAlmostEqual(cost, 7.860884409351115e+02)
 
-		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, 13)
+		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, base_stock_level=13)
 		self.assertAlmostEqual(base_stock_level, 13)
 		self.assertAlmostEqual(cost, 1.445751062891969e+03)
 
