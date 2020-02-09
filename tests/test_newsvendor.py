@@ -1,6 +1,9 @@
 import unittest
 
+import numpy as np
+from scipy.stats import norm
 from scipy.stats import poisson
+from scipy.stats import lognorm
 
 from inventory import newsvendor
 
@@ -184,6 +187,98 @@ class TestNewsvendorPoisson(unittest.TestCase):
 			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
 
 
+class TestNewsvendorContinuous(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorContinuous', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestNewsvendorContinuous', 'tearDownClass()')
+
+	def test_example_4_1_with_distrib(self):
+		"""Test that newsvendor_continuous function correctly solves Example 4.1
+		when provided with rv_continuous object.
+		"""
+		print_status('TestNewsvendorContinuous', 'test_example_4_1_with_distrib()')
+
+		holding_cost = 0.18
+		stockout_cost = 0.7
+		demand_mean = 50
+		demand_sd = 8
+
+		demand_distrib = norm(demand_mean, demand_sd)
+
+		base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib)
+		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
+		self.assertAlmostEqual(cost, 1.997605193176645, places=5)
+
+		base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib, base_stock_level=40)
+		self.assertAlmostEqual(base_stock_level, 40)
+		self.assertAlmostEqual(cost, 7.356131552870388, places=5)
+
+	def test_example_4_1_with_pdf(self):
+		"""Test that newsvendor_continuous function correctly solves Example 4.1
+		when provided with pdf function.
+		"""
+		print_status('TestNewsvendorContinuous', 'test_example_4_1_with_pdf()')
+
+		# TODO
+
+	def test_problem_4_8b(self):
+		"""Test that newsvendor_continuous function correctly solves Problem
+		4.8(b).
+		"""
+		print_status('TestNewsvendorContinuous', 'test_problem_4_8b()')
+
+		holding_cost = 1
+		stockout_cost = 0.1765
+		mu = 6
+		sigma = 0.3
+
+		demand_distrib = lognorm(sigma, 0, np.exp(mu))
+
+		base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib)
+		self.assertAlmostEqual(base_stock_level, 2.956266448071368e+02)
+		self.assertAlmostEqual(cost, 29.442543582135290, places=5)
+
+		base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib, base_stock_level=350)
+		self.assertAlmostEqual(base_stock_level, 350)
+		self.assertAlmostEqual(cost, 34.588836685654854, places=5)
+
+	def test_bad_type(self):
+		"""Test that newsvendor_continuous function raises exception on bad type.
+		"""
+		print_status('TestNewsvendorContinuous', 'test_bad_type()')
+
+		holding_cost = "taco"
+		stockout_cost = 0.7
+		demand_mean = 50
+		demand_sd = 8
+
+		demand_distrib = norm(demand_mean, demand_sd)
+
+		with self.assertRaises(TypeError):
+			base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib)
+
+	def test_negative_parameter(self):
+		"""Test that newsvendor_continuous function raises exception on negative parameter.
+		"""
+		print_status('TestNewsvendorContinuous', 'test_negative_parameter()')
+
+		holding_cost = -2
+		stockout_cost = 0.7
+		demand_mean = 50
+		demand_sd = 8
+
+		demand_distrib = norm(demand_mean, demand_sd)
+
+		with self.assertRaises(AssertionError):
+			base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib)
+
+
 class TestNewsvendorDiscrete(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
@@ -260,20 +355,24 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		print_status('TestNewsvendorDiscrete', 'test_bad_type()')
 
 		holding_cost = "taco"
-		stockout_cost = 0.7
-		demand_mean = 50
-		demand_sd = 8
+		stockout_cost = 4
+		demand_mean = 6
+
+		demand_distrib = poisson(demand_mean)
+
 		with self.assertRaises(TypeError):
-			base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
+			base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_mean, demand_distrib)
 
 	def test_negative_parameter(self):
 		"""Test that newsvendor_normal function raises exception on negative parameter.
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_negative_parameter()')
 
-		holding_cost = -2
-		stockout_cost = 0.7
-		demand_mean = 50
-		demand_sd = 8
+		holding_cost = -4
+		stockout_cost = 4
+		demand_mean = 6
+
+		demand_distrib = poisson(demand_mean)
+
 		with self.assertRaises(AssertionError):
-			base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
+			base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_mean, demand_distrib)

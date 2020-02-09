@@ -125,6 +125,75 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	return base_stock_level, cost
 
 
+def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
+						demand_pdf=None, base_stock_level=None):
+	"""Solve newsvendor problem with generic continuous distribution, or (if
+	base_stock_level is supplied) calculate cost of given solution.
+
+	Must provide rv_continuous distribution (in demand_distrib) or
+	demand pdf (in demand_pdf, as a function).
+
+	TODO: handle lead time
+	TODO: handle demand_pdf as function
+
+	Notation below in brackets [...] is from Snyder and Shen (2019).
+
+	Parameters
+	----------
+	holding_cost : float
+		Holding cost per item per period. [h]
+	stockout_cost : float
+		Stockout cost per item per period. [p]
+	demand_distrib : rv_continuous, optional
+		Demand distribution object.
+	demand_pdf : function, optional
+		Demand pdf, as a function. Ignored if demand_distrib is not None.
+	base_stock_level : float, optional
+		Base-stock level for cost evaluation. If supplied, no
+		optimization will be performed. [S]
+
+	Returns
+	-------
+	base_stock_level : float
+		Optimal base-stock level (or base-stock level supplied). [S^*]
+	cost : float
+		Cost per period attained by base_stock_level. [g^*]
+	"""
+
+	# Check that parameters are positive.
+	assert holding_cost > 0, "holding_cost must be positive."
+	assert stockout_cost > 0, "stockout_cost must be positive."
+
+	# Check that either distribution or pmf have been supplied.
+	assert (demand_distrib is not None) or (demand_pdf is not None), \
+		"must provide demand_distrib or demand_pdf"
+
+	# For now, raise error if only demand_pdf is provided. (Need to add this
+	# capability.)
+	assert demand_distrib is not None, "newsvendor_continuous() does not yet support demand distributions passed as pdf functions"
+
+	# Is S provided?
+	if base_stock_level is None:
+		# Calculate alpha.
+		alpha = stockout_cost / (stockout_cost + holding_cost)
+
+		# Was distribution provided?
+		if demand_distrib is not None:
+			# Use built-in ppf (F-inverse) function.
+			base_stock_level = demand_distrib.ppf(alpha)
+		else:
+			# NEED TO HANDLE THIS CASE
+			pass
+
+	# Calculate loss functions.
+	n, n_bar = lf.continuous_loss(base_stock_level, demand_distrib)
+
+	# Calculate cost.
+	cost = holding_cost * n_bar + stockout_cost * n
+
+	return base_stock_level, cost
+
+
 def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 						demand_pmf=None, base_stock_level=None):
 	"""Solve newsvendor problem with generic discrete distribution, or (if
@@ -132,6 +201,8 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 
 	Must provide either rv_discrete distribution (in demand_distrib) or
 	demand pmf (in demand_pmf, as a dict).
+
+	TODO: handle lead time
 
 	Notation below in brackets [...] is from Snyder and Shen (2019).
 
@@ -179,8 +250,6 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 			# Build sorted list of demand values.
 			demand_values = list(demand_pmf.keys())
 			demand_values.sort()
-			# Initialize cdf to pmf of smallest demand value.
-#			F = demand_pmf[min(demand_values)]
 			# Loop through demands until cdf exceeds alpha.
 			i = 0
 			F = 0

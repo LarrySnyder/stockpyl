@@ -114,12 +114,12 @@ class TestLognormalLoss(unittest.TestCase):
 		"""
 		print_status('TestLognormalLoss', 'test()')
 
-		x1 = 100
+		x1 = 10
 		mu1 = 2
-		sigma1 = 3
+		sigma1 = 0.3
 		n1, n_bar1 = loss_functions.lognormal_loss(x1, mu1, sigma1)
-		self.assertAlmostEqual(n1, 6.348948087453413e+02)
-		self.assertAlmostEqual(n_bar1, 69.753175700979455)
+		self.assertAlmostEqual(n1, 0.283649738881062)
+		self.assertAlmostEqual(n_bar1, 2.554491200971182)
 
 		x2 = 2.5
 		mu2 = 1
@@ -173,15 +173,15 @@ class TestContinuousLoss(unittest.TestCase):
 		"""
 		print_status('TestContinuousLoss', 'test_lognormal()')
 
-		x1 = 100
+		x1 = 10
 		mu1 = 2
-		sigma1 = 3
+		sigma1 = 0.3
 		# lognorm arguments: shape, loc, scale; setting shape = sigma, loc = 0,
 		# scale = exp(mu) is equivalent to a lognormal distribution with
 		# parameters mu, sigma
 		n1, n_bar1 = loss_functions.continuous_loss(x1, lognorm(sigma1, 0, np.exp(mu1)))
-		self.assertAlmostEqual(n1, 6.348948087453413e+02, places=4)
-		self.assertAlmostEqual(n_bar1, 69.753175700979455, places=4)
+		self.assertAlmostEqual(n1, 0.283649738881062)
+		self.assertAlmostEqual(n_bar1, 2.554491200971182)
 
 		x2 = 2.5
 		mu2 = 1.0

@@ -135,6 +135,8 @@ def continuous_loss(x, distrib):
 	Return loss and complementary loss functions for an arbitrary continuous
 	distribution.
 
+	TODO: handle distribution supplied as pdf function
+
 	Identities used:
 		- n(x) = \int_x^\infty \bar{F}(y)dy; see equation (C.12)
 		- \bar{n}(x) = \int_{-\infty}^x F(y)dy; see equation (C.13)
@@ -155,8 +157,14 @@ def continuous_loss(x, distrib):
 	n_bar : float
 		Complementary loss function. [\bar{n}(x)]
 	"""
-	n = distrib.expect(lambda y: max(y - x, 0))
-	n_bar = distrib.expect(lambda y: max(x - y, 0))
+	# Find values lb and ub such that F(lb) ~ 0 and F(ub) ~ 1.
+	# (These will be the ranges for integration.)
+	lb = distrib.ppf(1.0e-10)
+	ub = distrib.ppf(1.0 - 1.0e-10)
+
+	# Calculate loss functions.
+	n = distrib.expect(lambda y: max(y - x, 0), lb=x, ub=ub)
+	n_bar = distrib.expect(lambda y: max(x - y, 0), lb=lb, ub=x)
 
 	# Original version; the new version seems to be more accurate (and maybe
 	# faster).
