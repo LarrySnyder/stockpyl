@@ -7,6 +7,11 @@ Lehigh University and Opex Analytics
 
 import math
 
+### CONSTANTS ###
+
+BIG_INT = 1e100
+BIG_FLOAT = 1.0e100
+
 ### UTILITY FUNCTIONS ###
 
 def min_of_dict(d):
@@ -137,3 +142,46 @@ def is_integer(x):
 			return False
 	else:
 		return False
+
+
+def ensure_list_for_time_periods(x, num_periods):
+	"""Ensure that x is a list suitable for time-period indexing; if not, create
+	such a list and return it.
+
+	"Suitable for time-period indexing" means that it has length num_periods+1,
+	and element [0] is ignored.
+
+	If x is a singleton, return a list consisting of 'length' copies of x.
+	If x is a list of length 'length', return x.
+	If x is a list of length 'length'-1, shift elements to the right by 1 slot,
+		fill [0] element with 0, and return new list.
+	Otherwise, raise a ValueError.
+
+	Examples:
+		- ensure_list_of_length(5, 3) returns [5, 5, 5]
+		- ensure_list_of_length([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
+		- ensure_list_of_length([5, 2, 1], 4) returns [0, 5, 2, 1]
+		- ensure_list_of_length([0, 5, 2, 1], 3) rasies a ValueError.
+
+	Parameters
+	----------
+	x : float or list
+		Object to time-period-ify.
+	num_periods : int
+		Number of time periods.
+
+	Returns
+	-------
+	x_new : list
+		Time-period-ified list.
+	"""
+	# Determine whether x is singleton or iterable.
+	if is_iterable(x):
+		if len(x) == num_periods+1:
+			return x
+		elif len(x) == num_periods:
+			return [0] + x
+		else:
+			raise ValueError('x must be a singleton or a list of length num_periods or num_periods+1')
+	else:
+		return [0] + [x] * num_periods

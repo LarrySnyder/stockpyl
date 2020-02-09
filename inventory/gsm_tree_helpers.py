@@ -13,10 +13,6 @@ import math
 
 from inventory.helpers import *
 
-### CONSTANTS ###
-
-BIG_INT = 1e100
-
 
 ### SOLUTION HANDLING ###
 

@@ -5,9 +5,7 @@ Lehigh University and Opex Analytics
 
 """
 
-import numpy as np
 from scipy import stats
-from numbers import Integral
 
 import inventory.loss_functions as lf
 from inventory.helpers import *

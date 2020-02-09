@@ -183,3 +183,51 @@ class TestIsInteger(unittest.TestCase):
 		x = "pudding"
 		is_int = helpers.is_integer(x)
 		self.assertEqual(is_int, False)
+
+
+class TestEnsureListForTimePeriods(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestEnsureListForTimePeriods', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestEnsureListForTimePeriods', 'tearDownClass()')
+
+	def test_singleton(self):
+		"""Test that ensure_list_for_time_periods() returns correct result if
+		x is a singleton.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_singleton()')
+
+		x = helpers.ensure_list_for_time_periods(3.14, 5)
+		self.assertEqual(x, [0, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_list_without_0(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		a list of length num_periods.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_list_without_0()')
+
+		x = helpers.ensure_list_for_time_periods([3.14, 3.14, 3.14, 3.14, 3.14], 5)
+		self.assertEqual(x, [0, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_list_with_0(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		a list of length num_periods+1.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_list_with_0()')
+
+		x = helpers.ensure_list_for_time_periods([-1, 3.14, 3.14, 3.14, 3.14, 3.14], 5)
+		self.assertEqual(x, [-1, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_bad_list(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		a list of an incorrect length.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_bad_list()')
+
+		with self.assertRaises(ValueError):
+			x = helpers.ensure_list_for_time_periods([3.14, 3.14, 3.14, 3.14, 3.14], 8)
