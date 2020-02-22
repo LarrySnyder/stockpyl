@@ -1,5 +1,7 @@
 import networkx as nx
 
+from inventory.datatypes import *
+
 
 # Build 2-stage instance.
 instance_2_stage = nx.DiGraph()
@@ -7,9 +9,21 @@ instance_2_stage.add_node(1, echelon_holding_cost=1,
 						     stockout_cost=10,
 						  	 lead_time=1,
 						  	 demand_mean=10,
-						  	 demand_standard_deviation=2)
+						  	 demand_standard_deviation=2,
+						  	 initial_IL=0,
+						  	 initial_orders=0,
+						  	 initial_shipments=0,
+						  	 order_LT=0,
+						  	 shipment_LT=0,
+						  	 demand_type=DemandType.NORMAL)
 instance_2_stage.add_node(2, echelon_holding_cost=1,
-						  	 lead_time=1)
+						  	 lead_time=1,
+						  	 initial_IL=0,
+						  	 initial_orders=0,
+						  	 initial_shipments=0,
+						  	 order_LT=0,
+						  	 shipment_LT=0,
+						  	 demand_type=DemandType.NONE)
 instance_2_stage.add_edge(2, 1)
 
 # Build instance corresponding to Example 6.1.
