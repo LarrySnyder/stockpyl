@@ -22,3 +22,7 @@ class DemandType(Enum):
 	DETERMINISTIC = 4			# must supply 'demands' parameter
 	DISCRETE_EXPLICIT = 5		# must supply 'demands' and 'demand_probs' parameters
 
+
+class SupplyType(Enum):
+	NONE = 0					# no external supply
+	UNLIMITED = 1				# unlimited external supply

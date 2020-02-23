@@ -68,8 +68,8 @@ def write_results(network, num_periods, write_csv=False, csv_filename=None):
 	print(tabulate(results, headers=headers))
 
 	# Average and total cost
-	print("Total avg. cost per period = {:f}".format(1.0 * np.sum(network.graph['TC']) / num_periods))
-	print("Total horizon cost = {:f}".format(1.0 * np.sum(network.graph['TC'])))
+	print("Total avg. cost per period = {:f}".format(1.0 * np.sum(network.graph['total_cost']) / num_periods))
+	print("Total horizon cost = {:f}".format(1.0 * np.sum(network.graph['total_cost'])))
 
 	# CSV output
 	if write_csv:

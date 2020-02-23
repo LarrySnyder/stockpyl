@@ -13,17 +13,19 @@ instance_2_stage.add_node(1, echelon_holding_cost=1,
 						  	 initial_IL=0,
 						  	 initial_orders=0,
 						  	 initial_shipments=0,
-						  	 order_LT=0,
-						  	 shipment_LT=0,
-						  	 demand_type=DemandType.NORMAL)
+						  	 order_lead_time=0,
+						  	 shipment_lead_time=0,
+						  	 demand_type=DemandType.NORMAL,
+						  	 supply_type=SupplyType.NONE)
 instance_2_stage.add_node(2, echelon_holding_cost=1,
 						  	 lead_time=1,
 						  	 initial_IL=0,
 						  	 initial_orders=0,
 						  	 initial_shipments=0,
-						  	 order_LT=0,
-						  	 shipment_LT=0,
-						  	 demand_type=DemandType.NONE)
+						  	 order_lead_time=0,
+						  	 shipment_lead_time=0,
+						  	 demand_type=DemandType.NONE,
+						  	 supply_type=SupplyType.UNLIMITED)
 instance_2_stage.add_edge(2, 1)
 
 # Build instance corresponding to Example 6.1.

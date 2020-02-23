@@ -47,6 +47,7 @@ import numpy as np
 
 from inventory.datatypes import *
 from inventory.sim_io import *
+from inventory.helpers import *
 from tests.instances_ssm_serial import *
 
 # -------------------
@@ -102,8 +103,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	network : DiGraph
 		NetworkX directed graph representing the multi-echelon inventory network.
 	period : int
-		Time period. Required if node or downstream nodes have demand_type =
-		DETERMINISTIC; ignored otherwise.
+		Time period.
 	visited : dict
 		Dictionary indicating whether each node in network has already been
 		visted by the depth-first search.
@@ -135,9 +135,97 @@ def generate_downstream_orders(node_index, network, period, visited):
 	order_quantity = np.sum([network.nodes[node_index]['IO'][s][period] for s in
 							 list(network.successors(node_index))+[None]])
 
+	# Get lead times (for convenience).
+	order_LT = network.nodes[node_index]['order_lead_time']
+	shipment_LT = network.nodes[node_index]['shipment_lead_time']
+
 	# Place orders to all predecessors.
 	for p in list(network.predecessors(node_index)):
-		network.nodes[p]['IO'][node_index][period] = order_quantity
+		network.nodes[p]['IO'][node_index][period+order_LT] = order_quantity
+
+	# Does node have external supply?
+	if network.nodes[node_index]['supply_type'] != SupplyType.NONE:
+		# Place order to external supplier.
+		# (For now, this just means setting inbound shipment in the future.)
+		# TODO: handle other types of supply functions
+		network.nodes[node_index]['IS'][None][period+order_LT+shipment_LT] = \
+			order_quantity
+
+
+def generate_downstream_shipments(node_index, network, period, visited):
+	"""Generate shipments to all downstream nodes using depth-first-search.
+	Ignore nodes for which visited=True.
+
+	Parameters
+	----------
+	node_index : int
+		Index of starting node for depth-first search.
+	network : DiGraph
+		NetworkX directed graph representing the multi-echelon inventory network.
+	period : int
+		Time period.
+	visited : dict
+		Dictionary indicating whether each node in network has already been
+		visted by the depth-first search.
+
+	Returns
+	-------
+
+	"""
+	# Did we already visit this node?
+	if visited[node_index]:
+		# We shouldn't even be here.
+		return
+
+	# Mark node as visited.
+	visited[node_index] = True
+
+	# Shortcuts.
+	node = network.nodes[node_index]
+	IS = get_attribute_total(node_index, network, 'IS', period)
+	IO = get_attribute_total(node_index, network, 'IO', period)
+
+	# Receive inbound shipment (add it to ending IL); will subtract outbound
+	# shipment later. Subtract arriving shipment from next period's starting OO.
+	# TODO: handle what happens when multiple supply nodes (assembly-type)
+	node['EIL'][period] = node['IL'][period] + IS
+	for p in list(network.predecessors(node_index)) + [None]:
+		node['OO'][p][period+1] -= IS
+
+	# Determine current on-hand and backorders (after shipment arrives but
+	# before demand is subtracted) as well as outbound shipment.
+	current_on_hand = max(0, node['IL'][period]) + IS
+	current_backorders = max(0, -node['IL'][period])
+	node['OS'][period] = min(current_on_hand, current_backorders + IO)
+
+	# Determine number of current period's demands (inbound orders) that are
+	# met from stock. (Note: This assumes that if there are backorders, current
+	# period's demands get priority.)
+	# TODO: handle successor-level DMFS and FR.
+	node['DMFS'][period] = min(current_on_hand, IO)
+
+	# Calculate fill rate (cumulative in periods 0,...,t).
+	node['FR'][period] = np.sum(node['DMFS'][0:period+1]) / \
+						 np.sum(node['IO'][0:period+1])
+
+	# Propagate shipment downstream (i.e., update IS).
+	for s in network.successors(node_index):
+		network.nodes[s]['IS'][period+network.nodes[s]['shipment_lead_time']] \
+			= node['OS'][period]
+
+	# Subtract demand from ending inventory and calculate costs.
+	node['EIL'][period] -= IO
+	node['HC'][period] = node['holding_cost'] * max(0, node['EIL'][period])
+	node['SC'][period] = node['stockout_cost'] * max(0, -node['EIL'][period])
+	node['TC'][period] = node['HC'][period] + node['SC'][period]
+
+	# Set next period's starting IL.
+	node['IL'][period+1] = node['EIL'][period]
+
+	# Call generate_downstream_shipments() for all non-visited successors.
+	for s in list(network.successors(node_index)):
+		if not visited[s]:
+			generate_downstream_shipments(s, network, period, visited)
 
 
 def get_attribute_total(node_index, network, attribute, period):
@@ -280,14 +368,14 @@ def simulation(network, num_periods, rand_seed=None):
 		# Initialize inbound order quantities for all predecessors of n,
 		# and update on-order quantity.
 		for j in G.predecessors(n):
-			for t in range(G.nodes[n]['order_LT']):
+			for t in range(G.nodes[n]['order_lead_time']):
 				G.nodes[j]['IO'][n][t] = G.nodes[n]['initial_orders']
 				G.nodes[n]['OO'][j][0] += G.nodes[j]['IO'][n][t]
 
 		# Initialize inbound shipment quantities from all predecessors of n,
 		# and update on-order quantity.
 		for j in G.predecessors(n):
-			for t in range(G.nodes[n]['shipment_LT']):
+			for t in range(G.nodes[n]['shipment_lead_time']):
 				G.nodes[n]['IS'][j][t] = G.nodes[n]['initial_shipments']
 				G.nodes[n]['OO'][j][0] += G.nodes[n]['IS'][j][t]
 
@@ -305,9 +393,17 @@ def simulation(network, num_periods, rand_seed=None):
 		visited = {n: False for n in G.nodes}
 
 		# Generate demands and place orders. Use depth-first search, starting
-		# at nodes with no predecessors.
+		# at nodes with no predecessors, and propagating orders upstream.
 		for n in no_pred:
 			generate_downstream_orders(n, G, t, visited)
+
+		# GENERATE SHIPMENTS
+
+		# Reset visited dict.
+		visited	= {n: False for n in G.nodes}
+
+		# Generate shipments. Use depth-first search, starting at nodes with
+		# no predecessors, and propagating shipments downstream.
 
 	# Fill total cost as graph-level attribute.
 	G.graph['total_cost'] = np.sum([G.nodes[n]['TC'][t] for n in G.nodes()
@@ -321,8 +417,12 @@ def simulation(network, num_periods, rand_seed=None):
 
 def main():
 	T = 10
-	G = simulation(instance_2_stage, T)
-	write_results(G, T, False, None)
+	serial_3 = serial_system(3, local_holding_cost=[7, 4, 2],
+							 stockout_cost=[37.12, 0, 0], downstream_0=False)
+#	G = simulation(instance_2_stage, T)
+#	write_results(G, T, False, None)
+
+	print("")
 
 
 
