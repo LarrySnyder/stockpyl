@@ -231,3 +231,42 @@ class TestEnsureListForTimePeriods(unittest.TestCase):
 
 		with self.assertRaises(ValueError):
 			x = helpers.ensure_list_for_time_periods([3.14, 3.14, 3.14, 3.14, 3.14], 8)
+
+
+class TestEnsureListForNodes(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		"""Called once, before any tests."""
+		print_status('TestEnsureListForNodes', 'setUpClass()')
+
+	@classmethod
+	def tearDownClass(cls):
+		"""Called once, after all tests, if setUpClass successful."""
+		print_status('TestEnsureListForNodes', 'tearDownClass()')
+
+	def test_singleton(self):
+		"""Test that ensure_list_for_nodes() returns correct result if
+		x is a singleton.
+		"""
+		print_status('TestEnsureListForNodes', 'test_singleton()')
+
+		x = helpers.ensure_list_for_nodes(3.14, 5)
+		self.assertEqual(x, [3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_list(self):
+		"""Test that ensure_list_for_nodes() returns correct result if x is
+		a list of length num_nodes.
+		"""
+		print_status('TestEnsureListForNodes', 'test_list0()')
+
+		x = helpers.ensure_list_for_nodes([3.14, 3.14, 3.14, 3.14, 3.14], 5)
+		self.assertEqual(x, [3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_bad_list(self):
+		"""Test that ensure_list_for_nodes() returns correct result if x is
+		a list of an incorrect length.
+		"""
+		print_status('TestEnsureListForNodes', 'test_bad_list()')
+
+		with self.assertRaises(ValueError):
+			x = helpers.ensure_list_for_nodes([3.14, 3.14, 3.14, 3.14, 3.14], 8)

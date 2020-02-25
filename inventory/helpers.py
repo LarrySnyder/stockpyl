@@ -284,6 +284,9 @@ def serial_system(num_nodes, node_labels=None, downstream_0=True,
 	network : DiGraph
 		The serial system network, with parameters filled.
 
+
+	# TODO: write unit tests
+
 	"""
 
 	# Build list of node labels.
