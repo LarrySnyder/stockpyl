@@ -247,7 +247,8 @@ def serial_system(num_nodes, node_labels=None, downstream_0=True,
 				  shipment_lead_time=None, demand_type=None, demand_mean=None,
 				  demand_standard_deviation=None, demand_lo=None, demand_hi=None,
 				  demands=None, demand_probabilities=None, initial_IL=None,
-				  initial_orders=None, initial_shipments=None, supply_type=None):
+				  initial_orders=None, initial_shipments=None, supply_type=None,
+				  inventory_policy=None, local_base_stock_levels=None):
 	"""Generate serial system with specified number of nodes. Other than
 	`num_nodes`, all parameters are optional. If they are provided, they must
 	be either a list or a singleton. In the case of a list, the downstream-most
@@ -278,6 +279,8 @@ def serial_system(num_nodes, node_labels=None, downstream_0=True,
 	initial_orders
 	initial_shipments
 	supply_type
+	inventory_policy
+	local_base_stock_levels
 
 	Returns
 	-------
@@ -320,6 +323,27 @@ def serial_system(num_nodes, node_labels=None, downstream_0=True,
 	init_orders = ensure_list_for_nodes(initial_orders, num_nodes, None)
 	init_shipments = ensure_list_for_nodes(initial_shipments, num_nodes, None)
 	s_type = ensure_list_for_nodes(supply_type, num_nodes, None)
+	inv_policy = ensure_list_for_nodes(inventory_policy, num_nodes, None)
+
+	# Check that valid demand info has been provided.
+	if d_type[0] is None or d_type[0] == DemandType.NONE:
+		raise ValueError("Valid demand_type has not been provided")
+	elif d_type[0] == DemandType.NORMAL and (d_mean[0] is None or d_sd[0] is None):
+		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
+	elif (d_type[0] == DemandType.UNIFORM_DISCRETE or
+		  d_type[0] == DemandType.UNIFORM_CONTINUOUS) and \
+		(d_lo[0] is None or d_hi[0] is None):
+		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
+	elif d_type[0] == DemandType.DETERMINISTIC and d is None:
+		raise ValueError("Demand type was specified as deterministic but demands were not provided")
+	elif d_type[0] == DemandType.DISCRETE_EXPLICIT and (d is None or d_prob is None):
+		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+
+	# Check that valid inventory policy has been provided.
+	# TODO: handle other policy types
+	for n_index in range(num_nodes):
+		# Check parameters for inventory policy type.
+		pass
 
 	# Add attributes.
 	for n_index in range(num_nodes):
@@ -327,9 +351,12 @@ def serial_system(num_nodes, node_labels=None, downstream_0=True,
 		network.nodes[n]['local_holding_cost'] = h_local[n_index]
 		network.nodes[n]['echelon_holding_cost'] = h_echelon[n_index]
 		network.nodes[n]['stockout_cost'] = p[n_index]
-		network.nodes[n]['order_LT'] = order_LT[n_index]
-		network.nodes[n]['shipment_LT'] = shipment_LT[n_index]
-		network.nodes[n]['demand_type'] = d_type[n_index]
+		network.nodes[n]['order_lead_time'] = order_LT[n_index]
+		network.nodes[n]['shipment_lead_time'] = shipment_LT[n_index]
+		if n == 0:
+			network.nodes[n]['demand_type'] = d_type[n_index]
+		else:
+			network.nodes[n]['demand_type'] = DemandType.NONE
 		if network.nodes[n]['demand_type'] == DemandType.NORMAL:
 			network.nodes[n]['demand_mean'] = d_mean[n_index]
 			network.nodes[n]['demand_standard_deviation'] = d_sd[n_index]

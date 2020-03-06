@@ -5,13 +5,6 @@ from enum import Enum
 # ENUM TYPES
 
 
-class PlayerType(Enum):
-	BASE_STOCK = 0				# aka Rational
-	STERMAN = 1					# aka Human-Like
-	RANDOM = 2					# aka Random
-	DNN = 3						# aka AI
-	HUMAN = 4					# aka Human
-	OPTIMIZED_BASE_STOCK = 5	# used by simulate_all_player_combinations()
 
 
 class DemandType(Enum):

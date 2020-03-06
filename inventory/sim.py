@@ -18,6 +18,7 @@ The following attributes are used to specify input data:
 		- demand_probabilities
 		- demand_lo
 		- demand_hi
+		- inventory_policy
 	* Edge-level attributes
 		(None.)
 
@@ -30,9 +31,11 @@ The following attributes are used to store outputs and intermediate values:
 		- OS
 		- OO
 		- IL
+		- BO
 		- EIL
 		- HC
 		- SC
+		- ITHC
 		- TC
 		- DMFS
 		- FR
@@ -44,6 +47,7 @@ Lehigh University and Opex Analytics
 """
 
 import numpy as np
+import math
 
 from inventory.datatypes import *
 from inventory.sim_io import *
@@ -92,6 +96,21 @@ def generate_demand(node, period=None):
 	return demand
 
 
+def order_quantity(node_index, network, period):
+	"""Determine order quantity based on policy type and values of state variables.
+
+	Parameters
+	----------
+	node_index
+	network
+	period
+
+	Returns
+	-------
+
+	"""
+
+
 def generate_downstream_orders(node_index, network, period, visited):
 	"""Generate demands and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
@@ -134,14 +153,18 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Calculate order quantity. # TODO: handle policies
 	order_quantity = np.sum([network.nodes[node_index]['IO'][s][period] for s in
 							 list(network.successors(node_index))+[None]])
+	network.nodes[node_index]['OQ'][period] = order_quantity
 
 	# Get lead times (for convenience).
 	order_LT = network.nodes[node_index]['order_lead_time']
 	shipment_LT = network.nodes[node_index]['shipment_lead_time']
 
 	# Place orders to all predecessors.
-	for p in list(network.predecessors(node_index)):
-		network.nodes[p]['IO'][node_index][period+order_LT] = order_quantity
+	for p in list(network.predecessors(node_index)) + [None]:
+		if p is not None:
+			network.nodes[p]['IO'][node_index][period+order_LT] = order_quantity
+		network.nodes[node_index]['OO'][p][period+1] = \
+			network.nodes[node_index]['OO'][p][period] + order_quantity
 
 	# Does node have external supply?
 	if network.nodes[node_index]['supply_type'] != SupplyType.NONE:
@@ -190,34 +213,63 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	# TODO: handle what happens when multiple supply nodes (assembly-type)
 	node['EIL'][period] = node['IL'][period] + IS
 	for p in list(network.predecessors(node_index)) + [None]:
-		node['OO'][p][period+1] -= IS
+		node['OO'][p][period+1] -= node['IS'][p][period]
 
 	# Determine current on-hand and backorders (after shipment arrives but
-	# before demand is subtracted) as well as outbound shipment.
+	# before demand is subtracted).
 	current_on_hand = max(0, node['IL'][period]) + IS
 	current_backorders = max(0, -node['IL'][period])
-	node['OS'][period] = min(current_on_hand, current_backorders + IO)
+	# Double check BO calculations.
+	current_backorders_check = get_attribute_total(node_index, network, 'BO', period)
+	assert math.isclose(current_backorders, current_backorders_check)
 
-	# Determine number of current period's demands (inbound orders) that are
-	# met from stock. (Note: This assumes that if there are backorders, current
-	# period's demands get priority.)
-	# TODO: handle successor-level DMFS and FR.
-	node['DMFS'][period] = min(current_on_hand, IO)
+	# Determine outbound shipments. (Satisfy demand in order of successor node
+	# index.) Also update EIL and BO, and calculate demand met from stock.
+	# TODO: allow different allocation policies
+	node['DMFS'][period] = 0.0
+	for s in list(network.successors(node_index)) + [None]:
+		# Outbound shipment to s = min{OH, BO for s + new order from s}.
+		node['OS'][s][period] = min(current_on_hand,
+									node['BO'][s][period] +
+									node['IO'][s][period])
+		# Calculate demand met from stock. (Note: This assumes that if there
+		# are backorders, they get priority of current period's demands.)
+		# TODO: handle successor-level DMFS and FR.
+		node['DMFS'][period] = max(0, node['OS'][s][period] - node['BO'][s][period])
+		# Update EIL and BO.
+		node['EIL'][period] -= node['IO'][s][period]
+		node['BO'][s][period] -= min(node['BO'][s][period], node['OS'][s][period])
+
+	# node['OS'][period] = min(current_on_hand, current_backorders + IO)
+	#
+	# # Determine number of current period's demands (inbound orders) that are
+	# # met from stock. (Note: This assumes that if there are backorders, current
+	# # period's demands get priority.)
+	# node['DMFS'][period] = min(current_on_hand, IO)
 
 	# Calculate fill rate (cumulative in periods 0,...,t).
-	node['FR'][period] = np.sum(node['DMFS'][0:period+1]) / \
-						 np.sum(node['IO'][0:period+1])
+	met_from_stock = np.sum(node['DMFS'][0:period+1])
+	total_demand = np.sum([get_attribute_total(node_index, network, 'IO', t)
+						   for t in range(period+1)])
+	if total_demand > 0:
+		node['FR'][period] = met_from_stock / total_demand
+	else:
+		node['FR'][period] = 1.0
 
 	# Propagate shipment downstream (i.e., update IS).
 	for s in network.successors(node_index):
-		network.nodes[s]['IS'][period+network.nodes[s]['shipment_lead_time']] \
-			= node['OS'][period]
+		network.nodes[s]['IS'][node_index][period+network.nodes[s]['shipment_lead_time']] \
+			= node['OS'][s][period]
 
 	# Subtract demand from ending inventory and calculate costs.
-	node['EIL'][period] -= IO
-	node['HC'][period] = node['holding_cost'] * max(0, node['EIL'][period])
+	# TODO: add more flexible ways of calculating in-transit h.c.
+	node['HC'][period] = node['local_holding_cost'] * max(0, node['EIL'][period])
 	node['SC'][period] = node['stockout_cost'] * max(0, -node['EIL'][period])
-	node['TC'][period] = node['HC'][period] + node['SC'][period]
+	node['ITHC'][period] = node['local_holding_cost'] * \
+						   np.sum([network.nodes[p]['OO'][node_index][period]
+								   for p in network.successors(node_index)])
+	node['TC'][period] = node['HC'][period] + node['SC'][period] + \
+							node['ITHC'][period]
 
 	# Set next period's starting IL.
 	node['IL'][period+1] = node['EIL'][period]
@@ -231,8 +283,8 @@ def generate_downstream_shipments(node_index, network, period, visited):
 def get_attribute_total(node_index, network, attribute, period):
 	"""Return total of attribute for the period specified. Attribute should be
 	an attribute that is indexed by successor or predecessor, i.e., IS, OO, IO,
-	or OS. (If another attribute is specified, return the value of the attribute,
-	without any summation.)
+	OS, or BO. (If another attribute is specified, return the value of the
+	attribute, without any summation.)
 
 	Example: get_attribute_total(3, network, 'IS', 5) returns the total
 	inbound shipment, from all predecessor nodes, in period 5.
@@ -256,7 +308,7 @@ def get_attribute_total(node_index, network, attribute, period):
 		# These attributes are indexed by predecessor.
 		return np.sum([network.nodes[node_index][attribute][p][period] for
 					   p in list(network.predecessors(node_index))+[None]])
-	elif attribute in ('IO', 'OS'):
+	elif attribute in ('IO', 'OS', 'BO'):
 		# These attributes are indexed by successor.
 		return np.sum([network.nodes[node_index][attribute][s][period] for
 					   s in list(network.successors(node_index))+[None]])
@@ -333,15 +385,22 @@ def simulation(network, num_periods, rand_seed=None):
 		# stage at the beginning of period t.
 		G.nodes[n]['IL'] = np.zeros(num_periods+EXTRA_PERIODS)
 
+		# Backorders: BO[j][t] = number of backorders for successor s at the
+		# beginning of period t. If s is None, refers to external demand. Sum
+		# over all successors should always equal IL^-.
+		G.nodes[n]['BO'] = {s: np.zeros(num_periods+EXTRA_PERIODS)
+							for s in list(G.successors(n))+[None]}
+
 		# Ending Inventory Level: EIL[t] = inventory level (positive or
 		# negative) at stage at the end of period t.
 		# NOTE: this is just for convenience, since EIL[i,t] = IL[i,t+1]
 		G.nodes[n]['EIL'] = np.zeros(num_periods)
 
-		# Costs: HC[t], SC[t], TC[t] = holding, stockout, and total cost
-		# incurred at stage in period t.
+		# Costs: HC[t], SC[t], ITHC[t], TC[t] = holding, stockout, in-transit
+		# holding, and total cost incurred at stage in period t.
 		G.nodes[n]['HC'] = np.zeros(num_periods)
 		G.nodes[n]['SC'] = np.zeros(num_periods)
+		G.nodes[n]['ITHC'] = np.zeros(num_periods)
 		G.nodes[n]['TC'] = np.zeros(num_periods)
 
 		# Fill Rates: DMFS[t] = demands met from stock at stage in period t;
@@ -362,8 +421,12 @@ def simulation(network, num_periods, rand_seed=None):
 
 	# Initialize inventory levels and other quantities.
 	for n in G.nodes():
-		# Initialize inventory levels.
-		G.nodes[n]['IL'][0] = G.nodes[n]['initial_IL']
+		# Initialize inventory levels and backorders.
+		# TODO: handle what happens if initial IL < 0 (or prohibit it)
+		if G.nodes[n]['initial_IL'] is not None:
+			G.nodes[n]['IL'][0] = G.nodes[n]['initial_IL']
+		else:
+			G.nodes[n]['IL'][0] = 0.0
 
 		# Initialize inbound order quantities for all predecessors of n,
 		# and update on-order quantity.
@@ -382,6 +445,8 @@ def simulation(network, num_periods, rand_seed=None):
 	# MAIN LOOP
 
 	for t in range(num_periods):
+
+		#print(t)
 
 		# GENERATE DEMANDS AND ORDERS
 
@@ -404,6 +469,8 @@ def simulation(network, num_periods, rand_seed=None):
 
 		# Generate shipments. Use depth-first search, starting at nodes with
 		# no predecessors, and propagating shipments downstream.
+		for n in no_pred:
+			generate_downstream_shipments(n, G, t, visited)
 
 	# Fill total cost as graph-level attribute.
 	G.graph['total_cost'] = np.sum([G.nodes[n]['TC'][t] for n in G.nodes()
@@ -418,9 +485,13 @@ def simulation(network, num_periods, rand_seed=None):
 def main():
 	T = 10
 	serial_3 = serial_system(3, local_holding_cost=[7, 4, 2],
-							 stockout_cost=[37.12, 0, 0], downstream_0=False)
-#	G = simulation(instance_2_stage, T)
-#	write_results(G, T, False, None)
+							 stockout_cost=[37.12, 0, 0],
+							 demand_type=DemandType.NORMAL,
+							 demand_mean=5,
+							 demand_standard_deviation=1,
+							 downstream_0=False)
+	G = simulation(serial_3, T, rand_seed=15)
+	write_results(G, T, False, None)
 
 	print("")
 

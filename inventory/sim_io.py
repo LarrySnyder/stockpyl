@@ -52,7 +52,7 @@ def write_results(network, num_periods, write_csv=False, csv_filename=None):
 						   get_attribute_total(n, network, 'OS', t),
 						   node['DMFS'][t], node['FR'][t], #node['BEI'][t],
 						   node['EIL'][t], node['HC'][t], node['SC'][t],
-						   node['TC'][t]]
+						   node['ITHC'][t], node['TC'][t]]
 
 #		temp = temp + ["|", ".", ".", ".", sim_results["AO"][NUM_STAGES][t], ".", sim_results["OS"][NUM_STAGES][t], ".", ".", ".", ".", ".", ".", "."]
 		results.append(temp)
@@ -62,7 +62,7 @@ def write_results(network, num_periods, write_csv=False, csv_filename=None):
 	for n in network.nodes():
 		headers = headers + ["|i={:d}".format(n), "IL", "OO", "AS", "AO", "OQ",
 							 "OS", "DMFS", "FR", #"BEI",
-							 "EIL", "HC", "SC", "TC"]
+							 "EIL", "HC", "SC", "ITHC", "TC"]
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))
