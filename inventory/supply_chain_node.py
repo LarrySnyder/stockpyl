@@ -77,7 +77,7 @@ class SupplyChainNode(object):
 	"""
 
 	def __init__(self, index=None, name=None, network=None):
-		"""SupplyChainStage constructor method.
+		"""SupplyChainNode constructor method.
 
 		Parameters
 		----------
@@ -100,17 +100,17 @@ class SupplyChainNode(object):
 		self.name = name
 
 		# Data/inputs.
-		local_holding_cost = None
-		stockout_cost = None
-		lead_time = 0
-		demand_type = DemandType.NONE
-		demand_mean = None
-		demand_standard_deviation = None
-		demands = []
-		demand_probabilities = []
-		demand_lo = None
-		demand_hi = None
-		inventory_policy = None
+		self.local_holding_cost = None
+		self.stockout_cost = None
+		self.lead_time = 0
+		self.demand_type = DemandType.NONE
+		self.demand_mean = None
+		self.demand_standard_deviation = None
+		self.demands = []
+		self.demand_probabilities = []
+		self.demand_lo = None
+		self.demand_hi = None
+		self.inventory_policy = None
 
 	# Special members.
 
@@ -123,17 +123,5 @@ class SupplyChainNode(object):
 			A string representation of the ``SupplyChainNode`` instance.
 
 		"""
-		return "SupplyChainNode(index={:}, name={:})".format(self.index, self.name)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``SupplyChainNode`` instance.
-		# TODO: write this.
-
-		Returns
-		-------
-			The node name.
-
-		"""
-		return self.__repr__()
+		return "SupplyChainNode({:s})".format(str(vars(self)))
 
