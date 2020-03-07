@@ -367,8 +367,8 @@ def net_demand(tree):
 	temp_tree = tree.copy()
 
 	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
-	# no successors), adding their net_means and net_variances to those of their
-	# predecessors. Then remove the leaf nodes and iterate.
+	# no _successors), adding their net_means and net_variances to those of their
+	# _predecessors. Then remove the leaf nodes and iterate.
 	while temp_tree.number_of_nodes() > 0:
 		leaf_nodes = [k for k in temp_tree.nodes if temp_tree.out_degree(k) == 0]
 		for k in leaf_nodes:

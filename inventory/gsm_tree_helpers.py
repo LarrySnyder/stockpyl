@@ -118,7 +118,7 @@ def inbound_cst(tree, n, cst):
 	# Build dict of SI values.
 	SI = {}
 	for k in n:
-		# Determine inbound CST (= max of CST for all predecessors, and external
+		# Determine inbound CST (= max of CST for all _predecessors, and external
 		# inbound CST).
 		SI[k] = tree.nodes[k]['external_inbound_cst']
 		if tree.in_degree[k] > 0:

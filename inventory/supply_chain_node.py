@@ -37,10 +37,10 @@ class SupplyChainNode(object):
 
 	network : SupplyChainNetwork
 		The network that contains the node.
-	predecessors : list
-		List of immediate predecesssor nodes.
-	successors : list
-		List of immediate successor nodes.
+	_predecessors : list
+		List of immediate predecesssor ``SupplyChainNode``s.
+	_successors : list
+		List of immediate successor ``SupplyChainNode``s.
 
 	# Data/inputs.
 
@@ -76,13 +76,14 @@ class SupplyChainNode(object):
 		Inventory policy to be used to make inventory decisions.
 	"""
 
-	def __init__(self, index=None, name=None, network=None):
+	def __init__(self, index, name=None, network=None):
 		"""SupplyChainNode constructor method.
 
 		Parameters
 		----------
-		index : int, optional
-			Numeric index to identify node.
+		index : int
+			Numeric index to identify node. In a SupplyChainNetwork, each node
+			must have a unique index.
 		name : str, optional
 			String to identify node.
 		network : SupplyChainNetwork
@@ -90,7 +91,7 @@ class SupplyChainNode(object):
 		"""
 		# Initialize attributes.
 
-		# Attributes related to parent network.
+		# Attributes related to network structure.
 		self.network = network
 		self._predecessors = []
 		self._successors = []
@@ -114,6 +115,40 @@ class SupplyChainNode(object):
 
 	# Special members.
 
+	def __eq__(self, other):
+		"""Determine whether ``other`` is equal to the node. Two nodes are
+		considered equal if their names or indices are equal.
+
+		Parameters
+		----------
+		other : SupplyChainNode
+			The node to compare to.
+
+		Returns
+		-------
+		bool
+			True if the nodes are equal, False otherwise.
+
+		"""
+		return self.index == other.index or self.name == other.name
+
+	def __ne__(self, other):
+		"""Determine whether ``other`` is not equal to the node. Two nodes are
+		considered equal if their names or indices are equal.
+
+		Parameters
+		----------
+		other : SupplyChainNode
+			The node to compare to.
+
+		Returns
+		-------
+		bool
+			True if the nodes are not equal, False otherwise.
+
+		"""
+		return not self.__eq__(other)
+
 	def __repr__(self):
 		"""
 		Return a string representation of the ``SupplyChainNode`` instance.
@@ -124,4 +159,60 @@ class SupplyChainNode(object):
 
 		"""
 		return "SupplyChainNode({:s})".format(str(vars(self)))
+
+	# Neighbor management.
+
+	def add_successor(self, successor):
+		"""Add ``successor`` to the node's list of successors.
+
+		Notes
+		-----
+		This method simply updates the node's list of successors. It does not
+		add ``successor`` to the network. Typically, this method is called by
+		the network.
+
+		Parameters
+		----------
+		successor : SupplyChainNode
+			The node to add as a successor.
+
+		"""
+		self._successors.append(successor)
+
+	def add_predecessor(self, predecessor):
+		"""Add ``predecessor`` to the node's list of predecessors.
+
+		Notes
+		-----
+		This method simply updates the node's list of predecessors. It does not
+		add ``predecessor`` to the network. Typically, this method is called by
+		the network.
+
+		Parameters
+		----------
+		predecessor : SupplyChainNode
+			The node to add as a predecessor.
+
+		"""
+		self._predecessors.append(predecessor)
+
+# # Methods to add and remove neighbors.
+	#
+	# def add_successor(self, successor):
+	# 	"""Add a successor to the node.
+	#
+	# 	Parameters
+	# 	----------
+	# 	successor : SupplyChainNode
+	# 		The node to add as a successor.
+	#
+	# 	"""
+	#
+	# 	# Add the successor to the node's list of _successors.
+	# 	self._successors.append(successor)
+	#
+	# 	# Add the node to the successor's list of _predecessors.
+	# 	successor._predecessors.append(self)
+	#
+	# 	# Add
 

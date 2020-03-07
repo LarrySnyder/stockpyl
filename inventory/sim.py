@@ -145,7 +145,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 		network.nodes[node_index]['IO'][None][period] = \
 			generate_demand(network.nodes[node_index], period)
 
-	# Call generate_downstream_orders() for all non-visited successors.
+	# Call generate_downstream_orders() for all non-visited _successors.
 	for s in list(network.successors(node_index)):
 		if not visited[s]:
 			generate_downstream_orders(s, network, period, visited)
@@ -159,7 +159,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	order_LT = network.nodes[node_index]['order_lead_time']
 	shipment_LT = network.nodes[node_index]['shipment_lead_time']
 
-	# Place orders to all predecessors.
+	# Place orders to all _predecessors.
 	for p in list(network.predecessors(node_index)) + [None]:
 		if p is not None:
 			network.nodes[p]['IO'][node_index][period+order_LT] = order_quantity
@@ -274,7 +274,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	# Set next period's starting IL.
 	node['IL'][period+1] = node['EIL'][period]
 
-	# Call generate_downstream_shipments() for all non-visited successors.
+	# Call generate_downstream_shipments() for all non-visited _successors.
 	for s in list(network.successors(node_index)):
 		if not visited[s]:
 			generate_downstream_shipments(s, network, period, visited)
@@ -387,7 +387,7 @@ def simulation(network, num_periods, rand_seed=None):
 
 		# Backorders: BO[j][t] = number of backorders for successor s at the
 		# beginning of period t. If s is None, refers to external demand. Sum
-		# over all successors should always equal IL^-.
+		# over all _successors should always equal IL^-.
 		G.nodes[n]['BO'] = {s: np.zeros(num_periods+EXTRA_PERIODS)
 							for s in list(G.successors(n))+[None]}
 
@@ -428,14 +428,14 @@ def simulation(network, num_periods, rand_seed=None):
 		else:
 			G.nodes[n]['IL'][0] = 0.0
 
-		# Initialize inbound order quantities for all predecessors of n,
+		# Initialize inbound order quantities for all _predecessors of n,
 		# and update on-order quantity.
 		for j in G.predecessors(n):
 			for t in range(G.nodes[n]['order_lead_time']):
 				G.nodes[j]['IO'][n][t] = G.nodes[n]['initial_orders']
 				G.nodes[n]['OO'][j][0] += G.nodes[j]['IO'][n][t]
 
-		# Initialize inbound shipment quantities from all predecessors of n,
+		# Initialize inbound shipment quantities from all _predecessors of n,
 		# and update on-order quantity.
 		for j in G.predecessors(n):
 			for t in range(G.nodes[n]['shipment_lead_time']):
@@ -450,7 +450,7 @@ def simulation(network, num_periods, rand_seed=None):
 
 		# GENERATE DEMANDS AND ORDERS
 
-		# Build list of nodes with no predecessors. (These will be the starting
+		# Build list of nodes with no _predecessors. (These will be the starting
 		# nodes for the dfs.)
 		no_pred = {n for n in G.nodes() if G.in_degree(n) == 0}
 
@@ -458,7 +458,7 @@ def simulation(network, num_periods, rand_seed=None):
 		visited = {n: False for n in G.nodes}
 
 		# Generate demands and place orders. Use depth-first search, starting
-		# at nodes with no predecessors, and propagating orders upstream.
+		# at nodes with no _predecessors, and propagating orders upstream.
 		for n in no_pred:
 			generate_downstream_orders(n, G, t, visited)
 
@@ -468,7 +468,7 @@ def simulation(network, num_periods, rand_seed=None):
 		visited	= {n: False for n in G.nodes}
 
 		# Generate shipments. Use depth-first search, starting at nodes with
-		# no predecessors, and propagating shipments downstream.
+		# no _predecessors, and propagating shipments downstream.
 		for n in no_pred:
 			generate_downstream_shipments(n, G, t, visited)
 

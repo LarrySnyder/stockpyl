@@ -16,8 +16,7 @@ This module contains the ``SupplyChainNetwork`` class.
 # Imports
 # ===============================================================================
 
-from inventory.datatypes import *
-from inventory.policy import *
+from inventory.supply_chain_node import *
 
 
 # ===============================================================================
@@ -30,8 +29,9 @@ class SupplyChainNetwork(object):
 
 	Attributes
 	----------
-	nodes : list
-		A list of all nodes in the network. (Read only.)
+	nodes : dict
+		A dict of all nodes in the network; key=index, value=node object.
+		(Read only.)
 
 	"""
 
@@ -40,7 +40,7 @@ class SupplyChainNetwork(object):
 
 		"""
 		# Initialize attributes.
-		self._nodes = []
+		self._nodes = {}
 
 	@property
 	def nodes(self):
@@ -60,3 +60,30 @@ class SupplyChainNetwork(object):
 		"""
 		return "SupplyChainNetwork({:s})".format(str(vars(self)))
 
+	# Methods to add and remove nodes.
+
+	def add_successor(self, node, successor_node):
+		"""Add ``successor_node`` as a successor to ``node``. ``node`` must
+		already be contained in the network.
+
+		The method adds the nodes to each other's lists of _successors and
+		_predecessors. If ``successor_node`` is not already contained in the
+		network, the method also adds it. (The node is assumed to be contained
+		in the network if its index or name match those of a node in the network.)
+
+		Parameters
+		----------
+		node : SupplyChainNode
+			The node to which the successor should be added.
+		successor_node : SupplyChainNode
+			The node to be added as a successor.
+
+		"""
+
+		# Add nodes to each other's predecessor and successor lists.
+		node.add_successor(successor_node)
+		successor_node.add_predecessor(node)
+
+		# Check whether node is already in network.
+		if successor_node not in self.nodes:
+			self.nodes[successor_node.index] = successor_node
