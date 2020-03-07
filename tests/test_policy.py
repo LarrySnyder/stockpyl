@@ -15,29 +15,29 @@ def print_status(class_name, function_name):
 	print("module : test_policy   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestPolicyInit(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestPolicyInit', 'setUpClass()')
+		print_status('TestPolicyInit', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestPolicyInit', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPolicyInit', 'tear_down_class()')
 
 	def test_init(self):
-		"""Test that Policy() correctly raises errors on incorrect parameters.
+		"""Test that Policy.__init__() correctly raises errors on incorrect parameters.
 		"""
 		print_status('TestPolicyInit', 'test_init()')
 
@@ -54,17 +54,17 @@ class TestPolicyInit(unittest.TestCase):
 
 class TestPolicyRepr(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestPolicyRepr', 'setUpClass()')
+		print_status('TestPolicyRepr', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestPolicyRepr', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPolicyRepr', 'tear_down_class()')
 
 	def test_base_stock(self):
-		"""Test that policy.__repr__() correctly returns policy string for
+		"""Test that Policy.__repr__() correctly returns policy string for
 		base-stock policy.
 		"""
 		print_status('TestPolicyRepr', 'test_base_stock()')
@@ -74,7 +74,7 @@ class TestPolicyRepr(unittest.TestCase):
 		self.assertEqual(policy_str, "Policy(BASE_STOCK: base_stock_level=105.30)")
 
 	def test_r_Q(self):
-		"""Test that policy.__repr__() correctly returns policy string for
+		"""Test that Policy.__repr__() correctly returns policy string for
 		(r,Q) policy.
 		"""
 		print_status('TestPolicyRepr', 'test_r_Q()')
@@ -84,7 +84,7 @@ class TestPolicyRepr(unittest.TestCase):
 		self.assertEqual(policy_str, "Policy(r_Q: reorder_point=45.30, order_quantity=17.40)")
 
 	def test_s_S(self):
-		"""Test that policy.__repr__() correctly returns policy string for
+		"""Test that Policy.__repr__() correctly returns policy string for
 		(r,Q) policy.
 		"""
 		print_status('TestPolicyRepr', 'test_s_S()')
@@ -96,17 +96,17 @@ class TestPolicyRepr(unittest.TestCase):
 
 class TestPolicyStr(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestPolicyStr', 'setUpClass()')
+		print_status('TestPolicyStr', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestPolicyStr', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPolicyStr', 'tear_down_class()')
 
 	def test_base_stock(self):
-		"""Test that policy.__str__() correctly returns policy string for
+		"""Test that Policy.__str__() correctly returns policy string for
 		base-stock policy.
 		"""
 		print_status('TestPolicyStr', 'test_base_stock()')
@@ -116,7 +116,7 @@ class TestPolicyStr(unittest.TestCase):
 		self.assertEqual(policy_str, "Policy(BASE_STOCK: base_stock_level=105.30)")
 
 	def test_r_Q(self):
-		"""Test that policy.__str__() correctly returns policy string for
+		"""Test that Policy.__str__() correctly returns policy string for
 		(r,Q) policy.
 		"""
 		print_status('TestPolicyStr', 'test_r_Q()')
@@ -126,7 +126,7 @@ class TestPolicyStr(unittest.TestCase):
 		self.assertEqual(policy_str, "Policy(r_Q: reorder_point=45.30, order_quantity=17.40)")
 
 	def test_s_S(self):
-		"""Test that policy.__repr__() correctly returns policy string for
+		"""Test that Policy.__repr__() correctly returns policy string for
 		(r,Q) policy.
 		"""
 		print_status('TestPolicyStr', 'test_s_S()')
@@ -138,14 +138,14 @@ class TestPolicyStr(unittest.TestCase):
 
 class TestGetOrderQuantity(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestGetOrderQuantity', 'setUpClass()')
+		print_status('TestGetOrderQuantity', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestGetOrderQuantity', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetOrderQuantity', 'tear_down_class()')
 
 	def test_base_stock(self):
 		"""Test that get_order_quantity() returns correct order quantity
@@ -202,14 +202,14 @@ class TestGetOrderQuantity(unittest.TestCase):
 
 class TestGetOrderQuantityBaseStock(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestGetOrderQuantityBaseStock', 'setUpClass()')
+		print_status('TestGetOrderQuantityBaseStock', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestGetOrderQuantityBaseStock', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetOrderQuantityBaseStock', 'tear_down_class()')
 
 	def test(self):
 		"""Test that get_order_quantity_base_stock() returns correct order
@@ -228,14 +228,14 @@ class TestGetOrderQuantityBaseStock(unittest.TestCase):
 
 class TestGetOrderQuantityrQ(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestGetOrderQuantityrQ', 'setUpClass()')
+		print_status('TestGetOrderQuantityrQ', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestGetOrderQuantityrQ', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetOrderQuantityrQ', 'tear_down_class()')
 
 	def test(self):
 		"""Test that get_order_quantity_r_Q() returns correct order
@@ -254,14 +254,14 @@ class TestGetOrderQuantityrQ(unittest.TestCase):
 
 class TestGetOrderQuantitysS(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestGetOrderQuantitysS', 'setUpClass()')
+		print_status('TestGetOrderQuantitysS', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestGetOrderQuantitysS', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetOrderQuantitysS', 'tear_down_class()')
 
 	def test(self):
 		"""Test that get_order_quantity_s_S() returns correct order
@@ -280,14 +280,14 @@ class TestGetOrderQuantitysS(unittest.TestCase):
 
 class TestGetOrderQuantityFixedQuantity(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestGetOrderQuantityFixedQuantity', 'setUpClass()')
+		print_status('TestGetOrderQuantityFixedQuantity', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestGetOrderQuantityFixedQuantity', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetOrderQuantityFixedQuantity', 'tear_down_class()')
 
 	def test(self):
 		"""Test that get_order_quantity_fixed_quantity() returns correct order

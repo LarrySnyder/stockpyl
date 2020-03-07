@@ -10,26 +10,26 @@ def print_status(class_name, function_name):
 	print("module : test_wagner_whitin   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestWagnerWhitin(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestWagnerWhitin', 'setUpClass()')
+		print_status('TestWagnerWhitin', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestWagnerWhitin', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestWagnerWhitin', 'tear_down_class()')
 
 	def test_example_3_9(self):
 		"""Test that wagner_whitin function correctly solves Example 3.9.

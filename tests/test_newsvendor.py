@@ -15,26 +15,26 @@ def print_status(class_name, function_name):
 	print("module : test_newsvendor   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestNewsvendorNormal(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNewsvendorNormal', 'setUpClass()')
+		print_status('TestNewsvendorNormal', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNewsvendorNormal', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorNormal', 'tear_down_class()')
 
 	def test_example_4_3(self):
 		"""Test that newsvendor_normal function correctly solves Example 4.3.
@@ -119,14 +119,14 @@ class TestNewsvendorNormal(unittest.TestCase):
 
 class TestNewsvendorPoisson(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNewsvendorPoisson', 'setUpClass()')
+		print_status('TestNewsvendorPoisson', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNewsvendorPoisson', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorPoisson', 'tear_down_class()')
 
 	def test_example_4_7(self):
 		"""Test that newsvendor_poisson function correctly solves Example 4.7
@@ -189,14 +189,14 @@ class TestNewsvendorPoisson(unittest.TestCase):
 
 class TestNewsvendorContinuous(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNewsvendorContinuous', 'setUpClass()')
+		print_status('TestNewsvendorContinuous', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNewsvendorContinuous', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorContinuous', 'tear_down_class()')
 
 	def test_example_4_1_with_distrib(self):
 		"""Test that newsvendor_continuous function correctly solves Example 4.1
@@ -281,14 +281,14 @@ class TestNewsvendorContinuous(unittest.TestCase):
 
 class TestNewsvendorDiscrete(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNewsvendorDiscrete', 'setUpClass()')
+		print_status('TestNewsvendorDiscrete', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNewsvendorDiscrete', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorDiscrete', 'tear_down_class()')
 
 	def test_example_4_7_with_distrib(self):
 		"""Test that newsvendor_discrete function correctly solves Example 4.7

@@ -15,26 +15,26 @@ def print_status(class_name, function_name):
 	print("module : test_loss_functions   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestStandardNormalLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestStandardNormalLoss', 'setUpClass()')
+		print_status('TestStandardNormalLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestStandardNormalLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestStandardNormalLoss', 'tear_down_class()')
 
 	def test(self):
 		"""Test that standard_normal_loss function correctly calculates L and
@@ -60,14 +60,14 @@ class TestStandardNormalLoss(unittest.TestCase):
 
 class TestNormalLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNormalLoss', 'setUpClass()')
+		print_status('TestNormalLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNormalLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNormalLoss', 'tear_down_class()')
 
 	def test(self):
 		"""Test that normal_loss function correctly calculates n and n_bar for
@@ -99,14 +99,14 @@ class TestNormalLoss(unittest.TestCase):
 
 class TestLognormalLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestLognormalLoss', 'setUpClass()')
+		print_status('TestLognormalLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestLognormalLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestLognormalLoss', 'tear_down_class()')
 
 	def test(self):
 		"""Test that lognormal_loss function correctly calculates n and n_bar for
@@ -138,14 +138,14 @@ class TestLognormalLoss(unittest.TestCase):
 
 class TestContinuousLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestContinuousLoss', 'setUpClass()')
+		print_status('TestContinuousLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestContinuousLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestContinuousLoss', 'tear_down_class()')
 
 	def test_normal(self):
 		"""Test that continuous_loss function correctly calculates n and n_bar
@@ -193,14 +193,14 @@ class TestContinuousLoss(unittest.TestCase):
 
 class TestPoissonLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestPoissonLoss', 'setUpClass()')
+		print_status('TestPoissonLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestPoissonLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPoissonLoss', 'tear_down_class()')
 
 	def test(self):
 		"""Test that poisson_loss function correctly calculates n and n_bar for
@@ -243,14 +243,14 @@ class TestPoissonLoss(unittest.TestCase):
 
 class TestNegativeBinomialLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNegativeBinomialLoss', 'setUpClass()')
+		print_status('TestNegativeBinomialLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNegativeBinomialLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNegativeBinomialLoss', 'tear_down_class()')
 
 	def test(self):
 		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
@@ -293,14 +293,14 @@ class TestNegativeBinomialLoss(unittest.TestCase):
 
 class TestDiscreteLoss(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestDiscreteLoss', 'setUpClass()')
+		print_status('TestDiscreteLoss', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestDiscreteLoss', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDiscreteLoss', 'tear_down_class()')
 
 	def test_poisson(self):
 		"""Test that discrete_loss function correctly calculates n and n_bar

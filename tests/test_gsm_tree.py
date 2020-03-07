@@ -14,27 +14,27 @@ def print_status(class_name, function_name):
 	print("module : test_gsm_tree   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestRelabelNodes(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestRelabelNodes', 'setUpClass()')
+		print_status('TestRelabelNodes', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestRelabelNodes', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRelabelNodes', 'tear_down_class()')
 
 	def test_figure_6_12(self):
 		"""Test that relabel_nodes() correctly relabels network
@@ -150,14 +150,14 @@ class TestRelabelNodes(unittest.TestCase):
 
 class TestIsCorrectlyLabeled(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestIsCorrectlyLabeled', 'setUpClass()')
+		print_status('TestIsCorrectlyLabeled', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestIsCorrectlyLabeled', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsCorrectlyLabeled', 'tear_down_class()')
 
 	def test_correct(self):
 		"""Test that is_correctly_labeled() works for if network is labeled
@@ -250,14 +250,14 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 class TestFindLargerAdjacentNodes(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestFindLargerAdjacentNodes', 'setUpClass()')
+		print_status('TestFindLargerAdjacentNodes', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestFindLargerAdjacentNodes', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestFindLargerAdjacentNodes', 'tear_down_class()')
 
 	def test_figure_6_12(self):
 		"""Test that find_larger_adjacent_nodes() works for relabeled network
@@ -327,14 +327,14 @@ class TestFindLargerAdjacentNodes(unittest.TestCase):
 class TestLongestPath(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestLongestPath', 'setUpClass()')
+		print_status('TestLongestPath', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestLongestPath', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestLongestPath', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that find_larger_adjacent_nodes() works for network in Example 6.5.
@@ -381,14 +381,14 @@ class TestLongestPath(unittest.TestCase):
 class TestNetDemand(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNetDemand', 'setUpClass()')
+		print_status('TestNetDemand', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNetDemand', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNetDemand', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that net_demand() works for network in Example 6.5.
@@ -448,14 +448,14 @@ class TestNetDemand(unittest.TestCase):
 class TestConnectedSubgraphNodes(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestConnectedSubgraphNodes', 'setUpClass()')
+		print_status('TestConnectedSubgraphNodes', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestConnectedSubgraphNodes', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestConnectedSubgraphNodes', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that net_demand() works for network in Example 6.5.
@@ -505,14 +505,14 @@ class TestConnectedSubgraphNodes(unittest.TestCase):
 class TestGSMToSSM(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestGSMToSSM', 'setUpClass()')
+		print_status('TestGSMToSSM', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestGSMToSSM', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGSMToSSM', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that GSM_to_SSM() works for network in Example 6.5.
@@ -605,14 +605,14 @@ class TestGSMToSSM(unittest.TestCase):
 class TestPreprocessTree(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestPreprocessTree', 'setUpClass()')
+		print_status('TestPreprocessTree', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestPreprocessTree', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPreprocessTree', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that preprocess_tree() works for network in Example 6.5.
@@ -943,14 +943,14 @@ class TestPreprocessTree(unittest.TestCase):
 class TestCalculateC(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestCalculateC', 'setUpClass()')
+		print_status('TestCalculateC', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestCalculateC', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCalculateC', 'tear_down_class()')
 
 	def test_example_6_5_k1(self):
 		"""Test that calculate_c() works for network in Example 6.5 with k=1.
@@ -1526,14 +1526,14 @@ class TestCalculateC(unittest.TestCase):
 class TestCalculateThetaOut(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestCalculateThetaOut', 'setUpClass()')
+		print_status('TestCalculateThetaOut', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestCalculateThetaOut', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCalculateThetaOut', 'tear_down_class()')
 
 	def test_example_6_5_k1(self):
 		"""Test that calculate_theta_out() works for network in Example 6.5 with k=1.
@@ -1604,14 +1604,14 @@ class TestCalculateThetaOut(unittest.TestCase):
 class TestCalculateThetaIn(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestCalculateThetaIn', 'setUpClass()')
+		print_status('TestCalculateThetaIn', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestCalculateThetaIn', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCalculateThetaIn', 'tear_down_class()')
 
 	def test_example_6_5_k2(self):
 		"""Test that calculate_theta_in() works for network in Example 6.5 with k=2.
@@ -1706,14 +1706,14 @@ class TestCalculateThetaIn(unittest.TestCase):
 class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestOptimizeCommittedServiceTimes', 'setUpClass()')
+		print_status('TestOptimizeCommittedServiceTimes', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestOptimizeCommittedServiceTimes', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestOptimizeCommittedServiceTimes', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that optimize_committed_service_times() works for network in

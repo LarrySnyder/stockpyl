@@ -1,11 +1,9 @@
 from enum import Enum
 
+
 # -------------------
 
 # ENUM TYPES
-
-
-
 
 class DemandType(Enum):
 	NONE = 0					# no external demand

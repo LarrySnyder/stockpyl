@@ -10,27 +10,27 @@ def print_status(class_name, function_name):
 	print("module : test_helpers   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestMinOfDict(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestMinOfDict', 'setUpClass()')
+		print_status('TestMinOfDict', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestMinOfDict', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestMinOfDict', 'tear_down_class()')
 
 	def test_small_dict(self):
 		"""Test that min_of_dict() returns correct result for a small dict.
@@ -58,14 +58,14 @@ class TestMinOfDict(unittest.TestCase):
 class TestDictMatch(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestDictMatch', 'setUpClass()')
+		print_status('TestDictMatch', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestDictMatch', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDictMatch', 'tear_down_class()')
 
 	def test_all_keys_present(self):
 		"""Test that dict_match() returns correct results if all keys are
@@ -101,14 +101,14 @@ class TestDictMatch(unittest.TestCase):
 
 class TestIsIterable(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestIsIterable', 'setUpClass()')
+		print_status('TestIsIterable', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestIsIterable', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsIterable', 'tear_down_class()')
 
 	def test_list(self):
 		"""Test that is_iterable() correctly returns True when input is a list.
@@ -138,14 +138,14 @@ class TestIsIterable(unittest.TestCase):
 
 class TestIsInteger(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestIsInteger', 'setUpClass()')
+		print_status('TestIsInteger', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestIsInteger', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsInteger', 'tear_down_class()')
 
 	def test_int(self):
 		"""Test that is_integer() returns correct result if x is an int.
@@ -187,14 +187,14 @@ class TestIsInteger(unittest.TestCase):
 
 class TestEnsureListForTimePeriods(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestEnsureListForTimePeriods', 'setUpClass()')
+		print_status('TestEnsureListForTimePeriods', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestEnsureListForTimePeriods', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEnsureListForTimePeriods', 'tear_down_class()')
 
 	def test_singleton(self):
 		"""Test that ensure_list_for_time_periods() returns correct result if
@@ -235,14 +235,14 @@ class TestEnsureListForTimePeriods(unittest.TestCase):
 
 class TestEnsureListForNodes(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestEnsureListForNodes', 'setUpClass()')
+		print_status('TestEnsureListForNodes', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestEnsureListForNodes', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEnsureListForNodes', 'tear_down_class()')
 
 	def test_singleton(self):
 		"""Test that ensure_list_for_nodes() returns correct result if

@@ -12,27 +12,27 @@ def print_status(class_name, function_name):
 	"""Print status message."""
 	print("module : test_gsm_tree   class : {:30s} function : {:30s}".format(class_name, function_name))
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 
 class TestSolutionCost(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestSolutionCost', 'setUpClass()')
+		print_status('TestSolutionCost', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestSolutionCost', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSolutionCost', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that solution_cost_from_cst() correctly reports cost for solutions
@@ -56,14 +56,14 @@ class TestSolutionCost(unittest.TestCase):
 
 class TestInboundCST(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestInboundCST', 'setUpClass()')
+		print_status('TestInboundCST', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestInboundCST', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestInboundCST', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that inbound_cst() correctly reports inbound CST for solutions
@@ -168,14 +168,14 @@ class TestInboundCST(unittest.TestCase):
 
 class TestNetLeadTime(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestNetLeadTime', 'setUpClass()')
+		print_status('TestNetLeadTime', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestNetLeadTime', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNetLeadTime', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that net_lead_time() correctly reports NLT for solutions
@@ -280,14 +280,14 @@ class TestNetLeadTime(unittest.TestCase):
 
 class TestSafetyStockLevels(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestSafetyStockLevels', 'setUpClass()')
+		print_status('TestSafetyStockLevels', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestSafetyStockLevels', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSafetyStockLevels', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that safety_stock_levels() correctly reports safety stock for
@@ -399,14 +399,14 @@ class TestSafetyStockLevels(unittest.TestCase):
 
 class TestBaseStockLevels(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestBaseStockLevels', 'setUpClass()')
+		print_status('TestBaseStockLevels', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestBaseStockLevels', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestBaseStockLevels', 'tear_down_class()')
 
 	def test_example_6_5(self):
 		"""Test that cst_to_base_stock_levels() correctly reports base-stock levels for

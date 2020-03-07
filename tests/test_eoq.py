@@ -10,26 +10,26 @@ def print_status(class_name, function_name):
 	print("module : test_eoq   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestEconomicOrderQuantity(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestEconomicOrderQuantity', 'setUpClass()')
+		print_status('TestEconomicOrderQuantity', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestEconomicOrderQuantity', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEconomicOrderQuantity', 'tear_down_class()')
 
 	def test_example_3_1(self):
 		"""Test that EOQ function correctly solves Example 3.1.
@@ -80,14 +80,14 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 
 class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestEconomicOrderQuantityWithBackorders', 'setUpClass()')
+		print_status('TestEconomicOrderQuantityWithBackorders', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestEconomicOrderQuantityWithBackorders', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'tear_down_class()')
 
 	def test_example_3_8(self):
 		"""Test that EOQB function correctly solves Example 3.8.
@@ -148,14 +148,14 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 
 class TestEconomicProductionQuantity(unittest.TestCase):
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestEconomicProductionQuantity', 'setUpClass()')
+		print_status('TestEconomicProductionQuantity', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestEconomicProductionQuantity', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEconomicProductionQuantity', 'tear_down_class()')
 
 	def test_example_3_1(self):
 		"""Test that EPQ function correctly solves Example 3.1, plus mu = 2000.

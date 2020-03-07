@@ -38,9 +38,9 @@ class InventoryPolicyType(Enum):
 # ===============================================================================
 
 class Policy(object):
-	"""The ``Policy`` class.
+	"""The ``Policy`` class is used to encapsulate inventory policy calculations.
 
-	Parameters
+	Attributes
 	----------
 	policy_type : InventoryPolicyType
 		The inventory policy type.
@@ -49,6 +49,7 @@ class Policy(object):
 	param2 : float
 		Second inventory parameter; usage depends on policy_type.
 	"""
+
 	def __init__(self, policy_type=None, param1=None, param2=None):
 		"""Policy constructor method.
 
@@ -120,7 +121,7 @@ class Policy(object):
 	# def order_up_to_level(self, value):
 	# 	self._order_up_to_level = value
 
-	# Other functions.
+	# Special members.
 
 	def __repr__(self):
 		"""

@@ -11,27 +11,27 @@ def print_status(class_name, function_name):
 	print("module : test_ssm_serial   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 
-def setUpModule():
+def set_up_module():
 	"""Called once, before anything else in this module."""
-	print_status('---', 'setUpModule()')
+	print_status('---', 'set_up_module()')
 
 
-def tearDownModule():
+def tear_down_module():
 	"""Called once, after everything else in this module."""
-	print_status('---', 'tearDownModule()')
+	print_status('---', 'tear_down_module()')
 
 
 class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestLocalToEchelonBaseStockLevels', 'setUpClass()')
+		print_status('TestLocalToEchelonBaseStockLevels', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestLocalToEchelonBaseStockLevels', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestLocalToEchelonBaseStockLevels', 'tear_down_class()')
 
 	def test_example_6_1(self):
 		"""Test that local_to_echelon_base_stock_levels() correctly converts
@@ -56,14 +56,14 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 class TestExpectedCost(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestExpectedCost', 'setUpClass()')
+		print_status('TestExpectedCost', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestExpectedCost', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestExpectedCost', 'tear_down_class()')
 
 	def test_example_6_1(self):
 		"""Test that expected_cost() correctly calculates cost for
@@ -107,14 +107,14 @@ class TestExpectedCost(unittest.TestCase):
 class TestExpectedHoldingCost(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestExpectedHoldingCost', 'setUpClass()')
+		print_status('TestExpectedHoldingCost', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestExpectedHoldingCost', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestExpectedHoldingCost', 'tear_down_class()')
 
 	def test_example_6_1(self):
 		"""Test that expected_holding_cost() correctly calculates cost for
@@ -158,14 +158,14 @@ class TestExpectedHoldingCost(unittest.TestCase):
 class TestOptimizeBaseStockLevels(unittest.TestCase):
 
 	@classmethod
-	def setUpClass(cls):
+	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestOptimizeBaseStockLevels', 'setUpClass()')
+		print_status('TestOptimizeBaseStockLevels', 'set_up_class()')
 
 	@classmethod
-	def tearDownClass(cls):
-		"""Called once, after all tests, if setUpClass successful."""
-		print_status('TestOptimizeBaseStockLevels', 'tearDownClass()')
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestOptimizeBaseStockLevels', 'tear_down_class()')
 
 	def test_example_6_1(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes
