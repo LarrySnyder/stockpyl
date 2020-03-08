@@ -113,18 +113,24 @@ class TestIsIterable(unittest.TestCase):
 	def test_list(self):
 		"""Test that is_iterable() correctly returns True when input is a list.
 		"""
+		print_status('TestIsIterable', 'test_list()')
+
 		a = [1, 2, 3]
 		self.assertEqual(helpers.is_iterable(a), True)
 
 	def test_set(self):
 		"""Test that is_iterable() correctly returns True when input is a set.
 		"""
+		print_status('TestIsIterable', 'test_set()')
+
 		a = {1, 2, 3}
 		self.assertEqual(helpers.is_iterable(a), True)
 
 	def test_dict(self):
 		"""Test that is_iterable() correctly returns True when input is a dict.
 		"""
+		print_status('TestIsIterable', 'test_dict()')
+
 		a = {1: 0, 2: 5, 3: 'potato'}
 		self.assertEqual(helpers.is_iterable(a), True)
 
@@ -132,9 +138,19 @@ class TestIsIterable(unittest.TestCase):
 		"""Test that is_iterable() correctly returns False when input is a
 		singleton.
 		"""
+		print_status('TestIsIterable', 'test_singleton()')
+
 		a = 3.14
 		self.assertEqual(helpers.is_iterable(a), False)
 
+	def test_iter(self):
+		"""Test that is_iterable() correctly returns True when input is an
+		iter.
+		"""
+		print_status('TestIsIterable', 'test_iter()')
+
+		a = iter("foo")
+		self.assertEqual(helpers.is_iterable(a), True)
 
 class TestIsInteger(unittest.TestCase):
 	@classmethod

@@ -37,19 +37,25 @@ class SupplyChainNode(object):
 
 	network : SupplyChainNetwork
 		The network that contains the node.
-	_predecessors : list
+	predecessors : list
 		List of immediate predecesssor ``SupplyChainNode``s.
-	_successors : list
+	successors : list
 		List of immediate successor ``SupplyChainNode``s.
 
 	# Data/inputs.
 
 	local_holding_cost : float
-		Local holding cost, per unit per period. [h'] # TODO: allow echelon holding costs
+		Local holding cost, per unit per period. [h']
+	echelon_holding_cost : float
+		Echelon holding cost, per unit per period. [h] # not currently supported
 	stockout_cost : float
 		Stockout cost, per unit (per period, if backorders). [p]
 	lead_time : int
-		Shipment lead time. [L] # TODO: create "alias" shipment_lead_time
+		Shipment lead time. [L]
+	shipment_lead_time : int
+		Shipment lead time. [L] # not currently supported # TODO: set as alias for lead_time
+	order_lead_time : int
+		Order lead time.
 	demand_type : DemandType
 		Demand type (normal, deterministic, etc.).
 	demand_mean : float
@@ -72,6 +78,12 @@ class SupplyChainNode(object):
 	demand_hi : float
 		High value of demand range. Required if ``demand_type`` ==
 		``UNIFORM_DISCRETE`` or ``UNIFORM_CONTINUOUS``, ignored otherwise.
+	initial_IL : float
+		Initial inventory level.
+	initial_orders : float # TODO: allow list
+		Initial outbound order quantity.
+	initial shipments : float # TODO: allow list
+		Initial inbound shipment quantity.
 	inventory_policy : Policy
 		Inventory policy to be used to make inventory decisions.
 	"""
@@ -91,19 +103,22 @@ class SupplyChainNode(object):
 		"""
 		# Initialize attributes.
 
+		# Index and name.
+		self.index = index
+		self.name = name
+
 		# Attributes related to network structure.
 		self.network = network
 		self._predecessors = []
 		self._successors = []
 
-		# Index and name.
-		self.index = index
-		self.name = name
-
 		# Data/inputs.
 		self.local_holding_cost = None
+		self.echelon_holding_cost = None
 		self.stockout_cost = None
 		self.lead_time = 0
+		self.shipment_lead_time = 0
+		self.order_lead_time = 0
 		self.demand_type = DemandType.NONE
 		self.demand_mean = None
 		self.demand_standard_deviation = None
@@ -111,13 +126,34 @@ class SupplyChainNode(object):
 		self.demand_probabilities = []
 		self.demand_lo = None
 		self.demand_hi = None
+		self.initial_IL = 0
+		self.initial_orders = 0
+		self.initial_shipments = 0
 		self.inventory_policy = None
+
+	# Properties related to network structure.
+
+	@property
+	def predecessors(self):
+		return self._predecessors
+
+	@property
+	def successors(self):
+		return self._successors
+
+	@property
+	def predecessor_indices(self):
+		return [node.index for node in self._predecessors]
+
+	@property
+	def successor_indices(self):
+		return [node.index for node in self._successors]
 
 	# Special members.
 
 	def __eq__(self, other):
 		"""Determine whether ``other`` is equal to the node. Two nodes are
-		considered equal if their names or indices are equal.
+		considered equal if their indices are equal.
 
 		Parameters
 		----------
@@ -130,11 +166,11 @@ class SupplyChainNode(object):
 			True if the nodes are equal, False otherwise.
 
 		"""
-		return self.index == other.index or self.name == other.name
+		return self.index == other.index
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to the node. Two nodes are
-		considered equal if their names or indices are equal.
+		considered equal if their indices are equal.
 
 		Parameters
 		----------
@@ -148,6 +184,13 @@ class SupplyChainNode(object):
 
 		"""
 		return not self.__eq__(other)
+
+	# def __hash__(self):
+	# 	"""
+	# 	Return the hash for the node, which equals its index.
+	#
+	# 	"""
+	# 	return self.index
 
 	def __repr__(self):
 		"""
@@ -195,24 +238,4 @@ class SupplyChainNode(object):
 
 		"""
 		self._predecessors.append(predecessor)
-
-# # Methods to add and remove neighbors.
-	#
-	# def add_successor(self, successor):
-	# 	"""Add a successor to the node.
-	#
-	# 	Parameters
-	# 	----------
-	# 	successor : SupplyChainNode
-	# 		The node to add as a successor.
-	#
-	# 	"""
-	#
-	# 	# Add the successor to the node's list of _successors.
-	# 	self._successors.append(successor)
-	#
-	# 	# Add the node to the successor's list of _predecessors.
-	# 	successor._predecessors.append(self)
-	#
-	# 	# Add
 
