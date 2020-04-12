@@ -57,6 +57,7 @@ from inventory.supply_chain_node import *
 from inventory.sim_io import *
 from inventory.helpers import *
 from tests.instances_ssm_serial import *
+from inventory.instances import *
 
 
 # -------------------
@@ -108,22 +109,6 @@ def generate_demand(node, period=None, round=False):
 	return demand
 
 
-# def get_order_quantity(node_index, network, period):
-# 	"""Determine order quantity based on policy type and values of state variables.
-#
-# 	Parameters
-# 	----------
-# 	node_index
-# 	network
-# 	period
-#
-# 	Returns
-# 	-------
-#
-# 	"""
-# 	pass
-
-
 def generate_downstream_orders(node_index, network, period, visited):
 	"""Generate demands and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
@@ -155,7 +140,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Does node have external demand?
 	if node.demand_type != DemandType.NONE:
 		# Generate demand and fill it in inbound_order.
-		node.inbound_order[None][period] = generate_demand(node, period, round=True)
+		node.inbound_order[None][period] = generate_demand(node, period)
 
 	# Call generate_downstream_orders() for all non-visited successors.
 	for s in node.successors:
@@ -340,7 +325,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 
 # SIMULATION
 
-def simulation(network, num_periods, rand_seed=None):
+def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	"""Perform the simulation for ``num_periods`` periods. Fills performance
 	measures directly into ``network``.
 
@@ -352,6 +337,8 @@ def simulation(network, num_periods, rand_seed=None):
 		Number of periods to simulate.
 	rand_seed : int, optional
 		Random number generator seed.
+	progress_bar : bool, optional
+		Display a progress bar?
 
 	Returns
 	-------
@@ -422,6 +409,9 @@ def simulation(network, num_periods, rand_seed=None):
 	# Initialize random number generator.
 	np.random.seed(rand_seed)
 
+	# Initialize progress bar. (If not requested, then this will disable it.)
+	pbar = tqdm(total=num_periods, disable=not progress_bar)
+
 	# Initialize inventory levels and other quantities.
 	for n in network.nodes:
 		# Initialize inventory levels and backorders.
@@ -447,9 +437,10 @@ def simulation(network, num_periods, rand_seed=None):
 
 	# MAIN LOOP
 
-	for t in tqdm(range(num_periods)):
+	for t in range(num_periods):
 
-		#print(t)
+		# Update progress bar.
+		pbar.update()
 
 		# GENERATE DEMANDS AND ORDERS
 
@@ -474,6 +465,9 @@ def simulation(network, num_periods, rand_seed=None):
 		# no predecessors, and propagating shipments downstream.
 		for n in no_pred:
 			generate_downstream_shipments(n.index, network, t, visited)
+
+	# Close progress bar.
+	pbar.close()
 
 	# Return total cost.
 	return np.sum([n.total_cost_incurred[t] for n in network.nodes
@@ -525,59 +519,11 @@ def run_multiple_trials(network, num_trials, num_periods):
 
 
 def main():
-	T = 1000
+	T = 100
 
-	# Example 6.1
-	serial_3 = serial_system(3, local_holding_cost=[7, 4, 2],
-							 stockout_cost=[37.12, 0, 0],
-							 demand_type=DemandType.NORMAL,
-							 demand_mean=5,
-							 demand_standard_deviation=1,
-							 shipment_lead_time=[1, 1, 2],
-							 inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-							 local_base_stock_levels=[6.49, 5.53, 10.69],
-							 downstream_0=True)
-#	total_cost = simulation(serial_3, T, rand_seed=None)
-#	write_results(serial_3, T, total_cost, num_periods_to_print=50, write_csv=False)
-	mean_cost, sem_cost = run_multiple_trials(serial_3, 10, T)
-	print("mean = {:} SEM = {:}".format(mean_cost, sem_cost))
-
-# 	# Problem 6.16
-# 	serial_2 = serial_system(2, local_holding_cost=[7, 2],
-# 							 stockout_cost=[24, 0],
-# 							 demand_type=DemandType.NORMAL,
-# 							 demand_mean=20,
-# 							 demand_standard_deviation=4,
-# 							 shipment_lead_time=[8, 3],
-# 							 inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-# 							 local_base_stock_levels=[170, 60],
-# #							 local_base_stock_levels=[171.1912, 57.7257],
-# 							 initial_IL=20,
-# 							 initial_orders=20,
-# 							 initial_shipments=20,
-# 							 downstream_0=True)
-# 	total_cost = simulation(serial_2, T, rand_seed=None)
-# 	write_results(serial_2, T, total_cost, num_periods_to_print=50, write_csv=False)
-
-# 	serial_2_temp = serial_system(2, local_holding_cost=[1, 1],
-# 							 stockout_cost=[10, 0],
-# 							 demand_type=DemandType.NORMAL,
-# 							 demand_mean=20,
-# 							 demand_standard_deviation=1,
-# #							 demand_type=DemandType.DETERMINISTIC,
-# #							 demands=20,
-# 							 shipment_lead_time=[2, 2],
-# 							 inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-# 							 local_base_stock_levels=[60, 30],
-# 							 initial_IL=20,
-# 							 initial_orders=20,
-# 							 initial_shipments=20,
-# 							 downstream_0=True)
-# 	total_cost = simulation(serial_2_temp, T, rand_seed=15)
-# 	write_results(serial_2_temp, T, total_cost, num_periods_to_print=50, write_csv=False)
-
-
-
+	network = problem_6_16_network
+	total_cost = simulation(network, T, rand_seed=762)
+	write_results(network, T, total_cost, write_csv=False)
 
 
 if __name__ == "__main__":
