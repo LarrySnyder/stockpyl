@@ -166,6 +166,7 @@ class SupplyChainNetwork(object):
 		# Add node to network (if not already contained in it).
 		self.add_node(predecessor_node)
 
+
 # ===============================================================================
 # Methods to Create Specific Network Structures
 # ===============================================================================
@@ -234,7 +235,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 	"""
 
-	print('hello')
+#	print('hello')
 
 	# Build list of node indices.
 	if node_indices is not None:
@@ -255,7 +256,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	demand_standard_deviation_list = ensure_list_for_nodes(demand_standard_deviation, num_nodes, None)
 	demand_lo_list = ensure_list_for_nodes(demand_lo, num_nodes, None)
 	demand_hi_list = ensure_list_for_nodes(demand_hi, num_nodes, None)
-	demands_list = ensure_list_for_nodes(demands, num_nodes, None)
+#	demands_list = ensure_list_for_time_periods(demands, num_nodes, None)
 	demand_probabilities_list = ensure_list_for_nodes(demand_probabilities, num_nodes, None)
 	initial_IL_list = ensure_list_for_nodes(initial_IL, num_nodes, None)
 	initial_orders_list = ensure_list_for_nodes(initial_orders, num_nodes, None)
@@ -273,9 +274,9 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		  demand_type_list[0] == DemandType.UNIFORM_CONTINUOUS) and \
 		(demand_lo_list[0] is None or demand_hi_list[0] is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type_list[0] == DemandType.DETERMINISTIC and demands_list is None:
+	elif demand_type_list[0] == DemandType.DETERMINISTIC and demands is None:
 		raise ValueError("Demand type was specified as deterministic but demands were not provided")
-	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands_list is None or demand_probabilities_list is None):
+	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
 		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
@@ -284,10 +285,12 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Check parameters for inventory policy type.
 		pass
 
+	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
 	network = SupplyChainNetwork()
 	for n in range(num_nodes):
-		# Create node.
+		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
+		# as the downstream-most node. indices[n] is the label of node n.)
 		node = SupplyChainNode(index=indices[n])
 		# Set parameters.
 		# Set costs and lead times.
@@ -317,12 +320,12 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 			node.demand_hi = demand_hi_list[n]
 			node.demand_lo = demand_lo_list[n]
 		if node.demand_type == DemandType.DETERMINISTIC:
-			node.demands = demands_list[n]
+			node.demands = [demands]
 		if node.demand_type == DemandType.DISCRETE_EXPLICIT:
-			node.demands = demands_list[n]
+			node.demands = demands[n]
 			node.demand_probabilities = demand_probabilities_list[n]
 		# Set initial quantities.
-		node.initial_IL = initial_IL_list[n]
+		node.initial_inventory_level = initial_IL_list[n]
 		node.initial_orders = initial_orders_list[n]
 		node.initial_shipments = initial_shipments_list[n]
 		# Set inventory policy.
@@ -333,6 +336,11 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		else:
 			policy = None
 		node.inventory_policy = policy
+		# Set supply type.
+		if n == num_nodes-1:
+			node.supply_type = SupplyType.UNLIMITED
+		else:
+			node.supply_type = SupplyType.NONE
 
 		# Add node to network.
 		if n == 0:

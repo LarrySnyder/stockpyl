@@ -45,10 +45,12 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand):
 	-------
 	order_quantities : list
 		List of order quantities in each time period. [Q^*]
-	next_order_periods : list
-		List of "next order" period. [next_order_periods]
 	cost : float
 		Optimal cost for entire horizon. [g^*]
+	costs_to_go : list
+		List of "costs to go". [theta]
+	next_order_periods : list
+		List of "next order" period. [s]
 	"""
 	# Check that parameters are non-negative.
 	assert np.all(np.array(holding_cost) >= 0), "holding_cost must be non-negative."
@@ -94,7 +96,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand):
 		t = next_order_periods[t]
 	cost = theta[1]
 
-	return order_quantities, next_order_periods, cost
+	return order_quantities, cost, theta, next_order_periods
 
 
 
