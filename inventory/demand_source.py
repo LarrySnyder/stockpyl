@@ -111,8 +111,8 @@ class DemandSource(object):
 		demand_hi : float
 			High value of demand range. Required if ``demand_type`` ==
 			``UNIFORM_DISCRETE`` or ``UNIFORM_CONTINUOUS``, ignored otherwise.
-	"""
-		# Set policy_type.
+		"""
+		# Set demand_type.
 		self.demand_type = demand_type
 
 		# Set round.
@@ -141,7 +141,7 @@ class DemandSource(object):
 			assert demand_lo >= 0 and is_integer(demand_lo), \
 				"For UNIFORM_DISCRETE demand, demand_lo must be a non-negative integer"
 			assert demand_hi is not None, "For UNIFORM_DISCRETE demand, demand_hi must be provided"
-			assert demand_hi >= 0 and is_integer(demand_lo), \
+			assert demand_hi >= 0 and is_integer(demand_hi), \
 				"For UNIFORM_DISCRETE demand, demand_hi must be a non-negative integer"
 			assert demand_lo <= demand_hi, "For UNIFORM_DISCRETE demand, demand_lo must be <= demand_hi"
 			self.demand_lo = demand_lo
