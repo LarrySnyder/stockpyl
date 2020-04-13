@@ -9,6 +9,7 @@ import numpy as np
 
 from inventory.helpers import *
 
+
 def wagner_whitin(num_periods, holding_cost, fixed_cost, demand):
 	"""Solve Wagner-Whitin problem using dynamic programming (DP).
 

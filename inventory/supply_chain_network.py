@@ -300,30 +300,34 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.lead_time = shipment_lead_time_list[n]
 		node.shipment_lead_time = shipment_lead_time_list[n]
 		node.order_lead_time = order_lead_time_list[n]
-		# Set demand type.
+		# Build and set demand source.
 		if n == 0:
-			node.demand_type = demand_type_list[n]
+			demand_type = demand_type_list[n]
+			if demand_type == DemandType.NORMAL:
+				node.demand_source = DemandSource(
+					demand_type=demand_type,
+					demand_mean=demand_mean_list[n],
+					demand_standard_deviation=demand_standard_deviation_list[n]
+				)
+			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+				node.demand_source = DemandSource(
+					demand_type=demand_type,
+					demand_lo=demand_lo_list[n],
+					demand_hi=demand_hi_list[n],
+				)
+			elif demand_type == DemandType.DETERMINISTIC:
+				node.demand_source = DemandSource(
+					demand_type=demand_type,
+					demands=[demands]
+				)
+			elif demand_type == DemandType.DISCRETE_EXPLICIT:
+				node.demand_source = DemandSource(
+					demand_type=demand_type,
+					demands=demands[n],
+					demand_probabilities=demand_probabilities_list[n]
+				)
 		else:
-			node.demand_type = DemandType.NONE
-		# Set demand parameters.
-		node.demand_mean = None
-		node.demand_standard_deviation = None
-		node.demand_hi = None
-		node.demand_lo = None
-		node.demands = None
-		node.demand_probabilities = None
-		if node.demand_type == DemandType.NORMAL:
-			node.demand_mean = demand_mean_list[n]
-			node.demand_standard_deviation = demand_standard_deviation_list[n]
-		if node.demand_type in (DemandType.UNIFORM_CONTINUOUS,
-								DemandType.UNIFORM_DISCRETE):
-			node.demand_hi = demand_hi_list[n]
-			node.demand_lo = demand_lo_list[n]
-		if node.demand_type == DemandType.DETERMINISTIC:
-			node.demands = [demands]
-		if node.demand_type == DemandType.DISCRETE_EXPLICIT:
-			node.demands = demands[n]
-			node.demand_probabilities = demand_probabilities_list[n]
+			node.demand_source = DemandSource(demand_type=DemandType.NONE)
 		# Set initial quantities.
 		node.initial_inventory_level = initial_IL_list[n]
 		node.initial_orders = initial_orders_list[n]

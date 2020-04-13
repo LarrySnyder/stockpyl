@@ -41,7 +41,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		fixed_cost = 500
 		demand = [90, 120, 80, 70]
 
-		order_quantities, next_order_periods, cost = \
+		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 210, 0, 150, 0])
 		self.assertEqual(next_order_periods, [0, 3, 5, 5, 5])
@@ -57,7 +57,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		fixed_cost = 120
 		demand = [150, 100, 80, 200]
 
-		order_quantities, next_order_periods, cost = \
+		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 150, 180, 0, 200])
 		self.assertEqual(next_order_periods, [0, 2, 4, 4, 5])
@@ -73,7 +73,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		fixed_cost = 100
 		demand = [730, 580, 445, 650, 880]
 
-		order_quantities, next_order_periods, cost = \
+		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 1310, 0, 1095, 0, 880])
 		self.assertEqual(next_order_periods, [0, 3, 4, 5, 6, 6])
@@ -89,7 +89,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		fixed_cost = 100
 		demand = 200
 
-		order_quantities, next_order_periods, cost = \
+		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 400, 0, 600, 0, 0])
 		self.assertEqual(next_order_periods, [0, 3, 6, 6, 6, 6])
@@ -106,7 +106,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		fixed_cost = [0, 100, 100, 100, 100, 100]
 		demand = [0, 730, 580, 445, 650, 880]
 
-		order_quantities, next_order_periods, cost = \
+		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 1310, 0, 1095, 0, 880])
 		self.assertEqual(next_order_periods, [0, 3, 4, 5, 6, 6])

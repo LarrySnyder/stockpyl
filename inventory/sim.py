@@ -11,13 +11,7 @@ The following parameters are used to specify input data:
 		- stockout_cost [p]
 		- lead_time [L] TODO: create "alias" shipment_lead_time
 		- order_lead_time
-		- demand_type
-		- demand_mean [mu]
-		- demand_standard_deviation [sigma]
-		- demands [d]
-		- demand_probabilities
-		- demand_lo
-		- demand_hi
+		- demand_source
 		- inventory_policy
 	* Edge-level attributes
 		(None.)
@@ -64,51 +58,6 @@ from inventory.instances import *
 
 # HELPER FUNCTIONS
 
-def generate_demand(node, period=None, round=False):
-	"""Generate demand for node in period, based on node's DemandType.
-
-	Parameters
-	----------
-	node : SupplyChainNode
-		NetworkX node representing the node to generate demand for.
-	period : int
-		Time period. Required if ``node.demand_type`` = ``DETERMINISTIC``;
-		ignored otherwise.
-	round : bool, optional
-		Round the demand to nearest integer?
-
-	Returns
-	-------
-	demand : float
-		Demand for the node in the period.
-
-	"""
-
-	# TODO: use factory method pattern
-
-	if node.demand_type == DemandType.NONE:
-		demand = None
-	elif node.demand_type == DemandType.NORMAL:
-		demand = np.random.normal(node.demand_mean, node.demand_standard_deviation)
-	elif node.demand_type == DemandType.UNIFORM_DISCRETE:
-		demand = np.random.randint(node.demand_lo, node.demand_hi + 1)
-	elif node.demand_type == DemandType.UNIFORM_CONTINUOUS:
-		demand = np.random.uniform(node.demand_lo, node.demand_hi)
-	elif node.demand_type == DemandType.DETERMINISTIC:
-		# Get demand for period mod (# periods in demands list), i.e.,
-		# if we are past the end of the demands list, loop back to the beginning.
-		demand = node.demands[period % len(node.demands)]
-	elif node.demand_type == DemandType.DISCRETE_EXPLICIT:
-		demand = np.random.choice(node.demands, p=node.demand_probabilities)
-	else:
-		raise ValueError('Valid demand_type not provided')
-
-	if round:
-		demand = np.round(demand)
-
-	return demand
-
-
 def generate_downstream_orders(node_index, network, period, visited):
 	"""Generate demands and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
@@ -138,9 +87,9 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node = network.get_node_from_index(node_index)
 
 	# Does node have external demand?
-	if node.demand_type != DemandType.NONE:
+	if node.demand_source.demand_type != DemandType.NONE:
 		# Generate demand and fill it in inbound_order.
-		node.inbound_order[None][period] = generate_demand(node, period)
+		node.inbound_order[None][period] = node.demand_source.generate_demand(period)
 
 	# Call generate_downstream_orders() for all non-visited successors.
 	for s in node.successors:
@@ -221,7 +170,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		predecessor_indices = node.predecessor_indices + [None]
 	else:
 		predecessor_indices = node.predecessor_indices
-	if node.demand_type != DemandType.NONE:
+	if node.demand_source.demand_type != DemandType.NONE:
 		successor_indices = node.successor_indices + [None]
 	else:
 		successor_indices = node.successor_indices
@@ -372,7 +321,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 			predecessor_indices[n] = n.predecessor_indices + [None]
 		else:
 			predecessor_indices[n] = n.predecessor_indices
-		if n.demand_type != DemandType.NONE:
+		if n.demand_source.demand_type != DemandType.NONE:
 			successor_indices[n] = n.successor_indices + [None]
 		else:
 			successor_indices[n] = n.successor_indices
