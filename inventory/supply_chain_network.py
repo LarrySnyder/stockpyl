@@ -304,30 +304,31 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		if n == 0:
 			demand_type = demand_type_list[n]
 			if demand_type == DemandType.NORMAL:
-				node.demand_source = DemandSource(
-					demand_type=demand_type,
-					demand_mean=demand_mean_list[n],
-					demand_standard_deviation=demand_standard_deviation_list[n]
-				)
-			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
-				node.demand_source = DemandSource(
-					demand_type=demand_type,
-					demand_lo=demand_lo_list[n],
-					demand_hi=demand_hi_list[n],
-				)
-			elif demand_type == DemandType.DETERMINISTIC:
-				node.demand_source = DemandSource(
-					demand_type=demand_type,
-					demands=[demands]
-				)
-			elif demand_type == DemandType.DISCRETE_EXPLICIT:
-				node.demand_source = DemandSource(
-					demand_type=demand_type,
-					demands=demands[n],
-					demand_probabilities=demand_probabilities_list[n]
-				)
+				demand_source = DemandSourceNormal()
+				demand_source.mean = demand_mean_list[n]
+				demand_source.standard_deviation = demand_standard_deviation_list[n]
+				node.demand_source = demand_source
+			# elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+			# 	node.demand_source = DemandSource(
+			# 		demand_type=demand_type,
+			# 		demand_lo=demand_lo_list[n],
+			# 		demand_hi=demand_hi_list[n],
+			# 	)
+			# elif demand_type == DemandType.DETERMINISTIC:
+			# 	node.demand_source = DemandSource(
+			# 		demand_type=demand_type,
+			# 		demands=[demands]
+			# 	)
+			# elif demand_type == DemandType.DISCRETE_EXPLICIT:
+			# 	node.demand_source = DemandSource(
+			# 		demand_type=demand_type,
+			# 		demands=demands[n],
+			# 		demand_probabilities=demand_probabilities_list[n]
+			# 	)
 		else:
-			node.demand_source = DemandSource(demand_type=DemandType.NONE)
+			demand_source = DemandSourceNone()
+			node.demand_source = demand_source
+#			node.demand_source = DemandSource(demand_type=DemandType.NONE)
 		# Set initial quantities.
 		node.initial_inventory_level = initial_IL_list[n]
 		node.initial_orders = initial_orders_list[n]

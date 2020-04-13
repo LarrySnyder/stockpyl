@@ -87,7 +87,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node = network.get_node_from_index(node_index)
 
 	# Does node have external demand?
-	if node.demand_source.demand_type != DemandType.NONE:
+	if node.demand_source.type != DemandType.NONE:
 		# Generate demand and fill it in inbound_order.
 		node.inbound_order[None][period] = node.demand_source.generate_demand(period)
 
@@ -170,7 +170,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		predecessor_indices = node.predecessor_indices + [None]
 	else:
 		predecessor_indices = node.predecessor_indices
-	if node.demand_source.demand_type != DemandType.NONE:
+	if node.demand_source.type != DemandType.NONE:
 		successor_indices = node.successor_indices + [None]
 	else:
 		successor_indices = node.successor_indices
@@ -321,7 +321,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 			predecessor_indices[n] = n.predecessor_indices + [None]
 		else:
 			predecessor_indices[n] = n.predecessor_indices
-		if n.demand_source.demand_type != DemandType.NONE:
+		if n.demand_source.type != DemandType.NONE:
 			successor_indices[n] = n.successor_indices + [None]
 		else:
 			successor_indices[n] = n.successor_indices

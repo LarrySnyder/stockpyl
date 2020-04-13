@@ -21,6 +21,8 @@ def tear_down_module():
 	print_status('---', 'tear_down_module()')
 
 
+# TODO: add tests for non-normal demands
+
 class TestSimulation(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

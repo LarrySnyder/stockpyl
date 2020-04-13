@@ -319,7 +319,7 @@ class SupplyChainNode(object):
 							   for p_index in pred_indices])
 		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders'):
 			# These attributes are indexed by successor.
-			if include_external and self.demand_source.demand_type != DemandType.NONE:
+			if include_external and self.demand_source.type != DemandType.NONE:
 				succ_indices = self.successor_indices + [None]
 			else:
 				succ_indices = self.successor_indices
