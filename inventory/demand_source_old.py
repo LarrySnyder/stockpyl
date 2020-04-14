@@ -129,7 +129,7 @@ class DemandSourceOld(object):
 		# Set demand_type.
 		self.demand_type = demand_type
 
-		# Set round.
+		# Set round_to_int.
 		self.round = round
 
 		# Initialize parameters to None. (Relevant parameters will be filled
@@ -173,10 +173,10 @@ class DemandSourceOld(object):
 			self.demands = demands
 		elif demand_type == DemandType.DISCRETE_EXPLICIT:
 			assert demands is not None, "For DISCRETE_EXPLICIT demand, demands must be provided"
-			assert demand_probabilities is not None, "For DISCRETE_EXPLICIT demand, demand_probabilities must be provided"
+			assert demand_probabilities is not None, "For DISCRETE_EXPLICIT demand, probabilities must be provided"
 			assert len(demands) == len(demand_probabilities), \
-				"For DISCRETE_EXPLICIT demand, demands and demand_probabilities must have equal lengths"
-			assert np.sum(demand_probabilities) == 1, "For DISCRETE_EXPLICIT demand, demand_probabilities must sum to 1"
+				"For DISCRETE_EXPLICIT demand, demands and probabilities must have equal lengths"
+			assert np.sum(demand_probabilities) == 1, "For DISCRETE_EXPLICIT demand, probabilities must sum to 1"
 			self.demands = demands
 			self.demand_probabilities = demand_probabilities
 
@@ -203,7 +203,7 @@ class DemandSourceOld(object):
 		elif self.demand_type == DemandType.DETERMINISTIC:
 			param_str = "demands={}".format(self.demands)
 		elif self.demand_type == DemandType.DISCRETE_EXPLICIT:
-			param_str = "demands={}, demand_probabilities={}".format(self.demands, self.demand_probabilities)
+			param_str = "demands={}, probabilities={}".format(self.demands, self.demand_probabilities)
 
 		return "DemandSource({:s}: {:s})".format(self.demand_type.name, param_str)
 

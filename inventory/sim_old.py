@@ -15,7 +15,7 @@ The following attributes are used to specify input data:
 		- demand_mean [mu]
 		- demand_standard_deviation [sigma]
 		- demands [d]
-		- demand_probabilities
+		- probabilities
 		- demand_lo
 		- demand_hi
 		- inventory_policy
@@ -89,7 +89,7 @@ def generate_demand(node, period=None):
 		# if we are past the end of the demands list, loop back to the beginning.
 		demand = node['demands'][period % len(node['demands'])]
 	elif node['demand_type'] == DemandType.DISCRETE_EXPLICIT:
-		demand = np.random.choice(node['demands'], p=node['demand_probabilities'])
+		demand = np.random.choice(node['demands'], p=node['probabilities'])
 	else:
 		raise ValueError('Valid demand_type not provided')
 

@@ -289,10 +289,13 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	# Build network, in order from downstream to upstream.
 	network = SupplyChainNetwork()
 	for n in range(num_nodes):
+
 		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
 		# as the downstream-most node. indices[n] is the label of node n.)
 		node = SupplyChainNode(index=indices[n])
+
 		# Set parameters.
+
 		# Set costs and lead times.
 		node.local_holding_cost = local_holding_cost_list[n]
 		node.echelon_holding_cost = echelon_holding_cost_list[n]
@@ -300,39 +303,32 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.lead_time = shipment_lead_time_list[n]
 		node.shipment_lead_time = shipment_lead_time_list[n]
 		node.order_lead_time = order_lead_time_list[n]
+
 		# Build and set demand source.
+		demand_source_factory = DemandSourceFactory()
+		demand_type = demand_type_list[n]
 		if n == 0:
-			demand_type = demand_type_list[n]
+			demand_source = demand_source_factory.build_demand_source(demand_type)
 			if demand_type == DemandType.NORMAL:
-				demand_source = DemandSourceNormal()
 				demand_source.mean = demand_mean_list[n]
 				demand_source.standard_deviation = demand_standard_deviation_list[n]
-				node.demand_source = demand_source
-			# elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
-			# 	node.demand_source = DemandSource(
-			# 		demand_type=demand_type,
-			# 		demand_lo=demand_lo_list[n],
-			# 		demand_hi=demand_hi_list[n],
-			# 	)
-			# elif demand_type == DemandType.DETERMINISTIC:
-			# 	node.demand_source = DemandSource(
-			# 		demand_type=demand_type,
-			# 		demands=[demands]
-			# 	)
-			# elif demand_type == DemandType.DISCRETE_EXPLICIT:
-			# 	node.demand_source = DemandSource(
-			# 		demand_type=demand_type,
-			# 		demands=demands[n],
-			# 		demand_probabilities=demand_probabilities_list[n]
-			# 	)
+			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+				demand_source.lo = demand_lo_list[n]
+				demand_source.hi = demand_hi_list[n]
+			elif demand_type == DemandType.DETERMINISTIC:
+				demand_source.demands = [demands]
+			elif demand_type == DemandType.DISCRETE_EXPLICIT:
+				demand_source.demands = demands[n]
+				demand_source.probabilities = demand_probabilities_list[n]
 		else:
-			demand_source = DemandSourceNone()
-			node.demand_source = demand_source
-#			node.demand_source = DemandSource(demand_type=DemandType.NONE)
+			demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+		node.demand_source = demand_source
+
 		# Set initial quantities.
 		node.initial_inventory_level = initial_IL_list[n]
 		node.initial_orders = initial_orders_list[n]
 		node.initial_shipments = initial_shipments_list[n]
+
 		# Set inventory policy.
 		# TODO: handle other policy types
 		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
@@ -341,6 +337,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		else:
 			policy = None
 		node.inventory_policy = policy
+
 		# Set supply type.
 		if n == num_nodes-1:
 			node.supply_type = SupplyType.UNLIMITED

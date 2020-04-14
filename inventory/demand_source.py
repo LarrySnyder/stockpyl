@@ -48,11 +48,6 @@ class DemandSource(ABC):
 	"""The ``DemandSource`` class is used to encapsulate demand generation.
 	This is an abstract class, so it must be subclassed. Subclasses define the
 	actual demand generation.
-
-	Attributes
-	----------
-	demand_type : DemandType
-		The demand type. Set by the subclass.
 	"""
 
 	@abstractmethod
@@ -124,7 +119,7 @@ class DemandSourceNormal(DemandSource):
 		Mean of demand per period. [mu]
 	_standard_deviation : float
 		Standard deviation of demand per period. [sigma]
-	_round : bool
+	_round_to_int : bool
 		Round demand to nearest integer?
 	"""
 
@@ -132,7 +127,7 @@ class DemandSourceNormal(DemandSource):
 		self._type = DemandType.NORMAL
 		self._mean = None
 		self._standard_deviation = None
-		self._round = False
+		self._round_to_int = False
 
 	# PROPERTIES
 
@@ -160,12 +155,12 @@ class DemandSourceNormal(DemandSource):
 		self._standard_deviation = standard_deviation
 
 	@property
-	def round(self):
-		return self._round
+	def round_to_int(self):
+		return self._round_to_int
 
-	@round.setter
-	def round(self, round):
-		self._round = round
+	@round_to_int.setter
+	def round_to_int(self, round_to_int):
+		self._round_to_int = round_to_int
 
 	# SPECIAL METHODS
 
@@ -206,7 +201,7 @@ class DemandSourceNormal(DemandSource):
 		demand = np.random.normal(self._mean, self._standard_deviation)
 
 		# Round demand, if requested.
-		if self._round:
+		if self._round_to_int:
 			demand = np.round(demand)
 
 		return demand
@@ -310,7 +305,7 @@ class DemandSourceUniformContinuous(DemandSource):
 		Low value of demand range.
 	_hi : float
 		High value of demand range.
-	_round : bool
+	_round_to_int : bool
 		Round demand to nearest integer?
 	"""
 
@@ -318,7 +313,7 @@ class DemandSourceUniformContinuous(DemandSource):
 		self._type = DemandType.UNIFORM_CONTINUOUS
 		self._lo = None
 		self._hi = None
-		self._round = False
+		self._round_to_int = False
 
 	# PROPERTIES
 
@@ -346,12 +341,12 @@ class DemandSourceUniformContinuous(DemandSource):
 		self._hi = hi
 
 	@property
-	def round(self):
-		return self._round
+	def round_to_int(self):
+		return self._round_to_int
 
-	@round.setter
-	def round(self, round):
-		self._round = round
+	@round_to_int.setter
+	def round_to_int(self, round):
+		self._round_to_int = round
 
 	# SPECIAL METHODS
 
@@ -390,10 +385,10 @@ class DemandSourceUniformContinuous(DemandSource):
 		assert self._lo <= self._hi, "For UNIFORM_DISCRETE demand, lo must be <= hi"
 
 		# Generate random demand.
-		demand = np.random.uniform(self.demand_lo, self.demand_hi)
+		demand = np.random.uniform(self._lo, self._hi)
 
 		# Round demand, if requested.
-		if self._round:
+		if self._round_to_int:
 			demand = np.round(demand)
 
 		return demand
@@ -489,14 +484,14 @@ class DemandSourceDiscreteExplicit(DemandSource):
 		The demand type.
 	_demands : list
 		List of possible demand values.
-	_demand_probabilities : list
+	_probabilities : list
 		List of probabilities of each demand value.
 	"""
 
 	def __init__(self):
 		self._type = DemandType.DISCRETE_EXPLICIT
 		self._demands = None
-		self._demand_probabilities = None
+		self._probabilities = None
 
 	# PROPERTIES
 
@@ -514,13 +509,13 @@ class DemandSourceDiscreteExplicit(DemandSource):
 		self._demands = demands
 
 	@property
-	def demand_probabilities(self):
-		return self._demands
+	def probabilities(self):
+		return self._probabilities
 
-	@demand_probabilities.setter
-	def demand_probabilities(self, demand_probabilities):
-		assert np.sum(demand_probabilities) == 1, "For DISCRETE_EXPLICIT demand, demand_probabilities must sum to 1"
-		self._demand_probabilities = demand_probabilities
+	@probabilities.setter
+	def probabilities(self, probabilities):
+		assert np.sum(probabilities) == 1, "For DISCRETE_EXPLICIT demand, probabilities must sum to 1"
+		self._probabilities = probabilities
 
 	# SPECIAL METHODS
 
@@ -533,7 +528,7 @@ class DemandSourceDiscreteExplicit(DemandSource):
 			A string representation of the ``DemandSource`` instance.
 		"""
 		# Build string of parameters.
-		param_str = "demands={}, demand_probabilities={}".format(self._demands, self._demand_probabilities)
+		param_str = "demands={}, probabilities={}".format(self._demands, self._probabilities)
 
 		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
 
@@ -554,14 +549,66 @@ class DemandSourceDiscreteExplicit(DemandSource):
 		"""
 		# Check parameters.
 		assert self._demands is not None, "For DISCRETE_EXPLICIT demand, demands must be provided"
-		assert self._demand_probabilities is not None, "For DISCRETE_EXPLICIT demand, demand_probabilities must be provided"
-		assert len(self._demands) == len(self._demand_probabilities), \
-			"For DISCRETE_EXPLICIT demand, demands and demand_probabilities must have equal lengths"
+		assert self._probabilities is not None, "For DISCRETE_EXPLICIT demand, probabilities must be provided"
+		assert len(self._demands) == len(self._probabilities), \
+			"For DISCRETE_EXPLICIT demand, demands and probabilities must have equal lengths"
 
-		demand = np.random.choice(self.demands, p=self.demand_probabilities)
+		demand = np.random.choice(self.demands, p=self.probabilities)
 
 		return demand
 
+
+# ===============================================================================
+# DemandSourceFactory Class
+# ===============================================================================
+
+class DemandSourceFactory(object):
+	"""The ``DemandSourceFactory`` class is used to build ``DemandSource``
+	objects.
+
+	Example
+	-------
+	To build a ``DemandSourceNormal`` object:
+
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+
+	It is also possible to create the subclass object directly, e.g.,
+
+		demand_source = DemandSourceNormal()
+
+	"""
+
+	def build_demand_source(self, demand_type):
+		"""Build and return a DemandSource object of the specified type.
+
+		Parameters
+		----------
+		demand_type : DemandType
+			The desired demand type.
+
+		Returns
+		-------
+		demand_source : DemandSource
+			The DemandSource object.
+
+		"""
+		if demand_type == DemandType.NONE:
+			demand_source = DemandSourceNone()
+		elif demand_type == DemandType.NORMAL:
+			demand_source = DemandSourceNormal()
+		elif demand_type == DemandType.UNIFORM_DISCRETE:
+			demand_source = DemandSourceUniformDiscrete()
+		elif demand_type == DemandType.UNIFORM_CONTINUOUS:
+			demand_source = DemandSourceUniformContinuous()
+		elif demand_type == DemandType.DETERMINISTIC:
+			demand_source = DemandSourceDeterministic()
+		elif demand_type == DemandType.DISCRETE_EXPLICIT:
+			demand_source = DemandSourceDiscreteExplicit()
+		else:
+			raise(ValueError, "Unknown demand source type")
+
+		return demand_source
 
 
 
