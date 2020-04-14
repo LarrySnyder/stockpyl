@@ -3,23 +3,23 @@ under stochastic service model (SSM), as described in Snyder and Shen (2019).
 
 'node' and 'stage' are used interchangeably in the documentation.
 
-The primary data object is the NetworkX DiGraph, which contains all of the data
-for the SSM instance.
+The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode``s
+that it contains, which contains all of the data for the SSM instance.
 
-The following attributes are used to specify input data:
-	* Node-level attributes
+The following parameters are used to specify input data:
+	* Node-level parameters
 		- echelon_holding_cost [h]
 		- stockout_cost [p]
 		- lead_time [L]
 		- demand_mean [mu]
 		- demand_standard_deviation [sigma]
-	* Edge-level attributes
+	* Edge-level parameters
 		(None.)
 
 The following attributes are used to store outputs and intermediate values:
-	* Graph-level attributes
+	* Graph-level parameters
 		(None.)
-	* Node-level attributes:
+	* Node-level parameters
 		(None.)
 
 (c) Lawrence V. Snyder
@@ -27,13 +27,13 @@ Lehigh University and Opex Analytics
 
 """
 
-import networkx as nx
 import numpy as np
 from scipy import stats
 import math
 import matplotlib.pyplot as plt
+import copy
 
-#from tests.instances_ssm_serial import *
+from inventory.helpers import *
 
 
 ### NETWORK-HANDLING FUNCTIONS ###
@@ -46,8 +46,8 @@ def local_to_echelon_base_stock_levels(network, S_local):
 
 	Parameters
 	----------
-	network : graph
-		NetworkX directed graph representing the multi-echelon serial network.
+	network : SupplyChainNetwork
+		The serial inventory network.
 	S_local : dict
 		Dict of local base-stock levels.
 
@@ -59,8 +59,11 @@ def local_to_echelon_base_stock_levels(network, S_local):
 	"""
 	S_echelon = {}
 	for n in network.nodes:
-		S_echelon[n] = S_local[n] + \
-					   np.sum([S_local[k] for k in nx.descendants(network, n)])
+		S_echelon[n.index] = S_local[n.index]
+		k = n.get_one_successor()
+		while k is not None:
+			S_echelon[n.index] += S_local[k.index]
+			k = k.get_one_successor()
 
 	return S_echelon
 
@@ -70,20 +73,19 @@ def local_to_echelon_base_stock_levels(network, S_local):
 def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 	"""Calculate expected cost of given solution.
 
-	This is a convenience function that calls optimize_base_stock_levels()
+	This is a convenience function that calls ``optimize_base_stock_levels()``
 	without doing any optimization.
 
 	Parameters
 	----------
-	network : graph
-		NetworkX directed graph representing the multi-echelon serial network.
+	network : SupplyChainNetwork
+		The serial inventory network.
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
 	x_num : int, optional
-		Number of discretization intervals to use for x range. Ignored if
-		x is provided.
+		Number of discretization intervals to use for ``x`` range.
 	d_num : int, optional
-		Number of discretization intervals to use for d range.
+		Number of discretization intervals to use for ``d`` range.
 
 	Returns
 	-------
@@ -99,20 +101,19 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
 	"""Calculate expected holding cost of given solution.
 
-	Basic idea: set stockout cost to 0 and call optimize_base_stock_levels()
+	Basic idea: set stockout cost to 0 and call ``optimize_base_stock_levels()``
 	without doing any optimization.
 
 	Parameters
 	----------
-	network : graph
-		NetworkX directed graph representing the multi-echelon serial network.
+	network : SupplyChainNetwork
+		The serial inventory network.
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
 	x_num : int, optional
-		Number of discretization intervals to use for x range. Ignored if
-		x is provided.
+		Number of discretization intervals to use for ``x`` range.
 	d_num : int, optional
-		Number of discretization intervals to use for d range.
+		Number of discretization intervals to use for ``d`` range.
 
 	Returns
 	-------
@@ -121,57 +122,14 @@ def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
 	"""
 
 	# Make copy of network and set stockout cost to 0.
-	network2 = network.copy()
-	for n in network2.nodes:
-		network2.nodes[n]['stockout_cost'] = 0
+	network2 = copy.deepcopy(network)
+	for node in network2.nodes:
+		node.stockout_cost = 0
 
 	_, holding_cost = optimize_base_stock_levels(network2, S=echelon_S,
 								plots=False, x=None, x_num=x_num, d_num=d_num)
 
 	return holding_cost
-
-
-### UTILITY FUNCTIONS ###
-
-def find_nearest(array, values, sorted=False):
-	"""Determine entries in array that are closest to each of the
-	entries in values and return their indices. Neither array needs to be sorted,
-	but if array is sorted and sorted is set to True, execution will be faster.
-	array and values need not be the same length.
-
-	Parameters
-	----------
-	array : ndarray
-		The array to search for values in
-	values : ndarray
-		The array whose values should be searched for in the other array
-	sorted : Boolean
-		If True, treats array as sorted, which will make the function execute
-		faster
-
-	Returns
-	-------
-	ind : ndarray
-		Array of indices.
-	"""
-	array = np.asarray(array)
-	values = np.array(values, ndmin=1, copy=False)
-	ind = np.zeros(values.shape)
-	for v in range(values.size):
-		if sorted:
-			# https://stackoverflow.com/a/26026189/3453768
-			idx = np.searchsorted(array, values[v], side="left")
-			if idx > 0 and (idx == len(array) or math.fabs(values[v] - array[idx-1])
-					< math.fabs(values[v] - array[idx])):
-				ind[v] = idx-1
-			else:
-				ind[v] = idx
-		else:
-			# https://stackoverflow.com/a/2566508/3453768
-			idx = (np.abs(array - values[v])).argmin()
-			ind[v] = idx
-
-	return ind.astype(int)
 
 
 ### OPTIMIZATION ###
@@ -186,47 +144,53 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 
 	Parameters
 	----------
-	network : graph
-		NetworkX directed graph representing the multi-echelon serial network.
+	network : SupplyChainNetwork
+		The serial inventory network.
 	S : dict, optional
 		Dict of echelon base-stock levels to evaluate. If present, no
 		optimization is performed and the function just returns the cost
-		under base-stock levels S; to optimize instead, set S=None (the default).
-	plots : Boolean
-		True for the function to generate plots of C(.) functions, False o/w.
+		under base-stock levels ``S``; to optimize instead, set ``S``=``None``
+		(the default).
+	plots : bool
+		``True`` for the function to generate plots of C(.) functions,
+		``False`` o/w.
 	x : ndarray, optional
-		x-array to use for truncation and discretization, or None (the default)
+		x-array to use for truncation and discretization, or ``None`` (the default)
 		to determine automatically.
 	x_num : int, optional
-		Number of discretization intervals to use for x range. Ignored if
-		x is provided.
+		Number of discretization intervals to use for ``x`` range. Ignored if
+		``x`` is provided.
 	d_num : int, optional
-		Number of discretization intervals to use for d range.
+		Number of discretization intervals to use for ``d`` range.
 
 	Returns
 	-------
 	S_star : ndarray
-		array of optimal base-stock levels
+		Array of optimal base-stock levels.
 	C_star : float
-		optimal expected cost
+		Optimal expected cost.
 	"""
 
-	# Get shortcuts to parameters (for convenience).
+	# Get number of nodes.
 	N = len(network.nodes)
-	mu = network.nodes[1]['demand_mean']
-	sigma = network.nodes[1]['demand_standard_deviation']
+
+	# Make sure nodes are indexed correctly.
+	assert network.source_nodes[0].index == N and network.sink_nodes[0].index == 1, \
+		"nodes must be indexed N, ..., 1"
+
+	# TODO: Make sure echelon holding costs are provided.
+
+	# Get shortcuts to parameters (for convenience).
+	# TODO: handle non-normal demands
+	sink = network.get_node_from_index(1)
+	mu = sink.demand_source.mean
+	sigma = sink.demand_source.standard_deviation
 	L = np.zeros(N+1)
 	h = np.zeros(N+1)
 	for j in network.nodes:
-		if 'lead_time' in network.nodes[j]:
-			L[j] = network.nodes[j]['lead_time']
-		else:
-			L[j] = 0
-		h[j] = network.nodes[j]['echelon_holding_cost']
-	if 'stockout_cost' in network.nodes[1]:
-		p = network.nodes[1]['stockout_cost']
-	else:
-		p = 0
+		L[j.index] = j.lead_time
+		h[j.index] = j.echelon_holding_cost
+	p = sink.stockout_cost
 
 	# Determine x array (truncated and discretized).
 	# TODO: handle this better
@@ -267,7 +231,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	C_star = np.zeros(N+1)
 	C_bar = np.zeros((N+1, len(x)))
 
-	# Initialize arrays containing approximation for C (mainly for deubugging).
+	# Initialize arrays containing approximation for C (mainly for debugging).
 	C_hat_lim1 = np.zeros((N+1, len(x_ext)))
 	C_hat_lim2 = np.zeros((N+1, len(x_ext)))
 
@@ -367,5 +331,3 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 #S_star, C_star = optimize_base_stock_levels(instance_2_stage, plots=False)
 #print('S_star = {}, C_star = {}'.format(S_star, C_star))
 
-
-# TODO: write unit tests

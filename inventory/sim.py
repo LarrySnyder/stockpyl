@@ -6,20 +6,20 @@ The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`
 that it contains, which contains all of the data for the simulation instance.
 
 The following parameters are used to specify input data:
-	* Node-level attributes
+	* Node-level parameters
 		- local_holding_cost [h'] TODO: allow echelon h.c.
 		- stockout_cost [p]
 		- lead_time [L] TODO: create "alias" shipment_lead_time
 		- order_lead_time
 		- demand_source
 		- inventory_policy
-	* Edge-level attributes
+	* Edge-level parameters
 		(None.)
 
 The following attributes are used to store outputs and intermediate values:
-	* Graph-level attributes
+	* Graph-level parameters
 		- total_cost
-	* Node-level attributes:
+	* Node-level parameters
 		- IS
 		- IO
 		- OS

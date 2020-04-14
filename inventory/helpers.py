@@ -6,7 +6,8 @@ Lehigh University and Opex Analytics
 """
 
 import math
-import networkx as nx
+#import networkx as nx
+import numpy as np
 
 from inventory.datatypes import *
 
@@ -163,6 +164,47 @@ def is_integer(x):
 			return False
 	else:
 		return False
+
+
+def find_nearest(array, values, sorted=False):
+	"""Determine entries in ``array` that are closest to each of the
+	entries in ``values`` and return their indices. Neither array needs to be sorted,
+	but if ``array`` is sorted and ``sorted`` is set to ``True``, execution will be faster.
+	``array`` and ``values`` need not be the same length.
+
+	Parameters
+	----------
+	array : ndarray
+		The array to search for values in.
+	values : ndarray
+		The array whose values should be searched for in the other array.
+	sorted : Boolean
+		If ``True``, treats array as sorted, which will make the function execute
+		faster.
+
+	Returns
+	-------
+	ind : ndarray
+		Array of indices.
+	"""
+	array = np.asarray(array)
+	values = np.array(values, ndmin=1, copy=False)
+	ind = np.zeros(values.shape)
+	for v in range(values.size):
+		if sorted:
+			# https://stackoverflow.com/a/26026189/3453768
+			idx = np.searchsorted(array, values[v], side="left")
+			if idx > 0 and (idx == len(array) or math.fabs(values[v] - array[idx-1])
+					< math.fabs(values[v] - array[idx])):
+				ind[v] = idx-1
+			else:
+				ind[v] = idx
+		else:
+			# https://stackoverflow.com/a/2566508/3453768
+			idx = (np.abs(array - values[v])).argmin()
+			ind[v] = idx
+
+	return ind.astype(int)
 
 
 def ensure_list_for_time_periods(x, num_periods):

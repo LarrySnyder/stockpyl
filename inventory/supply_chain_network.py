@@ -32,7 +32,7 @@ class SupplyChainNetwork(object):
 	Attributes
 	----------
 	nodes : list
-		A list of all nodes in the network. (Read only.)
+		A list of all ``SupplyChainNode``s in the network. (Read only.)
 
 	"""
 
@@ -46,6 +46,12 @@ class SupplyChainNetwork(object):
 	@property
 	def nodes(self):
 		return self._nodes
+
+	@property
+	def node_indices(self):
+		"""Return list of indices of nodes in the network.
+		"""
+		return [node.index for node in self.nodes]
 
 	@property
 	def source_nodes(self):
@@ -95,6 +101,18 @@ class SupplyChainNetwork(object):
 				return node
 
 		return None
+
+	def reindex_nodes(self, old_to_new_dict):
+		"""Change indices of the nodes in the network using ``old_to_new_dict``.
+
+		Parameters
+		----------
+		old_to_new_dict : dict
+			Dict in which keys are old indices and values are new indices.
+
+		"""
+		for node in self.nodes:
+			node.index = old_to_new_dict[node.index]
 
 	# Methods to add and remove nodes.
 
@@ -300,7 +318,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.local_holding_cost = local_holding_cost_list[n]
 		node.echelon_holding_cost = echelon_holding_cost_list[n]
 		node.stockout_cost = stockout_cost_list[n]
-		node.lead_time = shipment_lead_time_list[n]
+#		node.lead_time = shipment_lead_time_list[n]
 		node.shipment_lead_time = shipment_lead_time_list[n]
 		node.order_lead_time = order_lead_time_list[n]
 

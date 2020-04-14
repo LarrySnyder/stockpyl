@@ -101,7 +101,7 @@ class SupplyChainNode(object):
 		self.local_holding_cost = None
 		self.echelon_holding_cost = None
 		self.stockout_cost = None
-		self.lead_time = 0
+#		self.lead_time = 0
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
 		self.demand_source = None
@@ -182,7 +182,19 @@ class SupplyChainNode(object):
 	def successor_indices(self):
 		return [node.index for node in self._successors]
 
-	# Special members.
+	# Properties related to input parameters.
+
+	@property
+	def holding_cost(self):
+		# An alias for ``local_holding_cost``. Read only.
+		return self.local_holding_cost
+
+	@property
+	def lead_time(self):
+		# An alias for ``shipment_lead_time``. Read only.
+		return self.shipment_lead_time
+
+	# Special methods.
 
 	def __eq__(self, other):
 		"""Determine whether ``other`` is equal to the node. Two nodes are
@@ -271,6 +283,36 @@ class SupplyChainNode(object):
 
 		"""
 		self._predecessors.append(predecessor)
+
+	def get_one_successor(self):
+		"""Get one successor of the node. If the node has more than one
+		successor, return the first in the list. If the node has no
+		successors, return ``None``.
+
+		Returns
+		-------
+		successor : SupplyChainNode
+			A successor of the node.
+		"""
+		if len(self._successors) == 0:
+			return None
+		else:
+			return self._successors[0]
+
+	def get_one_predecessor(self):
+		"""Get one predecessor of the node. If the node has more than one
+		predecessor, return the first in the list. If the node has no
+		predecessor, return ``None``.
+
+		Returns
+		-------
+		predecessor : SupplyChainNode
+			A predecessor of the node.
+		"""
+		if len(self._predecessors) == 0:
+			return None
+		else:
+			return self._predecessors[0]
 
 	# Attribute management.
 

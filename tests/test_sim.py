@@ -82,7 +82,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_2a()')
 
-		network = problem_6_2a_network
+		network = problem_6_2a_network_adjusted
 
 		total_cost = simulation(network, 100, rand_seed=1340, progress_bar=False)
 
