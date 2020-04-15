@@ -5,9 +5,7 @@ PyInv Documentation
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: inventory.eoq
-    :members:
-
+   eoq
 
 
 
