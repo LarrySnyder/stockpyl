@@ -1,6 +1,6 @@
 import unittest
 
-from inventory import wagner_whitin
+from pyinv import wagner_whitin
 
 
 # Module-level functions.

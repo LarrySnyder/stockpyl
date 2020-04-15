@@ -5,7 +5,7 @@ import unittest
 # from scipy.stats import poisson
 # from scipy.stats import lognorm
 
-from inventory.policy import *
+from pyinv.policy import *
 
 
 # Module-level functions.

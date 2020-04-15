@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 
-from inventory import ssm_serial
+from pyinv import ssm_serial
 from tests.instances_ssm_serial import *
-from inventory.instances import *
+from pyinv.instances import *
 
 # Module-level functions.
 

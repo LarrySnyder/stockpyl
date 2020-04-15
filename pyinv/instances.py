@@ -1,6 +1,6 @@
 import copy
 
-from inventory.supply_chain_network import *
+from pyinv.supply_chain_network import *
 
 # TODO: do this as an InstanceFactory so you can get the same intsnace multiple times (e.g., if you want to change and then start over again)
 

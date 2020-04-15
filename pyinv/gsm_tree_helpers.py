@@ -1,5 +1,5 @@
 """Helper code for dynamic programming (DP) algorithm for guaranteed-service model (GSM)
-for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
+for multi-echelon pyinv systems with tree structures by Graves and Willems (2000).
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -11,7 +11,7 @@ Lehigh University and Opex Analytics
 import numpy as np
 import math
 
-from inventory.helpers import *
+from pyinv.helpers import *
 
 
 ### SOLUTION HANDLING ###

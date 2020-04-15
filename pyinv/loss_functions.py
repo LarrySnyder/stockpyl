@@ -17,7 +17,7 @@ from types import *
 from numbers import Number
 from numbers import Integral
 
-from inventory.helpers import *
+from pyinv.helpers import *
 
 
 ####################################################

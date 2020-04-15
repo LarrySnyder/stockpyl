@@ -1,5 +1,5 @@
-EOQ API Documentation
-=====================
+``eoq`` Module
+==============
 
-.. automodule:: inventory.eoq
+.. automodule:: pyinv.eoq
     :members:

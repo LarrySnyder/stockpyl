@@ -33,7 +33,7 @@ import math
 import matplotlib.pyplot as plt
 import copy
 
-from inventory.helpers import *
+from pyinv.helpers import *
 
 
 ### NETWORK-HANDLING FUNCTIONS ###
@@ -47,7 +47,7 @@ def local_to_echelon_base_stock_levels(network, S_local):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial inventory network.
+		The serial pyinv network.
 	S_local : dict
 		Dict of local base-stock levels.
 
@@ -79,7 +79,7 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial inventory network.
+		The serial pyinv network.
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
 	x_num : int, optional
@@ -107,7 +107,7 @@ def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial inventory network.
+		The serial pyinv network.
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
 	x_num : int, optional
@@ -145,7 +145,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial inventory network.
+		The serial pyinv network.
 	S : dict, optional
 		Dict of echelon base-stock levels to evaluate. If present, no
 		optimization is performed and the function just returns the cost

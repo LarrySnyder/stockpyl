@@ -38,16 +38,16 @@ class InventoryPolicyType(Enum):
 # ===============================================================================
 
 class Policy(object):
-	"""The ``Policy`` class is used to encapsulate inventory policy calculations.
+	"""The ``Policy`` class is used to encapsulate pyinv policy calculations.
 
 	Attributes
 	----------
 	policy_type : InventoryPolicyType
-		The inventory policy type.
+		The pyinv policy type.
 	param1 : float
-		First inventory parameter; usage depends on policy_type.
+		First pyinv parameter; usage depends on policy_type.
 	param2 : float
-		Second inventory parameter; usage depends on policy_type.
+		Second pyinv parameter; usage depends on policy_type.
 	"""
 
 	def __init__(self, policy_type=None, param1=None, param2=None):
@@ -56,11 +56,11 @@ class Policy(object):
 		Parameters
 		----------
 		policy_type : InventoryPolicyType
-			The inventory policy type.
+			The pyinv policy type.
 		param1 : float
-			First inventory parameter; usage depends on policy_type.
+			First pyinv parameter; usage depends on policy_type.
 		param2 : float
-			Second inventory parameter; usage depends on policy_type.
+			Second pyinv parameter; usage depends on policy_type.
 		"""
 		# Initialize parameters to None. (Relevant parameters will be filled
 		# below.)
@@ -160,7 +160,7 @@ class Policy(object):
 		return self.__repr__()
 
 	def get_order_quantity(self, inventory_position=None):
-		"""Calculate order quantity using the inventory policy type specified
+		"""Calculate order quantity using the pyinv policy type specified
 		in policy_type. The following parameters must be specified:
 			- BASE_STOCK: inventory_position
 			- r_Q: inventory_position

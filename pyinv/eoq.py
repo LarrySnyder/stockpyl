@@ -10,7 +10,7 @@
 """The :mod:`eoq` module contains code for solving the economic order quantity
 (EOQ) problem and some of its variants.
 
-Functions in this class are called directly; they are not wrapped in a class.
+Functions in this module are called directly; they are not wrapped in a class.
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
@@ -53,7 +53,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	.. testsetup:: *
 
-		from inventory.eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 
@@ -112,7 +112,7 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 	.. testsetup:: *
 
-		from inventory.eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 
@@ -172,7 +172,7 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 
 	.. testsetup:: *
 
-		from inventory.eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 

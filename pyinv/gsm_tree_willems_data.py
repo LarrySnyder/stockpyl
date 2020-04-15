@@ -25,7 +25,7 @@ import time
 import tabulate
 import matplotlib.pyplot as plt
 
-from inventory.gsm_tree import *
+from pyinv.gsm_tree import *
 
 
 node_df = pd.read_excel('MSOM-06-038-R2 Data Set in Excel.xls', sheet_name='01_SD')

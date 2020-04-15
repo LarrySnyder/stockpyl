@@ -16,9 +16,9 @@ This module contains the ``SupplyChainNetwork`` class.
 # Imports
 # ===============================================================================
 
-from inventory.supply_chain_node import *
-from inventory.policy import *
-from inventory.helpers import *
+from pyinv.supply_chain_node import *
+from pyinv.policy import *
+from pyinv.helpers import *
 
 
 # ===============================================================================
@@ -297,10 +297,10 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
 		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
 
-	# Check that valid inventory policy has been provided.
+	# Check that valid pyinv policy has been provided.
 	# TODO: handle other policy types
 	for n_index in range(num_nodes):
-		# Check parameters for inventory policy type.
+		# Check parameters for pyinv policy type.
 		pass
 
 	# TODO: I don't think the indexing is right for the parameters.
@@ -347,7 +347,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.initial_orders = initial_orders_list[n]
 		node.initial_shipments = initial_shipments_list[n]
 
-		# Set inventory policy.
+		# Set pyinv policy.
 		# TODO: handle other policy types
 		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
 			policy = Policy(policy_type=InventoryPolicyType.BASE_STOCK,

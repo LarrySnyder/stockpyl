@@ -1,7 +1,7 @@
 import unittest
 
-from inventory.instances import *
-from inventory.sim import *
+from pyinv.instances import *
+from pyinv.sim import *
 
 
 # Module-level functions.

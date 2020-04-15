@@ -1,7 +1,7 @@
 import networkx as nx
 
-from inventory.datatypes import *
-from inventory.demand_source import *
+from pyinv.datatypes import *
+from pyinv.demand_source import *
 
 
 # Build 2-stage instance.

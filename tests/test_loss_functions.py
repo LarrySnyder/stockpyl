@@ -6,7 +6,7 @@ from scipy.stats import lognorm
 from scipy.stats import poisson
 from scipy.stats import geom
 
-from inventory import loss_functions
+from pyinv import loss_functions
 
 # Module-level functions.
 

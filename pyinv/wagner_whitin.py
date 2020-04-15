@@ -1,0 +1,142 @@
+# ===============================================================================
+# PyInv - wagner_whitin Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 04-15-2020
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
+"""The :mod:`wagner_whitin` module contains code for solving the Wagner-Whitin
+model.
+
+Functions in this module are called directly; they are not wrapped in a class.
+
+The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+(2019).
+
+"""
+
+import numpy as np
+
+from pyinv.helpers import *
+
+
+def wagner_whitin(num_periods, holding_cost, fixed_cost, demand):
+	"""Solve the Wagner-Whitin problem using dynamic programming (DP).
+
+	The time periods are indexed 1, ..., ``num_periods``. Lists given in
+	outputs use the same indexing, which means that element 0
+	will usually be ignored. (In some cases, element 0 is used to represent
+	initial conditions.)
+
+	Most parameters may be given as a singleton or a list. If given as a
+	singleton, the parameter will be assumed to be the same in every time
+	period. If given as a list, the list must be of length ``num_periods`` or
+	``num_periods``\+1.
+
+	*	In the former case, the list is assumed to contain values for periods
+		1, ..., ``num_periods`` in elements 0, ..., ``num_periods``-1.
+	*	In the latter case, the list is assumed to contain values for periods
+		1, ..., ``num_periods`` in elements 1, ..., ``num_periods``, and the
+		0th element is ignored.
+
+	Parameters
+	----------
+	num_periods : int
+		Number of periods in time horizon. [:math:`T`]
+	holding_cost : float or list
+		Holding cost per item per period. [:math:`h`]
+	fixed_cost : float or list
+		Fixed cost per order. [:math:`K`]
+	demand : float or list
+		Demand in each time period. [:math:`d`]
+
+	Returns
+	-------
+	order_quantities : list
+		List of order quantities in each time period. [:math:`Q^*`]
+	cost : float
+		Optimal cost for entire horizon. [:math:`g^*`]
+	costs_to_go : list
+		List of "costs to go". [:math:`\\theta`]
+	next_order_periods : list
+		List of "next order" period. [:math:`s`]
+
+
+	**Equation Used** (equation (3.39)):
+
+	.. math::
+
+		\\theta_t = \\min_{t < s \le T+1} \\left\\{K + h\\sum_{i=t}^{s-1}(i-t)d_i + \\theta_s \\right\\}
+
+	**Algorithm Used:** Wagner-Whitin algorithm (Algorithm 3.1)
+
+	**Example** (Example 3.9):
+
+	.. testsetup:: *
+
+		from pyinv.wagner_whitin import *
+
+	.. doctest::
+
+		>>> Q, cost, theta, s = wagner_whitin(4, 2, 500, [90, 120, 80, 70])
+		>>> Q
+		[0, 210, 0, 150, 0]
+		>>> cost
+		1380.0
+		>>> theta
+		array([   0., 1380.,  940.,  640.,  500.,    0.])
+		>>> s
+		[0, 3, 5, 5, 5]
+
+	"""
+	# Check that parameters are non-negative.
+	assert np.all(np.array(holding_cost) >= 0), "holding_cost must be non-negative."
+	assert np.all(np.array(fixed_cost) >= 0), "fixed_cost must be non-negative."
+	assert np.all(np.array(demand) >= 0), "demand must be non-negative."
+
+	# Replace scalar parameters with lists (multiple copies of scalar).
+	holding_cost = ensure_list_for_time_periods(holding_cost, num_periods)
+	fixed_cost = ensure_list_for_time_periods(fixed_cost, num_periods)
+	demand = ensure_list_for_time_periods(demand, num_periods)
+
+	# Allocate solution arrays.
+	theta = np.zeros(num_periods+2)
+	next_order_periods = [0] * (num_periods+1)
+
+	# Loop backwards through periods.
+	for t in range(num_periods, 0, -1):
+
+		# Loop through possible next order periods.
+		best_cost = BIG_FLOAT
+		for ss in range(t+1, num_periods+2):
+			# Calculate cost if next order is in period ss.
+			cost = fixed_cost[t]
+			for i in range(t, ss):
+				# TODO: vectorize this
+				cost += holding_cost[t] * (i - t) * demand[i]
+			cost += theta[ss]
+
+			# Compare to best cost.
+			if cost < best_cost:
+				best_cost = cost
+				best_s = ss
+
+		# Set theta and next_order_periods.
+		theta[t] = best_cost
+		next_order_periods[t] = best_s
+
+	# Determine optimal order quantities.
+	order_quantities = [0] * (num_periods+1)
+	t = 1
+	while t <= num_periods:
+		order_quantities[t] = np.sum(demand[t:next_order_periods[t]])
+		t = next_order_periods[t]
+	cost = theta[1]
+
+	return order_quantities, cost, theta, next_order_periods
+
+
+

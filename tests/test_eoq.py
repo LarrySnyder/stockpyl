@@ -1,6 +1,6 @@
 import unittest
 
-from inventory import eoq
+from pyinv import eoq
 
 
 # Module-level functions.

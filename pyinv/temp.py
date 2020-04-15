@@ -1,5 +1,5 @@
-from inventory.gsm_tree import *
-from inventory.ssm_serial import *
+from pyinv.gsm_tree import *
+from pyinv.ssm_serial import *
 from tests.instances_ssm_serial import *
 
 # Create DiGraph.

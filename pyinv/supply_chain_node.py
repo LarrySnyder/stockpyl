@@ -19,9 +19,9 @@ in a supply chain network.
 
 import numpy as np
 
-from inventory.datatypes import *
-from inventory.policy import *
-from inventory.demand_source import *
+from pyinv.datatypes import *
+from pyinv.policy import *
+from pyinv.demand_source import *
 
 
 # ===============================================================================
@@ -62,13 +62,13 @@ class SupplyChainNode(object):
 	demand_source : DemandSource
 		Demand source object.
 	initial_inventory_level : float
-		Initial inventory level.
+		Initial pyinv level.
 	initial_orders : float # TODO: allow list
 		Initial outbound order quantity.
 	initial shipments : float # TODO: allow list
 		Initial inbound shipment quantity.
 	inventory_policy : Policy
-		Inventory policy to be used to make inventory decisions.
+		Inventory policy to be used to make pyinv decisions.
 	supply_type : SupplyType
 		Supply type (unlimited, etc.).
 	"""
@@ -130,7 +130,7 @@ class SupplyChainNode(object):
 		# is None, refers to external supply.
 		self.on_order = None
 
-		# inventory_level[t] = inventory level (positive, negative, or zero) at
+		# inventory_level[t] = pyinv level (positive, negative, or zero) at
 		# node at the beginning of period t.
 		self.inventory_level = None
 
@@ -139,7 +139,7 @@ class SupplyChainNode(object):
 		# Sum over all successors should always equal max{0, -inventory_level}.
 		self.backorders = None
 
-		# ending_inventory_level[t] = inventory level (positive, negative, or
+		# ending_inventory_level[t] = pyinv level (positive, negative, or
 		# zero) at node at the end of period t.
 		# NOTE: This is just for convenience, since EIL[t] = IL[t+1].
 		self.ending_inventory_level = None

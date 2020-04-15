@@ -24,7 +24,7 @@ from enum import Enum
 import numpy as np
 from abc import ABC, abstractmethod			# abstract base class
 
-from inventory.helpers import *
+from pyinv.helpers import *
 
 
 # ===============================================================================

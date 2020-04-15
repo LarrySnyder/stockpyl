@@ -1,6 +1,6 @@
 import unittest
 
-from inventory import helpers
+from pyinv import helpers
 
 
 # Module-level functions.

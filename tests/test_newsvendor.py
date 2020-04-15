@@ -5,7 +5,7 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import lognorm
 
-from inventory import newsvendor
+from pyinv import newsvendor
 
 
 # Module-level functions.

@@ -2,11 +2,10 @@ PyInv Documentation
 ===================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: API Documentation:
 
-   eoq
-
+    api
 
 
 Indices and tables

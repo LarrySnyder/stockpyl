@@ -1,4 +1,4 @@
-"""Code for simulating multi-echelon inventory systems.
+"""Code for simulating multi-echelon pyinv systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -49,9 +49,9 @@ Lehigh University and Opex Analytics
 import numpy as np
 import math
 
-from inventory.datatypes import *
-from inventory.sim_io import *
-from inventory.helpers import *
+from pyinv.datatypes import *
+from pyinv.sim_io import *
+from pyinv.helpers import *
 from tests.instances_ssm_serial import *
 
 # -------------------
@@ -120,7 +120,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : DiGraph
-		NetworkX directed graph representing the multi-echelon inventory network.
+		NetworkX directed graph representing the multi-echelon pyinv network.
 	period : int
 		Time period.
 	visited : dict
@@ -184,7 +184,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : DiGraph
-		NetworkX directed graph representing the multi-echelon inventory network.
+		NetworkX directed graph representing the multi-echelon pyinv network.
 	period : int
 		Time period.
 	visited : dict
@@ -261,7 +261,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		network.nodes[s]['IS'][node_index][period+network.nodes[s]['shipment_lead_time']] \
 			= node['OS'][s][period]
 
-	# Subtract demand from ending inventory and calculate costs.
+	# Subtract demand from ending pyinv and calculate costs.
 	# TODO: add more flexible ways of calculating in-transit h.c.
 	node['HC'][period] = node['local_holding_cost'] * max(0, node['EIL'][period])
 	node['SC'][period] = node['stockout_cost'] * max(0, -node['EIL'][period])
@@ -294,7 +294,7 @@ def get_attribute_total(node_index, network, attribute, period):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : DiGraph
-		NetworkX directed graph representing the multi-echelon inventory network.
+		NetworkX directed graph representing the multi-echelon pyinv network.
 	attribute : str
 		Attribute to be totalled. Error occurs if attribute is not present.
 	period : int
@@ -326,7 +326,7 @@ def simulation(network, num_periods, rand_seed=None):
 	Parameters
 	----------
 	network : DiGraph
-		NetworkX directed graph representing the multi-echelon inventory network.
+		NetworkX directed graph representing the multi-echelon pyinv network.
 	num_periods : int
 		Number of periods to simulate.
 	rand_seed : int, optional
@@ -381,7 +381,7 @@ def simulation(network, num_periods, rand_seed=None):
 		G.nodes[n]['OO'] = {j: np.zeros(num_periods+EXTRA_PERIODS)
 							for j in list(G.predecessors(n))+[None]}
 
-		# Inventory Level: IL[t] = inventory level (positive or negative) at
+		# Inventory Level: IL[t] = pyinv level (positive or negative) at
 		# stage at the beginning of period t.
 		G.nodes[n]['IL'] = np.zeros(num_periods+EXTRA_PERIODS)
 
@@ -391,7 +391,7 @@ def simulation(network, num_periods, rand_seed=None):
 		G.nodes[n]['BO'] = {s: np.zeros(num_periods+EXTRA_PERIODS)
 							for s in list(G.successors(n))+[None]}
 
-		# Ending Inventory Level: EIL[t] = inventory level (positive or
+		# Ending Inventory Level: EIL[t] = pyinv level (positive or
 		# negative) at stage at the end of period t.
 		# NOTE: this is just for convenience, since EIL[i,t] = IL[i,t+1]
 		G.nodes[n]['EIL'] = np.zeros(num_periods)
@@ -419,9 +419,9 @@ def simulation(network, num_periods, rand_seed=None):
 	# Initialize random number generator.
 	np.random.seed(rand_seed)
 
-	# Initialize inventory levels and other quantities.
+	# Initialize pyinv levels and other quantities.
 	for n in G.nodes():
-		# Initialize inventory levels and backorders.
+		# Initialize pyinv levels and backorders.
 		# TODO: handle what happens if initial IL < 0 (or prohibit it)
 		if G.nodes[n]['initial_inventory_level'] is not None:
 			G.nodes[n]['IL'][0] = G.nodes[n]['initial_inventory_level']

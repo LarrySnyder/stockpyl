@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
 
-from inventory import gsm_tree
-from inventory import gsm_tree_helpers
+from pyinv import gsm_tree
+from pyinv import gsm_tree_helpers
 from tests.instances_gsm_tree import *
 
 

@@ -1,4 +1,4 @@
-"""Code for simulating multi-echelon inventory systems.
+"""Code for simulating multi-echelon pyinv systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -45,13 +45,13 @@ import math
 from scipy import stats
 from tqdm import tqdm				# progress bar
 
-from inventory.datatypes import *
-from inventory.supply_chain_network import *
-from inventory.supply_chain_node import *
-from inventory.sim_io import *
-from inventory.helpers import *
+from pyinv.datatypes import *
+from pyinv.supply_chain_network import *
+from pyinv.supply_chain_node import *
+from pyinv.sim_io import *
+from pyinv.helpers import *
 from tests.instances_ssm_serial import *
-from inventory.instances import *
+from pyinv.instances import *
 
 
 # -------------------
@@ -67,7 +67,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : SupplyChainNetwork
-		The multi-echelon inventory network.
+		The multi-echelon pyinv network.
 	period : int
 		Time period.
 	visited : dict
@@ -146,7 +146,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : SupplyChainNetwork
-		The multi-echelon inventory network.
+		The multi-echelon pyinv network.
 	period : int
 		Time period.
 	visited : dict
@@ -244,7 +244,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		s.inbound_shipment[node_index][period+s.shipment_lead_time] \
 			= node.outbound_shipment[s.index][period]
 
-	# Subtract demand from ending inventory and calculate costs.
+	# Subtract demand from ending pyinv and calculate costs.
 	# TODO: add more flexible ways of calculating in-transit h.c.
 	node.holding_cost_incurred[period] = \
 		node.local_holding_cost * max(0, node.ending_inventory_level[period])
@@ -281,7 +281,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The multi-echelon inventory network.
+		The multi-echelon pyinv network.
 	num_periods : int
 		Number of periods to simulate.
 	rand_seed : int, optional
@@ -361,9 +361,9 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	# Initialize progress bar. (If not requested, then this will disable it.)
 	pbar = tqdm(total=num_periods, disable=not progress_bar)
 
-	# Initialize inventory levels and other quantities.
+	# Initialize pyinv levels and other quantities.
 	for n in network.nodes:
-		# Initialize inventory levels and backorders.
+		# Initialize pyinv levels and backorders.
 		# TODO: handle what happens if initial IL < 0 (or prohibit it)
 		if n.initial_inventory_level is not None:
 			n.inventory_level[0] = n.initial_inventory_level
@@ -438,7 +438,7 @@ def run_multiple_trials(network, num_trials, num_periods):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The multi-echelon inventory network.
+		The multi-echelon pyinv network.
 	num_trials : int
 		Number of trials to simulate.
 	num_periods : int

@@ -1,4 +1,4 @@
-"""Helper functions for inventory package.
+"""Helper functions for pyinv package.
 
 (c) Lawrence V. Snyder
 Lehigh University and Opex Analytics
@@ -9,7 +9,7 @@ import math
 #import networkx as nx
 import numpy as np
 
-from inventory.datatypes import *
+from pyinv.datatypes import *
 
 
 ### CONSTANTS ###

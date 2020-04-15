@@ -8,8 +8,8 @@ Lehigh University and Opex Analytics
 from scipy import stats
 import numpy as np
 
-import inventory.loss_functions as lf
-from inventory.helpers import *
+import pyinv.loss_functions as lf
+from pyinv.helpers import *
 
 
 def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
