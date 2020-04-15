@@ -16,7 +16,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 	Parameters
 	----------
 	fixed_cost : float
-		Fixed cost per order. [K]
+		Fixed cost per order. [:math:`K`]
 	holding_cost : float
 		Holding cost per item per unit time. [h]
 	demand_rate : float
