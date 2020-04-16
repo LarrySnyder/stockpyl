@@ -28,7 +28,7 @@ from pyinv.helpers import *
 def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 					  lead_time=0, base_stock_level=None):
 	"""Solve the newsvendor problem with normal distribution, or (if
-	base_stock_level is supplied) calculate cost of given solution.
+	``base_stock_level`` is supplied) calculate cost of given solution.
 
 	Parameters
 	----------
@@ -66,6 +66,17 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	where :math:`\\mu` and :math:`\\sigma` are the lead-time demand mean
 	and standard deviation, and :math:`\\alpha = p/(h+p)`.
 
+	**Example** (Example 4.3):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_normal(0.18, 0.70, 50, 8)
+		(56.60395592743389, 1.9976051931766445)
+
 	"""
 
 	# Check that parameters are positive.
@@ -98,37 +109,60 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 
 def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 					  base_stock_level=None):
-	"""Solve newsvendor problem with Poisson distribution, or (if
-	base_stock_level is supplied) calculate cost of given solution.
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
-
-	TODO: handle lead time
+	"""Solve the newsvendor problem with Poisson distribution, or (if
+	``base_stock_level`` is supplied) calculate cost of given solution.
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per period. [h]
+		Holding cost per item per period. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per period. [p]
+		Stockout cost per item per period. [:math:`p`]
 	demand_mean : float
-		Mean demand per period. [mu]
+		Mean demand per period. [:math:`\\mu`]
 	base_stock_level : float, optional
 		Base-stock level for cost evaluation. If supplied, no
-		optimization will be performed. [S]
+		optimization will be performed. [:math:`S`]
 
 	Returns
 	-------
 	base_stock_level : float
-		Optimal base-stock level (or base-stock level supplied). [S^*]
+		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
 	cost : float
-		Cost per period attained by base_stock_level. [g^*]
+		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+
+
+	**Equations Used** (equations (4.35), (4.32)-(4.34)):
+
+	.. math::
+
+		S^* = \\text{smallest } S \\text{ such that } F(S) \\ge \\frac{p}{h+p}
+
+		g(S^*) = h\\bar{n}(S^*) + pn(S^*)
+
+	where :math:`F(\\cdot)`, :math:`n(\\cdot)`, and :math:`\\bar{n}(\\cdot)` are
+	the Poisson cdf, loss function, and complementary loss function,
+	respectively.
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_poisson(0.18, 0.70, 50)
+		(56.0, 1.797235211809178)
+
 	"""
 
 	# Check that parameters are positive.
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert demand_mean > 0, "demand_mean must be positive."
+
+	# TODO: handle lead time
 
 	# Is S provided?
 	if base_stock_level is None:
@@ -151,38 +185,72 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 
 
 def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
-						demand_pdf=None, base_stock_level=None):
-	"""Solve newsvendor problem with generic continuous distribution, or (if
-	base_stock_level is supplied) calculate cost of given solution.
+						  demand_pdf=None, base_stock_level=None):
+	"""Solve the newsvendor problem with generic continuous distribution, or (if
+	``base_stock_level`` is supplied) calculate cost of given solution.
 
-	Must provide rv_continuous distribution (in demand_distrib) or
-	demand pdf (in demand_pdf, as a function).
-
-	TODO: handle lead time
-	TODO: handle demand_pdf as function
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
+	Must provide either ``rv_continuous`` distribution (in ``demand_distrib``) or
+	demand pdf (in ``demand_pdf``, as a function).
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per period. [h]
+		Holding cost per item per period. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per period. [p]
+		Stockout cost per item per period. [:math:`p`]
 	demand_distrib : rv_continuous, optional
 		Demand distribution object.
 	demand_pdf : function, optional
-		Demand pdf, as a function. Ignored if demand_distrib is not None.
+		Demand pdf, as a function. Ignored if ``demand_distrib`` is not
+		``None``. [:math:`f(\\cdot)`]
 	base_stock_level : float, optional
 		Base-stock level for cost evaluation. If supplied, no
-		optimization will be performed. [S]
+		optimization will be performed. [:math:`S`]
 
 	Returns
 	-------
 	base_stock_level : float
-		Optimal base-stock level (or base-stock level supplied). [S^*]
+		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
 	cost : float
-		Cost per period attained by base_stock_level. [g^*]
+		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+
+
+	**Equations Used** (equations (4.35), (4.32)-(4.34)):
+
+	.. math::
+
+		S^* = F^{-1}\\left(\\frac{p}{h+p}\\right)
+
+		g(S^*) = h\\bar{n}(S^*) + pn(S^*)
+
+	where :math:`F(\\cdot)`, :math:`n(\\cdot)`, and :math:`\\bar{n}(\\cdot)` are
+	the demand cdf, loss function, and complementary loss function,
+	respectively.
+
+	**Example** (Example 4.3):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> from scipy.stats import norm
+		>>> demand_distrib = norm(50, 8)
+		>>> newsvendor_continuous(0.18, 0.70, demand_distrib)
+		(56.60395592743389, 1.997605188935892)
+		>>> newsvendor_continuous(0.18, 0.70, demand_distrib, base_stock_level=40)
+		(40, 7.35613154776623)
+
+	**Example** (Problem 4.8(b)):
+
+	.. doctest::
+
+		>>> from scipy.stats import lognorm
+		>>> demand_distrib = lognorm(0.3, 0, np.exp(6))
+		>>> newsvendor_continuous(1, 0.1765, demand_distrib)
+		(295.6266448071368, 29.44254351324322)
+
 	"""
 
 	# Check that parameters are positive.
@@ -192,6 +260,9 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 	# Check that either distribution or pmf have been supplied.
 	assert (demand_distrib is not None) or (demand_pdf is not None), \
 		"must provide demand_distrib or demand_pdf"
+
+	# TODO: handle lead time
+	# TODO: handle demand_pdf as function
 
 	# For now, raise error if only demand_pdf is provided. (Need to add this
 	# capability.)
@@ -221,37 +292,72 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 
 def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 						demand_pmf=None, base_stock_level=None):
-	"""Solve newsvendor problem with generic discrete distribution, or (if
-	base_stock_level is supplied) calculate cost of given solution.
+	"""Solve the newsvendor problem with generic discrete distribution, or (if
+	``base_stock_level`` is supplied) calculate cost of given solution.
 
-	Must provide either rv_discrete distribution (in demand_distrib) or
-	demand pmf (in demand_pmf, as a dict).
-
-	TODO: handle lead time
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
+	Must provide either ``rv_discrete`` distribution (in ``demand_distrib``) or
+	demand pmf (in ``demand_pmf``, as a dict).
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per period. [h]
+		Holding cost per item per period. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per period. [p]
+		Stockout cost per item per period. [:math:`p`]
 	demand_distrib : rv_discrete, optional
 		Demand distribution object.
 	demand_pmf : dict, optional
 		Demand pmf, as a dict in which keys are possible demand values and
-		values are their probabilities. Ignored if demand_distrib is not None.
+		values are their probabilities. Ignored if ``demand_distrib`` is
+		not ``None``. [:math:`f(\\cdot)`]
 	base_stock_level : float, optional
 		Base-stock level for cost evaluation. If supplied, no
-		optimization will be performed. [S]
+		optimization will be performed. [:math:`S`]
 
 	Returns
 	-------
 	base_stock_level : float
-		Optimal base-stock level (or base-stock level supplied). [S^*]
+		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
 	cost : float
-		Cost per period attained by base_stock_level. [g^*]
+		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+
+
+	**Equations Used** (equations (4.35), (4.32)-(4.34)):
+
+	.. math::
+
+		S^* = \\text{smallest } S \\text{ such that } F(S) \\ge \\frac{p}{h+p}
+
+		g(S^*) = h\\bar{n}(S^*) + pn(S^*)
+
+	where :math:`F(\\cdot)`, :math:`n(\\cdot)`, and :math:`\\bar{n}(\\cdot)` are
+	the demand cdf, loss function, and complementary loss function,
+	respectively.
+
+	**Example** (Example 4.7):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> from scipy.stats import poisson
+		>>> demand_distrib = poisson(6)
+		>>> newsvendor_discrete(1, 4, demand_distrib)
+		(8.0, 3.570106945768532)
+		>>> newsvendor_discrete(1, 4, demand_distrib, base_stock_level=5)
+		(5, 6.590296024613934)
+
+	.. doctest::
+
+		>>> from scipy.stats import poisson
+		>>> d = range(0, 41)
+		>>> f = [poisson.pmf(d_val, 6) for d_val in d]
+		>>> demand_pmf = dict(zip(d, f))
+		>>> newsvendor_discrete(1, 4, demand_pmf=demand_pmf)
+		(8, 3.570106945770941)
+
 	"""
 
 	# Check that parameters are positive.
@@ -261,6 +367,8 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	# Check that either distribution or pmf have been supplied.
 	assert (demand_distrib is not None) or (demand_pmf is not None), \
 		"must provide demand_distrib or demand_pmf"
+
+	# TODO: handle lead time
 
 	# Is S provided?
 	if base_stock_level is None:
