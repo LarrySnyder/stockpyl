@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wagner_whitin Module &mdash; PyInv 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="newsvendor Module" href="newsvendor.html" />
+    <link rel="prev" title="eoq Module" href="eoq.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyInv
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyInv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api.html">API Documentation</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/wagner_whitin.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pyinv.wagner_whitin">
+<span id="wagner-whitin-module"></span><h1><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module<a class="headerlink" href="#module-pyinv.wagner_whitin" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">wagner_whitin</span></code> module contains code for solving the Wagner-Whitin
+model.</p>
+<p>Functions in this module are called directly; they are not wrapped in a class.</p>
+<p>The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
+(2019).</p>
+<dl class="function">
+<dt id="pyinv.wagner_whitin.wagner_whitin">
+<code class="descclassname">pyinv.wagner_whitin.</code><code class="descname">wagner_whitin</code><span class="sig-paren">(</span><em>num_periods</em>, <em>holding_cost</em>, <em>fixed_cost</em>, <em>demand</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.wagner_whitin.wagner_whitin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the Wagner-Whitin problem using dynamic programming (DP).</p>
+<p>The time periods are indexed 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>. Lists given in
+outputs use the same indexing, which means that element 0
+will usually be ignored. (In some cases, element 0 is used to represent
+initial conditions.)</p>
+<p>Most parameters may be given as a singleton or a list. If given as a
+singleton, the parameter will be assumed to be the same in every time
+period. If given as a list, the list must be of length <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> or
+<code class="docutils literal notranslate"><span class="pre">num_periods</span></code>+1.</p>
+<ul class="simple">
+<li>In the former case, the list is assumed to contain values for periods
+1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 0, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>-1.</li>
+<li>In the latter case, the list is assumed to contain values for periods
+1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>, and the
+0th element is ignored.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_periods</strong> (<em>int</em>) – Number of periods in time horizon. [<span class="math notranslate nohighlight">\(T\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand</strong> (<em>float</em><em> or </em><em>list</em>) – Demand in each time period. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>order_quantities</strong> (<em>list</em>) – List of order quantities in each time period. [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
+<li><strong>cost</strong> (<em>float</em>) – Optimal cost for entire horizon. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+<li><strong>costs_to_go</strong> (<em>list</em>) – List of “costs to go”. [<span class="math notranslate nohighlight">\(\theta\)</span>]</li>
+<li><strong>next_order_periods</strong> (<em>list</em>) – List of “next order” period. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equation Used</strong> (equation (3.39)):</p>
+<div class="math notranslate nohighlight">
+\[\theta_t = \min_{t &lt; s \le T+1} \left\{K + h\sum_{i=t}^{s-1}(i-t)d_i + \theta_s \right\}\]</div>
+<p><strong>Algorithm Used:</strong> Wagner-Whitin algorithm (Algorithm 3.1)</p>
+<p><strong>Example</strong> (Example 3.9):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">[0, 210, 0, 150, 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">1380.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">theta</span>
+<span class="go">array([   0., 1380.,  940.,  640.,  500.,    0.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span>
+<span class="go">[0, 3, 5, 5, 5]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="newsvendor.html" class="btn btn-neutral float-right" title="newsvendor Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="eoq.html" class="btn btn-neutral float-left" title="eoq Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Larry Snyder
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
