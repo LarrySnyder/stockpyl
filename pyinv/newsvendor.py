@@ -1,7 +1,20 @@
-"""Code for solving newsvendor_normal problem.
+# ===============================================================================
+# PyInv - newsvendor Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 04-15-2020
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
 
-(c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+"""The :mod:`newsvendor` module contains code for solving the newsvendor
+problem and some of its variants.
+
+Functions in this module are called directly; they are not wrapped in a class.
+
+The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+(2019).
 
 """
 
@@ -14,33 +27,45 @@ from pyinv.helpers import *
 
 def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 					  lead_time=0, base_stock_level=None):
-	"""Solve newsvendor problem with normal distribution, or (if
+	"""Solve the newsvendor problem with normal distribution, or (if
 	base_stock_level is supplied) calculate cost of given solution.
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per period. [h]
+		Holding cost per item per period. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per period. [p]
+		Stockout cost per item per period. [:math:`p`]
 	demand_mean : float
-		Mean demand per period. [mu]
+		Mean demand per period. [:math:`\\mu`]
 	demand_sd : float
-		Standard deviation of demand per period. [sigma]
+		Standard deviation of demand per period. [:math:`\\sigma`]
 	lead_time : int, optional
-		Lead time. Optional; default = 0. [L]
+		Lead time. Default = 0. [:math:`L`]
 	base_stock_level : float, optional
 		Base-stock level for cost evaluation. If supplied, no
-		optimization will be performed. [S]
+		optimization will be performed. [:math:`S`]
 
 	Returns
 	-------
 	base_stock_level : float
-		Optimal base-stock level (or base-stock level supplied). [S^*]
+		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
 	cost : float
-		Cost per period attained by base_stock_level. [g^*]
+		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+
+
+	**Equations Used** (equations (4.24) and (4.30), modified for non-zero
+	lead time):
+
+	.. math::
+
+		S^* = \\mu + z_{\\alpha}\\sigma
+
+		g^* = (h+p)\phi(z_{\\alpha})\\sigma
+
+	where :math:`\\mu` and :math:`\\sigma` are the lead-time demand mean
+	and standard deviation, and :math:`\\alpha = p/(h+p)`.
+
 	"""
 
 	# Check that parameters are positive.
