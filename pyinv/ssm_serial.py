@@ -69,6 +69,7 @@ def local_to_echelon_base_stock_levels(network, S_local):
 
 # TODO: write echelon_to_local_base_stock_levels()
 
+### COST-RELATED FUNCTIONS ###
 
 def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 	"""Calculate expected cost of given solution.

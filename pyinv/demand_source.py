@@ -22,6 +22,7 @@ Notation and equation and section numbers refer to Snyder and Shen,
 
 from enum import Enum
 import numpy as np
+from scipy.stats import norm
 from abc import ABC, abstractmethod			# abstract base class
 
 from pyinv.helpers import *
@@ -205,6 +206,31 @@ class DemandSourceNormal(DemandSource):
 			demand = np.round(demand)
 
 		return demand
+
+	def truncation_bounds(self, tail_probability=0.001):
+		"""Determine bounds to use when truncating the demand distribution, e.g.,
+		in ``ssm_serial()`` algorithm.
+
+		For normal distribution, these are the upper and lower
+		(1-``tail_probability''/2) quantiles.
+
+		Parameters
+		----------
+		tail_probability : float
+			Probability in each tail, outside the truncation range.
+
+		Returns
+		-------
+		lo, hi : float
+			Truncation bounds.
+		"""
+
+		distrib = norm(self._mean, self._standard_deviation)
+
+		lo = distrib.ppf(tail_probability / 2)
+		hi = distrib.ppf(1 - tail_probability / 2)
+
+		return lo, hi
 
 
 class DemandSourceUniformDiscrete(DemandSource):
@@ -392,6 +418,26 @@ class DemandSourceUniformContinuous(DemandSource):
 			demand = np.round(demand)
 
 		return demand
+
+	def truncation_bounds(self, tail_probability=0.001):
+		"""Determine bounds to use when truncating the demand distribution, e.g.,
+		in ``ssm_serial()`` algorithm.
+
+		For continuous uniform distribution, these are simply the upper and
+		lower bounds of the distribution.
+
+		Parameters
+		----------
+		tail_probability : float
+			Ignored for this demand source type.
+
+		Returns
+		-------
+		lo, hi : float
+			Truncation bounds.
+		"""
+
+		return self._lo, self._hi
 
 
 class DemandSourceDeterministic(DemandSource):
