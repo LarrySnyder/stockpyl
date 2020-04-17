@@ -7,6 +7,11 @@ Lehigh University and Opex Analytics
 
 import math
 #import networkx as nx
+from scipy import stats
+from scipy.misc import comb
+from scipy.stats import uniform
+import matplotlib.pyplot as plt
+from math import factorial
 import numpy as np
 
 from pyinv.datatypes import *
@@ -206,6 +211,7 @@ def find_nearest(array, values, sorted=False):
 
 	return ind.astype(int)
 
+### LIST-BUILDING FUNCTIONS ###
 
 def ensure_list_for_time_periods(x, num_periods):
 	"""Ensure that x is a list suitable for time-period indexing; if not, create
@@ -297,5 +303,133 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
+### STATS FUNCTIONS ###
+
+def irwin_hall_cdf(x, n):
+	"""Return cdf of Irwin-Hall distribution, i.e., distribution of sum of ``n``
+	U[0,1] random variables.
+
+	See https://en.wikipedia.org/wiki/Irwin%E2%80%93Hall_distribution.
+
+	Parameters
+	----------
+	x : float
+		Argument of cdf function.
+	n : int
+		Number of U[0,1] random variables in the sum.
+
+	Returns
+	-------
+	F : float
+		The cdf of ``x``.
+	"""
+
+	# TODO vectorize this
+	F = 0
+	for k in range(int(np.floor(x)) + 1):
+		F += ((-1) ** k) * comb(n, k) * (x - k) ** n
+	F /= factorial(n)
+
+	return F
 
 
+def sum_of_uniforms_distribution(n, lo=0, hi=1):
+	"""Return distribution of sum of ``n`` uniform random variables as
+	``rv_continuous`` object.
+
+	If ``lo`` = 0 and ``hi`` = 1, this distribution is the Irwin-Hall
+	distribution.
+
+	Parameters
+	----------
+	n : int
+		Number of uniform random variables in the sum.
+	lo : float, optional
+		Lower bound of uniform distribution. Default = 0.
+	hi : float, optional
+		Upper bound of uniform distribution. Default = 1.
+
+	Returns
+	-------
+	distribution : rv_continuous
+		The rv_continuous object.
+
+	"""
+
+	class sum_of_uniforms_rv(stats.rv_continuous):
+		def _cdf(self, x):
+			# P(X <= x) = P(Y <= (y - n * lo) / (hi - lo)), where Y is the sum of
+			# n U[0,1] r.v.s and therefore has an Irwin-Hall distribution.
+			if x < n * lo:
+				return 0
+			elif x > n * hi:
+				return 1
+			else:
+				return irwin_hall_cdf((x - n * lo) / (hi - lo), n)
+
+	distribution = sum_of_uniforms_rv()
+
+	return distribution
+
+
+def test_irwin_hall_cdf():
+	"""Test ``helpers.irwin_hall_cdf()``. This is not a unit test; it must be
+	run manually. It simulates many sums of uniform distributions and plots
+	their empirical cdf against the calculated cdf.
+
+	"""
+
+	n = 4
+	T = 100000
+	nbins = 100
+
+	sums = []
+	for t in range(T):
+		sums.append(np.sum(uniform.rvs(size=n)))
+
+	x = np.arange(0, n, n * 1.0/nbins)
+	F_empirical = np.zeros(np.size(x))
+	F_calc = np.zeros(np.size(x))
+	for b in range(nbins):
+		F_empirical[b] = np.sum(1 if sums[t] < x[b] else 0 for t in range(T)) / T
+		F_calc[b] = irwin_hall_cdf(x[b], n)
+
+	plt.plot(x, F_empirical, 'r')
+	plt.plot(x, F_calc, 'b')
+	plt.show()
+
+
+def test_sum_of_uniforms_distribution():
+	"""Test ``helpers.sum_of_uniforms_distribution()``. This is not a unit test;
+	it must be run manually. It simulates many sums of uniform distributions and
+	plots their empirical cdf against the calculated cdf.
+
+	"""
+
+	n = 4
+	lo = 20
+	hi = 60
+	T = 10000
+	nbins = 100
+
+	sums = []
+	for t in range(T):
+		sums.append(np.sum(uniform.rvs(lo, hi-lo, size=n)))
+
+	dist = sum_of_uniforms_distribution(n, lo, hi)
+
+	x = np.arange(n*lo, n*hi, n * (hi-lo)/nbins)
+	F_empirical = np.zeros(np.size(x))
+	F_calc = np.zeros(np.size(x))
+	for b in range(nbins):
+		F_empirical[b] = np.sum(1 if sums[t] < x[b] else 0 for t in range(T)) / T
+		F_calc[b] = dist.cdf(x[b])
+
+	plt.plot(x, F_empirical, 'r')
+	plt.plot(x, F_calc, 'b')
+	plt.show()
+
+
+
+#test_irwin_hall_cdf()
+test_sum_of_uniforms_distribution()

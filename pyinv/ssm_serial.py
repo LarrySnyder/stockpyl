@@ -196,6 +196,11 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	# Determine x array (truncated and discretized).
 	# TODO: handle this better
 	if x is None:
+		# Get truncation bounds.
+		# TODO: what happens if demand_source does not provide this function?
+
+
+
 		x_lo = -4 * sigma * np.sqrt(sum(L))
 		x_hi = mu * sum(L) + 8 * sigma * np.sqrt(sum(L))
 		x_delta = (x_hi - x_lo) / x_num

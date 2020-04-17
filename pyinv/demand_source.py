@@ -23,6 +23,7 @@ Notation and equation and section numbers refer to Snyder and Shen,
 from enum import Enum
 import numpy as np
 from scipy.stats import norm
+from scipy.stats import uniform
 from abc import ABC, abstractmethod			# abstract base class
 
 from pyinv.helpers import *
@@ -207,6 +208,33 @@ class DemandSourceNormal(DemandSource):
 
 		return demand
 
+	def demand_distribution(self):
+		"""Return demand distribution, as a ``scipy.stats.rv_continuous`` object.
+
+		Returns
+		-------
+		distribution : rv_continuous
+			The demand distribution object.
+		"""
+		return norm(self._mean, self._standard_deviation)
+
+	def lead_time_demand_distribution(self, lead_time):
+		"""Return lead-time demand distribution, as a
+		``scipy.stats.rv_continuous`` object.
+
+		Parameters
+		----------
+		lead_time : float
+			The lead time. [:math:`L`]
+
+		Returns
+		-------
+		distribution : rv_continuous
+			The lead-time demand distribution object.
+		"""
+		return norm(self._mean * lead_time,
+					self._standard_deviation * np.sqrt(lead_time))
+
 	def truncation_bounds(self, tail_probability=0.001):
 		"""Determine bounds to use when truncating the demand distribution, e.g.,
 		in ``ssm_serial()`` algorithm.
@@ -221,8 +249,10 @@ class DemandSourceNormal(DemandSource):
 
 		Returns
 		-------
-		lo, hi : float
-			Truncation bounds.
+		lo : float
+			Lower bound of truncation range.
+		hi : float
+			Upper bound of truncation range.
 		"""
 
 		distrib = norm(self._mean, self._standard_deviation)
@@ -231,6 +261,28 @@ class DemandSourceNormal(DemandSource):
 		hi = distrib.ppf(1 - tail_probability / 2)
 
 		return lo, hi
+
+	def cdf(self, x):
+		"""Cumulative distribution function of demand distribution.
+
+		For normal distribution, this is simply a wrapper around
+		``scipy.stats.norm.cdf()``.
+
+		Parameters
+		----------
+		x : float
+			Value to calculate cdf for.
+
+		Returns
+		-------
+		F : float
+			cdf of ``x``.
+
+		"""
+
+		distrib = norm(self._mean, self._standard_deviation)
+
+		return distrib.cdf(x)
 
 
 class DemandSourceUniformDiscrete(DemandSource):
@@ -419,6 +471,51 @@ class DemandSourceUniformContinuous(DemandSource):
 
 		return demand
 
+	def demand_distribution(self):
+		"""Return demand distribution, as a ``scipy.stats.rv_continuous`` object.
+
+		Returns
+		-------
+		distribution : rv_continuous
+			The demand distribution object.
+		"""
+		# Uniform loc = lo, scale = hi - lo.
+		return uniform(self._lo, self._hi - self._lo)
+
+	def lead_time_demand_distribution(self, lead_time):
+		"""Return lead-time demand distribution, as a
+		``scipy.stats.rv_continuous`` object.
+
+		NOTE: This method calculates the lead-time demand distribution as the
+		sum of ``lead_time`` uniform random variables. Therefore, the method
+		requires ``lead_time`` to be an integer. If it is not, it raises an
+		value error.
+
+		Parameters
+		----------
+		lead_time : int
+			The lead time. [:math:`L`]
+
+		Returns
+		-------
+		distribution : rv_continuous
+			The lead-time demand distribution object.
+
+		Raises
+		------
+		ValueError
+			If ``lead_time`` is not an integer.
+		"""
+
+		# Check whether lead_time is an integer.
+		if not is_integer(lead_time):
+			raise(ValueError, "lead_time must be an integer")
+
+		# Get distribution object.
+		distribution = sum_of_uniforms_distribution(lead_time, self._lo, self._hi)
+
+		return distribution
+
 	def truncation_bounds(self, tail_probability=0.001):
 		"""Determine bounds to use when truncating the demand distribution, e.g.,
 		in ``ssm_serial()`` algorithm.
@@ -433,11 +530,36 @@ class DemandSourceUniformContinuous(DemandSource):
 
 		Returns
 		-------
-		lo, hi : float
-			Truncation bounds.
+		lo : float
+			Lower bound of truncation range.
+		hi : float
+			Upper bound of truncation range.
 		"""
 
 		return self._lo, self._hi
+
+	def cdf(self, x):
+		"""Cumulative distribution function of demand distribution.
+
+		For normal distribution, this is simply a wrapper around
+		``scipy.stats.unif.cdf()``.
+
+		Parameters
+		----------
+		x : float
+			Value to calculate cdf for.
+
+		Returns
+		-------
+		F : float
+			cdf of ``x``.
+
+		"""
+
+		# Uniform loc = lo, scale = hi - lo.
+		distrib = uniform(self._lo, self._hi - self._lo)
+
+		return distrib.cdf(x)
 
 
 class DemandSourceDeterministic(DemandSource):

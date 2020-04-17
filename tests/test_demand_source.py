@@ -335,6 +335,64 @@ class TestGenerateDemand(unittest.TestCase):
 			self.assertTrue(d in (5, 4, 3, 2))
 
 
+class TestDemandDistribution(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDemandDistribution', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDemandDistribution', 'tear_down_class()')
+
+	def test_normal(self):
+		"""Test demand_distribution() for normal demands.
+		"""
+		print_status('TestDemandDistribution', 'test_normal()')
+
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source.mean = 50
+		demand_source.standard_deviation = 8
+
+		distribution = demand_source.demand_distribution()
+		a = distribution.a
+		b = distribution.b
+		mu = distribution.mean()
+		sigma = distribution.std()
+		z = distribution.ppf(0.85)
+
+		self.assertEqual(a, float("-inf"))
+		self.assertEqual(b, float("inf"))
+		self.assertEqual(mu, 50)
+		self.assertEqual(sigma, 8)
+		self.assertAlmostEqual(z, 58.291467115950319)
+
+	def test_uniform_continuous(self):
+		"""Test demand_distribution() for continuous uniform demands.
+		"""
+		print_status('TestDemandDistribution', 'test_uniform_continuous()')
+
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source.lo = 50
+		demand_source.hi = 100
+
+		distribution = demand_source.demand_distribution()
+		a = distribution.a
+		b = distribution.b
+		mu = distribution.mean()
+		sigma = distribution.std()
+		z = distribution.ppf(0.85)
+
+		self.assertEqual(a, 50)
+		self.assertEqual(b, 100)
+		self.assertEqual(mu, 75)
+		self.assertAlmostEqual(sigma, 50 / np.sqrt(12))
+		self.assertEqual(z, 92.5)
+
+
 class TestTruncationBounds(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -382,4 +440,50 @@ class TestTruncationBounds(unittest.TestCase):
 		lo, hi = demand_source.truncation_bounds(tail_probability=0.05)
 		self.assertEqual(lo, 50)
 		self.assertEqual(hi, 100)
+
+
+class TestCDF(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCDF', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCDF', 'tear_down_class()')
+
+	def test_normal(self):
+		"""Test that cdf() returns correct values normal demands.
+		"""
+		print_status('TestCDF', 'test_normal()')
+
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source.mean = 50
+		demand_source.standard_deviation = 8
+
+		F = demand_source.cdf(55)
+		self.assertAlmostEqual(F, 0.734014470951299)
+
+		F = demand_source.cdf(40)
+		self.assertAlmostEqual(F, 0.105649773666855)
+
+	def test_uniform_continuous(self):
+		"""Test that truncation_bounds() returns correct bounds for continuous
+		uniform demands.
+		"""
+		print_status('TestCDF', 'test_uniform_continuous()')
+
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source.lo = 50
+		demand_source.hi = 100
+
+		F = demand_source.cdf(55)
+		self.assertEqual(F, 0.100000000000000)
+
+		F = demand_source.cdf(55)
+		self.assertEqual(F, 0.600000000000000)
+
 
