@@ -47,7 +47,7 @@ def local_to_echelon_base_stock_levels(network, S_local):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial pyinv network.
+		The serial inventory network.
 	S_local : dict
 		Dict of local base-stock levels.
 
@@ -71,7 +71,11 @@ def local_to_echelon_base_stock_levels(network, S_local):
 
 ### COST-RELATED FUNCTIONS ###
 
-def expected_cost(network, echelon_S, x_num=1000, d_num=100):
+def expected_cost(network, echelon_S, x_num=1000, d_num=100,
+				  ltd_lower_tail_prob=1-stats.norm.cdf(4),
+				  ltd_upper_tail_prob=1-stats.norm.cdf(4),
+				  sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+				  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
 	"""Calculate expected cost of given solution.
 
 	This is a convenience function that calls ``optimize_base_stock_levels()``
@@ -80,13 +84,25 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial pyinv network.
+		The serial inventory network.
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
 	x_num : int, optional
 		Number of discretization intervals to use for ``x`` range.
 	d_num : int, optional
 		Number of discretization intervals to use for ``d`` range.
+	ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating lead-time demand
+		distribution.
+	ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating lead-time demand
+		distribution.
+	sum_ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+	sum_ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
 
 	Returns
 	-------
@@ -94,12 +110,20 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100):
 		Expected cost of system.
 	"""
 	_, cost = optimize_base_stock_levels(network, S=echelon_S, plots=False,
-										 x=None, x_num=x_num, d_num=d_num)
+										 x=None, x_num=x_num, d_num=d_num,
+										 ltd_lower_tail_prob=ltd_lower_tail_prob,
+										 ltd_upper_tail_prob=ltd_upper_tail_prob,
+										 sum_ltd_lower_tail_prob=sum_ltd_lower_tail_prob,
+										 sum_ltd_upper_tail_prob=sum_ltd_upper_tail_prob)
 
 	return cost
 
 
-def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
+def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100,
+						  ltd_lower_tail_prob=1-stats.norm.cdf(4),
+						  ltd_upper_tail_prob=1-stats.norm.cdf(4),
+						  sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+						  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
 	"""Calculate expected holding cost of given solution.
 
 	Basic idea: set stockout cost to 0 and call ``optimize_base_stock_levels()``
@@ -108,13 +132,25 @@ def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial pyinv network.
+		The serial inventory network.
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
 	x_num : int, optional
 		Number of discretization intervals to use for ``x`` range.
 	d_num : int, optional
 		Number of discretization intervals to use for ``d`` range.
+	ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating lead-time demand
+		distribution.
+	ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating lead-time demand
+		distribution.
+	sum_ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+	sum_ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
 
 	Returns
 	-------
@@ -128,7 +164,11 @@ def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
 		node.stockout_cost = 0
 
 	_, holding_cost = optimize_base_stock_levels(network2, S=echelon_S,
-								plots=False, x=None, x_num=x_num, d_num=d_num)
+								plots=False, x=None, x_num=x_num, d_num=d_num,
+								ltd_lower_tail_prob=ltd_lower_tail_prob,
+								ltd_upper_tail_prob=ltd_upper_tail_prob,
+								sum_ltd_lower_tail_prob=sum_ltd_lower_tail_prob,
+								sum_ltd_upper_tail_prob=sum_ltd_upper_tail_prob)
 
 	return holding_cost
 
@@ -136,17 +176,20 @@ def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100):
 ### OPTIMIZATION ###
 
 def optimize_base_stock_levels(network, S=None, plots=False, x=None,
-							   x_num=1000, d_num=100):
+							   x_num=1000, d_num=100,
+							   ltd_lower_tail_prob=1-stats.norm.cdf(4),
+							   ltd_upper_tail_prob=1-stats.norm.cdf(4),
+							   sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+							   sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
 	"""Chen-Zheng (1994) algorithm for stochastic serial systems under
 	stochastic service model (SSM), as described in Snyder and Shen (2019).
 
-	Stages are assumed to be indexed N, ..., 1. Demands are assumed to be
-	normally distributed.
+	Stages are assumed to be indexed N, ..., 1.
 
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The serial pyinv network.
+		The serial inventory network.
 	S : dict, optional
 		Dict of echelon base-stock levels to evaluate. If present, no
 		optimization is performed and the function just returns the cost
@@ -163,6 +206,18 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		``x`` is provided.
 	d_num : int, optional
 		Number of discretization intervals to use for ``d`` range.
+	ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating lead-time demand
+		distribution.
+	ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating lead-time demand
+		distribution.
+	sum_ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+	sum_ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
 
 	Returns
 	-------
@@ -193,17 +248,33 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		h[j.index] = j.echelon_holding_cost
 	p = sink.stockout_cost
 
-	# Determine x array (truncated and discretized).
-	# TODO: handle this better
+	# Get "sum of lead-time demand" distribution (LTD distribution in which
+	# L = sum of all lead times).
+	sum_ltd_dist = sink.demand_source.lead_time_demand_distribution(np.sum(L))
+
+	# TODO: would it be better to calculate mean, a, b directly if we know them?
+
+	# Get truncation bounds for sum-of-lead-time demand distribution.
+	# If support is finite, use support; otherwise, use F^{-1}(.).
+	if sum_ltd_dist.a == float("-inf"):
+		sum_ltd_lo = sum_ltd_dist.ppf(sum_ltd_lower_tail_prob)
+	else:
+		sum_ltd_lo = sum_ltd_dist.a
+	if sum_ltd_dist.b == float("inf"):
+		sum_ltd_hi = sum_ltd_dist.ppf(1 - sum_ltd_upper_tail_prob)
+	else:
+		sum_ltd_hi = sum_ltd_dist.b
+
+	# Determine x (inventory level) array (truncated and discretized).
 	if x is None:
-		# Get truncation bounds.
-		# TODO: what happens if demand_source does not provide this function?
-
-
-
-		x_lo = -4 * sigma * np.sqrt(sum(L))
-		x_hi = mu * sum(L) + 8 * sigma * np.sqrt(sum(L))
+		# TODO: is this the best x-range to use?
+		# x-range = [sum_ltd_lo-sum_ltd_mean, sum_ltd_hi].
+		x_lo = sum_ltd_lo - sum_ltd_dist.mean()
+		x_hi = sum_ltd_hi
 		x_delta = (x_hi - x_lo) / x_num
+		# x_lo = -4 * sigma * np.sqrt(sum(L))
+		# x_hi = mu * sum(L) + 8 * sigma * np.sqrt(sum(L))
+		# x_delta = (x_hi - x_lo) / x_num
 		# Ensure x >= largest echelon BS level, if provided.
 		if S is not None:
 			x_hi = max(x_hi, max(S, key=S.get))
@@ -214,18 +285,20 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 
 	# Standard normal demand array (truncated and discretized).
 	# (Use mu + d * sigma to get distribution-specific demands).
-	d_lo = -4
-	d_hi = 4
-	d_delta = (d_hi - d_lo) / d_num
-	d = np.arange(d_lo, d_hi + d_delta, d_delta)
-	# Probability array.
-	fd = stats.norm.cdf(d+d_delta/2) - stats.norm.cdf(d-d_delta/2)
+	# d_lo = -4
+	# d_hi = 4
+	# d_delta = (d_hi - d_lo) / d_num
+	# d = np.arange(d_lo, d_hi + d_delta, d_delta)
+	# # Probability array.
+	# fd = stats.norm.cdf(d+d_delta/2) - stats.norm.cdf(d-d_delta/2)
 
 	# Extended x array (used for approximate C-hat function).
-	x_ext_lo = np.min(x) - (mu * sum(L) +
-							d.max() * sigma * np.sqrt(sum(L)))
-	x_ext_hi = np.max(x) + (mu * sum(L) +
-							d.max() * sigma * np.sqrt(sum(L)))
+	x_ext_lo = np.min(x) - sum_ltd_hi
+	x_ext_hi = np.max(x) + sum_ltd_hi
+	# x_ext_lo = np.min(x) - (mu * sum(L) +
+	# 						d.max() * sigma * np.sqrt(sum(L)))
+	# x_ext_hi = np.max(x) + (mu * sum(L) +
+	# 						d.max() * sigma * np.sqrt(sum(L)))
 	x_ext = np.arange(x_ext_lo, x_ext_hi, x_delta)
 
 	# Initialize arrays. (0th element is ignored since we are assuming stages
@@ -257,11 +330,36 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		for i in range(1, j+1):
 			C_hat_lim1[j, :] += h[i] * (x_ext - mu * sum(L[i:j]))
 		# C_hat_lim2 is never used since y-d is never greater than the y range;
-		# however, I'm leaving it here so it can be plotted.
+		# however, it is here so it can be plotted.
 		if j > 1:
 			C_hat_lim2[j, :] = h[j] * x_ext + C[j-1, find_nearest(x, S_star[j-1], True)]
 		else:
 			C_hat_lim2[j, :] = h[j] * x_ext
+
+		# Get lead-time demand distribution.
+		# TODO: what happens if demand_source does not provide these functions?
+		ltd_dist = sink.demand_source.lead_time_demand_distribution(L[j])
+
+		# Get truncation bounds for lead-time demand distribution.
+		# If support is finite, use support; otherwise, use F^{-1}(.).
+		if ltd_dist.a == float("-inf"):
+			ltd_lo = ltd_dist.ppf(ltd_lower_tail_prob)
+		else:
+			ltd_lo = ltd_dist.a
+		if ltd_dist.b == float("inf"):
+			ltd_hi = ltd_dist.ppf(1 - ltd_upper_tail_prob)
+		else:
+			ltd_hi = ltd_dist.b
+
+		# Determine d (lead-time demand) array (truncated and discretized).
+		d_lo = ltd_lo
+		d_hi = ltd_hi
+		d_delta = (d_hi - d_lo) / d_num
+		d = np.arange(d_lo, d_hi + d_delta, d_delta)
+
+		# Calculate discretized cdf array.
+		# TODO: handle situation where demand_distrib does not provide _cdf
+		fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
 
 		# Calculate C.
 		for y in x:
@@ -280,7 +378,8 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 
 			for d_ind in range(d.size):
 				# Calculate y - d.
-				y_minus_d = y - (mu * L[j] + d[d_ind] * sigma * np.sqrt(L[j]))
+				y_minus_d = y - d[d_ind]
+#				y_minus_d = y - (mu * L[j] + d[d_ind] * sigma * np.sqrt(L[j]))
 
 				# Calculate cost -- use approximate value of C-hat if y-d is
 				# outside of x-range.

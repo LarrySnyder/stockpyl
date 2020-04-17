@@ -10,7 +10,6 @@ import math
 from scipy import stats
 from scipy.misc import comb
 from scipy.stats import uniform
-import matplotlib.pyplot as plt
 from math import factorial
 import numpy as np
 
@@ -394,6 +393,8 @@ def test_irwin_hall_cdf():
 		F_empirical[b] = np.sum(1 if sums[t] < x[b] else 0 for t in range(T)) / T
 		F_calc[b] = irwin_hall_cdf(x[b], n)
 
+	import matplotlib.pyplot as plt
+
 	plt.plot(x, F_empirical, 'r')
 	plt.plot(x, F_calc, 'b')
 	plt.show()
@@ -425,6 +426,8 @@ def test_sum_of_uniforms_distribution():
 		F_empirical[b] = np.sum(1 if sums[t] < x[b] else 0 for t in range(T)) / T
 		F_calc[b] = dist.cdf(x[b])
 
+	import matplotlib.pyplot as plt
+
 	plt.plot(x, F_empirical, 'r')
 	plt.plot(x, F_calc, 'b')
 	plt.show()
@@ -432,4 +435,4 @@ def test_sum_of_uniforms_distribution():
 
 
 #test_irwin_hall_cdf()
-test_sum_of_uniforms_distribution()
+#test_sum_of_uniforms_distribution()

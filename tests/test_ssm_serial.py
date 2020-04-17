@@ -80,16 +80,28 @@ class TestExpectedCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
-		cost = ssm_serial.expected_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 4.029913673114759e+02)
+		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 4.025320847013973e+02)
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
-		cost = ssm_serial.expected_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 3.365063607909906e+02)
+		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 3.227131745107600e+02)
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
-		cost = ssm_serial.expected_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 6.309060854797420e+02)
+		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 6.292579915269251e+02)
 
 	def test_problem_6_1(self):
 		"""Test that expected_cost() correctly calculates cost for
@@ -102,16 +114,28 @@ class TestExpectedCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2})
 
 		S_echelon = {1: 1.242440692221066e+02, 2: 2.287925107043527e+02}
-		cost = ssm_serial.expected_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 1.677772194726791e+02)
+		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 1.693611203524711e+02)
 
 		S_echelon = {1: 50, 2: 125}
-		cost = ssm_serial.expected_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 1.238684758097710e+03)
+		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 1.218952430250280e+03)
 
 		S_echelon = {1: 75, 2: 50}
-		cost = ssm_serial.expected_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 2.326562153947784e+03)
+		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 2.378816200366911e+03)
 
 
 class TestExpectedHoldingCost(unittest.TestCase):
@@ -137,16 +161,28 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 30.290113004920954)
+		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 29.979059977933002)
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 30.189019642459233)
+		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 30.013403869820511)
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 30.134385552606360)
+		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 29.986925977144374)
 
 	def test_problem_6_1(self):
 		"""Test that expected_holding_cost() correctly calculates cost for
@@ -159,16 +195,28 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2})
 
 		S_echelon = {1: 1.242440692221066e+02, 2: 2.287925107043527e+02}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 1.507714604680893e+02)
+		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 1.526476024969551e+02)
 
 		S_echelon = {1: 50, 2: 125}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 1.001438804274813e+02)
+		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 1.002946042252444e+02)
 
 		S_echelon = {1: 75, 2: 50}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, 100, 10)
-		self.assertAlmostEqual(cost, 99.955972907264330)
+		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
+		self.assertAlmostEqual(cost, 99.997129696149514)
 
 
 class TestOptimizeBaseStockLevels(unittest.TestCase):
@@ -194,12 +242,15 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_star, C_star = ssm_serial.optimize_base_stock_levels(
-			instance, S=None, plots=False, x=None, x_num=100,
-			d_num=10)
-		correct_S_star = [0, 6.52, 12.24, 22.8]
+			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		correct_S_star = [0, 6.514438807325977, 12.232248034454390, 22.788203530691469]
 		for n in instance.node_indices:
-			self.assertAlmostEqual(S_star[n], correct_S_star[n])
-		self.assertAlmostEqual(C_star, 47.835336250392820)
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
+		self.assertAlmostEqual(C_star, 47.820555075345887, places=5)
 
 	def test_problem_6_1(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes network in
@@ -212,12 +263,15 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2})
 
 		S_star, C_star = ssm_serial.optimize_base_stock_levels(
-			instance, S=None, plots=False, x=None, x_num=100,
-			d_num=10)
-		correct_S_star = [0, 1.242440692221066e+02, 2.287925107043527e+02]
+			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1 - stats.norm.cdf(4),
+			ltd_upper_tail_prob=1 - stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1 - stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1 - stats.norm.cdf(8))
+		correct_S_star = [0, 1.241618472110342e2, 2.286691776877441e2]
 		for n in instance.node_indices:
-			self.assertAlmostEqual(S_star[n], correct_S_star[n])
-		self.assertAlmostEqual(C_star, 1.677772194726791e+02)
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
+		self.assertAlmostEqual(C_star, 1.676947889401860e+02, places=5)
 
 	def test_problem_6_2a(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes network in
@@ -230,10 +284,13 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance.reindex_nodes({n: n+1 for n in instance.node_indices})
 
 		S_star, C_star = ssm_serial.optimize_base_stock_levels(
-			instance, S=None, plots=False, x=None, x_num=100,
-			d_num=10)
-		correct_S_star = [0, 39.8225, 77.2372, 111.5340, 142.7129, 173.8919]
+			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1 - stats.norm.cdf(4),
+			ltd_upper_tail_prob=1 - stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1 - stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1 - stats.norm.cdf(8))
+		correct_S_star = [0, 39.7915536774345, 77.1934831561084, 111.478585178226, 142.646859743788, 173.815134309349]
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
-		self.assertAlmostEqual(C_star, 458.6306, places=4)
+		self.assertAlmostEqual(C_star, 4.584970628129348e+02, places=4)
 

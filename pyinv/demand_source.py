@@ -235,33 +235,6 @@ class DemandSourceNormal(DemandSource):
 		return norm(self._mean * lead_time,
 					self._standard_deviation * np.sqrt(lead_time))
 
-	def truncation_bounds(self, tail_probability=0.001):
-		"""Determine bounds to use when truncating the demand distribution, e.g.,
-		in ``ssm_serial()`` algorithm.
-
-		For normal distribution, these are the upper and lower
-		(1-``tail_probability''/2) quantiles.
-
-		Parameters
-		----------
-		tail_probability : float
-			Probability in each tail, outside the truncation range.
-
-		Returns
-		-------
-		lo : float
-			Lower bound of truncation range.
-		hi : float
-			Upper bound of truncation range.
-		"""
-
-		distrib = norm(self._mean, self._standard_deviation)
-
-		lo = distrib.ppf(tail_probability / 2)
-		hi = distrib.ppf(1 - tail_probability / 2)
-
-		return lo, hi
-
 	def cdf(self, x):
 		"""Cumulative distribution function of demand distribution.
 
@@ -515,28 +488,6 @@ class DemandSourceUniformContinuous(DemandSource):
 		distribution = sum_of_uniforms_distribution(lead_time, self._lo, self._hi)
 
 		return distribution
-
-	def truncation_bounds(self, tail_probability=0.001):
-		"""Determine bounds to use when truncating the demand distribution, e.g.,
-		in ``ssm_serial()`` algorithm.
-
-		For continuous uniform distribution, these are simply the upper and
-		lower bounds of the distribution.
-
-		Parameters
-		----------
-		tail_probability : float
-			Ignored for this demand source type.
-
-		Returns
-		-------
-		lo : float
-			Lower bound of truncation range.
-		hi : float
-			Upper bound of truncation range.
-		"""
-
-		return self._lo, self._hi
 
 	def cdf(self, x):
 		"""Cumulative distribution function of demand distribution.
