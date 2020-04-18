@@ -88,3 +88,17 @@ problem_6_16_network = serial_system(
 	downstream_0=True
 )
 
+# Example 4.1 (newsvendor).
+example_4_1_network = serial_system(
+	num_nodes=1,
+	local_holding_cost=[0.18],
+	stockout_cost=[0.70],
+	demand_type=DemandType.NORMAL,
+	demand_mean=50,
+	demand_standard_deviation=8,
+	shipment_lead_time=[1],
+	inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+	local_base_stock_levels=[56.6]
+)
+
+

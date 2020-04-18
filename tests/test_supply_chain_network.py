@@ -134,7 +134,9 @@ class TestSerialSystem(unittest.TestCase):
 
 		network = serial_system(3, local_holding_cost=[7, 4, 2],
 								demand_type=DemandType.NORMAL,
-								demand_mean=10, demand_standard_deviation=2)
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -173,7 +175,9 @@ class TestSerialSystem(unittest.TestCase):
 		network = serial_system(3, downstream_0=False,
 								local_holding_cost=[7, 4, 2],
 								demand_type=DemandType.NORMAL,
-								demand_mean=10, demand_standard_deviation=2)
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -212,7 +216,9 @@ class TestSerialSystem(unittest.TestCase):
 		network = serial_system(3, node_indices=[17, 14, 12],
 								local_holding_cost=[7, 4, 2],
 								demand_type=DemandType.NORMAL,
-								demand_mean=10, demand_standard_deviation=2)
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]

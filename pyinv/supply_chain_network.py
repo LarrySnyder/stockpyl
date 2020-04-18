@@ -196,7 +196,9 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 				  demand_standard_deviation=None, demand_lo=None, demand_hi=None,
 				  demands=None, demand_probabilities=None, initial_IL=None,
 				  initial_orders=None, initial_shipments=None, supply_type=None,
-				  inventory_policy_type=None, local_base_stock_levels=None):
+				  inventory_policy_type=None, local_base_stock_levels=None,
+				  reorder_points=None, order_quantities=None,
+				  order_up_to_levels=None):
 	"""Generate serial system with specified number of nodes.
 
 	Other than ``num_nodes``, all parameters are optional. If they are provided,
@@ -242,6 +244,9 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	supply_type
 	inventory_policy_type
 	local_base_stock_levels
+	reorder_points
+	order_quantities
+	order_up_to_levels
 
 	Returns
 	-------
@@ -282,6 +287,9 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	supply_type_list = ensure_list_for_nodes(supply_type, num_nodes, None)
 	inventory_policy_type_list = ensure_list_for_nodes(inventory_policy_type, num_nodes, None)
 	local_base_stock_levels_list = ensure_list_for_nodes(local_base_stock_levels, num_nodes, None)
+	reorder_points_list = ensure_list_for_nodes(reorder_points, num_nodes, None)
+	order_quantities_list = ensure_list_for_nodes(order_quantities, num_nodes, None)
+	order_up_to_levels_list = ensure_list_for_nodes(order_up_to_levels, num_nodes, None)
 
 	# Check that valid demand info has been provided.
 	if demand_type_list[0] is None or demand_type_list[0] == DemandType.NONE:
@@ -298,10 +306,24 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
-	# TODO: handle other policy types
 	for n_index in range(num_nodes):
 		# Check parameters for inventory policy type.
-		pass
+		if inventory_policy_type_list[n_index] is None:
+			raise ValueError("Valid inventory_policy_type has not been provided")
+		elif inventory_policy_type_list[n_index] == InventoryPolicyType.BASE_STOCK \
+			and local_base_stock_levels_list[n_index] is None:
+			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
+		elif inventory_policy_type_list[n_index] == InventoryPolicyType.r_Q \
+			and (reorder_points_list[n_index] is None or order_quantities_list[n_index] is None):
+			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
+							 "provided")
+		elif inventory_policy_type_list[n_index] == InventoryPolicyType.s_S \
+			and (reorder_points_list[n_index] is None or order_up_to_levels_list[n_index] is None):
+			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
+							 "provided")
+		elif inventory_policy_type_list[n_index] == InventoryPolicyType.FIXED_QUANTITY \
+			and order_quantities_list[n_index] is None:
+			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
 
 	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
@@ -353,6 +375,17 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
 												 base_stock_level=local_base_stock_levels_list[n])
+		elif inventory_policy_type_list[n] == InventoryPolicyType.r_Q:
+			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
+												 reorder_point=reorder_points_list[n],
+												 order_quantity=order_quantities_list[n])
+		elif inventory_policy_type_list[n] == InventoryPolicyType.s_S:
+			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
+												 reorder_point=reorder_points_list[n],
+												 order_up_to_level=order_up_to_levels_list[n])
+		elif inventory_policy_type_list[n] == InventoryPolicyType.FIXED_QUANTITY:
+			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
+												 order_quantity=order_quantities_list[n])
 		else:
 			policy = None
 		node.inventory_policy = policy

@@ -122,3 +122,30 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].backorders[None][31], 26.9162, places=4)
 		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -12.6397, places=4)
 
+	def test_single_stage(self):
+		"""Test that simulation() function correctly simulates single-stage
+		model with base-stock policy.
+		"""
+		print_status('TestSimulation', 'test_single_stage()')
+
+		network = example_4_1_network
+
+		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False)
+
+#		for t in range(100):
+#			print(network.nodes[0].inbound_order[None][t])
+
+
+		# TODO: figure out why this doesn't agree with spreadsheet
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost, 227.90, places=1)
+
+		# Compare a few performance measures.
+		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 23.5517, places=4)
+		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -4.72853, places=4)
+		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 11.0029, places=4)
+		self.assertAlmostEqual(network.nodes[1].inbound_shipment[None][95], 19.9307, places=4)
+		self.assertAlmostEqual(network.nodes[0].backorders[None][31], 26.9162, places=4)
+		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -12.6397, places=4)
+
