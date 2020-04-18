@@ -283,10 +283,8 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	# TODO: Make sure echelon holding costs are provided.
 
 	# Get shortcuts to parameters (for convenience).
-	# TODO: handle non-normal demands
 	sink = network.get_node_from_index(1)
 	mu = sink.demand_source.demand_distribution().mean()
-#	sigma = sink.demand_source.standard_deviation
 	L = np.zeros(N+1)
 	h = np.zeros(N+1)
 	for j in network.nodes:

@@ -297,10 +297,10 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
 		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
 
-	# Check that valid pyinv policy has been provided.
+	# Check that valid inventory policy has been provided.
 	# TODO: handle other policy types
 	for n_index in range(num_nodes):
-		# Check parameters for pyinv policy type.
+		# Check parameters for inventory policy type.
 		pass
 
 	# TODO: I don't think the indexing is right for the parameters.
@@ -347,11 +347,12 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.initial_orders = initial_orders_list[n]
 		node.initial_shipments = initial_shipments_list[n]
 
-		# Set pyinv policy.
+		# Set inventory policy.
 		# TODO: handle other policy types
+		policy_factory = PolicyFactory()
 		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
-			policy = Policy(policy_type=InventoryPolicyType.BASE_STOCK,
-							param1=local_base_stock_levels_list[n])
+			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
+												 base_stock_level=local_base_stock_levels_list[n])
 		else:
 			policy = None
 		node.inventory_policy = policy
