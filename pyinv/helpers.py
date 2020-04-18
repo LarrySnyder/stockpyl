@@ -8,7 +8,7 @@ Lehigh University and Opex Analytics
 import math
 #import networkx as nx
 from scipy import stats
-from scipy.misc import comb
+from scipy.special import comb
 from scipy.stats import uniform
 from math import factorial
 import numpy as np

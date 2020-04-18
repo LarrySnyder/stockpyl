@@ -468,7 +468,7 @@ def run_multiple_trials(network, num_trials, num_periods):
 
 
 def main():
-	T = 100
+	T = 1000
 
 	network = problem_6_16_network
 	total_cost = simulation(network, T, rand_seed=762)

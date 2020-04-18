@@ -57,6 +57,45 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 		self.assertDictEqual(S_echelon, {1: 3, 2: -1, 3: 4})
 
 
+class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
+
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEchelonToLocalBaseStockLevels', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEchelonToLocalBaseStockLevels', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that echelon_to_local_base_stock_levels() correctly converts
+		a few different sets of BS levels for network in Example 6.1.
+		"""
+
+		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
+
+		instance = copy.deepcopy(example_6_1_network)
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		S_echelon = {1: 4, 2: 9, 3: 10}
+		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 4, 2: 5, 3: 1})
+
+		S_echelon = {1: 10, 2: 10, 3: 12}
+		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 10, 2: 0, 3: 2})
+
+		S_echelon = {1: 3, 2: -1, 3: 4}
+		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: -1, 2: 0, 3: 5})
+
+		S_echelon = {1: 10, 2: 15, 3: 5}
+		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 5, 2: 0, 3: 0})
+
+
 class TestExpectedCost(unittest.TestCase):
 
 	@classmethod
@@ -293,4 +332,31 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
 		self.assertAlmostEqual(C_star, 4.584970628129348e+02, places=4)
+
+	def test_example_6_1_uniform(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes
+		network in Example 6.1 with uniform demands.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_uniform()')
+
+		instance = copy.deepcopy(example_6_1_network)
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		demand_source_factory = DemandSourceFactory()
+		for n in instance.nodes:
+			if n.index == 1:
+				demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+				demand_source.lo = 5 - np.sqrt(12) / 2
+				demand_source.hi = 5 + np.sqrt(12) / 2
+			else:
+				demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+			n.demand_source = demand_source
+
+		S_star, C_star = ssm_serial.optimize_base_stock_levels(
+			instance, S=None, plots=False, x=None, x_num=100, d_num=10)
+		correct_S_star = {1: 6.293580485578014, 2: 11.95126810804254, 3: 22.601033044446353}
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
+		self.assertAlmostEqual(C_star, 46.45421661501915, places=5)
 

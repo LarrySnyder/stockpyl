@@ -67,7 +67,53 @@ def local_to_echelon_base_stock_levels(network, S_local):
 
 	return S_echelon
 
-# TODO: write echelon_to_local_base_stock_levels()
+def echelon_to_local_base_stock_levels(network, S_echelon):
+	"""Convert echelon base-stock levels to local base-stock levels.
+
+	Assumes network is serial system but does not assume anything about the
+	labeling of the nodes.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	S_echelon : dict
+		Dict of echelon base-stock levels.
+
+	Returns
+	-------
+	S_local : dict
+		Dict of local base-stock levels.
+
+	"""
+	S_local = {}
+
+	# Determine indexing of nodes. (node_list[i] = index of i'th node, where
+	# i = 0 means sink node and i = N-1 means source node.)
+	node_list = []
+	n = network.sink_nodes[0]
+	while n is not None:
+		node_list.append(n.index)
+		n = n.get_one_predecessor()
+
+	# Calculate S-minus.
+	S_minus = {}
+	j = 0
+	for n in network.nodes:
+		S_minus[n.index] = np.min([S_echelon[node_list[i]]
+							 for i in range(j, len(S_echelon))])
+		j += 1
+
+	# Calculate S_local.
+	for n in network.nodes:
+		# Get successor.
+		k = n.get_one_successor()
+		if k is None:
+			S_local[n.index] = S_minus[n.index]
+		else:
+			S_local[n.index] = S_minus[n.index] - S_minus[k.index]
+
+	return S_local
 
 ### COST-RELATED FUNCTIONS ###
 
@@ -221,8 +267,8 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 
 	Returns
 	-------
-	S_star : ndarray
-		Array of optimal base-stock levels.
+	S_star : dict
+		Dict of optimal echelon base-stock levels.
 	C_star : float
 		Optimal expected cost.
 	"""
@@ -239,8 +285,8 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	# Get shortcuts to parameters (for convenience).
 	# TODO: handle non-normal demands
 	sink = network.get_node_from_index(1)
-	mu = sink.demand_source.mean
-	sigma = sink.demand_source.standard_deviation
+	mu = sink.demand_source.demand_distribution().mean()
+#	sigma = sink.demand_source.standard_deviation
 	L = np.zeros(N+1)
 	h = np.zeros(N+1)
 	for j in network.nodes:
@@ -259,11 +305,14 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	if sum_ltd_dist.a == float("-inf"):
 		sum_ltd_lo = sum_ltd_dist.ppf(sum_ltd_lower_tail_prob)
 	else:
-		sum_ltd_lo = sum_ltd_dist.a
+		# interval(1) gives lo and hi end of interval that contains 100% of
+		# probability area, i.e., 0th and 100th percentile, which for uniform
+		# distribution is the entire support.
+		sum_ltd_lo = sum_ltd_dist.interval(1)[0]
 	if sum_ltd_dist.b == float("inf"):
 		sum_ltd_hi = sum_ltd_dist.ppf(1 - sum_ltd_upper_tail_prob)
 	else:
-		sum_ltd_hi = sum_ltd_dist.b
+		sum_ltd_hi = sum_ltd_dist.interval(1)[1]
 
 	# Determine x (inventory level) array (truncated and discretized).
 	if x is None:
@@ -306,7 +355,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	# meaningful.)
 	C_hat = np.zeros((N+1, len(x)))
 	C = np.zeros((N+1, len(x)))
-	S_star = np.zeros(N+1)
+	S_star = {}
 	C_star = np.zeros(N+1)
 	C_bar = np.zeros((N+1, len(x)))
 
@@ -345,11 +394,11 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		if ltd_dist.a == float("-inf"):
 			ltd_lo = ltd_dist.ppf(ltd_lower_tail_prob)
 		else:
-			ltd_lo = ltd_dist.a
+			ltd_lo = ltd_dist.interval(1)[0]
 		if ltd_dist.b == float("inf"):
 			ltd_hi = ltd_dist.ppf(1 - ltd_upper_tail_prob)
 		else:
-			ltd_hi = ltd_dist.b
+			ltd_hi = ltd_dist.interval(1)[1]
 
 		# Determine d (lead-time demand) array (truncated and discretized).
 		d_lo = ltd_lo
@@ -359,7 +408,8 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 
 		# Calculate discretized cdf array.
 		# TODO: handle situation where demand_distrib does not provide _cdf
-		fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
+		fd = np.array([ltd_dist.cdf(d_val+d_delta/2) - ltd_dist.cdf(d_val-d_delta/2) for d_val in d])
+#		fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
 
 		# Calculate C.
 		for y in x:

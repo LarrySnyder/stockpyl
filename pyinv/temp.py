@@ -1,68 +1,61 @@
-from pyinv.gsm_tree import *
 from pyinv.ssm_serial import *
-from tests.instances_ssm_serial import *
+#from pyinv.demand_source import *
+from pyinv.supply_chain_network import *
+from pyinv.sim import *
+import copy
 
-# Create DiGraph.
-two_stage = nx.DiGraph()
-k=5
-two_stage.add_node(1, processing_time=1,
-                     external_inbound_cst=0,
-                     external_outbound_cst=0,
-                     holding_cost=2, # local
-                     stockout_cost=10, # ignored in GSM optimization
-                     demand_bound_constant=k,
-                     external_demand_mean=10,
-                     external_demand_standard_deviation=2)
-two_stage.add_node(2, processing_time=1,
-                     external_inbound_cst=0,
-                     holding_cost=1, # local
-                     demand_bound_constant=k)
-two_stage.add_edge(2, 1)
+example_6_1_network_norm = serial_system(
+    num_nodes=3,
+    local_holding_cost=[7, 4, 2],
+    echelon_holding_cost=[3, 2, 2],
+    stockout_cost=[37.12, 0, 0],
+    demand_type=DemandType.NORMAL,
+    demand_mean=5,
+    demand_standard_deviation=1,
+    shipment_lead_time=[1, 1, 2],
+    inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+    local_base_stock_levels=[6.49, 5.53, 10.69],
+    downstream_0=True
+)
+example_6_1_network_norm.reindex_nodes({0: 1, 1: 2, 2: 3})
 
-# Preprocess.
-two_stage = preprocess_tree(two_stage)
+example_6_1_network_unif = serial_system(
+    num_nodes=3,
+    local_holding_cost=[7, 4, 2],
+    echelon_holding_cost=[3, 2, 2],
+    stockout_cost=[37.12, 0, 0],
+    demand_type=DemandType.UNIFORM_CONTINUOUS,
+    demand_lo=5-np.sqrt(12)/2,
+    demand_hi=5+np.sqrt(12)/2,
+    shipment_lead_time=[1, 1, 2],
+    inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+    local_base_stock_levels=[6.49, 5.53, 10.69],
+    downstream_0=True
+)
 
-#BSL_vec = np.arange(0, 30, 2)
-two_stage_SSM = GSM_to_SSM(two_stage)
+example_6_1_network_unif.reindex_nodes({0: 1, 1: 2, 2: 3})
 
-local_S = {1: 100, 2: 200}
-GSM_cost = solution_cost_from_base_stock_levels(two_stage, local_S)
-echelon_S = local_to_echelon_base_stock_levels(two_stage, local_S)
-SSM_cost = expected_holding_cost(two_stage_SSM, echelon_S, x_num=1000, d_num=100)
+S_unif, C_unif = optimize_base_stock_levels(example_6_1_network_unif, x_num=100, d_num=10)
+S_norm, C_norm = optimize_base_stock_levels(example_6_1_network_norm)
 
-print("GSM_cost = {}, SSM_cost = {}".format(GSM_cost, SSM_cost))
+C_calc_unif = expected_cost(example_6_1_network_unif, S_unif)
+C_calc_norm = expected_cost(example_6_1_network_norm, S_norm)
 
-# # Fix BSL_1 = 10, plot cost vs. BSL_2.
-# cost_GSM = []
-# cost_SSM = []
-# for i in range(len(BSL_vec)):
-#     local_S = {1: 10, 2: BSL_vec[i]}
-#     cost_GSM.append(solution_cost_from_base_stock_levels(two_stage, local_S))
-#     echelon_S = local_to_echelon_base_stock_levels(two_stage, local_S)
-#     cost_SSM.append(expected_holding_cost(two_stage_SSM, echelon_S, x_num=100, d_num=50))
-# ax1 = plt.subplot(1, 2, 1)
-# ax1.plot(BSL_vec, cost_GSM, BSL_vec, cost_SSM)
-# plt.legend(['GSM cost', 'SSM cost'])
-# plt.title('Holding Cost vs. Local BSL_2 (BSL_1=10)')
-# plt.xlabel('Local BSL_2');
-# plt.ylabel('Expected Holding Cost');
-#
-# # Fix BSL_2 = 10, plot cost vs. BSL_1.
-# cost_GSM = []
-# cost_SSM = []
-# for i in range(len(BSL_vec)):
-#     local_S = {1: BSL_vec[i], 2: 10}
-#     cost_GSM.append(solution_cost_from_base_stock_levels(two_stage, local_S))
-#     echelon_S = local_to_echelon_base_stock_levels(two_stage, local_S)
-#     cost_SSM.append(expected_holding_cost(two_stage_SSM, echelon_S, x_num=100, d_num=50))
-# ax2 = plt.subplot(1, 2, 2)
-# ax2.plot(BSL_vec, cost_GSM, BSL_vec, cost_SSM)
-# plt.legend(['GSM cost', 'SSM cost'])
-# plt.title('Holding Cost vs. Local BSL_1 (BSL_2=10)')
-# plt.xlabel('Local BSL_1');
-# plt.ylabel('Expected Holding Cost');
-#
-# fig = plt.gcf()
-# fig.set_size_inches(12, 6)
-# plt.show()
+print("S_unif={:} C_unif={:12.2f} C_calc_unif={:12.2f}".format(S_unif, C_unif, C_calc_unif))
+print("S_norm={:} C_norm={:12.2f} C_calc_unif={:12.2f}".format(S_norm, C_norm, C_calc_norm))
 
+S_unif_local = echelon_to_local_base_stock_levels(example_6_1_network_unif, S_unif)
+for n in example_6_1_network_unif.nodes:
+    n.inventory_policy.base_stock_level = S_unif_local[n.index]
+
+S_norm_local = echelon_to_local_base_stock_levels(example_6_1_network_norm, S_norm)
+for n in example_6_1_network_norm.nodes:
+    n.inventory_policy.base_stock_level = S_norm_local[n.index]
+
+T = 1000
+
+total_cost_unif = simulation(example_6_1_network_unif, T, rand_seed=None, progress_bar=True)
+total_cost_norm = simulation(example_6_1_network_norm, T, rand_seed=None, progress_bar=True)
+
+print("simulated cost unif = {:12.2f}".format(total_cost_unif / T))
+print("simulated cost norm = {:12.2f}".format(total_cost_norm / T))
