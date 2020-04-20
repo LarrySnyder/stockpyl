@@ -8,4 +8,5 @@ API Documentation
     eoq
     wagner_whitin
     newsvendor
+    rq
 

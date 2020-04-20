@@ -58,6 +58,39 @@ class TestStandardNormalLoss(unittest.TestCase):
 		self.assertAlmostEqual(L_bar3, 3.100267249095223)
 
 
+class TestStandardNormalSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestStandardNormalSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestStandardNormalSecondLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that standard_normal_loss function correctly calculates L2 and
+		L2_bar for a few instances.
+		"""
+		print_status('TestStandardNormalSecondLoss', 'test()')
+
+		z = -1.4
+		L2, L2_bar = loss_functions.standard_normal_second_loss(z)
+		self.assertAlmostEqual(L2, 1.465289370279040)
+		self.assertAlmostEqual(L2_bar, 0.014710629720960)
+
+		z = 0.3
+		L2, L2_bar = loss_functions.standard_normal_second_loss(z)
+		self.assertAlmostEqual(L2, 0.151030102587942)
+		self.assertAlmostEqual(L2_bar, 0.393969897412058)
+
+		z = 3.1
+		L2, L2_bar = loss_functions.standard_normal_second_loss(z)
+		self.assertAlmostEqual(L2, 6.956550901328958e-05)
+		self.assertAlmostEqual(L2_bar, 5.304930434490987)
+
+
 class TestNormalLoss(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -95,6 +128,45 @@ class TestNormalLoss(unittest.TestCase):
 		n3, n_bar3 = loss_functions.normal_loss(x3, mean3, sd3)
 		self.assertAlmostEqual(n3, 5.002155685433356)
 		self.assertAlmostEqual(n_bar3, 0.502155685433356)
+
+
+class TestNormalSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNormalSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNormalSecondLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that normal_second_loss function correctly calculates n2 and
+		n2_bar for a few instances.
+		"""
+		print_status('TestNormalSecondLoss', 'test()')
+
+		x = -1.4
+		mean = 0
+		sd = 1
+		n2, n2_bar = loss_functions.normal_second_loss(x, mean, sd)
+		self.assertAlmostEqual(n2, 1.465289370279040)
+		self.assertAlmostEqual(n2_bar, 0.014710629720960)
+
+		x = 11.0
+		mean = 8
+		sd = 3
+		n2, n2_bar = loss_functions.normal_second_loss(x, mean, sd)
+		self.assertAlmostEqual(n2, 0.339029025046969)
+		self.assertAlmostEqual(n2_bar, 8.660970974953031)
+
+		x = 10.5
+		mean = 15
+		sd = 5
+		n2, n2_bar = loss_functions.normal_second_loss(x, mean, sd)
+		self.assertAlmostEqual(n2, 21.454098725390558)
+		self.assertAlmostEqual(n2_bar, 1.170901274609442)
 
 
 class TestLognormalLoss(unittest.TestCase):

@@ -27,11 +27,8 @@ from pyinv.helpers import *
 
 def standard_normal_loss(z):
 	"""
-	Return standard normal loss and complementary loss functions.
-
-	Identities used:
-		- L(z) = phi(z) - z(1 - Phi(z)); see equation (C.22).
-		- \bar{L}(z) = z + L(z); see equation (C.23).
+	Return :math:`\\mathscr{L}(z)` and :math:`\\bar{\\mathscr{L}}(z)`, the
+	standard normal loss and complementary loss functions.
 
 	Parameters
 	----------
@@ -41,9 +38,29 @@ def standard_normal_loss(z):
 	Returns
 	-------
 	L : float
-		Loss function. [L(z)]
+		Loss function. [:math:`\\mathscr{L}(z)`]
 	L_bar : float
-		Complementary loss function. [\bar{L}(z)]
+		Complementary loss function. [:math:`\\bar{\\mathscr{L}}(z)]
+
+
+	**Equations Used** (equations (C.22) and (C.23)):
+
+	.. math::
+
+		\\mathscr{L}(z) = \\phi(z) - z(1 - \\Phi(z))
+		\\bar{\\mathscr{L}}(z) = z + \\mathscr{L}(z)
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> standard_normal_loss(1.3)
+		(0.04552796208651397, 1.345527962086514)
+
 	"""
 
 	L = norm.pdf(z) - z * (1 - norm.cdf(z))
@@ -52,16 +69,57 @@ def standard_normal_loss(z):
 	return L, L_bar
 
 
+def standard_normal_second_loss(z):
+	"""
+	Return :math:`\\mathscr{L}^{(2)}(z)` and
+	:math:`\\bar{\\mathscr{L}}^{(2)}(z)`, the standard normal second-order loss
+	and complementary loss functions.
+
+	Parameters
+	----------
+	z : float
+		Argument of loss function.
+
+	Returns
+	-------
+	L2 : float
+		Loss function. [:math:`\\mathscr{L}^{(2)}(z)`]
+	L2_bar : float
+		Complementary loss function. [:math:`\\bar{\\mathscr{L}}^{(2)}(z)]
+
+
+	**Equations Used** (equations (C.27) and (C.28)):
+
+	.. math::
+
+		\\mathscr{L}^{(2)}(z) = \\frac12\\left[\\left(z^2+1\\right)(1-\\Phi(z)) - z\\phi(z)\\right]
+
+		\\bar{\\mathscr{L}}^{(2)}(z) = \\frac12(z^2 + 1) - \\mathscr{L}^{(2)}(z)
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> standard_normal_second_loss(1.3)
+		(0.01880706693657111, 1.326192933063429)
+
+	"""
+
+	L2 = 0.5 * ((z**2 + 1) * (1 - norm.cdf(z)) - z * norm.pdf(z))
+	L2_bar = 0.5 * (z**2 + 1) - L2
+
+	return L2, L2_bar
+
+
 def normal_loss(x, mean, sd):
 	"""
-	Return normal loss and complementary loss functions for N(mu,sigma^2)
+	Return :math:`n(x)` and :math:`\\bar{n}(x)``, the normal loss function and
+	complementary loss functions for a :math:`N(\\mu,\\sigma^2)`
 	distribution.
-
-	Identities used:
-		- n(x) = sigma * L(z); see equation (C.31).
-		- \bar{n}(x) = sigma * \bar{L}(z); see equation (C.32)
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
 
 	Parameters
 	----------
@@ -78,12 +136,88 @@ def normal_loss(x, mean, sd):
 		Loss function. [n(x)]
 	n_bar : float
 		Complementary loss function. [\bar{n}(x)]
+
+
+	**Equations Used** (equations (C.31) and (C.32)):
+
+	.. math::
+
+		n(x) = \\mathscr{L}(z) \\sigma
+
+		\\bar{n}(x) = \\bar{\\mathscr{L}}(z) \\sigma
+
+	where :math:`z = (x-\\mu)/\\sigma`.
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> normal_loss(18.6, 15, 3)
+		(0.1683073521514889, 3.7683073521514903)
+
 	"""
 	z = (x - mean) / sd
 
 	L, L_bar = standard_normal_loss(z)
 	n = sd * L
 	n_bar = sd * L_bar
+
+	return n, n_bar
+
+
+def normal_second_loss(x, mean, sd):
+	"""
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	normal loss function and complementary second-order loss function for a
+	:math:`N(\\mu,\\sigma^2)` distribution.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	mean : float
+		Mean of normal distribution. [:math:`\\mu`]
+	sd : float
+		Standard deviation of normal distribution. [:math:`\\sigma`]
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
+
+	**Equations Used** (equations (C.33) and (C.34)):
+
+	.. math::
+
+		n^{(2)}(x) = \\mathscr{L}^{(2)}(z) \\sigma^2
+
+		\\bar{n}^{(2)}(x) = \\bar{\\mathscr{L}}^{(2)}(z) \\sigma^2
+
+	where :math:`z = (x-\\mu)/\\sigma`.
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> normal_second_loss(18.6, 15, 3)
+		(0.21486028212500707, 10.765139717874998)
+
+	"""
+	z = (x - mean) / sd
+
+	L2, L2_bar = standard_normal_second_loss(z)
+	n = sd**2 * L2
+	n_bar = sd**2 * L2_bar
 
 	return n, n_bar
 
