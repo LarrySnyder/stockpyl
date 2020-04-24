@@ -117,6 +117,57 @@ class TestNewsvendorNormal(unittest.TestCase):
 			base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 
 
+class TestNewsvendorNormalCost(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorNormalCost', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorNormalCost', 'tear_down_class()')
+
+	def test_example_4_3(self):
+		"""Test that newsvendor_normal_cost function correctly evaluates cost for
+		Example 4.3.
+		"""
+		print_status('TestNewsvendorNormalCost', 'test_example_4_3()')
+
+		holding_cost = 0.18
+		stockout_cost = 0.7
+		demand_mean = 50
+		demand_sd = 8
+
+		cost = newsvendor.newsvendor_normal_cost(40, holding_cost, stockout_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(cost, 7.356131552870388)
+
+		cost = newsvendor.newsvendor_normal_cost(60, holding_cost, stockout_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(cost, 2.156131552870387)
+
+		cost = newsvendor.newsvendor_normal_cost(120, holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=3)
+		self.assertAlmostEqual(cost, 56.000000752740092)
+
+	def test_problem_4_1(self):
+		"""Test that newsvendor_normal_cost function correctly evaluates cost for Problem 4.1.
+		"""
+		print_status('TestNewsvendorNormalCost', 'test_problem_4_1()')
+
+		holding_cost = 65-22
+		stockout_cost = 129-65+15
+		demand_mean = 900
+		demand_sd = 60
+
+		cost = newsvendor.newsvendor_normal_cost(1100, holding_cost, stockout_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(cost, 8.600820410122849e+03)
+
+		cost = newsvendor.newsvendor_normal_cost(922, holding_cost, stockout_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(cost, 2.718393552026199e+03)
+
+		cost = newsvendor.newsvendor_normal_cost(4000, holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=3)
+		self.assertAlmostEqual(cost, 1.720164082024570e+04)
+
+
 class TestNewsvendorPoisson(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -185,6 +236,50 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		demand_sd = 8
 		with self.assertRaises(AssertionError):
 			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
+
+
+class TestNewsvendorPoissonCost(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorPoissonCost', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorPoissonCost', 'tear_down_class()')
+
+	def test_example_4_7(self):
+		"""Test that newsvendor_poisson_cost function correctly evaluates cost for
+		Example 4.7 (without fixed cost).
+		"""
+		print_status('TestNewsvendorPoissonCost', 'test_example_4_7()')
+
+		holding_cost = 1
+		stockout_cost = 4
+		demand_mean = 6
+
+		cost = newsvendor.newsvendor_poisson_cost(8, holding_cost, stockout_cost, demand_mean)
+		self.assertAlmostEqual(cost, 3.570106945770946)
+
+		cost = newsvendor.newsvendor_poisson_cost(5, holding_cost, stockout_cost, demand_mean)
+		self.assertAlmostEqual(cost, 6.590296024616344)
+
+	def test_example_4_8a(self):
+		"""Test that newsvendor_poisson_cost function correctly evaluates cost for
+		Problem 4.8a.
+		"""
+		print_status('TestNewsvendorPoissonCost', 'test_example_4_8a()')
+
+		holding_cost = 200
+		stockout_cost = 270
+		demand_mean = 18
+
+		cost = newsvendor.newsvendor_poisson_cost(19, holding_cost, stockout_cost, demand_mean)
+		self.assertAlmostEqual(cost, 7.860884409351115e+02)
+
+		cost = newsvendor.newsvendor_poisson_cost(13, holding_cost, stockout_cost, demand_mean)
+		self.assertAlmostEqual(cost, 1.445751062891969e+03)
 
 
 class TestNewsvendorContinuous(unittest.TestCase):

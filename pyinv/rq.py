@@ -7,7 +7,7 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`rq` module contains code for solving the (r,Q) problem.
+"""The :mod:`rq` module contains code for solving the :math:`(r,Q)` problem.
 
 Functions in this module are called directly; they are not wrapped in a class.
 
@@ -16,8 +16,6 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
 """
-
-# TODO: change "annual" to "per unit time"
 
 from scipy import integrate
 from scipy.stats import norm
@@ -30,7 +28,7 @@ import pyinv.loss_functions as lf
 
 
 def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
-			 fixed_cost, annual_demand_mean, annual_demand_standard_deviation,
+			 fixed_cost, demand_mean, demand_sd,
 			 lead_time):
 	"""Calculate the exact cost of the given solution for an :math:`(r,Q)`
 	policy with given parameters.
@@ -42,22 +40,22 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 	order_quantity : float
 		Order quantity. [:math:`Q`]
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
-	annual_demand_standard_deviation : float
-		Standard deviation of demand per year. [:math:`\\tau`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
+	demand_sd : float
+		Standard deviation of demand per unit time. [:math:`\\tau`]
 	lead_time : float
 		Lead time. [:math:`L`]
 
 	Returns
 	-------
 	cost : float
-		Expected cost per year. [:math:`g(r,Q)`]
+		Expected cost per unit time. [:math:`g(r,Q)`]
 
 
 	**Equations Used** (equation (5.7)):
@@ -88,33 +86,32 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
-	assert annual_demand_standard_deviation >= 0, "annual_demand_standard_deviation must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
-	mu = annual_demand_mean * lead_time
-	sigma = annual_demand_standard_deviation * np.sqrt(lead_time)
+	mu = demand_mean * lead_time
+	sigma = demand_sd * np.sqrt(lead_time)
 
 	# Build newsvendor cost function. (Note: lead_time=0 in newsvendor even
 	# though LT in (r,Q) <> 0.
-	newsvendor_cost = lambda S: newsvendor_normal(holding_cost, stockout_cost,
-												  mu, sigma, lead_time=0,
-												  base_stock_level=S)[1]
+	newsvendor_cost = lambda S: newsvendor_normal_cost(S, holding_cost, stockout_cost,
+												  mu, sigma, lead_time=0)
 
 	# Calculate integral of g(.) function.
 	g_int = integrate.quad(newsvendor_cost, reorder_point,
 						   reorder_point + order_quantity)[0]
 
 	# Calculate (r,Q) cost.
-	cost = (fixed_cost * annual_demand_mean + g_int) / order_quantity
+	cost = (fixed_cost * demand_mean + g_int) / order_quantity
 
 	return cost
 
 
 def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
-						annual_demand_mean,
-						annual_demand_standard_deviation, lead_time,
+						demand_mean,
+						demand_sd, lead_time,
 						tol=1e-6):
 	"""Calculate optimal :math:`r` for the given :math:`Q`.
 
@@ -125,13 +122,13 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 	order_quantity : float
 		Order quantity. [:math:`Q`]
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
-	annual_demand_standard_deviation : float
-		Standard deviation of demand per year. [:math:`\\tau`]
+		Stockout cost per item per unit time. [:math:`p`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
+	demand_sd : float
+		Standard deviation of demand per unit time. [:math:`\\tau`]
 	lead_time : float
 		Lead time. [:math:`L`]
 	tol : float
@@ -168,8 +165,8 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 	# TODO handle non-normal demand
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
-	mu = annual_demand_mean * lead_time
-	sigma = annual_demand_standard_deviation * np.sqrt(lead_time)
+	mu = demand_mean * lead_time
+	sigma = demand_sd * np.sqrt(lead_time)
 
 	# Find S^* (= minimizer of g(.)).
 	S, _ = newsvendor_normal(holding_cost, stockout_cost, mu, sigma)
@@ -180,10 +177,8 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 	r = (r_lo + r_hi) / 2
 
 	# Calculate g(r) and g(r+Q).
-	_, gr = newsvendor_normal(holding_cost, stockout_cost, mu, sigma, 0,
-							  base_stock_level=r)
-	_, grQ = newsvendor_normal(holding_cost, stockout_cost, mu, sigma, 0,
-							   base_stock_level=r+order_quantity)
+	gr = newsvendor_normal_cost(r, holding_cost, stockout_cost, mu, sigma)
+	grQ = newsvendor_normal_cost(r+order_quantity, holding_cost, stockout_cost, mu, sigma)
 
 	# Bisection search.
 	while abs(gr - grQ) > tol:
@@ -198,32 +193,30 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 		r = (r_lo + r_hi) / 2
 
 		# Calculate g(r) and g(r+Q).
-		_, gr = newsvendor_normal(holding_cost, stockout_cost, mu, sigma, 0,
-								  base_stock_level=r)
-		_, grQ = newsvendor_normal(holding_cost, stockout_cost, mu, sigma, 0,
-								   base_stock_level=r+order_quantity)
+		gr = newsvendor_normal_cost(r, holding_cost, stockout_cost, mu, sigma)
+		grQ = newsvendor_normal_cost(r+order_quantity, holding_cost, stockout_cost, mu, sigma)
 
 	return r
 
 
 def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
-						  annual_demand_mean, annual_demand_standard_deviation,
-			 			  lead_time, tol=1e-6):
+						  demand_mean, demand_sd,
+						  lead_time, tol=1e-6):
 	"""Determine :math:`r` and :math:`Q` using the "expected-inventory-level" (EIL)
 	approximation.
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
-	annual_demand_standard_deviation : float
-		Standard deviation of demand per year. [:math:`\\tau`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
+	demand_sd : float
+		Standard deviation of demand per unit time. [:math:`\\tau`]
 	lead_time : float
 		Lead time. [:math:`L`]
 	tol : float
@@ -238,7 +231,7 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 	order_quantity : float
 		Order quantity. [:math:`Q`]
 	cost : float
-		Approximate expected cost per year. [:math:`g(r,Q)`]
+		Approximate expected cost per unit time. [:math:`g(r,Q)`]
 
 
 	**Equations Used** (equation (5.17), (5.18), (5.16)):
@@ -272,16 +265,16 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
-	assert annual_demand_standard_deviation >= 0, "annual_demand_standard_deviation must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
-	mu = annual_demand_mean * lead_time
-	sigma = annual_demand_standard_deviation * np.sqrt(lead_time)
+	mu = demand_mean * lead_time
+	sigma = demand_sd * np.sqrt(lead_time)
 
 	# Initialize: Q = EOQ, r = 0.
-	Q, _ = economic_order_quantity(fixed_cost, holding_cost, annual_demand_mean)
+	Q, _ = economic_order_quantity(fixed_cost, holding_cost, demand_mean)
 	r = 0
 	Q_prev = float("inf")
 	r_prev = float("inf")
@@ -294,39 +287,39 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 		r_prev = r
 
 		# Solve for r.
-		r = norm.ppf(1 - Q * holding_cost / (stockout_cost * annual_demand_mean),
+		r = norm.ppf(1 - Q * holding_cost / (stockout_cost * demand_mean),
 					 mu, sigma)
 
 		# Solve for Q.
 		loss, _ = lf.normal_loss(r, mu, sigma)
-		Q = np.sqrt(2 * annual_demand_mean * (fixed_cost + stockout_cost * loss) / holding_cost)
+		Q = np.sqrt(2 * demand_mean * (fixed_cost + stockout_cost * loss) / holding_cost)
 
-	# Calculate approximate expected annual cost.
+	# Calculate approximate expected cost per unit time.
 	loss, _ = lf.normal_loss(r, mu, sigma)
-	cost = holding_cost * (r - mu + Q/2) + fixed_cost * annual_demand_mean / Q \
-		+ stockout_cost * annual_demand_mean * loss / Q
+	cost = holding_cost * (r - mu + Q/2) + fixed_cost * demand_mean / Q \
+		   + stockout_cost * demand_mean * loss / Q
 
 	return r, Q, cost
 
 
 def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
-						  annual_demand_mean, annual_demand_standard_deviation,
-			 			  lead_time):
+						   demand_mean, demand_sd,
+						   lead_time):
 	"""Determine :math:`r` and :math:`Q` using the "EOQ with backorders" (EOQB)
 	approximation.
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
-	annual_demand_standard_deviation : float
-		Standard deviation of demand per year. [:math:`\\tau`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
+	demand_sd : float
+		Standard deviation of demand per unit time. [:math:`\\tau`]
 	lead_time : float
 		Lead time. [:math:`L`]
 
@@ -367,41 +360,41 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
-	assert annual_demand_standard_deviation >= 0, "annual_demand_standard_deviation must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate EOQB.
 	Q, _, _ = economic_order_quantity_with_backorders(fixed_cost, holding_cost,
-												stockout_cost,
-												annual_demand_mean)
+													  stockout_cost,
+													  demand_mean)
 
 	# Calculate r(Q).
-	r = r_q_optimal_r_for_q(Q, holding_cost, stockout_cost, annual_demand_mean,
-							annual_demand_standard_deviation,
+	r = r_q_optimal_r_for_q(Q, holding_cost, stockout_cost, demand_mean,
+							demand_sd,
 							lead_time)
 
 	return r, Q
 
 
 def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
-						  annual_demand_mean, annual_demand_standard_deviation,
-			 			  lead_time):
+							demand_mean, demand_sd,
+							lead_time):
 	"""Determine :math:`r` and :math:`Q` using the "EOQ plus safety stock"
 	(EOQ+SS) approximation.
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
-	annual_demand_standard_deviation : float
-		Standard deviation of demand per year. [:math:`\\tau`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
+	demand_sd : float
+		Standard deviation of demand per unit time. [:math:`\\tau`]
 	lead_time : float
 		Lead time. [:math:`L`]
 
@@ -440,16 +433,16 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
-	assert annual_demand_standard_deviation >= 0, "annual_demand_standard_deviation must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
-	mu = annual_demand_mean * lead_time
-	sigma = annual_demand_standard_deviation * np.sqrt(lead_time)
+	mu = demand_mean * lead_time
+	sigma = demand_sd * np.sqrt(lead_time)
 
 	# Calculate EOQ.
-	Q, _ = economic_order_quantity(fixed_cost, holding_cost, annual_demand_mean)
+	Q, _ = economic_order_quantity(fixed_cost, holding_cost, demand_mean)
 
 	# Calculate r(Q).
 	r, _ = newsvendor_normal(holding_cost, stockout_cost, mu, sigma)
@@ -458,23 +451,23 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 
 
 def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
-						  annual_demand_mean, annual_demand_standard_deviation,
-			 			  lead_time, tol=1e-6):
+									demand_mean, demand_sd,
+									lead_time, tol=1e-6):
 	"""Determine :math:`r` and :math:`Q` using the "loss function"
 	approximation.
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
-	annual_demand_standard_deviation : float
-		Standard deviation of demand per year. [:math:`\\tau`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
+	demand_sd : float
+		Standard deviation of demand per unit time. [:math:`\\tau`]
 	lead_time : float
 		Lead time. [:math:`L`]
 	tol : float
@@ -520,16 +513,16 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
-	assert annual_demand_standard_deviation >= 0, "annual_demand_standard_deviation must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
-	mu = annual_demand_mean * lead_time
-	sigma = annual_demand_standard_deviation * np.sqrt(lead_time)
+	mu = demand_mean * lead_time
+	sigma = demand_sd * np.sqrt(lead_time)
 
 	# Initialize: Q = EOQ, r = 0.
-	Q, _ = economic_order_quantity(fixed_cost, holding_cost, annual_demand_mean)
+	Q, _ = economic_order_quantity(fixed_cost, holding_cost, demand_mean)
 	r = 0
 	Q_prev = float("inf")
 	r_prev = float("inf")
@@ -548,14 +541,14 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 		# Solve for Q.
 		loss2, _ = lf.normal_second_loss(r, mu, sigma)
-		Q = np.sqrt(2 * (fixed_cost * annual_demand_mean +
+		Q = np.sqrt(2 * (fixed_cost * demand_mean +
 						 (holding_cost + stockout_cost) * loss2) / holding_cost)
 
 	return r, Q
 
 
 def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
-			 fixed_cost, annual_demand_mean, lead_time):
+					 fixed_cost, demand_mean, lead_time):
 	"""Calculate the exact cost of the given solution for an :math:`(r,Q)`
 	policy with given parameters under Poisson demand.
 
@@ -566,20 +559,20 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 	order_quantity : float
 		Order quantity. [:math:`Q`]
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
 	lead_time : float
 		Lead time. [:math:`L`]
 
 	Returns
 	-------
 	cost : float
-		Expected cost per year. [:math:`g(r,Q)`]
+		Expected cost per unit time. [:math:`g(r,Q)`]
 
 
 	**Equations Used** (equation (5.48)):
@@ -590,9 +583,8 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	where :math:`g(y)` is the newsvendor cost function.
 
-# TODO
 
-	**Example** (Example 5.1):
+	**Example** (Example 5.8):
 
 	.. testsetup:: *
 
@@ -600,8 +592,8 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	.. doctest::
 
-		>>> r_q_cost(126.8, 328.5, 0.225, 7.5, 8, 1300, 150, 1/12)
-		78.07116250928294
+		>>> r_q_cost_poisson(3, 5, 20, 150, 100, 1.5, 2)
+		107.92358063314975
 
 	"""
 
@@ -612,39 +604,39 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate mu (mean lead-time demand).
-	mu = annual_demand_mean * lead_time
+	mu = demand_mean * lead_time
 
 	# Determine range of y in sum.
-	y_range = range(reorder_point+1, reorder_point+order_quantity+1)
+	y_range = range(int(reorder_point)+1, int(reorder_point+order_quantity)+1)
 
 	# Calculate cost.
-	cost = fixed_cost * annual_demand_mean
+	cost = fixed_cost * demand_mean
 	for y in y_range:
-		cost += newsvendor_poisson(holding_cost, stockout_cost, mu, base_stock_level=y)[1]
+		cost += newsvendor_poisson_cost(y, holding_cost, stockout_cost, mu)
 	cost /= order_quantity
 
 	return cost
 
 
 def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
-						  annual_demand_mean, lead_time):
+					  demand_mean, lead_time):
 	"""Determine optimal :math:`r` and :math:`Q` for Poisson demands, using
 	algorithm by Federgruen and Zheng (1992).
 
 	Parameters
 	----------
 	holding_cost : float
-		Holding cost per item per year. [:math:`h`]
+		Holding cost per item per unit time. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per year. [:math:`p`]
+		Stockout cost per item per unit time. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	annual_demand_mean : float
-		Mean demand per year. [:math:`\\lambda`]
+	demand_mean : float
+		Mean demand per unit time. [:math:`\\lambda`]
 	lead_time : float
 		Lead time. [:math:`L`]
 
@@ -655,7 +647,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 	order_quantity : float
 		Order quantity. [:math:`Q`]
 	cost : float
-		Expected cost per year. [:math:`g(r,Q)`]
+		Expected cost per unit time. [:math:`g(r,Q)`]
 
 
 	**Equations Used** (equation (5.48)):
@@ -666,8 +658,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 
 	where :math:`g(y)` is the newsvendor cost function for Poisson demands.
 
-# TODO
-	**Example** (Example 5.6):
+	**Example** (Example 5.8):
 
 	.. testsetup:: *
 
@@ -675,8 +666,8 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 
 	.. doctest::
 
-		>>> r_q_loss_function_approximation(0.225, 7.5, 8, 1300, 150, 1/12)
-		(126.8670634479628, 328.4491421980451)
+		>>> r_q_poisson_exact(20, 150, 100, 1.5, 2)
+		(3, 5, 107.92358063314975)
 
 	"""
 
@@ -684,14 +675,14 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert annual_demand_mean >= 0, "annual_demand_mean must be non-negative"
+	assert demand_mean >= 0, "demand_mean must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate alpha.
 	alpha = stockout_cost / (stockout_cost + holding_cost)
 
 	# Calculate mu (mean lead-time demand).
-	mu = annual_demand_mean * lead_time
+	mu = demand_mean * lead_time
 
 	# Find S*.
 	S = 0
@@ -702,7 +693,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 	Q = 1
 	r = S - 1
 	g = r_q_cost_poisson(r, Q, holding_cost, stockout_cost, fixed_cost,
-						 annual_demand_mean, lead_time)
+						 demand_mean, lead_time)
 
 	# Main loop.
 	done = False
@@ -713,10 +704,8 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 		r_prev = r
 
 		# Calculate g(r) and g(r+Q+1).
-		g_r = newsvendor_poisson(holding_cost, stockout_cost, mu,
-								  base_stock_level=r)[1]
-		g_rQ1 = newsvendor_poisson(holding_cost, stockout_cost, mu,
-							  	base_stock_level=r+Q+1)[1]
+		g_r = newsvendor_poisson_cost(r, holding_cost, stockout_cost, mu)
+		g_rQ1 = newsvendor_poisson_cost(r+Q+1, holding_cost, stockout_cost, mu)
 
 		# Determine r(Q+1).
 		if g_r < g_rQ1:
@@ -724,8 +713,8 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 		# (else r = r)
 
 		# Calculate new cost.
-		g = r_q_cost_poisson(r, Q+1, holding_cost, stockout_cost, fixed_cost,
-							 annual_demand_mean, lead_time)
+		g = r_q_cost_poisson(r, Q + 1, holding_cost, stockout_cost, fixed_cost,
+							 demand_mean, lead_time)
 
 		# Termination check.
 		if g > g_prev:

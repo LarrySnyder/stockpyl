@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="rq Module" href="rq.html" />
     <link rel="prev" title="wagner_whitin Module" href="wagner_whitin.html" /> 
 </head>
 
@@ -86,6 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -317,6 +319,45 @@ and standard deviation, and <span class="math notranslate nohighlight">\(\alpha 
 </dd></dl>
 
 <dl class="function">
+<dt id="pyinv.newsvendor.newsvendor_normal_cost">
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_normal_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal_cost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> as the solution to the
+newsvendor problem with normal distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level for cost evaluation. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (4.6)):</p>
+<div class="math notranslate nohighlight">
+\[g(S) = h\bar{n}(S) + pn(S),\]</div>
+<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
+loss and complementary loss functions.</p>
+<p><strong>Example</strong> (Example 4.1):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">2.156131552870387</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyinv.newsvendor.newsvendor_poisson">
 <code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_poisson</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_poisson" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with Poisson distribution, or (if
@@ -356,6 +397,44 @@ respectively.</p>
 </div>
 </dd></dl>
 
+<dl class="function">
+<dt id="pyinv.newsvendor.newsvendor_poisson_cost">
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_poisson_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_poisson_cost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> as the solution to the
+newsvendor problem with Poisson distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level for cost evaluation. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (4.6)):</p>
+<div class="math notranslate nohighlight">
+\[g(S) = h\bar{n}(S) + pn(S),\]</div>
+<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
+loss and complementary loss functions.</p>
+<p><strong>Example</strong> (Example 4.1):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_poisson_cost</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="go">1.797235211809178</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 
 
@@ -365,6 +444,8 @@ respectively.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="rq.html" class="btn btn-neutral float-right" title="rq Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="wagner_whitin.html" class="btn btn-neutral float-left" title="wagner_whitin Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

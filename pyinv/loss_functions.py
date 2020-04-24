@@ -403,10 +403,7 @@ def discrete_loss(x, distrib=None, pmf=None):
 
 	Assumes cdf(x) = 0 for x < 0.
 
-	Identities used:
-		- n(x) = \sum_x^\infty \bar{F}(y); see equation (C.35)
-		- \bar{n}(x) = \sum_0^{x-1}; see equation (C.36)
-	Terminates sums when \bar{F}(y) < 1e-12.
+	Identities used: (C.36), (C.37)
 
 	Raises ValueError if x is not an integer.
 
@@ -435,21 +432,26 @@ def discrete_loss(x, distrib=None, pmf=None):
 
 	if distrib is not None:
 		# rv_discrete object has been provided.
-		n = 0.0
-		y = x
-		comp_cdf = 1 - distrib.cdf(y)
-		while comp_cdf > 1.0e-12:
-			n += comp_cdf
-			y += 1
-			comp_cdf = 1 - distrib.cdf(y)
+		n_bar = np.sum([distrib.cdf(range(int(x)))])
+		n = n_bar - x + distrib.mean()
 
-		n_bar = 0.0
-		for y in range(0, int(x)):
-			n_bar += distrib.cdf(y)
+		# Old (slower) method:
+		# n = 0.0
+		# y = x
+		# comp_cdf = 1 - distrib.cdf(y)
+		# while comp_cdf > 1.0e-12:
+		# 	n += comp_cdf
+		# 	y += 1
+		# 	comp_cdf = 1 - distrib.cdf(y)
+		#
+		# n_bar = 0.0
+		# for y in range(0, int(x)):
+		# 	n_bar += distrib.cdf(y)
 	else:
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
+		# TODO: vectorize this
 		n = np.sum([(y - x) * pmf[y] for y in x_values if y >= x])
 		n_bar = np.sum([(x - y) * pmf[y] for y in x_values if y <= x])
 

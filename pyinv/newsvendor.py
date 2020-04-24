@@ -107,6 +107,75 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	return base_stock_level, cost
 
 
+def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
+						   demand_mean, demand_sd, lead_time=0):
+	"""Calculate the cost of using ``base_stock_level`` as the solution to the
+	newsvendor problem with normal distribution.
+
+	Parameters
+	----------
+	base_stock_level : float
+		Base-stock level for cost evaluation. [:math:`S`]
+	holding_cost : float
+		Holding cost per item per period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost per item per period. [:math:`p`]
+	demand_mean : float
+		Mean demand per period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand per period. [:math:`\\sigma`]
+	lead_time : int, optional
+		Lead time. Default = 0. [:math:`L`]
+
+	Returns
+	-------
+	cost : float
+		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+
+
+	**Equations Used** (equation (4.6)):
+
+	.. math::
+
+		g(S) = h\\bar{n}(S) + pn(S),
+
+	where :math:`n(\cdot)` and :math:`\\bar{n}(\cdot)` are the lead-time demand
+	loss and complementary loss functions.
+
+	**Example** (Example 4.1):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_normal_cost(60, 0.18, 0.70, 50, 8)
+		2.156131552870387
+
+	"""
+
+	# TODO: allow base_stock_level to be an array (for other _cost functions too)
+
+	# Check that parameters are positive.
+	assert holding_cost > 0, "holding_cost must be positive."
+	assert stockout_cost > 0, "stockout_cost must be positive."
+	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_sd > 0, "demand_sd must be positive."
+
+	# Calculate lead-time demand parameters.
+	ltd_mean = demand_mean * (lead_time + 1)
+	ltd_sd = demand_sd * np.sqrt(lead_time + 1)
+
+	# Calculate loss functions.
+	n, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
+
+	# Calculate cost.
+	cost = holding_cost * n_bar + stockout_cost * n
+
+	return cost
+
+
 def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 					  base_stock_level=None):
 	"""Solve the newsvendor problem with Poisson distribution, or (if
@@ -161,6 +230,8 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert demand_mean > 0, "demand_mean must be positive."
+	if base_stock_level is not None:
+		assert is_integer(base_stock_level), "base_stock_level must be an integer (or None)"
 
 	# TODO: handle lead time
 
@@ -171,9 +242,6 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 
 		# Calculate optimal order quantity and cost.
 		base_stock_level = stats.poisson.ppf(alpha, demand_mean)
-	else:
-		# Check for integer x.
-		assert is_integer(base_stock_level), "x must be an integer"
 
 	# Calculate loss functions.
 	n, n_bar = lf.poisson_loss(base_stock_level, demand_mean)
@@ -182,6 +250,71 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	cost = holding_cost * n_bar + stockout_cost * n
 
 	return base_stock_level, cost
+
+
+def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
+						   demand_mean):
+	"""Calculate the cost of using ``base_stock_level`` as the solution to the
+	newsvendor problem with Poisson distribution.
+
+	Parameters
+	----------
+	base_stock_level : float
+		Base-stock level for cost evaluation. [:math:`S`]
+	holding_cost : float
+		Holding cost per item per period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost per item per period. [:math:`p`]
+	demand_mean : float
+		Mean demand per period. [:math:`\\mu`]
+	lead_time : int, optional
+		Lead time. Default = 0. [:math:`L`]
+
+	Returns
+	-------
+	cost : float
+		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+
+
+	**Equations Used** (equation (4.6)):
+
+	.. math::
+
+		g(S) = h\\bar{n}(S) + pn(S),
+
+	where :math:`n(\cdot)` and :math:`\\bar{n}(\cdot)` are the lead-time demand
+	loss and complementary loss functions.
+
+
+	**Example** (Example 4.1):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_poisson_cost(56, 0.18, 0.70, 50)
+		1.797235211809178
+
+	"""
+
+	# Check that parameters are positive.
+	assert holding_cost > 0, "holding_cost must be positive."
+	assert stockout_cost > 0, "stockout_cost must be positive."
+	assert demand_mean > 0, "demand_mean must be positive."
+	if base_stock_level is not None:
+		assert is_integer(base_stock_level), "base_stock_level must be an integer (or None)"
+
+	# TODO: handle lead time
+
+	# Calculate loss functions.
+	n, n_bar = lf.poisson_loss(base_stock_level, demand_mean)
+
+	# Calculate cost.
+	cost = holding_cost * n_bar + stockout_cost * n
+
+	return cost
 
 
 def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
