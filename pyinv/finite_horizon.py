@@ -1,0 +1,433 @@
+# ===============================================================================
+# PyInv - finite_horizon Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 04-24-2020
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
+"""The :mod:`finite_horizon` module contains code for solving the finite-horizon
+inventory optimization model using dynamic programming.
+
+Functions in this module are called directly; they are not wrapped in a class.
+
+The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+(2019).
+
+"""
+
+import numpy as np
+from scipy.stats import norm
+import warnings
+
+from pyinv.helpers import *
+from pyinv.newsvendor import *
+from pyinv.eoq import *
+import pyinv.loss_functions as lf
+
+
+def finite_horizon_dp(
+		num_periods,
+		holding_cost,
+		stockout_cost,
+		terminal_holding_cost,
+		terminal_stockout_cost,
+		purchase_cost,
+		fixed_cost,
+		demand_mean,
+		demand_sd,
+		discount_factor=1,
+		initial_inventory_level=0):
+	"""
+	Solve the finite-horizon inventory optimization problem, with or without
+	fixed costs, minimizing the expected discounted cost over the time horizon,
+	using dynamic programming (DP).
+
+	See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
+	notation.
+
+	Executes faster than straightforward implementation because it calculates
+	:math:`H_t(y)` (as defined in (4.87)) for each :math:`t` and :math:`y`,
+	and then uses this when calculating :math:`\\theta_t(x)` for each :math:`x`.
+	This avoids having to recalculate the terms that don't depend on :math:`x`
+	(which are computationally expensive).
+
+	Returns :math:`s^*_t` and :math:`S^*_t` in the output lists ``reorder_points``
+	and ``order_up_to_levels``, respectively. If ``fixed_cost`` = 0,
+	then ``reorder_points[t]`` = ``order_up_to_levels[t]`` for all ``t``.
+
+	Also returns the optimal cost and action matrices. The optimal total
+	expected discounted cost over the entire horizon is given by
+	``cost_matrix[1,initial_inventory_level]``, and is also returned in ``total_cost``.
+	``x_range`` gives the range of :math:`x` values for which :math:`\\theta_t(x)`
+	is calculated, i.e., the indices for the columns of ``cost_matrix`` and
+	``oul_matrix``.
+
+	The terminal cost function is assumed to be given by
+	.. math::
+
+		\\theta_{T+1}(x) = h_T x^+ + p_T x^-,
+
+	where :math:`h_T` = ``terminal_holding_cost`, :math:`p_T` =
+	``terminal_stockout_cost``, :math:`x^+ = \\max\\{x,0\\}`, and
+	:math:`x^- = \\max\\{-x,0\\}`.
+
+	Demands are assumed to be normally distributed.
+
+	Most parameters may be given as a singleton or a list. If given as a
+	singleton, the parameter will be assumed to be the same in every time
+	period. If given as a list, the list must be of length ``num_periods`` or
+	``num_periods``\+1.
+
+	*	In the former case, the list is assumed to contain values for periods
+		1, ..., ``num_periods`` in elements 0, ..., ``num_periods``-1.
+	*	In the latter case, the list is assumed to contain values for periods
+		1, ..., ``num_periods`` in elements 1, ..., ``num_periods``, and the
+		0th element is ignored.
+
+	The parameters may be mixed, some scalars and some lists.
+
+	Output arrays are all 1-indexed; for example, ``reorder_point[5]`` gives
+	:math:`s^*_5`, the order point for period 5.
+
+	Discretization is done at the integer level, i.e., all demands and
+	inventory positions are rounded to the nearest integer. The state space
+	(range of possible inventory positions) is truncated using settings
+	specified in the code.
+
+	Raises warnings if the discretization and truncation settings are likely to
+	lead to suboptimal results. (See details in the code.)
+
+	Parameters
+	----------
+	num_periods : int
+		Number of periods in time horizon. [:math:`T`]
+	holding_cost : float or list
+		Holding cost per item per period. [:math:`h`]
+	stockout_cost : float or list
+		Stockout cost per item per period. [:math:`p`]
+	terminal_holding_cost : float
+		Terminal holding cost per item. [:math:`h_T`]
+	terminal_stockout_cost : float
+		Terminal stockout cost per item. [:math:`p_T`]
+	purchase_cost : float or list
+		Purchase cost per item. [:math:`c`]
+	fixed_cost : float or list
+		Fixed cost per order. [:math:`K`]
+	demand_mean : float or list
+		Demand mean per period. [:math:`\\mu`]
+	demand_sd : float or list
+		Demand standard deviation per period. [:math:`\\sigma`]
+	discount_factor : float or list
+		Discount factor, in :math:`(0,1]`. [:math:`\\gamma`]
+	initial_inventory_level : float
+		Initial inventory level at the start of period 1. [:math:`x_1`]
+
+	Returns
+	-------
+	reorder_points : list
+		List of reorder points in each time period. [:math:`s^*_t`]
+	order_up_to_levels : list
+		List of order-up-to levels in each time period. [:math:`S^*_t`]
+	total_cost : float
+		Optimal total expected discounted cost over the horizon, assuming IL in
+		period 1 equals ``initial_inventory_level``. [:math:`\\theta_1(x_1)`]
+	cost_matrix : ndarray
+		Matrix of DP costs; ``cost_matrix[t,x]`` = optimal expected cost
+		in periods :math:`t,\\ldots,T` if we begin period :math:`t` with
+		:math:`IL_t = x` (and act optimally thereafter). [:math:`\\theta_t(x)`]
+	oul_matrix : ndarray
+		Matrix of order-up-to levels; ``oul_matrix[t,x]`` = optimal
+		order-up-to level in period :math:`t` if we begin period :math:`t`
+		with :math:`IL_t = x`.
+	x_range : list
+		Vector of :math:`x`-values used in the discretization, i.e.,
+		indices of the columns of ``cost_matrix`` and ``oul_matrix``.
+
+
+	**Equation Used** (equation (4.66)):
+
+	.. math::
+
+		\\theta_t(x) = \\min_{y \\ge x} \\{K\\delta(y-x) + c(y-x) + g(y) +
+		\\gamma \\mathbb{E}_D[\\theta_{t+1}(y-D)]\\},
+
+	where :math:`\\delta(z) = 1` if :math:`z>0` and :math:`0` otherwise,
+	and where :math:`g(\\cdot)` is the newsvendor cost function.
+
+	**Algorithm Used:** DP for finite-horizon inventory problem (Algorithm 4.1)
+
+# TODO
+
+	**Example** (Example 3.9):
+
+	.. testsetup:: *
+
+		from pyinv.wagner_whitin import *
+
+	# .. doctest::
+	#
+	# 	>>> Q, cost, theta, s = wagner_whitin(4, 2, 500, [90, 120, 80, 70])
+	# 	>>> Q
+	# 	[0, 210, 0, 150, 0]
+	# 	>>> cost
+	# 	1380.0
+	# 	>>> theta
+	# 	array([   0., 1380.,  940.,  640.,  500.,    0.])
+	# 	>>> s
+	# 	[0, 3, 5, 5, 5]
+	"""
+
+	# TODO: handle non-normal demands
+	# TODO: handle arbitrary discretizations
+	# TODO: explain truncation settings in docstring
+
+	# Validate parameters.
+	assert num_periods > 0 and is_integer(num_periods), "num_periods must be a positive integer."
+	assert np.all(np.array(holding_cost) >= 0), "holding_cost must be non-negative."
+	assert np.all(np.array(stockout_cost) >= 0), "stockout_cost must be non-negative."
+	assert terminal_holding_cost >= 0, "terminal_holding_cost must be non-negative"
+	assert terminal_stockout_cost >= 0, "terminal_stockout_cost must be non-negative"
+	assert np.all(np.array(purchase_cost) >= 0), "purchase_cost must be non-negative."
+	assert np.all(np.array(fixed_cost) >= 0), "fixed_cost must be non-negative."
+	assert np.all(np.array(discount_factor) > 0) and \
+		   np.all(np.array(discount_factor) <= 1), "discount_factor must be <0 and <=1."
+	assert np.all(np.array(demand_mean) >= 0), "demand_mean must be non-negative."
+	assert np.all(np.array(demand_sd) >= 0), "demand_sd must be non-negative."
+
+	# Replace scalar parameters with lists (multiple copies of scalar).
+	holding_cost = np.array(ensure_list_for_time_periods(holding_cost, num_periods, var_name="holding_cost"))
+	stockout_cost = np.array(ensure_list_for_time_periods(stockout_cost, num_periods, var_name="stockout_cost"))
+	purchase_cost = np.array(ensure_list_for_time_periods(purchase_cost, num_periods, var_name="purchase_cost"))
+	fixed_cost = np.array(ensure_list_for_time_periods(fixed_cost, num_periods, var_name="fixed_cost"))
+	discount_factor = np.array(ensure_list_for_time_periods(discount_factor, num_periods, var_name="discount_factor"))
+	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="demand_mean"))
+	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
+
+	# Determine initial truncation settings.
+	d_spread = 4			# number of SDs around mean to consider for demand
+	s_spread = 5			# number of (demand) SDs around (s,S) estimates to consider
+	trunctol = 0.02		# a warning is raised if EITHER:
+						# 1. total probability of demand outside of d_range
+						#	> trunctol for any t, OR
+						# 2. P(s_t - D < xmin) > trunctol
+	# TODO: make trunctol, and maybe d_spread and s_spread, input parameters
+
+	# Determine truncation for D: mu +/- d_spread * sigma (but no negative values)
+	# (accounting appropriately for variations among periods)
+	d_min = max(0, round(np.min(demand_mean[1:]) - d_spread * np.max(demand_sd[1:])))
+	d_max = round(np.max(demand_mean[1:]) + d_spread * np.max(demand_sd[1:]))
+	d_range = np.array(range(d_min, d_max + 1))
+
+	# Calculate total probability of demand outside d_range for each t, and
+	# raise warning if > trunctol for any t. (prob is an array.)
+	# Ignore entry 0 (o/w divide-by-0) but then add back an entry for 0 to keep
+	# things consistent.
+	prob = norm.cdf(d_min, demand_mean[1:], demand_sd[1:]) + \
+		   (1 - norm.cdf(d_max, demand_mean[1:], demand_sd[1:]))
+	prob = np.append([0], prob)
+	if np.any(prob > trunctol):
+		warnings.warn("Total probability of demand outside demand-truncation range exceeds trunctol for at least one "
+					  "period.")
+
+	# Calculate alpha (= p/(p+h)) in each period.
+	alpha = np.zeros(num_periods+1)
+	alpha[0] = 0
+	alpha[1:num_periods] = np.divide(stockout_cost[1:num_periods],
+									 (stockout_cost[1:num_periods] + holding_cost[1:num_periods]))
+	# Include terminal costs in alpha[T].
+	alpha[num_periods] = \
+		np.divide((stockout_cost[num_periods] + terminal_stockout_cost),
+				  (stockout_cost[num_periods] + terminal_stockout_cost +
+				   holding_cost[num_periods] + terminal_holding_cost))
+
+	# Calculate newsvendor solution for each period, or use mu if sigma = 0.
+	# TODO: MATLAB code just uses mu in every case; why?
+	nv = np.zeros(num_periods+1)
+	for t in range(1, num_periods+1):
+		nv[t] = demand_mean[t]
+#		if demand_sd[t] == 0:
+#			nv[t] = demand_mean[t]
+#		else:
+#			nv[t] = norm.ppf(alpha[t], demand_mean[t], demand_sd[t])
+
+	# Calculate EOQB.
+	# TODO: vectorize eoqb() so this is cleaner
+	Q = [economic_order_quantity_with_backorders(fixed_cost[t], holding_cost[t],
+			stockout_cost[t], demand_mean[t])[0] for t in range(1, num_periods+1)]
+
+	# Determine initial truncation for x:
+	# - estimate s = newsvendor solution, S = s + EOQB
+	# - then subtract s_spread * sigma from s and add s_spread * sigma to S
+	# - then, subtract mu + d_spread * sigma from s to account for demand
+	# (accounting appropriately for variations among periods, and adjusting
+	# period T to include terminal costs)
+	x_min = int(round(np.min(nv[1:]) - np.max(demand_mean[1:]) - np.max(demand_sd[1:]) * (s_spread + d_spread)))
+	x_max = int(round(np.max(nv[1:]) + np.max(Q[1:]) + np.max(demand_sd[1:]) * s_spread))
+	x_range = np.array(range(x_min, x_max+1))
+
+	# Note:
+	# - to get x value from index i, use x_range[i]
+	# - to get index from x value, use x - x_min
+	# Example: x_range = 10:20; then x_range[3] = 13 and 13 - x_min = 3.
+
+	# Start with initial truncation range; abort, expand, and re-try if necessary.
+	done = False
+	while not done:
+
+		# Allocate arrays.
+		reorder_points = [0] * (num_periods+1)
+		order_up_to_levels = [0] * (num_periods+1)
+		cost_matrix = np.zeros((num_periods+2, len(x_range)))
+		oul_matrix = np.zeros((num_periods+1, len(x_range)))
+		H = np.zeros((num_periods+1, len(x_range)))
+
+		# Initialize abort (will be set to true if range is not large enough)
+		abort = False
+
+		# Initialize warning flags (will be set to True when warnings are
+		# issued to avoid duplication).
+#		opt_warning = False
+
+		# Calculate terminal costs.
+		cost_matrix[num_periods+1, :] \
+			= terminal_holding_cost * np.maximum(x_range, 0) + \
+			  terminal_stockout_cost * np.maximum(-x_range, 0)
+
+		# Loop backwards through periods.
+		for t in range(num_periods, 0, -1):
+
+			# Calculate probability vector for demand.
+			prob = norm.cdf(d_range + 0.5, demand_mean[t], demand_sd[t]) - \
+				   norm.cdf(d_range - 0.5, demand_mean[t], demand_sd[t])
+
+			# Calculate H_t(y).
+			for y in range(x_min, x_max + 1):
+
+				# Initialize cost.
+				cost = 0.0
+
+				# Calculate n(y) and \bar{n}(y).
+				n, n_bar = lf.normal_loss(y, demand_mean[t], demand_sd[t])
+
+				# Calculate current-period (newsvendor) cost.
+				cost += holding_cost[t] * n_bar + stockout_cost[t] * n;
+
+				# Truncate demand range to avoid y-d exceeding x bounds.
+				# Need x_min <= y - d <= x_max.
+				# Therefore d_eff (d effective) must be between y - x_max
+				# and y - x_min.
+				d_eff = np.maximum(np.minimum(d_range, y - x_min), y - x_max)
+
+				# Calculate amount of demand probability that was truncated
+				# and issue warning if truncprob > trunctol
+				# TODO: fix this -- generates too many warnings
+				# truncprob = np.dot(prob, d_range != d_eff)
+				# if truncprob > trunctol:
+				# 	warnings.warn('Total probability of truncated demand exceeds trunctol: t = {:d}, y = {:d}, '
+				# 				  'truncprob = {:f}'.format(t, y, truncprob))
+
+				# Calculate future cost for this y.
+				future_cost = discount_factor[t] * np.dot(prob,
+								cost_matrix[t+1, y - d_eff - x_min])
+
+				# Add future cost.
+				cost += future_cost
+
+				# Set H.
+				H[t, y - x_min] = cost
+
+			# Loop through possible x values.
+			for x in range(x_min, x_max + 1):
+
+				# Initialize best_cost to something big (keeps track of best
+				# cost found for this t and x).
+				best_cost = float("inf")
+
+				# Loop through possible y values.
+				for y in range(x, x_max + 1):
+
+					# Initialize cost.
+					cost = 0.0
+
+					# Calculate ordering cost.
+					if y > x:
+						cost += purchase_cost[t] * (y - x) + fixed_cost[t]
+
+					# Add H_t(y).
+					cost += H[t, y - x_min]
+
+					# Compare cost to current best.
+					if cost < best_cost:
+						best_cost = cost
+						best_y = y
+
+						# If this is the largest y in range (and range has more
+						# than one element), abort and increase upper range.
+						if y == x_max and x < x_max:
+							warnings.warn('Cost is still decreasing at upper end of y range; increasing upper range '
+										  'and retrying: t = {:d}, x = {:d}, y = {:d}.'.format(t, x, y))
+							abort = True
+							x_max = x_max * 2
+							x_range = np.array(range(x_min, x_max + 1))
+							break
+
+				# If abort flag was set in for-y loop, exit for-x loop.
+				if abort:
+					break
+
+				# Store best cost and best action for this t, x.
+				cost_matrix[t, x - x_min] = best_cost
+				oul_matrix[t, x - x_min] = best_y
+
+			# If abort flag was set in for-y loop, exit for-t loop.
+			if abort:
+				break
+			else:
+				# Determine s^*_t and S^*_t.
+				# S^*_t = OUL for first x-value in range.
+				order_up_to_levels[t] = oul_matrix[t, 0]
+				# s^*_t = largest x s.t. y_t[x] = S^*_t
+				reorder_points[t] = x_range[0]
+				while oul_matrix[t, reorder_points[t] + 1 - x_min] \
+					== order_up_to_levels[t] and reorder_points[t] < x_max:
+					reorder_points[t] += 1
+
+			# Raise warning if truncation makes it so that probability of
+			# demand bringing IL below x_range > trunctol (i.e., if
+			# P(s - D < x_min) > trunctol). (Issue warning in each period
+			# in which there is a violation.)
+			prob_demand_below_range = 1 - \
+				norm.cdf(reorder_points[t] - x_min, demand_mean[t], demand_sd[t])
+			if prob_demand_below_range > trunctol:
+				warnings.warn('Probability that demand brings IL below x-truncation range exceeds trunctol: t = {:d}, prob = {:f}'.format(t, prob_demand_below_range))
+
+		# If made it through all t without abort flag, set done = True.
+		if not abort:
+			done = True
+
+	# Calculate expected total cost.
+	total_cost = cost_matrix[1, initial_inventory_level - x_min]
+
+	return reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, x_range
+
+
+
+
+T = 10
+c = 1
+h = 1
+p = 25
+gamma = 0.98
+mu = 18
+sigma = 3
+K = 40
+
+reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+	x_range = finite_horizon_dp(T, h, p, h, p, c, K, mu, sigma, gamma, 0)
+
+print("reorder_points = {}".format(reorder_points))
+print("order_up_to_levels = {}".format(order_up_to_levels))
+print("total_cost = {}".format(total_cost))

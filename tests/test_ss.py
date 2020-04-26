@@ -50,6 +50,28 @@ class TestsSCost(unittest.TestCase):
 									fixed_cost, True, demand_mean)
 		self.assertAlmostEqual(cost, 8.034111561471644)
 
+		cost = ss.s_s_cost_discrete(6, 18, holding_cost, stockout_cost,
+									fixed_cost, True, demand_mean)
+		self.assertAlmostEqual(cost, 10.193798671644046)
+
+	def test_problem_4_31(self):
+		"""Test that s_s_cost() function correctly evaluates cost in Problem 4.31.
+		"""
+		print_status('TestsSCost', 'test_problem_4_31()')
+
+		holding_cost = 40
+		stockout_cost = 125
+		fixed_cost = 150
+		demand_mean = 4
+
+		cost = ss.s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
+									fixed_cost, True, demand_mean)
+		self.assertAlmostEqual(cost, 2.622755613772775e+02)
+
+		cost = ss.s_s_cost_discrete(2, 7, holding_cost, stockout_cost,
+									fixed_cost, True, demand_mean)
+		self.assertAlmostEqual(cost, 2.235748295669688e+02)
+
 	def test_fz_instances(self):
 		"""Test Zheng and Federgruen (1991) instances.
 		"""
@@ -96,6 +118,22 @@ class TestsSOptimalsS(unittest.TestCase):
 		self.assertEqual(S, 10)
 		self.assertAlmostEqual(g, 8.034111561471644)
 
+	def test_problem_4_31(self):
+		"""Test that s_s_discrete_exact() function solves Problem 4.31.
+		"""
+		print_status('TestsSOptimalsS', 'test_problem_4_31()')
+
+		holding_cost = 40
+		stockout_cost = 125
+		fixed_cost = 150
+		demand_mean = 4
+
+		s, S, g = ss.s_s_discrete_exact(holding_cost, stockout_cost,
+									fixed_cost, True, demand_mean)
+		self.assertEqual(s, 2)
+		self.assertEqual(S, 7)
+		self.assertAlmostEqual(g, 2.235748295669688e+02)
+
 	def test_fz_instances(self):
 		"""Test Zheng and Federgruen (1991) instances.
 		"""
@@ -115,3 +153,48 @@ class TestsSOptimalsS(unittest.TestCase):
 			self.assertEqual(s, s_opt[n])
 			self.assertEqual(S, S_opt[n])
 			self.assertAlmostEqual(g, c_opt[n], places=3)
+
+
+class TestsSPowerApproximation(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestsSPowerApproximation', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestsSPowerApproximation', 'tear_down_class()')
+
+	def test_example_4_8(self):
+		"""Test that s_s_power_approximation() function solves Example 4.8.
+		"""
+		print_status('TestsSPowerApproximation', 'test_example_4_8()')
+
+		holding_cost = 0.18
+		stockout_cost = 0.70
+		fixed_cost = 2.5
+		demand_mean = 50
+		demand_sd = 8
+
+		s, S = ss.s_s_power_approximation(holding_cost, stockout_cost,
+									fixed_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(s, 40.194616956474071)
+		self.assertAlmostEqual(S, 74.290170109805786)
+
+	def test_problem_4_32(self):
+		"""Test that s_s_power_approximation() function solves Problem 4.32.
+		"""
+		print_status('TestsSPowerApproximation', 'test_problem_4_32()')
+
+		holding_cost = 2
+		stockout_cost = 36
+		fixed_cost = 60
+		demand_mean = 190
+		demand_sd = 48
+
+		s, S = ss.s_s_power_approximation(holding_cost, stockout_cost,
+									fixed_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(s, 2.266137928222839e+02)
+		self.assertAlmostEqual(S, 3.243797868133974e+02)
+

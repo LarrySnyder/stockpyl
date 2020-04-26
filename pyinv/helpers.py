@@ -212,7 +212,7 @@ def find_nearest(array, values, sorted=False):
 
 ### LIST-BUILDING FUNCTIONS ###
 
-def ensure_list_for_time_periods(x, num_periods):
+def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	"""Ensure that x is a list suitable for time-period indexing; if not, create
 	such a list and return it.
 
@@ -237,6 +237,10 @@ def ensure_list_for_time_periods(x, num_periods):
 		Object to time-period-ify.
 	num_periods : int
 		Number of time periods.
+	var_name : str, optional
+		Variable name to use in generating error messages, if desired.
+		Useful for offloading the type-checking to this function rather than
+		doing it in the calling function.
 
 	Returns
 	-------
@@ -250,7 +254,11 @@ def ensure_list_for_time_periods(x, num_periods):
 		elif len(x) == num_periods:
 			return [0] + x
 		else:
-			raise ValueError('x must be a singleton or a list of length num_periods or num_periods+1')
+			if var_name is None:
+				vname = 'x'
+			else:
+				vname = var_name
+			raise ValueError('{:s} must be a singleton or a list of length num_periods or num_periods+1'.format(vname))
 	else:
 		return [0] + [x] * num_periods
 

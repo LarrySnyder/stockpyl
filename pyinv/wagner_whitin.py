@@ -42,6 +42,8 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand):
 		1, ..., ``num_periods`` in elements 1, ..., ``num_periods``, and the
 		0th element is ignored.
 
+	The parameters may be mixed, some scalars and some lists.
+
 	Parameters
 	----------
 	num_periods : int

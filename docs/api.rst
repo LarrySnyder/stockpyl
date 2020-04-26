@@ -9,4 +9,5 @@ API Documentation
     wagner_whitin
     newsvendor
     rq
+    ss
 

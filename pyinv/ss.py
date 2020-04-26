@@ -87,7 +87,7 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 	.. doctest::
 
 		>>> s_s_cost_discrete(4, 10, 1, 4, 5, True, 6)
-		8.03645143944724
+		8.034111561471642
 
 	"""
 
@@ -190,8 +190,6 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 	**Algorithm Used:** Exact algorithm for periodic-review :math:`(s,S)`
 	policies with discrete demand distribution (Algorithm 4.2)
 
-# TODO
-
 	**Example** (Example 4.7):
 
 	.. testsetup:: *
@@ -200,8 +198,8 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 	.. doctest::
 
-		>>> s_s_cost_discrete(4, 10, 1, 4, 5, True, 6)
-		8.03645143944724
+		>>> s_s_discrete_exact(1, 4, 5, True, 6)
+		(4.0, 10.0, 8.034111561471642)
 
 	"""
 
@@ -242,9 +240,9 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 			gs = newsvendor_discrete(holding_cost, stockout_cost,
 									 demand_pmf=demand_pmf_dict,
 									 base_stock_level=s)[1]
-		if s_s_cost_discrete(s, S0, holding_cost, stockout_cost, fixed_cost,
-							 use_poisson, demand_mean, demand_hi, demand_pmf) \
-			<= gs:
+		gsS0 = s_s_cost_discrete(s, S0, holding_cost, stockout_cost, fixed_cost,
+							 use_poisson, demand_mean, demand_hi, demand_pmf)
+		if gsS0 <= gs:
 			done = True
 
 	# Set s0.
@@ -270,9 +268,9 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 	while gS <= g_hat:
 
 		# Check for improvement.
-		if s_s_cost_discrete(s_hat, S, holding_cost, stockout_cost, fixed_cost,
-							 use_poisson, demand_mean, demand_hi, demand_pmf) \
-			< g_hat:
+		gsS = s_s_cost_discrete(s_hat, S, holding_cost, stockout_cost, fixed_cost,
+							 use_poisson, demand_mean, demand_hi, demand_pmf)
+		if gsS < g_hat:
 
 			# Update incumbent S.
 			S_hat = S
@@ -317,3 +315,74 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 	return s, S, g
 
+
+def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
+					   demand_mean, demand_sd):
+	"""Determine heuristic :math:`s` and :math:`S` for an :math:`(s,S)`
+	policy under a normal demand distribution.
+
+	Parameters
+	----------
+	holding_cost : float
+		Holding cost per item per period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost per item per period. [:math:`p`]
+	fixed_cost : float
+		Fixed cost per order. [:math:`K`]
+	demand_mean : float
+		Mean demand per period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand per period. [:math:`\\sigma`]
+
+	Returns
+	-------
+	reorder_point : float
+		Reorder point. [:math:`s`]
+	order_up_to_level : float
+		Order-up-to level. [:math:`S`]
+
+	References
+	----------
+	R. Ehrhardt and C. Mosier, A Revision of the Power Approximation for
+	Computing :math:`(s, S)` Policies, *Management Science* 30, 618-622 (1984).
+
+
+	**Equations Used** (equations (4.77)-(4.80)):
+
+	.. math::
+
+		Q  = 1.30 \\mu^{0.494} \\left(\\frac{K}{h}\\right)^{0.506} \\left(1 + \\frac{\\sigma_L^2}{\\mu^2}\\right)^{
+		0.116}
+
+		z  = \\sqrt{\\frac{Q}{\\sigma_L} \\frac{h}{p}}
+
+		s  = 0.973\\mu_L + \\sigma_L\\left(\\frac{0.183}{z} + 1.063 - 2.192z\\right) \\label{eq:sS_power_approx3}
+
+		S  = s + Q
+
+	where :math:`\\mu_L = \\mu L` and :math:`\\sigma^2_L = \\sigma^2L` are the
+	mean and standard deviation of the lead-time demand.
+
+	**Example** (Example 4.7):
+
+	.. testsetup:: *
+
+		from pyinv.ss import *
+
+	.. doctest::
+
+		>>> s_s_power_approximation(0.18, 0.70, 2.5, 50, 8)
+		(40.19461695647407, 74.29017010980579)
+
+	"""
+
+	# Calculate Q and z.
+	Q = 1.30 * (demand_mean**0.494) * (fixed_cost / holding_cost)**0.506 \
+		* (1 + (demand_sd / demand_mean)**2)**0.116
+	z = np.sqrt((Q / demand_sd) * (holding_cost / stockout_cost))
+
+	# Calculate s and S.
+	s = 0.973 * demand_mean + demand_sd * ((0.183 / z) + 1.063 - 2.192*z)
+	S = s + Q
+
+	return s, S

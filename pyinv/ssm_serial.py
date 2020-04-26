@@ -124,7 +124,7 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100,
 				  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
 	"""Calculate expected cost of given solution.
 
-	This is a convenience function that calls ``optimize_base_stock_levels()``
+	This is a wrapper function that calls ``optimize_base_stock_levels()``
 	without doing any optimization.
 
 	Parameters

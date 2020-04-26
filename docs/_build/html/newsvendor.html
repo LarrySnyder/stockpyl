@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -261,9 +262,9 @@ respectively.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
-<span class="go">(8.0, 3.570106945768532)</span>
+<span class="go">(8.0, 3.5701069457709416)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">(5, 6.590296024613934)</span>
+<span class="go">(5, 6.590296024616343)</span>
 </pre></div>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>

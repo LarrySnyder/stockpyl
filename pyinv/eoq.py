@@ -18,6 +18,8 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 """
 
+# TODO: allow these functions to take lists or ndarrays
+
 import numpy as np
 
 
@@ -63,9 +65,9 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 	"""
 
 	# Check that parameters are positive.
-	assert fixed_cost > 0, "fixed_cost must be positive."
+	assert fixed_cost >= 0, "fixed_cost must be non-negative."
 	assert holding_cost > 0, "holding_cost must be positive."
-	assert demand_rate > 0, "demand_rate must be positive."
+	assert demand_rate >= 0, "demand_rate must be non-negative."
 
 	# Calculate optimal order quantity and cost.
 	order_quantity = np.sqrt(2 * fixed_cost * demand_rate / holding_cost)
@@ -122,10 +124,10 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 	"""
 
 	# Check that parameters are positive.
-	assert fixed_cost > 0, "fixed_cost must be positive."
+	assert fixed_cost >= 0, "fixed_cost must be non-negative."
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_rate > 0, "demand_rate must be positive."
+	assert demand_rate >= 0, "demand_rate must be non-negative."
 
 	# Calculate optimal order quantity and cost.
 	order_quantity = np.sqrt(2 * fixed_cost * demand_rate * (holding_cost + stockout_cost)
@@ -182,10 +184,12 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 	"""
 
 	# Check that parameters are positive.
-	assert fixed_cost > 0, "fixed_cost must be positive."
+	assert fixed_cost >= 0, "fixed_cost must be non-negative."
 	assert holding_cost > 0, "holding_cost must be positive."
-	assert demand_rate > 0, "demand_rate must be positive."
-	assert production_rate > 0, "production_rate must be positive."
+	assert demand_rate > 0, "demand_rate must be non-negative."
+	assert production_rate > 0, "production_rate must be non-negative."
+
+	# TODO: check demand rate < production rate
 
 	# Calculate rho.
 	rho = demand_rate / production_rate
