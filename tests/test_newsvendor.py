@@ -6,6 +6,7 @@ from scipy.stats import poisson
 from scipy.stats import lognorm
 
 from pyinv import newsvendor
+from pyinv.instances import *
 
 
 # Module-level functions.
@@ -41,10 +42,8 @@ class TestNewsvendorNormal(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_example_4_3()')
 
-		holding_cost = 0.18
-		stockout_cost = 0.7
-		demand_mean = 50
-		demand_sd = 8
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_3")
 
 		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
@@ -59,10 +58,8 @@ class TestNewsvendorNormal(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_problem_4_1()')
 
-		holding_cost = 65-22
-		stockout_cost = 129-65+15
-		demand_mean = 900
-		demand_sd = 60
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("problem_4_1")
 
 		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(base_stock_level, 9.227214038234755e+02)
@@ -78,11 +75,8 @@ class TestNewsvendorNormal(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_example_4_4()')
 
-		holding_cost = 0.18
-		stockout_cost = 0.7
-		demand_mean = 50
-		demand_sd = 8
-		lead_time = 4
+		holding_cost, stockout_cost, demand_mean, demand_sd, lead_time = \
+			get_named_instance("example_4_4")
 
 		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=lead_time)
 		self.assertAlmostEqual(base_stock_level, 2.647668943741548e+02)
@@ -134,10 +128,8 @@ class TestNewsvendorNormalCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalCost', 'test_example_4_3()')
 
-		holding_cost = 0.18
-		stockout_cost = 0.7
-		demand_mean = 50
-		demand_sd = 8
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_3")
 
 		cost = newsvendor.newsvendor_normal_cost(40, holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(cost, 7.356131552870388)
@@ -153,10 +145,8 @@ class TestNewsvendorNormalCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalCost', 'test_problem_4_1()')
 
-		holding_cost = 65-22
-		stockout_cost = 129-65+15
-		demand_mean = 900
-		demand_sd = 60
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("problem_4_1")
 
 		cost = newsvendor.newsvendor_normal_cost(1100, holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(cost, 8.600820410122849e+03)
@@ -185,9 +175,8 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoisson', 'test_example_4_7()')
 
-		holding_cost = 1
-		stockout_cost = 4
-		demand_mean = 6
+		holding_cost, stockout_cost, _, demand_mean = \
+			get_named_instance("example_4_7")
 
 		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
 		self.assertEqual(base_stock_level, 8)
@@ -202,9 +191,8 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoisson', 'test_problem_4_8a()')
 
-		holding_cost = 200
-		stockout_cost = 270
-		demand_mean = 18
+		holding_cost, stockout_cost, demand_mean = \
+			get_named_instance("problem_4_8a")
 
 		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
 		self.assertEqual(base_stock_level, 19)
@@ -255,9 +243,8 @@ class TestNewsvendorPoissonCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoissonCost', 'test_example_4_7()')
 
-		holding_cost = 1
-		stockout_cost = 4
-		demand_mean = 6
+		holding_cost, stockout_cost, _, demand_mean = \
+			get_named_instance("example_4_7")
 
 		cost = newsvendor.newsvendor_poisson_cost(8, holding_cost, stockout_cost, demand_mean)
 		self.assertAlmostEqual(cost, 3.570106945770946)
@@ -265,15 +252,14 @@ class TestNewsvendorPoissonCost(unittest.TestCase):
 		cost = newsvendor.newsvendor_poisson_cost(5, holding_cost, stockout_cost, demand_mean)
 		self.assertAlmostEqual(cost, 6.590296024616344)
 
-	def test_example_4_8a(self):
+	def test_problem_4_8a(self):
 		"""Test that newsvendor_poisson_cost function correctly evaluates cost for
 		Problem 4.8a.
 		"""
-		print_status('TestNewsvendorPoissonCost', 'test_example_4_8a()')
+		print_status('TestNewsvendorPoissonCost', 'test_problem_4_8a()')
 
-		holding_cost = 200
-		stockout_cost = 270
-		demand_mean = 18
+		holding_cost, stockout_cost, demand_mean = \
+			get_named_instance("problem_4_8a")
 
 		cost = newsvendor.newsvendor_poisson_cost(19, holding_cost, stockout_cost, demand_mean)
 		self.assertAlmostEqual(cost, 7.860884409351115e+02)
@@ -299,10 +285,8 @@ class TestNewsvendorContinuous(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorContinuous', 'test_example_4_1_with_distrib()')
 
-		holding_cost = 0.18
-		stockout_cost = 0.7
-		demand_mean = 50
-		demand_sd = 8
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_1")
 
 		demand_distrib = norm(demand_mean, demand_sd)
 
@@ -328,10 +312,8 @@ class TestNewsvendorContinuous(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorContinuous', 'test_problem_4_8b()')
 
-		holding_cost = 1
-		stockout_cost = 0.1765
-		mu = 6
-		sigma = 0.3
+		holding_cost, stockout_cost, mu, sigma = \
+			get_named_instance("problem_4_8b")
 
 		demand_distrib = lognorm(sigma, 0, np.exp(mu))
 
@@ -391,9 +373,8 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_example_4_7_with_distrib()')
 
-		holding_cost = 1
-		stockout_cost = 4
-		demand_mean = 6
+		holding_cost, stockout_cost, _, demand_mean = \
+			get_named_instance("example_4_7")
 
 		demand_distrib = poisson(demand_mean)
 
@@ -411,9 +392,8 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_example_4_7_with_pmf()')
 
-		holding_cost = 1
-		stockout_cost = 4
-		demand_mean = 6
+		holding_cost, stockout_cost, _, demand_mean = \
+			get_named_instance("example_4_7")
 
 		d = range(0, 41)
 		f = [poisson.pmf(d_val, demand_mean) for d_val in d]
@@ -432,9 +412,8 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_problem_4_7b()')
 
-		holding_cost = 500000
-		stockout_cost = 1000000
-		demand_pmf = {1: 0.25, 2: 0.05, 3: 0.1, 4: 0.2, 5: 0.15, 6: 0.10, 7: 0.10, 8: 0.05}
+		holding_cost, stockout_cost, demand_pmf = \
+			get_named_instance("problem_4_7b")
 
 		base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_pmf=demand_pmf)
 		self.assertEqual(base_stock_level, 5)

@@ -40,7 +40,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_example_6_1()')
 
-		network = example_6_1_network
+		network = get_named_instance("example_6_1")
 
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
@@ -61,7 +61,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_1()')
 
-		network = problem_6_1_network
+		network = get_named_instance("problem_6_1")
 
 		total_cost = simulation(network, 100, rand_seed=531, progress_bar=False)
 
@@ -82,7 +82,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_2a()')
 
-		network = problem_6_2a_network_adjusted
+		network = get_named_instance("problem_6_2a_adj")
 
 		total_cost = simulation(network, 100, rand_seed=1340, progress_bar=False)
 
@@ -107,7 +107,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_16()')
 
-		network = problem_6_16_network
+		network = get_named_instance("problem_6_16")
 
 		total_cost = simulation(network, 100, rand_seed=762, progress_bar=False)
 
@@ -128,7 +128,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_single_stage()')
 
-		network = example_4_1_network
+		network = get_named_instance("example_4_1")
 
 		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False)
 

@@ -1,6 +1,7 @@
 import unittest
 
 from pyinv import wagner_whitin
+from pyinv.instances import *
 
 
 # Module-level functions.
@@ -36,10 +37,8 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_example_3_9()')
 
-		num_periods = 4
-		holding_cost = 2
-		fixed_cost = 500
-		demand = [90, 120, 80, 70]
+		num_periods, holding_cost, fixed_cost, demand = \
+			get_named_instance("example_3_9")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
@@ -52,10 +51,8 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_problem_3_27()')
 
-		num_periods = 4
-		holding_cost = 0.8
-		fixed_cost = 120
-		demand = [150, 100, 80, 200]
+		num_periods, holding_cost, fixed_cost, demand = \
+			get_named_instance("problem_3_27")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
@@ -68,10 +65,8 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_problem_3_29()')
 
-		num_periods = 5
-		holding_cost = 0.1
-		fixed_cost = 100
-		demand = [730, 580, 445, 650, 880]
+		num_periods, holding_cost, fixed_cost, demand = \
+			get_named_instance("problem_3_29")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)

@@ -1,6 +1,7 @@
 import unittest
 
 from pyinv import eoq
+from pyinv.instances import *
 
 
 # Module-level functions.
@@ -36,9 +37,8 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_example_3_1()')
 
-		fixed_cost = 8
-		holding_cost = 0.75 * 0.3
-		demand_rate = 1300
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
 		order_quantity, cost = eoq.economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 304.0467800264368)
 		self.assertAlmostEqual(cost, 68.410525505948272)
@@ -48,9 +48,8 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_problem_3_1()')
 
-		fixed_cost = 2250
-		holding_cost = 275
-		demand_rate = 500 * 365
+		fixed_cost, holding_cost, demand_rate = get_named_instance("problem_3_1")
+
 		order_quantity, cost = eoq.economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 1728.109844993551)
 		self.assertAlmostEqual(cost, 475230.2073732266)
@@ -94,10 +93,9 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantityWithBackorders', 'test_example_3_8()')
 
-		fixed_cost = 8
-		holding_cost = 0.75 * 0.3
-		stockout_cost = 5
-		demand_rate = 1300
+		fixed_cost, holding_cost, stockout_cost, demand_rate = \
+			get_named_instance("example_3_8")
+
 		order_quantity, stockout_fraction, cost = \
 			eoq.economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 310.8125551589646)
@@ -109,10 +107,9 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantityWithBackorders', 'test_problem_3_2b()')
 
-		fixed_cost = 40
-		holding_cost = (165 * 0.17 + 12)
-		stockout_cost = 60
-		demand_rate = 40 * 52
+		fixed_cost, holding_cost, stockout_cost, demand_rate = \
+			get_named_instance("problem_3_2b")
+
 		order_quantity, stockout_fraction, cost = \
 			eoq.economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 83.235448128898042)
@@ -162,10 +159,9 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicProductionQuantity', 'test_example_3_1()')
 
-		fixed_cost = 8
-		holding_cost = 0.75 * 0.3
-		demand_rate = 1300
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
 		production_rate = 2000
+
 		order_quantity, cost = eoq.economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 		self.assertAlmostEqual(order_quantity, 513.9328595516969)
 		self.assertAlmostEqual(cost, 40.472212689696120)
@@ -175,10 +171,9 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicProductionQuantity', 'test_problem_3_22()')
 
-		fixed_cost = 4
-		holding_cost = 0.08
-		demand_rate = 80
-		production_rate = 110
+		fixed_cost, holding_cost, demand_rate, production_rate = \
+			get_named_instance("problem_3_22")
+
 		order_quantity, cost = eoq.economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 		self.assertAlmostEqual(order_quantity, 171.2697677155351)
 		self.assertAlmostEqual(cost, 3.736794931975310)

@@ -6,6 +6,7 @@ from scipy.stats import poisson
 from scipy.stats import lognorm
 
 from pyinv import ss
+from pyinv.instances import *
 
 
 # Module-level functions.
@@ -41,10 +42,8 @@ class TestsSCost(unittest.TestCase):
 		"""
 		print_status('TestsSCost', 'test_example_4_7()')
 
-		holding_cost = 1
-		stockout_cost = 4
-		fixed_cost = 5
-		demand_mean = 6
+		holding_cost, stockout_cost, fixed_cost, demand_mean = \
+			get_named_instance("example_4_7")
 
 		cost = ss.s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -59,10 +58,8 @@ class TestsSCost(unittest.TestCase):
 		"""
 		print_status('TestsSCost', 'test_problem_4_31()')
 
-		holding_cost = 40
-		stockout_cost = 125
-		fixed_cost = 150
-		demand_mean = 4
+		holding_cost, stockout_cost, fixed_cost, demand_mean = \
+			get_named_instance("problem_4_31")
 
 		cost = ss.s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -107,10 +104,8 @@ class TestsSOptimalsS(unittest.TestCase):
 		"""
 		print_status('TestsSOptimalsS', 'test_example_4_7()')
 
-		holding_cost = 1
-		stockout_cost = 4
-		fixed_cost = 5
-		demand_mean = 6
+		holding_cost, stockout_cost, fixed_cost, demand_mean = \
+			get_named_instance("example_4_7")
 
 		s, S, g = ss.s_s_discrete_exact(holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -123,10 +118,8 @@ class TestsSOptimalsS(unittest.TestCase):
 		"""
 		print_status('TestsSOptimalsS', 'test_problem_4_31()')
 
-		holding_cost = 40
-		stockout_cost = 125
-		fixed_cost = 150
-		demand_mean = 4
+		holding_cost, stockout_cost, fixed_cost, demand_mean = \
+			get_named_instance("problem_4_31")
 
 		s, S, g = ss.s_s_discrete_exact(holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -171,11 +164,8 @@ class TestsSPowerApproximation(unittest.TestCase):
 		"""
 		print_status('TestsSPowerApproximation', 'test_example_4_8()')
 
-		holding_cost = 0.18
-		stockout_cost = 0.70
-		fixed_cost = 2.5
-		demand_mean = 50
-		demand_sd = 8
+		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_8")
 
 		s, S = ss.s_s_power_approximation(holding_cost, stockout_cost,
 									fixed_cost, demand_mean, demand_sd)
@@ -187,11 +177,8 @@ class TestsSPowerApproximation(unittest.TestCase):
 		"""
 		print_status('TestsSPowerApproximation', 'test_problem_4_32()')
 
-		holding_cost = 2
-		stockout_cost = 36
-		fixed_cost = 60
-		demand_mean = 190
-		demand_sd = 48
+		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd = \
+			get_named_instance("problem_4_32")
 
 		s, S = ss.s_s_power_approximation(holding_cost, stockout_cost,
 									fixed_cost, demand_mean, demand_sd)
