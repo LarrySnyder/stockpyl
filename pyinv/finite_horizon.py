@@ -159,43 +159,31 @@ def finite_horizon_dp(
 
 	**Algorithm Used:** DP for finite-horizon inventory problem (Algorithm 4.1)
 
-# TODO
-
-	**Example** (Example 3.9):
+	**Example**:
 
 	.. testsetup:: *
 
-		from pyinv.wagner_whitin import *
+		from pyinv.finite_horizon import *
 
-	# .. doctest::
-	#
-	# 	>>> Q, cost, theta, s = wagner_whitin(4, 2, 500, [90, 120, 80, 70])
-	# 	>>> Q
-	# 	[0, 210, 0, 150, 0]
-	# 	>>> cost
-	# 	1380.0
-	# 	>>> theta
-	# 	array([   0., 1380.,  940.,  640.,  500.,    0.])
-	# 	>>> s
-	# 	[0, 3, 5, 5, 5]
+	.. doctest::
+
+		>>> s, S, cost, _, _, _ = finite_horizon_dp(5, 1, 20, 1, 20, 2, 50, 100, 20)
+		>>> s
+		[0, 110, 110, 110, 110, 111]
+		>>> S
+		[0, 133.0, 133.0, 133.0, 133.0, 126.0]
+		>>> cost
+		1558.6946467384014
 	"""
 
 	# TODO: handle non-normal demands
 	# TODO: handle arbitrary discretizations
 	# TODO: explain truncation settings in docstring
 
-	# Validate parameters.
+	# Validate singleton parameters.
 	assert num_periods > 0 and is_integer(num_periods), "num_periods must be a positive integer."
-	assert np.all(np.array(holding_cost) >= 0), "holding_cost must be non-negative."
-	assert np.all(np.array(stockout_cost) >= 0), "stockout_cost must be non-negative."
 	assert terminal_holding_cost >= 0, "terminal_holding_cost must be non-negative"
 	assert terminal_stockout_cost >= 0, "terminal_stockout_cost must be non-negative"
-	assert np.all(np.array(purchase_cost) >= 0), "purchase_cost must be non-negative."
-	assert np.all(np.array(fixed_cost) >= 0), "fixed_cost must be non-negative."
-	assert np.all(np.array(discount_factor) > 0) and \
-		   np.all(np.array(discount_factor) <= 1), "discount_factor must be <0 and <=1."
-	assert np.all(np.array(demand_mean) >= 0), "demand_mean must be non-negative."
-	assert np.all(np.array(demand_sd) >= 0), "demand_sd must be non-negative."
 
 	# Replace scalar parameters with lists (multiple copies of scalar).
 	holding_cost = np.array(ensure_list_for_time_periods(holding_cost, num_periods, var_name="holding_cost"))
@@ -205,6 +193,16 @@ def finite_horizon_dp(
 	discount_factor = np.array(ensure_list_for_time_periods(discount_factor, num_periods, var_name="discount_factor"))
 	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="demand_mean"))
 	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
+
+	# Validate other parameters.
+	assert np.all(np.array(holding_cost[1:]) >= 0), "holding_cost must be non-negative."
+	assert np.all(np.array(stockout_cost[1:]) >= 0), "stockout_cost must be non-negative."
+	assert np.all(np.array(purchase_cost[1:]) >= 0), "purchase_cost must be non-negative."
+	assert np.all(np.array(fixed_cost[1:]) >= 0), "fixed_cost must be non-negative."
+	assert np.all(np.array(discount_factor[1:]) > 0) and \
+		   np.all(np.array(discount_factor[1:]) <= 1), "discount_factor must be <0 and <=1."
+	assert np.all(np.array(demand_mean[1:]) >= 0), "demand_mean must be non-negative."
+	assert np.all(np.array(demand_sd[1:]) >= 0), "demand_sd must be non-negative."
 
 	# Determine initial truncation settings.
 	d_spread = 4			# number of SDs around mean to consider for demand
@@ -217,8 +215,8 @@ def finite_horizon_dp(
 
 	# Determine truncation for D: mu +/- d_spread * sigma (but no negative values)
 	# (accounting appropriately for variations among periods)
-	d_min = max(0, round(np.min(demand_mean[1:]) - d_spread * np.max(demand_sd[1:])))
-	d_max = round(np.max(demand_mean[1:]) + d_spread * np.max(demand_sd[1:]))
+	d_min = int(max(0, round(np.min(demand_mean[1:]) - d_spread * np.max(demand_sd[1:]))))
+	d_max = int(round(np.max(demand_mean[1:]) + d_spread * np.max(demand_sd[1:])))
 	d_range = np.array(range(d_min, d_max + 1))
 
 	# Calculate total probability of demand outside d_range for each t, and
@@ -413,21 +411,3 @@ def finite_horizon_dp(
 
 	return reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, x_range
 
-
-
-
-T = 10
-c = 1
-h = 1
-p = 25
-gamma = 0.98
-mu = 18
-sigma = 3
-K = 40
-
-reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-	x_range = finite_horizon_dp(T, h, p, h, p, c, K, mu, sigma, gamma, 0)
-
-print("reorder_points = {}".format(reorder_points))
-print("order_up_to_levels = {}".format(order_up_to_levels))
-print("total_cost = {}".format(total_cost))

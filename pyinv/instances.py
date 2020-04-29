@@ -157,6 +157,32 @@ def get_named_instance(instance_name):
 		demand_mean = 190
 		demand_sd = 48
 		return holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd
+	elif instance_name == "problem_4_29":
+		# Problem 4.29.
+		num_periods = 10
+		holding_cost = 1
+		stockout_cost = 25
+		terminal_holding_cost = holding_cost
+		terminal_stockout_cost = stockout_cost
+		purchase_cost = 1
+		fixed_cost = 0
+		demand_mean = 18
+		demand_sd = 3
+		discount_factor = 0.98
+		initial_inventory_level = 0
+		return num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+			demand_sd, discount_factor, initial_inventory_level
+	elif instance_name == "problem_4_30":
+		# Problem 4.30 (= Problem 4.29 + fixed_cost = 40).
+		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+			terminal_stockout_cost, purchase_cost, _, demand_mean, \
+			demand_sd, discount_factor, initial_inventory_level = \
+			get_named_instance("problem_4_29")
+		fixed_cost = 40
+		return num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+			demand_sd, discount_factor, initial_inventory_level
 
 	# CHAPTER 5
 	if instance_name == "example_5_1":

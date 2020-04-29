@@ -10,4 +10,5 @@ API Documentation
     newsvendor
     rq
     ss
+    finite_horizon
 
