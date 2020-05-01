@@ -10,6 +10,7 @@ import math
 from scipy import stats
 from scipy.special import comb
 from scipy.stats import uniform
+from scipy.stats import rv_discrete, rv_continuous
 from math import factorial
 import numpy as np
 
@@ -170,6 +171,76 @@ def is_integer(x):
 		return False
 
 
+def is_discrete_distribution(distribution):
+	"""Check whether the given distribution object is discrete.
+
+	Works both for ``rv_frozen`` objects (i.e., `frozen distributions
+	<https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html#freezing-a
+	-distribution>`_) and for custom distribution (i.e., subclasses of
+	``rv_continuous`` and ``rv_discrete``).
+
+	See https://stackoverflow.com/a/61530461/3453768.
+
+	Parameters
+	----------
+	distribution : rv_frozen, rv_continuous, or rv_discrete
+		The distribution object to check.
+
+	Returns
+	-------
+	``True`` if the distribution is discrete, ``False`` otherwise.
+
+	Notes
+	-----
+	Not reliable if ``distribution`` is not an ``rv_frozen``, ``rv_discrete``,
+	or ``rv_continuous`` object.
+
+	"""
+	# First check whether distribution is a frozen distribution (in which case
+	# it has a .dist attribute which must be checked).
+	if hasattr(distribution, 'dist'):
+		# Check .dist attribute to determine type.
+		return isinstance(distribution.dist, rv_discrete)
+	else:
+		# Check the object itself for type.
+		return isinstance(distribution, rv_discrete)
+
+
+def is_continuous_distribution(distribution):
+	"""Check whether the given distribution object is continuous.
+
+	Works both for ``rv_frozen`` objects (i.e., `frozen distributions
+	<https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html#freezing-a
+	-distribution>`_) and for custom distribution (i.e., subclasses of
+	``rv_continuous`` and ``rv_discrete``).
+
+	See https://stackoverflow.com/a/61530461/3453768.
+
+	Parameters
+	----------
+	distribution : rv_frozen, rv_continuous, or rv_discrete
+		The distribution object to check.
+
+	Returns
+	-------
+	``True`` if the distribution is continuous, ``False`` otherwise.
+
+	Notes
+	-----
+	Not reliable if ``distribution`` is not an ``rv_frozen``, ``rv_discrete``,
+	or ``rv_continuous`` object.
+
+	"""
+	# First check whether distribution is a frozen distribution (in which case
+	# it has a .dist attribute which must be checked).
+	if hasattr(distribution, 'dist'):
+		# Check .dist attribute to determine type.
+		return isinstance(distribution.dist, rv_continuous)
+	else:
+		# Check the object itself for type.
+		return isinstance(distribution, rv_continuous)
+
+
 def find_nearest(array, values, sorted=False):
 	"""Determine entries in ``array` that are closest to each of the
 	entries in ``values`` and return their indices. Neither array needs to be sorted,
@@ -209,6 +280,7 @@ def find_nearest(array, values, sorted=False):
 			ind[v] = idx
 
 	return ind.astype(int)
+
 
 ### LIST-BUILDING FUNCTIONS ###
 

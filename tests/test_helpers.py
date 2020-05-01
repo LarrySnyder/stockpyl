@@ -1,4 +1,5 @@
 import unittest
+from scipy import stats
 
 from pyinv import helpers
 
@@ -152,6 +153,7 @@ class TestIsIterable(unittest.TestCase):
 		a = iter("foo")
 		self.assertEqual(helpers.is_iterable(a), True)
 
+
 class TestIsInteger(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -199,6 +201,130 @@ class TestIsInteger(unittest.TestCase):
 		x = "pudding"
 		is_int = helpers.is_integer(x)
 		self.assertEqual(is_int, False)
+
+
+class TestIsDiscreteDistribution(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsDiscreteDistribution', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsDiscreteDistribution', 'tear_down_class()')
+
+	def test_frozen_discrete(self):
+		"""Test that is_discrete_distribution() returns correct result if
+		passed a frozen discrete distribution.
+		"""
+		print_status('TestIsDiscreteDistribution', 'test_frozen_discrete()')
+
+		dist = stats.poisson(10)
+		is_discrete = helpers.is_discrete_distribution(dist)
+		self.assertEqual(is_discrete, True)
+
+	def test_frozen_continuous(self):
+		"""Test that is_discrete_distribution() returns correct result if
+		passed a frozen continuous distribution.
+		"""
+		print_status('TestIsDiscreteDistribution', 'test_frozen_continuous()')
+
+		dist = stats.norm(10, 2)
+		is_discrete = helpers.is_discrete_distribution(dist)
+		self.assertEqual(is_discrete, False)
+
+	def test_custom_discrete(self):
+		"""Test that is_discrete_distribution() returns correct result if
+		passed a custom discrete distribution.
+		"""
+		print_status('TestIsDiscreteDistribution', 'test_custom_discrete()')
+
+		xk = list(range(7))
+		pk = (0.1, 0.2, 0.3, 0.1, 0.1, 0.0, 0.2)
+		dist = stats.rv_discrete(values=(xk, pk))
+
+		is_discrete = helpers.is_discrete_distribution(dist)
+		self.assertEqual(is_discrete, True)
+
+	def test_custom_continuous(self):
+		"""Test that is_discrete_distribution() returns correct result if
+		passed a custom continuous distribution.
+		"""
+		print_status('TestIsDiscreteDistribution', 'test_custom_continuous()')
+
+		class continuous_gen(stats.rv_continuous):
+			def _pdf(self, x, *args):
+				if 0 <= x <= 1:
+					return 1
+				else:
+					return 0
+		dist = continuous_gen()
+
+		is_discrete = helpers.is_discrete_distribution(dist)
+		self.assertEqual(is_discrete, False)
+
+
+class TestIsContinuousDistribution(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsContinuousDistribution', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsContinuousDistribution', 'tear_down_class()')
+
+	def test_frozen_discrete(self):
+		"""Test that is_continuous_distribution() returns correct result if
+		passed a frozen discrete distribution.
+		"""
+		print_status('TestIsContinuousDistribution', 'test_frozen_discrete()')
+
+		dist = stats.poisson(10)
+		is_discrete = helpers.is_continuous_distribution(dist)
+		self.assertEqual(is_discrete, False)
+
+	def test_frozen_continuous(self):
+		"""Test that is_continuous_distribution() returns correct result if
+		passed a frozen continuous distribution.
+		"""
+		print_status('TestIsContinuousDistribution', 'test_frozen_continuous()')
+
+		dist = stats.norm(10, 2)
+		is_discrete = helpers.is_continuous_distribution(dist)
+		self.assertEqual(is_discrete, True)
+
+	def test_custom_discrete(self):
+		"""Test that is_continuous_distribution() returns correct result if
+		passed a custom discrete distribution.
+		"""
+		print_status('TestIsContinuousDistribution', 'test_custom_discrete()')
+
+		xk = list(range(7))
+		pk = (0.1, 0.2, 0.3, 0.1, 0.1, 0.0, 0.2)
+		dist = stats.rv_discrete(values=(xk, pk))
+
+		is_discrete = helpers.is_continuous_distribution(dist)
+		self.assertEqual(is_discrete, False)
+
+	def test_custom_continuous(self):
+		"""Test that is_continuous_distribution() returns correct result if
+		passed a custom continuous distribution.
+		"""
+		print_status('TestIsContinuousDistribution', 'test_custom_continuous()')
+
+		class continuous_gen(stats.rv_continuous):
+			def _pdf(self, x, *args):
+				if 0 <= x <= 1:
+					return 1
+				else:
+					return 0
+		dist = continuous_gen()
+
+		is_discrete = helpers.is_continuous_distribution(dist)
+		self.assertEqual(is_discrete, True)
 
 
 class TestEnsureListForTimePeriods(unittest.TestCase):

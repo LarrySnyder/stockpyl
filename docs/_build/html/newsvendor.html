@@ -89,6 +89,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -216,6 +217,58 @@ respectively.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">lognorm</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.1765</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
 <span class="go">(295.6266448071368, 29.44254351324322)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.newsvendor.newsvendor_cost_equals">
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_cost_equals</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em>, <em>less_than_optimum=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_cost_equals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the value of <span class="math notranslate nohighlight">\(S\)</span> such that <code class="docutils literal notranslate"><span class="pre">newsvendor_normal_cost(S)</span></code>
+equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">less_than_optimum</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(S \le S^*\)</span>.
+Otherwise, requires <span class="math notranslate nohighlight">\(S \ge S^*\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cost</strong> (<em>float</em>) – The cost to set <code class="docutils literal notranslate"><span class="pre">newsvendor_normal_cost()</span></code> equal to.</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<li><strong>less_than_optimum</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(S \le S^*\)</span>; otherwise, requires
+<span class="math notranslate nohighlight">\(S \ge S^*\)</span>. Default = <code class="docutils literal notranslate"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>base_stock_level</strong> – The <span class="math notranslate nohighlight">\(S\)</span> so that <code class="docutils literal notranslate"><span class="pre">newsvendor_normal_cost(S)</span></code> equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(g(S^*)\)</span>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (4.6)):</p>
+<div class="math notranslate nohighlight">
+\[g(S) = h\bar{n}(S) + pn(S),\]</div>
+<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
+loss and complementary loss functions.</p>
+<p><strong>Example</strong> (Example 4.1):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_cost_equals</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">53.186150146674386</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mf">53.186150146674386</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">2.1999999999999775</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_cost_equals</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="go">60.478316066846034</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mf">60.478316066846034</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">2.2000000000000006</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -19,6 +19,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 """
 
 from scipy import stats
+from scipy.optimize import brentq
 import numpy as np
 
 import pyinv.loss_functions as lf
@@ -537,4 +538,106 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	cost = holding_cost * n_bar + stockout_cost * n
 
 	return base_stock_level, cost
+
+
+def newsvendor_cost_equals(cost, holding_cost, stockout_cost, demand_mean,
+						   demand_sd, lead_time=0, less_than_optimum=True):
+	"""Find the value of :math:`S` such that ``newsvendor_normal_cost(S)``
+	equals ``cost``.
+
+	If ``less_than_optimum`` is ``True``, requires :math:`S \\le S^*`.
+	Otherwise, requires :math:`S \\ge S^*`.
+
+	Parameters
+	----------
+	cost : float
+		The cost to set ``newsvendor_normal_cost()`` equal to.
+	holding_cost : float
+		Holding cost per item per period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost per item per period. [:math:`p`]
+	demand_mean : float
+		Mean demand per period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand per period. [:math:`\\sigma`]
+	lead_time : int, optional
+		Lead time. Default = 0. [:math:`L`]
+	less_than_optimum : bool, optional
+		If ``True``, requires :math:`S \\le S^*`; otherwise, requires
+		:math:`S \\ge S^*`. Default = ``True``.
+
+	Returns
+	-------
+	base_stock_level : float
+		The :math:`S` so that ``newsvendor_normal_cost(S)`` equals ``cost``.
+
+	Raises
+	------
+	ValueError
+		If ``cost`` is less than :math:`g(S^*)`.
+
+
+	**Equations Used** (equation (4.6)):
+
+	.. math::
+
+		g(S) = h\\bar{n}(S) + pn(S),
+
+	where :math:`n(\cdot)` and :math:`\\bar{n}(\cdot)` are the lead-time demand
+	loss and complementary loss functions.
+
+	**Example** (Example 4.1):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_cost_equals(2.2, 0.18, 0.70, 50, 8, less_than_optimum=True)
+		53.186150146674386
+		>>> newsvendor_normal_cost(53.186150146674386, 0.18, 0.70, 50, 8)
+		2.1999999999999775
+		>>> newsvendor_cost_equals(2.2, 0.18, 0.70, 50, 8, less_than_optimum=False)
+		60.478316066846034
+		>>> newsvendor_normal_cost(60.478316066846034, 0.18, 0.70, 50, 8)
+		2.2000000000000006
+
+	"""
+
+	# TODO: handle non-normal demand
+
+	# Determine optimal BS level and cost.
+	S_star, g_star = newsvendor_normal(holding_cost, stockout_cost, demand_mean,
+									   demand_sd, lead_time)
+
+	# Check that cost >= g_star.
+	if cost < g_star:
+		raise ValueError("cost < g(S^*), so there is no S s.t. g(S) = cost")
+
+	# Determine bounds for brentq() function.
+	delta = max(demand_mean, 10)
+	if less_than_optimum:
+		a = S_star - delta
+		while newsvendor_normal_cost(a, holding_cost, stockout_cost, demand_mean,
+									   demand_sd, lead_time) < cost:
+			a -= delta
+		b = S_star
+	else:
+		a = S_star
+		b = S_star + delta
+		while newsvendor_normal_cost(b, holding_cost, stockout_cost, demand_mean,
+									   demand_sd, lead_time) < cost:
+			b += delta
+
+	# Set up lambda function for g(S) - cost, where where g(.) is newsvendor
+	# cost function.
+	fun = lambda S: newsvendor_normal_cost(S, holding_cost, stockout_cost,
+										   demand_mean, demand_sd, lead_time) \
+											- cost
+
+	# Use Brent method to find zero of g(S) - cost.
+	base_stock_level = brentq(fun, a, b)
+
+	return base_stock_level
 

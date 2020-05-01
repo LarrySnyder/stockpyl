@@ -26,6 +26,7 @@ from pyinv.helpers import *
 from pyinv.newsvendor import *
 from pyinv.eoq import *
 import pyinv.loss_functions as lf
+from pyinv.instances import *
 
 
 def finite_horizon_dp(
@@ -324,8 +325,7 @@ def finite_horizon_dp(
 				# TODO: fix this -- generates too many warnings
 				# truncprob = np.dot(prob, d_range != d_eff)
 				# if truncprob > trunctol:
-				# 	warnings.warn('Total probability of truncated demand exceeds trunctol: t = {:d}, y = {:d}, '
-				# 				  'truncprob = {:f}'.format(t, y, truncprob))
+				# 	warnings.warn('Total probability of truncated demand exceeds trunctol: t = {:d}, y = {:d}, truncprob = {:f}'.format(t, y, truncprob))
 
 				# Calculate future cost for this y.
 				future_cost = discount_factor[t] * np.dot(prob,
@@ -411,3 +411,106 @@ def finite_horizon_dp(
 
 	return reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, x_range
 
+
+def myopic(
+		num_periods,
+		holding_cost,
+		stockout_cost,
+		purchase_cost,
+		terminal_holding_cost,
+		terminal_stockout_cost,
+		fixed_cost,
+		demand_mean,
+		demand_sd,
+		discount_factor=1):
+	"""
+
+	Parameters
+	----------
+	num_periods
+	holding_cost
+	stockout_cost
+	purchase_cost
+	fixed_cost
+	demand_mean
+	demand_sd
+	discount_factor
+
+	Returns
+	-------
+
+	"""
+
+	# Validate singleton parameters.
+	assert num_periods > 0 and is_integer(num_periods), "num_periods must be a positive integer."
+	assert terminal_holding_cost >= 0, "terminal_holding_cost must be non-negative"
+	assert terminal_stockout_cost >= 0, "terminal_stockout_cost must be non-negative"
+
+	# Replace scalar parameters with lists (multiple copies of scalar).
+	holding_cost = np.array(ensure_list_for_time_periods(holding_cost, num_periods, var_name="holding_cost"))
+	stockout_cost = np.array(ensure_list_for_time_periods(stockout_cost, num_periods, var_name="stockout_cost"))
+	purchase_cost = np.array(ensure_list_for_time_periods(purchase_cost, num_periods, var_name="purchase_cost"))
+	fixed_cost = np.array(ensure_list_for_time_periods(fixed_cost, num_periods, var_name="fixed_cost"))
+	discount_factor = np.array(ensure_list_for_time_periods(discount_factor, num_periods, var_name="discount_factor"))
+	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="demand_mean"))
+	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
+
+	# Validate other parameters.
+	assert np.all(np.array(holding_cost[1:]) >= 0), "holding_cost must be non-negative."
+	assert np.all(np.array(stockout_cost[1:]) >= 0), "stockout_cost must be non-negative."
+	assert np.all(np.array(purchase_cost[1:]) >= 0), "purchase_cost must be non-negative."
+	assert np.all(np.array(fixed_cost[1:]) >= 0), "fixed_cost must be non-negative."
+	assert np.all(np.array(discount_factor[1:]) > 0) and \
+		   np.all(np.array(discount_factor[1:]) <= 1), "discount_factor must be <0 and <=1."
+	assert np.all(np.array(demand_mean[1:]) >= 0), "demand_mean must be non-negative."
+	assert np.all(np.array(demand_sd[1:]) >= 0), "demand_sd must be non-negative."
+
+	# Redefine holding and stockout costs in last period to include terminal
+	# costs, and set c_{T+1} = 0.
+	holding_cost_revised = holding_cost.copy()
+	holding_cost_revised[num_periods] += terminal_holding_cost
+	stockout_cost_revised = stockout_cost.copy()
+	stockout_cost_revised[num_periods] += terminal_stockout_cost
+	purchase_cost_revised = list(purchase_cost.copy())
+	purchase_cost_revised.append(0)
+
+	# Initialize output arrays.
+	S_underbar = np.zeros(num_periods+1)
+	S_overbar = np.zeros(num_periods+1)
+	s_underbar = np.zeros(num_periods+1)
+	s_overbar = np.zeros(num_periods+1)
+
+	# Loop through periods.
+	for t in range(1, num_periods+1):
+
+		# Set critical ratio.
+		critical_ratio = \
+			(stockout_cost_revised[t] - purchase_cost_revised[t] +
+			 discount_factor[t] * purchase_cost_revised[t+1]) / \
+			 (stockout_cost_revised[t] + purchase_cost_revised[t])
+
+		# Set S_underbar to minimizer of G_t(y).
+		S_underbar[t] = norm.ppf(critical_ratio, demand_mean[t], demand_sd[t])
+
+	return S_underbar
+
+
+
+num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+	terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+	demand_sd, discount_factor, initial_inventory_level = \
+	get_named_instance("problem_4_29")
+
+# Solve problem.
+reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+	x_range = finite_horizon_dp(num_periods, holding_cost,
+	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+	initial_inventory_level)
+
+S_underbar = myopic(num_periods, holding_cost,
+	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
+
+print(order_up_to_levels)
+print(S_underbar)

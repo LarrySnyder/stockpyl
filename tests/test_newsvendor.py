@@ -450,3 +450,157 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 
 		with self.assertRaises(AssertionError):
 			base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_mean, demand_distrib)
+
+
+class TestNewsvendorCostEquals(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorCostEquals', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorCostEquals', 'tear_down_class()')
+
+	def test_example_4_3(self):
+		"""Test that newsvendor_cost_equals function correctly calculates
+		values for Example 4.3.
+		"""
+		print_status('TestNewsvendorCostEquals', 'test_example_4_3()')
+
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_3")
+
+		base_stock_level = newsvendor.newsvendor_cost_equals(2.2, holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0, True)
+		self.assertAlmostEqual(newsvendor.newsvendor_normal_cost(base_stock_level,
+												  holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0), 2.2)
+		self.assertLessEqual(base_stock_level, newsvendor.newsvendor_normal(
+												  holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0)[0])
+
+		base_stock_level = newsvendor.newsvendor_cost_equals(2.2, holding_cost,
+															 stockout_cost,
+															 demand_mean,
+															 demand_sd,
+															 0, False)
+		self.assertAlmostEqual(newsvendor.newsvendor_normal_cost(base_stock_level,
+														  holding_cost,
+														  stockout_cost,
+														  demand_mean,
+														  demand_sd,
+														  0), 2.2)
+		self.assertGreaterEqual(base_stock_level, newsvendor.newsvendor_normal(
+			holding_cost,
+			stockout_cost,
+			demand_mean,
+			demand_sd,
+			0)[0])
+
+	def test_problem_4_1(self):
+		"""Test that newsvendor_cost_equals function correctly calculates
+		values for Problem 4.1.
+		"""
+		print_status('TestNewsvendorCostEquals', 'test_problem_4_1()')
+
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("problem_4_1")
+
+		base_stock_level = newsvendor.newsvendor_cost_equals(3200, holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0, True)
+		self.assertAlmostEqual(newsvendor.newsvendor_normal_cost(base_stock_level,
+												  holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0), 3200)
+		self.assertLessEqual(base_stock_level, newsvendor.newsvendor_normal(
+												  holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0)[0])
+
+		base_stock_level = newsvendor.newsvendor_cost_equals(3200, holding_cost,
+															 stockout_cost,
+															 demand_mean,
+															 demand_sd,
+															 0, False)
+		self.assertAlmostEqual(newsvendor.newsvendor_normal_cost(base_stock_level,
+														  holding_cost,
+														  stockout_cost,
+														  demand_mean,
+														  demand_sd,
+														  0), 3200)
+		self.assertGreaterEqual(base_stock_level, newsvendor.newsvendor_normal(
+			holding_cost,
+			stockout_cost,
+			demand_mean,
+			demand_sd,
+			0)[0])
+
+		base_stock_level = newsvendor.newsvendor_cost_equals(132000, holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0, True)
+		self.assertAlmostEqual(newsvendor.newsvendor_normal_cost(base_stock_level,
+												  holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0), 132000)
+		self.assertLessEqual(base_stock_level, newsvendor.newsvendor_normal(
+												  holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0)[0])
+
+		base_stock_level = newsvendor.newsvendor_cost_equals(132000, holding_cost,
+															 stockout_cost,
+															 demand_mean,
+															 demand_sd,
+															 0, False)
+		self.assertAlmostEqual(newsvendor.newsvendor_normal_cost(base_stock_level,
+														  holding_cost,
+														  stockout_cost,
+														  demand_mean,
+														  demand_sd,
+														  0), 132000)
+		self.assertGreaterEqual(base_stock_level, newsvendor.newsvendor_normal(
+			holding_cost,
+			stockout_cost,
+			demand_mean,
+			demand_sd,
+			0)[0])
+
+	def test_cost_too_small(self):
+		"""Test that newsvendor_cost_equals function correctly raises an error
+		when the desired cost is smaller than the optimal cost.
+		"""
+		print_status('TestNewsvendorCostEquals', 'test_cost_too_small()')
+
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_3")
+
+		with self.assertRaises(ValueError):
+			base_stock_level = newsvendor.newsvendor_cost_equals(1.2, holding_cost,
+												  stockout_cost,
+												  demand_mean,
+												  demand_sd,
+												  0, True)
