@@ -222,8 +222,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_cost_equals">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_cost_equals</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em>, <em>less_than_optimum=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_cost_equals" title="Permalink to this definition">¶</a></dt>
+<dt id="pyinv.newsvendor.set_myopic_cost_to">
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">set_myopic_cost_to</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em>, <em>less_than_optimum=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the value of <span class="math notranslate nohighlight">\(S\)</span> such that <code class="docutils literal notranslate"><span class="pre">newsvendor_normal_cost(S)</span></code>
 equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">less_than_optimum</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(S \le S^*\)</span>.
@@ -261,11 +261,11 @@ Otherwise, requires <span class="math notranslate nohighlight">\(S \ge S^*\)</sp
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
 loss and complementary loss functions.</p>
 <p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_cost_equals</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_myopic_cost_to</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="go">53.186150146674386</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mf">53.186150146674386</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">2.1999999999999775</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_cost_equals</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_myopic_cost_to</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="go">60.478316066846034</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mf">60.478316066846034</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">2.2000000000000006</span>

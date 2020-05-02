@@ -540,51 +540,132 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	return base_stock_level, cost
 
 
-def newsvendor_cost_equals(cost, holding_cost, stockout_cost, demand_mean,
-						   demand_sd, lead_time=0, less_than_optimum=True):
-	"""Find the value of :math:`S` such that ``newsvendor_normal_cost(S)``
-	equals ``cost``.
+def myopic_cost(
+		base_stock_level,
+		holding_cost,
+		stockout_cost,
+		purchase_cost,
+		purchase_cost_next_per,
+		demand_mean,
+		demand_sd,
+		discount_factor=1):
+	"""Calculate "myopic" cost function.
 
-	If ``less_than_optimum`` is ``True``, requires :math:`S \\le S^*`.
-	Otherwise, requires :math:`S \\ge S^*`.
+	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
+	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in Snyder and Shen
+	(2019), but the function is given in terms of Snyder-Shen notation below.
+
+	Parameters are singleton values for the current period, not arrays.
+
+	Parameters
+	----------
+	base_stock_level : float
+		Base-stock level to calculate cost for. [:math:`S`]
+	holding_cost : float
+		Holding cost in the current period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost in the current period. [:math:`p`]
+	purchase_cost : float
+		Purchase cost in the current period. [:math:`c`]
+	purchase_cost_next_per : float
+		Purchase cost in the next period. [:math:`c_{t+1}`]
+	demand_mean : float
+		Mean demand in the current period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand in the current period. [:math:`\\sigma`]
+	discount_factor : float, optional
+		Discount factor in the current period, in :math:`(0,1]`.
+		Default = 1. [:math:`\\gamma`]
+
+	Returns
+	-------
+	cost : float
+		The myopic cost.
+
+
+	**Equation Used**:
+
+	.. math::
+
+		G_t(y) = c_ty + g_t(y) - \\gamma_tc_{t+1}(y - E[D_t]),
+
+	where :math:`g_t(\\cdot)` is the newsvendor cost function for period :math:`t`.
+
+
+	References
+	----------
+	A. F. Veinott, Jr., On the Optimality of :math:`(s,S)` Inventory Policies:
+	New Conditions and a New Proof, *J. SIAM Appl. Math* 14(5), 1067-1083 (1966).
+
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
+
+# TODO : example
+
+	"""
+
+# TODO: unit tests
+
+# TODO: handle non-normal demand
+
+	return purchase_cost * base_stock_level \
+		+ newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
+			demand_mean, demand_sd) \
+		- discount_factor * purchase_cost_next_per * (base_stock_level - demand_mean)
+
+
+def set_myopic_cost_to(
+		cost,
+		holding_cost,
+		stockout_cost,
+		purchase_cost,
+		purchase_cost_next_per,
+		demand_mean,
+		demand_sd,
+		discount_factor=1,
+		left_half=True):
+	"""Find the value of :math:`y` such that :math:`G_t(y)`
+	equals ``cost``, where :math:`G_t(\\cdot)` is the myopic cost function
+	for the current period, given by ``myopic_cost()``.
+
+	If ``left_half`` is ``True``, requires :math:`y \\le \\underline{S}_t`,
+	where :math:`\\underline{S}_t` is the minimizer of :math:`G_t(\\cdot)`.
+	Otherwise, requires :math:`S \\ge \\underline{S}_t`.
 
 	Parameters
 	----------
 	cost : float
-		The cost to set ``newsvendor_normal_cost()`` equal to.
+		The cost to set ``myopic_cost()`` equal to.
 	holding_cost : float
-		Holding cost per item per period. [:math:`h`]
+		Holding cost in the current period. [:math:`h`]
 	stockout_cost : float
-		Stockout cost per item per period. [:math:`p`]
+		Stockout cost in the current period. [:math:`p`]
+	purchase_cost : float
+		Purchase cost in the current period. [:math:`c`]
+	purchase_cost_next_per : float
+		Purchase cost in the next period. [:math:`c_{t+1}`]
 	demand_mean : float
-		Mean demand per period. [:math:`\\mu`]
+		Mean demand in the current period. [:math:`\\mu`]
 	demand_sd : float
-		Standard deviation of demand per period. [:math:`\\sigma`]
-	lead_time : int, optional
-		Lead time. Default = 0. [:math:`L`]
-	less_than_optimum : bool, optional
-		If ``True``, requires :math:`S \\le S^*`; otherwise, requires
-		:math:`S \\ge S^*`. Default = ``True``.
+		Standard deviation of demand in the current period. [:math:`\\sigma`]
+	discount_factor : float, optional
+		Discount factor in the current period, in :math:`(0,1]`.
+		Default = 1. [:math:`\\gamma`]
+	left_half : bool, optional
+		If ``True``, requires :math:`y \\le \\underline{S}_t`; otherwise,
+		requires :math:`y \\ge \\underline{S}_t`. Default = ``True``.
 
 	Returns
 	-------
 	base_stock_level : float
-		The :math:`S` so that ``newsvendor_normal_cost(S)`` equals ``cost``.
+		The :math:`y` so that ``myopic_cost(y)`` equals ``cost``.
 
 	Raises
 	------
 	ValueError
-		If ``cost`` is less than :math:`g(S^*)`.
+		If ``cost`` is less than :math:`G_t(\\underline{S}_t)`.
 
-
-	**Equations Used** (equation (4.6)):
-
-	.. math::
-
-		g(S) = h\\bar{n}(S) + pn(S),
-
-	where :math:`n(\cdot)` and :math:`\\bar{n}(\cdot)` are the lead-time demand
-	loss and complementary loss functions.
+# TODO:
 
 	**Example** (Example 4.1):
 
@@ -594,49 +675,65 @@ def newsvendor_cost_equals(cost, holding_cost, stockout_cost, demand_mean,
 
 	.. doctest::
 
-		>>> newsvendor_cost_equals(2.2, 0.18, 0.70, 50, 8, less_than_optimum=True)
+		>>> set_myopic_cost_to(2.2, 0.18, 0.70, 50, 8, less_than_optimum=True)
 		53.186150146674386
 		>>> newsvendor_normal_cost(53.186150146674386, 0.18, 0.70, 50, 8)
 		2.1999999999999775
-		>>> newsvendor_cost_equals(2.2, 0.18, 0.70, 50, 8, less_than_optimum=False)
+		>>> set_myopic_cost_to(2.2, 0.18, 0.70, 50, 8, less_than_optimum=False)
 		60.478316066846034
 		>>> newsvendor_normal_cost(60.478316066846034, 0.18, 0.70, 50, 8)
 		2.2000000000000006
 
 	"""
 
+	# TODO: unit tests
+
 	# TODO: handle non-normal demand
 
-	# Determine optimal BS level and cost.
-	S_star, g_star = newsvendor_normal(holding_cost, stockout_cost, demand_mean,
-									   demand_sd, lead_time)
+	# Calculate c_plus.
+	c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 
-	# Check that cost >= g_star.
-	if cost < g_star:
-		raise ValueError("cost < g(S^*), so there is no S s.t. g(S) = cost")
+	# TODO: validate c_plus
+
+	# Set critical ratio.
+	critical_ratio = \
+		(stockout_cost - c_plus) / (stockout_cost + holding_cost)
+
+	# Set S_underbar to minimizer of G_t(y). (It could be found numerically
+	# using myopic_cost(), but it's faster to find it this way.)
+	S_underbar = stats.norm.ppf(critical_ratio, demand_mean, demand_sd)
+
+	# Calculate G_t(S_underbar).
+	G_S_underbar = myopic_cost(S_underbar, holding_cost, stockout_cost,
+		purchase_cost, purchase_cost_next_per, demand_mean, demand_sd)
+
+	# Check that cost >= G_S_underbar.
+	if cost < G_S_underbar:
+		raise ValueError("cost < G_t(S_underbar), so there is no y s.t. G_t(y) = cost")
 
 	# Determine bounds for brentq() function.
 	delta = max(demand_mean, 10)
-	if less_than_optimum:
-		a = S_star - delta
-		while newsvendor_normal_cost(a, holding_cost, stockout_cost, demand_mean,
-									   demand_sd, lead_time) < cost:
+	if left_half:
+		a = S_underbar - delta
+		while myopic_cost(a, holding_cost, stockout_cost, purchase_cost,
+						  purchase_cost_next_per, demand_mean, demand_sd,
+						  discount_factor) < cost:
 			a -= delta
-		b = S_star
+		b = S_underbar
 	else:
-		a = S_star
-		b = S_star + delta
-		while newsvendor_normal_cost(b, holding_cost, stockout_cost, demand_mean,
-									   demand_sd, lead_time) < cost:
+		a = S_underbar
+		b = S_underbar + delta
+		while myopic_cost(b, holding_cost, stockout_cost, purchase_cost,
+						  purchase_cost_next_per, demand_mean, demand_sd,
+						  discount_factor) < cost:
 			b += delta
 
-	# Set up lambda function for g(S) - cost, where where g(.) is newsvendor
-	# cost function.
-	fun = lambda S: newsvendor_normal_cost(S, holding_cost, stockout_cost,
-										   demand_mean, demand_sd, lead_time) \
-											- cost
+	# Set up lambda function for G_t(y) - cost.
+	fun = lambda y: myopic_cost(y, holding_cost, stockout_cost, purchase_cost,
+								purchase_cost_next_per, demand_mean, demand_sd,
+								discount_factor) - cost
 
-	# Use Brent method to find zero of g(S) - cost.
+	# Use Brent method to find zero of G_t(y) - cost.
 	base_stock_level = brentq(fun, a, b)
 
 	return base_stock_level

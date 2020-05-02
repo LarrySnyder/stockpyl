@@ -20,6 +20,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 import numpy as np
 from scipy.stats import norm
+from scipy.optimize import brentq
 import warnings
 
 from pyinv.helpers import *
@@ -122,7 +123,7 @@ def finite_horizon_dp(
 	demand_sd : float or list
 		Demand standard deviation per period. [:math:`\\sigma`]
 	discount_factor : float or list
-		Discount factor, in :math:`(0,1]`. [:math:`\\gamma`]
+		Discount factor, in :math:`(0,1]`. Default = 1. [:math:`\\gamma`]
 	initial_inventory_level : float
 		Initial inventory level at the start of period 1. [:math:`x_1`]
 
@@ -416,9 +417,9 @@ def myopic(
 		num_periods,
 		holding_cost,
 		stockout_cost,
-		purchase_cost,
 		terminal_holding_cost,
 		terminal_stockout_cost,
+		purchase_cost,
 		fixed_cost,
 		demand_mean,
 		demand_sd,
@@ -439,6 +440,11 @@ def myopic(
 	Returns
 	-------
 
+	Raises
+	------
+	ValueError
+		If ``purchase_cost[t]`` < ``discount_factor[t] * purchase_cost[t+1]``
+		for some ``t``. (This is required for myopic policy to be valid.)
 	"""
 
 	# Validate singleton parameters.
@@ -466,13 +472,25 @@ def myopic(
 	assert np.all(np.array(demand_sd[1:]) >= 0), "demand_sd must be non-negative."
 
 	# Redefine holding and stockout costs in last period to include terminal
-	# costs, and set c_{T+1} = 0.
-	holding_cost_revised = holding_cost.copy()
-	holding_cost_revised[num_periods] += terminal_holding_cost
-	stockout_cost_revised = stockout_cost.copy()
-	stockout_cost_revised[num_periods] += terminal_stockout_cost
-	purchase_cost_revised = list(purchase_cost.copy())
-	purchase_cost_revised.append(0)
+	# costs, and set c_{T+1} = K_{T+1} = 0.
+	h = holding_cost.copy()
+	h[num_periods] += terminal_holding_cost
+	p = stockout_cost.copy()
+	p[num_periods] += terminal_stockout_cost
+	c = list(purchase_cost.copy())
+	c.append(0)
+	K = list(fixed_cost.copy())
+	K.append(0)
+
+	# Calculate c_plus (c^+_t = c_t - gamma * c_{t+1}) and check that it is
+	# nonegative for every t. (Otherwise, the costs increase too quickly and
+	# the myopic policy is not valid.)
+	c_plus = np.zeros(num_periods+1)
+	for t in range(1, num_periods):
+		c_plus[t] = c[t] \
+					- discount_factor[t] * c[t+1]
+		if c_plus[t] < -h[t] or c_plus[t] > p[t]:
+			raise ValueError("myopic policy requires -h_t <= c_t - gamma * c_{t+1} <= p_t for all t")
 
 	# Initialize output arrays.
 	S_underbar = np.zeros(num_periods+1)
@@ -483,23 +501,97 @@ def myopic(
 	# Loop through periods.
 	for t in range(1, num_periods+1):
 
-		# Set critical ratio.
-		critical_ratio = \
-			(stockout_cost_revised[t] - purchase_cost_revised[t] +
-			 discount_factor[t] * purchase_cost_revised[t+1]) / \
-			 (stockout_cost_revised[t] + purchase_cost_revised[t])
-
-		# Set S_underbar to minimizer of G_t(y).
-		S_underbar[t] = norm.ppf(critical_ratio, demand_mean[t], demand_sd[t])
+		# Set S_overbar to y >= S_underbar s.t. G_t(S_overbar) = G_t(S_underbar) + gamma_t * K_{t+1}.
+		fun = lambda y: G(y) - (G(S_underbar[t]) + discount_factor[t] * K[t+1])
+		S_overbar[t] = brentq(fun, S_underbar[t], )
 
 	return S_underbar
 
 
+def set_G_equal_to(
+		value,
+		holding_cost,
+		stockout_cost,
+		purchase_cost,
+		purchase_cost_next_per,
+		fixed_cost,
+		demand_mean,
+		demand_sd,
+		discount_factor=1):
+	"""Find :math:`y` such that :math:`G(y)` = ``value``, where :math:`G(y)` is as
+	defined below.
 
-num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-	terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-	demand_sd, discount_factor, initial_inventory_level = \
-	get_named_instance("problem_4_29")
+	Parameters are singleton values for the current period, not arrays.
+
+	Parameters
+	----------
+	value : float
+		The value to set :math:`G(y)` equal to.
+	holding_cost : float
+		Holding cost in the current period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost in the current period. [:math:`p`]
+	purchase_cost : float
+		Purchase cost in the current period. [:math:`c`]
+	purchase_cost_next_per : float
+		Purchase cost in the next period. [:math:`c_{t+1}`]
+	fixed_cost : float
+		Fixed cost in the current period. [:math:`K`]
+	demand_mean : float
+		Mean demand in the current period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand in the current period. [:math:`\\sigma`]
+	discount_factor : float, optional
+		Discount factor in the current period, in :math:`(0,1]`.
+		Default = 1. [:math:`\\gamma`]
+
+	Returns
+	-------
+	y : float
+		:math:`y` such that :math:`G(y)` = ``value``
+
+
+	**Equation Used** (see Veinott (1966) or Zipkin (2000)):
+
+	.. math::
+
+		G_t(y) = c_ty + g_t(y) - \\gamma_tc_{t+1}(y - E[D_t]),
+
+	where :math:`g_t(\\cdot)` is the newsvendor cost function for period :math:`t`.
+
+# TODO : example
+
+	"""
+
+	# Build G_t(.) function.
+	G = lambda y: purchase_cost * y \
+				  + newsvendor_normal_cost(y, holding_cost, stockout_cost,
+										   demand_mean, demand_sd) \
+				  - discount_factor * purchase_cost_next_per * (y - demand_mean)
+
+	# Build function to
+
+
+# num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+# 	terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+# 	demand_sd, discount_factor, initial_inventory_level = \
+# 	get_named_instance("problem_4_29")
+
+num_periods = 6
+holding_cost = [1, 1, 1, 1, 2, 2]
+stockout_cost = [20, 20, 10, 15, 10, 10]
+terminal_holding_cost = 4
+terminal_stockout_cost = 50
+purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
+fixed_cost = 0
+demand_mean = [20, 60, 110, 200, 200, 40]
+demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
+discount_factor = 0.98
+initial_inventory_level = 0
+
+S_underbar = myopic(num_periods, holding_cost,
+	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
 
 # Solve problem.
 reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
@@ -507,10 +599,6 @@ reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
 	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
 	initial_inventory_level)
-
-S_underbar = myopic(num_periods, holding_cost,
-	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
 
 print(order_up_to_levels)
 print(S_underbar)
