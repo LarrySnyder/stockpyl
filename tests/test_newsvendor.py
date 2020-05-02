@@ -452,6 +452,66 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 			base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_mean, demand_distrib)
 
 
+class TestMyopic(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestMyopic', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestMyopic', 'tear_down_class()')
+
+	def test_example_4_1(self):
+		"""Test that myopic function correctly solves Example 4.1 (plus other
+		parameters).
+		"""
+		print_status('TestMyopic', 'test_example_4_1()')
+
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_1")
+		purchase_cost = 0.3
+		purchase_cost_next_per = 0.35
+		discount_factor = 0.98
+
+		base_stock_level, cost = newsvendor.myopic(holding_cost, stockout_cost, purchase_cost,
+									  purchase_cost_next_per, demand_mean, demand_sd,
+									  discount_factor)
+		self.assertAlmostEqual(base_stock_level, 58.09891883213067)
+		self.assertAlmostEqual(cost, 16.625719332793864)
+
+		base_stock_level, cost = newsvendor.myopic(holding_cost, stockout_cost, purchase_cost,
+									  purchase_cost_next_per, demand_mean, demand_sd,
+									  discount_factor, base_stock_level=62)
+		self.assertEqual(base_stock_level, 62)
+		self.assertAlmostEqual(cost, 16.766319828088736)
+
+	def test_problem_4_1(self):
+		"""Test that myopic function correctly solves Problem 4.1 (plus
+		other parameters).
+		"""
+		print_status('TestMyopicCost', 'test_problem_4_1()')
+
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("problem_4_1")
+		purchase_cost = 65
+		purchase_cost_next_per = 55
+		discount_factor = 0.9
+
+		base_stock_level, cost = newsvendor.myopic(holding_cost, stockout_cost, purchase_cost,
+									  purchase_cost_next_per, demand_mean, demand_sd,
+									  discount_factor)
+		self.assertAlmostEqual(base_stock_level, 903.0832764843523)
+		self.assertAlmostEqual(cost, 61399.44622432688)
+
+		base_stock_level, cost = newsvendor.myopic(holding_cost, stockout_cost, purchase_cost,
+									  purchase_cost_next_per, demand_mean, demand_sd,
+									  discount_factor, base_stock_level=950)
+		self.assertEqual(base_stock_level, 950)
+		self.assertAlmostEqual(cost, 61979.39180412519)
+
+
 class TestMyopicCost(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -721,7 +781,7 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		"""Test that set_myopic_cost_to function correctly raises an error
 		when the desired cost is smaller than the optimal cost.
 		"""
-		print_status('TestNewsvendorCostEquals', 'test_cost_too_small()')
+		print_status('TestSetMyopicCostTo', 'test_cost_too_small()')
 
 		holding_cost, stockout_cost, demand_mean, demand_sd = \
 			get_named_instance("example_4_3")
@@ -739,6 +799,43 @@ class TestSetMyopicCostTo(unittest.TestCase):
 
 		with self.assertRaises(ValueError):
 			base_stock_level = newsvendor.set_myopic_cost_to(0.9 * G_S_underbar,
+															 holding_cost,
+															 stockout_cost,
+															 purchase_cost,
+															 purchase_cost_next_per,
+															 demand_mean,
+															 demand_sd,
+															 discount_factor,
+															 False)
+
+	def test_bad_c_plus(self):
+		"""Test that set_myopic_cost_to function correctly raises an error
+		when c_plus is outside of its bounds.
+		"""
+		print_status('TestSetMyopicCostTo', 'test_bad_c_plus()')
+
+		holding_cost, stockout_cost, demand_mean, demand_sd = \
+			get_named_instance("example_4_3")
+		purchase_cost = 0.3
+		purchase_cost_next_per = 0.8
+		discount_factor = 0.95
+
+		with self.assertRaises(ValueError):
+			base_stock_level = newsvendor.set_myopic_cost_to(17,
+															 holding_cost,
+															 stockout_cost,
+															 purchase_cost,
+															 purchase_cost_next_per,
+															 demand_mean,
+															 demand_sd,
+															 discount_factor,
+															 False)
+
+		purchase_cost = 2
+		purchase_cost_next_per = 0.2
+
+		with self.assertRaises(ValueError):
+			base_stock_level = newsvendor.set_myopic_cost_to(17,
 															 holding_cost,
 															 stockout_cost,
 															 purchase_cost,

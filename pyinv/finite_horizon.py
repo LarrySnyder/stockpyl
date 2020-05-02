@@ -502,74 +502,12 @@ def myopic(
 	for t in range(1, num_periods+1):
 
 		# Set S_overbar to y >= S_underbar s.t. G_t(S_overbar) = G_t(S_underbar) + gamma_t * K_{t+1}.
-		fun = lambda y: G(y) - (G(S_underbar[t]) + discount_factor[t] * K[t+1])
-		S_overbar[t] = brentq(fun, S_underbar[t], )
+		S_overbar[t] = set_myopic_cost_to(G_)
 
 	return S_underbar
 
 
-def set_G_equal_to(
-		value,
-		holding_cost,
-		stockout_cost,
-		purchase_cost,
-		purchase_cost_next_per,
-		fixed_cost,
-		demand_mean,
-		demand_sd,
-		discount_factor=1):
-	"""Find :math:`y` such that :math:`G(y)` = ``value``, where :math:`G(y)` is as
-	defined below.
 
-	Parameters are singleton values for the current period, not arrays.
-
-	Parameters
-	----------
-	value : float
-		The value to set :math:`G(y)` equal to.
-	holding_cost : float
-		Holding cost in the current period. [:math:`h`]
-	stockout_cost : float
-		Stockout cost in the current period. [:math:`p`]
-	purchase_cost : float
-		Purchase cost in the current period. [:math:`c`]
-	purchase_cost_next_per : float
-		Purchase cost in the next period. [:math:`c_{t+1}`]
-	fixed_cost : float
-		Fixed cost in the current period. [:math:`K`]
-	demand_mean : float
-		Mean demand in the current period. [:math:`\\mu`]
-	demand_sd : float
-		Standard deviation of demand in the current period. [:math:`\\sigma`]
-	discount_factor : float, optional
-		Discount factor in the current period, in :math:`(0,1]`.
-		Default = 1. [:math:`\\gamma`]
-
-	Returns
-	-------
-	y : float
-		:math:`y` such that :math:`G(y)` = ``value``
-
-
-	**Equation Used** (see Veinott (1966) or Zipkin (2000)):
-
-	.. math::
-
-		G_t(y) = c_ty + g_t(y) - \\gamma_tc_{t+1}(y - E[D_t]),
-
-	where :math:`g_t(\\cdot)` is the newsvendor cost function for period :math:`t`.
-
-# TODO : example
-
-	"""
-
-	# Build G_t(.) function.
-	G = lambda y: purchase_cost * y \
-				  + newsvendor_normal_cost(y, holding_cost, stockout_cost,
-										   demand_mean, demand_sd) \
-				  - discount_factor * purchase_cost_next_per * (y - demand_mean)
-
-	# Build function to
 
 
 # num_periods, holding_cost, stockout_cost, terminal_holding_cost, \

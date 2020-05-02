@@ -540,6 +540,114 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	return base_stock_level, cost
 
 
+def myopic(
+		holding_cost,
+		stockout_cost,
+		purchase_cost,
+		purchase_cost_next_per,
+		demand_mean,
+		demand_sd,
+		discount_factor=1,
+		base_stock_level=None):
+	"""Find the optimizer of the myopic cost function, or (if ``base_stock_level``
+	is supplied) calculate the cost of given solution.
+
+	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
+	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in Snyder and Shen
+	(2019), but the function is given in terms of Snyder-Shen notation below.
+
+	Parameters are singleton values for the current period, not arrays.
+
+	Parameters
+	----------
+	holding_cost : float
+		Holding cost in the current period. [:math:`h`]
+	stockout_cost : float
+		Stockout cost in the current period. [:math:`p`]
+	purchase_cost : float
+		Purchase cost in the current period. [:math:`c`]
+	purchase_cost_next_per : float
+		Purchase cost in the next period. [:math:`c_{t+1}`]
+	demand_mean : float
+		Mean demand in the current period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand in the current period. [:math:`\\sigma`]
+	discount_factor : float, optional
+		Discount factor in the current period, in :math:`(0,1]`.
+		Default = 1. [:math:`\\gamma`]
+	base_stock_level : float, optional
+		Base-stock level for cost evaluation. If supplied, no
+		optimization will be performed. [:math:`S`]
+
+	Returns
+	-------
+	base_stock_level : float
+		Optimal base-stock-level (or base-stock level supplied). [:math:`S^*`]
+	cost : float
+		The myopic cost attained by ``base_stock_level``. [:math:`G_t(S^*)`]
+
+
+	**Equation Used**:
+
+	.. math::
+
+		S^* = F^{-1}\\left(\\frac{p - c^+}{p + h}\\right)
+
+		c^+ = c_t - \\gamma c_{t+1}
+
+		G_t(y) = c_ty + g_t(y) - \\gamma_tc_{t+1}(y - E[D_t]),
+
+	where :math:`g_t(\\cdot)` is the newsvendor cost function for period :math:`t`.
+
+
+	References
+	----------
+	A. F. Veinott, Jr., On the Optimality of :math:`(s,S)` Inventory Policies:
+	New Conditions and a New Proof, *J. SIAM Appl. Math* 14(5), 1067-1083 (1966).
+
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
+
+	**Example** (Example 4.1):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> myopic(0.18, 0.70, 0.3, 0.35, 50, 8, 0.98)
+		(58.09891883213067, 16.625719332793864)
+		>>> myopic(0.18, 0.70, 0.3, 0.35, 50, 8, 0.98, base_stock_level=62)
+		(62, 16.766319828088736)
+
+	"""
+
+# TODO: handle non-normal demand
+
+	# Calculate c_plus.
+	c_plus = purchase_cost - discount_factor * purchase_cost_next_per
+
+	# Validate c_plus.
+	if c_plus < -holding_cost or c_plus > stockout_cost:
+		raise ValueError("myopic() requires -h_t <= c_t - gamma * c_{t+1} <= p_t")
+
+	# Is S provided?
+	if base_stock_level is None:
+		# Set critical ratio.
+		critical_ratio = (stockout_cost - c_plus) / (stockout_cost + holding_cost)
+
+		# Set base_stock_level to minimizer of G_t(y). (It could be found numerically
+		# using myopic_cost(), but it's faster to find it this way.)
+		base_stock_level = stats.norm.ppf(critical_ratio, demand_mean, demand_sd)
+
+	# Calculate G_t(base_stock_level).
+	cost = myopic_cost(base_stock_level, holding_cost, stockout_cost,
+		purchase_cost, purchase_cost_next_per, demand_mean, demand_sd)
+
+	return base_stock_level, cost
+
+
 def myopic_cost(
 		base_stock_level,
 		holding_cost,
@@ -600,17 +708,26 @@ def myopic_cost(
 	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
 
 
-# TODO : example
+	**Example** (Example 4.1):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> myopic_cost(60, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98)
+		16.726131552870388
 
 	"""
 
-# TODO: unit tests
-
 # TODO: handle non-normal demand
 
-	return purchase_cost * base_stock_level \
-		+ newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
-			demand_mean, demand_sd) \
+	# Calculate newsvendor cost.
+	g = newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
+			demand_mean, demand_sd)
+
+	return purchase_cost * base_stock_level + g \
 		- discount_factor * purchase_cost_next_per * (base_stock_level - demand_mean)
 
 
@@ -665,8 +782,6 @@ def set_myopic_cost_to(
 	ValueError
 		If ``cost`` is less than :math:`G_t(\\underline{S}_t)`.
 
-# TODO:
-
 	**Example** (Example 4.1):
 
 	.. testsetup:: *
@@ -675,29 +790,28 @@ def set_myopic_cost_to(
 
 	.. doctest::
 
-		>>> set_myopic_cost_to(2.2, 0.18, 0.70, 50, 8, less_than_optimum=True)
-		53.186150146674386
-		>>> newsvendor_normal_cost(53.186150146674386, 0.18, 0.70, 50, 8)
-		2.1999999999999775
-		>>> set_myopic_cost_to(2.2, 0.18, 0.70, 50, 8, less_than_optimum=False)
-		60.478316066846034
-		>>> newsvendor_normal_cost(60.478316066846034, 0.18, 0.70, 50, 8)
-		2.2000000000000006
+		>>> set_myopic_cost_to(18, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98, left_half=True)
+		49.394684658734164
+		>>> myopic_cost(49.394684658734164, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98)
+		17.999999999999996
+		>>> set_myopic_cost_to(18, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98, left_half=False)
+		71.84861989932769
+		>>> myopic_cost(71.84861989932769, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98)
+		18.0
 
 	"""
-
-	# TODO: unit tests
 
 	# TODO: handle non-normal demand
 
 	# Calculate c_plus.
 	c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 
-	# TODO: validate c_plus
+	# Validate c_plus.
+	if c_plus < -holding_cost or c_plus > stockout_cost:
+		raise ValueError("set_myopic_cost_to() requires -h_t <= c_t - gamma * c_{t+1} <= p_t")
 
 	# Set critical ratio.
-	critical_ratio = \
-		(stockout_cost - c_plus) / (stockout_cost + holding_cost)
+	critical_ratio = (stockout_cost - c_plus) / (stockout_cost + holding_cost)
 
 	# Set S_underbar to minimizer of G_t(y). (It could be found numerically
 	# using myopic_cost(), but it's faster to find it this way.)
@@ -705,7 +819,7 @@ def set_myopic_cost_to(
 
 	# Calculate G_t(S_underbar).
 	G_S_underbar = myopic_cost(S_underbar, holding_cost, stockout_cost,
-		purchase_cost, purchase_cost_next_per, demand_mean, demand_sd)
+		purchase_cost, purchase_cost_next_per, demand_mean, demand_sd, discount_factor)
 
 	# Check that cost >= G_S_underbar.
 	if cost < G_S_underbar:
