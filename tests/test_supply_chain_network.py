@@ -248,3 +248,58 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(middle_node.local_holding_cost, 4)
 		self.assertEqual(sink_node.local_holding_cost, 7)
 
+
+class TestNetworkxDigraph(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNetworkxDigraph', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNetworkxDigraph', 'tear_down_class()')
+
+	def test_3_node_serial(self):
+		"""Test networkx_digraph() for 3-node serial system.
+		"""
+		print_status('TestNetworkxDigraph', 'test_3_node_serial()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+
+		network.add_node(node2)
+		network.add_successor(node2, node1)
+		network.add_successor(node1, node0)
+
+		digraph = network.networkx_digraph()
+
+		self.assertEqual(list(digraph.nodes), [2, 1, 0])
+		self.assertEqual(list(digraph.edges), [(2, 1), (1, 0)])
+
+	def test_4_node_owmr(self):
+		"""Test networkx_digraph() for 4-node OWMR system.
+		"""
+		print_status('TestNetworkxDigraph', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+		node3 = SupplyChainNode(3)
+
+		network.add_node(node0)
+		network.add_successor(node0, node1)
+		network.add_successor(node0, node2)
+		network.add_successor(node0, node3)
+
+		digraph = network.networkx_digraph()
+
+		self.assertEqual(set(digraph.nodes), {3, 2, 1, 0})
+		self.assertEqual(set(digraph.edges), {(0, 3), (0, 2), (0, 1)})
+
+

@@ -90,6 +90,19 @@ class TestPolicyRepr(unittest.TestCase):
 		policy_str = policy.__repr__()
 		self.assertEqual(policy_str, "Policy(FIXED_QUANTITY: order_quantity=17.40)")
 
+	def test_echelon_base_stock(self):
+		"""Test that Policy.__repr__() correctly returns policy string for
+		echelon base-stock policy.
+		"""
+		print_status('TestPolicyRepr', 'test_echelon_base_stock()')
+
+		policy_factory = PolicyFactory()
+		policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
+											 base_stock_level=105.3)
+
+		policy_str = policy.__repr__()
+		self.assertEqual(policy_str, "Policy(ECHELON_BASE_STOCK: echelon_base_stock_level=105.30)")
+
 
 class TestGetOrderQuantity(unittest.TestCase):
 	@classmethod
@@ -167,3 +180,21 @@ class TestGetOrderQuantity(unittest.TestCase):
 
 		q1 = policy.get_order_quantity()
 		self.assertEqual(q1, 100)
+
+	def test_echelon_base_stock(self):
+		"""Test that get_order_quantity() returns correct order quantity
+		under an echelon base-stock policy for a few instances.
+		"""
+		print_status('TestGetOrderQuantity', 'test_echelon_base_stock()')
+
+		policy_factory = PolicyFactory()
+		policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
+											 base_stock_level=100)
+
+		q1 = policy.get_order_quantity(85)
+		self.assertEqual(q1, 15)
+		q2 = policy.get_order_quantity(-20)
+		self.assertEqual(q2, 120)
+		q3 = policy.get_order_quantity(140)
+		self.assertEqual(q3, 0)
+

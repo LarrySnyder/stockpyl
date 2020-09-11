@@ -18,6 +18,7 @@ in a supply chain network.
 # ===============================================================================
 
 import numpy as np
+import networkx as nx
 
 from pyinv.datatypes import *
 from pyinv.policy import *
@@ -51,8 +52,16 @@ class SupplyChainNode(object):
 		Local holding cost, per unit per period. [h']
 	echelon_holding_cost : float
 		Echelon holding cost, per unit per period. [h] # not currently supported
+	local_holding_cost_function : function
+		Function that calculates local holding cost per period, as a function
+		of ending inventory level. Function must take exactly one argument, the
+		ending IL. Function should check that IL > 0.
 	stockout_cost : float
 		Stockout cost, per unit (per period, if backorders). [p]
+	stockout_cost_function : function
+		Function that calculates stockout cost per period, as a function
+		of ending inventory level. Function must take exactly one argument, the
+		ending IL. Function should check that IL < 0.
 	lead_time : int
 		Shipment lead time. [L]
 	shipment_lead_time : int
@@ -98,9 +107,12 @@ class SupplyChainNode(object):
 		self._successors = []
 
 		# --- Data/Inputs --- #
+		# TODO: when set local or echelon h.c., update the other
 		self.local_holding_cost = None
 		self.echelon_holding_cost = None
+		self.local_holding_cost_function = None
 		self.stockout_cost = None
+		self.stockout_cost_function = None
 #		self.lead_time = 0
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
@@ -112,6 +124,8 @@ class SupplyChainNode(object):
 		self.supply_type = SupplyType.NONE
 
 		# --- State Variables/Performance Measures --- #
+
+		# The following state variables are updated explicitly by sim.py.
 
 		# inbound_shipment[p][t] = shipment quantity arriving at node from
 		# predecessor node p in period t. If p is None, refers to external supply.
@@ -125,19 +139,19 @@ class SupplyChainNode(object):
 		# If s is None, refers to external demand.
 		self.outbound_shipment = None
 
-		# on_order[p][t] = on-order quantity (items that have been ordered from
+		# on_order_by_predecessor[p][t] = on-order quantity (items that have been ordered from
 		# p but not yet received) at node at the beginning of period t. If p
 		# is None, refers to external supply.
-		self.on_order = None
+		self.on_order_by_predecessor = None
 
-		# inventory_level[t] = pyinv level (positive, negative, or zero) at
+		# inventory_level[t] = inventory level (positive, negative, or zero) at
 		# node at the beginning of period t.
 		self.inventory_level = None
 
-		# backorders[s][t] = number of backorders for successor s at the
+		# backorders_by_successor[s][t] = number of backorders for successor s at the
 		# beginning of period t. If s is None, refers to external demand.
 		# Sum over all successors should always equal max{0, -inventory_level}.
-		self.backorders = None
+		self.backorders_by_successor = None
 
 		# ending_inventory_level[t] = pyinv level (positive, negative, or
 		# zero) at node at the end of period t.
@@ -182,6 +196,19 @@ class SupplyChainNode(object):
 	def successor_indices(self):
 		return [node.index for node in self._successors]
 
+	@property
+	def descendants(self):
+		# TODO: build the digraph at the network level, keep it static, and update it when network structure updates
+		G = self.network.networkx_digraph()
+		desc = nx.descendants(G, self.index)
+		return [self.network.get_node_from_index(d) for d in desc]
+
+	@property
+	def ancestors(self):
+		G = self.network.networkx_digraph()
+		anc = nx.ancestors(G, self.index)
+		return [self.network.get_node_from_index(a) for a in anc]
+
 	# Properties related to input parameters.
 
 	@property
@@ -193,6 +220,124 @@ class SupplyChainNode(object):
 	def lead_time(self):
 		# An alias for ``shipment_lead_time``. Read only.
 		return self.shipment_lead_time
+
+	# Properties related to state variables.
+	# TODO: write unit tests for these properties
+
+	# on_hand = current on-hand inventory.
+	@property
+	def on_hand(self):
+		return max(0, self.inventory_level[self.network.period])
+
+	# backorders = current backorders. Should always equal sum over all successors
+	# of backorders_by_successor[s][t].
+	@property
+	def backorders(self):
+		return max(0, -self.inventory_level[self.network.period])
+
+	def in_transit_to(self, successor):
+		"""Return current total inventory in transit to a given successor.
+		(Declared as a function, not a property, because needs to take an argument.)
+
+		Parameters
+		----------
+		successor : SupplyChainNode
+			The successor node.
+
+		Returns
+		-------
+			The current inventory in transit to the successor.
+		"""
+		return np.sum([successor.inbound_shipment[self.index][self.network.period+t]
+				for t in range(successor.shipment_lead_time)])
+
+	def in_transit_from(self, predecessor):
+		"""Return current total inventory in transit from a given predecessor.
+		(Declared as a function, not a property, because needs to take an argument.)
+
+		Parameters
+		----------
+		predecessor : SupplyChainNode
+			The predecessor node (or ``None`` for external supplier).
+
+		Returns
+		-------
+			The current inventory in transit from the predecessor.
+		"""
+		return np.sum([self.inbound_shipment[predecessor.index][self.network.period+t]
+				for t in range(self.shipment_lead_time)])
+
+	# in_transit = current total inventory in transit to the node. If node has
+	# more than 1 predecessor (it is an assembly node), including external supplier,
+	# in-transit items are counted using the "units" of the node itself.
+	# That is, they are divided by the total number of predecessors.
+	# TODO: handle BOM
+	@property
+	def in_transit(self):
+		total_in_transit = np.sum([self.in_transit_from(p) for p in self.predecessors])
+		if total_in_transit == 0:
+			return 0
+		else:
+			if self.supply_type == SupplyType.NONE:
+				return total_in_transit / len(self.predecessors)
+			else:
+				return total_in_transit / (len(self.predecessors) + 1)
+
+	# on_order = current total on-order quantity. If node has more than 1
+	# predecessor (it is an assembly node), including external supplier,
+	# on-order items are counted using the "units" of the node itself.
+	# That is, they are divided by the total number of predecessors.
+	# TODO: handle BOM
+	@property
+	def on_order(self):
+		total_on_order = self.get_attribute_total('on_order_by_predecessor',
+												  self.network.period,
+												  include_external=True)
+		if total_on_order == 0:
+			return 0
+		else:
+			if self.supply_type == SupplyType.NONE:
+				return total_on_order / len(self.predecessors)
+			else:
+				return total_on_order / (len(self.predecessors) + 1)
+
+	# inventory_position = current local inventory position at node
+	# = IL + OO.
+	@property
+	def inventory_position(self):
+		return self.inventory_level[self.network.period] + self.on_order
+
+	# echelon_on_hand_inventory = current echelon on-hand inventory at node
+	# = on-hand inventory at node and at or in transit to all of its
+	# downstream nodes.
+	@property
+	def echelon_on_hand_inventory(self):
+		EOHI = self.on_hand
+		for d in self.descendants:
+			EOHI += d.on_hand
+			# Add in-transit quantity from predecessors that are descendents
+			# of self (or equal to self).
+			for p in d.predecessors:
+				if p.index == self.index or p in self.descendants:
+					EOHI += d.in_transit_from(p)
+		return EOHI
+
+	# echelon_inventory_level = current echelon inventory level at node
+	# = echelon on-hand inventory minus backorders at terminal node(s)
+	# downstream from node.
+	@property
+	def echelon_inventory_level(self):
+		EIL = self.echelon_on_hand_inventory
+		for d in self.descendants:
+			if d in self.network.sink_nodes:
+				EIL -= d.backorders
+		return EIL
+
+	# echelon_inventory_position = current echelon inventory position at node
+	# = echelon inventory level + on order.
+	@property
+	def echelon_inventory_position(self):
+		return self.echelon_inventory_level + self.on_order
 
 	# Special methods.
 
@@ -319,8 +464,8 @@ class SupplyChainNode(object):
 	def get_attribute_total(self, attribute, period, include_external=True):
 		"""Return total of attribute for the period specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
-		inbound_shipment, on_order, inbound_order, outbound_shipment, or
-		backorders. (If another attribute is specified, returns the value of the
+		inbound_shipment, on_order_by_predecessor, inbound_order, outbound_shipment, or
+		backorders_by_successor. (If another attribute is specified, returns the value of the
 		attribute, without any summation.)
 
 		If ``period`` is ``None``, sums the attribute over all periods.
@@ -347,7 +492,7 @@ class SupplyChainNode(object):
 			The total value of the attribute.
 
 		"""
-		if attribute in ('inbound_shipment', 'on_order'):
+		if attribute in ('inbound_shipment', 'on_order_by_predecessor'):
 			# These attributes are indexed by predecessor.
 			if include_external and self.supply_type != SupplyType.NONE:
 				pred_indices = self.predecessor_indices + [None]
@@ -359,7 +504,7 @@ class SupplyChainNode(object):
 			else:
 				return np.sum([self.__dict__[attribute][p_index][period]
 							   for p_index in pred_indices])
-		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders'):
+		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor'):
 			# These attributes are indexed by successor.
 			if include_external and self.demand_source.type != DemandType.NONE:
 				succ_indices = self.successor_indices + [None]

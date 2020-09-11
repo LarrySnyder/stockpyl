@@ -421,7 +421,7 @@ def simulation(network, num_periods, rand_seed=None):
 
 	# Initialize pyinv levels and other quantities.
 	for n in G.nodes():
-		# Initialize pyinv levels and backorders.
+		# Initialize inventory levels and backorders.
 		# TODO: handle what happens if initial IL < 0 (or prohibit it)
 		if G.nodes[n]['initial_inventory_level'] is not None:
 			G.nodes[n]['IL'][0] = G.nodes[n]['initial_inventory_level']

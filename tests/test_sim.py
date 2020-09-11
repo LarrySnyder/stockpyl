@@ -2,6 +2,8 @@ import unittest
 
 from pyinv.instances import *
 from pyinv.sim import *
+from pyinv.ssm_serial import local_to_echelon_base_stock_levels
+from pyinv.policy import *
 
 
 # Module-level functions.
@@ -52,7 +54,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -1.08737, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 4.30582, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_shipment[2][95], 6.97664, places=4)
-		self.assertAlmostEqual(network.nodes[2].backorders[1][31], 0.148957, places=4)
+		self.assertAlmostEqual(network.nodes[2].backorders_by_successor[1][31], 0.148957, places=4)
 		self.assertAlmostEqual(network.nodes[2].inventory_level[90], 0.0443519, places=4)
 
 	def test_problem_6_1(self):
@@ -73,7 +75,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -21.4276, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 98.6768, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_shipment[None][95], 105.7364470997879, places=4)
-		self.assertAlmostEqual(network.nodes[0].backorders[None][31], 18.9103, places=4)
+		self.assertAlmostEqual(network.nodes[0].backorders_by_successor[None][31], 18.9103, places=4)
 		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -28.4205, places=4)
 
 	def test_problem_6_2a(self):
@@ -94,11 +96,11 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], 5.60159, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 36.0213, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_shipment[2][96], 34.9884, places=4)
-		self.assertAlmostEqual(network.nodes[2].backorders[1][32], 2.67911, places=4)
+		self.assertAlmostEqual(network.nodes[2].backorders_by_successor[1][32], 2.67911, places=4)
 		self.assertAlmostEqual(network.nodes[2].inventory_level[90], -1.76791, places=4)
 		self.assertAlmostEqual(network.nodes[3].outbound_shipment[2][67], 30.0597, places=4)
 		self.assertAlmostEqual(network.nodes[3].fill_rate[84], 0.843055, places=4)
-		self.assertAlmostEqual(network.nodes[4].on_order[None][58], 30.9224, places=4)
+		self.assertAlmostEqual(network.nodes[4].on_order_by_predecessor[None][58], 30.9224, places=4)
 		self.assertAlmostEqual(network.nodes[4].holding_cost_incurred[81], 2.58384, places=4)
 
 	def test_problem_6_16(self):
@@ -119,7 +121,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -4.72853, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 11.0029, places=4)
 		self.assertAlmostEqual(network.nodes[1].inbound_shipment[None][95], 19.9307, places=4)
-		self.assertAlmostEqual(network.nodes[0].backorders[None][31], 26.9162, places=4)
+		self.assertAlmostEqual(network.nodes[0].backorders_by_successor[None][31], 26.9162, places=4)
 		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -12.6397, places=4)
 
 	def test_single_stage(self):
@@ -128,24 +130,63 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_single_stage()')
 
-		network = get_named_instance("example_4_1")
+		network = get_named_instance("example_4_1_network")
 
 		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False)
 
-#		for t in range(100):
-#			print(network.nodes[0].inbound_order[None][t])
-
-
-		# TODO: figure out why this doesn't agree with spreadsheet
-
 		# Compare total cost.
-		self.assertAlmostEqual(total_cost, 227.90, places=1)
+		self.assertAlmostEqual(total_cost, 255.2472033, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 23.5517, places=4)
-		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -4.72853, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 11.0029, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_shipment[None][95], 19.9307, places=4)
-		self.assertAlmostEqual(network.nodes[0].backorders[None][31], 26.9162, places=4)
-		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -12.6397, places=4)
+		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 57.103320, places=4)
+		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], 9.9564105, places=4)
+		self.assertAlmostEqual(network.nodes[0].inbound_order[None][43], 32.00584965, places=4)
+		self.assertAlmostEqual(network.nodes[0].inbound_shipment[None][95], 52.9079333, places=4)
+		self.assertAlmostEqual(network.nodes[0].backorders_by_successor[None][19], 6.7125153, places=4)
+		self.assertAlmostEqual(network.nodes[0].inventory_level[87], -2.09415258242449, places=4)
 
+
+# class TestSerialEchelonVsLocal(unittest.TestCase):
+# 	"""Test that simulation results agree for a serial system when run using
+# 	echelon vs. local base-stock policies.
+# 	"""
+# 	@classmethod
+# 	def set_up_class(cls):
+# 		"""Called once, before any tests."""
+# 		print_status('TestSerialEchelonVsLocal', 'set_up_class()')
+#
+# 	@classmethod
+# 	def tear_down_class(cls):
+# 		"""Called once, after all tests, if set_up_class successful."""
+# 		print_status('TestSerialEchelonVsLocal', 'tear_down_class()')
+#
+# 	def test_example_6_1(self):
+# 		"""Test that echelon policy results agree with local policy results
+# 		(already calculated) for model from Example 6.1.
+# 		"""
+# 		print_status('TestSerialEchelonVsLocal', 'test_example_6_1()')
+#
+# 		network = get_named_instance("example_6_1")
+#
+# 		# Calculate echelon base-stock levels.
+# 		S_local = {n.index: n.inventory_policy.base_stock_level for n in network.nodes}
+# 		S_echelon = local_to_echelon_base_stock_levels(network, S_local)
+#
+# 		# Create and fill echelon base-stock policies.
+# 		policy_factory = PolicyFactory()
+# 		for n in network.nodes:
+# 			n.inventory_policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
+# 												 base_stock_level=S_echelon[n.index])
+#
+# 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+#
+# 		# Compare total cost.
+# 		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
+#
+# 		# Compare a few performance measures.
+# 		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 4.8883, places=4)
+# 		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -1.08737, places=4)
+# 		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 4.30582, places=4)
+# 		self.assertAlmostEqual(network.nodes[1].inbound_shipment[2][95], 6.97664, places=4)
+# 		self.assertAlmostEqual(network.nodes[2].backorders[1][31], 0.148957, places=4)
+# 		self.assertAlmostEqual(network.nodes[2].inventory_level[90], 0.0443519, places=4)

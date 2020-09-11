@@ -67,6 +67,7 @@ def local_to_echelon_base_stock_levels(network, S_local):
 
 	return S_echelon
 
+
 def echelon_to_local_base_stock_levels(network, S_echelon):
 	"""Convert echelon base-stock levels to local base-stock levels.
 
@@ -114,6 +115,7 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 			S_local[n.index] = S_minus[n.index] - S_minus[k.index]
 
 	return S_local
+
 
 ### COST-RELATED FUNCTIONS ###
 

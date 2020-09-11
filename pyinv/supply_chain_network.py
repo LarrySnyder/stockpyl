@@ -20,6 +20,8 @@ from pyinv.supply_chain_node import *
 from pyinv.policy import *
 from pyinv.helpers import *
 
+import networkx as nx
+
 
 # ===============================================================================
 # SupplyChainNetwork Class
@@ -33,6 +35,8 @@ class SupplyChainNetwork(object):
 	----------
 	nodes : list
 		A list of all ``SupplyChainNode``s in the network. (Read only.)
+	period : int
+		The current period. Used for simulation.
 
 	"""
 
@@ -42,6 +46,7 @@ class SupplyChainNetwork(object):
 		"""
 		# Initialize attributes.
 		self._nodes = []
+		self._period = 0
 
 	@property
 	def nodes(self):
@@ -52,6 +57,14 @@ class SupplyChainNetwork(object):
 		"""Return list of indices of nodes in the network.
 		"""
 		return [node.index for node in self.nodes]
+
+	@property
+	def period(self):
+		return self._period
+
+	@period.setter
+	def period(self, value):
+		self._period = value
 
 	@property
 	def source_nodes(self):
@@ -114,7 +127,7 @@ class SupplyChainNetwork(object):
 		for node in self.nodes:
 			node.index = old_to_new_dict[node.index]
 
-	# Methods to add and remove nodes.
+	# Methods related to network structure.
 
 	def add_node(self, node):
 		"""Add ``node`` to the network. ``node`` will not be connected to other
@@ -133,6 +146,7 @@ class SupplyChainNetwork(object):
 		# Check whether node is already in network.
 		if node not in self.nodes:
 			self.nodes.append(node)
+			node.network = self
 
 	def add_successor(self, node, successor_node):
 		"""Add ``successor_node`` as a successor to ``node``. ``node`` must
@@ -183,6 +197,25 @@ class SupplyChainNetwork(object):
 
 		# Add node to network (if not already contained in it).
 		self.add_node(predecessor_node)
+
+	def networkx_digraph(self):
+		"""Build a ``networkx`` ``digraph`` object with the same structure as
+		the ``SupplyChainNetwork``.
+
+		Returns
+		-------
+		digraph : DiGraph
+			The ``networkx`` ``digraph`` object.
+		"""
+
+		digraph = nx.DiGraph()
+		digraph.add_nodes_from(self.node_indices)
+		for n in self.nodes:
+			for p in n.predecessors:
+				digraph.add_edge(p.index, n.index)
+
+		return digraph
+
 
 
 # ===============================================================================
@@ -324,6 +357,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		elif inventory_policy_type_list[n_index] == InventoryPolicyType.FIXED_QUANTITY \
 			and order_quantities_list[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
+		# TODO: handle ECHELON_BASE_STOCK
 
 	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
@@ -356,7 +390,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 				demand_source.lo = demand_lo_list[n]
 				demand_source.hi = demand_hi_list[n]
 			elif demand_type == DemandType.DETERMINISTIC:
-				demand_source.demands = [demands]
+				demand_source.demands = demands[n]
 			elif demand_type == DemandType.DISCRETE_EXPLICIT:
 				demand_source.demands = demands[n]
 				demand_source.probabilities = demand_probabilities_list[n]

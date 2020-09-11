@@ -6,6 +6,7 @@ import unittest
 # from scipy.stats import lognorm
 
 from pyinv.supply_chain_node import *
+from pyinv.instances import *
 
 
 # Module-level functions.
@@ -121,3 +122,111 @@ class TestSupplyChainNodeEq(unittest.TestCase):
 		self.assertEqual(contains3, True)
 		self.assertEqual(contains4, False)
 		self.assertEqual(contains5, True)
+
+
+class TestDescendants(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDescendants', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDescendants', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test descendants for 3-node serial system in Example 6.1.
+		"""
+		print_status('TestDescendants', 'test_example_6_1()')
+
+		network = get_named_instance("example_6_1")
+
+		nodes = network.nodes
+
+		desc = {}
+		for i in range(len(nodes)):
+			desc[i] = nodes[i].descendants
+
+		self.assertEqual(desc[0], [])
+		self.assertEqual(desc[1], [nodes[0]])
+		self.assertEqual(desc[2], [nodes[0], nodes[1]])
+
+	def test_4_node_owmr(self):
+		"""Test descendants for 4-node OWMR system.
+		"""
+		print_status('TestDescendants', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		nodes = []
+		for i in range(4):
+			nodes.append(SupplyChainNode(i))
+
+		network.add_node(nodes[0])
+		network.add_successor(nodes[0], nodes[1])
+		network.add_successor(nodes[0], nodes[2])
+		network.add_successor(nodes[0], nodes[3])
+
+		desc = {}
+		for i in range(len(nodes)):
+			desc[i] = nodes[i].descendants
+
+		self.assertEqual(desc[0], [nodes[1], nodes[2], nodes[3]])
+		self.assertEqual(desc[1], [])
+		self.assertEqual(desc[2], [])
+		self.assertEqual(desc[3], [])
+
+
+class TestAncestors(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAncestors', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAncestors', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test ancestors for 3-node serial system in Example 6.1.
+		"""
+		print_status('TestAncestors', 'test_example_6_1()')
+
+		network = get_named_instance("example_6_1")
+
+		nodes = network.nodes
+
+		anc = {}
+		for i in range(len(nodes)):
+			anc[i] = nodes[i].ancestors
+
+		self.assertEqual(anc[0], [nodes[1], nodes[2]])
+		self.assertEqual(anc[1], [nodes[2]])
+		self.assertEqual(anc[2], [])
+
+	def test_4_node_owmr(self):
+		"""Test ancestors for 4-node OWMR system.
+		"""
+		print_status('TestAncestors', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		nodes = []
+		for i in range(4):
+			nodes.append(SupplyChainNode(i))
+
+		network.add_node(nodes[0])
+		network.add_successor(nodes[0], nodes[1])
+		network.add_successor(nodes[0], nodes[2])
+		network.add_successor(nodes[0], nodes[3])
+
+		anc = {}
+		for i in range(len(nodes)):
+			anc[i] = nodes[i].ancestors
+
+		self.assertEqual(anc[0], [])
+		self.assertEqual(anc[1], [nodes[0]])
+		self.assertEqual(anc[2], [nodes[0]])
+		self.assertEqual(anc[3], [nodes[0]])

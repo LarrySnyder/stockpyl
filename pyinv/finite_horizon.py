@@ -22,6 +22,7 @@ import numpy as np
 from scipy.stats import norm
 from scipy.optimize import brentq
 import warnings
+from tabulate import tabulate
 
 from pyinv.helpers import *
 from pyinv.newsvendor import *
@@ -40,8 +41,8 @@ def finite_horizon_dp(
 		fixed_cost,
 		demand_mean,
 		demand_sd,
-		discount_factor=1,
-		initial_inventory_level=0):
+		discount_factor=1.0,
+		initial_inventory_level=0.0):
 	"""
 	Solve the finite-horizon inventory optimization problem, with or without
 	fixed costs, minimizing the expected discounted cost over the time horizon,
@@ -413,7 +414,7 @@ def finite_horizon_dp(
 	return reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, x_range
 
 
-def myopic(
+def myopic_bounds(
 		num_periods,
 		holding_cost,
 		stockout_cost,
@@ -423,7 +424,7 @@ def myopic(
 		fixed_cost,
 		demand_mean,
 		demand_sd,
-		discount_factor=1):
+		discount_factor=1.0):
 	"""
 
 	Parameters
@@ -439,11 +440,19 @@ def myopic(
 
 	Returns
 	-------
+	S_underbar
+	S_overbar
+	s_underbar
+	s_overbar : ndarray
+		List of ``s_overbar`` values. For periods ``t`` in which
+		``fixed_cost[t] - discount_factor[t] * fixed_cost[t+1] < 0``,
+		``s_overbar[t] = None``. (``s_overbar`` is invalid in these cases.)
 
 	Raises
 	------
 	ValueError
-		If ``purchase_cost[t]`` < ``discount_factor[t] * purchase_cost[t+1]``
+		If ``purchase_cost[t] - discount_factor[t] * purchase_cost[t+1]`` is
+		less than ``-holding_cost[t]`` or greater than ``stockout_cost[t]``
 		for some ``t``. (This is required for myopic policy to be valid.)
 	"""
 
@@ -501,10 +510,29 @@ def myopic(
 	# Loop through periods.
 	for t in range(1, num_periods+1):
 
-		# Set S_overbar to y >= S_underbar s.t. G_t(S_overbar) = G_t(S_underbar) + gamma_t * K_{t+1}.
-		S_overbar[t] = set_myopic_cost_to(G_)
+		# Calculate S_underbar (= optimizer of G_t(.)).
+		S_underbar[t], G_S_underbar = myopic(h[t], p[t], c[t], c[t+1], demand_mean[t], demand_sd[t], discount_factor[t])
 
-	return S_underbar
+		# Set S_overbar to y >= S_underbar s.t. G_t(y) = G_t(S_underbar) + gamma_t * K_{t+1}.
+		S_overbar[t] = set_myopic_cost_to(G_S_underbar + discount_factor[t] * K[t+1],
+										  h[t], p[t], c[t], c[t+1], demand_mean[t],
+										  demand_sd[t], discount_factor[t], left_half=False)
+
+		# Set s_underbar to y <= S_underbar s.t. G_t(y) = G_t(S_underbar) + K_t.
+		s_underbar[t] = set_myopic_cost_to(G_S_underbar + K[t],
+										   h[t], p[t], c[t], c[t+1], demand_mean[t],
+										   demand_sd[t], discount_factor[t], left_half=True)
+
+		# Set s_overbar to y <= S_underbar s.t. G_t(y) = G_t(S_underbar) + K_t - gamma_t * K_{t+1},
+		# unless K_t - gamma_t * K_{t+1} < 0, in which case set to None.
+		if K[t] - discount_factor[t] * K[t+1] >= 0:
+			s_overbar[t] = set_myopic_cost_to(G_S_underbar + K[t] - discount_factor[t] * K[t+1],
+											  h[t], p[t], c[t], c[t+1], demand_mean[t],
+											  demand_sd[t], discount_factor[t], left_half=True)
+		else:
+			s_overbar[t] = None
+
+	return S_underbar, S_overbar, s_underbar, s_overbar
 
 
 
@@ -521,13 +549,13 @@ stockout_cost = [20, 20, 10, 15, 10, 10]
 terminal_holding_cost = 4
 terminal_stockout_cost = 50
 purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
-fixed_cost = 0
+fixed_cost = 100
 demand_mean = [20, 60, 110, 200, 200, 40]
 demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
 discount_factor = 0.98
 initial_inventory_level = 0
 
-S_underbar = myopic(num_periods, holding_cost,
+S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(num_periods, holding_cost,
 	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
 	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
 
@@ -538,5 +566,9 @@ reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
 	initial_inventory_level)
 
-print(order_up_to_levels)
-print(S_underbar)
+results = []
+for t in range(1, num_periods+1):
+	results.append([t, reorder_points[t], order_up_to_levels[t], S_underbar[t], S_overbar[t],
+				   s_underbar[t], s_overbar[t]])
+
+print(tabulate(results, headers=["t", "s", "S", "S_underbar", "S_overbar", "s_underbar", "s_overbar"]))

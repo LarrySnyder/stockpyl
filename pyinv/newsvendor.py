@@ -547,7 +547,7 @@ def myopic(
 		purchase_cost_next_per,
 		demand_mean,
 		demand_sd,
-		discount_factor=1,
+		discount_factor=1.0,
 		base_stock_level=None):
 	"""Find the optimizer of the myopic cost function, or (if ``base_stock_level``
 	is supplied) calculate the cost of given solution.
@@ -643,7 +643,7 @@ def myopic(
 
 	# Calculate G_t(base_stock_level).
 	cost = myopic_cost(base_stock_level, holding_cost, stockout_cost,
-		purchase_cost, purchase_cost_next_per, demand_mean, demand_sd)
+		purchase_cost, purchase_cost_next_per, demand_mean, demand_sd, discount_factor)
 
 	return base_stock_level, cost
 
@@ -656,7 +656,7 @@ def myopic_cost(
 		purchase_cost_next_per,
 		demand_mean,
 		demand_sd,
-		discount_factor=1):
+		discount_factor=1.0):
 	"""Calculate "myopic" cost function.
 
 	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
@@ -739,7 +739,7 @@ def set_myopic_cost_to(
 		purchase_cost_next_per,
 		demand_mean,
 		demand_sd,
-		discount_factor=1,
+		discount_factor=1.0,
 		left_half=True):
 	"""Find the value of :math:`y` such that :math:`G_t(y)`
 	equals ``cost``, where :math:`G_t(\\cdot)` is the myopic cost function

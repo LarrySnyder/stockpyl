@@ -479,13 +479,13 @@ class TestMyopic(unittest.TestCase):
 									  purchase_cost_next_per, demand_mean, demand_sd,
 									  discount_factor)
 		self.assertAlmostEqual(base_stock_level, 58.09891883213067)
-		self.assertAlmostEqual(cost, 16.625719332793864)
+		self.assertAlmostEqual(cost, 16.682411764618777)
 
 		base_stock_level, cost = newsvendor.myopic(holding_cost, stockout_cost, purchase_cost,
 									  purchase_cost_next_per, demand_mean, demand_sd,
 									  discount_factor, base_stock_level=62)
 		self.assertEqual(base_stock_level, 62)
-		self.assertAlmostEqual(cost, 16.766319828088736)
+		self.assertAlmostEqual(cost, 16.850319828088736)
 
 	def test_problem_4_1(self):
 		"""Test that myopic function correctly solves Problem 4.1 (plus
@@ -503,13 +503,13 @@ class TestMyopic(unittest.TestCase):
 									  purchase_cost_next_per, demand_mean, demand_sd,
 									  discount_factor)
 		self.assertAlmostEqual(base_stock_level, 903.0832764843523)
-		self.assertAlmostEqual(cost, 61399.44622432688)
+		self.assertAlmostEqual(cost, 61416.404244990816)
 
 		base_stock_level, cost = newsvendor.myopic(holding_cost, stockout_cost, purchase_cost,
 									  purchase_cost_next_per, demand_mean, demand_sd,
 									  discount_factor, base_stock_level=950)
 		self.assertEqual(base_stock_level, 950)
-		self.assertAlmostEqual(cost, 61979.39180412519)
+		self.assertAlmostEqual(cost, 62254.39180412519)
 
 
 class TestMyopicCost(unittest.TestCase):

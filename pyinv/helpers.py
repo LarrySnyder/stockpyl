@@ -451,7 +451,7 @@ def sum_of_uniforms_distribution(n, lo=0, hi=1):
 	return distribution
 
 
-def test_irwin_hall_cdf():
+def run_irwin_hall_cdf_test():
 	"""Test ``helpers.irwin_hall_cdf()``. This is not a unit test; it must be
 	run manually. It simulates many sums of uniform distributions and plots
 	their empirical cdf against the calculated cdf.
@@ -480,7 +480,7 @@ def test_irwin_hall_cdf():
 	plt.show()
 
 
-def test_sum_of_uniforms_distribution():
+def run_sum_of_uniforms_distribution_test():
 	"""Test ``helpers.sum_of_uniforms_distribution()``. This is not a unit test;
 	it must be run manually. It simulates many sums of uniform distributions and
 	plots their empirical cdf against the calculated cdf.
