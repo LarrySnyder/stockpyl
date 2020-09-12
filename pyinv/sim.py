@@ -1,4 +1,4 @@
-"""Code for simulating multi-echelon pyinv systems.
+"""Code for simulating multi-echelon inventory systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -44,6 +44,7 @@ import numpy as np
 import math
 from scipy import stats
 from tqdm import tqdm				# progress bar
+import cProfile
 
 from pyinv.datatypes import *
 from pyinv.supply_chain_network import *
@@ -67,7 +68,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : SupplyChainNetwork
-		The multi-echelon pyinv network.
+		The multi-echelon inventory network.
 	period : int
 		Time period.
 	visited : dict
@@ -105,7 +106,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 		order_quantity = 0
 	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
 		current_IP = node.echelon_inventory_position - demand
-		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
+		order_quantity = node.inventory_policy.get_order_quantity(echelon_inventory_position=current_IP)
 	else:
 		current_IP = node.inventory_position - demand
 		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
@@ -148,7 +149,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	node_index : int
 		Index of starting node for depth-first search.
 	network : SupplyChainNetwork
-		The multi-echelon pyinv network.
+		The multi-echelon inventory network.
 	period : int
 		Time period.
 	visited : dict
@@ -293,7 +294,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The multi-echelon pyinv network.
+		The multi-echelon inventory network.
 	num_periods : int
 		Number of periods to simulate.
 	rand_seed : int, optional
@@ -453,7 +454,7 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The multi-echelon pyinv network.
+		The multi-echelon inventory network.
 	num_trials : int
 		Number of trials to simulate.
 	num_periods : int
@@ -513,7 +514,26 @@ def main():
 	# 	stockout_cost=[100, 20, 0],
 	# 	initial_IL=[60, 60, 60]
 	# )
-	network = get_named_instance("example_4_1_network")
+	network = get_named_instance("example_6_1")
+
+	# for i in network.nodes:
+	# 	i.initial_inventory_level = i.inventory_policy.base_stock_level
+
+	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
+	# will differ in the first few periods).
+	for n in network.nodes:
+		n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+	# # Calculate echelon base-stock levels.
+	# S_local = {n.index: n.inventory_policy.base_stock_level for n in network.nodes}
+	# from pyinv.ssm_serial import local_to_echelon_base_stock_levels
+	# S_echelon = local_to_echelon_base_stock_levels(network, S_local)
+	#
+	# # Create and fill echelon base-stock policies.
+	# policy_factory = PolicyFactory()
+	# for n in network.nodes:
+	# 	n.inventory_policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
+	# 													 base_stock_level=S_echelon[n.index])
 
 	# network = serial_system(
 	# 	num_nodes=1,
@@ -542,10 +562,11 @@ def main():
 	# mean_cost, sem_cost = run_multiple_trials(network, num_trials=1000, num_periods=3)
 	# print("mean_cost = {}, sem_cost = {}".format(mean_cost, sem_cost))
 
-	total_cost = simulation(network, T, rand_seed=762)
-#	write_results(network, T, total_cost, write_csv=False)
-	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
+	total_cost = simulation(network, T, rand_seed=17)
+	write_results(network, T, total_cost, write_csv=False)
+#	write_results(network, T, total_cost, write_csv=True, csv_filename='temp_local.csv')
 
 
 if __name__ == "__main__":
+#	cProfile.run('main()')
 	main()

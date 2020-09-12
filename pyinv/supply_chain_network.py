@@ -288,7 +288,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 
 	# TODO: write unit tests
-
+	# TODO: if initial_IL not provided, default to BS levels
 	"""
 
 #	print('hello')

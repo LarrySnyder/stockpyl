@@ -328,7 +328,7 @@ class SupplyChainNode(object):
 	@property
 	def echelon_inventory_level(self):
 		EIL = self.echelon_on_hand_inventory
-		for d in self.descendants:
+		for d in self.descendants + [self]:
 			if d in self.network.sink_nodes:
 				EIL -= d.backorders
 		return EIL
