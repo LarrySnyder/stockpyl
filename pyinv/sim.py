@@ -501,28 +501,16 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 
 def main():
 	T = 100
-	#
-	# network = serial_system(
-	# 	num_nodes=3,
-	# 	demand_type=DemandType.NORMAL,
-	# 	demand_mean=50,
-	# 	demand_standard_deviation=10,
-	# 	inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-	# 	local_base_stock_levels=[60, 60, 60],
-	# 	shipment_lead_time=[1, 1, 1],
-	# 	local_holding_cost=[10, 10, 10],
-	# 	stockout_cost=[100, 20, 0],
-	# 	initial_IL=[60, 60, 60]
-	# )
-	network = get_named_instance("example_6_1")
+
+	network = get_named_instance("assembly_3_stage")
 
 	# for i in network.nodes:
 	# 	i.initial_inventory_level = i.inventory_policy.base_stock_level
 
 	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 	# will differ in the first few periods).
-	for n in network.nodes:
-		n.initial_inventory_level = n.inventory_policy.base_stock_level
+#	for n in network.nodes:
+#		n.initial_inventory_level = n.inventory_policy.base_stock_level
 
 	# # Calculate echelon base-stock levels.
 	# S_local = {n.index: n.inventory_policy.base_stock_level for n in network.nodes}
@@ -564,7 +552,7 @@ def main():
 
 	total_cost = simulation(network, T, rand_seed=17)
 #	write_results(network, T, total_cost, write_csv=False)
-	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
+	write_results(network, T, total_cost, write_csv=True, csv_filename='temp_assembly.csv')
 
 
 if __name__ == "__main__":
