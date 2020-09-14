@@ -238,6 +238,8 @@ class SupplyChainNode(object):
 	def in_transit_to(self, successor):
 		"""Return current total inventory in transit to a given successor.
 		(Declared as a function, not a property, because needs to take an argument.)
+		Excludes items that will be/have been delivered during the current period
+		(``self.network.period``).
 
 		Parameters
 		----------
@@ -248,12 +250,14 @@ class SupplyChainNode(object):
 		-------
 			The current inventory in transit to the successor.
 		"""
-		return np.sum([successor.inbound_shipment[self.index][self.network.period+t]
+		return np.sum([successor.inbound_shipment[self.index][self.network.period+1+t]
 				for t in range(successor.shipment_lead_time)])
 
 	def in_transit_from(self, predecessor):
 		"""Return current total inventory in transit from a given predecessor.
 		(Declared as a function, not a property, because needs to take an argument.)
+		Excludes items that will be/have been delivered during the current period
+		(``self.network.period``).
 
 		Parameters
 		----------
@@ -264,7 +268,12 @@ class SupplyChainNode(object):
 		-------
 			The current inventory in transit from the predecessor.
 		"""
-		return np.sum([self.inbound_shipment[predecessor.index][self.network.period+t]
+		if predecessor is None:
+			p = None
+		else:
+			p = predecessor.index
+
+		return np.sum([self.inbound_shipment[p][self.network.period+1+t]
 				for t in range(self.shipment_lead_time)])
 
 	# in_transit = current total inventory in transit to the node. If node has
@@ -275,13 +284,14 @@ class SupplyChainNode(object):
 	@property
 	def in_transit(self):
 		total_in_transit = np.sum([self.in_transit_from(p) for p in self.predecessors])
-		if total_in_transit == 0:
-			return 0
-		else:
-			if self.supply_type == SupplyType.NONE:
-				return total_in_transit / len(self.predecessors)
+		if self.supply_type == SupplyType.NONE:
+			if total_in_transit == 0:
+				return 0
 			else:
-				return total_in_transit / (len(self.predecessors) + 1)
+					return total_in_transit / len(self.predecessors)
+		else:
+			total_in_transit += self.in_transit_from(None)
+			return total_in_transit / (len(self.predecessors) + 1)
 
 	# on_order = current total on-order quantity. If node has more than 1
 	# predecessor (it is an assembly node), including external supplier,

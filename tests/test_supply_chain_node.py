@@ -7,6 +7,7 @@ import unittest
 
 from pyinv.supply_chain_node import *
 from pyinv.instances import *
+from pyinv.sim import *
 
 
 # Module-level functions.
@@ -230,3 +231,110 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[1], [nodes[0]])
 		self.assertEqual(anc[2], [nodes[0]])
 		self.assertEqual(anc[3], [nodes[0]])
+
+
+class TestStateVariables(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestStateVariables', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestStateVariables', 'tear_down_class()')
+
+	def test_example_6_1_per_23(self):
+		"""Test state variables for simulation of 3-node serial system in
+		Example 6.1 at end of period 23.
+		"""
+		print_status('TestStateVariables', 'test_example_6_1_per_23()')
+
+		network = get_named_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variables, (re)run for a few more and repeat.
+		simulation(network, 24, rand_seed=17)
+
+		# Note: .on_hand will look at starting IL
+		self.assertAlmostEqual(network.nodes[0].on_hand, 0.497397132, places=6)
+		self.assertAlmostEqual(network.nodes[1].on_hand, 0.038666224, places=6)
+		self.assertAlmostEqual(network.nodes[2].on_hand, 0, places=6)
+		self.assertAlmostEqual(network.nodes[0].backorders, 0, places=6)
+		self.assertAlmostEqual(network.nodes[1].backorders, 0, places=6)
+		self.assertAlmostEqual(network.nodes[2].backorders, 0.832602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].in_transit_to(network.nodes[0]), 4.553353396, places=6)
+		self.assertAlmostEqual(network.nodes[2].in_transit_to(network.nodes[1]), 5.385956264, places=6)
+		self.assertAlmostEqual(network.nodes[0].in_transit_from(network.nodes[1]), 4.553353396, places=6)
+		self.assertAlmostEqual(network.nodes[1].in_transit_from(network.nodes[2]), 5.385956264, places=6)
+		self.assertAlmostEqual(network.nodes[2].in_transit_from(None), 5.491333776+4.553353396, places=6)
+		self.assertAlmostEqual(network.nodes[0].in_transit, 4.553353396, places=6)
+		self.assertAlmostEqual(network.nodes[1].in_transit, 5.385956264, places=6)
+		self.assertAlmostEqual(network.nodes[2].in_transit, 5.491333776+4.553353396, places=6)
+		self.assertAlmostEqual(network.nodes[0].on_order, 5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].on_order, 5.491333776, places=6)
+		self.assertAlmostEqual(network.nodes[2].on_order, 11.52260287, places=6)
+		self.assertAlmostEqual(network.nodes[0].inventory_position, 0.497397132+5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].inventory_position, 0.038666224+5.491333776, places=6)
+		self.assertAlmostEqual(network.nodes[2].inventory_position, -0.832602868+11.52260287, places=6)
+		self.assertAlmostEqual(network.nodes[0].echelon_on_hand_inventory, 0.497397132, places=6)
+		self.assertAlmostEqual(network.nodes[1].echelon_on_hand_inventory, 5.089416752, places=6)
+		self.assertAlmostEqual(network.nodes[2].echelon_on_hand_inventory, 10.475373015999999, places=6)
+		self.assertAlmostEqual(network.nodes[0].echelon_inventory_level, 0.497397132, places=6)
+		self.assertAlmostEqual(network.nodes[1].echelon_inventory_level, 5.089416752, places=6)
+		self.assertAlmostEqual(network.nodes[2].echelon_inventory_level, 10.475373015999999, places=6)
+		self.assertAlmostEqual(network.nodes[0].echelon_inventory_position, 0.497397132+5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].echelon_inventory_position, 5.089416752+5.491333776, places=6)
+		self.assertAlmostEqual(network.nodes[2].echelon_inventory_position, 10.475373015999999+11.52260287, places=6)
+
+	def test_example_6_1_per_38(self):
+		"""Test state variables for simulation of 3-node serial system in
+		Example 6.1 at end of period 38.
+		"""
+		print_status('TestStateVariables', 'test_example_6_1_per_38()')
+
+		network = get_named_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variables, (re)run for a few more and repeat.
+		simulation(network, 39, rand_seed=17)
+
+		# Note: .on_hand will look at starting IL
+		self.assertAlmostEqual(network.nodes[0].on_hand, 0, places=6)
+		self.assertAlmostEqual(network.nodes[1].on_hand, 0, places=6)
+		self.assertAlmostEqual(network.nodes[2].on_hand, 0, places=6)
+		self.assertAlmostEqual(network.nodes[0].backorders, 0.16089457, places=6)
+		self.assertAlmostEqual(network.nodes[1].backorders, 0.682689274, places=6)
+		self.assertAlmostEqual(network.nodes[2].backorders, 0.343065432, places=6)
+		self.assertAlmostEqual(network.nodes[1].in_transit_to(network.nodes[0]), 4.517316191, places=6)
+		self.assertAlmostEqual(network.nodes[2].in_transit_to(network.nodes[1]), 4.177692349, places=6)
+		self.assertAlmostEqual(network.nodes[0].in_transit_from(network.nodes[1]), 4.517316191, places=6)
+		self.assertAlmostEqual(network.nodes[1].in_transit_from(network.nodes[2]), 4.177692349, places=6)
+		self.assertAlmostEqual(network.nodes[2].in_transit_from(None), 5.465282344+3.834626917, places=6)
+		self.assertAlmostEqual(network.nodes[0].in_transit, 4.517316191, places=6)
+		self.assertAlmostEqual(network.nodes[1].in_transit, 4.177692349, places=6)
+		self.assertAlmostEqual(network.nodes[2].in_transit, 5.465282344+3.834626917, places=6)
+		self.assertAlmostEqual(network.nodes[0].on_order, 6.65089457, places=6)
+		self.assertAlmostEqual(network.nodes[1].on_order, 6.212689274, places=6)
+		self.assertAlmostEqual(network.nodes[2].on_order, 11.03306543, places=6)
+		self.assertAlmostEqual(network.nodes[0].inventory_position, -0.16089457+6.65089457, places=6)
+		self.assertAlmostEqual(network.nodes[1].inventory_position, -0.682689274+6.212689274, places=6)
+		self.assertAlmostEqual(network.nodes[2].inventory_position, -0.343065432+11.03306543, places=6)
+		self.assertAlmostEqual(network.nodes[0].echelon_on_hand_inventory, 0, places=6)
+		self.assertAlmostEqual(network.nodes[1].echelon_on_hand_inventory, 4.517316191, places=6)
+		self.assertAlmostEqual(network.nodes[2].echelon_on_hand_inventory, 8.69500854, places=6)
+		self.assertAlmostEqual(network.nodes[0].echelon_inventory_level, -0.16089457, places=6)
+		self.assertAlmostEqual(network.nodes[1].echelon_inventory_level, 4.356421621, places=6)
+		self.assertAlmostEqual(network.nodes[2].echelon_inventory_level, 8.53411397, places=6)
+		self.assertAlmostEqual(network.nodes[0].echelon_inventory_position, -0.16089457+6.65089457, places=6)
+		self.assertAlmostEqual(network.nodes[1].echelon_inventory_position, 4.356421621+6.212689274, places=6)
+		self.assertAlmostEqual(network.nodes[2].echelon_inventory_position, 8.53411397+11.03306543, places=6)
+

@@ -32,6 +32,7 @@ class InventoryPolicyType(Enum):
 	s_S = 3
 	FIXED_QUANTITY = 4
 	ECHELON_BASE_STOCK = 5
+	BALANCED_ECHELON_BASE_STOCK = 6
 #	STERMAN = 3
 #	RANDOM = 4
 
@@ -490,6 +491,92 @@ class PolicyEchelonBaseStock(Policy):
 		return max(0.0, self._echelon_base_stock_level - echelon_inventory_position)
 
 
+class PolicyBalancedEchelonBaseStock(Policy):
+	"""The ``PolicyBalancedEchelonBaseStock`` class is used for balanced echelon
+	base-stock policies.
+
+	Attributes
+	----------
+	_policy_type : InventoryPolicyType
+		The inventory policy type.
+	_echelon_base_stock_level : float
+		The echelon base-stock level. [:math:`S`]
+	"""
+
+	def __init__(self, echelon_base_stock_level):
+		"""Policy constructor method.
+		"""
+		# Set policy_type.
+		self._policy_type = InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK
+
+		# Set policy parameter(s).
+		self._echelon_base_stock_level = echelon_base_stock_level
+
+	# PROPERTIES
+
+	@property
+	def policy_type(self):
+		# Read only.
+		return self._policy_type
+
+	@property
+	def echelon_base_stock_level(self):
+		return self._echelon_base_stock_level
+
+	@echelon_base_stock_level.setter
+	def echelon_base_stock_level(self, value):
+		self._echelon_base_stock_level = value
+
+	# SPECIAL MEMBERS
+
+	def __repr__(self):
+		"""
+		Return a string representation of the ``Policy`` instance.
+
+		Returns
+		-------
+			A string representation of the ``Policy`` instance.
+
+		"""
+		# Build string of parameters.
+		param_str = "echelon_base_stock_level={:.2f}".format(self.echelon_base_stock_level)
+
+		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
+
+	def __str__(self):
+		"""
+		Return the full name of the ``Policy`` instance.
+
+		Returns
+		-------
+			The policy name.
+
+		"""
+		return self.__repr__()
+
+	# METHODS
+
+	def get_order_quantity(self, echelon_inventory_position=None):
+		# TODO
+		"""Calculate order quantity.
+
+		Parameters
+		----------
+		echelon_inventory_position : float
+			Echelon inventory position immediately before order is placed.
+			Echelon IP at stage i = sum of on-hand inventories at i and at or
+			in transit to all of its downstream stages, minus backorders at
+			downstream-most stage, plus on-order inventory at stage i.
+
+		Returns
+		-------
+		order_quantity : float
+			The order quantity.
+		"""
+
+		return max(0.0, self._echelon_base_stock_level - echelon_inventory_position)
+
+
 # ===============================================================================
 # PolicyFactory Class
 # ===============================================================================
@@ -545,6 +632,8 @@ class PolicyFactory(object):
 			policy = PolicyFixedQuantity(order_quantity=order_quantity)
 		elif policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
 			policy = PolicyEchelonBaseStock(echelon_base_stock_level=base_stock_level)
+		elif policy_type == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
+			policy = PolicyBalancedEchelonBaseStock(echelon_base_stock_level=base_stock_level)
 		else:
 			raise(ValueError, "Unknown inventory policy type")
 

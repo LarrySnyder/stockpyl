@@ -563,8 +563,8 @@ def main():
 	# print("mean_cost = {}, sem_cost = {}".format(mean_cost, sem_cost))
 
 	total_cost = simulation(network, T, rand_seed=17)
-	write_results(network, T, total_cost, write_csv=False)
-#	write_results(network, T, total_cost, write_csv=True, csv_filename='temp_local.csv')
+#	write_results(network, T, total_cost, write_csv=False)
+	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
 
 
 if __name__ == "__main__":
