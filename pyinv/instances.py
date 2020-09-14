@@ -321,3 +321,20 @@ def get_named_instance(instance_name):
 		)
 		return problem_6_16_network
 
+	# INSTANCES NOT FROM TEXTBOOK
+	if instance_name == "assembly_3_stage":
+		# Example 6.1.
+		assembly_3_stage_network = mwor_system(
+			num_retailers=2,
+			local_holding_cost=[2, 1, 1],
+			stockout_cost=[20, 0, 0],
+			demand_type=DemandType.NORMAL,
+			demand_mean=5,
+			demand_standard_deviation=1,
+			shipment_lead_time=[1, 2, 2],
+			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+			local_base_stock_levels=[7, 13, 13],
+			downstream_0=True
+		)
+		return assembly_3_stage_network
+

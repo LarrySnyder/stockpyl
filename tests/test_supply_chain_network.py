@@ -249,6 +249,161 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(sink_node.local_holding_cost, 7)
 
 
+class TestMWORSystem(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestMWORSystem', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestMWORSystem', 'tear_down_class()')
+
+	def test_4_node_mrow_downstream_0(self):
+		"""Test mwor_system() to build 4-node MWOR system, indexed
+		with downstream node = 0.
+		"""
+		print_status('TestMWORSystem', 'test_4_node_mwor_downstream_0()')
+
+		network = mwor_system(3, local_holding_cost=[5, 1, 1, 2],
+								demand_type=DemandType.NORMAL,
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[10, 10, 10, 10])
+
+		# Get nodes.
+		wh1 = network.source_nodes[0]
+		wh2 = network.source_nodes[1]
+		wh3 = network.source_nodes[2]
+		ret = network.sink_nodes[0]
+
+		# Get successors and predecessors.
+		ret_succ = ret.successor_indices
+		wh1_succ = wh1.successor_indices
+		wh2_succ = wh2.successor_indices
+		wh3_succ = wh3.successor_indices
+		ret_pred = ret.predecessor_indices
+		wh1_pred = wh1.predecessor_indices
+		wh2_pred = wh2.predecessor_indices
+		wh3_pred = wh3.predecessor_indices
+
+		self.assertEqual(ret.index, 0)
+		self.assertEqual(wh1.index, 1)
+		self.assertEqual(wh2.index, 2)
+		self.assertEqual(wh3.index, 3)
+
+		self.assertEqual(ret_succ, [])
+		self.assertEqual(wh1_succ, [0])
+		self.assertEqual(wh2_succ, [0])
+		self.assertEqual(wh3_succ, [0])
+		self.assertEqual(ret_pred, [1, 2, 3])
+		self.assertEqual(wh1_pred, [])
+		self.assertEqual(wh2_pred, [])
+		self.assertEqual(wh3_pred, [])
+
+		self.assertEqual(ret.local_holding_cost, 5)
+		self.assertEqual(wh1.local_holding_cost, 1)
+		self.assertEqual(wh2.local_holding_cost, 1)
+		self.assertEqual(wh3.local_holding_cost, 2)
+
+	def test_4_node_mrow_downstream_3(self):
+		"""Test mwor_system() to build 4-node MWOR system, indexed
+		with downstream node = 3.
+		"""
+		print_status('TestMWORSystem', 'test_4_node_mrow_downstream_3()')
+
+		network = mwor_system(3, downstream_0=False,
+								local_holding_cost=[5, 1, 1, 2],
+								demand_type=DemandType.NORMAL,
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[10, 10, 10, 10])
+
+		# Get nodes.
+		wh1 = network.source_nodes[0]
+		wh2 = network.source_nodes[1]
+		wh3 = network.source_nodes[2]
+		ret = network.sink_nodes[0]
+
+		# Get successors and predecessors.
+		ret_succ = ret.successor_indices
+		wh1_succ = wh1.successor_indices
+		wh2_succ = wh2.successor_indices
+		wh3_succ = wh3.successor_indices
+		ret_pred = ret.predecessor_indices
+		wh1_pred = wh1.predecessor_indices
+		wh2_pred = wh2.predecessor_indices
+		wh3_pred = wh3.predecessor_indices
+
+		self.assertEqual(ret.index, 3)
+		self.assertEqual(wh1.index, 2)
+		self.assertEqual(wh2.index, 1)
+		self.assertEqual(wh3.index, 0)
+
+		self.assertEqual(ret_succ, [])
+		self.assertEqual(wh1_succ, [3])
+		self.assertEqual(wh2_succ, [3])
+		self.assertEqual(wh3_succ, [3])
+		self.assertEqual(ret_pred, [2, 1, 0])
+		self.assertEqual(wh1_pred, [])
+		self.assertEqual(wh2_pred, [])
+		self.assertEqual(wh3_pred, [])
+
+		self.assertEqual(ret.local_holding_cost, 5)
+		self.assertEqual(wh1.local_holding_cost, 1)
+		self.assertEqual(wh2.local_holding_cost, 1)
+		self.assertEqual(wh3.local_holding_cost, 2)
+
+	def test_4_node_mrow_index_list(self):
+		"""Test mwor_system() to build 4-node MWOR system, with index list
+		given explicitly
+		"""
+		print_status('TestMWORSystem', 'test_4_node_mrow_index_list()')
+
+		network = mwor_system(3, node_indices=[17, 14, 12, 5],
+								local_holding_cost=[5, 1, 1, 2],
+								demand_type=DemandType.NORMAL,
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[10, 10, 10, 10])
+
+		# Get nodes.
+		wh1 = network.source_nodes[0]
+		wh2 = network.source_nodes[1]
+		wh3 = network.source_nodes[2]
+		ret = network.sink_nodes[0]
+
+		# Get successors and predecessors.
+		ret_succ = ret.successor_indices
+		wh1_succ = wh1.successor_indices
+		wh2_succ = wh2.successor_indices
+		wh3_succ = wh3.successor_indices
+		ret_pred = ret.predecessor_indices
+		wh1_pred = wh1.predecessor_indices
+		wh2_pred = wh2.predecessor_indices
+		wh3_pred = wh3.predecessor_indices
+
+		self.assertEqual(ret.index, 17)
+		self.assertEqual(wh1.index, 14)
+		self.assertEqual(wh2.index, 12)
+		self.assertEqual(wh3.index, 5)
+
+		self.assertEqual(ret_succ, [])
+		self.assertEqual(wh1_succ, [17])
+		self.assertEqual(wh2_succ, [17])
+		self.assertEqual(wh3_succ, [17])
+		self.assertEqual(ret_pred, [14, 12, 5])
+		self.assertEqual(wh1_pred, [])
+		self.assertEqual(wh2_pred, [])
+		self.assertEqual(wh3_pred, [])
+
+		self.assertEqual(ret.local_holding_cost, 5)
+		self.assertEqual(wh1.local_holding_cost, 1)
+		self.assertEqual(wh2.local_holding_cost, 1)
+		self.assertEqual(wh3.local_holding_cost, 2)
+
+
 class TestNetworkxDigraph(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
