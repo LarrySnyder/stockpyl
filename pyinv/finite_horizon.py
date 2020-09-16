@@ -536,39 +536,39 @@ def myopic_bounds(
 
 
 
+if __name__ == "__main__":
 
+	# num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+	# 	terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+	# 	demand_sd, discount_factor, initial_inventory_level = \
+	# 	get_named_instance("problem_4_29")
 
-# num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-# 	terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-# 	demand_sd, discount_factor, initial_inventory_level = \
-# 	get_named_instance("problem_4_29")
+	num_periods = 6
+	holding_cost = [1, 1, 1, 1, 2, 2]
+	stockout_cost = [20, 20, 10, 15, 10, 10]
+	terminal_holding_cost = 4
+	terminal_stockout_cost = 50
+	purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
+	fixed_cost = 100
+	demand_mean = [20, 60, 110, 200, 200, 40]
+	demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
+	discount_factor = 0.98
+	initial_inventory_level = 0
 
-num_periods = 6
-holding_cost = [1, 1, 1, 1, 2, 2]
-stockout_cost = [20, 20, 10, 15, 10, 10]
-terminal_holding_cost = 4
-terminal_stockout_cost = 50
-purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
-fixed_cost = 100
-demand_mean = [20, 60, 110, 200, 200, 40]
-demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
-discount_factor = 0.98
-initial_inventory_level = 0
+	S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(num_periods, holding_cost,
+		stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+		purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
 
-S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(num_periods, holding_cost,
-	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
+	# Solve problem.
+	reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+		x_range = finite_horizon_dp(num_periods, holding_cost,
+		stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+		purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+		initial_inventory_level)
 
-# Solve problem.
-reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-	x_range = finite_horizon_dp(num_periods, holding_cost,
-	stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-	purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-	initial_inventory_level)
+	results = []
+	for t in range(1, num_periods+1):
+		results.append([t, reorder_points[t], order_up_to_levels[t], S_underbar[t], S_overbar[t],
+					   s_underbar[t], s_overbar[t]])
 
-results = []
-for t in range(1, num_periods+1):
-	results.append([t, reorder_points[t], order_up_to_levels[t], S_underbar[t], S_overbar[t],
-				   s_underbar[t], s_overbar[t]])
-
-print(tabulate(results, headers=["t", "s", "S", "S_underbar", "S_overbar", "s_underbar", "s_overbar"]))
+	print(tabulate(results, headers=["t", "s", "S", "S_underbar", "S_overbar", "s_underbar", "s_overbar"]))

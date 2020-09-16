@@ -50,12 +50,12 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 4.8883, places=4)
-		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -1.08737, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 4.30582, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_shipment[2][95], 6.97664, places=4)
-		self.assertAlmostEqual(network.nodes[2].backorders_by_successor[1][31], 0.148957, places=4)
-		self.assertAlmostEqual(network.nodes[2].inventory_level[90], 0.0443519, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[6].order_quantity, 4.8883, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[95].ending_inventory_level, -1.08737, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[43].inbound_order[0], 4.30582, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[95].inbound_shipment[2], 6.97664, places=4)
+		self.assertAlmostEqual(network.nodes[2].state_vars_current[31].backorders_by_successor[1], 0.148957, places=4)
+		self.assertAlmostEqual(network.nodes[2].state_vars_current[90].inventory_level, 0.0443519, places=4)
 
 	def test_problem_6_1(self):
 		"""Test that simulation() function correctly simulates model from
@@ -71,12 +71,12 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 35794.476254, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 140.6747130757738, places=4)
-		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -21.4276, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 98.6768, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_shipment[None][95], 105.7364470997879, places=4)
-		self.assertAlmostEqual(network.nodes[0].backorders_by_successor[None][31], 18.9103, places=4)
-		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -28.4205, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[6].order_quantity, 140.6747130757738, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[95].ending_inventory_level, -21.4276, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[43].inbound_order[0], 98.6768, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[95].inbound_shipment[None], 105.7364470997879, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[31].backorders_by_successor[None], 18.9103, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[90].inventory_level, -28.4205, places=4)
 
 	def test_problem_6_2a(self):
 		"""Test that simulation() function correctly simulates model from
@@ -92,16 +92,16 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 38381.048422, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 34.7807, places=4)
-		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], 5.60159, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 36.0213, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_shipment[2][96], 34.9884, places=4)
-		self.assertAlmostEqual(network.nodes[2].backorders_by_successor[1][32], 2.67911, places=4)
-		self.assertAlmostEqual(network.nodes[2].inventory_level[90], -1.76791, places=4)
-		self.assertAlmostEqual(network.nodes[3].outbound_shipment[2][67], 30.0597, places=4)
-		self.assertAlmostEqual(network.nodes[3].fill_rate[84], 0.843055, places=4)
-		self.assertAlmostEqual(network.nodes[4].on_order_by_predecessor[None][58], 30.9224, places=4)
-		self.assertAlmostEqual(network.nodes[4].holding_cost_incurred[81], 2.58384, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[6].order_quantity, 34.7807, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[95].ending_inventory_level, 5.60159, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[43].inbound_order[0], 36.0213, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[96].inbound_shipment[2], 34.9884, places=4)
+		self.assertAlmostEqual(network.nodes[2].state_vars_current[32].backorders_by_successor[1], 2.67911, places=4)
+		self.assertAlmostEqual(network.nodes[2].state_vars_current[90].inventory_level, -1.76791, places=4)
+		self.assertAlmostEqual(network.nodes[3].state_vars_current[67].outbound_shipment[2], 30.0597, places=4)
+		self.assertAlmostEqual(network.nodes[3].state_vars_current[84].fill_rate, 0.843055, places=4)
+		self.assertAlmostEqual(network.nodes[4].state_vars_current[58].on_order_by_predecessor[None], 30.9224, places=4)
+		self.assertAlmostEqual(network.nodes[4].state_vars_current[81].holding_cost_incurred, 2.58384, places=4)
 
 	def test_problem_6_16(self):
 		"""Test that simulation() function correctly simulates model from
@@ -117,12 +117,12 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 52386.309175, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 23.5517, places=4)
-		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], -4.72853, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_order[0][43], 11.0029, places=4)
-		self.assertAlmostEqual(network.nodes[1].inbound_shipment[None][95], 19.9307, places=4)
-		self.assertAlmostEqual(network.nodes[0].backorders_by_successor[None][31], 26.9162, places=4)
-		self.assertAlmostEqual(network.nodes[1].inventory_level[90], -12.6397, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[6].order_quantity, 23.5517, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[95].ending_inventory_level, -4.72853, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[43].inbound_order[0], 11.0029, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[95].inbound_shipment[None], 19.9307, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[31].backorders_by_successor[None], 26.9162, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars_current[90].inventory_level, -12.6397, places=4)
 
 	def test_single_stage(self):
 		"""Test that simulation() function correctly simulates single-stage
@@ -138,12 +138,12 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 255.2472033, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].order_quantity[6], 57.103320, places=4)
-		self.assertAlmostEqual(network.nodes[0].ending_inventory_level[95], 9.9564105, places=4)
-		self.assertAlmostEqual(network.nodes[0].inbound_order[None][43], 32.00584965, places=4)
-		self.assertAlmostEqual(network.nodes[0].inbound_shipment[None][95], 52.9079333, places=4)
-		self.assertAlmostEqual(network.nodes[0].backorders_by_successor[None][19], 6.7125153, places=4)
-		self.assertAlmostEqual(network.nodes[0].inventory_level[87], -2.09415258242449, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[6].order_quantity, 57.103320, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[95].ending_inventory_level, 9.9564105, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[43].inbound_order[None], 32.00584965, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[95].inbound_shipment[None], 52.9079333, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[19].backorders_by_successor[None], 6.7125153, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars_current[87].inventory_level, -2.09415258242449, places=4)
 
 
 class TestSerialEchelonVsLocal(unittest.TestCase):
@@ -202,18 +202,18 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 
 		# Compare a few performance measures.
 		for i in range(len(network_ech.nodes)):
-			np.testing.assert_allclose(network_local.nodes[i].order_quantity,
-									   network_ech.nodes[i].order_quantity)
-			np.testing.assert_allclose(network_local.nodes[i].ending_inventory_level,
-									   network_ech.nodes[i].ending_inventory_level)
+			np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].order_quantity,
+									   network_ech.nodes[i].state_vars_current[99].order_quantity)
+			np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].ending_inventory_level,
+									   network_ech.nodes[i].state_vars_current[99].ending_inventory_level)
 			for s in network_ech.nodes[i].successor_indices:
-				np.testing.assert_allclose(network_local.nodes[i].inbound_order[s],
-										   network_ech.nodes[i].inbound_order[s])
+				np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].inbound_order[s],
+										   network_ech.nodes[i].state_vars_current[99].inbound_order[s])
 			for p in network_ech.nodes[i].predecessor_indices:
-				np.testing.assert_allclose(network_local.nodes[i].inbound_shipment[p],
-										   network_ech.nodes[i].inbound_shipment[p])
-			np.testing.assert_allclose(network_local.nodes[i].backorders,
-									   network_ech.nodes[i].backorders)
+				np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].inbound_shipment[p],
+										   network_ech.nodes[i].state_vars_current[99].inbound_shipment[p])
+			np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].backorders,
+									   network_ech.nodes[i].state_vars_current[99].backorders)
 
 
 	def test_problem_6_2a(self):
@@ -259,15 +259,15 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 
 		# Compare a few performance measures.
 		for i in range(len(network_ech.nodes)):
-			np.testing.assert_allclose(network_local.nodes[i].order_quantity,
-									   network_ech.nodes[i].order_quantity)
-			np.testing.assert_allclose(network_local.nodes[i].ending_inventory_level,
-									   network_ech.nodes[i].ending_inventory_level)
+			np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].order_quantity,
+									   network_ech.nodes[i].state_vars_current[99].order_quantity)
+			np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].ending_inventory_level,
+									   network_ech.nodes[i].state_vars_current[99].ending_inventory_level)
 			for s in network_ech.nodes[i].successor_indices:
-				np.testing.assert_allclose(network_local.nodes[i].inbound_order[s],
-										   network_ech.nodes[i].inbound_order[s])
+				np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].inbound_order[s],
+										   network_ech.nodes[i].state_vars_current[99].inbound_order[s])
 			for p in network_ech.nodes[i].predecessor_indices:
-				np.testing.assert_allclose(network_local.nodes[i].inbound_shipment[p],
-										   network_ech.nodes[i].inbound_shipment[p])
-			np.testing.assert_allclose(network_local.nodes[i].backorders,
-									   network_ech.nodes[i].backorders)
+				np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].inbound_shipment[p],
+										   network_ech.nodes[i].state_vars_current[99].inbound_shipment[p])
+			np.testing.assert_allclose(network_local.nodes[i].state_vars_current[99].backorders,
+									   network_ech.nodes[i].state_vars_current[99].backorders)
