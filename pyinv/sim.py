@@ -128,20 +128,6 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 			for l in range(s.order_lead_time):
 				n.state_vars[0].inbound_order_pipeline[l] = s.initial_orders
 
-		# # Initialize inbound order quantities for all successors of n,
-		# # and update their on-order quantities.
-		# for s in n.successors:
-		# 	for t in range(n.order_lead_time):
-		# 		s.state_vars[t].inbound_order[n.index] = n.initial_orders
-		# 		s.state_vars[0].on_order_by_predecessor[n.index] += s.state_vars[t].inbound_order[n.index]
-		#
-		# # Initialize inbound shipment quantities from all predecessors of n,
-		# # and update on-order quantity at n.
-		# for p_index in predecessor_indices[n]:
-		# 	for t in range(n.shipment_lead_time):
-		# 		n.state_vars[t].inbound_shipment[p_index] = n.initial_shipments or 0
-		# 		n.state_vars[0].on_order_by_predecessor[p_index] += n.state_vars[t].inbound_shipment[p_index]
-
 	# MAIN LOOP
 
 	for t in range(num_periods):
@@ -180,44 +166,47 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 		for n in network.nodes:
 			if t < num_periods:
+				# Update pipelines.
 				for p in n.predecessor_indices(include_external=True):
 					n.state_vars[t+1].inbound_shipment_pipeline[p] = \
-						n.state_vars[t].inbound_shipment_pipeline[p][1:] + [0]
+						n.state_vars_current.inbound_shipment_pipeline[p][1:] + [0]
 				for s in n.successor_indices(include_external=True):
 					n.state_vars[t+1].inbound_order_pipeline[s] = \
-						n.state_vars[t].inbound_order_pipeline[s][1:] + [0]
+						n.state_vars_current.inbound_order_pipeline[s][1:] + [0]
 
-				# Set next period's starting IL and BO.
-				n.state_vars[t + 1].inventory_level = n.state_vars[t].ending_inventory_level
+				# Set next period's starting IL, BO, and OO.
+				n.state_vars[t+1].inventory_level = n.state_vars_current.ending_inventory_level
 				for s_index in n.successor_indices(include_external=True):
-					n.state_vars[t + 1].backorders_by_successor[s_index] = \
-					n.state_vars[t].backorders_by_successor[s_index]
+					n.state_vars[t+1].backorders_by_successor[s_index] = \
+						n.state_vars_current.backorders_by_successor[s_index]
+				for p_index in n.predecessor_indices(include_external=True):
+					n.state_vars[t+1].on_order_by_predecessor[p_index] = \
+						n.state_vars_current.on_order_by_predecessor[p_index]
 
 		# Calculate costs.
 		for n in network.nodes:
 			try:
-				n.state_vars[t].holding_cost_incurred = \
-					n.local_holding_cost_function(n.state_vars[t].ending_inventory_level)
+				n.state_vars_current.holding_cost_incurred = \
+					n.local_holding_cost_function(n.state_vars_current.ending_inventory_level)
 			except TypeError:
-				n.state_vars[t].holding_cost_incurred = \
-					n.local_holding_cost * max(0, n.state_vars[t].ending_inventory_level)
+				n.state_vars_current.holding_cost_incurred = \
+					n.local_holding_cost * max(0, n.state_vars_current.ending_inventory_level)
 			try:
-				n.state_vars[t].stockout_cost_incurred = \
-					n.stockout_cost_function(n.state_vars[t].ending_inventory_level)
+				n.state_vars_current.stockout_cost_incurred = \
+					n.stockout_cost_function(n.state_vars_current.ending_inventory_level)
 			except TypeError:
-				n.state_vars[t].stockout_cost_incurred = \
-					n.stockout_cost * max(0, -n.state_vars[t].ending_inventory_level)
+				n.state_vars_current.stockout_cost_incurred = \
+					n.stockout_cost * max(0, -n.state_vars_current.ending_inventory_level)
 			# TODO: add more flexible ways of calculating in-transit h.c.
-			# TODO: I don't like that we're using t+1 here
-			n.state_vars[t].in_transit_holding_cost_incurred = \
-				n.local_holding_cost * np.sum([n.state_vars[t+1].in_transit_to(s) for s in n.successors()])
+			n.state_vars_current.in_transit_holding_cost_incurred = \
+				n.local_holding_cost * np.sum([n.state_vars_current.in_transit_to(s) for s in n.successors()])
 			#		n.local_holding_cost * np.sum([s.state_vars[t+1+t].inbound_shipment[n_index]
 			#			for s in n.successors for t in range(s.shipment_lead_time)])
 
-			n.state_vars[t].total_cost_incurred = \
-				n.state_vars[t].holding_cost_incurred + \
-				n.state_vars[t].stockout_cost_incurred + \
-				n.state_vars[t].in_transit_holding_cost_incurred
+			n.state_vars_current.total_cost_incurred = \
+				n.state_vars_current.holding_cost_incurred + \
+				n.state_vars_current.stockout_cost_incurred + \
+				n.state_vars_current.in_transit_holding_cost_incurred
 
 	# Close progress bar.
 	pbar.close()
@@ -262,9 +251,9 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Does node have external demand?
 	if node.demand_source.type != DemandType.NONE:
 		# Generate demand and fill it in inbound_order_pipeline.
-		node.state_vars[period].inbound_order_pipeline[None][0] = \
+		node.state_vars_current.inbound_order_pipeline[None][0] = \
 			node.demand_source.generate_demand(period)
-#		node.state_vars[period].inbound_order[None] = node.demand_source.generate_demand(period)
+#		node.state_vars_current.inbound_order[None] = node.demand_source.generate_demand(period)
 
 	# Call generate_downstream_orders() for all non-visited successors.
 	for s in node.successors():
@@ -274,10 +263,10 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Receive inbound orders.
 	for s_index in node.successor_indices(include_external=True):
 		# Set inbound_order from pipeline.
-		node.state_vars[period].inbound_order[s_index] = \
-			node.state_vars[period].inbound_order_pipeline[s_index][0]
+		node.state_vars_current.inbound_order[s_index] = \
+			node.state_vars_current.inbound_order_pipeline[s_index][0]
 		# Remove order from pipeline.
-		node.state_vars[period].inbound_order_pipeline[s_index][0] = 0
+		node.state_vars_current.inbound_order_pipeline[s_index][0] = 0
 
 	# Calculate total demand (inbound orders), including successor nodes and
 	# external demand.
@@ -287,12 +276,12 @@ def generate_downstream_orders(node_index, network, period, visited):
 	if node.inventory_policy is None:
 		order_quantity = 0
 	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
-		current_IP = node.state_vars[period].echelon_inventory_position - demand
+		current_IP = node.state_vars_current.echelon_inventory_position - demand
 		order_quantity = node.inventory_policy.get_order_quantity(echelon_inventory_position=current_IP)
 	else:
-		current_IP = node.state_vars[period].inventory_position - demand
+		current_IP = node.state_vars_current.inventory_position - demand
 		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
-	node.state_vars[period].order_quantity = order_quantity
+	node.state_vars_current.order_quantity = order_quantity
 
 	# Get lead times (for convenience).
 	order_lead_time = node.order_lead_time
@@ -301,22 +290,23 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Place orders to all predecessors.
 	for p in node.predecessors(include_external=True):
 		if p is not None:
-			p.state_vars[period].inbound_order_pipeline[node_index][order_lead_time] = \
+			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
 				order_quantity
 #			p.state_vars[period+order_lead_time].inbound_order[node_index] = \
 #				order_quantity
 			p_index = p.index
 		else:
 			p_index = None
-		node.state_vars[period + 1].on_order_by_predecessor[p_index] = \
-			node.state_vars[period].on_order_by_predecessor[p_index] + order_quantity
+		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
+		# node.state_vars[period + 1].on_order_by_predecessor[p_index] = \
+		# 	node.state_vars[period].on_order_by_predecessor[p_index] + order_quantity
 
 	# Does node have external supply?
 	if node.supply_type != SupplyType.NONE:
 		# Place order to external supplier.
 		# (For now, this just means adding to inbound shipment pipeline.)
 		# TODO: Handle other types of supply functions
-		node.state_vars[period].inbound_shipment_pipeline[None][order_lead_time+shipment_lead_time] = \
+		node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time+shipment_lead_time] = \
 			order_quantity
 #		node.state_vars[period + order_lead_time + shipment_lead_time].inbound_shipment[None] = \
 #			order_quantity
@@ -356,23 +346,22 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	# shipment later. Subtract arriving shipment from next period's starting OO.
 	# TODO: handle what happens when AND-type supply nodes (assembly-type) -- now it assumes OR-type
 	# TODO: change this to .inventory_level
-	node.state_vars[period].ending_inventory_level = node.state_vars[period].inventory_level
-	inbound_shipment = np.sum([node.state_vars[period].inbound_shipment_pipeline[
+	node.state_vars_current.ending_inventory_level = node.state_vars_current.inventory_level
+	inbound_shipment = np.sum([node.state_vars_current.inbound_shipment_pipeline[
 		p_index][0] for p_index in node.predecessor_indices(include_external=True)])
 	for p_index in node.predecessor_indices(include_external=True):
 		# Set inbound_shipments from pipeline.
-		node.state_vars[period].inbound_shipment[p_index] = inbound_shipment
+		node.state_vars_current.inbound_shipment[p_index] = inbound_shipment
 		# Remove shipment from pipeline.
-		node.state_vars[period].inbound_shipment_pipeline[p_index][0] = 0
+		node.state_vars_current.inbound_shipment_pipeline[p_index][0] = 0
 		# Update IL and OO.
-		node.state_vars[period].ending_inventory_level += inbound_shipment
-		# TODO: revise on_order so it doesn't peek into next period
-		node.state_vars[period+1].on_order_by_predecessor[p_index] -= inbound_shipment
+		node.state_vars_current.ending_inventory_level += inbound_shipment
+		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
 
 	# Determine current on-hand and backorders (after shipment arrives but
 	# before demand is subtracted).
-	current_on_hand = max(0, node.state_vars[period].inventory_level) + inbound_shipment
-	current_backorders = max(0, -node.state_vars[period].inventory_level)
+	current_on_hand = max(0, node.state_vars_current.inventory_level) + inbound_shipment
+	current_backorders = max(0, -node.state_vars_current.inventory_level)
 	# Double-check BO calculations.
 	current_backorders_check = node.get_attribute_total('backorders_by_successor', period)
 	assert np.isclose(current_backorders, current_backorders_check), \
@@ -381,33 +370,33 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
 	# TODO: allow different allocation policies
-	node.state_vars[period].demand_met_from_stock = 0.0
+	node.state_vars_current.demand_met_from_stock = 0.0
 	for s_index in node.successor_indices(include_external=True):
 		# Outbound shipment to s = min{OH, BO for s + new order from s}.
-		node.state_vars[period].outbound_shipment[s_index] = \
-			min(current_on_hand, node.state_vars[period].backorders_by_successor[s_index] +
-				node.state_vars[period].inbound_order[s_index])
+		node.state_vars_current.outbound_shipment[s_index] = \
+			min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
+				node.state_vars_current.inbound_order[s_index])
 
 		# How much of outbound shipment was used to clear backorders?
 		# (Assumes backorders are cleared before satisfying current period's
 		# demands.)
-		BO_OS = min(node.state_vars[period].outbound_shipment[s_index],
-					node.state_vars[period].backorders_by_successor[s_index])
-		non_BO_OS = node.state_vars[period].outbound_shipment[s_index] - BO_OS
+		BO_OS = min(node.state_vars_current.outbound_shipment[s_index],
+					node.state_vars_current.backorders_by_successor[s_index])
+		non_BO_OS = node.state_vars_current.outbound_shipment[s_index] - BO_OS
 
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demands.)
 		# TODO: handle successor-level DMFS and FR.
-		node.state_vars[period].demand_met_from_stock = \
-			max(0, node.state_vars[period].outbound_shipment[s_index]
-				- node.state_vars[period].backorders_by_successor[s_index])
+		node.state_vars_current.demand_met_from_stock = \
+			max(0, node.state_vars_current.outbound_shipment[s_index]
+				- node.state_vars_current.backorders_by_successor[s_index])
 		# Update EIL and BO.
-		node.state_vars[period].ending_inventory_level -= node.state_vars[period].inbound_order[s_index]
-		node.state_vars[period].backorders_by_successor[s_index] -= BO_OS
+		node.state_vars_current.ending_inventory_level -= node.state_vars_current.inbound_order[s_index]
+		node.state_vars_current.backorders_by_successor[s_index] -= BO_OS
 
 		# Calculate new backorders_by_successor.
-		node.state_vars[period].backorders_by_successor[s_index] += max(0,
-			node.state_vars[period].inbound_order[s_index] - non_BO_OS)
+		node.state_vars_current.backorders_by_successor[s_index] += max(0,
+			node.state_vars_current.inbound_order[s_index] - non_BO_OS)
 #			node.inbound_order[s_index][period] - node.outbound_shipment[s_index][period])
 
 	# node['OS'][period] = min(current_on_hand, current_backorders + IO)
@@ -424,47 +413,17 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	total_demand = np.sum([node.get_attribute_total('inbound_order', t)
 						for t in range(period+1)])
 	if total_demand > 0:
-		node.state_vars[period].fill_rate = met_from_stock / total_demand
+		node.state_vars_current.fill_rate = met_from_stock / total_demand
 	else:
-		node.state_vars[period].fill_rate = 1.0
+		node.state_vars_current.fill_rate = 1.0
 
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
 	# TODO: handle end of horizon -- if period+s.shipment_lead_time > T
 	for s in node.successors():
-		s.state_vars[period].inbound_shipment_pipeline[node_index][s.shipment_lead_time] \
-			= node.state_vars[period].outbound_shipment[s.index]
+		s.state_vars_current.inbound_shipment_pipeline[node_index][s.shipment_lead_time] \
+			= node.state_vars_current.outbound_shipment[s.index]
 #		s.state_vars[period+s.shipment_lead_time].inbound_shipment[node_index] \
 #			= node.state_vars[period].outbound_shipment[s.index]
-
-# 	# Calculate costs.
-# 	try:
-# 		node.state_vars[period].holding_cost_incurred = \
-# 			node.local_holding_cost_function(node.state_vars[period].ending_inventory_level)
-# 	except TypeError:
-# 		node.state_vars[period].holding_cost_incurred = \
-# 			node.local_holding_cost * max(0, node.state_vars[period].ending_inventory_level)
-# 	try:
-# 		node.state_vars[period].stockout_cost_incurred = \
-# 			node.stockout_cost_function(node.state_vars[period].ending_inventory_level)
-# 	except TypeError:
-# 		node.state_vars[period].stockout_cost_incurred = \
-# 			node.stockout_cost * max(0, -node.state_vars[period].ending_inventory_level)
-# 	# TODO: add more flexible ways of calculating in-transit h.c.
-# 	# TODO: use in_transit_to()
-# 	node.state_vars[period].in_transit_holding_cost_incurred = \
-# 		node.local_holding_cost * np.sum([node.state_vars[period].in_transit_to(s) for s in node.successors])
-# #		node.local_holding_cost * np.sum([s.state_vars[period+1+t].inbound_shipment[node_index]
-# #			for s in node.successors for t in range(s.shipment_lead_time)])
-#
-# 	node.state_vars[period].total_cost_incurred = \
-# 		node.state_vars[period].holding_cost_incurred + \
-# 		node.state_vars[period].stockout_cost_incurred + \
-# 		node.state_vars[period].in_transit_holding_cost_incurred
-#
-# 	# Set next period's starting IL and BO.
-# 	node.state_vars[period + 1].inventory_level = node.state_vars[period].ending_inventory_level
-# 	for s_index in successor_indices:
-# 		node.state_vars[period + 1].backorders_by_successor[s_index] = node.state_vars[period].backorders_by_successor[s_index]
 
 	# Call generate_downstream_shipments() for all non-visited successors.
 	for s in list(node.successors()):
@@ -588,6 +547,7 @@ def main():
 	total_cost = simulation(network, T, rand_seed=17)
 #	write_results(network, T, total_cost, write_csv=False)
 	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
+
 
 
 if __name__ == "__main__":

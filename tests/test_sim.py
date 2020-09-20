@@ -100,7 +100,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[2].state_vars[90].inventory_level, -1.76791, places=4)
 		self.assertAlmostEqual(network.nodes[3].state_vars[67].outbound_shipment[2], 30.0597, places=4)
 		self.assertAlmostEqual(network.nodes[3].state_vars[84].fill_rate, 0.843055, places=4)
-		self.assertAlmostEqual(network.nodes[4].state_vars[58].on_order_by_predecessor[None], 30.9224, places=4)
+		self.assertAlmostEqual(network.nodes[4].state_vars[58].on_order_by_predecessor[None], 26.8160166, places=4)
 		self.assertAlmostEqual(network.nodes[4].state_vars[81].holding_cost_incurred, 2.58384, places=4)
 
 	def test_problem_6_16(self):
