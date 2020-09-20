@@ -80,6 +80,11 @@ class SupplyChainNode(object):
 		Inventory policy to be used to make pyinv decisions.
 	supply_type : SupplyType
 		Supply type (unlimited, etc.).
+	state_vars : list of NodeStateVars
+		List of NodeStateVars, one for each period in a simulation.
+	state_vars_current : NodeStateVars
+		Shortcut to most recent set of state variables. (Period is determined
+		from ``self.network.period``.
 	"""
 
 	def __init__(self, index, name=None, network=None):
@@ -113,7 +118,6 @@ class SupplyChainNode(object):
 		self.local_holding_cost_function = None
 		self.stockout_cost = None
 		self.stockout_cost_function = None
-#		self.lead_time = 0
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
 		self.demand_source = None
@@ -124,64 +128,7 @@ class SupplyChainNode(object):
 		self.supply_type = SupplyType.NONE
 
 		# --- State Variables --- #
-		self.state_vars_current = NodeStateVars(self)
-		self.state_vars_history = None
-
-		# # --- State Variables/Performance Measures: History --- #
-		#
-		# # The following state variables are updated explicitly by sim.py.
-		# # They are snapshots taken at the end of each period.
-		#
-		# # inbound_shipment[p][t] = shipment quantity arriving at node from
-		# # predecessor node p in period t. If p is None, refers to external supply.
-		# self.inbound_shipment = None
-		#
-		# # inbound_order[s][t] = order quantity arriving at node from successor
-		# # node s in period t. If s is None, refers to external demand.
-		# self.inbound_order = None
-		#
-		# # outbound_shipment[s][t] = outbound shipment to node s in period t.
-		# # If s is None, refers to external demand.
-		# self.outbound_shipment = None
-		#
-		# # on_order_by_predecessor[p][t] = on-order quantity (items that have been ordered from
-		# # p but not yet received) at node at the beginning of period t. If p
-		# # is None, refers to external supply.
-		# self.on_order_by_predecessor = None
-		#
-		# # inventory_level[t] = inventory level (positive, negative, or zero) at
-		# # node at the beginning of period t.
-		# self.inventory_level = None
-		#
-		# # backorders_by_successor[s][t] = number of backorders for successor s at the
-		# # beginning of period t. If s is None, refers to external demand.
-		# # Sum over all successors should always equal max{0, -inventory_level}.
-		# self.backorders_by_successor = None
-		#
-		# # ending_inventory_level[t] = pyinv level (positive, negative, or
-		# # zero) at node at the end of period t.
-		# # NOTE: This is just for convenience, since EIL[t] = IL[t+1].
-		# self.ending_inventory_level = None
-		#
-		# # Costs: each refers to a component of the cost (or the total cost)
-		# # incurred at the node in period t.
-		# self.holding_cost_incurred = None
-		# self.stockout_cost_incurred = None
-		# self.in_transit_holding_cost_incurred = None
-		# self.total_cost_incurred = None
-		#
-		# # demand_met_from_stock[t] = demands met from stock at the node in
-		# # period t
-		# self.demand_met_from_stock = None
-		#
-		# # fill_rate[t] = cumulative fill rate in periods 0, ..., t.
-		# self.fill_rate = None
-		#
-		# # --- Decision Variables --- #
-		#
-		# # order_quantity[p][t] = order quantity placed by the node to
-		# # predecessor p in period t. If p is None, refers to external supply.
-		# self.order_quantity = None
+		self.state_vars = []
 
 	# Properties related to network structure.
 
@@ -214,7 +161,7 @@ class SupplyChainNode(object):
 		anc = nx.ancestors(G, self.index)
 		return [self.network.get_node_from_index(a) for a in anc]
 
-	# Properties related to input parameters.
+	# Properties related to input parameters and state variables.
 
 	@property
 	def holding_cost(self):
@@ -225,6 +172,11 @@ class SupplyChainNode(object):
 	def lead_time(self):
 		# An alias for ``shipment_lead_time``. Read only.
 		return self.shipment_lead_time
+
+	@property
+	def state_vars_current(self):
+		# An alias for the most recent set of state variables. Read only.
+		return self.state_vars[self.network.period]
 
 	# Special methods.
 
@@ -386,10 +338,10 @@ class SupplyChainNode(object):
 			else:
 				pred_indices = self.predecessor_indices
 			if period is None:
-				return np.sum([self.state_vars_current[t].__dict__[attribute][p_index]
-							   for t in range(len(self.state_vars_current)) for p_index in pred_indices])
+				return np.sum([self.state_vars[t].__dict__[attribute][p_index]
+							   for t in range(len(self.state_vars)) for p_index in pred_indices])
 			else:
-				return np.sum([self.state_vars_current[period].__dict__[attribute][p_index]
+				return np.sum([self.state_vars[period].__dict__[attribute][p_index]
 							   for p_index in pred_indices])
 		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor'):
 			# These attributes are indexed by successor.
@@ -398,16 +350,16 @@ class SupplyChainNode(object):
 			else:
 				succ_indices = self.successor_indices
 			if period is None:
-				return np.sum([self.state_vars_current[t].__dict__[attribute][s_index]
-						   for t in range(len(self.state_vars_current)) for s_index in succ_indices])
+				return np.sum([self.state_vars[t].__dict__[attribute][s_index]
+							   for t in range(len(self.state_vars)) for s_index in succ_indices])
 			else:
-				return np.sum([self.state_vars_current[period].__dict__[attribute][s_index]
+				return np.sum([self.state_vars[period].__dict__[attribute][s_index]
 							   for s_index in succ_indices])
 		else:
 			if period is None:
-				return np.sum([self.state_vars_current[:].__dict__[attribute]])
+				return np.sum([self.state_vars[:].__dict__[attribute]])
 			else:
-				return self.state_vars_current[period].__dict__[attribute]
+				return self.state_vars[period].__dict__[attribute]
 
 
 # ===============================================================================
@@ -422,12 +374,26 @@ class NodeStateVars(object):
 
 	Attributes
 	----------
+	node : SupplyChainNode
+		The node the state variables refer to.
+	period : int
+		The period of the simulation that the state variables refer to.
+	inbound_shipment_pipeline : dict
+		``inbound_shipment_pipeline[p][r]`` = shipment quantity arriving
+		from predecessor node ``p`` in ``r`` periods from the current period.
+		If ``p`` is ``None``, refers to external supply.
 	inbound_shipment : dict
 		``inbound_shipment[p]`` = shipment quantity arriving at node from
-		predecessor node ``p``. If ``p`` is ``None``, refers to external supply.
+		predecessor node ``p`` in the current period. If ``p`` is ``None``,
+		refers to external supply.
+	inbound_order_pipeline : dict
+		``inbound_order_pipeline[s][r]`` = order quantity arriving from
+		successor node ``s`` in ``r`` periods from the current period.
+		If ``s`` is ``None``, refers to external demand.
 	inbound_order : dict
 		``inbound_order[s]`` = order quantity arriving at node from successor
-		node ``s``. If ``s`` is ``None``, refers to external demand.
+		node ``s`` in the current period. If ``s`` is ``None``, refers to
+		external demand.
 	outbound_shipment : dict
 		``outbound_shipment[s]`` = outbound shipment to successor node ``s``.
 		If ``s`` is ``None``, refers to external demand.
@@ -464,7 +430,7 @@ class NodeStateVars(object):
 		# TODO: rename to outbound_order
 	"""
 
-	def __init__(self, node=None):
+	def __init__(self, node=None, period=None):
 		"""NodeStateVars constructor method.
 
 		If ``node`` is provided, the state variable dicts (``inbound_shipment``,
@@ -476,9 +442,12 @@ class NodeStateVars(object):
 		----------
 		node : SupplyChainNode, optional
 			The node to which these state variables refer.
+		period : int, optional
+			The period to which these state variables refer.
 		"""
 		# --- Node --- #
 		self.node = node
+		self.period = period
 
 		# --- Primary State Variables --- #
 		# These are set explicitly during the simulation.
@@ -492,13 +461,25 @@ class NodeStateVars(object):
 				predecessor_indices = node.predecessor_indices + [None]
 			else:
 				predecessor_indices = node.predecessor_indices
+				# TODO: shouldn't this be "is not None and ..." ? (a few lines down too)
 			if node.demand_source is None or node.demand_source.type != DemandType.NONE:
 				successor_indices = node.successor_indices + [None]
 			else:
 				successor_indices = node.successor_indices
 
 			# Initialize dicts with appropriate keys.
+			self.inbound_shipment_pipeline = {p_index:
+				[0] * (self.node.shipment_lead_time+self.node.shipment_lead_time+1)
+											for p_index in predecessor_indices}
 			self.inbound_shipment = {p_index: 0 for p_index in predecessor_indices}
+			self.inbound_order_pipeline = {s_index:
+				[0] * (self.node.network.nodes[s_index].order_lead_time+1)
+										   for s_index in node.successor_indices}
+			# Add external customer to inbound_order_pipeline. (Must be done
+			# separately since external customer does not have its own node,
+			# or its own order lead time.)
+			if node.demand_source is None or node.demand_source.type != DemandType.NONE:
+				self.inbound_order_pipeline[None] = [0]
 			self.inbound_order = {s_index: 0 for s_index in successor_indices}
 			self.outbound_shipment = {s_index: 0 for s_index in successor_indices}
 			self.on_order_by_predecessor = {p_index: 0 for p_index in predecessor_indices}
@@ -508,7 +489,9 @@ class NodeStateVars(object):
 		else:
 
 			# Initialize dicts to empty dicts.
+			self.inbound_shipment_pipeline = {}
 			self.inbound_shipment = {}
+			self.inbound_order_pipeline = {}
 			self.inbound_order = {}
 			self.outbound_shipment = {}
 			self.on_order_by_predecessor = {}
@@ -520,7 +503,7 @@ class NodeStateVars(object):
 		self.ending_inventory_level = 0
 
 		# Costs: each refers to a component of the cost (or the total cost)
-		# incurred at the node in period t.
+		# incurred at the node in the period.
 		self.holding_cost_incurred = 0
 		self.stockout_cost_incurred = 0
 		self.in_transit_holding_cost_incurred = 0
@@ -539,7 +522,7 @@ class NodeStateVars(object):
 		return max(0, self.inventory_level)
 
 	# backorders = current backorders. Should always equal sum over all successors
-	# of backorders_by_successor[s][t].
+	# of backorders_by_successor[s].
 	@property
 	def backorders(self):
 		return max(0, -self.inventory_level)
@@ -547,8 +530,7 @@ class NodeStateVars(object):
 	def in_transit_to(self, successor):
 		"""Return current total inventory in transit to a given successor.
 		(Declared as a function, not a property, because needs to take an argument.)
-		Includes items that will be/have been delivered during the current period
-		(``self.network.period``).
+		Includes items that will be/have been delivered during the current period.
 
 		Parameters
 		----------
@@ -559,8 +541,10 @@ class NodeStateVars(object):
 		-------
 			The current inventory in transit to the successor.
 		"""
-		return np.sum([successor.state_vars_current[self.node.network.period + t].inbound_shipment[self.node.index]
-				for t in range(successor.shipment_lead_time)])
+		return np.sum([successor.state_vars[self.period].inbound_shipment_pipeline[self.node.index][:]])
+
+#		return np.sum([successor.state_vars[self.period + t].inbound_shipment[self.node.index]
+#				for t in range(successor.shipment_lead_time)])
 
 	def in_transit_from(self, predecessor):
 		"""Return current total inventory in transit from a given predecessor.
@@ -582,8 +566,10 @@ class NodeStateVars(object):
 		else:
 			p = predecessor.index
 
-		return np.sum([self.node.state_vars_current[self.node.network.period+t].inbound_shipment[p]
-				for t in range(self.node.shipment_lead_time)])
+		return np.sum(self.inbound_shipment_pipeline[p][:])
+
+#		return np.sum([self.node.state_vars[self.period + t].inbound_shipment[p]
+#				for t in range(self.node.shipment_lead_time)])
 
 	# in_transit = current total inventory in transit to the node. If node has
 	# more than 1 predecessor (it is an assembly node), including external supplier,
@@ -610,7 +596,7 @@ class NodeStateVars(object):
 	@property
 	def on_order(self):
 		total_on_order = self.node.get_attribute_total('on_order_by_predecessor',
-												  self.node.network.period,
+												  self.period,
 												  include_external=True)
 		if total_on_order == 0:
 			return 0
@@ -633,12 +619,12 @@ class NodeStateVars(object):
 	def echelon_on_hand_inventory(self):
 		EOHI = self.on_hand
 		for d in self.node.descendants:
-			EOHI += d.state_vars_current[self.node.network.period].on_hand
+			EOHI += d.state_vars[self.period].on_hand
 			# Add in-transit quantity from predecessors that are descendents
 			# of self (or equal to self).
 			for p in d.predecessors:
 				if p.index == self.node.index or p in self.node.descendants:
-					EOHI += d.state_vars_current[self.node.network.period].in_transit_from(p)
+					EOHI += d.state_vars[self.period].in_transit_from(p)
 		return EOHI
 
 	# echelon_inventory_level = current echelon inventory level at node
@@ -649,7 +635,7 @@ class NodeStateVars(object):
 		EIL = self.echelon_on_hand_inventory
 		for d in self.node.descendants + [self.node]:
 			if d in self.node.network.sink_nodes:
-				EIL -= d.state_vars_current[self.node.network.period].backorders
+				EIL -= d.state_vars[self.period].backorders
 		return EIL
 
 	# echelon_inventory_position = current echelon inventory position at node
