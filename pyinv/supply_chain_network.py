@@ -70,13 +70,13 @@ class SupplyChainNetwork(object):
 	def source_nodes(self):
 		"""List of all source nodes, i.e., all nodes that have no predecessors.
 		"""
-		return [node for node in self.nodes if node.predecessor_indices == []]
+		return [node for node in self.nodes if node.predecessor_indices() == []]
 
 	@property
 	def sink_nodes(self):
 		"""List of all sink nodes, i.e., all nodes that have no successors.
 		"""
-		return [node for node in self.nodes if node.successor_indices == []]
+		return [node for node in self.nodes if node.successor_indices() == []]
 
 	# Special members.
 
@@ -211,7 +211,7 @@ class SupplyChainNetwork(object):
 		digraph = nx.DiGraph()
 		digraph.add_nodes_from(self.node_indices)
 		for n in self.nodes:
-			for p in n.predecessors:
+			for p in n.predecessors():
 				digraph.add_edge(p.index, n.index)
 
 		return digraph

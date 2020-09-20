@@ -206,10 +206,10 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 									   network_ech.nodes[i].state_vars[99].order_quantity)
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].ending_inventory_level,
 									   network_ech.nodes[i].state_vars[99].ending_inventory_level)
-			for s in network_ech.nodes[i].successor_indices:
+			for s in network_ech.nodes[i].successor_indices():
 				np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_order[s],
 										   network_ech.nodes[i].state_vars[99].inbound_order[s])
-			for p in network_ech.nodes[i].predecessor_indices:
+			for p in network_ech.nodes[i].predecessor_indices():
 				np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_shipment[p],
 										   network_ech.nodes[i].state_vars[99].inbound_shipment[p])
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].backorders,
@@ -263,10 +263,10 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 									   network_ech.nodes[i].state_vars[99].order_quantity)
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].ending_inventory_level,
 									   network_ech.nodes[i].state_vars[99].ending_inventory_level)
-			for s in network_ech.nodes[i].successor_indices:
+			for s in network_ech.nodes[i].successor_indices():
 				np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_order[s],
 										   network_ech.nodes[i].state_vars[99].inbound_order[s])
-			for p in network_ech.nodes[i].predecessor_indices:
+			for p in network_ech.nodes[i].predecessor_indices():
 				np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_shipment[p],
 										   network_ech.nodes[i].state_vars[99].inbound_shipment[p])
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].backorders,

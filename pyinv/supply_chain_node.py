@@ -130,23 +130,26 @@ class SupplyChainNode(object):
 		# --- State Variables --- #
 		self.state_vars = []
 
-	# Properties related to network structure.
+	# Properties and functions related to network structure.
 
-	@property
-	def predecessors(self):
-		return self._predecessors
+	def predecessors(self, include_external=False):
+		if include_external and self.supply_type != SupplyType.NONE:
+			return self._predecessors + [None]
+		else:
+			return self._predecessors
 
-	@property
-	def successors(self):
-		return self._successors
+	def successors(self, include_external=False):
+		if include_external and \
+				(self.demand_source is not None and self.demand_source.type != DemandType.NONE):
+			return self._successors + [None]
+		else:
+			return self._successors
 
-	@property
-	def predecessor_indices(self):
-		return [node.index for node in self._predecessors]
+	def predecessor_indices(self, include_external=False):
+		return [node.index if node else None for node in self.predecessors(include_external)]
 
-	@property
-	def successor_indices(self):
-		return [node.index for node in self._successors]
+	def successor_indices(self, include_external=False):
+		return [node.index if node else None for node in self.successors(include_external)]
 
 	@property
 	def descendants(self):
@@ -333,28 +336,22 @@ class SupplyChainNode(object):
 		"""
 		if attribute in ('inbound_shipment', 'on_order_by_predecessor'):
 			# These attributes are indexed by predecessor.
-			if include_external and self.supply_type != SupplyType.NONE:
-				pred_indices = self.predecessor_indices + [None]
-			else:
-				pred_indices = self.predecessor_indices
 			if period is None:
 				return np.sum([self.state_vars[t].__dict__[attribute][p_index]
-							   for t in range(len(self.state_vars)) for p_index in pred_indices])
+							   for t in range(len(self.state_vars))
+							   for p_index in self.predecessor_indices(include_external=True)])
 			else:
 				return np.sum([self.state_vars[period].__dict__[attribute][p_index]
-							   for p_index in pred_indices])
+							   for p_index in self.predecessor_indices(include_external=True)])
 		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor'):
 			# These attributes are indexed by successor.
-			if include_external and self.demand_source.type != DemandType.NONE:
-				succ_indices = self.successor_indices + [None]
-			else:
-				succ_indices = self.successor_indices
 			if period is None:
 				return np.sum([self.state_vars[t].__dict__[attribute][s_index]
-							   for t in range(len(self.state_vars)) for s_index in succ_indices])
+							   for t in range(len(self.state_vars))
+							   for s_index in self.successor_indices(include_external=True)])
 			else:
 				return np.sum([self.state_vars[period].__dict__[attribute][s_index]
-							   for s_index in succ_indices])
+							   for s_index in self.successor_indices(include_external=True)])
 		else:
 			if period is None:
 				return np.sum([self.state_vars[:].__dict__[attribute]])
@@ -454,37 +451,24 @@ class NodeStateVars(object):
 
 		if node:
 
-			# Build lists of predecessor and successor indices, including external
-			# supply and demand, if any.
-			# TODO: build this feature into the node object.
-			if node.supply_type != SupplyType.NONE:
-				predecessor_indices = node.predecessor_indices + [None]
-			else:
-				predecessor_indices = node.predecessor_indices
-				# TODO: shouldn't this be "is not None and ..." ? (a few lines down too)
-			if node.demand_source is None or node.demand_source.type != DemandType.NONE:
-				successor_indices = node.successor_indices + [None]
-			else:
-				successor_indices = node.successor_indices
-
 			# Initialize dicts with appropriate keys.
 			self.inbound_shipment_pipeline = {p_index:
 				[0] * (self.node.shipment_lead_time+self.node.shipment_lead_time+1)
-											for p_index in predecessor_indices}
-			self.inbound_shipment = {p_index: 0 for p_index in predecessor_indices}
+											for p_index in self.node.predecessor_indices(include_external=True)}
+			self.inbound_shipment = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.inbound_order_pipeline = {s_index:
 				[0] * (self.node.network.nodes[s_index].order_lead_time+1)
-										   for s_index in node.successor_indices}
+										   for s_index in node.successor_indices()}
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
 			# or its own order lead time.)
 			if node.demand_source is None or node.demand_source.type != DemandType.NONE:
 				self.inbound_order_pipeline[None] = [0]
-			self.inbound_order = {s_index: 0 for s_index in successor_indices}
-			self.outbound_shipment = {s_index: 0 for s_index in successor_indices}
-			self.on_order_by_predecessor = {p_index: 0 for p_index in predecessor_indices}
-			self.backorders_by_successor = {s_index: 0 for s_index in successor_indices}
-			self.order_quantity = {p_index: 0 for p_index in predecessor_indices}
+			self.inbound_order = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
+			self.outbound_shipment = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
+			self.on_order_by_predecessor = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
+			self.backorders_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
+			self.order_quantity = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 
 		else:
 
@@ -578,15 +562,15 @@ class NodeStateVars(object):
 	# TODO: handle BOM
 	@property
 	def in_transit(self):
-		total_in_transit = np.sum([self.in_transit_from(p) for p in self.node.predecessors])
+		total_in_transit = np.sum([self.in_transit_from(p) for p in self.node.predecessors()])
 		if self.node.supply_type == SupplyType.NONE:
 			if total_in_transit == 0:
 				return 0
 			else:
-				return total_in_transit / len(self.node.predecessors)
+				return total_in_transit / len(self.node.predecessors())
 		else:
 			total_in_transit += self.in_transit_from(None)
-			return total_in_transit / (len(self.node.predecessors) + 1)
+			return total_in_transit / (len(self.node.predecessors()) + 1)
 
 	# on_order = current total on-order quantity. If node has more than 1
 	# predecessor (it is an assembly node), including external supplier,
@@ -602,9 +586,9 @@ class NodeStateVars(object):
 			return 0
 		else:
 			if self.node.supply_type == SupplyType.NONE:
-				return total_on_order / len(self.node.predecessors)
+				return total_on_order / len(self.node.predecessors())
 			else:
-				return total_on_order / (len(self.node.predecessors) + 1)
+				return total_on_order / (len(self.node.predecessors()) + 1)
 
 	# inventory_position = current local inventory position at node
 	# = IL + OO.
@@ -622,7 +606,7 @@ class NodeStateVars(object):
 			EOHI += d.state_vars[self.period].on_hand
 			# Add in-transit quantity from predecessors that are descendents
 			# of self (or equal to self).
-			for p in d.predecessors:
+			for p in d.predecessors():
 				if p.index == self.node.index or p in self.node.descendants:
 					EOHI += d.state_vars[self.period].in_transit_from(p)
 		return EOHI

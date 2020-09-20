@@ -52,9 +52,9 @@ class TestAddSuccessor(unittest.TestCase):
 		network.add_successor(node2, node1)
 		network.add_successor(node1, node0)
 
-		node0succ = node0.successor_indices
-		node1succ = node1.successor_indices
-		node2succ = node2.successor_indices
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
 
 		self.assertEqual(node0succ, [])
 		self.assertEqual(node1succ, [0])
@@ -79,9 +79,9 @@ class TestAddSuccessor(unittest.TestCase):
 		network.add_successor(node2, node1)
 		network.add_successor(node1, node0)
 
-		node0succ = node0.successor_indices
-		node1succ = node1.successor_indices
-		node2succ = node2.successor_indices
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
 
 		self.assertEqual(node0succ, [])
 		self.assertEqual(node1succ, [0])
@@ -104,10 +104,10 @@ class TestAddSuccessor(unittest.TestCase):
 		network.add_successor(node0, node2)
 		network.add_successor(node0, node3)
 
-		node0succ = node0.successor_indices
-		node1succ = node1.successor_indices
-		node2succ = node2.successor_indices
-		node3succ = node2.successor_indices
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
+		node3succ = node2.successor_indices()
 
 		self.assertEqual(node0succ, [1, 2, 3])
 		self.assertEqual(node1succ, [])
@@ -140,16 +140,16 @@ class TestSerialSystem(unittest.TestCase):
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
-		middle_node = source_node.successors[0]
-		sink_node = middle_node.successors[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
 
 		# Get successors and predecessors.
-		source_node_succ = source_node.successor_indices
-		middle_node_succ = middle_node.successor_indices
-		sink_node_succ = sink_node.successor_indices
-		source_node_pred = source_node.predecessor_indices
-		middle_node_pred = middle_node.predecessor_indices
-		sink_node_pred = sink_node.predecessor_indices
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
 
 		self.assertEqual(source_node.index, 2)
 		self.assertEqual(middle_node.index, 1)
@@ -181,16 +181,16 @@ class TestSerialSystem(unittest.TestCase):
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
-		middle_node = source_node.successors[0]
-		sink_node = middle_node.successors[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
 
 		# Get successors and predecessors.
-		source_node_succ = source_node.successor_indices
-		middle_node_succ = middle_node.successor_indices
-		sink_node_succ = sink_node.successor_indices
-		source_node_pred = source_node.predecessor_indices
-		middle_node_pred = middle_node.predecessor_indices
-		sink_node_pred = sink_node.predecessor_indices
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
 
 		self.assertEqual(source_node.index, 0)
 		self.assertEqual(middle_node.index, 1)
@@ -222,16 +222,16 @@ class TestSerialSystem(unittest.TestCase):
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
-		middle_node = source_node.successors[0]
-		sink_node = middle_node.successors[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
 
 		# Get successors and predecessors.
-		source_node_succ = source_node.successor_indices
-		middle_node_succ = middle_node.successor_indices
-		sink_node_succ = sink_node.successor_indices
-		source_node_pred = source_node.predecessor_indices
-		middle_node_pred = middle_node.predecessor_indices
-		sink_node_pred = sink_node.predecessor_indices
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
 
 		self.assertEqual(source_node.index, 12)
 		self.assertEqual(middle_node.index, 14)
@@ -279,14 +279,14 @@ class TestMWORSystem(unittest.TestCase):
 		ret = network.sink_nodes[0]
 
 		# Get successors and predecessors.
-		ret_succ = ret.successor_indices
-		wh1_succ = wh1.successor_indices
-		wh2_succ = wh2.successor_indices
-		wh3_succ = wh3.successor_indices
-		ret_pred = ret.predecessor_indices
-		wh1_pred = wh1.predecessor_indices
-		wh2_pred = wh2.predecessor_indices
-		wh3_pred = wh3.predecessor_indices
+		ret_succ = ret.successor_indices()
+		wh1_succ = wh1.successor_indices()
+		wh2_succ = wh2.successor_indices()
+		wh3_succ = wh3.successor_indices()
+		ret_pred = ret.predecessor_indices()
+		wh1_pred = wh1.predecessor_indices()
+		wh2_pred = wh2.predecessor_indices()
+		wh3_pred = wh3.predecessor_indices()
 
 		self.assertEqual(ret.index, 0)
 		self.assertEqual(wh1.index, 1)
@@ -327,14 +327,14 @@ class TestMWORSystem(unittest.TestCase):
 		ret = network.sink_nodes[0]
 
 		# Get successors and predecessors.
-		ret_succ = ret.successor_indices
-		wh1_succ = wh1.successor_indices
-		wh2_succ = wh2.successor_indices
-		wh3_succ = wh3.successor_indices
-		ret_pred = ret.predecessor_indices
-		wh1_pred = wh1.predecessor_indices
-		wh2_pred = wh2.predecessor_indices
-		wh3_pred = wh3.predecessor_indices
+		ret_succ = ret.successor_indices()
+		wh1_succ = wh1.successor_indices()
+		wh2_succ = wh2.successor_indices()
+		wh3_succ = wh3.successor_indices()
+		ret_pred = ret.predecessor_indices()
+		wh1_pred = wh1.predecessor_indices()
+		wh2_pred = wh2.predecessor_indices()
+		wh3_pred = wh3.predecessor_indices()
 
 		self.assertEqual(ret.index, 3)
 		self.assertEqual(wh1.index, 2)
@@ -375,14 +375,14 @@ class TestMWORSystem(unittest.TestCase):
 		ret = network.sink_nodes[0]
 
 		# Get successors and predecessors.
-		ret_succ = ret.successor_indices
-		wh1_succ = wh1.successor_indices
-		wh2_succ = wh2.successor_indices
-		wh3_succ = wh3.successor_indices
-		ret_pred = ret.predecessor_indices
-		wh1_pred = wh1.predecessor_indices
-		wh2_pred = wh2.predecessor_indices
-		wh3_pred = wh3.predecessor_indices
+		ret_succ = ret.successor_indices()
+		wh1_succ = wh1.successor_indices()
+		wh2_succ = wh2.successor_indices()
+		wh3_succ = wh3.successor_indices()
+		ret_pred = ret.predecessor_indices()
+		wh1_pred = wh1.predecessor_indices()
+		wh2_pred = wh2.predecessor_indices()
+		wh3_pred = wh3.predecessor_indices()
 
 		self.assertEqual(ret.index, 17)
 		self.assertEqual(wh1.index, 14)
