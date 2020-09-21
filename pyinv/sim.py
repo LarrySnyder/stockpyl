@@ -206,6 +206,8 @@ def generate_downstream_orders(node_index, network, period, visited):
 			node.state_vars_current.inbound_order_pipeline[s_index][0]
 		# Remove order from pipeline.
 		node.state_vars_current.inbound_order_pipeline[s_index][0] = 0
+		# Update demand_cumul.
+		node.state_vars_current.demand_cumul += node.state_vars_current.inbound_order[s_index]
 
 	# Calculate order quantity.
 	order_quantity = get_order_quantity(node, period)
@@ -324,6 +326,7 @@ def initialize_next_period_state_vars(network, period):
 		* Update shipment and order pipelines by "advancing" them by 1 period
 	and adding a 0 in the last element.
 		* Set IL, BO, and OO next period = ending values this period.
+		* Set _cumul attributes = ending values this period.
 
 	Parameters
 	----------
@@ -350,6 +353,12 @@ def initialize_next_period_state_vars(network, period):
 		for p_index in n.predecessor_indices(include_external=True):
 			n.state_vars[period+1].on_order_by_predecessor[p_index] = \
 				n.state_vars[period].on_order_by_predecessor[p_index]
+
+		# Set demand_met_from_stock_cumul and demand_cumul.
+		n.state_vars[period+1].demand_met_from_stock_cumul = \
+			n.state_vars[period].demand_met_from_stock_cumul
+		n.state_vars[period+1].demand_cumul = \
+			n.state_vars[period].demand_cumul
 
 
 def calculate_period_costs(network, period):
@@ -497,9 +506,10 @@ def process_outbound_shipments(node, starting_inventory_level, inbound_shipment)
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demands.)
 		# TODO: handle successor-level DMFS and FR.
-		node.state_vars_current.demand_met_from_stock = \
-			max(0, node.state_vars_current.outbound_shipment[s_index]
+		DMFS = max(0, node.state_vars_current.outbound_shipment[s_index]
 				- node.state_vars_current.backorders_by_successor[s_index])
+		node.state_vars_current.demand_met_from_stock += DMFS
+		node.state_vars_current.demand_met_from_stock_cumul += DMFS
 		# Update IL and BO.
 		node.state_vars_current.inventory_level -= node.state_vars_current.inbound_order[s_index]
 		node.state_vars_current.backorders_by_successor[s_index] -= BO_OS
@@ -521,10 +531,12 @@ def calculate_fill_rate(node, period):
 
 	"""
 	# Calculate fill rate (cumulative in periods 0,...,t).
-	# TODO: is this where the time leak is??
-	met_from_stock = np.sum([node.state_vars[t].demand_met_from_stock for t in range(period + 1)])
-	total_demand = np.sum([node.get_attribute_total('inbound_order', t)
-						   for t in range(period + 1)])
+	met_from_stock = node.state_vars[period].demand_met_from_stock_cumul
+	total_demand = node.state_vars[period].demand_cumul
+	# met_from_stock = np.sum([node.state_vars[t].demand_met_from_stock for t in range(period + 1)])
+	# total_demand = np.sum([node.get_attribute_total('inbound_order', t)
+	# 					   for t in range(period + 1)])
+
 	if total_demand > 0:
 		node.state_vars_current.fill_rate = met_from_stock / total_demand
 	else:

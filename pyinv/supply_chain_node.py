@@ -393,6 +393,9 @@ class NodeStateVars(object):
 		``inbound_order[s]`` = order quantity arriving at node from successor
 		node ``s`` in the current period. If ``s`` is ``None``, refers to
 		external demand.
+	demand_cumul : float
+		Cumulative demand (from all sources, internal and external)
+		from period 0 through the current period. (Used for fill_rate calculation.)
 	outbound_shipment : dict
 		``outbound_shipment[s]`` = outbound shipment to successor node ``s``.
 		If ``s`` is ``None``, refers to external demand.
@@ -408,9 +411,6 @@ class NodeStateVars(object):
 		``s`` at the beginning of period. If ``s`` is ``None``, refers to
 		external demand.
 		Sum over all successors should always equal max{0, -inventory_level}.
-	ending_inventory_level : float
-		Inventory level (positive, negative, or zero) at node at the end of period.
-		NOTE: This is just for convenience, since EIL[t] = IL[t+1].
 	holding_cost_incurred : float
 		Holding cost incurred at the node in the period.
 	stockout_cost_incurred : float
@@ -421,6 +421,9 @@ class NodeStateVars(object):
 		Total cost incurred at the node in the period.
 	demand_met_from_stock : float
 		Demands met from stock at the node in the period.
+	demand_met_from_stock_cumul : float
+		Cumulative demands met from stock from period 0 through the current period.
+		(Used for fill_rate calculation.)
 	fill_rate : float
 		Cumulative fill rate in periods 0, ..., period.
 	order_quantity : dict
@@ -496,7 +499,9 @@ class NodeStateVars(object):
 		self.total_cost_incurred = 0
 
 		# Fill rate quantities.
+		self.demand_cumul = 0
 		self.demand_met_from_stock = 0
+		self.demand_met_from_stock_cumul = 0
 		self.fill_rate = 0
 
 	# --- Calculated State Variables --- #
