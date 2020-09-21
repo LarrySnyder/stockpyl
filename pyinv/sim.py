@@ -93,7 +93,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 	# Initialize state and decision variables at each node.
 
-	# NOTE: Some variables are indexed up to num_periods+EXTRA_PERIODS; the
+	# NOTE: State variables are indexed up to num_periods+extra_periods; the
 	# additional slots are to allow calculations past the last period.
 
 	for n in network.nodes:
@@ -107,26 +107,8 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	# Initialize progress bar. (If not requested, then this will disable it.)
 	pbar = tqdm(total=num_periods, disable=not progress_bar)
 
-	# Initialize inventory levels and other quantities.
-	for n in network.nodes:
-		# Initialize inventory levels and backorders.
-		# TODO: handle what happens if initial IL < 0 (or prohibit it)
-		if n.initial_inventory_level is not None:
-			n.state_vars[0].inventory_level = n.initial_inventory_level
-		else:
-			n.state_vars[0].inventory_level = 0.0
-
-		# Initialize inbound shipment and on-order quantities.
-		# TODO: allow different initial shipment/order quantities for different pred/succ.
-		for p_index in n.predecessor_indices(include_external=True):
-			for l in range(n.shipment_lead_time):
-				n.state_vars[0].inbound_shipment_pipeline[p_index][l] = n.initial_shipments
-			n.state_vars[0].on_order_by_predecessor[p_index] = n.initial_shipments * n.shipment_lead_time
-
-		# Initialize inbound order quantities. (Exclude external demand.)
-		for s in n.successors():
-			for l in range(s.order_lead_time):
-				n.state_vars[0].inbound_order_pipeline[l] = s.initial_orders
+	# Initialize state variables.
+	initialize_state_vars(network)
 
 	# MAIN LOOP
 
@@ -140,73 +122,31 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 		# GENERATE DEMANDS AND ORDERS
 
-		# Build list of nodes with no predecessors. (These will be the starting
-		# nodes for the dfs.)
-		no_pred = [n for n in network.nodes if n.predecessors() == []]
-
 		# Initialize visited dict.
 		visited = {n.index: False for n in network.nodes}
 
 		# Generate demands and place orders. Use depth-first search, starting
 		# at nodes with no predecessors, and propagating orders upstream.
-		for n in no_pred:
+		for n in network.source_nodes:
 			generate_downstream_orders(n.index, network, t, visited)
 
 		# GENERATE SHIPMENTS
 
 		# Reset visited dict.
-		visited	= {n.index: False for n in network.nodes}
+		visited = {n.index: False for n in network.nodes}
 
 		# Generate shipments. Use depth-first search, starting at nodes with
 		# no predecessors, and propagating shipments downstream.
-		for n in no_pred:
+		for n in network.source_nodes:
 			generate_downstream_shipments(n.index, network, t, visited)
 
 		# UPDATE COSTS, PIPELINES, ETC.
 
-		for n in network.nodes:
-			if t < num_periods:
-				# Update pipelines.
-				for p in n.predecessor_indices(include_external=True):
-					n.state_vars[t+1].inbound_shipment_pipeline[p] = \
-						n.state_vars_current.inbound_shipment_pipeline[p][1:] + [0]
-				for s in n.successor_indices(include_external=True):
-					n.state_vars[t+1].inbound_order_pipeline[s] = \
-						n.state_vars_current.inbound_order_pipeline[s][1:] + [0]
-
-				# Set next period's starting IL, BO, and OO.
-				n.state_vars[t+1].inventory_level = n.state_vars_current.ending_inventory_level
-				for s_index in n.successor_indices(include_external=True):
-					n.state_vars[t+1].backorders_by_successor[s_index] = \
-						n.state_vars_current.backorders_by_successor[s_index]
-				for p_index in n.predecessor_indices(include_external=True):
-					n.state_vars[t+1].on_order_by_predecessor[p_index] = \
-						n.state_vars_current.on_order_by_predecessor[p_index]
+		# Set initial values for period t+1 state variables.
+		initialize_next_period_state_vars(network, t)
 
 		# Calculate costs.
-		for n in network.nodes:
-			try:
-				n.state_vars_current.holding_cost_incurred = \
-					n.local_holding_cost_function(n.state_vars_current.ending_inventory_level)
-			except TypeError:
-				n.state_vars_current.holding_cost_incurred = \
-					n.local_holding_cost * max(0, n.state_vars_current.ending_inventory_level)
-			try:
-				n.state_vars_current.stockout_cost_incurred = \
-					n.stockout_cost_function(n.state_vars_current.ending_inventory_level)
-			except TypeError:
-				n.state_vars_current.stockout_cost_incurred = \
-					n.stockout_cost * max(0, -n.state_vars_current.ending_inventory_level)
-			# TODO: add more flexible ways of calculating in-transit h.c.
-			n.state_vars_current.in_transit_holding_cost_incurred = \
-				n.local_holding_cost * np.sum([n.state_vars_current.in_transit_to(s) for s in n.successors()])
-			#		n.local_holding_cost * np.sum([s.state_vars[t+1+t].inbound_shipment[n_index]
-			#			for s in n.successors for t in range(s.shipment_lead_time)])
-
-			n.state_vars_current.total_cost_incurred = \
-				n.state_vars_current.holding_cost_incurred + \
-				n.state_vars_current.stockout_cost_incurred + \
-				n.state_vars_current.in_transit_holding_cost_incurred
+		calculate_period_costs(network, t)
 
 	# Close progress bar.
 	pbar.close()
@@ -219,6 +159,106 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 # -------------------
 
 # HELPER FUNCTIONS
+
+def initialize_state_vars(network):
+	"""Initialize the state variables for each node:
+		* inventory_level = to initial_inventory_level
+		* inbound_shipment_pipeline = initial_shipments
+		* on_order = initial_shipments * shipment_lead_time + initial_orders * order_lead_time
+		* inbound_order_pipeline = initial_orders
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The multi-echelon inventory network.
+	"""
+
+	# Initialize inventory levels and other quantities.
+	for n in network.nodes:
+		# Initialize inventory_level to initial_inventory_level (or 0 if None).
+		# TODO: handle what happens if initial IL < 0 (or prohibit it)
+		n.state_vars[0].inventory_level = n.initial_inventory_level or 0
+
+		# Initialize inbound shipment pipeline and on-order quantities.
+		# TODO: allow different initial shipment/order quantities for different pred/succ.
+		for p_index in n.predecessor_indices(include_external=True):
+			for l in range(n.shipment_lead_time):
+				n.state_vars[0].inbound_shipment_pipeline[p_index][l] = n.initial_shipments
+			n.state_vars[0].on_order_by_predecessor[p_index] = \
+				n.initial_shipments * n.shipment_lead_time + n.initial_orders * n.order_lead_time
+
+		# Initialize inbound order pipeline. (Exclude external demand.)
+		for s in n.successors():
+			for l in range(s.order_lead_time):
+				n.state_vars[0].inbound_order_pipeline[l] = s.initial_orders
+
+
+def initialize_next_period_state_vars(network, period):
+	"""Set initial values for state variables in period ``period``+1.
+		* Update shipment and order pipelines by "advancing" them by 1 period
+	and adding a 0 in the last element.
+		* Set IL, BO, and OO next period = ending values this period.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The multi-echelon inventory network.
+	period : int
+		The current time period.
+	"""
+
+	for n in network.nodes:
+		# Update pipelines.
+		for p in n.predecessor_indices(include_external=True):
+			n.state_vars[period+1].inbound_shipment_pipeline[p] = \
+				n.state_vars[period].inbound_shipment_pipeline[p][1:] + [0]
+		for s in n.successor_indices(include_external=True):
+			n.state_vars[period+1].inbound_order_pipeline[s] = \
+				n.state_vars[period].inbound_order_pipeline[s][1:] + [0]
+
+		# Set next period's starting IL, BO, and OO.
+		n.state_vars[period+1].inventory_level = n.state_vars[period].inventory_level
+		for s_index in n.successor_indices(include_external=True):
+			n.state_vars[period+1].backorders_by_successor[s_index] = \
+				n.state_vars[period].backorders_by_successor[s_index]
+		for p_index in n.predecessor_indices(include_external=True):
+			n.state_vars[period+1].on_order_by_predecessor[p_index] = \
+				n.state_vars[period].on_order_by_predecessor[p_index]
+
+
+def calculate_period_costs(network, period):
+	"""Calculate costs for one period.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The multi-echelon inventory network.
+	period : int
+		The time period.
+	"""
+
+	for n in network.nodes:
+		try:
+			n.state_vars[period].holding_cost_incurred = \
+				n.local_holding_cost_function(n.state_vars[period].inventory_level)
+		except TypeError:
+			n.state_vars[period].holding_cost_incurred = \
+				n.local_holding_cost * max(0, n.state_vars[period].inventory_level)
+		try:
+			n.state_vars[period].stockout_cost_incurred = \
+				n.stockout_cost_function(n.state_vars[period].inventory_level)
+		except TypeError:
+			n.state_vars[period].stockout_cost_incurred = \
+				n.stockout_cost * max(0, -n.state_vars[period].inventory_level)
+		# TODO: add more flexible ways of calculating in-transit h.c.
+		n.state_vars[period].in_transit_holding_cost_incurred = \
+			n.local_holding_cost * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
+
+		n.state_vars[period].total_cost_incurred = \
+			n.state_vars[period].holding_cost_incurred + \
+			n.state_vars[period].stockout_cost_incurred + \
+			n.state_vars[period].in_transit_holding_cost_incurred
+
 
 def generate_downstream_orders(node_index, network, period, visited):
 	"""Generate demands and orders for all downstream nodes using depth-first-search.
@@ -342,11 +382,13 @@ def generate_downstream_shipments(node_index, network, period, visited):
 #	IS = node.get_attribute_total('inbound_shipment', period)
 #	IO = node.get_attribute_total('inbound_order', period)
 
+	# Remember starting IL.
+	starting_inventory_level = node.state_vars_current.inventory_level
+
 	# Receive inbound shipments (add it to ending IL); will subtract outbound
 	# shipment later. Subtract arriving shipment from next period's starting OO.
 	# TODO: handle what happens when AND-type supply nodes (assembly-type) -- now it assumes OR-type
-	# TODO: change this to .inventory_level
-	node.state_vars_current.ending_inventory_level = node.state_vars_current.inventory_level
+#	node.state_vars_current.ending_inventory_level = node.state_vars_current.inventory_level
 	inbound_shipment = np.sum([node.state_vars_current.inbound_shipment_pipeline[
 		p_index][0] for p_index in node.predecessor_indices(include_external=True)])
 	for p_index in node.predecessor_indices(include_external=True):
@@ -355,13 +397,13 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		# Remove shipment from pipeline.
 		node.state_vars_current.inbound_shipment_pipeline[p_index][0] = 0
 		# Update IL and OO.
-		node.state_vars_current.ending_inventory_level += inbound_shipment
+		node.state_vars_current.inventory_level += inbound_shipment
 		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
 
 	# Determine current on-hand and backorders (after shipment arrives but
 	# before demand is subtracted).
-	current_on_hand = max(0, node.state_vars_current.inventory_level) + inbound_shipment
-	current_backorders = max(0, -node.state_vars_current.inventory_level)
+	current_on_hand = max(0, starting_inventory_level) + inbound_shipment
+	current_backorders = max(0, -starting_inventory_level)
 	# Double-check BO calculations.
 	current_backorders_check = node.get_attribute_total('backorders_by_successor', period)
 	assert np.isclose(current_backorders, current_backorders_check), \
@@ -391,7 +433,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 			max(0, node.state_vars_current.outbound_shipment[s_index]
 				- node.state_vars_current.backorders_by_successor[s_index])
 		# Update EIL and BO.
-		node.state_vars_current.ending_inventory_level -= node.state_vars_current.inbound_order[s_index]
+		node.state_vars_current.inventory_level -= node.state_vars_current.inbound_order[s_index]
 		node.state_vars_current.backorders_by_successor[s_index] -= BO_OS
 
 		# Calculate new backorders_by_successor.
@@ -429,8 +471,6 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	for s in list(node.successors()):
 		if not visited[s.index]:
 			generate_downstream_shipments(s.index, network, period, visited)
-
-
 
 
 def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):

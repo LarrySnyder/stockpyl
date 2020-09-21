@@ -244,11 +244,11 @@ class TestStateVariables(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestStateVariables', 'tear_down_class()')
 
-	def test_example_6_1_per_23(self):
+	def test_example_6_1_per_22(self):
 		"""Test state variables for simulation of 3-node serial system in
-		Example 6.1 at end of period 23.
+		Example 6.1 at end of period 22.
 		"""
-		print_status('TestStateVariables', 'test_example_6_1_per_23()')
+		print_status('TestStateVariables', 'test_example_6_1_per_22()')
 
 		network = get_named_instance("example_6_1")
 
@@ -258,44 +258,43 @@ class TestStateVariables(unittest.TestCase):
 
 		# Strategy for these tests: run sim for a few periods, test state
 		# variables.
-		simulation(network, 24, rand_seed=17, progress_bar=False)
+		simulation(network, 23, rand_seed=17, progress_bar=False)
 
-		# Note: .on_hand will look at starting IL
 		self.assertAlmostEqual(network.nodes[0].state_vars[23].on_hand, 0.497397132, places=6)
 		self.assertAlmostEqual(network.nodes[1].state_vars[23].on_hand, 0.038666224, places=6)
 		self.assertAlmostEqual(network.nodes[2].state_vars[23].on_hand, 0, places=6)
 		self.assertAlmostEqual(network.nodes[0].state_vars[23].backorders, 0, places=6)
 		self.assertAlmostEqual(network.nodes[1].state_vars[23].backorders, 0, places=6)
 		self.assertAlmostEqual(network.nodes[2].state_vars[23].backorders, 0.832602868, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].in_transit_to(network.nodes[0]), 4.553353396, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].in_transit_to(network.nodes[1]), 5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[23].in_transit_from(network.nodes[1]), 4.553353396, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].in_transit_from(network.nodes[2]), 5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].in_transit_from(None), 5.491333775514212+4.553353395797147, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[23].in_transit, 4.553353396, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].in_transit, 5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].in_transit, 5.491333775514212+4.553353395797147, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[23].on_order, 4.553353396, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].on_order, 5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].on_order, 10.04468717, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[23].inventory_position, 0.497397132+4.553353396, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].inventory_position, 0.038666224+5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].inventory_position, -0.832602868+10.04468717, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].in_transit_to(network.nodes[0]), 5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].in_transit_to(network.nodes[1]), 4.658730908, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[23].in_transit_from(network.nodes[1]), 5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].in_transit_from(network.nodes[2]), 4.658730908, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].in_transit_from(None), 6.031269092479092+5.491333775514212, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[23].in_transit, 5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].in_transit, 4.658730908, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].in_transit, 6.031269092479092+5.491333775514212, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[23].on_order, 5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].on_order, 5.491333776, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].on_order, 6.031269092479092+5.491333775514212, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[23].inventory_position, 6.49, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].inventory_position, 5.53, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].inventory_position, 10.69, places=6)
 		self.assertAlmostEqual(network.nodes[0].state_vars[23].echelon_on_hand_inventory, 0.497397132, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].echelon_on_hand_inventory, 0.497397132+4.553353396+0.038666224, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].echelon_on_hand_inventory, 0.497397132+4.553353396+0.038666224+5.385956264, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].echelon_on_hand_inventory, 0.497397132+5.992602868+0.038666224, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].echelon_on_hand_inventory, 0.497397132+5.992602868+0.038666224+4.658730908, places=6)
 		self.assertAlmostEqual(network.nodes[0].state_vars[23].echelon_inventory_level, 0.497397132, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].echelon_inventory_level, 0.497397132+4.553353396+0.038666224, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].echelon_inventory_level, 0.497397132+4.553353396+0.038666224+5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[23].echelon_inventory_position, 0.497397132+4.553353396, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[23].echelon_inventory_position, 0.497397132+4.553353396+0.038666224+5.385956264, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[23].echelon_inventory_position, 0.497397132+4.553353396+0.038666224+5.385956264+10.04468717, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].echelon_inventory_level, 0.497397132+5.992602868+0.038666224, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].echelon_inventory_level, 0.497397132+5.992602868+0.038666224+4.658730908, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[23].echelon_inventory_position, 0.497397132+5.992602868, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[23].echelon_inventory_position, 0.497397132+5.992602868+0.038666224+5.491333776, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[23].echelon_inventory_position, 0.497397132+5.992602868+0.038666224+4.658730908+6.031269092479092+5.491333775514212, places=6)
 
-	def test_example_6_1_per_38(self):
+	def test_example_6_1_per_37(self):
 		"""Test state variables for simulation of 3-node serial system in
-		Example 6.1 at end of period 38.
+		Example 6.1 at end of period 37.
 		"""
-		print_status('TestStateVariables', 'test_example_6_1_per_38()')
+		print_status('TestStateVariables', 'test_example_6_1_per_37()')
 
 		network = get_named_instance("example_6_1")
 
@@ -305,36 +304,42 @@ class TestStateVariables(unittest.TestCase):
 
 		# Strategy for these tests: run sim for a few periods, test state
 		# variables.
-		simulation(network, 39, rand_seed=17, progress_bar=False)
+		simulation(network, 38, rand_seed=17, progress_bar=False)
 
-		# Note: .on_hand will look at starting IL
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].on_hand, 0, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].on_hand, 0, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].on_hand, 0, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].backorders, 0.16089457, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].backorders, 0.682689274, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].backorders, 0.343065432, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].in_transit_to(network.nodes[0]), 4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].in_transit_to(network.nodes[1]), 4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].in_transit_from(network.nodes[1]), 4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].in_transit_from(network.nodes[2]), 4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].in_transit_from(None), 5.465282343506053+3.8346269168214997, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].in_transit, 4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].in_transit, 4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].in_transit, 5.465282343506053+3.8346269168214997, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].on_order, 4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].on_order, 4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].on_order, 9.29990926, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].inventory_position, -0.16089457+4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].inventory_position, -0.682689274+4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].inventory_position, -0.343065432+9.29990926, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].echelon_on_hand_inventory, 0, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].echelon_on_hand_inventory, 4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].echelon_on_hand_inventory, 4.517316191+4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].echelon_inventory_level, -0.16089457, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].echelon_inventory_level, 4.517316191-0.16089457, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].echelon_inventory_level, 4.517316191+4.177692349-0.16089457, places=6)
-		self.assertAlmostEqual(network.nodes[0].state_vars[38].echelon_inventory_position, -0.16089457+4.517316191, places=6)
-		self.assertAlmostEqual(network.nodes[1].state_vars[38].echelon_inventory_position, 4.517316191-0.16089457+4.177692349, places=6)
-		self.assertAlmostEqual(network.nodes[2].state_vars[38].echelon_inventory_position, 4.517316191+4.177692349-0.16089457+9.29990926, places=6)
+		# Shortcuts to correct values.
+		[IL0, IL1, IL2] = [-0.16089457,-0.682689274,-0.343065432]
+		[OH0, OH1, OH2] = np.maximum([IL0, IL1, IL2], 0)
+		[BO0, BO1, BO2] = np.maximum([-IL0, -IL1, -IL2], 0)
+		[IT0, IT1, IT2] = [5.968205296, 5.869623842, 5.567783088742498+5.465282343506053]
+		[OO0, OO1, OO2] = [6.65089457, 6.212689274, 11.03306543]
+
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].on_hand, OH0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].on_hand, OH1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].on_hand, OH2, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].backorders, BO0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].backorders, BO1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].backorders, BO2, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].in_transit_to(network.nodes[0]), IT0, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].in_transit_to(network.nodes[1]), IT1, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].in_transit_from(network.nodes[1]), IT0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].in_transit_from(network.nodes[2]), IT1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].in_transit_from(None), IT2, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].in_transit, IT0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].in_transit, IT1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].in_transit, IT2, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].on_order, OO0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].on_order, OO1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].on_order, OO2, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].inventory_position, IL0+OO0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].inventory_position, IL1+OO1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].inventory_position, IL2+OO2, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].echelon_on_hand_inventory, OH0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].echelon_on_hand_inventory, OH0+IT0+OH1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].echelon_on_hand_inventory, OH0+IT0+OH1+IT1+OH2, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].echelon_inventory_level, IL0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].echelon_inventory_level, OH0+IT0+OH1-BO0, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].echelon_inventory_level, OH0+IT0+OH1+IT1+OH2-BO0, places=6)
+		self.assertAlmostEqual(network.nodes[0].state_vars[38].echelon_inventory_position, IL0+OO0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[38].echelon_inventory_position, OH0+IT0+OH1-BO0+OO1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[38].echelon_inventory_position, OH0+IT0+OH1+IT1+OH2-BO0+OO2, places=6)
 

@@ -365,7 +365,9 @@ class SupplyChainNode(object):
 
 class NodeStateVars(object):
 	"""The ``NodeStateVars`` class contains values of the state variables
-	for a supply chain node.
+	for a supply chain node. All state variables refer to their values at the
+	end of a period (except during the period itself, in which case the
+	values might be intermediate until the period is complete).
 
 	Notation below in brackets [...] is from Snyder and Shen (2019).
 
@@ -484,7 +486,7 @@ class NodeStateVars(object):
 
 		# Remaining state variables.
 		self.inventory_level = 0
-		self.ending_inventory_level = 0
+#		self.ending_inventory_level = 0
 
 		# Costs: each refers to a component of the cost (or the total cost)
 		# incurred at the node in the period.
