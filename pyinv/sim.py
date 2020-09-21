@@ -160,6 +160,132 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 # HELPER FUNCTIONS
 
+def generate_downstream_orders(node_index, network, period, visited):
+	"""Generate demands and orders for all downstream nodes using depth-first-search.
+	Ignore nodes for which visited=True.
+
+	Parameters
+	----------
+	node_index : int
+		Index of starting node for depth-first search.
+	network : SupplyChainNetwork
+		The multi-echelon inventory network.
+	period : int
+		Time period.
+	visited : dict
+		Dictionary indicating whether each node in network has already been
+		visited by the depth-first search.
+
+	"""
+	# Did we already visit this node?
+	if visited[node_index]:
+		# We shouldn't even be here.
+		return
+
+	# Mark node as visited.
+	visited[node_index] = True
+
+	# Get the node.
+	node = network.get_node_from_index(node_index)
+
+	# Does node have external demand?
+	if node.demand_source.type != DemandType.NONE:
+		# Generate demand and fill it in inbound_order_pipeline.
+		node.state_vars_current.inbound_order_pipeline[None][0] = \
+			node.demand_source.generate_demand(period)
+
+	# Call generate_downstream_orders() for all non-visited successors.
+	for s in node.successors():
+		if not visited[s.index]:
+			generate_downstream_orders(s.index, network, period, visited)
+
+	# Receive inbound orders.
+	for s_index in node.successor_indices(include_external=True):
+		# Set inbound_order from pipeline.
+		node.state_vars_current.inbound_order[s_index] = \
+			node.state_vars_current.inbound_order_pipeline[s_index][0]
+		# Remove order from pipeline.
+		node.state_vars_current.inbound_order_pipeline[s_index][0] = 0
+
+	# Calculate order quantity.
+	order_quantity = get_order_quantity(node, period)
+	node.state_vars_current.order_quantity = order_quantity
+
+	# Get lead times (for convenience).
+	order_lead_time = node.order_lead_time
+	shipment_lead_time = node.shipment_lead_time
+
+	# Place orders to all predecessors.
+	for p in node.predecessors(include_external=True):
+		if p is not None:
+			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
+				order_quantity
+			p_index = p.index
+		else:
+			p_index = None
+		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
+		# node.state_vars[period + 1].on_order_by_predecessor[p_index] = \
+		# 	node.state_vars[period].on_order_by_predecessor[p_index] + order_quantity
+
+	# Does node have external supply?
+	if node.supply_type != SupplyType.NONE:
+		# Place order to external supplier.
+		# (For now, this just means adding to inbound shipment pipeline.)
+		# TODO: Handle other types of supply functions
+		node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time+shipment_lead_time] = \
+			order_quantity
+
+
+def generate_downstream_shipments(node_index, network, period, visited):
+	"""Generate shipments to all downstream nodes using depth-first-search.
+	Ignore nodes for which visited=True.
+
+	Parameters
+	----------
+	node_index : int
+		Index of starting node for depth-first search.
+	network : SupplyChainNetwork
+		The multi-echelon inventory network.
+	period : int
+		Time period.
+	visited : dict
+		Dictionary indicating whether each node in network has already been
+		visited by the depth-first search.
+
+	"""
+	# Did we already visit this node?
+	if visited[node_index]:
+		# We shouldn't even be here.
+		return
+
+	# Mark node as visited.
+	visited[node_index] = True
+
+	# Shortcuts.
+	node = network.get_node_from_index(node_index)
+
+	# Remember starting IL.
+	starting_inventory_level = node.state_vars_current.inventory_level
+
+	# Receive inbound shipments. (Set inbound_shipment, remove from shipment
+	# pipeline, update IL and OO.)
+	inbound_shipment = receive_inbound_shipment(node)
+
+	# Process outbound shipments.
+	process_outbound_shipments(node, starting_inventory_level, inbound_shipment)
+
+	# Calculate fill rate (cumulative in periods 0,...,t).
+	calculate_fill_rate(node, period)
+
+	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
+	propagate_shipment_downstream(node)
+
+	# Call generate_downstream_shipments() for all non-visited successors.
+	for s in list(node.successors()):
+		if not visited[s.index]:
+			generate_downstream_shipments(s.index, network, period, visited)
+
+
 def initialize_state_vars(network):
 	"""Initialize the state variables for each node:
 		* inventory_level = to initial_inventory_level
@@ -260,59 +386,26 @@ def calculate_period_costs(network, period):
 			n.state_vars[period].in_transit_holding_cost_incurred
 
 
-def generate_downstream_orders(node_index, network, period, visited):
-	"""Generate demands and orders for all downstream nodes using depth-first-search.
-	Ignore nodes for which visited=True.
+def get_order_quantity(node, period):
+	"""Calculate order quantity for the given node.
 
 	Parameters
 	----------
-	node_index : int
-		Index of starting node for depth-first search.
-	network : SupplyChainNetwork
-		The multi-echelon inventory network.
+	node : SupplyChainNode
+		The supply chain node.
 	period : int
 		Time period.
-	visited : dict
-		Dictionary indicating whether each node in network has already been
-		visited by the depth-first search.
+
+	Returns
+	-------
+	order_quantity : float
+		The order quantity.
 
 	"""
-	# Did we already visit this node?
-	if visited[node_index]:
-		# We shouldn't even be here.
-		return
-
-	# Mark node as visited.
-	visited[node_index] = True
-
-	# Get the node.
-	node = network.get_node_from_index(node_index)
-
-	# Does node have external demand?
-	if node.demand_source.type != DemandType.NONE:
-		# Generate demand and fill it in inbound_order_pipeline.
-		node.state_vars_current.inbound_order_pipeline[None][0] = \
-			node.demand_source.generate_demand(period)
-#		node.state_vars_current.inbound_order[None] = node.demand_source.generate_demand(period)
-
-	# Call generate_downstream_orders() for all non-visited successors.
-	for s in node.successors():
-		if not visited[s.index]:
-			generate_downstream_orders(s.index, network, period, visited)
-
-	# Receive inbound orders.
-	for s_index in node.successor_indices(include_external=True):
-		# Set inbound_order from pipeline.
-		node.state_vars_current.inbound_order[s_index] = \
-			node.state_vars_current.inbound_order_pipeline[s_index][0]
-		# Remove order from pipeline.
-		node.state_vars_current.inbound_order_pipeline[s_index][0] = 0
-
 	# Calculate total demand (inbound orders), including successor nodes and
 	# external demand.
 	demand = node.get_attribute_total('inbound_order', period)
 
-	# Calculate order quantity.
 	if node.inventory_policy is None:
 		order_quantity = 0
 	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
@@ -321,74 +414,29 @@ def generate_downstream_orders(node_index, network, period, visited):
 	else:
 		current_IP = node.state_vars_current.inventory_position - demand
 		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
-	node.state_vars_current.order_quantity = order_quantity
-
-	# Get lead times (for convenience).
-	order_lead_time = node.order_lead_time
-	shipment_lead_time = node.shipment_lead_time
-
-	# Place orders to all predecessors.
-	for p in node.predecessors(include_external=True):
-		if p is not None:
-			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
-				order_quantity
-#			p.state_vars[period+order_lead_time].inbound_order[node_index] = \
-#				order_quantity
-			p_index = p.index
-		else:
-			p_index = None
-		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
-		# node.state_vars[period + 1].on_order_by_predecessor[p_index] = \
-		# 	node.state_vars[period].on_order_by_predecessor[p_index] + order_quantity
-
-	# Does node have external supply?
-	if node.supply_type != SupplyType.NONE:
-		# Place order to external supplier.
-		# (For now, this just means adding to inbound shipment pipeline.)
-		# TODO: Handle other types of supply functions
-		node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time+shipment_lead_time] = \
-			order_quantity
-#		node.state_vars[period + order_lead_time + shipment_lead_time].inbound_shipment[None] = \
-#			order_quantity
+	return order_quantity
 
 
-def generate_downstream_shipments(node_index, network, period, visited):
-	"""Generate shipments to all downstream nodes using depth-first-search.
-	Ignore nodes for which visited=True.
+def receive_inbound_shipment(node):
+	"""Receive inbound shipment for the node:
+		* Set inbound_shipment.
+		* Remove from shipment pipeline.
+		* Update IL and OO.
 
 	Parameters
 	----------
-	node_index : int
-		Index of starting node for depth-first search.
-	network : SupplyChainNetwork
-		The multi-echelon inventory network.
-	period : int
-		Time period.
-	visited : dict
-		Dictionary indicating whether each node in network has already been
-		visited by the depth-first search.
+	node : SupplyChainNode
+		The supply chain node.
+
+	Returns
+	-------
+	inbound_shipment : float
+		The inbound shipment quantity.
 
 	"""
-	# Did we already visit this node?
-	if visited[node_index]:
-		# We shouldn't even be here.
-		return
-
-	# Mark node as visited.
-	visited[node_index] = True
-
-	# Shortcuts.
-	node = network.get_node_from_index(node_index)
-#	IS = node.get_attribute_total('inbound_shipment', period)
-#	IO = node.get_attribute_total('inbound_order', period)
-
-	# Remember starting IL.
-	starting_inventory_level = node.state_vars_current.inventory_level
-
-	# Receive inbound shipments (add it to ending IL); will subtract outbound
-	# shipment later. Subtract arriving shipment from next period's starting OO.
+	# Receive inbound shipments (add it to IL). Subtract arriving shipment from
+	# next period's starting OO.
 	# TODO: handle what happens when AND-type supply nodes (assembly-type) -- now it assumes OR-type
-#	node.state_vars_current.ending_inventory_level = node.state_vars_current.inventory_level
 	inbound_shipment = np.sum([node.state_vars_current.inbound_shipment_pipeline[
 		p_index][0] for p_index in node.predecessor_indices(include_external=True)])
 	for p_index in node.predecessor_indices(include_external=True):
@@ -400,14 +448,34 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		node.state_vars_current.inventory_level += inbound_shipment
 		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
 
+	return inbound_shipment
+
+
+def process_outbound_shipments(node, starting_inventory_level, inbound_shipment):
+	"""Process outbound shipments for the node:
+		* Determine outbound shipments. Demands are satisfied in order of
+		successor node index.
+		* Update inventory level.
+		* Calculate demand met from stock.
+
+	Parameters
+	----------
+	node : SupplyChainNode
+		The supply chain node.
+	starting_inventory_level : float
+		Starting inventory level for the period.
+	inbound_shipment : float
+		Inbound shipment for the period (already received).
+	"""
 	# Determine current on-hand and backorders (after shipment arrives but
 	# before demand is subtracted).
-	current_on_hand = max(0, starting_inventory_level) + inbound_shipment
-	current_backorders = max(0, -starting_inventory_level)
+	current_on_hand = max(0.0, starting_inventory_level) + inbound_shipment
+	current_backorders = max(0.0, -starting_inventory_level)
 	# Double-check BO calculations.
-	current_backorders_check = node.get_attribute_total('backorders_by_successor', period)
+	current_backorders_check = node.get_attribute_total('backorders_by_successor', node.network.period)
 	assert np.isclose(current_backorders, current_backorders_check), \
-		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(current_backorders, current_backorders_check, node_index, period)
+		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
+			current_backorders, current_backorders_check, node.index, node.network.period)
 
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
@@ -432,46 +500,61 @@ def generate_downstream_shipments(node_index, network, period, visited):
 		node.state_vars_current.demand_met_from_stock = \
 			max(0, node.state_vars_current.outbound_shipment[s_index]
 				- node.state_vars_current.backorders_by_successor[s_index])
-		# Update EIL and BO.
+		# Update IL and BO.
 		node.state_vars_current.inventory_level -= node.state_vars_current.inbound_order[s_index]
 		node.state_vars_current.backorders_by_successor[s_index] -= BO_OS
 
 		# Calculate new backorders_by_successor.
 		node.state_vars_current.backorders_by_successor[s_index] += max(0,
 			node.state_vars_current.inbound_order[s_index] - non_BO_OS)
-#			node.inbound_order[s_index][period] - node.outbound_shipment[s_index][period])
 
-	# node['OS'][period] = min(current_on_hand, current_backorders + IO)
-	#
-	# # Determine number of current period's demands (inbound orders) that are
-	# # met from stock. (Note: This assumes that if there are backorders, current
-	# # period's demands get priority.)
-	# node['DMFS'][period] = min(current_on_hand, IO)
 
+def calculate_fill_rate(node, period):
+	"""Calculate fill rate for the node in the period.
+
+	Parameters
+	----------
+	node : SupplyChainNode
+		The supply chain node.
+	period : int
+		Time period.
+
+	"""
 	# Calculate fill rate (cumulative in periods 0,...,t).
 	# TODO: is this where the time leak is??
 	met_from_stock = np.sum([node.state_vars[t].demand_met_from_stock for t in range(period + 1)])
-#	met_from_stock = np.sum(node.state_vars[0:period + 1].demand_met_from_stock)
 	total_demand = np.sum([node.get_attribute_total('inbound_order', t)
-						for t in range(period+1)])
+						   for t in range(period + 1)])
 	if total_demand > 0:
 		node.state_vars_current.fill_rate = met_from_stock / total_demand
 	else:
 		node.state_vars_current.fill_rate = 1.0
 
+
+def propagate_shipment_downstream(node):
+	"""Propagate shipment downstream, i.e., add it to successors' ``inbound_shipment_pipeline``.
+
+	Parameters
+	----------
+	node : SupplyChainNode
+		The supply chain node.
+
+	Returns
+	-------
+	inbound_shipment : float
+		The inbound shipment quantity.
+
+	"""
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
 	# TODO: handle end of horizon -- if period+s.shipment_lead_time > T
 	for s in node.successors():
-		s.state_vars_current.inbound_shipment_pipeline[node_index][s.shipment_lead_time] \
+		s.state_vars_current.inbound_shipment_pipeline[node.index][s.shipment_lead_time] \
 			= node.state_vars_current.outbound_shipment[s.index]
-#		s.state_vars[period+s.shipment_lead_time].inbound_shipment[node_index] \
-#			= node.state_vars[period].outbound_shipment[s.index]
 
-	# Call generate_downstream_shipments() for all non-visited successors.
-	for s in list(node.successors()):
-		if not visited[s.index]:
-			generate_downstream_shipments(s.index, network, period, visited)
 
+# -------------------
+
+# SIMULATION STUFF
 
 def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 	"""Run ``num_trials`` trials of the simulation, each with  ``num_periods``
