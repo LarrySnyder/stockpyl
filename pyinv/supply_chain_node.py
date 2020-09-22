@@ -408,9 +408,12 @@ class NodeStateVars(object):
 		of period.
 	backorders_by_successor : dict
 		``backorders_by_successor[s]`` = number of backorders for successor
-		``s`` at the beginning of period. If ``s`` is ``None``, refers to
-		external demand.
+		``s``. If ``s`` is ``None``, refers to external demand.
 		Sum over all successors should always equal max{0, -inventory_level}.
+	raw_material_inventory : dict
+		``raw_material_inventory[p]`` = number of units of predecessor ``p`'s
+		product in raw-material inventory at node. If ``p`` is ``None``, refers
+		to external supply.
 	holding_cost_incurred : float
 		Holding cost incurred at the node in the period.
 	stockout_cost_incurred : float
@@ -474,6 +477,7 @@ class NodeStateVars(object):
 			self.on_order_by_predecessor = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.backorders_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.order_quantity = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
+			self.raw_material_inventory = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 
 		else:
 
@@ -486,6 +490,7 @@ class NodeStateVars(object):
 			self.on_order_by_predecessor = {}
 			self.backorders_by_successor = {}
 			self.order_quantity = {}
+			self.raw_material_inventory = {}
 
 		# Remaining state variables.
 		self.inventory_level = 0

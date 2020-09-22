@@ -1,5 +1,3 @@
-## SDFLKJSDF
-
 """Code for simulating multi-echelon inventory systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
@@ -202,14 +200,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 			generate_downstream_orders(s.index, network, period, visited)
 
 	# Receive inbound orders.
-	for s_index in node.successor_indices(include_external=True):
-		# Set inbound_order from pipeline.
-		node.state_vars_current.inbound_order[s_index] = \
-			node.state_vars_current.inbound_order_pipeline[s_index][0]
-		# Remove order from pipeline.
-		node.state_vars_current.inbound_order_pipeline[s_index][0] = 0
-		# Update demand_cumul.
-		node.state_vars_current.demand_cumul += node.state_vars_current.inbound_order[s_index]
+	receive_inbound_orders(node)
 
 	# Calculate order quantity.
 	order_quantity = get_order_quantity(node, period)
@@ -272,11 +263,14 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	starting_inventory_level = node.state_vars_current.inventory_level
 
 	# Receive inbound shipments. (Set inbound_shipment, remove from shipment
-	# pipeline, update IL and OO.)
-	inbound_shipment = receive_inbound_shipment(node)
+	# pipeline, update OO.)
+	receive_inbound_shipments(node)
+
+	# Convert raw materials to finished goods.
+	new_finished_goods = raw_materials_to_finished_goods(node)
 
 	# Process outbound shipments.
-	process_outbound_shipments(node, starting_inventory_level, inbound_shipment)
+	process_outbound_shipments(node, starting_inventory_level, new_finished_goods)
 
 	# Calculate fill rate (cumulative in periods 0,...,t).
 	calculate_fill_rate(node, period)
@@ -321,6 +315,32 @@ def initialize_state_vars(network):
 		for s in n.successors():
 			for l in range(s.order_lead_time):
 				n.state_vars[0].inbound_order_pipeline[l] = s.initial_orders
+
+		# Initialize raw material inventory.
+		# TODO: allow initial RM inventory
+		for p in n.predecessor_indices(include_external=True):
+			n.state_vars[0].raw_material_inventory[p_index] = 0
+
+
+def receive_inbound_orders(node):
+	"""Receive inbound orders:
+		* Set inbound order from pipeline.
+		* Remove inbound order from pipeline.
+		* Update cumulative demand.
+
+	Parameters
+	----------
+	node : SupplyChainNode
+		The supply chain node.
+	"""
+	for s_index in node.successor_indices(include_external=True):
+		# Set inbound_order from pipeline.
+		node.state_vars_current.inbound_order[s_index] = \
+			node.state_vars_current.inbound_order_pipeline[s_index][0]
+		# Remove order from pipeline.
+		node.state_vars_current.inbound_order_pipeline[s_index][0] = 0
+		# Update demand_cumul.
+		node.state_vars_current.demand_cumul += node.state_vars_current.inbound_order[s_index]
 
 
 def initialize_next_period_state_vars(network, period):
@@ -375,22 +395,32 @@ def calculate_period_costs(network, period):
 	"""
 
 	for n in network.nodes:
+		# Finished goods holding cost.
 		try:
 			n.state_vars[period].holding_cost_incurred = \
 				n.local_holding_cost_function(n.state_vars[period].inventory_level)
 		except TypeError:
 			n.state_vars[period].holding_cost_incurred = \
 				n.local_holding_cost * max(0, n.state_vars[period].inventory_level)
+		# Raw materials holding cost.
+		# TODO: Allow different holding costs. Allow holding cost functions.
+		# TODO: unit tests
+		for p in n.predecessors(include_external=False):
+			n.state_vars[period].holding_cost_incurred += \
+				p.local_holding_cost * n.state_vars[period].raw_material_inventory[p.index]
+		# Stockout cost.
 		try:
 			n.state_vars[period].stockout_cost_incurred = \
 				n.stockout_cost_function(n.state_vars[period].inventory_level)
 		except TypeError:
 			n.state_vars[period].stockout_cost_incurred = \
 				n.stockout_cost * max(0, -n.state_vars[period].inventory_level)
+		# In-transit holding cost.
 		# TODO: add more flexible ways of calculating in-transit h.c.
 		n.state_vars[period].in_transit_holding_cost_incurred = \
 			n.local_holding_cost * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
 
+		# Total cost.
 		n.state_vars[period].total_cost_incurred = \
 			n.state_vars[period].holding_cost_incurred + \
 			n.state_vars[period].stockout_cost_incurred + \
@@ -428,11 +458,36 @@ def get_order_quantity(node, period):
 	return order_quantity
 
 
-def receive_inbound_shipment(node):
+def receive_inbound_shipments(node):
 	"""Receive inbound shipment for the node:
 		* Set inbound_shipment.
-		* Remove from shipment pipeline.
+		* Remove from shipment pipeline and add to raw material inventory.
+		* Process as many units as possible.
 		* Update IL and OO.
+
+	Parameters
+	----------
+	node : SupplyChainNode
+		The supply chain node.
+	"""
+	# Loop through predecessors.
+	for p_index in node.predecessor_indices(include_external=True):
+		# Determine inbound shipment amount from p.
+		inbound_shipment = node.state_vars_current.inbound_shipment_pipeline[p_index][0]
+		# Set inbound_shipment attribute.
+		node.state_vars_current.inbound_shipment[p_index] = inbound_shipment
+		# Remove shipment from pipeline.
+		node.state_vars_current.inbound_shipment_pipeline[p_index][0] = 0
+		# Add shipment to raw material inventory.
+		node.state_vars_current.raw_material_inventory[p_index] += inbound_shipment
+		# Update on-order inventory.
+		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
+
+
+def raw_materials_to_finished_goods(node):
+	"""Process raw materials to convert them to finished goods:
+		* Remove items from raw material inventory.
+		* Update IL.
 
 	Parameters
 	----------
@@ -441,28 +496,24 @@ def receive_inbound_shipment(node):
 
 	Returns
 	-------
-	inbound_shipment : float
-		The inbound shipment quantity.
+	new_finished_goods : float
+		Number of new finished goods added to inventory this period.
 
 	"""
-	# Receive inbound shipments (add it to IL). Subtract arriving shipment from
-	# next period's starting OO.
-	# TODO: handle what happens when AND-type supply nodes (assembly-type) -- now it assumes OR-type
-	inbound_shipment = np.sum([node.state_vars_current.inbound_shipment_pipeline[
-		p_index][0] for p_index in node.predecessor_indices(include_external=True)])
+	# Determine number of units that can be processed.
+	# TODO: handle BOM
+	new_finished_goods = np.min([node.state_vars_current.raw_material_inventory[p_index]
+						for p_index in node.predecessor_indices(include_external=True)])
+
+	# Process units: remove from raw material inventory and add to finished goods.
 	for p_index in node.predecessor_indices(include_external=True):
-		# Set inbound_shipments from pipeline.
-		node.state_vars_current.inbound_shipment[p_index] = inbound_shipment
-		# Remove shipment from pipeline.
-		node.state_vars_current.inbound_shipment_pipeline[p_index][0] = 0
-		# Update IL and OO.
-		node.state_vars_current.inventory_level += inbound_shipment
-		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
+		node.state_vars_current.raw_material_inventory[p_index] -= new_finished_goods
+	node.state_vars_current.inventory_level += new_finished_goods
 
-	return inbound_shipment
+	return new_finished_goods
 
 
-def process_outbound_shipments(node, starting_inventory_level, inbound_shipment):
+def process_outbound_shipments(node, starting_inventory_level, new_finished_goods):
 	"""Process outbound shipments for the node:
 		* Determine outbound shipments. Demands are satisfied in order of
 		successor node index.
@@ -475,12 +526,12 @@ def process_outbound_shipments(node, starting_inventory_level, inbound_shipment)
 		The supply chain node.
 	starting_inventory_level : float
 		Starting inventory level for the period.
-	inbound_shipment : float
-		Inbound shipment for the period (already received).
+	new_finished_goods : float
+		Number of new finished goods added to inventory this period.
 	"""
-	# Determine current on-hand and backorders (after shipment arrives but
-	# before demand is subtracted).
-	current_on_hand = max(0.0, starting_inventory_level) + inbound_shipment
+	# Determine current on-hand and backorders (after new finished goods are
+	# added but before demand is subtracted).
+	current_on_hand = max(0.0, starting_inventory_level) + new_finished_goods
 	current_backorders = max(0.0, -starting_inventory_level)
 	# Double-check BO calculations.
 	current_backorders_check = node.get_attribute_total('backorders_by_successor', node.network.period)
