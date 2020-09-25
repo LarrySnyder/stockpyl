@@ -333,9 +333,10 @@ def get_named_instance(instance_name):
 			demand_standard_deviation=1,
 			shipment_lead_time=[1, 2, 2],
 			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[7, 13, 13],
-			initial_IL=[7, 13, 13],
+			local_base_stock_levels=[7, 13, 11],
+			initial_IL=[7, 13, 11],
 			downstream_0=True
 		)
+		assembly_3_stage_network.nodes[0].demand_source.round_to_int = True
 		return assembly_3_stage_network
 

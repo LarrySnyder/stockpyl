@@ -113,10 +113,10 @@ class SupplyChainNode(object):
 
 		# --- Data/Inputs --- #
 		# TODO: when set local or echelon h.c., update the other
-		self.local_holding_cost = None
-		self.echelon_holding_cost = None
+		self.local_holding_cost = 0
+		self.echelon_holding_cost = 0
 		self.local_holding_cost_function = None
-		self.stockout_cost = None
+		self.stockout_cost = 0
 		self.stockout_cost_function = None
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
@@ -125,7 +125,7 @@ class SupplyChainNode(object):
 		self.initial_orders = 0
 		self.initial_shipments = 0
 		self.inventory_policy = None
-		self.supply_type = SupplyType.NONE
+		self.supply_type = SupplyType.NONE # TODO: this is awkward; make default UNLIMITED?
 
 		# --- State Variables --- #
 		self.state_vars = []

@@ -446,12 +446,12 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 
 def mwor_system(num_retailers, node_indices=None, downstream_0=True,
-				  local_holding_cost=None, echelon_holding_cost=None,
-				  stockout_cost=None, order_lead_time=None,
-				  shipment_lead_time=None, demand_type=None, demand_mean=None,
-				  demand_standard_deviation=None, demand_lo=None, demand_hi=None,
-				  demands=None, demand_probabilities=None, initial_IL=None,
-				  initial_orders=None, initial_shipments=None, supply_type=None,
+				  local_holding_cost=0, echelon_holding_cost=0,
+				  stockout_cost=0, order_lead_time=0,
+				  shipment_lead_time=0, demand_type=None, demand_mean=0,
+				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
+				  demands=None, demand_probabilities=None, initial_IL=0,
+				  initial_orders=0, initial_shipments=0, supply_type=None,
 				  inventory_policy_type=None, local_base_stock_levels=None,
 				  echelon_base_stock_levels=None,
 				  reorder_points=None, order_quantities=None,
@@ -658,10 +658,10 @@ def mwor_system(num_retailers, node_indices=None, downstream_0=True,
 		node.inventory_policy = policy
 
 		# Set supply type.
-		if n == num_nodes-1:
-			node.supply_type = SupplyType.UNLIMITED
-		else:
+		if n == 0:
 			node.supply_type = SupplyType.NONE
+		else:
+			node.supply_type = SupplyType.UNLIMITED
 
 		# Add node to network.
 		if n == 0:

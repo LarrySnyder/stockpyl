@@ -51,17 +51,17 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	temp = ["Avg"]
 	for node in network.nodes:
 		temp = temp + ["|", #np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
-					   node.get_attribute_total('on_order_by_predecessor', None) / num_periods,
-					   None,
-					   node.get_attribute_total('inbound_shipment', None) / num_periods,
-					   None,
 					   node.get_attribute_total('inbound_order', None) / num_periods,
+					   None,
 					   np.average([node.state_vars[t].order_quantity for t in range(num_periods)]),
+					   node.get_attribute_total('on_order_by_predecessor', None) / num_periods,
+					   node.get_attribute_total('inbound_shipment', None) / num_periods,
+					   None, None,
 					   node.get_attribute_total('outbound_shipment', None) / num_periods,
 					   np.average([node.state_vars[t].demand_met_from_stock for t in range(num_periods)]),
 					   np.average([node.state_vars[t].fill_rate for t in range(num_periods)]),
 					   np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
-					   node.get_attribute_total('backorders_by_successor', None) / num_periods,
+#					   node.get_attribute_total('backorders_by_successor', None) / num_periods,
 					   np.average([node.state_vars[t].holding_cost_incurred for t in range(num_periods)]),
 					   np.average([node.state_vars[t].stockout_cost_incurred for t in range(num_periods)]),
 					   np.average([node.state_vars[t].in_transit_holding_cost_incurred for t in range(
@@ -82,17 +82,18 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 		temp = [t]
 		for node in network.nodes:
 			temp = temp + ["|", #node.state_vars[t].inventory_level,
-						   node.get_attribute_total('on_order_by_predecessor', t),
-						   node.state_vars[t].inbound_shipment_pipeline,
-						   node.get_attribute_total('inbound_shipment', t),
-						   node.state_vars[t].inbound_order_pipeline,
 						   node.get_attribute_total('inbound_order', t),
+						   node.state_vars[t].inbound_order_pipeline,
 						   node.state_vars[t].order_quantity,
+						   node.get_attribute_total('on_order_by_predecessor', t),
+						   node.get_attribute_total('inbound_shipment', t),
+						   node.state_vars[t].inbound_shipment_pipeline,
+						   node.state_vars[t].raw_material_inventory,
 						   node.get_attribute_total('outbound_shipment', t),
 						   node.state_vars[t].demand_met_from_stock,
 						   node.state_vars[t].fill_rate,
 						   node.state_vars[t].inventory_level,
-						   node.get_attribute_total('backorders_by_successor', t),
+#						   node.get_attribute_total('backorders_by_successor', t),
 						   node.state_vars[t].holding_cost_incurred,
 						   node.state_vars[t].stockout_cost_incurred,
 						   node.state_vars[t].in_transit_holding_cost_incurred,
@@ -103,9 +104,8 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	# Header row
 	headers = ["t"]
 	for n in network.nodes:
-		headers = headers + ["|i={:d}".format(n.index), "OO", "IS_Pipeline", "IS", "IO_Pipeline", "IO", "OQ",
-							 "OS", "DMFS", "FR", #"BEI",
-							 "IL", "BO", "HC", "SC", "ITHC", "TC"]
+		headers = headers + ["|i={:d}".format(n.index), "IO", "IO_Pipeline", "OQ", "OO", "IS", "IS_Pipeline",
+							 "RM", "OS", "DMFS", "FR", "IL", "HC", "SC", "ITHC", "TC"]
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))
