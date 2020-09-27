@@ -604,13 +604,26 @@ class NodeStateVars(object):
 
 	# inventory_position = current local inventory position at node
 	# = IL + OO.
-	@property
-	def inventory_position(self):
-		return self.inventory_level + self.on_order
+	# If the node has more than one predecessor (including external supplier),
+	# must supply predecessor_index.
+	# On-order includes raw material inventory that has not yet been processed.
+	# TODO: is there an appropriate aggregate-level measure that should be used if there is more than one
+	#  predecessor?
+	def inventory_position(self, predecessor_index=None):
+		if len(self.node.predecessor_indices(include_external=True)) <= 1:
+			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
+			return self.inventory_level + self.on_order
+		elif predecessor_index is not None:
+			return self.inventory_level \
+					+ self.on_order_by_predecessor[predecessor_index] \
+					+ self.raw_material_inventory[predecessor_index]
+		else:
+			raise(AttributeError, "for nodes with more than 1 predecessor, must supply predecessor_index")
 
 	# echelon_on_hand_inventory = current echelon on-hand inventory at node
 	# = on-hand inventory at node and at or in transit to all of its
 	# downstream nodes.
+	# TODO: how to handle downstream raw material inventory?
 	@property
 	def echelon_on_hand_inventory(self):
 		EOHI = self.on_hand
@@ -626,6 +639,7 @@ class NodeStateVars(object):
 	# echelon_inventory_level = current echelon inventory level at node
 	# = echelon on-hand inventory minus backorders at terminal node(s)
 	# downstream from node.
+	# TODO: how to handle downstream raw material inventory?
 	@property
 	def echelon_inventory_level(self):
 		EIL = self.echelon_on_hand_inventory
@@ -636,6 +650,18 @@ class NodeStateVars(object):
 
 	# echelon_inventory_position = current echelon inventory position at node
 	# = echelon inventory level + on order.
-	@property
-	def echelon_inventory_position(self):
-		return self.echelon_inventory_level + self.on_order
+	# If the node has more than one predecessor (including external supplier),
+	# must supply predecessor_index.
+	# On-order includes raw material inventory that has not yet been processed.
+	# TODO: is there an appropriate aggregate-level measure that should be used if there is more than one
+	#  predecessor?
+	def echelon_inventory_position(self, predecessor_index=None):
+		if len(self.node.predecessor_indices(include_external=True)) <= 1:
+			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
+			return self.echelon_inventory_level + self.on_order
+		elif predecessor_index is not None:
+			return self.echelon_inventory_level \
+					+ self.on_order_by_predecessor[predecessor_index] \
+					+ self.raw_material_inventory[predecessor_index]
+		else:
+			raise(AttributeError, "for nodes with more than 1 predecessor, must supply predecessor_index")

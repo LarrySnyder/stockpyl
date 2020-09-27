@@ -47,26 +47,26 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	# Build list of results strings
 	results = []
 
-	# Average row.
+	# Average row. # TODO: handle averages
 	temp = ["Avg"]
-	for node in network.nodes:
-		temp = temp + ["|", #np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
-					   node.get_attribute_total('inbound_order', None) / num_periods,
-					   None,
-					   np.average([node.state_vars[t].order_quantity for t in range(num_periods)]),
-					   node.get_attribute_total('on_order_by_predecessor', None) / num_periods,
-					   node.get_attribute_total('inbound_shipment', None) / num_periods,
-					   None, None,
-					   node.get_attribute_total('outbound_shipment', None) / num_periods,
-					   np.average([node.state_vars[t].demand_met_from_stock for t in range(num_periods)]),
-					   np.average([node.state_vars[t].fill_rate for t in range(num_periods)]),
-					   np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
-#					   node.get_attribute_total('backorders_by_successor', None) / num_periods,
-					   np.average([node.state_vars[t].holding_cost_incurred for t in range(num_periods)]),
-					   np.average([node.state_vars[t].stockout_cost_incurred for t in range(num_periods)]),
-					   np.average([node.state_vars[t].in_transit_holding_cost_incurred for t in range(
-						   num_periods)]),
-					   np.average([node.state_vars[t].total_cost_incurred for t in range(num_periods)])]
+# 	for node in network.nodes:
+# 		temp = temp + ["|", #np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
+# 					   node.get_attribute_total('inbound_order', None) / num_periods,
+# 					   None,
+# 					   None, # TODO: handle average Q by predecessor
+# 					   node.get_attribute_total('on_order_by_predecessor', None) / num_periods,
+# 					   None,
+# 					   None, None,
+# 					   node.get_attribute_total('outbound_shipment', None) / num_periods,
+# 					   np.average([node.state_vars[t].demand_met_from_stock for t in range(num_periods)]),
+# 					   np.average([node.state_vars[t].fill_rate for t in range(num_periods)]),
+# 					   np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
+# #					   node.get_attribute_total('backorders_by_successor', None) / num_periods,
+# 					   np.average([node.state_vars[t].holding_cost_incurred for t in range(num_periods)]),
+# 					   np.average([node.state_vars[t].stockout_cost_incurred for t in range(num_periods)]),
+# 					   np.average([node.state_vars[t].in_transit_holding_cost_incurred for t in range(
+# 						   num_periods)]),
+# 					   np.average([node.state_vars[t].total_cost_incurred for t in range(num_periods)])]
 	results.append(temp)
 	results.append([""])
 
@@ -81,31 +81,38 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	for t in periods_to_print:
 		temp = [t]
 		for node in network.nodes:
-			temp = temp + ["|", #node.state_vars[t].inventory_level,
-						   node.get_attribute_total('inbound_order', t),
-						   node.state_vars[t].inbound_order_pipeline,
-						   node.state_vars[t].order_quantity,
-						   node.get_attribute_total('on_order_by_predecessor', t),
-						   node.get_attribute_total('inbound_shipment', t),
-						   node.state_vars[t].inbound_shipment_pipeline,
-						   node.state_vars[t].raw_material_inventory,
-						   node.get_attribute_total('outbound_shipment', t),
-						   node.state_vars[t].demand_met_from_stock,
-						   node.state_vars[t].fill_rate,
-						   node.state_vars[t].inventory_level,
-#						   node.get_attribute_total('backorders_by_successor', t),
-						   node.state_vars[t].holding_cost_incurred,
-						   node.state_vars[t].stockout_cost_incurred,
-						   node.state_vars[t].in_transit_holding_cost_incurred,
-						   node.state_vars[t].total_cost_incurred]
+			temp += ["|"] + dict_sorted_values(node.state_vars[t].inbound_order) \
+				+ dict_sorted_values(node.state_vars[t].inbound_order_pipeline) \
+				+ dict_sorted_values(node.state_vars[t].order_quantity) \
+				+ dict_sorted_values(node.state_vars[t].on_order_by_predecessor) \
+				+ dict_sorted_values(node.state_vars[t].inbound_shipment) \
+				+ dict_sorted_values(node.state_vars[t].inbound_shipment_pipeline) \
+				+ dict_sorted_values(node.state_vars[t].raw_material_inventory) \
+				+ dict_sorted_values(node.state_vars[t].outbound_shipment) \
+				+ [node.state_vars[t].demand_met_from_stock,
+					node.state_vars[t].fill_rate,
+					node.state_vars[t].inventory_level,
+					node.state_vars[t].holding_cost_incurred,
+					node.state_vars[t].stockout_cost_incurred,
+					node.state_vars[t].in_transit_holding_cost_incurred,
+					node.state_vars[t].total_cost_incurred]
 		results.append(temp)
 		if t+1 not in periods_to_print and t < num_periods-1:
 			results.append(["..."])
+
 	# Header row
 	headers = ["t"]
-	for n in network.nodes:
-		headers = headers + ["|i={:d}".format(n.index), "IO", "IO_Pipeline", "OQ", "OO", "IS", "IS_Pipeline",
-							 "RM", "OS", "DMFS", "FR", "IL", "HC", "SC", "ITHC", "TC"]
+	for node in network.nodes:
+		headers = headers + ["|i={:d}".format(node.index)]
+		headers += dict_to_header_list(node.state_vars[0].inbound_order, "IO")
+		headers += dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
+		headers += dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
+		headers += dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
+		headers += dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
+		headers += dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
+		headers += dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
+		headers += dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
+		headers += ["DMFS", "FR", "IL", "HC", "SC", "ITHC", "TC"]
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))
@@ -123,3 +130,31 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 			for r in results:
 				writer.writerow(r)
 
+
+def dict_to_header_list(d, abbrev):
+	"""Return list of headers for the given abbreviation and the values of the
+	dict ``d``.
+
+	Parameters
+	----------
+	d : dict
+		The dict whose values should be used.
+	abbrev : str
+		The abbreviation string to use.
+
+	Returns
+	-------
+	header_list : list
+		List of header strings.
+	"""
+	# Get list of dict keys, sorted in ascending order.
+	sorted_dict_keys = sorted(d.keys())
+	# Build header list.
+	header_list = []
+	for i in sorted_dict_keys:
+		if i is None:
+			header_list.append(abbrev + ":EXT")
+		else:
+			header_list.append(abbrev + ":{:d}".format(i))
+
+	return header_list

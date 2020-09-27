@@ -414,6 +414,50 @@ class TestEnsureListForNodes(unittest.TestCase):
 			x = helpers.ensure_list_for_nodes([3.14, 3.14, 3.14, 3.14, 3.14], 8)
 
 
+class TestDictSortedValues(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDictSortedValues', 'set_up_class()')
 
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDictSortedValues', 'tear_down_class()')
 
+	def test_ascending(self):
+		"""Test that dict_sorted_values() returns correct result when ascending
+		is True.
+		"""
+		print_status('TestDictSortedValues', 'test_ascending()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_vals = helpers.dict_sorted_values(a)
+		b_vals = helpers.dict_sorted_values(b)
+		c_vals = helpers.dict_sorted_values(c)
+
+		self.assertEqual(a_vals, [5, -1, "hello", None])
+		self.assertEqual(b_vals, [2, "foo", -5, None])
+		self.assertEqual(c_vals, ["bar", 5, -1, "hello", None])
+
+	def test_decending(self):
+		"""Test that dict_sorted_values() returns correct result when ascending
+		is False.
+		"""
+		print_status('TestDictSortedValues', 'test_decending()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_vals = helpers.dict_sorted_values(a, ascending=False)
+		b_vals = helpers.dict_sorted_values(b, ascending=False)
+		c_vals = helpers.dict_sorted_values(c, ascending=False)
+
+		self.assertEqual(a_vals, [None, "hello", -1, 5])
+		self.assertEqual(b_vals, [None, -5, "foo", 2])
+		self.assertEqual(c_vals, [None, "hello", -1, 5, "bar"])
 

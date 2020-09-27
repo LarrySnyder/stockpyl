@@ -382,6 +382,41 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
+def dict_sorted_values(d, ascending=True):
+	"""Sort dict by keys and return sorted list of values.
+	Special handling is included to handle keys that might be ``None``.
+	(``None`` is assumed to come before any other element when sorting in
+	ascending order.)
+
+	Parameters
+	----------
+	d : dict
+		The dict to sort.
+	ascending : bool, optional
+		Sort order.
+
+	Returns
+	-------
+	value_list : list
+		List of values of ``d``, sorted in order of keys of ``d``.
+
+	"""
+	# Create dict equal to d but without None key.
+	dict_without_none = {key: d[key] for key in d.keys() if key is not None}
+
+	# Build sorted list of values in dict_without_none.
+	value_list = [value for key, value in sorted(dict_without_none.items(), reverse=not ascending)]
+
+	# If original dict had None key, add them back.
+	if None in d.keys():
+		if ascending:
+			value_list.insert(0, d[None])
+		else:
+			value_list.append(d[None])
+
+	return value_list
+
+
 ### STATS FUNCTIONS ###
 
 def irwin_hall_cdf(x, n):

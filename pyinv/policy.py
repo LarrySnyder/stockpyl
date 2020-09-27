@@ -48,7 +48,7 @@ class Policy(ABC):
 	"""
 
 	@abstractmethod
-	def get_order_quantity(self, inventory_position=None):
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
 		pass
 
 
@@ -116,13 +116,18 @@ class PolicyBaseStock(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None):
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
+		# TODO: doesn't currently make use of predecessor_index -- this will be needed when BS levels are pred-specific
 		"""Calculate order quantity.
 
 		Parameters
 		----------
 		inventory_position : float
 			Inventory position immediately before order is placed.
+		predecessor_index : int, optional
+			The predecessor for which the order quantity should be calculated.
+			Use ``None'' for external supplier, or if node has only one predecessor
+			(including external supplier).
 
 		Returns
 		-------
@@ -208,13 +213,17 @@ class PolicysS(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None):
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
 		"""Calculate order quantity using an (s,S) policy.
 
 		Parameters
 		----------
 		inventory_position : float
 			Inventory position immediately before order is placed.
+		predecessor_index : int, optional
+			The predecessor for which the order quantity should be calculated.
+			Use ``None'' for external supplier, or if node has only one predecessor
+			(including external supplier).
 
 		Returns
 		-------
@@ -304,7 +313,7 @@ class PolicyrQ(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None):
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
 		"""Calculate order quantity using an (s,S) policy.
 
 		Parameters
@@ -388,7 +397,7 @@ class PolicyFixedQuantity(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None):
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
 		"""Calculate order quantity using a fixed-quantity policy.
 
 		Parameters
@@ -471,7 +480,7 @@ class PolicyEchelonBaseStock(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, echelon_inventory_position=None):
+	def get_order_quantity(self, echelon_inventory_position=None, predecessor_index=None):
 		"""Calculate order quantity.
 
 		Parameters
@@ -556,7 +565,7 @@ class PolicyBalancedEchelonBaseStock(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, echelon_inventory_position=None):
+	def get_order_quantity(self, echelon_inventory_position=None, predecessor_index=None):
 		# TODO
 		"""Calculate order quantity.
 

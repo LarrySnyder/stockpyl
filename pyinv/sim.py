@@ -1,5 +1,3 @@
-## asdf
-
 """Code for simulating multi-echelon inventory systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
@@ -203,10 +201,6 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Receive inbound orders.
 	receive_inbound_orders(node)
 
-	# Calculate order quantity.
-	order_quantity = get_order_quantity(node, period)
-	node.state_vars_current.order_quantity = order_quantity
-
 	# Get lead times (for convenience).
 	order_lead_time = node.order_lead_time
 	shipment_lead_time = node.shipment_lead_time
@@ -214,22 +208,27 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Place orders to all predecessors.
 	for p in node.predecessors(include_external=True):
 		if p is not None:
+			# Calculate order quantity.
+			order_quantity = get_order_quantity(node, period, predecessor_index=p.index)
+			# Place order in predecessor's order pipeline.
+			# TODO: handle this in a separate function (at the predecessor node)
 			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
 				order_quantity
 			p_index = p.index
 		else:
+			# Calculate order quantity.
+			order_quantity = get_order_quantity(node, period, predecessor_index=None)
+			# Place order to external supplier.
+			# (For now, this just means adding to inbound shipment pipeline.)
+			# TODO: Handle other types of supply functions
+			node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time + shipment_lead_time] = \
+				order_quantity
 			p_index = None
-		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
-		# node.state_vars[period + 1].on_order_by_predecessor[p_index] = \
-		# 	node.state_vars[period].on_order_by_predecessor[p_index] + order_quantity
 
-	# Does node have external supply?
-	if node.supply_type != SupplyType.NONE:
-		# Place order to external supplier.
-		# (For now, this just means adding to inbound shipment pipeline.)
-		# TODO: Handle other types of supply functions
-		node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time+shipment_lead_time] = \
-			order_quantity
+		# Record order quantity.
+		node.state_vars_current.order_quantity[p_index] = order_quantity
+		# Add order to on_order_by_predecessor.
+		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
 
 
 def generate_downstream_shipments(node_index, network, period, visited):
@@ -348,7 +347,7 @@ def initialize_next_period_state_vars(network, period):
 	"""Set initial values for state variables in period ``period``+1.
 		* Update shipment and order pipelines by "advancing" them by 1 period
 	and adding a 0 in the last element.
-		* Set IL, BO, and OO next period = ending values this period.
+		* Set IL, BO, RM, and OO next period = ending values this period.
 		* Set _cumul attributes = ending values this period.
 
 	Parameters
@@ -368,7 +367,7 @@ def initialize_next_period_state_vars(network, period):
 			n.state_vars[period+1].inbound_order_pipeline[s] = \
 				n.state_vars[period].inbound_order_pipeline[s][1:] + [0]
 
-		# Set next period's starting IL, BO, and OO.
+		# Set next period's starting IL, BO, RM, and OO.
 		n.state_vars[period+1].inventory_level = n.state_vars[period].inventory_level
 		for s_index in n.successor_indices(include_external=True):
 			n.state_vars[period+1].backorders_by_successor[s_index] = \
@@ -376,6 +375,8 @@ def initialize_next_period_state_vars(network, period):
 		for p_index in n.predecessor_indices(include_external=True):
 			n.state_vars[period+1].on_order_by_predecessor[p_index] = \
 				n.state_vars[period].on_order_by_predecessor[p_index]
+			n.state_vars[period+1].raw_material_inventory[p_index] = \
+				n.state_vars[period].raw_material_inventory[p_index]
 
 		# Set demand_met_from_stock_cumul and demand_cumul.
 		n.state_vars[period+1].demand_met_from_stock_cumul = \
@@ -428,7 +429,7 @@ def calculate_period_costs(network, period):
 			n.state_vars[period].in_transit_holding_cost_incurred
 
 
-def get_order_quantity(node, period):
+def get_order_quantity(node, period, predecessor_index=None):
 	"""Calculate order quantity for the given node.
 
 	Parameters
@@ -437,6 +438,10 @@ def get_order_quantity(node, period):
 		The supply chain node.
 	period : int
 		Time period.
+	predecessor_index : int, optional
+		The predecessor for which the order quantity should be calculated.
+		Use ``None'' for external supplier, or if node has only one predecessor
+		(including external supplier).
 
 	Returns
 	-------
@@ -451,11 +456,13 @@ def get_order_quantity(node, period):
 	if node.inventory_policy is None:
 		order_quantity = 0
 	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
-		current_IP = node.state_vars_current.echelon_inventory_position - demand
-		order_quantity = node.inventory_policy.get_order_quantity(echelon_inventory_position=current_IP)
+		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
+		order_quantity = node.inventory_policy.get_order_quantity(echelon_inventory_position=current_IP,
+																  predecessor_index=predecessor_index)
 	else:
-		current_IP = node.state_vars_current.inventory_position - demand
-		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
+		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
+		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP,
+																  predecessor_index=predecessor_index)
 	return order_quantity
 
 
