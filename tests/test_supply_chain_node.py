@@ -260,6 +260,9 @@ class TestStateVariables(unittest.TestCase):
 		# variables.
 		simulation(network, 23, rand_seed=17, progress_bar=False)
 
+		self.assertAlmostEqual(network.nodes[0].state_vars[22].inventory_level, 0.497397132, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[22].inventory_level, 0.038666224, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[22].inventory_level, -0.832602868, places=6)
 		self.assertAlmostEqual(network.nodes[0].state_vars[22].on_hand, 0.497397132, places=6)
 		self.assertAlmostEqual(network.nodes[1].state_vars[22].on_hand, 0.038666224, places=6)
 		self.assertAlmostEqual(network.nodes[2].state_vars[22].on_hand, 0, places=6)
@@ -316,6 +319,9 @@ class TestStateVariables(unittest.TestCase):
 		[IT0, IT1, IT2] = [5.968205296, 5.869623842, 5.567783088742498+5.465282343506053]
 		[OO0, OO1, OO2] = [6.65089457, 6.212689274, 11.03306543]
 
+		self.assertAlmostEqual(network.nodes[0].state_vars[37].inventory_level, IL0, places=6)
+		self.assertAlmostEqual(network.nodes[1].state_vars[37].inventory_level, IL1, places=6)
+		self.assertAlmostEqual(network.nodes[2].state_vars[37].inventory_level, IL2, places=6)
 		self.assertAlmostEqual(network.nodes[0].state_vars[37].on_hand, OH0, places=6)
 		self.assertAlmostEqual(network.nodes[1].state_vars[37].on_hand, OH1, places=6)
 		self.assertAlmostEqual(network.nodes[2].state_vars[37].on_hand, OH2, places=6)
@@ -348,4 +354,141 @@ class TestStateVariables(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].state_vars[37].echelon_inventory_position(), IL0+OO0, places=6)
 		self.assertAlmostEqual(network.nodes[1].state_vars[37].echelon_inventory_position(), OH0+IT0+OH1-BO0+OO1, places=6)
 		self.assertAlmostEqual(network.nodes[2].state_vars[37].echelon_inventory_position(), OH0+IT0+OH1+IT1+OH2-BO0+OO2, places=6)
+
+	def test_assembly_3_stage_per_22(self):
+		"""Test state variables for simulation of 3-node assembly system at end of period 22.
+		"""
+		print_status('TestStateVariables', 'test_assembly_3_stage_per_22()')
+
+		network = get_named_instance("assembly_3_stage")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variables.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Shortcuts to correct values.
+		[IL0, IL1, IL2] = [2, 2, 0]
+		[OH0, OH1, OH2] = np.maximum([IL0, IL1, IL2], 0)
+		[BO0, BO1, BO2] = np.maximum([-IL0, -IL1, -IL2], 0)
+		[IT01, IT02, IT0, IT1, IT2] = [5, 5, 5, 11, 11]
+		[OO01, OO02, OO0, OO1, OO2] = [5, 5, 5, 11, 11]
+		[RM01, RM02, RM0, RM1, RM2] = [0, 0, 0, 0, 0]
+
+		self.assertEqual(network.nodes[0].state_vars[22].inventory_level, IL0)
+		self.assertEqual(network.nodes[1].state_vars[22].inventory_level, IL1)
+		self.assertEqual(network.nodes[2].state_vars[22].inventory_level, IL2)
+		self.assertEqual(network.nodes[0].state_vars[22].on_hand, OH0)
+		self.assertEqual(network.nodes[1].state_vars[22].on_hand, OH1)
+		self.assertEqual(network.nodes[2].state_vars[22].on_hand, OH2)
+		self.assertEqual(network.nodes[0].state_vars[22].backorders, BO0)
+		self.assertEqual(network.nodes[1].state_vars[22].backorders, BO1)
+		self.assertEqual(network.nodes[2].state_vars[22].backorders, BO2)
+		self.assertEqual(network.nodes[1].state_vars[22].in_transit_to(network.nodes[0]), IT01)
+		self.assertEqual(network.nodes[2].state_vars[22].in_transit_to(network.nodes[0]), IT02)
+		self.assertEqual(network.nodes[0].state_vars[22].in_transit_from(network.nodes[1]), IT01)
+		self.assertEqual(network.nodes[0].state_vars[22].in_transit_from(network.nodes[2]), IT02)
+		self.assertEqual(network.nodes[1].state_vars[22].in_transit_from(None), IT1)
+		self.assertEqual(network.nodes[2].state_vars[22].in_transit_from(None), IT2)
+		self.assertEqual(network.nodes[0].state_vars[22].in_transit, IT0)
+		self.assertEqual(network.nodes[1].state_vars[22].in_transit, IT1)
+		self.assertEqual(network.nodes[2].state_vars[22].in_transit, IT2)
+		self.assertEqual(network.nodes[0].state_vars[22].on_order_by_predecessor[1], OO01)
+		self.assertEqual(network.nodes[0].state_vars[22].on_order_by_predecessor[2], OO02)
+		self.assertEqual(network.nodes[0].state_vars[22].on_order, OO0)
+		self.assertEqual(network.nodes[1].state_vars[22].on_order, OO1)
+		self.assertEqual(network.nodes[2].state_vars[22].on_order, OO2)
+		self.assertEqual(network.nodes[0].state_vars[22].raw_material_inventory[1], RM01)
+		self.assertEqual(network.nodes[0].state_vars[22].raw_material_inventory[2], RM02)
+		self.assertEqual(network.nodes[0].state_vars[22].raw_material_aggregate, RM0)
+		self.assertEqual(network.nodes[1].state_vars[22].raw_material_aggregate, RM1)
+		self.assertEqual(network.nodes[2].state_vars[22].raw_material_aggregate, RM2)
+		self.assertEqual(network.nodes[0].state_vars[22].inventory_position(1), IL0+OO01+RM01)
+		self.assertEqual(network.nodes[0].state_vars[22].inventory_position(2), IL0+OO02+RM02)
+		self.assertEqual(network.nodes[0].state_vars[22].inventory_position(), IL0+OO0+RM0)
+		self.assertEqual(network.nodes[1].state_vars[22].inventory_position(), IL1+OO1+RM1)
+		self.assertEqual(network.nodes[2].state_vars[22].inventory_position(), IL2+OO2+RM2)
+		self.assertEqual(network.nodes[0].state_vars[22].echelon_on_hand_inventory, OH0)
+		self.assertEqual(network.nodes[1].state_vars[22].echelon_on_hand_inventory, OH0+IT01+OH1)
+		self.assertEqual(network.nodes[2].state_vars[22].echelon_on_hand_inventory, OH0+IT02+OH2)
+		self.assertEqual(network.nodes[0].state_vars[22].echelon_inventory_level, IL0)
+		self.assertEqual(network.nodes[1].state_vars[22].echelon_inventory_level, OH0+IT01+OH1-BO0)
+		self.assertEqual(network.nodes[2].state_vars[22].echelon_inventory_level, OH0+IT02+OH2-BO0)
+		self.assertEqual(network.nodes[0].state_vars[22].echelon_inventory_position(1), IL0+OO01+RM01)
+		self.assertEqual(network.nodes[0].state_vars[22].echelon_inventory_position(2), IL0+OO02+RM02)
+		self.assertEqual(network.nodes[0].state_vars[22].echelon_inventory_position(), IL0+OO0+RM0)
+		self.assertEqual(network.nodes[1].state_vars[22].echelon_inventory_position(), OH0+IT01+OH1-BO0+OO1+RM1)
+		self.assertEqual(network.nodes[2].state_vars[22].echelon_inventory_position(), OH0+IT02+OH2-BO0+OO2+RM2)
+
+	def test_assembly_3_stage_per_43(self):
+		"""Test state variables for simulation of 3-node assembly system at end of period 43.
+		"""
+		print_status('TestStateVariables', 'test_assembly_3_stage_per_43()')
+
+		network = get_named_instance("assembly_3_stage")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variables.
+		simulation(network, 44, rand_seed=17, progress_bar=False)
+
+		# Shortcuts to correct values.
+		per = 43
+		[IL0, IL1, IL2] = [1, 4, 2]
+		[OH0, OH1, OH2] = np.maximum([IL0, IL1, IL2], 0)
+		[BO0, BO1, BO2] = np.maximum([-IL0, -IL1, -IL2], 0)
+		[IT01, IT02, IT0, IT1, IT2] = [4, 6, 5, 9, 9]
+		[OO01, OO02, OO0, OO1, OO2] = [4, 6, 5, 9, 9]
+		[RM01, RM02, RM0, RM1, RM2] = [2, 0, 1, 0, 0]
+
+		self.assertEqual(network.nodes[0].state_vars[per].inventory_level, IL0)
+		self.assertEqual(network.nodes[1].state_vars[per].inventory_level, IL1)
+		self.assertEqual(network.nodes[2].state_vars[per].inventory_level, IL2)
+		self.assertEqual(network.nodes[0].state_vars[per].on_hand, OH0)
+		self.assertEqual(network.nodes[1].state_vars[per].on_hand, OH1)
+		self.assertEqual(network.nodes[2].state_vars[per].on_hand, OH2)
+		self.assertEqual(network.nodes[0].state_vars[per].backorders, BO0)
+		self.assertEqual(network.nodes[1].state_vars[per].backorders, BO1)
+		self.assertEqual(network.nodes[2].state_vars[per].backorders, BO2)
+		self.assertEqual(network.nodes[1].state_vars[per].in_transit_to(network.nodes[0]), IT01)
+		self.assertEqual(network.nodes[2].state_vars[per].in_transit_to(network.nodes[0]), IT02)
+		self.assertEqual(network.nodes[0].state_vars[per].in_transit_from(network.nodes[1]), IT01)
+		self.assertEqual(network.nodes[0].state_vars[per].in_transit_from(network.nodes[2]), IT02)
+		self.assertEqual(network.nodes[1].state_vars[per].in_transit_from(None), IT1)
+		self.assertEqual(network.nodes[2].state_vars[per].in_transit_from(None), IT2)
+		self.assertEqual(network.nodes[0].state_vars[per].in_transit, IT0)
+		self.assertEqual(network.nodes[1].state_vars[per].in_transit, IT1)
+		self.assertEqual(network.nodes[2].state_vars[per].in_transit, IT2)
+		self.assertEqual(network.nodes[0].state_vars[per].on_order_by_predecessor[1], OO01)
+		self.assertEqual(network.nodes[0].state_vars[per].on_order_by_predecessor[2], OO02)
+		self.assertEqual(network.nodes[0].state_vars[per].on_order, OO0)
+		self.assertEqual(network.nodes[1].state_vars[per].on_order, OO1)
+		self.assertEqual(network.nodes[2].state_vars[per].on_order, OO2)
+		self.assertEqual(network.nodes[0].state_vars[per].raw_material_inventory[1], RM01)
+		self.assertEqual(network.nodes[0].state_vars[per].raw_material_inventory[2], RM02)
+		self.assertEqual(network.nodes[0].state_vars[per].raw_material_aggregate, RM0)
+		self.assertEqual(network.nodes[1].state_vars[per].raw_material_aggregate, RM1)
+		self.assertEqual(network.nodes[2].state_vars[per].raw_material_aggregate, RM2)
+		self.assertEqual(network.nodes[0].state_vars[per].inventory_position(1), IL0+OO01+RM01)
+		self.assertEqual(network.nodes[0].state_vars[per].inventory_position(2), IL0+OO02+RM02)
+		self.assertEqual(network.nodes[0].state_vars[per].inventory_position(), IL0+OO0+RM0)
+		self.assertEqual(network.nodes[1].state_vars[per].inventory_position(), IL1+OO1+RM1)
+		self.assertEqual(network.nodes[2].state_vars[per].inventory_position(), IL2+OO2+RM2)
+		self.assertEqual(network.nodes[0].state_vars[per].echelon_on_hand_inventory, OH0)
+		self.assertEqual(network.nodes[1].state_vars[per].echelon_on_hand_inventory, OH0+IT01+OH1)
+		self.assertEqual(network.nodes[2].state_vars[per].echelon_on_hand_inventory, OH0+IT02+OH2)
+		self.assertEqual(network.nodes[0].state_vars[per].echelon_inventory_level, IL0)
+		self.assertEqual(network.nodes[1].state_vars[per].echelon_inventory_level, OH0+IT01+OH1-BO0)
+		self.assertEqual(network.nodes[2].state_vars[per].echelon_inventory_level, OH0+IT02+OH2-BO0)
+		self.assertEqual(network.nodes[0].state_vars[per].echelon_inventory_position(1), IL0+OO01+RM01)
+		self.assertEqual(network.nodes[0].state_vars[per].echelon_inventory_position(2), IL0+OO02+RM02)
+		self.assertEqual(network.nodes[0].state_vars[per].echelon_inventory_position(), IL0+OO0+RM0)
+		self.assertEqual(network.nodes[1].state_vars[per].echelon_inventory_position(), OH0+IT01+OH1-BO0+OO1+RM1)
+		self.assertEqual(network.nodes[2].state_vars[per].echelon_inventory_position(), OH0+IT02+OH2-BO0+OO2+RM2)
 

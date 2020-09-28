@@ -654,8 +654,6 @@ class NodeStateVars(object):
 	# set ``predecessor_index`` for predecessor-specific IP, or set to ``None``
 	# to use aggregate on-order and raw material inventory (counting such
 	# items using the "units" of the node itself).
-	# TODO: is there an appropriate aggregate-level measure that should be used if there is more than one
-	#  predecessor?
 	def echelon_inventory_position(self, predecessor_index=None):
 		if predecessor_index is not None:
 			return self.echelon_inventory_level \

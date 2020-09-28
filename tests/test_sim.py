@@ -145,6 +145,35 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None], 6.7125153, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level, -2.09415258242449, places=4)
 
+	def test_assembly_3_stage(self):
+		"""Test that simulation() function correctly simulates 3-stage assembly model.
+		"""
+		print_status('TestSimulation', 'test_assembly_3_stage()')
+
+		network = get_named_instance("assembly_3_stage")
+
+		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+
+		# Compare total cost.
+		self.assertEqual(total_cost, 1884)
+
+		# Compare a few performance measures.
+		self.assertEqual(network.nodes[0].state_vars[6].order_quantity[1], 5)
+		self.assertEqual(network.nodes[0].state_vars[6].order_quantity[2], 5)
+		self.assertEqual(network.nodes[0].state_vars[26].inventory_level, 3)
+		self.assertEqual(network.nodes[1].state_vars[26].inventory_level, 4)
+		self.assertEqual(network.nodes[2].state_vars[26].inventory_level, 2)
+		self.assertEqual(network.nodes[0].state_vars[41].inventory_level, -1)
+		self.assertEqual(network.nodes[1].state_vars[41].inventory_level, 1)
+		self.assertEqual(network.nodes[2].state_vars[41].inventory_level, -1)
+		self.assertEqual(network.nodes[1].state_vars[43].inbound_order[0], 4)
+		self.assertEqual(network.nodes[2].state_vars[43].inbound_order[0], 4)
+		self.assertEqual(network.nodes[0].state_vars[95].inbound_shipment[1], 6)
+		self.assertEqual(network.nodes[0].state_vars[95].inbound_shipment[2], 7)
+		self.assertEqual(network.nodes[1].state_vars[95].inbound_shipment[None], 4)
+		self.assertEqual(network.nodes[2].state_vars[95].inbound_shipment[None], 4)
+		self.assertEqual(network.nodes[2].state_vars[78].backorders_by_successor[0], 2)
+
 
 class TestSerialEchelonVsLocal(unittest.TestCase):
 	"""Test that simulation results agree for a serial system when run using
@@ -216,7 +245,6 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 										   network_ech.nodes[i].state_vars[99].inbound_shipment[p])
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].backorders,
 									   network_ech.nodes[i].state_vars[99].backorders)
-
 
 	def test_problem_6_2a(self):
 		"""Test that echelon policy results agree with local policy results
