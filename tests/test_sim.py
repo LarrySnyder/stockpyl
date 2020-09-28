@@ -50,7 +50,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity, 4.8883, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 4.8883, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -1.08737, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 4.30582, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[2], 6.97664, places=4)
@@ -71,7 +71,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 35794.476254, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity, 140.6747130757738, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 140.6747130757738, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -21.4276, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 98.6768, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[None], 105.7364470997879, places=4)
@@ -92,7 +92,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 38381.048422, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity, 34.7807, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 34.7807, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 5.60159, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 36.0213, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[96].inbound_shipment[2], 34.9884, places=4)
@@ -117,7 +117,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 52386.309175, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity, 23.5517, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 23.5517, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -4.72853, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 11.0029, places=4)
 		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[None], 19.9307, places=4)
@@ -138,7 +138,7 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(total_cost, 255.2472033, places=4)
 
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity, 57.103320, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[None], 57.103320, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 9.9564105, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[43].inbound_order[None], 32.00584965, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[95].inbound_shipment[None], 52.9079333, places=4)
@@ -202,8 +202,10 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 
 		# Compare a few performance measures.
 		for i in range(len(network_ech.nodes)):
-			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].order_quantity,
-									   network_ech.nodes[i].state_vars[99].order_quantity)
+			np.testing.assert_allclose([network_local.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
+										network_local.nodes[i].predecessor_indices(include_external=True)],
+									   [network_ech.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
+									    network_local.nodes[i].predecessor_indices(include_external=True)])
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inventory_level,
 									   network_ech.nodes[i].state_vars[99].inventory_level)
 			for s in network_ech.nodes[i].successor_indices():
@@ -259,8 +261,10 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 
 		# Compare a few performance measures.
 		for i in range(len(network_ech.nodes)):
-			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].order_quantity,
-									   network_ech.nodes[i].state_vars[99].order_quantity)
+			np.testing.assert_allclose([network_local.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
+										network_local.nodes[i].predecessor_indices(include_external=True)],
+									   [network_ech.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
+									    network_local.nodes[i].predecessor_indices(include_external=True)])
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inventory_level,
 									   network_ech.nodes[i].state_vars[99].inventory_level)
 			for s in network_ech.nodes[i].successor_indices():
