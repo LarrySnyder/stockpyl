@@ -188,7 +188,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node = network.get_node_from_index(node_index)
 
 	# Does node have external demand?
-	if node.demand_source.type != DemandType.NONE:
+	if node.demand_source is not None and node.demand_source.type != DemandType.NONE:
 		# Generate demand and fill it in inbound_order_pipeline.
 		node.state_vars_current.inbound_order_pipeline[None][0] = \
 			node.demand_source.generate_demand(period)
@@ -455,7 +455,8 @@ def get_order_quantity(node, period, predecessor_index=None):
 
 	if node.inventory_policy is None:
 		order_quantity = 0
-	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
+	elif node.inventory_policy.policy_type in \
+		(InventoryPolicyType.ECHELON_BASE_STOCK, InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK):
 		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
 		order_quantity = node.inventory_policy.get_order_quantity(echelon_inventory_position=current_IP,
 																  predecessor_index=predecessor_index)
@@ -693,7 +694,7 @@ def main():
 	T = 100
 
 #	network = get_named_instance("example_6_1")
-	network = get_named_instance("assembly_3_stage")
+	network = get_named_instance("rosling_figure_1")
 
 	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 	# will differ in the first few periods).

@@ -382,8 +382,9 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
-def dict_sorted_values(d, ascending=True):
-	"""Sort dict by keys and return sorted list of values.
+def sort_dict_by_keys(d, ascending=True, return_values=True):
+	"""Sort dict by keys and return sorted list of values or keys, depending
+	on the value of ``return_values``.
 	Special handling is included to handle keys that might be ``None``.
 	(``None`` is assumed to come before any other element when sorting in
 	ascending order.)
@@ -394,27 +395,41 @@ def dict_sorted_values(d, ascending=True):
 		The dict to sort.
 	ascending : bool, optional
 		Sort order.
+	return_values : bool, optional
+		Set to ``True`` to return a list of the dict's values, ``False`` to
+		return its keys.
 
 	Returns
 	-------
-	value_list : list
-		List of values of ``d``, sorted in order of keys of ``d``.
+	return_list : list
+		List of values or keys of ``d``, sorted in order of keys of ``d``.
 
 	"""
 	# Create dict equal to d but without None key.
 	dict_without_none = {key: d[key] for key in d.keys() if key is not None}
 
-	# Build sorted list of values in dict_without_none.
-	value_list = [value for key, value in sorted(dict_without_none.items(), reverse=not ascending)]
+	if return_values:
+		# Build sorted list of values in dict_without_none.
+		return_list = [value for _, value in sorted(dict_without_none.items(), reverse=not ascending)]
 
-	# If original dict had None key, add them back.
-	if None in d.keys():
-		if ascending:
-			value_list.insert(0, d[None])
-		else:
-			value_list.append(d[None])
+		# If original dict had None key, add it back.
+		if None in d.keys():
+			if ascending:
+				return_list.insert(0, d[None])
+			else:
+				return_list.append(d[None])
+	else:
+		# Build sorted list of keys in dict_without_none.
+		return_list = [key for key, _ in sorted(dict_without_none.items(), reverse=not ascending)]
 
-	return value_list
+		# If original dict had None key, add it back.
+		if None in d.keys():
+			if ascending:
+				return_list.insert(0, None)
+			else:
+				return_list.append(None)
+
+	return return_list
 
 
 ### STATS FUNCTIONS ###

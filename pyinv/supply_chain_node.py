@@ -690,11 +690,23 @@ class NodeStateVars(object):
 
 	# echelon_inventory_position_adjusted = current echelon inventory position
 	# including only items ordered L_i periods ago or earlier, where L_i is the
-	# shipment lead time for the node. Rosling (1989) calls this X^L_{it};
-	# Zipkin (2000) calls it IN^+_j(t).
-	# TODO: what if htere are order lead times?
+	# forward echelon lead time for the node. That is, = current echelon inventory level
+	# plus items ordered L_i periods ago or earlier.
+	# Rosling (1989) calls this X^L_{it}; Zipkin (2000) calls it IN^+_j(t).
+	# TODO: what if there are order lead times?
 	# This quantity is used (only?) for balanced echelon base-stock policies.
+	# Nodes are assumed to be indexed consecutively in non-decreasing order of
+	# forward echelon lead time.
+	# Note: Balanced echelon base-stock policy assumes a node never orders
+	# more than its predecessor can ship; therefore, # of items shipped in a
+	# given interval is the same as # of items ordered. In addition, there
+	# are no raw-material inventories.
 	# ``predecessor_index`` must be supplied.
-#	def echelon_inventory_position_adjusted(self, predecessor_index):
-		# Calculate portion of in-transit inventory that was shipped in
-		# [t - L_i, t -
+	def echelon_inventory_position_adjusted(self, predecessor_index):
+		# Calculate portion of in-transit inventory that was ordered L_i periods
+		# ago or earlier.
+		in_transit_adjusted = \
+			np.sum([self.node.state_vars[self.node.network.period-t].order_quantity[predecessor_index]
+					for t in range(self.node.forward_echelon_lead_time, self.node.shipment_lead_time)])
+		# Calculate adjusted echelon inventory position.
+		return self.echelon_inventory_level + in_transit_adjusted

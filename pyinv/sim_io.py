@@ -81,15 +81,15 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	for t in periods_to_print:
 		temp = [t]
 		for node in network.nodes:
-			temp += ["|"] + dict_sorted_values(node.state_vars[t].inbound_order) \
-				+ dict_sorted_values(node.state_vars[t].inbound_order_pipeline) \
-				+ dict_sorted_values(node.state_vars[t].order_quantity) \
-				+ dict_sorted_values(node.state_vars[t].on_order_by_predecessor) \
-				+ dict_sorted_values(node.state_vars[t].inbound_shipment) \
-				+ dict_sorted_values(node.state_vars[t].inbound_shipment_pipeline) \
-				+ dict_sorted_values(node.state_vars[t].raw_material_inventory) \
-				+ dict_sorted_values(node.state_vars[t].outbound_shipment) \
-				+ [node.state_vars[t].demand_met_from_stock,
+			temp += ["|"] + sort_dict_by_keys(node.state_vars[t].inbound_order) \
+					+ sort_dict_by_keys(node.state_vars[t].inbound_order_pipeline) \
+					+ sort_dict_by_keys(node.state_vars[t].order_quantity) \
+					+ sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) \
+					+ sort_dict_by_keys(node.state_vars[t].inbound_shipment) \
+					+ sort_dict_by_keys(node.state_vars[t].inbound_shipment_pipeline) \
+					+ sort_dict_by_keys(node.state_vars[t].raw_material_inventory) \
+					+ sort_dict_by_keys(node.state_vars[t].outbound_shipment) \
+					+ [node.state_vars[t].demand_met_from_stock,
 					node.state_vars[t].fill_rate,
 					node.state_vars[t].inventory_level,
 					node.state_vars[t].holding_cost_incurred,
@@ -148,7 +148,7 @@ def dict_to_header_list(d, abbrev):
 		List of header strings.
 	"""
 	# Get list of dict keys, sorted in ascending order.
-	sorted_dict_keys = sorted(d.keys())
+	sorted_dict_keys = sort_dict_by_keys(d, return_values=False)
 	# Build header list.
 	header_list = []
 	for i in sorted_dict_keys:

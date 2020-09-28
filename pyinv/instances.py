@@ -341,27 +341,47 @@ def get_named_instance(instance_name):
 		return assembly_3_stage_network
 	elif instance_name == "rosling_figure_1":
 		# Figure 1 from Rosling (1989).
+		# Note: Other than the structure and lead times, none of the remaining parameters are from Rosling's paper.
 		rosling_figure_1_network = SupplyChainNetwork()
 		nodes = {i: SupplyChainNode(index=i) for i in range(1, 8)}
+		demand_source_factory = DemandSourceFactory()
+		policy_factory = PolicyFactory()
 		# Node 1.
 		nodes[1].shipment_lead_time = 1
+		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source.lo = 0
+		demand_source.hi = 10
+		nodes[1].demand_source = demand_source
+		nodes[1].supply_type = SupplyType.NONE
 		rosling_figure_1_network.add_node(nodes[1])
 		# Node 2.
 		nodes[2].shipment_lead_time = 1
+		nodes[2].supply_type = SupplyType.NONE
 		rosling_figure_1_network.add_predecessor(nodes[1], nodes[2])
 		# Node 3.
 		nodes[3].shipment_lead_time = 3
+		nodes[3].supply_type = SupplyType.NONE
 		rosling_figure_1_network.add_predecessor(nodes[1], nodes[3])
 		# Node 4.
 		nodes[4].shipment_lead_time = 2
+		nodes[1].supply_type = SupplyType.NONE
 		rosling_figure_1_network.add_predecessor(nodes[3], nodes[4])
 		# Node 5.
 		nodes[5].shipment_lead_time = 4
+		nodes[5].supply_type = SupplyType.UNLIMITED
 		rosling_figure_1_network.add_predecessor(nodes[2], nodes[5])
 		# Node 6.
 		nodes[6].shipment_lead_time = 1
+		nodes[6].supply_type = SupplyType.UNLIMITED
 		rosling_figure_1_network.add_predecessor(nodes[4], nodes[6])
 		# Node 7.
 		nodes[7].shipment_lead_time = 2
+		nodes[7].supply_type = SupplyType.UNLIMITED
 		rosling_figure_1_network.add_predecessor(nodes[4], nodes[7])
+		# Initial values.
+		for n in nodes.values():
+			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
+												 base_stock_level=8)
+			n.inventory_policy = policy
+			n.initial_inventory_level = n.inventory_policy.echelon_base_stock_level
 		return rosling_figure_1_network

@@ -610,6 +610,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.order_lead_time = order_lead_time_list[n]
 
 		# Build and set demand source.
+		# TODO: make a one-line way to create demand source -- this is way too cumbersome
 		demand_source_factory = DemandSourceFactory()
 		demand_type = demand_type_list[n]
 		if n == 0:
@@ -635,6 +636,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
+		# TODO: one-line way to do this too
 		policy_factory = PolicyFactory()
 		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,

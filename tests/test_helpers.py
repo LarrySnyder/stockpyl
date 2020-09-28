@@ -414,50 +414,86 @@ class TestEnsureListForNodes(unittest.TestCase):
 			x = helpers.ensure_list_for_nodes([3.14, 3.14, 3.14, 3.14, 3.14], 8)
 
 
-class TestDictSortedValues(unittest.TestCase):
+class TestSortDictByKeys(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestDictSortedValues', 'set_up_class()')
+		print_status('TestSortDictByKeys', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestDictSortedValues', 'tear_down_class()')
+		print_status('TestSortDictByKeys', 'tear_down_class()')
 
-	def test_ascending(self):
-		"""Test that dict_sorted_values() returns correct result when ascending
-		is True.
+	def test_ascending_values(self):
+		"""Test that sort_dict_by_keys() returns correct result when ascending
+		is True and return_values is True.
 		"""
-		print_status('TestDictSortedValues', 'test_ascending()')
+		print_status('TestSortDictByKeys', 'test_ascending_values()')
 
 		a = {0: 5, 3: "hello", 2: -1, 9: None}
 		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
 		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
 
-		a_vals = helpers.dict_sorted_values(a)
-		b_vals = helpers.dict_sorted_values(b)
-		c_vals = helpers.dict_sorted_values(c)
+		a_vals = helpers.sort_dict_by_keys(a)
+		b_vals = helpers.sort_dict_by_keys(b)
+		c_vals = helpers.sort_dict_by_keys(c)
 
 		self.assertEqual(a_vals, [5, -1, "hello", None])
 		self.assertEqual(b_vals, [2, "foo", -5, None])
 		self.assertEqual(c_vals, ["bar", 5, -1, "hello", None])
 
-	def test_decending(self):
-		"""Test that dict_sorted_values() returns correct result when ascending
-		is False.
+	def test_decending_values(self):
+		"""Test that sort_dict_by_keys() returns correct result when ascending
+		is False and return_values is True.
 		"""
-		print_status('TestDictSortedValues', 'test_decending()')
+		print_status('TestSortDictByKeys', 'test_decending_values()')
 
 		a = {0: 5, 3: "hello", 2: -1, 9: None}
 		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
 		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
 
-		a_vals = helpers.dict_sorted_values(a, ascending=False)
-		b_vals = helpers.dict_sorted_values(b, ascending=False)
-		c_vals = helpers.dict_sorted_values(c, ascending=False)
+		a_vals = helpers.sort_dict_by_keys(a, ascending=False)
+		b_vals = helpers.sort_dict_by_keys(b, ascending=False)
+		c_vals = helpers.sort_dict_by_keys(c, ascending=False)
 
 		self.assertEqual(a_vals, [None, "hello", -1, 5])
 		self.assertEqual(b_vals, [None, -5, "foo", 2])
 		self.assertEqual(c_vals, [None, "hello", -1, 5, "bar"])
+
+	def test_ascending_keys(self):
+		"""Test that sort_dict_by_keys() returns correct result when ascending
+		is True and return_values is False.
+		"""
+		print_status('TestSortDictByKeys', 'test_ascending_keys()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_vals = helpers.sort_dict_by_keys(a, return_values=False)
+		b_vals = helpers.sort_dict_by_keys(b, return_values=False)
+		c_vals = helpers.sort_dict_by_keys(c, return_values=False)
+
+		self.assertEqual(a_vals, [0, 2, 3, 9])
+		self.assertEqual(b_vals, ["a", "b", "c", "d"])
+		self.assertEqual(c_vals, [None, 0, 2, 3, 9])
+
+	def test_decending_keys(self):
+		"""Test that sort_dict_by_keys() returns correct result when ascending
+		is False and return_values is False.
+		"""
+		print_status('TestSortDictByKeys', 'test_decending_keys()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_vals = helpers.sort_dict_by_keys(a, ascending=False, return_values=False)
+		b_vals = helpers.sort_dict_by_keys(b, ascending=False, return_values=False)
+		c_vals = helpers.sort_dict_by_keys(c, ascending=False, return_values=False)
+
+		self.assertEqual(a_vals, [9, 3, 2, 0])
+		self.assertEqual(b_vals, ["d", "c", "b", "a"])
+		self.assertEqual(c_vals, [9, 3, 2, 0, None])
 
