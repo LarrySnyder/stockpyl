@@ -445,19 +445,19 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	return network
 
 
-def mwor_system(num_retailers, node_indices=None, downstream_0=True,
-				  local_holding_cost=0, echelon_holding_cost=0,
-				  stockout_cost=0, order_lead_time=0,
-				  shipment_lead_time=0, demand_type=None, demand_mean=0,
-				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				  demands=None, demand_probabilities=None, initial_IL=0,
-				  initial_orders=0, initial_shipments=0, supply_type=None,
-				  inventory_policy_type=None, local_base_stock_levels=None,
-				  echelon_base_stock_levels=None,
-				  reorder_points=None, order_quantities=None,
-				  order_up_to_levels=None):
+def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
+				local_holding_cost=0, echelon_holding_cost=0,
+				stockout_cost=0, order_lead_time=0,
+				shipment_lead_time=0, demand_type=None, demand_mean=0,
+				demand_standard_deviation=0, demand_lo=0, demand_hi=0,
+				demands=None, demand_probabilities=None, initial_IL=0,
+				initial_orders=0, initial_shipments=0, supply_type=None,
+				inventory_policy_type=None, local_base_stock_levels=None,
+				echelon_base_stock_levels=None,
+				reorder_points=None, order_quantities=None,
+				order_up_to_levels=None):
 	"""Generate multiple-warehouse, one-retailer (MWOR) (i.e., 2-echelon assembly)
-	system with specified number of retailers.
+	system with specified number of warehouses.
 
 	Other than ``num_nodes``, all parameters are optional. If they are provided,
 	they must be either a dict, a list, or a singleton, with the following
@@ -478,13 +478,13 @@ def mwor_system(num_retailers, node_indices=None, downstream_0=True,
 
 	Parameters
 	----------
-	num_retailers : int
+	num_warehouses : int
 		Number of nodes in MWOR system.
 	node_indices : list, optional
 		List of node indices, with the single downstream node listed first.
 	downstream_0 : bool, optional
 		If True, node 0 is the single downstream node; if False, node
-		``num_retailers`` is the single downstream node. Ignored if
+		``num_warehouses`` is the single downstream node. Ignored if
 		``node_labels`` is provided.
 	local_holding_cost
 	echelon_holding_cost
@@ -516,8 +516,8 @@ def mwor_system(num_retailers, node_indices=None, downstream_0=True,
 	# TODO: if initial_IL not provided, default to BS levels
 	"""
 
-	# Calculate total # of nodes (= # retailers + 1)
-	num_nodes = num_retailers + 1
+	# Calculate total # of nodes (= # warehouses + 1)
+	num_nodes = num_warehouses + 1
 
 	# Build list of node indices.
 	if node_indices is not None:

@@ -325,7 +325,7 @@ def get_named_instance(instance_name):
 	if instance_name == "assembly_3_stage":
 		# Example 6.1.
 		assembly_3_stage_network = mwor_system(
-			num_retailers=2,
+			num_warehouses=2,
 			local_holding_cost=[2, 1, 1],
 			stockout_cost=[20, 0, 0],
 			demand_type=DemandType.NORMAL,
@@ -339,4 +339,29 @@ def get_named_instance(instance_name):
 		)
 		assembly_3_stage_network.nodes[0].demand_source.round_to_int = True
 		return assembly_3_stage_network
-
+	elif instance_name == "rosling_figure_1":
+		# Figure 1 from Rosling (1989).
+		rosling_figure_1_network = SupplyChainNetwork()
+		nodes = {i: SupplyChainNode(index=i) for i in range(1, 8)}
+		# Node 1.
+		nodes[1].shipment_lead_time = 1
+		rosling_figure_1_network.add_node(nodes[1])
+		# Node 2.
+		nodes[2].shipment_lead_time = 1
+		rosling_figure_1_network.add_predecessor(nodes[1], nodes[2])
+		# Node 3.
+		nodes[3].shipment_lead_time = 3
+		rosling_figure_1_network.add_predecessor(nodes[1], nodes[3])
+		# Node 4.
+		nodes[4].shipment_lead_time = 2
+		rosling_figure_1_network.add_predecessor(nodes[3], nodes[4])
+		# Node 5.
+		nodes[5].shipment_lead_time = 4
+		rosling_figure_1_network.add_predecessor(nodes[2], nodes[5])
+		# Node 6.
+		nodes[6].shipment_lead_time = 1
+		rosling_figure_1_network.add_predecessor(nodes[4], nodes[6])
+		# Node 7.
+		nodes[7].shipment_lead_time = 2
+		rosling_figure_1_network.add_predecessor(nodes[4], nodes[7])
+		return rosling_figure_1_network

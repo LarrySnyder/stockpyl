@@ -233,6 +233,62 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[3], [nodes[0]])
 
 
+class TestForwardEchelonLeadTime(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestForwardEchelonLeadTime', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestForwardEchelonLeadTime', 'tear_down_class()')
+
+	def test_rosling_figure_1(self):
+		"""Test forward_echelon_lead_time() for assembly system in Rosling (1989)
+		Figure 1.
+		"""
+		print_status('TestForwardEchelonLeadTime', 'test_rosling_figure_1()')
+
+		network = get_named_instance("rosling_figure_1")
+
+		self.assertEqual(network.get_node_from_index(1).forward_echelon_lead_time, 1)
+		self.assertEqual(network.get_node_from_index(2).forward_echelon_lead_time, 2)
+		self.assertEqual(network.get_node_from_index(3).forward_echelon_lead_time, 4)
+		self.assertEqual(network.get_node_from_index(4).forward_echelon_lead_time, 6)
+		self.assertEqual(network.get_node_from_index(5).forward_echelon_lead_time, 6)
+		self.assertEqual(network.get_node_from_index(6).forward_echelon_lead_time, 7)
+		self.assertEqual(network.get_node_from_index(7).forward_echelon_lead_time, 8)
+
+
+class TestEquivalentLeadTime(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEquivalentLeadTime', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEquivalentLeadTime', 'tear_down_class()')
+
+	def test_rosling_figure_1(self):
+		"""Test equivalent_lead_time() for assembly system in Rosling (1989)
+		Figure 1.
+		"""
+		print_status('TestEquivalentLeadTime', 'test_rosling_figure_1()')
+
+		network = get_named_instance("rosling_figure_1")
+
+		self.assertEqual(network.get_node_from_index(1).equivalent_lead_time, 1)
+		self.assertEqual(network.get_node_from_index(2).equivalent_lead_time, 1)
+		self.assertEqual(network.get_node_from_index(3).equivalent_lead_time, 2)
+		self.assertEqual(network.get_node_from_index(4).equivalent_lead_time, 2)
+		self.assertEqual(network.get_node_from_index(5).equivalent_lead_time, 0)
+		self.assertEqual(network.get_node_from_index(6).equivalent_lead_time, 1)
+		self.assertEqual(network.get_node_from_index(7).equivalent_lead_time, 1)
+
+
 class TestStateVariables(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

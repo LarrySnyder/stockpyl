@@ -177,6 +177,31 @@ class SupplyChainNode(object):
 		return self.shipment_lead_time
 
 	@property
+	def forward_echelon_lead_time(self):
+		# Total shipment lead time for node and all of its descendants.
+		# Rosling (1989) calls this M_i; Zipkin (2000) calls it \underline{L}_j.
+		# Some assembly-system algorithms assume that the nodes are indexed
+		# in order of forward echelon lead time.
+		# TODO: make static?
+		return self.shipment_lead_time + np.sum([d.shipment_lead_time for d in self.descendants])
+
+	@property
+	def equivalent_lead_time(self):
+		# Difference between forward echelon lead time for the node (node i) and
+		# for node i-1, where the nodes are indexed in non-decreasing order of
+		# forward_echelon_lead_time, consecutively.
+		# (If nodes are not indexed in this way, results will be unreliable.)
+		# If node is the smallest-indexed node in the network, equivalent lead
+		# time equals forward echelon lead time, which also equals shipment lead time.
+		# Rosling (1989) calls this L_i; Zipkin (2000) calls it L''_j.
+		# TODO: make static?
+		if self.index == np.min(self.network.node_indices):
+			return self.forward_echelon_lead_time
+		else:
+			return self.forward_echelon_lead_time - \
+				   self.network.get_node_from_index(self.index-1).forward_echelon_lead_time
+
+	@property
 	def state_vars_current(self):
 		# An alias for the most recent set of state variables. Read only.
 		return self.state_vars[self.network.period]
@@ -662,3 +687,14 @@ class NodeStateVars(object):
 		else:
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
 			return self.echelon_inventory_level + self.on_order + self.raw_material_aggregate
+
+	# echelon_inventory_position_adjusted = current echelon inventory position
+	# including only items ordered L_i periods ago or earlier, where L_i is the
+	# shipment lead time for the node. Rosling (1989) calls this X^L_{it};
+	# Zipkin (2000) calls it IN^+_j(t).
+	# TODO: what if htere are order lead times?
+	# This quantity is used (only?) for balanced echelon base-stock policies.
+	# ``predecessor_index`` must be supplied.
+#	def echelon_inventory_position_adjusted(self, predecessor_index):
+		# Calculate portion of in-transit inventory that was shipped in
+		# [t - L_i, t -
