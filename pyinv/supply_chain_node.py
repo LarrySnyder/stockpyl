@@ -334,7 +334,7 @@ class SupplyChainNode(object):
 			The total value of the attribute.
 
 		"""
-		if attribute in ('inbound_shipment', 'on_order_by_predecessor'):
+		if attribute in ('inbound_shipment', 'on_order_by_predecessor', 'raw_material_inventory'):
 			# These attributes are indexed by predecessor.
 			if period is None:
 				return np.sum([self.state_vars[t].__dict__[attribute][p_index]
@@ -494,7 +494,6 @@ class NodeStateVars(object):
 
 		# Remaining state variables.
 		self.inventory_level = 0
-#		self.ending_inventory_level = 0
 
 		# Costs: each refers to a component of the cost (or the total cost)
 		# incurred at the node in the period.
@@ -539,9 +538,6 @@ class NodeStateVars(object):
 		"""
 		return np.sum([successor.state_vars[self.period].inbound_shipment_pipeline[self.node.index][:]])
 
-#		return np.sum([successor.state_vars[self.period + t].inbound_shipment[self.node.index]
-#				for t in range(successor.shipment_lead_time)])
-
 	def in_transit_from(self, predecessor):
 		"""Return current total inventory in transit from a given predecessor.
 		(Declared as a function, not a property, because needs to take an argument.)
@@ -564,9 +560,6 @@ class NodeStateVars(object):
 
 		return np.sum(self.inbound_shipment_pipeline[p][:])
 
-#		return np.sum([self.node.state_vars[self.period + t].inbound_shipment[p]
-#				for t in range(self.node.shipment_lead_time)])
-
 	# in_transit = current total inventory in transit to the node. If node has
 	# more than 1 predecessor (it is an assembly node), including external supplier,
 	# in-transit items are counted using the "units" of the node itself.
@@ -574,15 +567,12 @@ class NodeStateVars(object):
 	# TODO: handle BOM
 	@property
 	def in_transit(self):
-		total_in_transit = np.sum([self.in_transit_from(p) for p in self.node.predecessors()])
-		if self.node.supply_type == SupplyType.NONE:
-			if total_in_transit == 0:
-				return 0
-			else:
-				return total_in_transit / len(self.node.predecessors())
+		total_in_transit = np.sum([self.in_transit_from(p)
+								   for p in self.node.predecessors(include_external=True)])
+		if total_in_transit == 0:
+			return 0
 		else:
-			total_in_transit += self.in_transit_from(None)
-			return total_in_transit / (len(self.node.predecessors()) + 1)
+			return total_in_transit / len(self.node.predecessors(include_external=True))
 
 	# on_order = current total on-order quantity. If node has more than 1
 	# predecessor (it is an assembly node), including external supplier,
@@ -597,28 +587,37 @@ class NodeStateVars(object):
 		if total_on_order == 0:
 			return 0
 		else:
-			if self.node.supply_type == SupplyType.NONE:
-				return total_on_order / len(self.node.predecessors())
-			else:
-				return total_on_order / (len(self.node.predecessors()) + 1)
+			return total_on_order / len(self.node.predecessors(include_external=True))
+
+	# raw_material_aggregate = total raw materials at the node. Raw materials
+	# are counted using the "units" of the node itself. That is, they are
+	# divided by the total number of predecessors.
+	# TODO: handle BOM
+	@property
+	def raw_material_aggregate(self):
+		total_raw_material = self.node.get_attribute_total('raw_material_inventory',
+															self.period,
+															include_external=True)
+		if total_raw_material == 0:
+			return 0
+		else:
+			return total_raw_material / len(self.node.predecessors(include_external=True))
 
 	# inventory_position = current local inventory position at node
 	# = IL + OO.
-	# If the node has more than one predecessor (including external supplier),
-	# must supply predecessor_index.
 	# On-order includes raw material inventory that has not yet been processed.
-	# TODO: is there an appropriate aggregate-level measure that should be used if there is more than one
-	#  predecessor?
+	# If the node has more than one predecessor (including external supplier),
+	# set ``predecessor_index`` for predecessor-specific IP, or set to ``None``
+	# to use aggregate on-order and raw material inventory (counting such
+	# items using the "units" of the node itself).
 	def inventory_position(self, predecessor_index=None):
-		if len(self.node.predecessor_indices(include_external=True)) <= 1:
-			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
-			return self.inventory_level + self.on_order
-		elif predecessor_index is not None:
+		if predecessor_index is not None:
 			return self.inventory_level \
 					+ self.on_order_by_predecessor[predecessor_index] \
 					+ self.raw_material_inventory[predecessor_index]
 		else:
-			raise(AttributeError, "for nodes with more than 1 predecessor, must supply predecessor_index")
+			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
+			return self.inventory_level + self.on_order + self.raw_material_aggregate
 
 	# echelon_on_hand_inventory = current echelon on-hand inventory at node
 	# = on-hand inventory at node and at or in transit to all of its
@@ -650,18 +649,18 @@ class NodeStateVars(object):
 
 	# echelon_inventory_position = current echelon inventory position at node
 	# = echelon inventory level + on order.
-	# If the node has more than one predecessor (including external supplier),
-	# must supply predecessor_index.
 	# On-order includes raw material inventory that has not yet been processed.
+	# If the node has more than one predecessor (including external supplier),
+	# set ``predecessor_index`` for predecessor-specific IP, or set to ``None``
+	# to use aggregate on-order and raw material inventory (counting such
+	# items using the "units" of the node itself).
 	# TODO: is there an appropriate aggregate-level measure that should be used if there is more than one
 	#  predecessor?
 	def echelon_inventory_position(self, predecessor_index=None):
-		if len(self.node.predecessor_indices(include_external=True)) <= 1:
-			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
-			return self.echelon_inventory_level + self.on_order
-		elif predecessor_index is not None:
+		if predecessor_index is not None:
 			return self.echelon_inventory_level \
 					+ self.on_order_by_predecessor[predecessor_index] \
 					+ self.raw_material_inventory[predecessor_index]
 		else:
-			raise(AttributeError, "for nodes with more than 1 predecessor, must supply predecessor_index")
+			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
+			return self.echelon_inventory_level + self.on_order + self.raw_material_aggregate

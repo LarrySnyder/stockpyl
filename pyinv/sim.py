@@ -692,7 +692,8 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 def main():
 	T = 100
 
-	network = get_named_instance("assembly_3_stage")
+	network = get_named_instance("example_6_1")
+#	network = get_named_instance("assembly_3_stage")
 
 	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 	# will differ in the first few periods).
