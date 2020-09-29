@@ -183,7 +183,7 @@ class SupplyChainNode(object):
 		# Some assembly-system algorithms assume that the nodes are indexed
 		# in order of forward echelon lead time.
 		# TODO: make static?
-		return self.shipment_lead_time + np.sum([d.shipment_lead_time for d in self.descendants])
+		return int(self.shipment_lead_time + np.sum([d.shipment_lead_time for d in self.descendants]))
 
 	@property
 	def equivalent_lead_time(self):
@@ -707,6 +707,6 @@ class NodeStateVars(object):
 		# ago or earlier.
 		in_transit_adjusted = \
 			np.sum([self.node.state_vars[self.node.network.period-t].order_quantity[predecessor_index]
-					for t in range(self.node.forward_echelon_lead_time, self.node.shipment_lead_time)])
+					for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time)])
 		# Calculate adjusted echelon inventory position.
 		return self.echelon_inventory_level + in_transit_adjusted

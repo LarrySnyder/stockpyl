@@ -548,3 +548,72 @@ class TestStateVariables(unittest.TestCase):
 		self.assertEqual(network.nodes[1].state_vars[per].echelon_inventory_position(), OH0+IT01+OH1-BO0+OO1+RM1)
 		self.assertEqual(network.nodes[2].state_vars[per].echelon_inventory_position(), OH0+IT02+OH2-BO0+OO2+RM2)
 
+	def test_rosling_figure_1_per_22(self):
+		"""Test state variables for simulation of system in Rosling (1989), Figure 1,
+		at end of period 22.
+		"""
+		print_status('TestStateVariables', 'test_rosling_figure_1_per_22()')
+
+		network = get_named_instance("rosling_figure_1")
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variables.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Shortcuts to correct values.
+		per = 22
+		IL = {1: -33, 2: -25, 3: -39, 4: -24, 5: -60, 6: 7, 7: -6}
+		OH = {i: max(IL[i], 0) for i in range(1, 8)}
+		BO = {i: max(-IL[i], 0) for i in range(1, 8)}
+		IT = {(1, 2): 2, (1, 3): 2, (2, 5): 0, (3, 4): 15, (4, 6): 10, (4, 7): 18, (5, None): 84, (6, None): 8, (7, None): 6}
+		OO = {(1, 2): 27, (1, 3): 41, (2, 5): 60, (3, 4): 39, (4, 6): 10, (4, 7): 24, (5, None): 84, (6, None): 8, (7, None): 6}
+		RM = {(1, 2): 14, (1, 3): 0, (2, 5): 0, (3, 4): 0, (4, 6): 14, (4, 7): 0, (5, None): 0, (6, None): 0, (7, None): 0}
+
+		IT_agg = {}
+		OO_agg = {}
+		RM_agg = {}
+		ech_OH = {}
+		for n_ind in range(1, 8):
+			node = network.get_node_from_index(n_ind)
+			IT_agg[n_ind] = np.sum([IT[(n_ind, p_ind)] for (m_ind, p_ind) in IT if m_ind == n_ind]) / \
+							 	len(node.predecessors(include_external=True))
+			OO_agg[n_ind] = np.sum([OO[(n_ind, p_ind)] for (m_ind, p_ind) in OO if m_ind == n_ind]) / \
+							 	len(node.predecessors(include_external=True))
+			RM_agg[n_ind] = np.sum([RM[(n_ind, p_ind)] for (m_ind, p_ind) in RM if m_ind == n_ind]) / \
+							 	len(node.predecessors(include_external=True))
+			ech_OH[n_ind] = OH[n_ind] + np.sum([IT[(s_ind, n_ind)] + ech_OH[s_ind] for s_ind in node.successor_indices()])
+		EIPA = {(1, 2): ech_OH[1] - BO[1] + 0,
+				(1, 3): ech_OH[1] - BO[1] + 0,
+				(2, 5): ech_OH[2] - BO[1] + 0,
+				(3, 4): ech_OH[3] - BO[1] + 9,
+				(4, 6): ech_OH[4] - BO[1] + 0,
+				(4, 7): ech_OH[4] - BO[1] + 0,
+				(5, None): ech_OH[5] - BO[1] + 84,
+				(6, None): ech_OH[6] - BO[1] + 0,
+				(7, None): ech_OH[7] - BO[1] + 1}
+
+		for n_ind in range(1, 8):
+			node = network.get_node_from_index(n_ind)
+			self.assertEqual(node.state_vars[per].inventory_level, IL[n_ind])
+			self.assertEqual(node.state_vars[per].on_hand, OH[n_ind])
+			self.assertEqual(node.state_vars[per].backorders, BO[n_ind])
+			for s in node.successors(include_external=False):
+				self.assertEqual(node.state_vars[per].in_transit_to(s), IT[(s.index, n_ind)])
+			for p in node.predecessors(include_external=True):
+				p_ind = None if p is None else p.index
+				self.assertEqual(node.state_vars[per].in_transit_from(p), IT[(n_ind, p_ind)])
+				self.assertEqual(node.state_vars[per].on_order_by_predecessor[p_ind], OO[(n_ind, p_ind)])
+				self.assertEqual(node.state_vars[per].raw_material_inventory[p_ind], RM[(n_ind, p_ind)])
+				self.assertEqual(node.state_vars[per].inventory_position(p_ind),
+								 IL[n_ind] + OO[(n_ind, p_ind)] + RM[(n_ind, p_ind)])
+				self.assertEqual(node.state_vars[per].echelon_inventory_position(p_ind),
+								 ech_OH[n_ind] - BO[1] + OO[(n_ind, p_ind)] + RM[(n_ind, p_ind)])
+				self.assertEqual(node.state_vars[per].echelon_inventory_position_adjusted(p_ind), EIPA[(n_ind, p_ind)])
+			self.assertEqual(node.state_vars[per].in_transit, IT_agg[n_ind])
+			self.assertEqual(node.state_vars[per].on_order, OO_agg[n_ind])
+			self.assertEqual(node.state_vars[per].raw_material_aggregate, RM_agg[n_ind])
+			self.assertEqual(node.state_vars[per].inventory_position(), IL[n_ind] + OO_agg[n_ind] + RM_agg[n_ind])
+			self.assertEqual(node.state_vars[per].echelon_on_hand_inventory, ech_OH[n_ind])
+			self.assertEqual(node.state_vars[per].echelon_inventory_level, ech_OH[n_ind] - BO[1])
+			self.assertEqual(node.state_vars[per].echelon_inventory_position(), ech_OH[n_ind] - BO[1] + OO_agg[n_ind] + RM_agg[n_ind])
+
