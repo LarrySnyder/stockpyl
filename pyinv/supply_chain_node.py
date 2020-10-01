@@ -485,10 +485,12 @@ class NodeStateVars(object):
 		if node:
 
 			# Initialize dicts with appropriate keys.
+			# TODO: this should happen elsewhere; what if some successors or predecessors haven't been added to the network yet??
 			self.inbound_shipment_pipeline = {p_index:
 				[0] * (self.node.shipment_lead_time+self.node.shipment_lead_time+1)
 											for p_index in self.node.predecessor_indices(include_external=True)}
 			self.inbound_shipment = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
+			# TODO: nodes without predecessors cannot have order lead time; either fix this or document it (the workaround is just to add it to the shipment lead time)
 			self.inbound_order_pipeline = {s_index:
 				[0] * (self.node.network.nodes[s_index].order_lead_time+1)
 										   for s_index in node.successor_indices()}

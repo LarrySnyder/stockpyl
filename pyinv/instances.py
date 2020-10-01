@@ -346,6 +346,11 @@ def get_named_instance(instance_name):
 		nodes = {i: SupplyChainNode(index=i) for i in range(1, 8)}
 		demand_source_factory = DemandSourceFactory()
 		policy_factory = PolicyFactory()
+		# Inventory policies.
+		for n in nodes.values():
+			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
+												 base_stock_level=None)
+			n.inventory_policy = policy
 		# Node 1.
 		nodes[1].shipment_lead_time = 1
 		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
@@ -353,35 +358,55 @@ def get_named_instance(instance_name):
 		demand_source.hi = 10
 		nodes[1].demand_source = demand_source
 		nodes[1].supply_type = SupplyType.NONE
+		nodes[1].inventory_policy.echelon_base_stock_level = 8
+		nodes[1].initial_inventory_level = 8
 		rosling_figure_1_network.add_node(nodes[1])
 		# Node 2.
 		nodes[2].shipment_lead_time = 1
 		nodes[2].supply_type = SupplyType.NONE
+		nodes[2].inventory_policy.echelon_base_stock_level = 24
+		nodes[2].initial_inventory_level = 8
 		rosling_figure_1_network.add_predecessor(nodes[1], nodes[2])
 		# Node 3.
 		nodes[3].shipment_lead_time = 3
 		nodes[3].supply_type = SupplyType.NONE
+		nodes[3].inventory_policy.echelon_base_stock_level = 40
+		nodes[3].initial_inventory_level = 24
 		rosling_figure_1_network.add_predecessor(nodes[1], nodes[3])
 		# Node 4.
 		nodes[4].shipment_lead_time = 2
-		nodes[1].supply_type = SupplyType.NONE
+		nodes[4].supply_type = SupplyType.NONE
+		nodes[4].inventory_policy.echelon_base_stock_level = 76
+		nodes[4].initial_inventory_level = 16
 		rosling_figure_1_network.add_predecessor(nodes[3], nodes[4])
 		# Node 5.
 		nodes[5].shipment_lead_time = 4
+		nodes[5].inventory_policy.echelon_base_stock_level = 62
+		nodes[5].initial_inventory_level = 32
 		nodes[5].supply_type = SupplyType.UNLIMITED
 		rosling_figure_1_network.add_predecessor(nodes[2], nodes[5])
 		# Node 6.
 		nodes[6].shipment_lead_time = 1
 		nodes[6].supply_type = SupplyType.UNLIMITED
+		nodes[6].inventory_policy.echelon_base_stock_level = 84
+		nodes[6].initial_inventory_level = 8
 		rosling_figure_1_network.add_predecessor(nodes[4], nodes[6])
 		# Node 7.
 		nodes[7].shipment_lead_time = 2
 		nodes[7].supply_type = SupplyType.UNLIMITED
+		nodes[7].inventory_policy.echelon_base_stock_level = 92
+		nodes[7].initial_inventory_level = 16
 		rosling_figure_1_network.add_predecessor(nodes[4], nodes[7])
-		# Initial values.
-		for n in nodes.values():
-			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-												 base_stock_level=8)
-			n.inventory_policy = policy
-			n.initial_inventory_level = n.inventory_policy.echelon_base_stock_level
 		return rosling_figure_1_network
+	elif instance_name == "kangye_4_stage":
+		kangye_4_stage = mwor_system(
+			num_warehouses=3,
+			demand_type=DemandType.NORMAL,
+			demand_mean=20,
+			demand_standard_deviation=4,
+			shipment_lead_time=[1, 1, 2, 3],
+			inventory_policy_type=InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
+			echelon_base_stock_levels=[30, 50, 70, 90],
+			downstream_0=True
+		)
+		return kangye_4_stage

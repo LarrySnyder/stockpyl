@@ -314,7 +314,7 @@ def initialize_state_vars(network):
 		# Initialize inbound order pipeline. (Exclude external demand.)
 		for s in n.successors():
 			for l in range(s.order_lead_time):
-				n.state_vars[0].inbound_order_pipeline[l] = s.initial_orders
+				n.state_vars[0].inbound_order_pipeline[s.index][l] = s.initial_orders
 
 		# Initialize raw material inventory.
 		# TODO: allow initial RM inventory
@@ -455,15 +455,23 @@ def get_order_quantity(node, period, predecessor_index=None):
 
 	if node.inventory_policy is None:
 		order_quantity = 0
-	elif node.inventory_policy.policy_type in \
-		(InventoryPolicyType.ECHELON_BASE_STOCK, InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK):
+	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
 		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(echelon_inventory_position=current_IP,
-																  predecessor_index=predecessor_index)
+		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
+																  echelon_inventory_position=current_IP)
+	elif node.inventory_policy.policy_type == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
+		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
+		if node.index == max(node.network.node_indices):
+			EIPA = np.inf
+		else:
+			partner_node = node.network.get_node_from_index(node.index+1)
+			EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted(predecessor_index=predecessor_index)
+		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
+																  echelon_inventory_position=current_IP,
+																  echelon_inventory_position_adjusted=EIPA)
 	else:
 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP,
-																  predecessor_index=predecessor_index)
+		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index, inventory_position=current_IP)
 	return order_quantity
 
 
@@ -691,10 +699,22 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 
 
 def main():
-	T = 100
+	T = 50
 
 #	network = get_named_instance("example_6_1")
-	network = get_named_instance("rosling_figure_1")
+	network = get_named_instance("kangye_4_stage")
+
+	# additional handling for Kangye's instance
+	for n in network.nodes:
+		print("node {} forward_echelon_LT = {} equivalent_LT = {}".format(n.index, n.forward_echelon_lead_time, n.equivalent_lead_time))
+	import pandas as pd
+	kangye_df = pd.read_csv("../debugging_files/kangye-4node-randseed1.csv")
+	demands = kangye_df['demand'].to_numpy()
+	demand_source_factory = DemandSourceFactory()
+	demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
+	demand_source.demands = demands
+	network.nodes[0].demand_source = demand_source
+	network.nodes[0].order_lead_time = 1
 
 	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 	# will differ in the first few periods).

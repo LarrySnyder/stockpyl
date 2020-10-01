@@ -48,7 +48,7 @@ class Policy(ABC):
 	"""
 
 	@abstractmethod
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
+	def get_order_quantity(self, predecessor_index=None):
 		pass
 
 
@@ -565,9 +565,17 @@ class PolicyBalancedEchelonBaseStock(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, echelon_inventory_position=None, predecessor_index=None):
-		# TODO
+	def get_order_quantity(self, echelon_inventory_position, echelon_inventory_position_adjusted, predecessor_index):
 		"""Calculate order quantity.
+		Follows a balanced echelon base-stock policy, i.e., order up to min{S_i, IN^+_{i+1}}, where
+		S_i is the echelon base-stock level and IN^+_{i+1} is the adjusted echelon inventory position
+		for node i+1.
+		A balanced echelon base-stock policy is optimal for assembly systems (see Rosling (1989)), but
+		only if the system is in long-run balance (again, see Rosling). If the system
+		is not in long-run balance, the policy also requires checking that the predecessor
+		nodes have sufficient inventory, which this function does not do. The system may
+		begin in long-run balance for certain initial conditions, but no matter the initial
+		conditions, it will eventually reach long-run balance; see Rosling.
 
 		Parameters
 		----------
@@ -576,6 +584,8 @@ class PolicyBalancedEchelonBaseStock(Policy):
 			Echelon IP at stage i = sum of on-hand inventories at i and at or
 			in transit to all of its downstream stages, minus backorders at
 			downstream-most stage, plus on-order inventory at stage i.
+		echelon_inventory_position_adjusted : float
+			Adjusted echelon inventory position at node i+1, where i is the current node.
 
 		Returns
 		-------
@@ -583,7 +593,11 @@ class PolicyBalancedEchelonBaseStock(Policy):
 			The order quantity.
 		"""
 
-		return max(0.0, self._echelon_base_stock_level - echelon_inventory_position)
+		# Determine target inventory position.
+		target_IP = min(self.echelon_base_stock_level, echelon_inventory_position_adjusted)
+		order_quantity = max(0.0, target_IP - echelon_inventory_position)
+
+		return max(0.0, order_quantity)
 
 
 # ===============================================================================

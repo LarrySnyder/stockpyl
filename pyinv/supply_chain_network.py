@@ -585,9 +585,9 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		elif inventory_policy_type_list[n_index] == InventoryPolicyType.FIXED_QUANTITY \
 			and order_quantities_list[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.ECHELON_BASE_STOCK \
+		elif inventory_policy_type_list[n_index] in (InventoryPolicyType.ECHELON_BASE_STOCK, InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK) \
 			and echelon_base_stock_levels[n_index] is None:
-			raise ValueError("Policy type was specified as echelon base-stock but echelon base-stock level was not "
+			raise ValueError("Policy type was specified as echelon base-stock or balanced echelon base-stock but echelon base-stock level was not "
 							 "provided")
 
 	# TODO: I don't think the indexing is right for the parameters.
@@ -654,7 +654,10 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 												 order_quantity=order_quantities_list[n])
 		elif inventory_policy_type_list[n] == InventoryPolicyType.ECHELON_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n])
+												 base_stock_level=echelon_base_stock_levels_list[n])
+		elif inventory_policy_type_list[n] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
+			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
+												 base_stock_level=echelon_base_stock_levels_list[n])
 		else:
 			policy = None
 		node.inventory_policy = policy
