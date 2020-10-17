@@ -48,7 +48,7 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	results = []
 
 	# Average row. # TODO: handle averages
-	temp = ["Avg"]
+#	temp = ["Avg"]
 # 	for node in network.nodes:
 # 		temp = temp + ["|", #np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
 # 					   node.get_attribute_total('inbound_order', None) / num_periods,
@@ -67,8 +67,8 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 # 					   np.average([node.state_vars[t].in_transit_holding_cost_incurred for t in range(
 # 						   num_periods)]),
 # 					   np.average([node.state_vars[t].total_cost_incurred for t in range(num_periods)])]
-	results.append(temp)
-	results.append([""])
+#	results.append(temp)
+#	results.append([""])
 
 	# Determine periods to print.
 	if num_periods_to_print is None:

@@ -323,7 +323,6 @@ def get_named_instance(instance_name):
 
 	# INSTANCES NOT FROM TEXTBOOK
 	if instance_name == "assembly_3_stage":
-		# Example 6.1.
 		assembly_3_stage_network = mwor_system(
 			num_warehouses=2,
 			local_holding_cost=[2, 1, 1],
@@ -332,13 +331,28 @@ def get_named_instance(instance_name):
 			demand_mean=5,
 			demand_standard_deviation=1,
 			shipment_lead_time=[1, 2, 2],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
 			local_base_stock_levels=[7, 13, 11],
 			initial_IL=[7, 13, 11],
 			downstream_0=True
 		)
 		assembly_3_stage_network.nodes[0].demand_source.round_to_int = True
 		return assembly_3_stage_network
+	elif instance_name == "assembly_3_stage_2":
+			assembly_3_stage_2_network = mwor_system(
+				num_warehouses=2,
+				local_holding_cost=[2, 1, 1],
+				stockout_cost=[20, 0, 0],
+				demand_type=DemandType.NORMAL,
+				demand_mean=20,
+				demand_standard_deviation=5,
+				shipment_lead_time=[1, 2, 2],
+				inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
+				local_base_stock_levels=[28, 52, 44],
+				initial_IL=[28, 52, 44],
+				downstream_0=True)
+			assembly_3_stage_2_network.nodes[0].demand_source.round_to_int = True
+			return assembly_3_stage_2_network
 	elif instance_name == "rosling_figure_1":
 		# Figure 1 from Rosling (1989).
 		# Note: Other than the structure and lead times, none of the remaining parameters are from Rosling's paper.

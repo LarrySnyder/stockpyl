@@ -382,6 +382,56 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
+def ensure_dict_for_nodes(x, node_indices, default=None):
+	"""Ensure that x is a dict suitable with node indices as keys(); if not, create
+	such a dict and return it.
+
+	If ``x`` is a dict, return ``x``.
+	If ``x`` is a singleton, return a dict with keys equal to ``node_indices``
+		and values all equal to ``x``.
+	If ``x`` is a list with the same length as ``node_indices``, return a dict
+		with keys equal to ``node_indices`` and values equal to ``x``.
+	If ``x`` is ``None`` and ``default`` is provided, return a dict with keys
+		equal to ``node_indices`` and values all equal to ``default``.
+	If ``x`` is ``None`` and ``default`` is not provided, return a dict with
+		keys equal to ``node_indices`` and values all equal to ``None``.
+	Otherwise, raise a ``ValueError``.
+
+	Examples:
+		- ensure_dict_for_nodes(5, [0, 1, 2]) returns {0: 5, 1: 5, 2:5}.
+		- ensure_dict_for_nodes([0, 5, 2], [0, 1, 2]) returns {0: 0, 1: 5, 2: 2}.
+		- ensure_list_for_nodes([0, 5, 2, 1], [0, 1, 2]) raises a ValueError.
+
+	Parameters
+	----------
+	x : dict, float, or list
+		Object to node-ify.
+	node_indices : list
+		List of node indices.
+	default : float, optional
+		Value to use if ``x`` is ``None``.
+
+	Returns
+	-------
+	x_new : dict
+		Node-ified dict.
+	"""
+	# Is x None?
+	if type(x) == dict:
+		return x
+	elif x is None:
+		return {n_ind: default for n_ind in node_indices}
+	else:
+		# Determine whether x is singleton or iterable.
+		if is_iterable(x):
+			if len(list(x)) == len(node_indices):
+				return {node_indices[i]: x[i] for i in range(len(x))}
+			else:
+				raise ValueError('x must be a singleton, dict, or list with the same length as node_indices')
+		else:
+			return {node_indices[i]: x for i in range(len(node_indices))}
+
+
 def sort_dict_by_keys(d, ascending=True, return_values=True):
 	"""Sort dict by keys and return sorted list of values or keys, depending
 	on the value of ``return_values``.

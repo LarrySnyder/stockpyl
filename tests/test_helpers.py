@@ -414,6 +414,54 @@ class TestEnsureListForNodes(unittest.TestCase):
 			x = helpers.ensure_list_for_nodes([3.14, 3.14, 3.14, 3.14, 3.14], 8)
 
 
+class TestEnsureDictForNodes(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEnsureDictForNodes', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEnsureDictForNodes', 'tear_down_class()')
+
+	def test_dict(self):
+		"""Test that ensure_dict_for_nodes() returns correct result if
+		x is a dict.
+		"""
+		print_status('TestEnsureDictForNodes', 'test_singleton()')
+
+		x = helpers.ensure_dict_for_nodes({1: 3.14, 2: 5}, None)
+		self.assertEqual(x, {1: 3.14, 2: 5})
+
+	def test_singleton(self):
+		"""Test that ensure_dict_for_nodes() returns correct result if
+		x is a singleton.
+		"""
+		print_status('TestEnsureDictForNodes', 'test_singleton()')
+
+		x = helpers.ensure_dict_for_nodes(3.14, [1, 4, 7])
+		self.assertEqual(x, {1: 3.14, 4: 3.14, 7: 3.14})
+
+	def test_list(self):
+		"""Test that ensure_dict_for_nodes() returns correct result if x is
+		a list of the correct length.
+		"""
+		print_status('TestEnsureDictForNodes', 'test_list0()')
+
+		x = helpers.ensure_dict_for_nodes([3.14, 5, 0], [1, 4, 7])
+		self.assertEqual(x, {1: 3.14, 4: 5, 7: 0})
+
+	def test_bad_list(self):
+		"""Test that ensure_dict_for_nodes() returns correct result if x is
+		a list of an incorrect length.
+		"""
+		print_status('TestEnsureDictForNodes', 'test_bad_list()')
+
+		with self.assertRaises(ValueError):
+			x = helpers.ensure_dict_for_nodes([3.14, 5], [1, 4, 7])
+
+
 class TestSortDictByKeys(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

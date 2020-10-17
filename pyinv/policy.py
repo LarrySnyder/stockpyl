@@ -33,6 +33,7 @@ class InventoryPolicyType(Enum):
 	FIXED_QUANTITY = 4
 	ECHELON_BASE_STOCK = 5
 	BALANCED_ECHELON_BASE_STOCK = 6
+	LOCAL_BASE_STOCK = 7
 #	STERMAN = 3
 #	RANDOM = 4
 
@@ -600,6 +601,95 @@ class PolicyBalancedEchelonBaseStock(Policy):
 		return max(0.0, order_quantity)
 
 
+class PolicyLocalBaseStock(Policy):
+	"""The ``PolicyLocalBaseStock`` class is used for local base-stock
+	policies for multi-echelon systems. A local base-stock policy uses only
+	the local inventory position at a given stage to make ordering decisions,
+	ignoring inventory states at other nodes. This includes predecessor nodes,
+	meaning that a node ignores stockouts at its predecessors when placing orders.
+
+	Attributes
+	----------
+	_policy_type : InventoryPolicyType
+		The inventory policy type.
+	_local_base_stock_level : float
+		The local base-stock level. [:math:`S'`]
+	"""
+
+	def __init__(self, local_base_stock_level):
+		"""Policy constructor method.
+		"""
+		# Set policy_type.
+		self._policy_type = InventoryPolicyType.LOCAL_BASE_STOCK
+
+		# Set policy parameter(s).
+		self._local_base_stock_level = local_base_stock_level
+
+	# PROPERTIES
+
+	@property
+	def policy_type(self):
+		# Read only.
+		return self._policy_type
+
+	@property
+	def local_base_stock_level(self):
+		return self._local_base_stock_level
+
+	@local_base_stock_level.setter
+	def local_base_stock_level(self, value):
+		self._local_base_stock_level = value
+
+	# SPECIAL MEMBERS
+
+	def __repr__(self):
+		"""
+		Return a string representation of the ``Policy`` instance.
+
+		Returns
+		-------
+			A string representation of the ``Policy`` instance.
+
+		"""
+		# Build string of parameters.
+		param_str = "local_base_stock_level={:.2f}".format(self.local_base_stock_level)
+
+		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
+
+	def __str__(self):
+		"""
+		Return the full name of the ``Policy`` instance.
+
+		Returns
+		-------
+			The policy name.
+
+		"""
+		return self.__repr__()
+
+	# METHODS
+
+# TODO: write unit tests
+
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
+		"""Calculate order quantity.
+
+		Parameters
+		----------
+		inventory_position : float
+			(Local) inventory position immediately before order is placed.
+			Local IP at stage i = local inventory level at stage i plus on-order
+			inventory at stage i.
+
+		Returns
+		-------
+		order_quantity : float
+			The order quantity.
+		"""
+
+		return max(0.0, self._local_base_stock_level - inventory_position)
+
+
 # ===============================================================================
 # PolicyFactory Class
 # ===============================================================================
@@ -657,6 +747,8 @@ class PolicyFactory(object):
 			policy = PolicyEchelonBaseStock(echelon_base_stock_level=base_stock_level)
 		elif policy_type == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
 			policy = PolicyBalancedEchelonBaseStock(echelon_base_stock_level=base_stock_level)
+		elif policy_type == InventoryPolicyType.LOCAL_BASE_STOCK:
+			policy = PolicyLocalBaseStock(local_base_stock_level=base_stock_level)
 		else:
 			raise(ValueError, "Unknown inventory policy type")
 

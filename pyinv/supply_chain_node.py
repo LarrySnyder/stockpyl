@@ -702,13 +702,24 @@ class NodeStateVars(object):
 	# Note: Balanced echelon base-stock policy assumes a node never orders
 	# more than its predecessor can ship; therefore, # of items shipped in a
 	# given interval is the same as # of items ordered. In addition, there
-	# are no raw-material inventories.
+	# are no raw-material inventories. # TODO: what if we are not in LRB?
 	# ``predecessor_index`` must be supplied.
-	def echelon_inventory_position_adjusted(self, predecessor_index):
+	def echelon_inventory_position_adjusted(self):
 		# Calculate portion of in-transit inventory that was ordered L_i periods
 		# ago or earlier.
-		in_transit_adjusted = \
-			np.sum([self.node.state_vars[self.node.network.period-t].order_quantity[predecessor_index]
-					for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time)])
+		# Since order quantity to all predecessors is the same, choose one arbitrarily
+		# and get order quantities for that predecessor.
+		# TODO: Is this right?
+		in_transit_adjusted = 0
+		pred = self.node.get_one_predecessor()
+		if pred is None:
+			pred_index = None
+		else:
+			pred_index = pred.index
+		for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time):
+			if self.node.network.period - t >= 0:
+				in_transit_adjusted += self.node.state_vars[self.node.network.period-t].order_quantity[pred_index]
+			# np.sum([self.node.state_vars[self.node.network.period-t].order_quantity[predecessor_index]
+			# 		for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time)])
 		# Calculate adjusted echelon inventory position.
 		return self.echelon_inventory_level + in_transit_adjusted

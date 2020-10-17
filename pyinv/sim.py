@@ -465,10 +465,14 @@ def get_order_quantity(node, period, predecessor_index=None):
 			EIPA = np.inf
 		else:
 			partner_node = node.network.get_node_from_index(node.index+1)
-			EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted(predecessor_index=predecessor_index)
+			EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
 		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
 																  echelon_inventory_position=current_IP,
 																  echelon_inventory_position_adjusted=EIPA)
+	elif node.inventory_policy.policy_type == InventoryPolicyType.LOCAL_BASE_STOCK:
+		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
+		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
+																  inventory_position=current_IP)
 	else:
 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
 		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index, inventory_position=current_IP)
@@ -699,22 +703,22 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 
 
 def main():
-	T = 50
+	T = 1000
 
-#	network = get_named_instance("example_6_1")
-	network = get_named_instance("kangye_4_stage")
-
-	# additional handling for Kangye's instance
-	for n in network.nodes:
-		print("node {} forward_echelon_LT = {} equivalent_LT = {}".format(n.index, n.forward_echelon_lead_time, n.equivalent_lead_time))
-	import pandas as pd
-	kangye_df = pd.read_csv("../debugging_files/kangye-4node-randseed1.csv")
-	demands = kangye_df['demand'].to_numpy()
-	demand_source_factory = DemandSourceFactory()
-	demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-	demand_source.demands = demands
-	network.nodes[0].demand_source = demand_source
-	network.nodes[0].order_lead_time = 1
+	#
+	network = get_named_instance("assembly_3_stage_2")
+	#
+	# # additional handling for Kangye's instance
+	# for n in network.nodes:
+	# 	print("node {} forward_echelon_LT = {} equivalent_LT = {}".format(n.index, n.forward_echelon_lead_time, n.equivalent_lead_time))
+	# import pandas as pd
+	# kangye_df = pd.read_csv("../debugging_files/kangye-4node-randseed1.csv")
+	# demands = kangye_df['demand'].to_numpy()
+	# demand_source_factory = DemandSourceFactory()
+	# demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
+	# demand_source.demands = demands
+	# network.nodes[0].demand_source = demand_source
+	# network.nodes[0].order_lead_time = 1
 
 	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 	# will differ in the first few periods).
@@ -759,12 +763,29 @@ def main():
 	# mean_cost, sem_cost = run_multiple_trials(network, num_trials=1000, num_periods=3)
 	# print("mean_cost = {}, sem_cost = {}".format(mean_cost, sem_cost))
 
-	total_cost = simulation(network, T, rand_seed=17)
+	total_cost = simulation(network, T, rand_seed=762)
 #	write_results(network, T, total_cost, write_csv=False)
-	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
+	write_results(network, T, total_cost, write_csv=True, csv_filename='assembly_3_stage_2_762.csv')
 
 
+def nv():
+	network = serial_system(num_nodes=1, local_holding_cost=[10], stockout_cost=[100], demand_type=DemandType.NORMAL,
+		demand_mean=50, demand_standard_deviation=10, shipment_lead_time=[1],
+		inventory_policy_type=InventoryPolicyType.BASE_STOCK, local_base_stock_levels=[-100])
+
+	total_cost = {}
+	for S in range(-100, 100):
+		network.nodes[0].inventory_policy.base_stock_level = S
+		total_cost[S] = simulation(network, 1000, rand_seed=762, progress_bar=False)
+
+	import matplotlib.pyplot as plt
+	plt.plot(total_cost.keys(), total_cost.values())
+	plt.xlabel('BS Level')
+	plt.ylabel('Total Cost (1000 periods)')
+	plt.grid()
+	plt.show()
 
 if __name__ == "__main__":
 #	cProfile.run('main()')
 	main()
+#	nv()
