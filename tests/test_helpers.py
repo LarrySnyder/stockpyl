@@ -429,7 +429,7 @@ class TestEnsureDictForNodes(unittest.TestCase):
 		"""Test that ensure_dict_for_nodes() returns correct result if
 		x is a dict.
 		"""
-		print_status('TestEnsureDictForNodes', 'test_singleton()')
+		print_status('TestEnsureDictForNodes', 'test_dict()')
 
 		x = helpers.ensure_dict_for_nodes({1: 3.14, 2: 5}, None)
 		self.assertEqual(x, {1: 3.14, 2: 5})
@@ -447,7 +447,7 @@ class TestEnsureDictForNodes(unittest.TestCase):
 		"""Test that ensure_dict_for_nodes() returns correct result if x is
 		a list of the correct length.
 		"""
-		print_status('TestEnsureDictForNodes', 'test_list0()')
+		print_status('TestEnsureDictForNodes', 'test_list()')
 
 		x = helpers.ensure_dict_for_nodes([3.14, 5, 0], [1, 4, 7])
 		self.assertEqual(x, {1: 3.14, 4: 5, 7: 0})

@@ -233,6 +233,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	stochastic service model (SSM), as described in Snyder and Shen (2019).
 
 	Stages are assumed to be indexed N, ..., 1.
+	# TODO: handle other indexing
 
 	Parameters
 	----------

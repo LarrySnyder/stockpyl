@@ -1,10 +1,10 @@
-"""Code for solving newsvendor_normal problem.
+"""Loss function calculations.
 
 Equation and section numbers refer to Snyder and Shen, "Fundamentals of Supply
 Chain Theory", Wiley, 2019, 2nd ed., except as noted.
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 

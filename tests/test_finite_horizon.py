@@ -8,6 +8,7 @@ import scipy.io as sio
 
 from pyinv import finite_horizon
 from pyinv.instances import *
+from tests.settings import *
 
 
 # Module-level functions.
@@ -217,6 +218,7 @@ class TestFiniteHorizon(unittest.TestCase):
 										total_cost, cost_matrix, oul_matrix, x_range,
 			'additional_files/problem_4_30')
 
+	@unittest.skipUnless(RUN_ALL_TESTS, "TestFiniteHorizon.test_instance_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_instance_1(self):
 		"""Test that finite_horizon() function correctly solves instance
 		specified below..

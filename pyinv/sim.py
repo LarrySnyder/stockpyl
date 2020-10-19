@@ -642,7 +642,7 @@ def propagate_shipment_downstream(node):
 
 # SIMULATION STUFF
 
-def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
+def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progress_bar=True):
 	"""Run ``num_trials`` trials of the simulation, each with  ``num_periods``
 	periods. Return mean and SEM of average cost.
 
@@ -662,6 +662,10 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 		Number of trials to simulate.
 	num_periods : int
 		Number of periods to simulate.
+	rand_seed : int, optional
+		Random number generator seed.
+	progress_bar : bool, optional
+		Display a progress bar?
 
 	Returns
 	-------
@@ -678,18 +682,18 @@ def run_multiple_trials(network, num_trials, num_periods, progress_bar=True):
 	pbar = tqdm(total=num_periods, disable=not progress_bar)
 
 	# Initialize random number generator seed. The idea for now is to initialize
-	# it with no seed; then, for each trial, initialize it by generating a
+	# it with rand_seed (which is possibly None); then, for each trial, initialize it by generating a
 	# randint. This is because calling np.random.seed(None) is very slow
 	# (it was the bottleneck of the simulation when running multiple trials)
 	# so I'm generating seeds pseudo-randomly. Not sure this is the best approach.
-	# TODO: figure this out
+	np.random.seed(rand_seed)
 
 	# Run trials.
 	for t in range(num_trials):
 		# Update progress bar.
 		pbar.update()
 
-		total_cost = simulation(network, num_periods, rand_seed=np.random.randint(1, 1e5), progress_bar=False)
+		total_cost = simulation(network, num_periods, rand_seed=np.random.randint(1, 10000), progress_bar=False)
 		average_costs.append(total_cost / num_periods)
 
 	# Close progress bar.
@@ -768,24 +772,6 @@ def main():
 	write_results(network, T, total_cost, write_csv=True, csv_filename='assembly_3_stage_2_762.csv')
 
 
-def nv():
-	network = serial_system(num_nodes=1, local_holding_cost=[10], stockout_cost=[100], demand_type=DemandType.NORMAL,
-		demand_mean=50, demand_standard_deviation=10, shipment_lead_time=[1],
-		inventory_policy_type=InventoryPolicyType.BASE_STOCK, local_base_stock_levels=[-100])
-
-	total_cost = {}
-	for S in range(-100, 100):
-		network.nodes[0].inventory_policy.base_stock_level = S
-		total_cost[S] = simulation(network, 1000, rand_seed=762, progress_bar=False)
-
-	import matplotlib.pyplot as plt
-	plt.plot(total_cost.keys(), total_cost.values())
-	plt.xlabel('BS Level')
-	plt.ylabel('Total Cost (1000 periods)')
-	plt.grid()
-	plt.show()
-
 if __name__ == "__main__":
 #	cProfile.run('main()')
 	main()
-#	nv()

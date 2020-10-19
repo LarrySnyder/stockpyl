@@ -130,6 +130,8 @@ class SupplyChainNode(object):
 		# --- State Variables --- #
 		self.state_vars = []
 
+	# TODO: write a function to calculate aggregate demand at the node (implied from downstream nodes)
+
 	# Properties and functions related to network structure.
 
 	def predecessors(self, include_external=False):

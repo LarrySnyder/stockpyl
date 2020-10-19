@@ -452,6 +452,153 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 # Methods to Create Specific Network Structures
 # ===============================================================================
 
+def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
+				  shipment_lead_time=0, demand_type=None, demand_mean=0,
+				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
+				  demands=None, demand_probabilities=None, initial_IL=0,
+				  initial_orders=0, initial_shipments=0, supply_type=None,
+				  inventory_policy_type=None, base_stock_level=None,
+				  reorder_point=None, order_quantity=None,
+				  order_up_to_level=None):
+	"""Generate single-stage system.
+
+	All parameters are optional.
+
+	Parameters
+	----------
+	holding_cost
+	holding_cost
+	stockout_cost
+	order_lead_time
+	shipment_lead_time
+	demand_type
+	demand_mean
+	demand_standard_deviation
+	demand_lo
+	demand_hi
+	demands
+	initial_IL
+	initial_orders
+	initial_shipments
+	supply_type
+	inventory_policy_type
+	base_stock_level
+	reorder_point
+	order_quantity
+	order_up_to_level
+
+	Returns
+	-------
+	network : SupplyChainNetwork
+		The single-stage network, with parameters filled.
+
+	# TODO: if initial_IL not provided, default to BS levels
+	"""
+
+	# Check that valid demand info has been provided.
+	if demand_type is None or demand_type == DemandType.NONE:
+		raise ValueError("Valid demand_type has not been provided")
+	elif demand_type == DemandType.NORMAL and (demand_mean is None or demand_standard_deviation is None):
+		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
+	elif (demand_type == DemandType.UNIFORM_DISCRETE or
+		  demand_type == DemandType.UNIFORM_CONTINUOUS) and \
+		(demand_lo is None or demand_hi is None):
+		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
+	elif demand_type == DemandType.DETERMINISTIC and demands is None:
+		raise ValueError("Demand type was specified as deterministic but demands were not provided")
+	elif demand_type == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities is None):
+		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+
+	# Check that valid inventory policy has been provided.
+	if inventory_policy_type is None:
+		raise ValueError("Valid inventory_policy_type has not been provided")
+	elif inventory_policy_type in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
+		and base_stock_level is None:
+		raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
+	elif inventory_policy_type == InventoryPolicyType.r_Q \
+		and (reorder_point is None or order_quantity is None):
+		raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
+						 "provided")
+	elif inventory_policy_type == InventoryPolicyType.s_S \
+		and (reorder_point is None or order_up_to_level is None):
+		raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
+						 "provided")
+	elif inventory_policy_type == InventoryPolicyType.FIXED_QUANTITY \
+		and order_quantity is None:
+		raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
+	elif inventory_policy_type in (InventoryPolicyType.ECHELON_BASE_STOCK, InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK):
+		raise ValueError("Echelon base-stock policies are not allowed for single-stage systems")
+
+	# Build network.
+	network = SupplyChainNetwork()
+
+	# Create node.
+	node = SupplyChainNode(index=0)
+
+	# Set parameters.
+
+	# Set costs and lead times.
+	node.local_holding_cost = holding_cost
+	node.echelon_holding_cost = holding_cost
+	node.stockout_cost = stockout_cost
+#		node.lead_time = shipment_lead_time
+	node.shipment_lead_time = shipment_lead_time
+	node.order_lead_time = order_lead_time
+
+	# Build and set demand source.
+	demand_source_factory = DemandSourceFactory()
+	demand_type = demand_type
+	demand_source = demand_source_factory.build_demand_source(demand_type)
+	if demand_type == DemandType.NORMAL:
+		demand_source.mean = demand_mean
+		demand_source.standard_deviation = demand_standard_deviation
+	elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+		demand_source.lo = demand_lo
+		demand_source.hi = demand_hi
+	elif demand_type == DemandType.DETERMINISTIC:
+		demand_source.demands = demands
+	elif demand_type == DemandType.DISCRETE_EXPLICIT:
+		demand_source.demands = demands
+		demand_source.probabilities = demand_probabilities
+	node.demand_source = demand_source
+
+	# Set initial quantities.
+	node.initial_inventory_level = initial_IL
+	node.initial_orders = initial_orders
+	node.initial_shipments = initial_shipments
+
+	# Set inventory policy.
+	policy_factory = PolicyFactory()
+	if inventory_policy_type == InventoryPolicyType.BASE_STOCK:
+		policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
+											 base_stock_level=base_stock_level)
+	elif inventory_policy_type == InventoryPolicyType.r_Q:
+		policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
+											 reorder_point=reorder_point,
+											 order_quantity=order_quantity)
+	elif inventory_policy_type == InventoryPolicyType.s_S:
+		policy = policy_factory.build_policy(InventoryPolicyType.s_S,
+											 reorder_point=reorder_point,
+											 order_up_to_level=order_up_to_level)
+	elif inventory_policy_type == InventoryPolicyType.FIXED_QUANTITY:
+		policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
+											 order_quantity=order_quantity)
+	elif inventory_policy_type == InventoryPolicyType.LOCAL_BASE_STOCK:
+		policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
+											 base_stock_level=base_stock_level)
+	else:
+		policy = None
+	node.inventory_policy = policy
+
+	# Set supply type.
+	node.supply_type = SupplyType.UNLIMITED
+
+	# Add node to network.
+	network.add_node(node)
+
+	return network
+
+
 def serial_system(num_nodes, node_indices=None, downstream_0=True,
 				  local_holding_cost=0, echelon_holding_cost=0,
 				  stockout_cost=0, order_lead_time=0,

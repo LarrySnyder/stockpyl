@@ -7,6 +7,7 @@ from scipy.stats import lognorm
 
 from pyinv import ss
 from pyinv.instances import *
+from tests.settings import *
 
 
 # Module-level functions.
@@ -83,7 +84,13 @@ class TestsSCost(unittest.TestCase):
 		c = [35.022, 42.698, 49.173, 54.262, 57.819, 61.215, 64.512, 67.776, 70.975, 74.149, 77.306, 78.518, 79.037,
 			 79.554, 50.406, 51.632, 52.757, 53.518, 71.611, 72.246, 76.679, 77.929, 78.287, 78.402]
 
-		for n in range(1, len(mu), 5):
+		# To run only every ``skip`` instances, set ``step`` below.
+		if RUN_ALL_TESTS:
+			step = 1
+		else:
+			step = 10
+
+		for n in range(1, len(mu), step):
 			cost = ss.s_s_cost_discrete(s[n], S[n], h, p, K, True, mu[n], None, None)
 			self.assertAlmostEqual(cost, c[n], places=3)
 
@@ -127,6 +134,7 @@ class TestsSOptimalsS(unittest.TestCase):
 		self.assertEqual(S, 7)
 		self.assertAlmostEqual(g, 2.235748295669688e+02)
 
+#	@unittest.skipUnless(RUN_ALL_TESTS, "TestsSOptimalsS.test_fz_instances skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_fz_instances(self):
 		"""Test Zheng and Federgruen (1991) instances.
 		"""
@@ -141,7 +149,13 @@ class TestsSOptimalsS(unittest.TestCase):
 		c_opt = [35.022, 42.698, 49.173, 54.262, 57.819, 61.215, 64.512, 67.776, 70.975, 74.149, 77.306, 78.518, 79.037,
 			 79.554, 50.406, 51.632, 52.757, 53.518, 71.611, 72.246, 76.679, 77.929, 78.287, 78.402]
 
-		for n in range(1, len(mu), 5):
+		# To run only every ``skip`` instances, set ``step`` below.
+		if RUN_ALL_TESTS:
+			step = 1
+		else:
+			step = 10
+
+		for n in range(1, len(mu), step):
 			s, S, g = ss.s_s_discrete_exact(h, p, K, True, mu[n])
 			self.assertEqual(s, s_opt[n])
 			self.assertEqual(S, S_opt[n])

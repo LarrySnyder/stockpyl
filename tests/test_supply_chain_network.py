@@ -115,6 +115,120 @@ class TestAddSuccessor(unittest.TestCase):
 		self.assertEqual(node3succ, [])
 
 
+class TestSingleStageSystem(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSingleStageSystem', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSingleStageSystem', 'tear_down_class()')
+
+	def test_example_4_1(self):
+		"""Test single_stage() to build system in Example 4.1.
+		"""
+		print_status('TestSingleStageSystem', 'test_example_4_1()')
+
+		network = single_stage(holding_cost=0.18,
+							    stockout_cost=0.70,
+								demand_type=DemandType.NORMAL,
+								demand_mean=50, demand_standard_deviation=8,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								base_stock_level=56.6)
+
+		node = network.nodes[0]
+		self.assertEqual(node.holding_cost, 0.18)
+		self.assertEqual(node.stockout_cost, 0.70)
+		self.assertEqual(node.demand_source.mean, 50)
+		self.assertEqual(node.demand_source.standard_deviation, 8)
+		self.assertEqual(node.inventory_policy.base_stock_level, 56.6)
+
+
+	def test_3_node_serial_upstream_0(self):
+		"""Test serial_system() to build 3-node serial system, indexed 0,...,2
+		with upstream node = 0.
+		"""
+		print_status('TestSerialSystem', 'test_3_node_serial_upstream_0()')
+
+		network = serial_system(3, downstream_0=False,
+								local_holding_cost=[7, 4, 2],
+								demand_type=DemandType.NORMAL,
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[5, 5, 5])
+
+		# Get nodes, in order from upstream to downstream.
+		source_node = network.source_nodes[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
+
+		# Get successors and predecessors.
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
+
+		self.assertEqual(source_node.index, 0)
+		self.assertEqual(middle_node.index, 1)
+		self.assertEqual(sink_node.index, 2)
+
+		self.assertEqual(source_node_succ, [1])
+		self.assertEqual(middle_node_succ, [2])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [0])
+		self.assertEqual(sink_node_pred, [1])
+
+		self.assertEqual(source_node.local_holding_cost, 2)
+		self.assertEqual(middle_node.local_holding_cost, 4)
+		self.assertEqual(sink_node.local_holding_cost, 7)
+
+	def test_3_node_serial_index_list(self):
+		"""Test serial_system() to build 3-node serial system, with index list
+		given explicitly.
+		"""
+		print_status('TestSerialSystem', 'test_3_node_serial_index_list()')
+
+		network = serial_system(3, node_indices=[17, 14, 12],
+								local_holding_cost=[7, 4, 2],
+								demand_type=DemandType.NORMAL,
+								demand_mean=10, demand_standard_deviation=2,
+								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								local_base_stock_levels=[5, 5, 5])
+
+		# Get nodes, in order from upstream to downstream.
+		source_node = network.source_nodes[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
+
+		# Get successors and predecessors.
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
+
+		self.assertEqual(source_node.index, 12)
+		self.assertEqual(middle_node.index, 14)
+		self.assertEqual(sink_node.index, 17)
+
+		self.assertEqual(source_node_succ, [14])
+		self.assertEqual(middle_node_succ, [17])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [12])
+		self.assertEqual(sink_node_pred, [14])
+
+		self.assertEqual(source_node.local_holding_cost, 2)
+		self.assertEqual(middle_node.local_holding_cost, 4)
+		self.assertEqual(sink_node.local_holding_cost, 7)
+
+
 class TestSerialSystem(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
