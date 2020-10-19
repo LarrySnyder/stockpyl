@@ -3,6 +3,7 @@ import unittest
 from pyinv import optimization
 from pyinv.instances import *
 from pyinv.newsvendor import *
+from pyinv import ssm_serial
 
 
 # Module-level functions.
@@ -45,11 +46,11 @@ class TestGoldenSectionSearch(unittest.TestCase):
 		self.assertAlmostEqual(x_star, 2, places=5)
 		self.assertAlmostEqual(f_star, 0, places=5)
 
-	def test_newsvendor(self):
+	def test_example_4_1(self):
 		"""Test that golden_section_search() correctly optimizes newsvendor
 		cost function for Example 4.1.
 		"""
-		print_status('TestGoldenSectionSearch', 'test_newsvendor()')
+		print_status('TestGoldenSectionSearch', 'test_example_4_1()')
 
 		h, p, mu, sigma = get_named_instance("example_4_1")
 
@@ -59,3 +60,19 @@ class TestGoldenSectionSearch(unittest.TestCase):
 
 		self.assertAlmostEqual(S_star, 56.60395592743389, places=5)
 		self.assertAlmostEqual(f_star, 1.9976051931766445, places=5)
+
+	def test_example_6_1_S1(self):
+		"""Test that golden_section_search() correctly optimizes S_1 in SSM serial
+		objective function with other base-stock levels are fixed.
+		"""
+		print_status('TestGoldenSectionSearch', 'test_example_6_1_S1()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		f = lambda S1: ssm_serial.expected_cost(instance, {1: S1, 2: 12.02, 3: 22.71}, x_num=100, d_num=10)
+
+		S1_star, C_star = optimization.golden_section_search(f, 0, 12)
+
+		self.assertAlmostEqual(S1_star, 6.73, places=1)
+		self.assertAlmostEqual(C_star, 47.82, places=1)

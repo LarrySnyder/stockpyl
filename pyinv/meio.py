@@ -20,6 +20,7 @@ from pyinv.helpers import *
 from pyinv.sim import *
 from pyinv.ssm_serial import *
 from pyinv.instances import *
+from pyinv import optimization
 
 
 # -------------------
@@ -298,11 +299,11 @@ def base_stock_level_bisection_search(network, node_to_optimize, lo=None, hi=Non
 	# Calculate cost at
 
 
-def meio_by_coordinate_descent(network, base_stock_levels=None, initial_solution=None,
-						search_lo=None, search_hi=None,
-						objective_function=None,
-						sim_num_trials=10, sim_num_periods=1000, sim_rand_seed=None,
-						tolerance=1e-2):
+def meio_by_coordinate_descent(network, initial_solution=None,
+							   search_lo=None, search_hi=None,
+							   objective_function=None,
+							   sim_num_trials=10, sim_num_periods=1000, sim_rand_seed=None,
+							   tol=1e-2, line_search_tol=1e-4, verbose=False):
 	"""Optimize the MEIO instance by coordinate descent on the
 	base-stock levels. Evaluate each solution using the provided objective
 	function, or simulation if not provided.
@@ -313,9 +314,6 @@ def meio_by_coordinate_descent(network, base_stock_levels=None, initial_solution
 	----------
 	network : SupplyChainNetwork
 		The network to optimize.
-	base_stock_levels : dict, optional
-		A dictionary indicating, for each node index, the base-stock levels to
-		test in the enumeration. Example: {0: [0, 5, 10, 15], 1: [0, 2, 4, 6]}.
 	initial_solution : dict, optional
 		The starting solution, as a dict. If omitted, initial solution will be set
 		automatically.
@@ -338,9 +336,13 @@ def meio_by_coordinate_descent(network, base_stock_levels=None, initial_solution
 		is provided.
 	sim_rand_seed : int, optional
 		Rand seed to use for simulation. Ignored if ``objective_function'' is provided.
-	tolerance : float, optional
+	tol : float, optional
 		Algorithm terminates when iteration fails to improve objective function by
-		more than tolerance.
+		more than tol.
+	line_search_tol : float, optional
+		Tolerance to use for line search (golden section search) component of algorithm.
+	verbose: bool, optional
+		Set to True to print messages at each iteration.
 	Returns
 	-------
 	best_S : dict
@@ -357,75 +359,78 @@ def meio_by_coordinate_descent(network, base_stock_levels=None, initial_solution
 		for n in network.nodes:
 			initial_solution[n.index] = np.sum([s.demand_source.mean for s in network.sink_nodes])
 
-	# Initialize current cost.
-	if objective_function is not None:
-		current_cost = objective_function(initial_solution)
-	else:
-		# Set base-stock levels for all nodes.
-		for n in network.nodes:
-			n.inventory_policy.base_stock_level = initial_solution[n.index]
-		# Run multiple trials of simulation to evaluate solution.
-		current_cost, _ = run_multiple_trials(network, sim_num_trials, sim_num_periods, sim_rand_seed, progress_bar=False)
+	# Determine bounds for search, if not provided.
+	lo = ensure_dict_for_nodes(search_lo, network.node_indices)
+	hi = ensure_dict_for_nodes(search_hi, network.node_indices)
+	# TODO: do this better
+	for n in network.nodes:
+		if lo[n.index] is None:
+			lo[n.index] = 0
+		if hi[n.index] is None:
+			hi[n.index] = 3 * np.sum([s.demand_source.mean for s in network.sink_nodes])
+
+	# Shortcut to objective function.
+	def obj_fcn(S):
+		if objective_function is not None:
+			return objective_function(S)
+		else:
+			# Set base-stock levels for all nodes.
+			for n in network.nodes:
+				n.inventory_policy.base_stock_level = S[n.index]
+			# Run multiple trials of simulation to evaluate solution.
+			cost, _ = run_multiple_trials(network, sim_num_trials, sim_num_periods, sim_rand_seed,
+												  progress_bar=False)
+			return cost
+
+	# Initialize current solution and cost.
+	current_soln = initial_solution
+	current_cost = obj_fcn(current_soln)
+
+	# Print message, if requested.
+	if verbose:
+		print("Initial solution = {} initial cost = {}".format(current_soln, current_cost))
 
 	# Initialize done flag.
 	done = False
+	t = 0
 
-	# Loop until cost does not improve by more than tolerance.
+	# Loop until cost does not improve by more than tol.
 	while not done:
 
 		# Loop through all nodes, optimizing base-stock level for each in turn.
 		for n in network.nodes:
 
-			# Optimize base-stock level for node using bisection search.
-			# TODO: write function for generic bisection search.
+			# Optimize base-stock level for node using golden-section search.
+			f = lambda Sn: obj_fcn({i.index: Sn if i.index == n.index else current_soln[i.index] for i in network.nodes})
+			best_Sn, best_cost = optimization.golden_section_search(f, lo[n.index], hi[n.index], tol=line_search_tol, verbose=False)
 
+			# Replace base-stock level in current_solution with new value.
+			current_soln[n.index] = best_Sn
 
+			# Print message, if requested.
+			if verbose:
+				print("Iteration {} node {} best_S[n] = {} best_cost = {} current_soln = {}".format(t, n.index, best_Sn, best_cost, current_soln))
 
+		# Check improvement since last iteration.
+		if best_cost >= current_cost - tol:
+			# Terminate.
+			done = True
+		else:
+			current_cost = best_cost
+			t += 1
 
-
-	# Initialize best-solution tracker.
-	best_cost = np.inf
-
-	# Loop through enumerated solutions.
-	for S in enumerated_solutions:
-
-		# Update progress bar.
-		pbar.update()
-
-		# Set base-stock levels for all nodes.
-		for n in network.nodes:
-			n.inventory_policy.base_stock_level = S[n.index]
-
-		# TODO: handle provided objective_function.
-		# Run multiple trials of simulation to evaluate solution.
-		mean_cost, _ = run_multiple_trials(network, sim_num_trials, sim_num_periods,
-										   sim_rand_seed, progress_bar=False)
-
-		# Compare to best solution found so far.
-		# TODO: do something with sem?
-		if mean_cost < best_cost:
-			best_cost = mean_cost
-			best_S = S
-
-		# Print solution, if requested.
-		if print_solutions:
-			print_str = "S = {} cost = {}".format(S, mean_cost)
-			if mean_cost < best_cost:
-				print_str += ' *'
-			print(print_str)
-
-	# Close progress bar.
-	pbar.close()
-
-	return best_S, best_cost
+	return current_soln, best_cost
 
 
 #
-#network = get_named_instance("example_6_1")
-
+# network = get_named_instance("example_6_1")
+#
 # # reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
 # network.reindex_nodes({0: 1, 1: 2, 2: 3})
 # obj_fcn = lambda S: expected_cost(network, local_to_echelon_base_stock_levels(network, S), x_num=100, d_num=10)
+# best_S, best_cost = meio_by_coordinate_descent(network,
+# 										initial_solution=echelon_to_local_base_stock_levels(network, {1: 6.49, 2: 12.02, 3: 22.71}),
+# 										objective_function=obj_fcn, verbose=True)
 # best_S, best_cost = meio_by_enumeration(network,
 # 										truncation_lo={1: 5, 2: 4, 3: 10},
 #  										truncation_hi={1: 7, 2: 7, 3: 12},

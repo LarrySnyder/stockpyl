@@ -8,7 +8,7 @@ Lehigh University
 import math
 
 
-def golden_section_search(f, a, b, tol=1e-5):
+def golden_section_search(f, a, b, tol=1e-5, verbose=False):
 	"""Golden-section search. Adapted from https://en.wikipedia.org/wiki/Golden-section_search.
 	This implementation reuses function evaluations, saving 1/2 of the evaluations
 	per iteration, and returns a bounding interval.
@@ -43,6 +43,8 @@ def golden_section_search(f, a, b, tol=1e-5):
 	tol : float, optional
 		Tolerance. Algorithm terminates when the interval being considered has
 		width less than or equal to ``tol``.
+	verbose : bool, optional
+		Set to True to print messages at each iteration.
 
 	Returns
 	-------
@@ -71,6 +73,9 @@ def golden_section_search(f, a, b, tol=1e-5):
 	yc = f(c)
 	yd = f(d)
 
+	if verbose:
+		print("a = {:15.8f} b = {:15.8f} c = {:15.8f} d = {:15.8f} f(c) = {:15.8f} f(d) = {:15.8f}".format(a, b, c, d, yc, yd))
+
 	for k in range(n-1):
 		if yc < yd:
 			b = d
@@ -86,6 +91,9 @@ def golden_section_search(f, a, b, tol=1e-5):
 			h = invphi * h
 			d = a + invphi * h
 			yd = f(d)
+
+		if verbose:
+			print("a = {:15.8f} b = {:15.8f} c = {:15.8f} d = {:15.8f} f(c) = {:15.8f} f(d) = {:15.8f}".format(a, b, c, d, yc, yd))
 
 	if yc < yd:
 		x_star = (a + d) / 2

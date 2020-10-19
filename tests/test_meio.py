@@ -4,6 +4,7 @@ from scipy import stats
 from pyinv import meio
 from pyinv.instances import *
 from pyinv.ssm_serial import *
+from pyinv.newsvendor import newsvendor_normal_cost
 from tests.settings import *
 
 
@@ -163,6 +164,85 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		objective function is provided.
 		"""
 		print_status('TestMEIOByEnumeration', 'test_example_6_1_obj_fcn()')
+
+		network = get_named_instance("example_6_1")
+
+		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
+		network.reindex_nodes({0: 1, 1: 2, 2: 3})
+		obj_fcn = lambda S: expected_cost(network, local_to_echelon_base_stock_levels(network, S), x_num=100, d_num=10)
+		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
+												truncation_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn,
+												progress_bar=False, print_solutions=False)
+
+		self.assertDictEqual(best_S, {1: 7, 2: 5, 3: 11})
+		self.assertAlmostEqual(best_cost, 48.214497895254894)
+
+
+class TestMEIOByCoordinateDescent(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestMEIOByCoordinateDescent', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestMEIOByCoordinateDescent', 'tear_down_class()')
+
+	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_example_4_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
+	def test_example_4_1(self):
+		"""Test that meio_by_coordinate_descent() correctly solves Example 4.1.
+		"""
+		print_status('TestMEIOByCoordinateDescent', 'test_example_4_1()')
+
+		network = get_named_instance("example_4_1_network")
+
+		best_S, best_cost = meio.meio_by_coordinate_descent(network, initial_solution={0: 50},
+															search_lo=40, search_hi=60,
+															sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762)
+
+		self.assertAlmostEqual(best_S[0], 56.45760997389772)
+		self.assertAlmostEqual(best_cost, 2.076877118816367)
+
+	def test_example_4_1_obj_fcn(self):
+		"""Test that meio_by_coordinate_descent() correctly solves Example 4.1
+		when objective function is provided..
+		"""
+		print_status('TestMEIOByCoordinateDescent', 'test_example_4_1_obj_fcn()')
+
+		network = get_named_instance("example_4_1_network")
+		n0 = network.nodes[0]
+
+		f = lambda S: newsvendor_normal_cost(S[0], n0.holding_cost, n0.stockout_cost, n0.demand_source.mean, n0.demand_source.standard_deviation)
+
+		best_S, best_cost = meio.meio_by_coordinate_descent(network, initial_solution={0: 50},
+															search_lo=40, search_hi=60,
+															objective_function=f)
+
+		self.assertAlmostEqual(best_S[0], 56.6039708832618)
+		self.assertAlmostEqual(best_cost, 1.9976051931801355)
+
+	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_example_6_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
+	def test_example_6_1(self):
+		"""Test that meio_by_coordinate_descent() correctly solves Example 6.1.
+		"""
+		print_status('TestMEIOByCoordinateDescent', 'test_example_6_1()')
+
+		network = get_named_instance("example_6_1")
+
+		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={0: 5, 1: 4, 2: 10},
+													 truncation_hi={0: 7, 1: 7, 2: 12}, sim_num_trials=5,
+													 sim_num_periods=500, sim_rand_seed=762,
+													 progress_bar=False, print_solutions=False)
+
+		self.assertDictEqual(best_S, {0: 7, 1: 5, 2: 11})
+		self.assertAlmostEqual(best_cost, 51.736651092915224)
+
+	def test_example_6_1_obj_fcn(self):
+		"""Test that meio_by_coordinate_descent() correctly solves Example 6.1 when
+		objective function is provided.
+		"""
+		print_status('TestMEIOByCoordinateDescent', 'test_example_6_1_obj_fcn()')
 
 		network = get_named_instance("example_6_1")
 
