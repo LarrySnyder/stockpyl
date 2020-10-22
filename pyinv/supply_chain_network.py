@@ -118,12 +118,15 @@ class SupplyChainNetwork(object):
 	def reindex_nodes(self, old_to_new_dict):
 		"""Change indices of the nodes in the network using ``old_to_new_dict``.
 
+		# TODO: need to change indices of all state variable dicts!!!!
+
 		Parameters
 		----------
 		old_to_new_dict : dict
 			Dict in which keys are old indices and values are new indices.
 
 		"""
+		raise Exception("reindex_nodes() doesn't work yet!! Need to change indices of state variable dicts.")
 		for node in self.nodes:
 			node.index = old_to_new_dict[node.index]
 
@@ -235,15 +238,15 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	Other than ``edges``, all parameters are optional. If they are provided,
 	they must be either a dict, a list, or a singleton, with the following
 	requirements:
-		- If ``node_list`` is provided, then the parameter may be specified
+		- If ``node_indices`` is provided, then the parameter may be specified
 		either as a dict (with keys equal to the indices in ``node_indices``),
-		as a list (whose items are in the same order as ``node_list``),
+		as a list (whose items are in the same order as ``node_indices``),
 		or as a singleton (in which case all nodes will have that parameter
 		set to the singleton value).
 		- If ``node_indices`` is not provided, then the parameter may be
-		specified either as a dict (with keys equal to 0,...,``num_nodes``-1)
-		or as a singleton (in which case all nodes will have that
-		parameter set to the singleton value).
+		specified either as a dict (with keys equal to 0,...,``num_nodes``-1) or
+		as a singleton (in which case all nodes will have that
+		parameter set to the singleton value). (It cannot be a list.)
 
 	A node's supply type is set to UNLIMITED if it has no predecessors;
 	otherwise, its supply type is set to NONE.
@@ -295,14 +298,15 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 
 	# Add nodes.
 	for e in edges:
-		if e[0] not in network.nodes:
+		if e[0] not in network.node_indices:
 			network.add_node(SupplyChainNode(e[0]))
-		if e[1] not in network.nodes:
+		if e[1] not in network.node_indices:
 			network.add_node(SupplyChainNode(e[1]))
 	num_nodes = len(network.nodes)
 
 	# Check node_indices; if not provided, build it.
 	if node_indices is None:
+		# TODO: is this right??
 		node_indices = network.node_indices
 	else:
 		if set(node_indices) != set(network.node_indices):
@@ -312,7 +316,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	for e in edges:
 		source = network.get_node_from_index(e[0])
 		sink = network.get_node_from_index(e[1])
-		source.add_successor(sink)
+		network.add_successor(source, sink)
 
 	# Build vectors of attributes.
 	local_holding_cost_list = ensure_dict_for_nodes(local_holding_cost, node_indices, 0.0)
@@ -339,18 +343,17 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	order_up_to_levels_list = ensure_dict_for_nodes(order_up_to_levels, node_indices, None)
 
 	# Check that valid demand info has been provided.
-	if demand_type_list[0] is None or demand_type_list[0] == DemandType.NONE:
-		raise ValueError("Valid demand_type has not been provided")
-	elif demand_type_list[0] == DemandType.NORMAL and (demand_mean_list[0] is None or demand_standard_deviation_list[0] is None):
-		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type_list[0] == DemandType.UNIFORM_DISCRETE or
-		  demand_type_list[0] == DemandType.UNIFORM_CONTINUOUS) and \
-		(demand_lo_list[0] is None or demand_hi_list[0] is None):
-		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type_list[0] == DemandType.DETERMINISTIC and demands is None:
-		raise ValueError("Demand type was specified as deterministic but demands were not provided")
-	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
-		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+	for n in network.nodes:
+		if demand_type_list[n.index] == DemandType.NORMAL and (demand_mean_list[n.index] is None or demand_standard_deviation_list[n.index] is None):
+			raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
+		elif (demand_type_list[n.index] == DemandType.UNIFORM_DISCRETE or
+			  demand_type_list[n.index] == DemandType.UNIFORM_CONTINUOUS) and \
+			(demand_lo_list[n.index] is None or demand_hi_list[n.index] is None):
+			raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
+		elif demand_type_list[n.index] == DemandType.DETERMINISTIC and demands is None:
+			raise ValueError("Demand type was specified as deterministic but demands were not provided")
+		elif demand_type_list[n.index] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
+			raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
 	for n in network.nodes:
@@ -391,21 +394,18 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		# Build and set demand source.
 		demand_source_factory = DemandSourceFactory()
 		demand_type = demand_type_list[n.index]
-		if n == 0:
-			demand_source = demand_source_factory.build_demand_source(demand_type)
-			if demand_type == DemandType.NORMAL:
-				demand_source.mean = demand_mean_list[n.index]
-				demand_source.standard_deviation = demand_standard_deviation_list[n.index]
-			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
-				demand_source.lo = demand_lo_list[n.index]
-				demand_source.hi = demand_hi_list[n.index]
-			elif demand_type == DemandType.DETERMINISTIC:
-				demand_source.demands = demands[n.index]
-			elif demand_type == DemandType.DISCRETE_EXPLICIT:
-				demand_source.demands = demands[n.index]
-				demand_source.probabilities = demand_probabilities_list[n.index]
-		else:
-			demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+		demand_source = demand_source_factory.build_demand_source(demand_type)
+		if demand_type == DemandType.NORMAL:
+			demand_source.mean = demand_mean_list[n.index]
+			demand_source.standard_deviation = demand_standard_deviation_list[n.index]
+		elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+			demand_source.lo = demand_lo_list[n.index]
+			demand_source.hi = demand_hi_list[n.index]
+		elif demand_type == DemandType.DETERMINISTIC:
+			demand_source.demands = demands[n.index]
+		elif demand_type == DemandType.DISCRETE_EXPLICIT:
+			demand_source.demands = demands[n.index]
+			demand_source.probabilities = demand_probabilities_list[n.index]
 		n.demand_source = demand_source
 
 		# Set initial quantities.
@@ -417,24 +417,24 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		policy_factory = PolicyFactory()
 		if inventory_policy_type_list[n.index] == InventoryPolicyType.BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n])
+												 base_stock_level=local_base_stock_levels_list[n.index])
 		elif inventory_policy_type_list[n.index] == InventoryPolicyType.r_Q:
 			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-												 reorder_point=reorder_points_list[n],
-												 order_quantity=order_quantities_list[n])
+												 reorder_point=reorder_points_list[n.index],
+												 order_quantity=order_quantities_list[n.index])
 		elif inventory_policy_type_list[n.index] == InventoryPolicyType.s_S:
 			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-												 reorder_point=reorder_points_list[n],
-												 order_up_to_level=order_up_to_levels_list[n])
+												 reorder_point=reorder_points_list[n.index],
+												 order_up_to_level=order_up_to_levels_list[n.index])
 		elif inventory_policy_type_list[n.index] == InventoryPolicyType.FIXED_QUANTITY:
 			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-												 order_quantity=order_quantities_list[n])
+												 order_quantity=order_quantities_list[n.index])
 		elif inventory_policy_type_list[n.index] == InventoryPolicyType.ECHELON_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n])
+												 echelon_base_stock_level=echelon_base_stock_levels_list[n.index])
 		elif inventory_policy_type_list[n.index] == InventoryPolicyType.LOCAL_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n])
+												 base_stock_level=local_base_stock_levels_list[n.index])
 		else:
 			policy = None
 		n.inventory_policy = policy

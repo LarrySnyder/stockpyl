@@ -69,6 +69,52 @@ def get_named_instance(instance_name):
 		fixed_cost = 100
 		demand = [730, 580, 445, 650, 880]
 		return num_periods, holding_cost, fixed_cost, demand
+	elif instance_name == "jrp_ex":
+		# JRP example in SCMO.
+		shared_fixed_cost = 600
+		individual_fixed_costs = [120, 840, 300]
+		holding_costs = [160, 20, 50]
+		demand_rates = [1, 1, 1]
+		return shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates
+	elif instance_name == "jrp_hw_1":
+		# JRP HW 1 (paper)
+		shared_fixed_cost = 20000
+		individual_fixed_costs = [36000, 46000, 34000, 38000]
+		holding_costs = [1000, 900, 1200, 1000]
+		demand_rates = [1780, 445, 920, 175]
+		return shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates
+	elif instance_name == "jrp_hw_2":
+		# JRP HW 2 (construction)
+		shared_fixed_cost = 1500
+		individual_fixed_costs = [4000, 1000, 2000]
+		holding_costs = [300, 200, 200]
+		demand_rates_week = [175, 1600, 400]
+		demand_rates = (52 * np.array(demand_rates_week)).tolist()
+		return shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates
+	elif instance_name == "jrp_hw_3":
+		# JRP HW 3 (books)
+		shared_fixed_cost = 180
+		individual_fixed_costs = [60, 100, 180, 115, 135]
+		purchase_costs = [19, 14, 17, 14, 12]
+		holding_costs = (0.28 * np.array(purchase_costs)).tolist()
+		demand_rates = [6200, 1300, 400, 4400, 1800]
+		return shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates
+	elif instance_name == "jrp_silver":
+		# Numerical example in Silver (1976).
+		shared_fixed_cost = 10
+		individual_fixed_costs = [1.87, 5.27, 7.94, 8.19, 8.87]
+		holding_costs = [0.2] * 5
+		demand_rates = [1736, 656, 558, 170, 142]
+		return shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates
+	elif instance_name == "jrp_spp":
+		# Example on p. 428 of Silver, Pyke, and Peterson (1998).
+		shared_fixed_cost = 40
+		individual_fixed_costs = [15, 15, 15, 15]
+		holding_costs = [0.24] * 4
+		demand_rates = [86000, 12500, 1400, 3000]
+		return shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates
+
+
 
 	# CHAPTER 4
 	if instance_name == "example_4_1_network":
@@ -339,19 +385,31 @@ def get_named_instance(instance_name):
 		assembly_3_stage_network.nodes[0].demand_source.round_to_int = True
 		return assembly_3_stage_network
 	elif instance_name == "assembly_3_stage_2":
-			assembly_3_stage_2_network = mwor_system(
-				num_warehouses=2,
-				local_holding_cost=[2, 1, 1],
-				stockout_cost=[20, 0, 0],
-				demand_type=DemandType.NORMAL,
+			assembly_3_stage_2_network = network_from_edges(
+				edges=[(1, 3), (2, 3)],
+				local_holding_cost={1: 1, 2: 1, 3: 2},
+				stockout_cost={1: 0, 2: 0, 3: 20},
+				demand_type={1: DemandType.NONE, 2: DemandType.NONE, 3: DemandType.NORMAL},
 				demand_mean=20,
 				demand_standard_deviation=5,
-				shipment_lead_time=[1, 2, 2],
+				shipment_lead_time={1: 2, 2: 2, 3: 1},
 				inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-				local_base_stock_levels=[28, 52, 44],
-				initial_IL=[28, 52, 44],
-				downstream_0=True)
-			assembly_3_stage_2_network.nodes[0].demand_source.round_to_int = True
+				local_base_stock_levels={1: 44, 2: 52, 3: 28},
+				initial_IL={1: 44, 2: 52, 3: 28}
+			)
+			# assembly_3_stage_2_network = mwor_system(
+			# 	num_warehouses=2,
+			# 	local_holding_cost=[2, 1, 1],
+			# 	stockout_cost=[20, 0, 0],
+			# 	demand_type=DemandType.NORMAL,
+			# 	demand_mean=20,
+			# 	demand_standard_deviation=5,
+			# 	shipment_lead_time=[1, 2, 2],
+			# 	inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
+			# 	local_base_stock_levels=[28, 52, 44],
+			# 	initial_IL=[28, 52, 44],
+			# 	downstream_0=True)
+			assembly_3_stage_2_network.get_node_from_index(3).demand_source.round_to_int = True
 			return assembly_3_stage_2_network
 	elif instance_name == "rosling_figure_1":
 		# Figure 1 from Rosling (1989).

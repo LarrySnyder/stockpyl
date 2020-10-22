@@ -270,8 +270,9 @@ class SupplyChainNode(object):
 		Notes
 		-----
 		This method simply updates the node's list of successors. It does not
-		add ``successor`` to the network. Typically, this method is called by
-		the network.
+		add ``successor`` to the network or add ``self`` as a predecessor of
+		``successor``. Typically, this method is called by the network rather
+		than directly. Use ``SupplyChainNetwork.add_successor()`` instead.
 
 		Parameters
 		----------
@@ -287,8 +288,9 @@ class SupplyChainNode(object):
 		Notes
 		-----
 		This method simply updates the node's list of predecessors. It does not
-		add ``predecessor`` to the network. Typically, this method is called by
-		the network.
+		add ``predecessor`` to the network or add ``self`` as a successor of
+		``predecessor. Typically, this method is called by the network rather
+		than directly. Use ``SupplyChainNetwork.add_predecessor()`` instead.
 
 		Parameters
 		----------
@@ -494,7 +496,7 @@ class NodeStateVars(object):
 			self.inbound_shipment = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			# TODO: nodes without predecessors cannot have order lead time; either fix this or document it (the workaround is just to add it to the shipment lead time)
 			self.inbound_order_pipeline = {s_index:
-				[0] * (self.node.network.nodes[s_index].order_lead_time+1)
+				[0] * (self.node.network.get_node_from_index(s_index).order_lead_time+1)
 										   for s_index in node.successor_indices()}
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
