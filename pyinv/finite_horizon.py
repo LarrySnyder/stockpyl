@@ -409,7 +409,7 @@ def finite_horizon_dp(
 			done = True
 
 	# Calculate expected total cost.
-	total_cost = cost_matrix[1, initial_inventory_level - x_min]
+	total_cost = cost_matrix[1, int(initial_inventory_level) - x_min]
 
 	return reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, x_range
 
@@ -572,3 +572,4 @@ if __name__ == "__main__":
 					   s_underbar[t], s_overbar[t]])
 
 	print(tabulate(results, headers=["t", "s", "S", "S_underbar", "S_overbar", "s_underbar", "s_overbar"]))
+

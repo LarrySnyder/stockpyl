@@ -167,8 +167,66 @@ problem and some of its variants.</p>
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="function">
+<dt id="pyinv.newsvendor.myopic">
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimizer of the myopic cost function, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>
+is supplied) calculate the cost of given solution.</p>
+<p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
+as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
+(2019), but the function is given in terms of Snyder-Shen notation below.</p>
+<p>Parameters are singleton values for the current period, not arrays.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
+<li><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+<li><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
+Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
+<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock-level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
+<li><strong>cost</strong> (<em>float</em>) – The myopic cost attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(G_t(S^*)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equation Used</strong>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p - c^+}{p + h}\right)\\c^+ = c_t - \gamma c_{t+1}\\G_t(y) = c_ty + g_t(y) - \gamma_tc_{t+1}(y - E[D_t]),\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(g_t(\cdot)\)</span> is the newsvendor cost function for period <span class="math notranslate nohighlight">\(t\)</span>.</p>
+<p class="rubric">References</p>
+<p>A. F. Veinott, Jr., On the Optimality of <span class="math notranslate nohighlight">\((s,S)\)</span> Inventory Policies:
+New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (1966).</p>
+<ol class="upperalpha simple" start="16">
+<li><ol class="first upperalpha" start="8">
+<li>Zipkin, <em>Foundations of Inventory Management</em>, Irwin/McGraw-Hill (2000).</li>
+</ol>
+</li>
+</ol>
+<p><strong>Example</strong> (Example 4.1):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">myopic</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
+<span class="go">(58.09891883213067, 16.625719332793864)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myopic</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">62</span><span class="p">)</span>
+<span class="go">(62, 16.766319828088736)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyinv.newsvendor.myopic_cost">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate “myopic” cost function.</p>
 <p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
 as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
@@ -492,60 +550,55 @@ loss and complementary loss functions.</p>
 
 <dl class="function">
 <dt id="pyinv.newsvendor.set_myopic_cost_to">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">set_myopic_cost_to</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1</em>, <em>left_half=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Find the value of <span class="math notranslate nohighlight">\(y\)</span> such that <span class="math notranslate nohighlight">\(G_t(y)\)</span></dt>
-<dd><p class="first">equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>, where <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span> is the myopic cost function
+<code class="descclassname">pyinv.newsvendor.</code><code class="descname">set_myopic_cost_to</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>left_half=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the value of <span class="math notranslate nohighlight">\(y\)</span> such that <span class="math notranslate nohighlight">\(G_t(y)\)</span>
+equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>, where <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span> is the myopic cost function
 for the current period, given by <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">left_half</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>,
 where <span class="math notranslate nohighlight">\(\underline{S}_t\)</span> is the minimizer of <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span>.
 Otherwise, requires <span class="math notranslate nohighlight">\(S \ge \underline{S}_t\)</span>.</p>
-<dl class="docutils">
-<dt>cost <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The cost to set <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code> equal to.</dd>
-<dt>holding_cost <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</dd>
-<dt>stockout_cost <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</dd>
-<dt>purchase_cost <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</dd>
-<dt>purchase_cost_next_per <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</dd>
-<dt>demand_mean <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</dd>
-<dt>demand_sd <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</dd>
-<dt>discount_factor <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd>Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
-Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</dd>
-<dt>left_half <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>; otherwise,
-requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</span>. Default = <code class="docutils literal notranslate"><span class="pre">True</span></code>.</dd>
-</dl>
-<dl class="docutils">
-<dt>base_stock_level <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The <span class="math notranslate nohighlight">\(y\)</span> so that <code class="docutils literal notranslate"><span class="pre">myopic_cost(y)</span></code> equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</dd>
-</dl>
-<dl class="last docutils">
-<dt>ValueError</dt>
-<dd>If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(G_t(\underline{S}_t)\)</span>.</dd>
-</dl>
-</dd>
-</dl>
-<p># TODO:</p>
-<blockquote>
-<div><p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_myopic_cost_to</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="go">53.186150146674386</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mf">53.186150146674386</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="go">2.1999999999999775</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">set_myopic_cost_to</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">less_than_optimum</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="go">60.478316066846034</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mf">60.478316066846034</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="go">2.2000000000000006</span>
-</pre></div>
-</div>
-</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cost</strong> (<em>float</em>) – The cost to set <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code> equal to.</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
+<li><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+<li><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
+Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
+<li><strong>left_half</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>; otherwise,
+requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</span>. Default = <code class="docutils literal notranslate"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>base_stock_level</strong> – The <span class="math notranslate nohighlight">\(y\)</span> so that <code class="docutils literal notranslate"><span class="pre">myopic_cost(y)</span></code> equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(G_t(\underline{S}_t)\)</span>.</li>
+<li>**Example** (Example 4.1):</li>
+<li><em>.. testsetup:: *</em> – from pyinv.newsvendor import *</li>
+<li><em>.. doctest::</em> – &gt;&gt;&gt; set_myopic_cost_to(18, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98, left_half=True)
+49.394684658734164
+&gt;&gt;&gt; myopic_cost(49.394684658734164, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98)
+17.999999999999996
+&gt;&gt;&gt; set_myopic_cost_to(18, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98, left_half=False)
+71.84861989932769
+&gt;&gt;&gt; myopic_cost(71.84861989932769, 0.18, 0.70, 0.3, 0.35, 50, 8, 0.98)
+18.0</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

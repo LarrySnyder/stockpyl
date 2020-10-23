@@ -232,6 +232,7 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 	cost : float
 		Cost per unit time. [:math:`g`]
 
+
 	**Equations Used**:
 
 	.. math::
@@ -248,7 +249,7 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 
 		g = \\frac{K + \\sum_{n=1}^N \\frac{k_n}{m_n}}{T} + \\frac{T}{2}\\sum_{n=1}^N h_nm_n\\lambda_n
 
-	**Example**: TODO--------------
+	**Example**:
 
 	.. testsetup:: *
 
@@ -256,8 +257,12 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 
 	.. doctest::
 
-		>>> economic_production_quantity(8, 0.225, 1300, 1700)
-		(626.8084945889684, 33.183979125298336)
+		>>> shared_fixed_cost = 600
+		>>> individual_fixed_costs = [120, 840, 300]
+		>>> holding_costs = [160, 20, 50]
+		>>> demand_rates = [1, 1, 1]
+		>>> joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+		([3.103164454170876, 9.309493362512628, 3.103164454170876], 3.103164454170876, [1, 3, 1], 837.8544026261366)
 	"""
 
 	# TODO: unit tests
