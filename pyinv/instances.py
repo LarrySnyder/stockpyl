@@ -69,6 +69,14 @@ def get_named_instance(instance_name):
 		fixed_cost = 100
 		demand = [730, 580, 445, 650, 880]
 		return num_periods, holding_cost, fixed_cost, demand
+	elif instance_name == "ww_hw_c":
+		# SCMO HW problem for WW with nonstationary purchase cost.
+		num_periods = 5
+		holding_cost = 0.1
+		fixed_cost = 100
+		demand = [400, 500, 500, 1100, 900]
+		purchase_cost = [3, 1, 4, 6, 6]
+		return num_periods, holding_cost, fixed_cost, demand, purchase_cost
 	elif instance_name == "jrp_ex":
 		# JRP example in SCMO.
 		shared_fixed_cost = 600

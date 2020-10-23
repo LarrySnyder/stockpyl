@@ -74,6 +74,22 @@ class TestWagnerWhitin(unittest.TestCase):
 		self.assertEqual(next_order_periods, [0, 3, 4, 5, 6, 6])
 		self.assertAlmostEqual(cost, 423)
 
+	def test_purchase_cost(self):
+		"""Test that wagner_whitin function correctly solves SCMO HW problem with
+		nonstationary purchase costs.
+		"""
+		print_status('TestWagnerWhitin', 'test_purchase_cost()')
+
+		num_periods, holding_cost, fixed_cost, demand, purchase_cost = \
+			get_named_instance("ww_hw_c")
+
+		order_quantities, cost, costs_to_go, next_order_periods = \
+			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost)
+
+		self.assertEqual(order_quantities, [0, 400, 3000, 0, 0, 0])
+		self.assertEqual(next_order_periods, [0, 2, 6, 6, 6, 6])
+		self.assertAlmostEqual(cost, 4940)
+
 	def test_all_scalars(self):
 		"""Test that wagner_whitin function works if all parameters are scalars.
 		"""
