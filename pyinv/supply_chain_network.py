@@ -746,68 +746,69 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
 		# as the downstream-most node. indices[n] is the label of node n.)
-		node = SupplyChainNode(index=indices[n])
+		n_ind = indices[n]
+		node = SupplyChainNode(index=n_ind)
 
 		# Set parameters.
 
 		# Set costs and lead times.
-		node.local_holding_cost = local_holding_cost_list[n]
-		node.echelon_holding_cost = echelon_holding_cost_list[n]
-		node.stockout_cost = stockout_cost_list[n]
-#		node.lead_time = shipment_lead_time_list[n]
-		node.shipment_lead_time = shipment_lead_time_list[n]
-		node.order_lead_time = order_lead_time_list[n]
+		node.local_holding_cost = local_holding_cost_list[n_ind]
+		node.echelon_holding_cost = echelon_holding_cost_list[n_ind]
+		node.stockout_cost = stockout_cost_list[n_ind]
+#		node.lead_time = shipment_lead_time_list[n_ind]
+		node.shipment_lead_time = shipment_lead_time_list[n_ind]
+		node.order_lead_time = order_lead_time_list[n_ind]
 
 		# Build and set demand source.
 		demand_source_factory = DemandSourceFactory()
-		demand_type = demand_type_list[n]
+		demand_type = demand_type_list[n_ind]
 		if n == 0:
 			demand_source = demand_source_factory.build_demand_source(demand_type)
 			if demand_type == DemandType.NORMAL:
-				demand_source.mean = demand_mean_list[n]
-				demand_source.standard_deviation = demand_standard_deviation_list[n]
+				demand_source.mean = demand_mean_list[n_ind]
+				demand_source.standard_deviation = demand_standard_deviation_list[n_ind]
 			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
-				demand_source.lo = demand_lo_list[n]
-				demand_source.hi = demand_hi_list[n]
+				demand_source.lo = demand_lo_list[n_ind]
+				demand_source.hi = demand_hi_list[n_ind]
 			elif demand_type == DemandType.DETERMINISTIC:
-				demand_source.demands = demands[n]
+				demand_source.demands = demands[n_ind]
 			elif demand_type == DemandType.DISCRETE_EXPLICIT:
-				demand_source.demands = demands[n]
-				demand_source.probabilities = demand_probabilities_list[n]
+				demand_source.demands = demands[n_ind]
+				demand_source.probabilities = demand_probabilities_list[n_ind]
 		else:
 			demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
 		node.demand_source = demand_source
 
 		# Set initial quantities.
-		node.initial_inventory_level = initial_IL_list[n]
-		node.initial_orders = initial_orders_list[n]
-		node.initial_shipments = initial_shipments_list[n]
+		node.initial_inventory_level = initial_IL_list[n_ind]
+		node.initial_orders = initial_orders_list[n_ind]
+		node.initial_shipments = initial_shipments_list[n_ind]
 
 		# Set inventory policy.
 		policy_factory = PolicyFactory()
-		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
+		if inventory_policy_type_list[n_ind] == InventoryPolicyType.BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.r_Q:
+												 base_stock_level=local_base_stock_levels_list[n_ind])
+		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.r_Q:
 			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-												 reorder_point=reorder_points_list[n],
-												 order_quantity=order_quantities_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.s_S:
+												 reorder_point=reorder_points_list[n_ind],
+												 order_quantity=order_quantities_list[n_ind])
+		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.s_S:
 			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-												 reorder_point=reorder_points_list[n],
-												 order_up_to_level=order_up_to_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.FIXED_QUANTITY:
+												 reorder_point=reorder_points_list[n_ind],
+												 order_up_to_level=order_up_to_levels_list[n_ind])
+		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.FIXED_QUANTITY:
 			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-												 order_quantity=order_quantities_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.ECHELON_BASE_STOCK:
+												 order_quantity=order_quantities_list[n_ind])
+		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.ECHELON_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
+												 echelon_base_stock_level=echelon_base_stock_levels_list[n_ind])
+		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.LOCAL_BASE_STOCK:
+												 echelon_base_stock_level=echelon_base_stock_levels_list[n_ind])
+		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.LOCAL_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n])
+												 base_stock_level=local_base_stock_levels_list[n_ind])
 		else:
 			policy = None
 		node.inventory_policy = policy

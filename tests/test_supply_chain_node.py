@@ -289,6 +289,196 @@ class TestEquivalentLeadTime(unittest.TestCase):
 		self.assertEqual(network.get_node_from_index(7).equivalent_lead_time, 1)
 
 
+class TestDerivedDemandMean(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDerivedDemandMean', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDerivedDemandMean', 'tear_down_class()')
+
+	def test_serial(self):
+		"""Test derived_demand_mean() for serial system (Example 6.1).
+		"""
+		print_status('TestDerivedDemandMean', 'test_serial()')
+
+		network = get_named_instance("example_6_1")
+
+		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 5)
+		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 5)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 5)
+
+	def test_assembly(self):
+		"""Test derived_demand_mean() for assembly system (Rosling (1989) Figure 1,
+		with demand for node 1 set to N(15, 2^2)).
+		"""
+		print_status('TestDerivedDemandMean', 'test_assembly()')
+
+		network = get_named_instance("rosling_figure_1")
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source.mean = 15
+		demand_source.standard_deviation = 2
+		network.get_node_from_index(1).demand_source = demand_source
+
+		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 15)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 15)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 15)
+		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 15)
+		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 15)
+		self.assertEqual(network.get_node_from_index(6).derived_demand_mean, 15)
+		self.assertEqual(network.get_node_from_index(7).derived_demand_mean, 15)
+
+	def test_rong_atan_snyder_figure_1a(self):
+		"""Test derived_demand_mean() for distribution system (Rong, Atan, and Snyder (2017),
+		Figure 1(a).
+		"""
+		print_status('TestDerivedDemandMean', 'test_rong_atan_snyder_figure_1a()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1a")
+
+		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 32)
+		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 16)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 16)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(6).derived_demand_mean, 8)
+
+	def test_rong_atan_snyder_figure_1b(self):
+		"""Test derived_demand_mean() for distribution system (Rong, Atan, and Snyder (2017),
+		Figure 1(b).
+		"""
+		print_status('TestDerivedDemandMean', 'test_rong_atan_snyder_figure_1b()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1b")
+
+		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 64)
+		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 40)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 24)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(6).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(7).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(8).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(9).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(10).derived_demand_mean, 8)
+
+	def test_rong_atan_snyder_figure_1c(self):
+		"""Test derived_demand_mean() for distribution system (Rong, Atan, and Snyder (2017),
+		Figure 1(c).
+		"""
+		print_status('TestDerivedDemandMean', 'test_rong_atan_snyder_figure_1c()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1c")
+
+		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 32)
+		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 24)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 8)
+		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 8)
+
+
+class TestDerivedDemandStandardDeviation(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDerivedDemandStandardDeviation', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDerivedDemandStandardDeviation', 'tear_down_class()')
+
+	def test_serial(self):
+		"""Test derived_demand_standard_deviation() for serial system (Example 6.1).
+		"""
+		print_status('TestDerivedDemandStandardDeviation', 'test_serial()')
+
+		network = get_named_instance("example_6_1")
+
+		self.assertEqual(network.get_node_from_index(0).derived_demand_standard_deviation, 1)
+		self.assertEqual(network.get_node_from_index(1).derived_demand_standard_deviation, 1)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_standard_deviation, 1)
+
+	def test_assembly(self):
+		"""Test derived_demand_standard_deviation() for assembly system (Rosling (1989) Figure 1,
+		with demand for node 1 set to N(15, 2^2)).
+		"""
+		print_status('TestDerivedDemandStandardDeviation', 'test_assembly()')
+
+		network = get_named_instance("rosling_figure_1")
+		demand_source_factory = DemandSourceFactory()
+		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source.mean = 15
+		demand_source.standard_deviation = 2
+		network.get_node_from_index(1).demand_source = demand_source
+
+		self.assertEqual(network.get_node_from_index(1).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.get_node_from_index(2).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.get_node_from_index(4).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.get_node_from_index(5).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.get_node_from_index(6).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.get_node_from_index(7).derived_demand_standard_deviation, 2)
+
+	def test_rong_atan_snyder_figure_1a(self):
+		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
+		Figure 1(a).
+		"""
+		print_status('TestDerivedDemandStandardDeviation', 'test_rong_atan_snyder_figure_1a()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1a")
+
+		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(32))
+		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(16))
+		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, np.sqrt(16))
+		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, np.sqrt(8))
+
+	def test_rong_atan_snyder_figure_1b(self):
+		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
+		Figure 1(b).
+		"""
+		print_status('TestDerivedDemandStandardDeviation', 'test_rong_atan_snyder_figure_1b()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1b")
+
+		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(64))
+		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(40))
+		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, np.sqrt(24))
+		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(7).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(8).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(9).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(10).derived_demand_standard_deviation, np.sqrt(8))
+
+	def test_rong_atan_snyder_figure_1c(self):
+		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
+		Figure 1(c).
+		"""
+		print_status('TestDerivedDemandStandardDeviation', 'test_rong_atan_snyder_figure_1c()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1c")
+
+		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(32))
+		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, np.sqrt(24))
+		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
+
+
 class TestStateVariables(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

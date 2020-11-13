@@ -200,7 +200,7 @@ class DemandSourceNormal(DemandSource):
 		assert self._standard_deviation is not None, "For NORMAL demand, mean must be provided"
 
 		# Generate random demand.
-		demand = np.random.normal(self._mean, self._standard_deviation)
+		demand = max(0, np.random.normal(self._mean, self._standard_deviation))
 
 		# Round demand, if requested.
 		if self._round_to_int:

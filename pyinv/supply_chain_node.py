@@ -56,6 +56,11 @@ class SupplyChainNode(object):
 		Function that calculates local holding cost per period, as a function
 		of ending inventory level. Function must take exactly one argument, the
 		ending IL. Function should check that IL > 0.
+	in_transit_holding_cost : float
+		Holding cost coefficient used to calculate in-transit holding cost for
+		shipments en route from the node to its downstream succesors, if any.
+		If in_transit_holding_cost is None, then the stage's local_holding_cost
+		is used. To ignore in-transit holding costs, set in_transit_holding_cost = 0.
 	stockout_cost : float
 		Stockout cost, per unit (per period, if backorders). [p]
 	stockout_cost_function : function
@@ -116,6 +121,7 @@ class SupplyChainNode(object):
 		self.local_holding_cost = 0
 		self.echelon_holding_cost = 0
 		self.local_holding_cost_function = None
+		self.in_transit_holding_cost = None
 		self.stockout_cost = 0
 		self.stockout_cost_function = None
 		self.shipment_lead_time = 0
@@ -202,6 +208,33 @@ class SupplyChainNode(object):
 		else:
 			return self.forward_echelon_lead_time - \
 				   self.network.get_node_from_index(self.index-1).forward_echelon_lead_time
+
+	@property
+	def derived_demand_mean(self):
+		# Mean of derived demand, i.e., external demand at node and all of its descendants.
+		# TODO: handle non-normal demand
+		if self.demand_source is not None and self.demand_source.type == DemandType.NORMAL:
+			DDM = self.demand_source.mean
+		else:
+			DDM = 0
+		for d in self.descendants:
+			if d.demand_source is not None and d.demand_source.type == DemandType.NORMAL:
+				DDM += d.demand_source.mean
+		return DDM
+
+	@property
+	def derived_demand_standard_deviation(self):
+		# Standard deviation of derived demand, i.e., external demand at node and all of its descendants.
+		# TODO: handle non-normal demand
+		if self.demand_source is not None and self.demand_source.type == DemandType.NORMAL:
+			DDV = self.demand_source.standard_deviation ** 2
+		else:
+			DDV = 0
+		for d in self.descendants:
+			if d.demand_source is not None and d.demand_source.type == DemandType.NORMAL:
+				DDV += d.demand_source.standard_deviation ** 2
+		return np.sqrt(DDV)
+
 
 	@property
 	def state_vars_current(self):

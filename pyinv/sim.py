@@ -125,7 +125,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		visited = {n.index: False for n in network.nodes}
 
 		# Generate demands and place orders. Use depth-first search, starting
-		# at nodes with no predecessors, and propagating orders upstream.
+		# at nodes with no successors, and propagating orders upstream.
 		for n in network.source_nodes:
 			generate_downstream_orders(n.index, network, t, visited)
 
@@ -418,9 +418,12 @@ def calculate_period_costs(network, period):
 			n.state_vars[period].stockout_cost_incurred = \
 				n.stockout_cost * max(0, -n.state_vars[period].inventory_level)
 		# In-transit holding cost.
-		# TODO: add more flexible ways of calculating in-transit h.c.
+		if n.in_transit_holding_cost is None:
+			h = n.local_holding_cost
+		else:
+			h = n.in_transit_holding_cost
 		n.state_vars[period].in_transit_holding_cost_incurred = \
-			n.local_holding_cost * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
+			h * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
 
 		# Total cost.
 		n.state_vars[period].total_cost_incurred = \
@@ -679,7 +682,7 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 	average_costs = []
 
 	# Initialize progress bar. (If not requested, then this will disable it.)
-	pbar = tqdm(total=num_periods, disable=not progress_bar)
+	pbar = tqdm(total=num_trials, disable=not progress_bar)
 
 	# Initialize random number generator seed. The idea for now is to initialize
 	# it with rand_seed (which is possibly None); then, for each trial, initialize it by generating a
@@ -710,7 +713,7 @@ def main():
 	T = 1000
 
 	#
-	network = get_named_instance("assembly_3_stage_2")
+	network = get_named_instance("kangye_3_stage_serial")
 	#
 	# # additional handling for Kangye's instance
 	# for n in network.nodes:
@@ -769,7 +772,7 @@ def main():
 
 	total_cost = simulation(network, T, rand_seed=762)
 #	write_results(network, T, total_cost, write_csv=False)
-	write_results(network, T, total_cost, write_csv=True, csv_filename='assembly_3_stage_2_762.csv')
+	write_results(network, T, total_cost, write_csv=True, csv_filename='kangye_3_stage_serial_762.csv')
 
 
 if __name__ == "__main__":

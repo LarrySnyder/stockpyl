@@ -18,6 +18,8 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 """
 
+# TODO: add explicit formulation
+
 from scipy import stats
 from scipy.optimize import brentq
 import numpy as np
@@ -851,4 +853,96 @@ def set_myopic_cost_to(
 	base_stock_level = brentq(fun, a, b)
 
 	return base_stock_level
+
+
+def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
+							   holding_cost, stockout_cost, demand_mean, demand_sd,
+					  		   lead_time=0, base_stock_level=None):
+	"""Solve the "explicit", profit-maximization version of the newsvendor
+	problem with normal distribution, or (if ``base_stock_level`` is supplied)
+	calculate profit of given solution.
+
+	Parameters
+	----------
+	sales_revenue : float
+		Revenue per unit sold. [:math:`r`]
+	purchase_cost : float
+		Cost per unit purchased. [:math:`c`]
+	salvage_value : float
+		Revenue per unit unsold. [:math:`v`]
+	holding_cost : float
+		Holding cost per item per period, excluding costs and revenues from
+		buying, selling, or salvaging items. [:math:`h`]
+	stockout_cost : float
+		Stockout cost per item per period, excluding costs and revenues from
+		buying, selling, or salvaging items. [:math:`p`]
+	demand_mean : float
+		Mean demand per period. [:math:`\\mu`]
+	demand_sd : float
+		Standard deviation of demand per period. [:math:`\\sigma`]
+	lead_time : int, optional
+		Lead time. Default = 0. [:math:`L`]
+	base_stock_level : float, optional
+		Base-stock level for cost evaluation. If supplied, no
+		optimization will be performed. [:math:`S`]
+
+	Returns
+	-------
+	base_stock_level : float
+		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
+	profit : float
+		Profit per period attained by ``base_stock_level``. [:math:`\pi^*`]
+
+
+	**Equations Used**:
+
+	.. math::
+
+		S^* = \\mu + z_{\\alpha}\\sigma
+
+		g^* = (h+p)\phi(z_{\\alpha})\\sigma
+
+	where :math:`\\mu` and :math:`\\sigma` are the lead-time demand mean
+	and standard deviation, and :math:`\\alpha = p/(h+p)`.
+
+	**Example** (Example 4.3):
+
+	.. testsetup:: *
+
+		from pyinv.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_normal(0.18, 0.70, 50, 8)
+		(56.60395592743389, 1.9976051931766445)
+
+	"""
+
+	# Check that parameters are positive.
+	assert holding_cost > 0, "holding_cost must be positive."
+	assert stockout_cost > 0, "stockout_cost must be positive."
+	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_sd > 0, "demand_sd must be positive."
+
+	# Calculate lead-time demand parameters.
+	ltd_mean = demand_mean * (lead_time + 1)
+	ltd_sd = demand_sd * np.sqrt(lead_time + 1)
+
+	# Is S provided?
+	if base_stock_level is None:
+		# Calculate alpha.
+		alpha = stockout_cost / (stockout_cost + holding_cost)
+
+		# Calculate optimal order quantity and cost.
+		base_stock_level = stats.norm.ppf(alpha, ltd_mean, ltd_sd)
+		cost = (holding_cost + stockout_cost) * stats.norm.pdf(stats.norm.ppf(alpha, 0, 1)) * ltd_sd
+	else:
+		# Calculate loss functions.
+		n, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
+
+		# Calculate cost.
+		cost = holding_cost * n_bar + stockout_cost * n
+
+	return base_stock_level, cost
+
 

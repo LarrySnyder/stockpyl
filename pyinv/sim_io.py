@@ -44,6 +44,8 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 
 	"""
 
+	# TODO: sort nodes in order of index before printing
+
 	# Build list of results strings
 	results = []
 

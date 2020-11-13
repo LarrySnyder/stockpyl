@@ -490,3 +490,73 @@ def get_named_instance(instance_name):
 			downstream_0=True
 		)
 		return kangye_4_stage
+	elif instance_name == "kangye_3_stage_serial":
+		kangye_3_stage_serial = serial_system(
+			num_nodes=3,
+			local_holding_cost=[1, 5, 10],
+			stockout_cost=[0, 0, 100],
+			demand_type=DemandType.NORMAL,
+			demand_mean=5,
+			demand_standard_deviation=np.sqrt(5),
+			shipment_lead_time=[1, 1, 1],
+			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+			local_base_stock_levels=[7, 7, 7],
+			initial_IL=[7, 7, 7],
+			downstream_0=False
+		)
+		for i in range(2):
+			kangye_3_stage_serial.get_node_from_index(i).in_transit_holding_cost = 0
+		kangye_3_stage_serial.get_node_from_index(2).demand_source.round_to_int = True
+		return kangye_3_stage_serial
+	elif instance_name == "michelle_sean_3_stage":
+		michelle_sean_3_stage = mwor_system(
+			num_warehouses=2,
+			demand_type=DemandType.NORMAL,
+			demand_mean=50,
+			demand_standard_deviation=10,
+			local_holding_cost=[10, 10, 10],
+			stockout_cost=[10, 10, 10],
+			shipment_lead_time=[1, 1, 1],
+			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
+			local_base_stock_levels=[60, 50, 60],
+			downstream_0=True,
+			initial_IL=[60, 50, 60]
+		)
+		return michelle_sean_3_stage
+	elif instance_name == "rong_atan_snyder_figure_1a":
+		# Uses normal demand instead of Poisson.
+		# TODO: add costs and lead times
+		rong_atan_snyder_figure_1a = network_from_edges(
+			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (2, 6)],
+			demand_type={0: DemandType.NONE, 1: DemandType.NONE, 2: DemandType.NONE, 3: DemandType.NORMAL, 4: DemandType.NORMAL, 5: DemandType.NORMAL, 6: DemandType.NORMAL},
+			demand_mean=8,
+			demand_standard_deviation=np.sqrt(8),
+			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
+			local_base_stock_levels={i: 0 for i in range(0, 7)}
+		)
+		return rong_atan_snyder_figure_1a
+	elif instance_name == "rong_atan_snyder_figure_1b":
+		# Uses normal demand instead of Poisson.
+		# TODO: add costs and lead times
+		demand_type = {i: DemandType.NORMAL if i >= 3 else DemandType.NONE for i in range(11)}
+		rong_atan_snyder_figure_1b = network_from_edges(
+			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, 8), (2, 9), (2, 10)],
+			demand_type=demand_type,
+			demand_mean=8,
+			demand_standard_deviation=np.sqrt(8),
+			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
+			local_base_stock_levels={i: 0 for i in range(0, 11)}
+		)
+		return rong_atan_snyder_figure_1b
+	elif instance_name == "rong_atan_snyder_figure_1c":
+		# Uses normal demand instead of Poisson.
+		# TODO: add costs and lead times
+		rong_atan_snyder_figure_1c = network_from_edges(
+			edges=[(0, 1), (0, 2), (2, 3), (2, 4), (2, 5)],
+			demand_type={0: DemandType.NONE, 1: DemandType.NORMAL, 2: DemandType.NONE, 3: DemandType.NORMAL, 4: DemandType.NORMAL, 5: DemandType.NORMAL},
+			demand_mean=8,
+			demand_standard_deviation=np.sqrt(8),
+			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
+			local_base_stock_levels={i: 0 for i in range(0, 6)}
+		)
+		return rong_atan_snyder_figure_1c
