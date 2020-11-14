@@ -121,7 +121,7 @@ def truncate_and_discretize(node_indices, values=None, truncation_lo=None,
 			else:
 				step = DEFAULT_STEP
 
-			truncated_discretized_values[n_ind] = np.arange(lo, hi+step, step).tolist()
+			truncated_discretized_values[n_ind] = np.arange(lo, hi+1, step).tolist()
 
 	return truncated_discretized_values
 
@@ -536,25 +536,25 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 # # T = 1000
 # # total_cost = simulation(network, T)
 # # print(total_cost / T)
-#
+# #
 # network = get_named_instance("rong_atan_snyder_figure_1a")
 #
 #
-# best_S, best_cost = meio_by_enumeration(network, #groups=[{0}, {1, 2}, {3, 4}, {5, 6}],
-# 										truncation_lo={0: 24, 1: 12, 2: 12, 3: 6, 4: 6, 5: 6, 6: 6},
-# 										truncation_hi={0: 40, 1: 20, 2: 20, 3: 10, 4: 10, 5: 10, 6: 10},
-# 										discretization_step=1,
+# best_S, best_cost = meio_by_enumeration(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
+# 										truncation_lo={0: 35, 1: 22, 3: 10},
+# 										truncation_hi={0: 50, 1: 31, 3: 14},
+# 										discretization_step={0: 5, 1: 3, 3: 1},
 # 										sim_num_trials=5, sim_num_periods=100, sim_rand_seed=762,
 # 										progress_bar=False,
 # 										print_solutions=True)
-
-
-# network = get_named_instance("example_4_1_network")
 #
-# best_S, best_cost = meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
-# 											 sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762,
-# 											 progress_bar=False,
-# 											 print_solutions=True)
-
-
+#
+# # network = get_named_instance("example_4_1_network")
+# #
+# # best_S, best_cost = meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
+# # 											 sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762,
+# # 											 progress_bar=False,
+# # 											 print_solutions=True)
+#
+#
 # print("best_S = {}, best_cost = {}".format(best_S, best_cost))
