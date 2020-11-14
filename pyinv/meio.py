@@ -27,7 +27,7 @@ from pyinv import optimization
 
 # HELPER FUNCTIONS
 
-def truncate_and_discretize(network, values=None, truncation_lo=None,
+def truncate_and_discretize(node_indices, values=None, truncation_lo=None,
 						truncation_hi=None, discretization_step=None,
 						discretization_num=None):
 	"""Determine truncated and discretized set of values for each node in network.
@@ -49,7 +49,8 @@ def truncate_and_discretize(network, values=None, truncation_lo=None,
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	node_indices : list
+		List of indices of all nodes in the network.
 	values : dict, optional
 		Dictionary in which keys are node indices and values are lists of
 		truncated, discretized values; if provided, it is returned without modification.
@@ -84,37 +85,90 @@ def truncate_and_discretize(network, values=None, truncation_lo=None,
 	DEFAULT_STEP = 1
 
 	# Were values already provided?
-	if values is not None:
+	if values is None:
+		values_provided = False
+	else:
+		values_provided = False
+		for v in values.values():
+			if v is not None:
+				values_provided = True
+
+	if values_provided:
 		truncated_discretized_values = values
 	else:
 		# Determine lo, hi, step, and num.
-		lo_dict = ensure_dict_for_nodes(truncation_lo, network.node_indices)
-		hi_dict = ensure_dict_for_nodes(truncation_hi, network.node_indices)
-		step_dict = ensure_dict_for_nodes(discretization_step, network.node_indices)
-		num_dict = ensure_dict_for_nodes(discretization_num, network.node_indices)
+		lo_dict = ensure_dict_for_nodes(truncation_lo, node_indices)
+		hi_dict = ensure_dict_for_nodes(truncation_hi, node_indices)
+		step_dict = ensure_dict_for_nodes(discretization_step, node_indices)
+		num_dict = ensure_dict_for_nodes(discretization_num, node_indices)
 
 		# Initialize output dict.
 		truncated_discretized_values = {}
 
 		# Loop through nodes.
-		for n in network.nodes:
+		for n_ind in node_indices:
 
 			# Determine lo, hi, step/num for each node. If not provided,
 			# use default settings.
 			# TODO: what if lead_time_demand_distribution is not provided by demand_source object?
-			lo = lo_dict[n.index] or DEFAULT_LO
-			hi = hi_dict[n.index] or DEFAULT_HI
-			if step_dict[n.index] is not None:
-				step = step_dict[n.index]
-			elif num_dict[n.index] is not None:
-				num = num_dict[n.index]
+			lo = lo_dict[n_ind] or DEFAULT_LO
+			hi = hi_dict[n_ind] or DEFAULT_HI
+			if step_dict[n_ind] is not None:
+				step = step_dict[n_ind]
+			elif num_dict[n_ind] is not None:
+				num = num_dict[n_ind]
 				step = (hi - lo) / (num - 1)
 			else:
 				step = DEFAULT_STEP
 
-			truncated_discretized_values[n.index] = np.arange(lo, hi+step, step).tolist()
+			truncated_discretized_values[n_ind] = np.arange(lo, hi+step, step).tolist()
 
 	return truncated_discretized_values
+
+
+def base_stock_group_assignments(node_indices, groups=None):
+	"""Build dict indicating, for each node index, the group that the node is
+	assigned to for the purposes of base-stock-level optimization.
+
+	Grouping nodes that should have the same base-stock level speeds the optimization
+	since the base-stock levels for the nodes in a given group do not have to be
+	optimized individually.
+
+	Group indices will not be consecutive; some group indices will have no members.
+
+	Parameters
+	----------
+	node_indices : list
+		List of indices of all nodes in the network.
+	groups : list of sets, optional
+		A list of sets, each of which contains indices of nodes that should have the
+		same base-stock level. Any nodes not contained in any set in the list are
+		optimized individually. If omitted, all nodes are optimized individually.
+
+	Returns
+	-------
+	optimization_group : dict
+		A dict in which each key is the index of a node in ``network`` and each
+		value is the index of the optimization group the node is assigned to.
+
+	"""
+
+	# Initialize dict.
+	opt_group = {}
+
+	# For each node, look for it in a group.
+	for n_ind in node_indices:
+		if groups is not None:
+			for node_set in groups:
+				if n_ind in node_set:
+					opt_group[n_ind] = min(node_set)
+
+		# Check whether we already assigned node; if not, assign it to its own
+		# group.
+		if n_ind not in opt_group:
+			opt_group[n_ind] = n_ind
+
+	return opt_group
 
 
 # -------------------
@@ -123,7 +177,7 @@ def truncate_and_discretize(network, values=None, truncation_lo=None,
 
 def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 						truncation_hi=None, discretization_step=None,
-						discretization_num=None, objective_function=None,
+						discretization_num=None, groups=None, objective_function=None,
 						sim_num_trials=10, sim_num_periods=1000, sim_rand_seed=None,
 						progress_bar=True, print_solutions=False):
 	"""Optimize the MEIO instance by enumerating the combinations of values of the
@@ -156,6 +210,12 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 		for discretization of the values to test for that node. If int,
 		the same value is used for every node. If omitted, it is set automatically.
 		Ignored if ``discretization_step`` is provided.
+	groups : list of sets, optional
+		A list of sets, each of which contains indices of nodes that should have the
+		same base-stock level. This speeds the optimization since the base-stock
+		levels for the nodes in a given group do not have to be optimized individually.
+		Any nodes not contained in any set in the list are optimized individually.
+		If omitted, all nodes are optimized individually.
 	objective_function : function, optional
 		The function to use to evaluate a given solution. The function must take
 		a single argument, the dictionary of base-stock levels, and return a
@@ -183,11 +243,33 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 
 	"""
 
+	# Build dictionary indicating which optimization group each node is assigned to.
+	# (Group indices will not be consecutive; some will be empty.)
+	# Note that every set contains a node with the same index as the set.
+	opt_group = base_stock_group_assignments(network.node_indices, groups=groups)
+
+	# Determine list of nodes to optimize, based on groups. Nodes that are not
+	# in the list will have their base-stock level set to the level from their group.
+	nodes_to_optimize = {opt_group[n_ind] for n_ind in network.node_indices}
+
+	# Build lists needed for truncation and discretization, based on nodes_to_optimize.
+	# TODO: wrap this in a separate function
+	dict_base_stock_levels = ensure_dict_for_nodes(base_stock_levels, network.node_indices)
+	dict_truncation_lo = ensure_dict_for_nodes(truncation_lo, network.node_indices)
+	dict_truncation_hi = ensure_dict_for_nodes(truncation_hi, network.node_indices)
+	dict_discretization_step = ensure_dict_for_nodes(discretization_step, network.node_indices)
+	dict_discretization_num = ensure_dict_for_nodes(discretization_num, network.node_indices)
+	nto_base_stock_levels = {n_ind: dict_base_stock_levels[n_ind] for n_ind in nodes_to_optimize}
+	nto_truncation_lo = {n_ind: dict_truncation_lo[n_ind] for n_ind in nodes_to_optimize}
+	nto_truncation_hi = {n_ind: dict_truncation_hi[n_ind] for n_ind in nodes_to_optimize}
+	nto_discretization_step = {n_ind: dict_discretization_step[n_ind] for n_ind in nodes_to_optimize}
+	nto_discretization_num = {n_ind: dict_discretization_num[n_ind] for n_ind in nodes_to_optimize}
+
 	# Determine base-stock levels to test by truncating and discretizing
 	# according to preferences specified.
 	# (If base_stock_levels is not None, these will simply be returned.)
-	S_dict = truncate_and_discretize(network, base_stock_levels, truncation_lo,
-								truncation_hi, discretization_step, discretization_num)
+	S_dict = truncate_and_discretize(nodes_to_optimize, nto_base_stock_levels, nto_truncation_lo,
+								nto_truncation_hi, nto_discretization_step, nto_discretization_num)
 
 	# Get Cartesian product of all base-stock levels. The line below creates a
 	# list of dicts, each of which is one of the enumerated solutions and gives
@@ -204,19 +286,30 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 	# Initialize best-solution tracker.
 	best_cost = np.inf
 
-	# Loop through enumerated solutions.
+	# Loop through enumerated solutions. (Each one only contains nodes in nodes_to_optimize.)
 	for S in enumerated_solutions:
 
 		# Update progress bar.
 		pbar.update()
 
+		# Determine complete dict of base-stock levels (not just for nodes_to_optimize).
+		S_complete = {n_ind: S[opt_group[n_ind]] for n_ind in network.node_indices}
+		# for n_ind in network.node_indices:
+		# 	if n_ind in nodes_to_optimize:
+		# 		S_complete[n_ind] = S[n_ind]
+		# 	else:
+		# 		S_complete[n_ind] = S[opt_group[n_ind]]
+
 		# Was an objective function provided?
 		if objective_function is not None:
-			mean_cost = objective_function(S)
+			mean_cost = objective_function(S_complete)
 		else:
 			# Set base-stock levels for all nodes.
 			for n in network.nodes:
-				n.inventory_policy.base_stock_level = S[n.index]
+				if n.inventory_policy.policy_type == InventoryPolicyType.BASE_STOCK:
+					n.inventory_policy.base_stock_level = S_complete[n.index]
+				else:
+					n.inventory_policy.local_base_stock_level = S_complete[n.index]
 			# Run multiple trials of simulation to evaluate solution.
 			mean_cost, _ = run_multiple_trials(network, sim_num_trials, sim_num_periods,
 											   sim_rand_seed, progress_bar=False)
@@ -225,11 +318,11 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 		# TODO: do something with sem?
 		if mean_cost < best_cost:
 			best_cost = mean_cost
-			best_S = S
+			best_S = S_complete
 
 		# Print solution, if requested.
 		if print_solutions:
-			print_str = "S = {} cost = {}".format(S, mean_cost)
+			print_str = "S = {} cost = {}".format(S_complete, mean_cost)
 			if mean_cost < best_cost:
 				print_str += ' *'
 			print(print_str)
@@ -367,7 +460,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 		if lo[n.index] is None:
 			lo[n.index] = 0
 		if hi[n.index] is None:
-			hi[n.index] = 3 * np.sum([s.demand_source.mean for s in network.sink_nodes])
+			hi[n.index] = 3 * n.lead_time * np.sum([s.demand_source.mean for s in network.sink_nodes])
 
 	# Shortcut to objective function.
 	def obj_fcn(S):
@@ -376,7 +469,10 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 		else:
 			# Set base-stock levels for all nodes.
 			for n in network.nodes:
-				n.inventory_policy.base_stock_level = S[n.index]
+				if n.inventory_policy.policy_type == InventoryPolicyType.BASE_STOCK:
+					n.inventory_policy.base_stock_level = S[n.index]
+				else:
+					n.inventory_policy.local_base_stock_level = S[n.index]
 			# Run multiple trials of simulation to evaluate solution.
 			cost, _ = run_multiple_trials(network, sim_num_trials, sim_num_periods, sim_rand_seed,
 												  progress_bar=False)
@@ -441,18 +537,24 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 # # total_cost = simulation(network, T)
 # # print(total_cost / T)
 #
-# best_S, best_cost = meio_by_enumeration(network,
-# 										truncation_lo={0: 5, 1: 4, 2: 10},
-# 										truncation_hi={0: 7, 1: 7, 2: 12},
-# 										sim_num_trials=5, sim_num_periods=500,
-# 										sim_rand_seed=762,
-# 										print_solutions=True)
-# best_S, best_cost = meio_by_enumeration(network,
-# 										truncation_lo=55,
-# 										truncation_hi=58,
-# 										discretization_step=0.1,
-# 										sim_num_trials=5, sim_num_periods=500,
-# 										sim_rand_seed=762,
-# 										print_solutions=True)
+# network = get_named_instance("rong_atan_snyder_figure_1a")
 #
-#print("best_S = {}, best_cost = {}".format(best_S, best_cost))
+#
+# best_S, best_cost = meio_by_enumeration(network, #groups=[{0}, {1, 2}, {3, 4}, {5, 6}],
+# 										truncation_lo={0: 24, 1: 12, 2: 12, 3: 6, 4: 6, 5: 6, 6: 6},
+# 										truncation_hi={0: 40, 1: 20, 2: 20, 3: 10, 4: 10, 5: 10, 6: 10},
+# 										discretization_step=1,
+# 										sim_num_trials=5, sim_num_periods=100, sim_rand_seed=762,
+# 										progress_bar=False,
+# 										print_solutions=True)
+
+
+# network = get_named_instance("example_4_1_network")
+#
+# best_S, best_cost = meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
+# 											 sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762,
+# 											 progress_bar=False,
+# 											 print_solutions=True)
+
+
+# print("best_S = {}, best_cost = {}".format(best_S, best_cost))

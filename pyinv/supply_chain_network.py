@@ -671,69 +671,73 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	# Build list of node indices.
 	if node_indices is not None:
 		indices = node_indices
+		downstream_node = node_indices[0]
 	elif downstream_0:
 		indices = list(range(num_nodes))
+		downstream_node = 0
 	else:
 		indices = list(range(num_nodes-1, -1, -1))
+		downstream_node = num_nodes-1
 
-	# Build vectors of attributes.
-	local_holding_cost_list = ensure_list_for_nodes(local_holding_cost, num_nodes, 0.0)
-	echelon_holding_cost_list = ensure_list_for_nodes(echelon_holding_cost, num_nodes, 0.0)
-	stockout_cost_list = ensure_list_for_nodes(stockout_cost, num_nodes, 0.0)
-	order_lead_time_list = ensure_list_for_nodes(order_lead_time, num_nodes, 0)
-	shipment_lead_time_list = ensure_list_for_nodes(shipment_lead_time, num_nodes, 0)
-	demand_type_list = ensure_list_for_nodes(demand_type, num_nodes, None)
-	demand_mean_list = ensure_list_for_nodes(demand_mean, num_nodes, None)
-	demand_standard_deviation_list = ensure_list_for_nodes(demand_standard_deviation, num_nodes, None)
-	demand_lo_list = ensure_list_for_nodes(demand_lo, num_nodes, None)
-	demand_hi_list = ensure_list_for_nodes(demand_hi, num_nodes, None)
-#	demands_list = ensure_list_for_time_periods(demands, num_nodes, None)
-	demand_probabilities_list = ensure_list_for_nodes(demand_probabilities, num_nodes, None)
-	initial_IL_list = ensure_list_for_nodes(initial_IL, num_nodes, None)
-	initial_orders_list = ensure_list_for_nodes(initial_orders, num_nodes, None)
-	initial_shipments_list = ensure_list_for_nodes(initial_shipments, num_nodes, None)
-	supply_type_list = ensure_list_for_nodes(supply_type, num_nodes, None)
-	inventory_policy_type_list = ensure_list_for_nodes(inventory_policy_type, num_nodes, None)
-	local_base_stock_levels_list = ensure_list_for_nodes(local_base_stock_levels, num_nodes, None)
-	echelon_base_stock_levels_list = ensure_list_for_nodes(echelon_base_stock_levels, num_nodes, None)
-	reorder_points_list = ensure_list_for_nodes(reorder_points, num_nodes, None)
-	order_quantities_list = ensure_list_for_nodes(order_quantities, num_nodes, None)
-	order_up_to_levels_list = ensure_list_for_nodes(order_up_to_levels, num_nodes, None)
+
+	# Build dicts of attributes.
+	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, indices, 0.0)
+	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices, 0.0)
+	stockout_cost_dict = ensure_dict_for_nodes(stockout_cost, indices, 0.0)
+	order_lead_time_dict = ensure_dict_for_nodes(order_lead_time, indices, 0)
+	shipment_lead_time_dict = ensure_dict_for_nodes(shipment_lead_time, indices, 0)
+	demand_type_dict = ensure_dict_for_nodes(demand_type, indices, None)
+	demand_mean_dict = ensure_dict_for_nodes(demand_mean, indices, None)
+	demand_standard_deviation_dict = ensure_dict_for_nodes(demand_standard_deviation, indices, None)
+	demand_lo_dict = ensure_dict_for_nodes(demand_lo, indices, None)
+	demand_hi_dict = ensure_dict_for_nodes(demand_hi, indices, None)
+#	demands_dict = ensure_dict_for_time_periods(demands, indices, None)
+	demand_probabilities_dict = ensure_dict_for_nodes(demand_probabilities, indices, None)
+	initial_IL_dict = ensure_dict_for_nodes(initial_IL, indices, None)
+	initial_orders_dict = ensure_dict_for_nodes(initial_orders, indices, None)
+	initial_shipments_dict = ensure_dict_for_nodes(initial_shipments, indices, None)
+	supply_type_dict = ensure_dict_for_nodes(supply_type, indices, None)
+	inventory_policy_type_dict = ensure_dict_for_nodes(inventory_policy_type, indices, None)
+	local_base_stock_levels_dict = ensure_dict_for_nodes(local_base_stock_levels, indices, None)
+	echelon_base_stock_levels_dict = ensure_dict_for_nodes(echelon_base_stock_levels, indices, None)
+	reorder_points_dict = ensure_dict_for_nodes(reorder_points, indices, None)
+	order_quantities_dict = ensure_dict_for_nodes(order_quantities, indices, None)
+	order_up_to_levels_dict = ensure_dict_for_nodes(order_up_to_levels, indices, None)
 
 	# Check that valid demand info has been provided.
-	if demand_type_list[0] is None or demand_type_list[0] == DemandType.NONE:
+	if demand_type_dict[downstream_node] is None or demand_type_dict[downstream_node] == DemandType.NONE:
 		raise ValueError("Valid demand_type has not been provided")
-	elif demand_type_list[0] == DemandType.NORMAL and (demand_mean_list[0] is None or demand_standard_deviation_list[0] is None):
+	elif demand_type_dict[downstream_node] == DemandType.NORMAL and (demand_mean_dict[downstream_node] is None or demand_standard_deviation_dict[downstream_node] is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type_list[0] == DemandType.UNIFORM_DISCRETE or
-		  demand_type_list[0] == DemandType.UNIFORM_CONTINUOUS) and \
-		(demand_lo_list[0] is None or demand_hi_list[0] is None):
+	elif (demand_type_dict[downstream_node] == DemandType.UNIFORM_DISCRETE or
+		  demand_type_dict[downstream_node] == DemandType.UNIFORM_CONTINUOUS) and \
+		(demand_lo_dict[downstream_node] is None or demand_hi_dict[downstream_node] is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type_list[0] == DemandType.DETERMINISTIC and demands is None:
+	elif demand_type_dict[downstream_node] == DemandType.DETERMINISTIC and demands is None:
 		raise ValueError("Demand type was specified as deterministic but demands were not provided")
-	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
+	elif demand_type_dict[downstream_node] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_dict is None):
 		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
-	for n_index in range(num_nodes):
+	for n_index in indices:
 		# Check parameters for inventory policy type.
-		if inventory_policy_type_list[n_index] is None:
+		if inventory_policy_type_dict[n_index] is None:
 			raise ValueError("Valid inventory_policy_type has not been provided")
-		elif inventory_policy_type_list[n_index] in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
-			and local_base_stock_levels_list[n_index] is None:
+		elif inventory_policy_type_dict[n_index] in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
+			and local_base_stock_levels_dict[n_index] is None:
 			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.r_Q \
-			and (reorder_points_list[n_index] is None or order_quantities_list[n_index] is None):
+		elif inventory_policy_type_dict[n_index] == InventoryPolicyType.r_Q \
+			and (reorder_points_dict[n_index] is None or order_quantities_dict[n_index] is None):
 			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
 							 "provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.s_S \
-			and (reorder_points_list[n_index] is None or order_up_to_levels_list[n_index] is None):
+		elif inventory_policy_type_dict[n_index] == InventoryPolicyType.s_S \
+			and (reorder_points_dict[n_index] is None or order_up_to_levels_dict[n_index] is None):
 			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
 							 "provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.FIXED_QUANTITY \
-			and order_quantities_list[n_index] is None:
+		elif inventory_policy_type_dict[n_index] == InventoryPolicyType.FIXED_QUANTITY \
+			and order_quantities_dict[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-		elif inventory_policy_type_list[n_index] in (InventoryPolicyType.ECHELON_BASE_STOCK,
+		elif inventory_policy_type_dict[n_index] in (InventoryPolicyType.ECHELON_BASE_STOCK,
 			InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK) \
 			and echelon_base_stock_levels[n_index] is None:
 			raise ValueError("Policy type was specified as echelon base-stock but echelon base-stock level was not "
@@ -752,63 +756,63 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Set parameters.
 
 		# Set costs and lead times.
-		node.local_holding_cost = local_holding_cost_list[n_ind]
-		node.echelon_holding_cost = echelon_holding_cost_list[n_ind]
-		node.stockout_cost = stockout_cost_list[n_ind]
-#		node.lead_time = shipment_lead_time_list[n_ind]
-		node.shipment_lead_time = shipment_lead_time_list[n_ind]
-		node.order_lead_time = order_lead_time_list[n_ind]
+		node.local_holding_cost = local_holding_cost_dict[n_ind]
+		node.echelon_holding_cost = echelon_holding_cost_dict[n_ind]
+		node.stockout_cost = stockout_cost_dict[n_ind]
+#		node.lead_time = shipment_lead_time_dict[n_ind]
+		node.shipment_lead_time = shipment_lead_time_dict[n_ind]
+		node.order_lead_time = order_lead_time_dict[n_ind]
 
 		# Build and set demand source.
 		demand_source_factory = DemandSourceFactory()
-		demand_type = demand_type_list[n_ind]
+		demand_type = demand_type_dict[n_ind]
 		if n == 0:
 			demand_source = demand_source_factory.build_demand_source(demand_type)
 			if demand_type == DemandType.NORMAL:
-				demand_source.mean = demand_mean_list[n_ind]
-				demand_source.standard_deviation = demand_standard_deviation_list[n_ind]
+				demand_source.mean = demand_mean_dict[n_ind]
+				demand_source.standard_deviation = demand_standard_deviation_dict[n_ind]
 			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
-				demand_source.lo = demand_lo_list[n_ind]
-				demand_source.hi = demand_hi_list[n_ind]
+				demand_source.lo = demand_lo_dict[n_ind]
+				demand_source.hi = demand_hi_dict[n_ind]
 			elif demand_type == DemandType.DETERMINISTIC:
 				demand_source.demands = demands[n_ind]
 			elif demand_type == DemandType.DISCRETE_EXPLICIT:
 				demand_source.demands = demands[n_ind]
-				demand_source.probabilities = demand_probabilities_list[n_ind]
+				demand_source.probabilities = demand_probabilities_dict[n_ind]
 		else:
 			demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
 		node.demand_source = demand_source
 
 		# Set initial quantities.
-		node.initial_inventory_level = initial_IL_list[n_ind]
-		node.initial_orders = initial_orders_list[n_ind]
-		node.initial_shipments = initial_shipments_list[n_ind]
+		node.initial_inventory_level = initial_IL_dict[n_ind]
+		node.initial_orders = initial_orders_dict[n_ind]
+		node.initial_shipments = initial_shipments_dict[n_ind]
 
 		# Set inventory policy.
 		policy_factory = PolicyFactory()
-		if inventory_policy_type_list[n_ind] == InventoryPolicyType.BASE_STOCK:
+		if inventory_policy_type_dict[n_ind] == InventoryPolicyType.BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n_ind])
-		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.r_Q:
+												 base_stock_level=local_base_stock_levels_dict[n_ind])
+		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.r_Q:
 			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-												 reorder_point=reorder_points_list[n_ind],
-												 order_quantity=order_quantities_list[n_ind])
-		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.s_S:
+												 reorder_point=reorder_points_dict[n_ind],
+												 order_quantity=order_quantities_dict[n_ind])
+		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.s_S:
 			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-												 reorder_point=reorder_points_list[n_ind],
-												 order_up_to_level=order_up_to_levels_list[n_ind])
-		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.FIXED_QUANTITY:
+												 reorder_point=reorder_points_dict[n_ind],
+												 order_up_to_level=order_up_to_levels_dict[n_ind])
+		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.FIXED_QUANTITY:
 			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-												 order_quantity=order_quantities_list[n_ind])
-		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.ECHELON_BASE_STOCK:
+												 order_quantity=order_quantities_dict[n_ind])
+		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.ECHELON_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n_ind])
-		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
+												 echelon_base_stock_level=echelon_base_stock_levels_dict[n_ind])
+		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n_ind])
-		elif inventory_policy_type_list[n_ind] == InventoryPolicyType.LOCAL_BASE_STOCK:
+												 echelon_base_stock_level=echelon_base_stock_levels_dict[n_ind])
+		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.LOCAL_BASE_STOCK:
 			policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n_ind])
+												 base_stock_level=local_base_stock_levels_dict[n_ind])
 		else:
 			policy = None
 		node.inventory_policy = policy

@@ -531,6 +531,9 @@ def get_named_instance(instance_name):
 			demand_type={0: DemandType.NONE, 1: DemandType.NONE, 2: DemandType.NONE, 3: DemandType.NORMAL, 4: DemandType.NORMAL, 5: DemandType.NORMAL, 6: DemandType.NORMAL},
 			demand_mean=8,
 			demand_standard_deviation=np.sqrt(8),
+			local_holding_cost={0: 1/3, 1: 2/3, 2: 2/3, 3: 1, 4: 1, 5: 1, 6: 1},
+			stockout_cost=20,
+			shipment_lead_time=1,
 			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
 			local_base_stock_levels={i: 0 for i in range(0, 7)}
 		)

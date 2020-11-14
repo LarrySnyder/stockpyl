@@ -328,11 +328,11 @@ class TestSerialSystem(unittest.TestCase):
 		print_status('TestSerialSystem', 'test_3_node_serial_index_list()')
 
 		network = serial_system(3, node_indices=[17, 14, 12],
-								local_holding_cost=[7, 4, 2],
+								local_holding_cost={17: 7, 14: 4, 12: 2},
 								demand_type=DemandType.NORMAL,
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[5, 5, 5])
+								local_base_stock_levels=5)
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]

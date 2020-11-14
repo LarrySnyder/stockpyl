@@ -45,7 +45,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = get_named_instance("example_6_1")
 		values = {0: [0, 5, 10], 1: list(range(10)), 2: list(range(0, 30, 5))}
 
-		td_dict = meio.truncate_and_discretize(network, values)
+		td_dict = meio.truncate_and_discretize(network.node_indices, values)
 
 		self.assertDictEqual(td_dict, {0: [0, 5, 10], 1: list(range(10)), 2: list(range(0, 30, 5))})
 
@@ -59,7 +59,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		lo = {0: 0, 1: 10, 2: 100}
 		hi = {0: 10, 1: 12, 2: 200}
 
-		td_dict = meio.truncate_and_discretize(network, truncation_lo=lo, truncation_hi=hi)
+		td_dict = meio.truncate_and_discretize(network.node_indices, truncation_lo=lo, truncation_hi=hi)
 
 		self.assertDictEqual(td_dict, {0: list(range(0, 11)), 1: list(range(10, 13)), 2: list(range(100, 201))})
 
@@ -73,7 +73,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		lo = 0
 		hi = 10
 
-		td_dict = meio.truncate_and_discretize(network, truncation_lo=lo, truncation_hi=hi)
+		td_dict = meio.truncate_and_discretize(network.node_indices, truncation_lo=lo, truncation_hi=hi)
 
 		self.assertDictEqual(td_dict, {0: list(range(0, 11)), 1: list(range(0, 11)), 2: list(range(0, 11))})
 
@@ -86,7 +86,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = get_named_instance("example_6_1")
 		step = {0: 1, 1: 5, 2: 10}
 
-		td_dict = meio.truncate_and_discretize(network, discretization_step=step)
+		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_step=step)
 
 		self.assertDictEqual(td_dict, {0: list(range(0, 101)), 1: list(range(0, 101, 5)), 2: list(range(0, 101, 10))})
 
@@ -99,7 +99,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = get_named_instance("example_6_1")
 		num = {0: 11, 1: 51, 2: 101}
 
-		td_dict = meio.truncate_and_discretize(network, discretization_num=num)
+		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_num=num)
 
 		self.assertDictEqual(td_dict, {0: list(range(0, 101, 10)), 1: list(range(0, 101, 2)), 2: list(range(0, 101))})
 
@@ -112,9 +112,54 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = get_named_instance("example_6_1")
 		num = 26
 
-		td_dict = meio.truncate_and_discretize(network, discretization_num=num)
+		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_num=num)
 
 		self.assertDictEqual(td_dict, {0: list(range(0, 101, 4)), 1: list(range(0, 101, 4)), 2: list(range(0, 101, 4))})
+
+	def test_dict_of_nones(self):
+		"""Test that ensure_dict_for_nodes() returns correct result if
+		values is provided as a dict in which every value is None. (ensure_dict_for_nodes()
+		should treat this the same as if no value was passed for values.)
+		"""
+		print_status('TestTruncateAndDiscretize', 'test_dict_of_nones()')
+
+		network = get_named_instance("example_6_1")
+		num = 26
+		values = {i: None for i in network.node_indices}
+
+		td_dict = meio.truncate_and_discretize(network.node_indices, values=values, discretization_num=num)
+
+		self.assertDictEqual(td_dict, {0: list(range(0, 101, 4)), 1: list(range(0, 101, 4)), 2: list(range(0, 101, 4))})
+
+class TestBaseStockGroupAssignments(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestBaseStockGroupAssignments', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestBaseStockGroupAssignments', 'tear_down_class()')
+
+	def test_groups(self):
+		"""Test that base_stock_group_assignments() returns correct result for a few groupings.
+		"""
+		print_status('TestBaseStockGroupAssignments', 'test_groups()')
+
+		node_indices = list(range(9))
+
+		optimization_group = meio.base_stock_group_assignments(node_indices, [{0, 2, 3}, {1, 4, 5}, {6, 7}, {8}])
+		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 0, 3: 0, 4: 1, 5: 1, 6: 6, 7: 6, 8: 8})
+
+		optimization_group = meio.base_stock_group_assignments(node_indices, [{0, 2, 3}])
+		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 0, 3: 0, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8})
+
+		optimization_group = meio.base_stock_group_assignments(node_indices, [{4, 6, 7}, {1, 2}, {0, 5}])
+		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 1, 3: 3, 4: 4, 5: 0, 6: 4, 7: 4, 8: 8})
+
+		optimization_group = meio.base_stock_group_assignments(node_indices)
+		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8})
 
 
 class TestMEIOByEnumeration(unittest.TestCase):

@@ -569,9 +569,10 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 	node.state_vars_current.demand_met_from_stock = 0.0
 	for s_index in node.successor_indices(include_external=True):
 		# Outbound shipment to s = min{OH, BO for s + new order from s}.
-		node.state_vars_current.outbound_shipment[s_index] = \
-			min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
+		OS = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
 				node.state_vars_current.inbound_order[s_index])
+		node.state_vars_current.outbound_shipment[s_index] = OS
+		current_on_hand -= OS
 
 		# How much of outbound shipment was used to clear backorders?
 		# (Assumes backorders are cleared before satisfying current period's
@@ -710,10 +711,10 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 
 
 def main():
-	T = 1000
+	T = 100
 
 	#
-	network = get_named_instance("kangye_3_stage_serial")
+#	network = get_named_instance("kangye_3_stage_serial")
 	#
 	# # additional handling for Kangye's instance
 	# for n in network.nodes:
@@ -770,9 +771,30 @@ def main():
 	# mean_cost, sem_cost = run_multiple_trials(network, num_trials=1000, num_periods=3)
 	# print("mean_cost = {}, sem_cost = {}".format(mean_cost, sem_cost))
 
-	total_cost = simulation(network, T, rand_seed=762)
-#	write_results(network, T, total_cost, write_csv=False)
-	write_results(network, T, total_cost, write_csv=True, csv_filename='kangye_3_stage_serial_762.csv')
+# 	network = get_named_instance("rong_atan_snyder_figure_1a")
+# 	network.get_node_from_index(0).inventory_policy.local_base_stock_level = 24
+# 	network.get_node_from_index(1).inventory_policy.local_base_stock_level = 12
+# 	network.get_node_from_index(2).inventory_policy.local_base_stock_level = 12
+# 	network.get_node_from_index(3).inventory_policy.local_base_stock_level = 6
+# 	network.get_node_from_index(4).inventory_policy.local_base_stock_level = 6
+# 	network.get_node_from_index(5).inventory_policy.local_base_stock_level = 6
+# 	network.get_node_from_index(6).inventory_policy.local_base_stock_level = 6
+# 	network.get_node_from_index(3).demand_source.round_to_int = True
+# 	network.get_node_from_index(4).demand_source.round_to_int = True
+# 	network.get_node_from_index(5).demand_source.round_to_int = True
+# 	network.get_node_from_index(6).demand_source.round_to_int = True
+# 	network.get_node_from_index(0).initial_inventory_level = 24
+# 	network.get_node_from_index(1).initial_inventory_level = 12
+# 	network.get_node_from_index(2).initial_inventory_level = 12
+# 	network.get_node_from_index(3).initial_inventory_level = 6
+# 	network.get_node_from_index(4).initial_inventory_level = 6
+# 	network.get_node_from_index(5).initial_inventory_level = 6
+# 	network.get_node_from_index(6).initial_inventory_level = 6
+#
+#
+# 	total_cost = simulation(network, T, rand_seed=762)
+# #	write_results(network, T, total_cost, write_csv=False)
+# 	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
 
 
 if __name__ == "__main__":
