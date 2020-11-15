@@ -149,17 +149,21 @@ class TestBaseStockGroupAssignments(unittest.TestCase):
 
 		node_indices = list(range(9))
 
-		optimization_group = meio.base_stock_group_assignments(node_indices, [{0, 2, 3}, {1, 4, 5}, {6, 7}, {8}])
+		optimization_group, group_list = meio.base_stock_group_assignments(node_indices, [{0, 2, 3}, {1, 4, 5}, {6, 7}, {8}])
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 0, 3: 0, 4: 1, 5: 1, 6: 6, 7: 6, 8: 8})
+		self.assertListEqual(group_list, [[0, 2, 3], [1, 4, 5], [6, 7], [8]])
 
-		optimization_group = meio.base_stock_group_assignments(node_indices, [{0, 2, 3}])
+		optimization_group, group_list = meio.base_stock_group_assignments(node_indices, [{0, 2, 3}])
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 0, 3: 0, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8})
+		self.assertListEqual(group_list, [[0, 2, 3], [1], [4], [5], [6], [7], [8]])
 
-		optimization_group = meio.base_stock_group_assignments(node_indices, [{4, 6, 7}, {1, 2}, {0, 5}])
+		optimization_group, group_list = meio.base_stock_group_assignments(node_indices, [{4, 6, 7}, {1, 2}, {0, 5}])
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 1, 3: 3, 4: 4, 5: 0, 6: 4, 7: 4, 8: 8})
+		self.assertListEqual(group_list, [[0, 5], [1, 2], [3], [4, 6, 7], [8]])
 
-		optimization_group = meio.base_stock_group_assignments(node_indices)
+		optimization_group, group_list = meio.base_stock_group_assignments(node_indices)
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8})
+		self.assertListEqual(group_list, [[0], [1], [2], [3], [4], [5], [6], [7], [8]])
 
 
 class TestMEIOByEnumeration(unittest.TestCase):
@@ -321,4 +325,24 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 
 		self.assertDictEqual(best_S, {1: 7, 2: 5, 3: 11})
 		self.assertAlmostEqual(best_cost, 48.214497895254894)
+
+	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
+	def test_rong_atan_snyder_figure_1a(self):
+		"""Test that meio_by_coordinate_descent() correctly solves distribution system in
+		Rong, Atan, and Snyder (2017), Figure 1(a). Uses grouping to avoid optimizing
+		base-stock levels of identical nodes independently.
+		"""
+		print_status('TestMEIOByCoordinateDescent', 'test_rong_atan_snyder_figure_1a()')
+
+		network = get_named_instance("rong_atan_snyder_figure_1a")
+
+		best_S, best_cost = meio.meio_by_coordinate_descent(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
+												search_lo={0: 35, 1: 22, 3: 10},
+												search_hi={0: 50, 1: 31, 3: 14},
+												sim_num_trials=1,
+												sim_num_periods=50, sim_rand_seed=762,
+												verbose=False)
+
+		self.assertDictEqual(best_S, {0: 46.137514205286905, 1: 22.8116265434347, 2: 22.8116265434347, 3: 11.599007310905623, 4: 11.599007310905623, 5: 11.599007310905623, 6: 11.599007310905623})
+		self.assertAlmostEqual(best_cost, 267.103456382861)
 

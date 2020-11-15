@@ -147,28 +147,42 @@ def base_stock_group_assignments(node_indices, groups=None):
 
 	Returns
 	-------
-	optimization_group : dict
+	opt_group : dict
 		A dict in which each key is the index of a node in ``network`` and each
 		value is the index of the optimization group the node is assigned to.
-
+	group_list : list
+		A list in which each item is a list of node indices corresponding to one
+		group. This is the same as the ``groups`` list provided, but with
+		singletons filled in.
 	"""
 
 	# Initialize dict.
 	opt_group = {}
 
-	# For each node, look for it in a group.
-	for n_ind in node_indices:
-		if groups is not None:
+	# Were any groups provided?
+	if groups is None:
+		opt_group = {n_ind: n_ind for n_ind in node_indices}
+	else:
+		# For each node, look for it in a group.
+		for n_ind in node_indices:
 			for node_set in groups:
 				if n_ind in node_set:
+					# Assign group in dict.
 					opt_group[n_ind] = min(node_set)
 
-		# Check whether we already assigned node; if not, assign it to its own
-		# group.
-		if n_ind not in opt_group:
-			opt_group[n_ind] = n_ind
+			# Check whether we already assigned node; if not, assign it to its own
+			# group.
+			if n_ind not in opt_group:
+				opt_group[n_ind] = n_ind
 
-	return opt_group
+	# Build group_list.
+	group_list = []
+	for i in node_indices:
+		g = [n_ind for n_ind in node_indices if opt_group[n_ind] == i]
+		if g:
+			group_list.append(g)
+
+	return opt_group, group_list
 
 
 # -------------------
@@ -246,7 +260,7 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 	# Build dictionary indicating which optimization group each node is assigned to.
 	# (Group indices will not be consecutive; some will be empty.)
 	# Note that every set contains a node with the same index as the set.
-	opt_group = base_stock_group_assignments(network.node_indices, groups=groups)
+	opt_group, _ = base_stock_group_assignments(network.node_indices, groups=groups)
 
 	# Determine list of nodes to optimize, based on groups. Nodes that are not
 	# in the list will have their base-stock level set to the level from their group.
@@ -394,7 +408,7 @@ def base_stock_level_bisection_search(network, node_to_optimize, lo=None, hi=Non
 
 def meio_by_coordinate_descent(network, initial_solution=None,
 							   search_lo=None, search_hi=None,
-							   objective_function=None,
+							   groups=None, objective_function=None,
 							   sim_num_trials=10, sim_num_periods=1000, sim_rand_seed=None,
 							   tol=1e-2, line_search_tol=1e-4, verbose=False):
 	"""Optimize the MEIO instance by coordinate descent on the
@@ -418,6 +432,12 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 		A dictionary indicating, for each node index, the high end of the
 		search range for that node. If float, the same value is used for every node.
 		If omitted, it is set automatically.
+	groups : list of sets, optional
+		A list of sets, each of which contains indices of nodes that should have the
+		same base-stock level. This speeds the optimization since the base-stock
+		levels for the nodes in a given group do not have to be optimized individually.
+		Any nodes not contained in any set in the list are optimized individually.
+		If omitted, all nodes are optimized individually.
 	objective_function : function, optional
 		The function to use to evaluate a given solution. If omitted, simulation
 		will be used.
@@ -445,22 +465,36 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 
 	"""
 
+	# Build dictionary indicating which optimization group each node is assigned to.
+	# (Group indices will not be consecutive; some will be empty.)
+	# Note that every set contains a node with the same index as the set.
+	opt_group, group_list = base_stock_group_assignments(network.node_indices, groups=groups)
+
+	# Determine list of nodes to optimize, based on groups. Nodes that are not
+	# in the list will have their base-stock level set to the level from their group.
+	nodes_to_optimize = {opt_group[n_ind] for n_ind in network.node_indices}
+
+	# Determine bounds for search, if not provided, based on nodes_to_optimize.
+	dict_lo = ensure_dict_for_nodes(search_lo, network.node_indices)
+	dict_hi = ensure_dict_for_nodes(search_hi, network.node_indices)
+	nto_lo = {n_ind: dict_lo[n_ind] for n_ind in nodes_to_optimize}
+	nto_hi = {n_ind: dict_hi[n_ind] for n_ind in nodes_to_optimize}
+	# TODO: do this better
+	for n_ind in nodes_to_optimize:
+		if nto_lo[n_ind] is None:
+			nto_lo[n_ind] = 0
+		if nto_hi[n_ind] is None:
+			n = network.get_node_from_index(n_ind)
+			nto_hi[n_ind] = 3 * n.lead_time * np.sum([s.demand_source.mean for s in network.sink_nodes])
+
 	# Determine initial solution.
 	if initial_solution is None:
 		# TODO: do this better -- set to mean implied demand
-		initial_solution = {}
-		for n in network.nodes:
-			initial_solution[n.index] = np.sum([s.demand_source.mean for s in network.sink_nodes])
-
-	# Determine bounds for search, if not provided.
-	lo = ensure_dict_for_nodes(search_lo, network.node_indices)
-	hi = ensure_dict_for_nodes(search_hi, network.node_indices)
-	# TODO: do this better
-	for n in network.nodes:
-		if lo[n.index] is None:
-			lo[n.index] = 0
-		if hi[n.index] is None:
-			hi[n.index] = 3 * n.lead_time * np.sum([s.demand_source.mean for s in network.sink_nodes])
+		nto_initial_solution = {}
+		for n in nodes_to_optimize:
+			nto_initial_solution[n] = np.sum([s.demand_source.mean for s in network.sink_nodes])
+	else:
+		nto_initial_solution = {n_ind: initial_solution[n_ind] for n_ind in nodes_to_optimize}
 
 	# Shortcut to objective function.
 	def obj_fcn(S):
@@ -479,12 +513,12 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 			return cost
 
 	# Initialize current solution and cost.
-	current_soln = initial_solution
-	current_cost = obj_fcn(current_soln)
+	current_soln_complete = {n_ind: nto_initial_solution[opt_group[n_ind]] for n_ind in network.node_indices}
+	current_cost = obj_fcn(current_soln_complete)
 
 	# Print message, if requested.
 	if verbose:
-		print("Initial solution = {} initial cost = {}".format(current_soln, current_cost))
+		print("Initial solution = {} initial cost = {}".format(current_soln_complete, current_cost))
 
 	# Initialize done flag.
 	done = False
@@ -493,19 +527,25 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 	# Loop until cost does not improve by more than tol.
 	while not done:
 
-		# Loop through all nodes, optimizing base-stock level for each in turn.
-		for n in network.nodes:
+		# Loop through all groups, optimizing base-stock level for each in turn.
+		for g in group_list:
 
-			# Optimize base-stock level for node using golden-section search.
-			f = lambda Sn: obj_fcn({i.index: Sn if i.index == n.index else current_soln[i.index] for i in network.nodes})
-			best_Sn, best_cost = optimization.golden_section_search(f, lo[n.index], hi[n.index], tol=line_search_tol, verbose=False)
+			# Optimize base-stock level for group using golden-section search.
+			def f(Sn):
+				S = current_soln_complete.copy()
+				for n_ind in g:
+					S[n_ind] = Sn
+				return obj_fcn(S)
+#			f = lambda Sn: obj_fcn({i.index: Sn if i.index == n.index else current_soln[i.index] for i in network.nodes})
+			best_Sn, best_cost = optimization.golden_section_search(f, nto_lo[g[0]], nto_hi[g[0]], tol=line_search_tol, verbose=False)
 
-			# Replace base-stock level in current_solution with new value.
-			current_soln[n.index] = best_Sn
+			# Replace group base-stock levels in current_solution with new values.
+			for n_ind in g:
+				current_soln_complete[n_ind] = best_Sn
 
 			# Print message, if requested.
 			if verbose:
-				print("Iteration {} node {} best_S[n] = {} best_cost = {} current_soln = {}".format(t, n.index, best_Sn, best_cost, current_soln))
+				print("Iteration {} nodes {} best_S[n] = {} best_cost = {} current_soln = {}".format(t, g, best_Sn, best_cost, current_soln_complete))
 
 		# Check improvement since last iteration.
 		if best_cost >= current_cost - tol:
@@ -515,7 +555,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 			current_cost = best_cost
 			t += 1
 
-	return current_soln, best_cost
+	return current_soln_complete, best_cost
 
 
 #
@@ -539,7 +579,6 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 # #
 # network = get_named_instance("rong_atan_snyder_figure_1a")
 #
-#
 # best_S, best_cost = meio_by_enumeration(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 # 										truncation_lo={0: 35, 1: 22, 3: 10},
 # 										truncation_hi={0: 50, 1: 31, 3: 14},
@@ -547,7 +586,10 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 # 										sim_num_trials=5, sim_num_periods=100, sim_rand_seed=762,
 # 										progress_bar=False,
 # 										print_solutions=True)
-#
+# best_S, best_cost = meio_by_coordinate_descent(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
+# 													search_lo={0: 35, 1: 22, 3: 10}, search_hi={0: 50, 1: 31, 3: 14},
+# 													sim_num_trials=1, sim_num_periods=50, sim_rand_seed=762,
+# 													verbose=True)
 #
 # # network = get_named_instance("example_4_1_network")
 # #
