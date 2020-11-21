@@ -23,6 +23,7 @@ import networkx as nx
 from pyinv.datatypes import *
 from pyinv.policy import *
 from pyinv.demand_source import *
+from pyinv.helpers import *
 
 
 # ===============================================================================
@@ -420,6 +421,18 @@ class SupplyChainNode(object):
 			else:
 				return self.state_vars[period].__dict__[attribute]
 
+	def reindex_all_state_variables(self, old_to_new_dict):
+		"""Change indices of all keys in all state variables using ``old_to_new_dict``.
+
+		Parameters
+		----------
+		old_to_new_dict : dict
+			Dict in which keys are old indices and values are new indices.
+
+		"""
+		for i in range(len(self.state_vars)):
+			self.state_vars[i].reindex_state_variabels(old_to_new_dict)
+
 
 # ===============================================================================
 # NodeStateVars Class
@@ -760,3 +773,29 @@ class NodeStateVars(object):
 			# 		for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time)])
 		# Calculate adjusted echelon inventory position.
 		return self.echelon_inventory_level + in_transit_adjusted
+
+	# --- Utility Functions --- #
+
+	def reindex_state_variables(self, old_to_new_dict):
+		"""Change indices of state variable dict keys using ``old_to_new_dict``.
+
+		Parameters
+		----------
+		old_to_new_dict : dict
+			Dict in which keys are old indices and values are new indices.
+
+		"""
+		# State variables indexed by predecessor.
+		for p in self.node.predecessors(include_external=False):
+			change_dict_key(self.inbound_shipment_pipeline, p.index, old_to_new_dict[p.index])
+			change_dict_key(self.inbound_shipment, p.index, old_to_new_dict[p.index])
+			change_dict_key(self.on_order_by_predecessor, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.raw_material_inventory, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.order_quantity, s.index, old_to_new_dict[s.index])
+
+		# State variables indexed by successor.
+		for s in self.node.successors(include_external=False):
+			change_dict_key(self.inbound_order_pipeline, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.inbound_order, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.outbound_shipment, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.backorders_by_successor, s.index, old_to_new_dict[s.index])

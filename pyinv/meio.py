@@ -537,7 +537,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 					S[n_ind] = Sn
 				return obj_fcn(S)
 #			f = lambda Sn: obj_fcn({i.index: Sn if i.index == n.index else current_soln[i.index] for i in network.nodes})
-			best_Sn, best_cost = optimization.golden_section_search(f, nto_lo[g[0]], nto_hi[g[0]], tol=line_search_tol, verbose=False)
+			best_Sn, best_cost = optimization.golden_section_search(f, nto_lo[min(g)], nto_hi[min(g)], tol=line_search_tol, verbose=False)
 
 			# Replace group base-stock levels in current_solution with new values.
 			for n_ind in g:

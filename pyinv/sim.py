@@ -714,7 +714,15 @@ def main():
 	T = 100
 
 	#
-#	network = get_named_instance("kangye_3_stage_serial")
+	network = get_named_instance("rosling_figure_1")
+	# Make the BS levels a little smaller so there are some stockouts.
+	network.get_node_from_index(1).inventory_policy.echelon_base_stock_level = 6
+	network.get_node_from_index(2).inventory_policy.echelon_base_stock_level = 20
+	network.get_node_from_index(3).inventory_policy.echelon_base_stock_level = 35
+	network.get_node_from_index(4).inventory_policy.echelon_base_stock_level = 58
+	network.get_node_from_index(5).inventory_policy.echelon_base_stock_level = 45
+	network.get_node_from_index(6).inventory_policy.echelon_base_stock_level = 65
+	network.get_node_from_index(7).inventory_policy.echelon_base_stock_level = 75
 	#
 	# # additional handling for Kangye's instance
 	# for n in network.nodes:
@@ -792,9 +800,9 @@ def main():
 # 	network.get_node_from_index(6).initial_inventory_level = 6
 #
 #
-# 	total_cost = simulation(network, T, rand_seed=762)
+	total_cost = simulation(network, T, rand_seed=17)
 # #	write_results(network, T, total_cost, write_csv=False)
-# 	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
+	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
 
 
 if __name__ == "__main__":

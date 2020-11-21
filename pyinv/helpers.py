@@ -481,6 +481,28 @@ def sort_dict_by_keys(d, ascending=True, return_values=True):
 	return return_list
 
 
+def change_dict_key(dict_to_change, old_key, new_key):
+	"""Change ``old_key`` to ``new_key`` in ``dict_to_change`` (in place).
+	New key/value pair will appear at end of dict.
+
+	Parameters
+	----------
+	dict_to_change : dict
+		The dict.
+	old_key :
+		The key to be changed.
+	new_key :
+		The key to change to.
+
+	Raises
+	------
+	KeyError : if dict_to_change[old_key] is undefined.
+	"""
+	# Change key.
+	# See https://stackoverflow.com/a/4406521/3453768.
+	dict_to_change[new_key] = dict_to_change.pop(old_key)
+
+
 ### STATS FUNCTIONS ###
 
 def irwin_hall_cdf(x, n):

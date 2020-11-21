@@ -115,7 +115,7 @@ class SupplyChainNetwork(object):
 
 		return None
 
-	def reindex_nodes(self, old_to_new_dict):
+	def reindex_nodes(self, old_to_new_dict, new_names=None):
 		"""Change indices of the nodes in the network using ``old_to_new_dict``.
 
 		# TODO: need to change indices of all state variable dicts!!!!
@@ -124,11 +124,20 @@ class SupplyChainNetwork(object):
 		----------
 		old_to_new_dict : dict
 			Dict in which keys are old indices and values are new indices.
+		new_names : dict, optional
+			Dict in which keys are old indices and values are new names.
 
 		"""
-		raise Exception("reindex_nodes() doesn't work yet!! Need to change indices of state variable dicts.")
+		# Reindex nodes in network.
 		for node in self.nodes:
-			node.index = old_to_new_dict[node.index]
+			# Reindex node.
+			old_index = node.index
+			node.index = old_to_new_dict[old_index]
+			# Rename node.
+			if new_names is not None:
+				node.name = new_names[old_index]
+			# Reindex node's state variables.
+			node.reindex_all_state_variables(old_to_new_dict)
 
 	# Methods related to network structure.
 

@@ -545,3 +545,42 @@ class TestSortDictByKeys(unittest.TestCase):
 		self.assertEqual(b_vals, ["d", "c", "b", "a"])
 		self.assertEqual(c_vals, [9, 3, 2, 0, None])
 
+
+class TestChangeDictKey(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestChangeDictKey', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestChangeDictKey', 'tear_down_class()')
+
+	def test_change_dict_key(self):
+		"""Test that change_dict_key() returns correct result.
+		"""
+		print_status('TestChangeDictKey', 'test_change_dict_key()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		c = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		helpers.change_dict_key(a, 0, 77)
+		helpers.change_dict_key(b, "d", "bar")
+		helpers.change_dict_key(c, None, "foo")
+
+		self.assertDictEqual(a, {3: "hello", 2: -1, 9: None, 77: 5})
+		self.assertDictEqual(b, {"c": -5, "a": 2, "b": "foo", "bar": None})
+		self.assertDictEqual(c, {0: 5, 3: "hello", 2: -1, 9: None, "foo": "bar"})
+
+	def test_bad_key(self):
+		"""Test that change_dict_key() raises KeyError if key is not found.
+		"""
+		print_status('TestChangeDictKey', 'test_bad_key()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+
+		with self.assertRaises(KeyError):
+			helpers.change_dict_key(a, 1, 77)
+

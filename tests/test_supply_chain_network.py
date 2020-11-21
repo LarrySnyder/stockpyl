@@ -7,6 +7,8 @@ import unittest
 
 from pyinv.supply_chain_node import *
 from pyinv.supply_chain_network import *
+from pyinv.instances import *
+from pyinv.sim import *
 
 
 # Module-level functions.
@@ -113,6 +115,158 @@ class TestAddSuccessor(unittest.TestCase):
 		self.assertEqual(node1succ, [])
 		self.assertEqual(node2succ, [])
 		self.assertEqual(node3succ, [])
+
+
+class TestReindexNodes(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestReindexNodes', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestReindexNodes', 'tear_down_class()')
+
+	def test_rosling_figure_1(self):
+		"""Test reindex_nodes() on system from Rosling (1989) Figure 1.
+		"""
+		print_status('TestAddSuccessor', 'test_rosling_figure_1()')
+
+		network = get_named_instance("rosling_figure_1")
+
+		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
+
+		for i in range(7):
+			self.assertEqual(network.nodes[i].index, i+11)
+
+	def test_rosling_figure_1_with_names(self):
+		"""Test reindex_nodes() on system from Rosling (1989) Figure 1.
+		"""
+		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_names()')
+
+		network = get_named_instance("rosling_figure_1")
+		# Name the nodes "a"-"g".
+		for i in range(1, 8):
+			network.get_node_from_index(i).name = chr(97)
+
+		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17},
+							  new_names={1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "F", 7: "G"})
+
+		for i in range(7):
+			self.assertEqual(network.nodes[i].index, i+11)
+			self.assertEqual(network.nodes[i].name, chr(65+i))
+
+	def test_rosling_figure_1_with_state_vars_pre(self):
+		"""Test reindex_nodes() on system from Rosling (1989) Figure 1 using
+		simulation to test state variable reindexing that occurs before simulation.
+		"""
+		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_state_vars()')
+
+		network = get_named_instance("rosling_figure_1")
+		# Make the BS levels a little smaller so there are some stockouts.
+		network.get_node_from_index(1).inventory_policy.echelon_base_stock_level = 6
+		network.get_node_from_index(2).inventory_policy.echelon_base_stock_level = 20
+		network.get_node_from_index(3).inventory_policy.echelon_base_stock_level = 35
+		network.get_node_from_index(4).inventory_policy.echelon_base_stock_level = 58
+		network.get_node_from_index(5).inventory_policy.echelon_base_stock_level = 45
+		network.get_node_from_index(6).inventory_policy.echelon_base_stock_level = 65
+		network.get_node_from_index(7).inventory_policy.echelon_base_stock_level = 75
+
+		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
+
+		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+
+		# Compare a few performance measures.
+		self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[12], 4)
+		self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[13], 4)
+		self.assertEqual(network.get_node_from_index(12).state_vars[6].order_quantity[15], 4)
+		self.assertEqual(network.get_node_from_index(13).state_vars[6].order_quantity[14], 4)
+		self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[16], 0)
+		self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[17], 0)
+		self.assertEqual(network.get_node_from_index(11).state_vars[16].inventory_level, 3)
+		self.assertEqual(network.get_node_from_index(12).state_vars[16].inventory_level, 7)
+		self.assertEqual(network.get_node_from_index(13).state_vars[16].inventory_level, 4)
+		self.assertEqual(network.get_node_from_index(14).state_vars[16].inventory_level, 9)
+		self.assertEqual(network.get_node_from_index(15).state_vars[16].inventory_level, 7)
+		self.assertEqual(network.get_node_from_index(16).state_vars[16].inventory_level, 19)
+		self.assertEqual(network.get_node_from_index(17).state_vars[16].inventory_level, 24)
+		self.assertEqual(network.get_node_from_index(11).state_vars[44].inventory_level, -4)
+		self.assertEqual(network.get_node_from_index(12).state_vars[44].inventory_level, -5)
+		self.assertEqual(network.get_node_from_index(13).state_vars[44].inventory_level, 0)
+		self.assertEqual(network.get_node_from_index(14).state_vars[44].inventory_level, -2)
+		self.assertEqual(network.get_node_from_index(15).state_vars[44].inventory_level, -6)
+		self.assertEqual(network.get_node_from_index(16).state_vars[44].inventory_level, 0)
+		self.assertEqual(network.get_node_from_index(17).state_vars[44].inventory_level, 10)
+		self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[12], 2)
+		self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[13], 2)
+		self.assertEqual(network.get_node_from_index(12).state_vars[16].inbound_shipment[15], 1)
+		self.assertEqual(network.get_node_from_index(13).state_vars[16].inbound_shipment[14], 0)
+		self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[16], 12)
+		self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[17], 12)
+		self.assertEqual(network.get_node_from_index(15).state_vars[16].inbound_shipment[None], 9)
+		self.assertEqual(network.get_node_from_index(16).state_vars[16].inbound_shipment[None], 13)
+		self.assertEqual(network.get_node_from_index(17).state_vars[16].inbound_shipment[None], 12)
+		self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[12], 0)
+		self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[13], 5)
+		self.assertEqual(network.get_node_from_index(12).state_vars[45].raw_material_inventory[15], 0)
+		self.assertEqual(network.get_node_from_index(14).state_vars[45].raw_material_inventory[16], 0)
+
+
+def test_rosling_figure_1_with_state_vars_post(self):
+	"""Test reindex_nodes() on system from Rosling (1989) Figure 1 using
+	simulation to test state variable reindexing that occurs after simulation.
+	"""
+	print_status('TestAddSuccessor', 'test_rosling_figure_1_with_state_vars()')
+
+	network = get_named_instance("rosling_figure_1")
+	# Make the BS levels a little smaller so there are some stockouts.
+	network.get_node_from_index(1).inventory_policy.echelon_base_stock_level = 6
+	network.get_node_from_index(2).inventory_policy.echelon_base_stock_level = 20
+	network.get_node_from_index(3).inventory_policy.echelon_base_stock_level = 35
+	network.get_node_from_index(4).inventory_policy.echelon_base_stock_level = 58
+	network.get_node_from_index(5).inventory_policy.echelon_base_stock_level = 45
+	network.get_node_from_index(6).inventory_policy.echelon_base_stock_level = 65
+	network.get_node_from_index(7).inventory_policy.echelon_base_stock_level = 75
+
+	total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+
+	network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
+
+	# Compare a few performance measures.
+	self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[12], 4)
+	self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[13], 4)
+	self.assertEqual(network.get_node_from_index(12).state_vars[6].order_quantity[15], 4)
+	self.assertEqual(network.get_node_from_index(13).state_vars[6].order_quantity[14], 4)
+	self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[16], 0)
+	self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[17], 0)
+	self.assertEqual(network.get_node_from_index(11).state_vars[16].inventory_level, 3)
+	self.assertEqual(network.get_node_from_index(12).state_vars[16].inventory_level, 7)
+	self.assertEqual(network.get_node_from_index(13).state_vars[16].inventory_level, 4)
+	self.assertEqual(network.get_node_from_index(14).state_vars[16].inventory_level, 9)
+	self.assertEqual(network.get_node_from_index(15).state_vars[16].inventory_level, 7)
+	self.assertEqual(network.get_node_from_index(16).state_vars[16].inventory_level, 19)
+	self.assertEqual(network.get_node_from_index(17).state_vars[16].inventory_level, 24)
+	self.assertEqual(network.get_node_from_index(11).state_vars[44].inventory_level, -4)
+	self.assertEqual(network.get_node_from_index(12).state_vars[44].inventory_level, -5)
+	self.assertEqual(network.get_node_from_index(13).state_vars[44].inventory_level, 0)
+	self.assertEqual(network.get_node_from_index(14).state_vars[44].inventory_level, -2)
+	self.assertEqual(network.get_node_from_index(15).state_vars[44].inventory_level, -6)
+	self.assertEqual(network.get_node_from_index(16).state_vars[44].inventory_level, 0)
+	self.assertEqual(network.get_node_from_index(17).state_vars[44].inventory_level, 10)
+	self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[12], 2)
+	self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[13], 2)
+	self.assertEqual(network.get_node_from_index(12).state_vars[16].inbound_shipment[15], 1)
+	self.assertEqual(network.get_node_from_index(13).state_vars[16].inbound_shipment[14], 0)
+	self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[16], 12)
+	self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[17], 12)
+	self.assertEqual(network.get_node_from_index(15).state_vars[16].inbound_shipment[None], 9)
+	self.assertEqual(network.get_node_from_index(16).state_vars[16].inbound_shipment[None], 13)
+	self.assertEqual(network.get_node_from_index(17).state_vars[16].inbound_shipment[None], 12)
+	self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[12], 0)
+	self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[13], 5)
+	self.assertEqual(network.get_node_from_index(12).state_vars[45].raw_material_inventory[15], 0)
+	self.assertEqual(network.get_node_from_index(14).state_vars[45].raw_material_inventory[16], 0)
 
 
 class TestSingleStageSystem(unittest.TestCase):
