@@ -2,7 +2,7 @@
 # PyInv - DemandSource Class
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-12-2020
+# Updated: 11-22-2020
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -20,623 +20,156 @@ Notation and equation and section numbers refer to Snyder and Shen,
 # Imports
 # ===============================================================================
 
-from enum import Enum
 import numpy as np
-from scipy.stats import norm
-from scipy.stats import uniform
-from abc import ABC, abstractmethod			# abstract base class
+import scipy.stats 
 
 from pyinv.helpers import *
 
 
 # ===============================================================================
-# Data Types
+# DemandSource Class
 # ===============================================================================
 
-class DemandType(Enum):
-	NONE = 0					# no external demand
-	NORMAL = 1
-	UNIFORM_DISCRETE = 2
-	UNIFORM_CONTINUOUS = 3
-	DETERMINISTIC = 4			# must supply 'demands' parameter
-	DISCRETE_EXPLICIT = 5		# must supply 'demands' and 'demand_probs' parameters
-
-
-# ===============================================================================
-# DemandSource Class and Subclasses
-# ===============================================================================
-
-class DemandSource(ABC):
-	"""The ``DemandSource`` class is used to encapsulate demand generation.
-	This is an abstract class, so it must be subclassed. Subclasses define the
-	actual demand generation.
+class DemandSource(object):
 	"""
-
-	@abstractmethod
-	def generate_demand(self, period=None):
-		pass
-
-
-class DemandSourceNone(DemandSource):
-	"""The ``DemandSourceNone`` class is used for nodes that have no external
-	demand source.
-
 	Attributes
 	----------
-	_type : DemandType
-		The demand type.
-	"""
-
-	def __init__(self):
-		self._type = DemandType.NONE
-
-	# PROPERTIES
-
-	@property
-	def type(self):
-		# Read-only property.
-		return self._type
-
-	# SPECIAL METHODS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``DemandSource`` instance.
-
-		Returns
-		-------
-			A string representation of the ``DemandSource`` instance.
-		"""
-		return "DemandSource({:s})".format(self._type.name)
-
-	# METHODS
-
-	def generate_demand(self, period=None):
-		"""Return None.
-
-		Parameters
-		----------
-		period : int
-			Ignored.
-
-		Returns
-		-------
-		demand : float
-			The demand value. Equals None.
-		"""
-		demand = None
-
-		return demand
-
-
-class DemandSourceNormal(DemandSource):
-	"""The ``DemandSourceNormal`` class is used to encapsulate demand generation
-	for demands with normal distribution.
-
-	Attributes
-	----------
-	_type : DemandType
-		The demand type.
-	_mean : float
-		Mean of demand per period. [mu]
-	_standard_deviation : float
-		Standard deviation of demand per period. [sigma]
+	_type : str
+		The demand type, as a string. Currently supported strings are:
+			* None
+			* 'N' (normal)
+			* 'UD' (uniform discrete)
+			* 'UC' (uniform continuous)
+			* 'D' (deterministic)
+			* 'CD' (custom discrete)
 	_round_to_int : bool
 		Round demand to nearest integer?
+	_mean : float, optional
+		Mean of demand per period. Required if ``type`` = 'N'. [:math:`\mu`]
+	_standard_deviation : float, optional
+		Standard deviation of demand per period. Required if ``type`` =='N'. [:math:`\sigma`]
+	_demand_list : list, optional
+		List of demands, one per period (for deterministic demand types), or list
+		of possible demand values (for custom discrete demand types). For deterministic
+		demand types, if demand is required in a period beyond the length of the list,
+		the list is restarted at the beginning. This also allows ``demand_list`` to be
+		a singleton, in which case it is used in every period.
+		Required if ``type`` = 'D' or 'CD'. [:math:`d`]
+	_probabilities : list, optional
+		List of probabilities of each demand value (for custom discrete demand types).
+		Required if ``type`` = 'CD'.
+	_lo : float, optional
+		Low value of demand range (for uniform demand types). Required if
+		``type`` = 'UD' or 'UC'.
+	_hi : float, optional
+		High value of demand range (for uniform demand types). Required if
+		``type`` = 'UD' or 'UC'.
 	"""
 
 	def __init__(self):
-		self._type = DemandType.NORMAL
+		"""DemandSource constructor method.
+		"""
+		# Initialize parameters to None. (Relevant parameters will be filled
+		# later.)
+		self._type = None
 		self._mean = None
 		self._standard_deviation = None
+		self._demand_list = None
+		self._probabilities = None
+		self._lo = None
+		self._hi = None
 		self._round_to_int = False
 
-	# PROPERTIES
+	# PROPERTY GETTERS AND SETTERS
 
 	@property
 	def type(self):
-		# Read-only property.
 		return self._type
+
+	@type.setter
+	def type(self, value):
+		self._type = value
 
 	@property
 	def mean(self):
 		return self._mean
 
 	@mean.setter
-	def mean(self, mean):
-		assert mean >= 0, "For NORMAL demand, mean must be non-negative"
-		self._mean = mean
+	def mean(self, value):
+		self._mean = value
 
 	@property
 	def standard_deviation(self):
 		return self._standard_deviation
 
 	@standard_deviation.setter
-	def standard_deviation(self, standard_deviation):
-		assert standard_deviation >= 0, "For NORMAL demand, demand_standard_deviation must be non-negative"
-		self._standard_deviation = standard_deviation
+	def standard_deviation(self, value):
+		self._standard_deviation = value
 
 	@property
-	def round_to_int(self):
-		return self._round_to_int
-
-	@round_to_int.setter
-	def round_to_int(self, round_to_int):
-		self._round_to_int = round_to_int
-
-	# SPECIAL METHODS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``DemandSource`` instance.
-
-		Returns
-		-------
-			A string representation of the ``DemandSource`` instance.
-		"""
-		# Build string of parameters.
-		param_str = \
-			"mean={:.2f}, standard_deviation={:.2f}".format(self._mean, self._standard_deviation)
-
-		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
-
-	# METHODS
-
-	def generate_demand(self, period=None):
-		"""Generate demand from normal distribution.
-
-		Parameters
-		----------
-		period : int, optional
-			Ignored for this demand source type.
-
-		Returns
-		-------
-		demand : float
-			The demand value.
-		"""
-		# Check parameters.
-		assert self._mean is not None, "For NORMAL demand, mean must be provided"
-		assert self._standard_deviation is not None, "For NORMAL demand, mean must be provided"
-
-		# Generate random demand.
-		demand = max(0, np.random.normal(self._mean, self._standard_deviation))
-
-		# Round demand, if requested.
-		if self._round_to_int:
-			demand = np.round(demand)
-
-		return demand
-
-	def demand_distribution(self):
-		"""Return demand distribution, as a ``scipy.stats.rv_continuous`` object.
-
-		Returns
-		-------
-		distribution : rv_continuous
-			The demand distribution object.
-		"""
-		return norm(self._mean, self._standard_deviation)
-
-	def lead_time_demand_distribution(self, lead_time):
-		"""Return lead-time demand distribution, as a
-		``scipy.stats.rv_continuous`` object.
-
-		Parameters
-		----------
-		lead_time : float
-			The lead time. [:math:`L`]
-
-		Returns
-		-------
-		distribution : rv_continuous
-			The lead-time demand distribution object.
-		"""
-		return norm(self._mean * lead_time,
-					self._standard_deviation * np.sqrt(lead_time))
-
-	def cdf(self, x):
-		"""Cumulative distribution function of demand distribution.
-
-		For normal distribution, this is simply a wrapper around
-		``scipy.stats.norm.cdf()``.
-
-		Parameters
-		----------
-		x : float
-			Value to calculate cdf for.
-
-		Returns
-		-------
-		F : float
-			cdf of ``x``.
-
-		"""
-
-		distrib = norm(self._mean, self._standard_deviation)
-
-		return distrib.cdf(x)
-
-
-class DemandSourceUniformDiscrete(DemandSource):
-	"""The ``DemandSourceUniformDiscrete`` class is used to encapsulate demand
-	generation for demands with discrete uniform distribution.
-
-	Attributes
-	----------
-	_type : DemandType
-		The demand type.
-	_lo : float
-		Low value of demand range.
-	_hi : float
-		High value of demand range.
-	"""
-
-	def __init__(self):
-		self._type = DemandType.UNIFORM_DISCRETE
-		self._lo = None
-		self._hi = None
-
-	# PROPERTIES
-
-	@property
-	def type(self):
-		# Read-only property.
-		return self._type
-
-	@property
-	def lo(self):
-		return self._lo
-
-	@lo.setter
-	def lo(self, lo):
-		assert lo >= 0 and is_integer(lo), "For UNIFORM_DISCRETE demand, lo must be a non-negative integer"
-		self._lo = lo
-
-	@property
-	def hi(self):
-		return self._hi
-
-	@hi.setter
-	def hi(self, hi):
-		assert hi >= 0 and is_integer(hi), "For UNIFORM_DISCRETE demand, hi must be a non-negative integer"
-		self._hi = hi
-
-	# SPECIAL METHODS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``DemandSource`` instance.
-
-		Returns
-		-------
-			A string representation of the ``DemandSource`` instance.
-		"""
-		# Build string of parameters.
-		param_str = \
-			"lo={:.2f}, hi={:.2f}".format(self._lo, self._hi)
-
-		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
-
-	# METHODS
-
-	def generate_demand(self, period=None):
-		"""Generate demand from discrete uniform distribution.
-
-		Parameters
-		----------
-		period : int, optional
-			Ignored for this demand source type.
-
-		Returns
-		-------
-		demand : float
-			The demand value.
-		"""
-		# Check parameters.
-		assert self._lo is not None, "For UNIFORM_DISCRETE demand, lo must be provided"
-		assert self._hi is not None, "For UNIFORM_DISCRETE demand, hi must be provided"
-		assert self._lo <= self._hi, "For UNIFORM_DISCRETE demand, lo must be <= hi"
-
-		# Generate random demand.
-		demand = np.random.randint(int(self._lo), int(self._hi) + 1)
-
-		return demand
-
-
-class DemandSourceUniformContinuous(DemandSource):
-	"""The ``DemandSourceUniformContinuous`` class is used to encapsulate demand
-	generation for demands with continuous uniform distribution.
-
-	Attributes
-	----------
-	_type : DemandType
-		The demand type.
-	_lo : float
-		Low value of demand range.
-	_hi : float
-		High value of demand range.
-	_round_to_int : bool
-		Round demand to nearest integer?
-	"""
-
-	def __init__(self):
-		self._type = DemandType.UNIFORM_CONTINUOUS
-		self._lo = None
-		self._hi = None
-		self._round_to_int = False
-
-	# PROPERTIES
-
-	@property
-	def type(self):
-		# Read-only property.
-		return self._type
-
-	@property
-	def lo(self):
-		return self._lo
-
-	@lo.setter
-	def lo(self, lo):
-		assert lo >= 0, "For UNIFORM_DISCRETE demand, lo must be non-negative"
-		self._lo = lo
-
-	@property
-	def hi(self):
-		return self._hi
-
-	@hi.setter
-	def hi(self, hi):
-		assert hi >= 0, "For UNIFORM_DISCRETE demand, hi must be non-negative"
-		self._hi = hi
-
-	@property
-	def round_to_int(self):
-		return self._round_to_int
-
-	@round_to_int.setter
-	def round_to_int(self, round):
-		self._round_to_int = round
-
-	# SPECIAL METHODS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``DemandSource`` instance.
-
-		Returns
-		-------
-			A string representation of the ``DemandSource`` instance.
-		"""
-		# Build string of parameters.
-		param_str = \
-			"lo={:.2f}, hi={:.2f}".format(self._lo, self._hi)
-
-		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
-
-	# METHODS
-
-	def generate_demand(self, period=None):
-		"""Generate demand from continuous uniform distribution.
-
-		Parameters
-		----------
-		period : int, optional
-			Ignored for this demand source type.
-
-		Returns
-		-------
-		demand : float
-			The demand value.
-		"""
-		# Check parameters.
-		assert self._lo is not None, "For UNIFORM_CONTINUOUS demand, lo must be provided"
-		assert self._hi is not None, "For UNIFORM_DISCRETE demand, hi must be provided"
-		assert self._lo <= self._hi, "For UNIFORM_DISCRETE demand, lo must be <= hi"
-
-		# Generate random demand.
-		demand = np.random.uniform(self._lo, self._hi)
-
-		# Round demand, if requested.
-		if self._round_to_int:
-			demand = np.round(demand)
-
-		return demand
-
-	def demand_distribution(self):
-		"""Return demand distribution, as a ``scipy.stats.rv_continuous`` object.
-
-		Returns
-		-------
-		distribution : rv_continuous
-			The demand distribution object.
-		"""
-		# Uniform loc = lo, scale = hi - lo.
-		return uniform(self._lo, self._hi - self._lo)
-
-	def lead_time_demand_distribution(self, lead_time):
-		"""Return lead-time demand distribution, as a
-		``scipy.stats.rv_continuous`` object.
-
-		NOTE: This method calculates the lead-time demand distribution as the
-		sum of ``lead_time`` uniform random variables. Therefore, the method
-		requires ``lead_time`` to be an integer. If it is not, it raises an
-		value error.
-
-		Parameters
-		----------
-		lead_time : int
-			The lead time. [:math:`L`]
-
-		Returns
-		-------
-		distribution : rv_continuous
-			The lead-time demand distribution object.
-
-		Raises
-		------
-		ValueError
-			If ``lead_time`` is not an integer.
-		"""
-
-		# Check whether lead_time is an integer.
-		if not is_integer(lead_time):
-			raise(ValueError, "lead_time must be an integer")
-
-		# Get distribution object.
-		distribution = sum_of_uniforms_distribution(lead_time, self._lo, self._hi)
-
-		return distribution
-
-	def cdf(self, x):
-		"""Cumulative distribution function of demand distribution.
-
-		For normal distribution, this is simply a wrapper around
-		``scipy.stats.unif.cdf()``.
-
-		Parameters
-		----------
-		x : float
-			Value to calculate cdf for.
-
-		Returns
-		-------
-		F : float
-			cdf of ``x``.
-
-		"""
-
-		# Uniform loc = lo, scale = hi - lo.
-		distrib = uniform(self._lo, self._hi - self._lo)
-
-		return distrib.cdf(x)
-
-
-class DemandSourceDeterministic(DemandSource):
-	"""The ``DemandSourceDeterministic`` class is used to encapsulate demand
-	generation for deterministic demands.
-
-	Attributes
-	----------
-	_type : DemandType
-		The demand type.
-	_demands : list
-		List of demands, one per period. [d]
-	"""
-
-	def __init__(self):
-		self._type = DemandType.DETERMINISTIC
-		self._demands = None
-
-	# PROPERTIES
-
-	@property
-	def type(self):
-		# Read-only property.
-		return self._type
-
-	@property
-	def demands(self):
-		return self._demands
-
-	@demands.setter
-	def demands(self, demands):
-		self._demands = demands
-
-	# SPECIAL METHODS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``DemandSource`` instance.
-
-		Returns
-		-------
-			A string representation of the ``DemandSource`` instance.
-		"""
-		# Build string of parameters.
-		param_str = "demands={}".format(self.demands)
-
-		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
-
-	# METHODS
-
-	def generate_demand(self, period=None):
-		"""Generate demand from deterministic demand source.
-
-		Parameters
-		----------
-		period : int, optional
-			The period to generate a demand value for. If omitted, will return
-			the first (or only) demand in _demands list.
-
-		Returns
-		-------
-		demand : float
-			The demand value.
-		"""
-		# Check parameters.
-		assert self._demands is not None, "For DETERMINISTIC demand, demands must be provided"
-
-		if is_iterable(self._demands):
-			if period is None:
-				# Return first demand in demands list.
-				demand = self._demands[0]
-			else:
-				# Get demand for period mod (# periods in demands list), i.e.,
-				# if we are past the end of the demands list, loop back to the beginning.
-				demand = self._demands[period % len(self._demands)]
-		else:
-			# Return demands singleton.
-			demand = self._demands
-
-		return demand
-
-
-class DemandSourceDiscreteExplicit(DemandSource):
-	"""The ``DemandSourceDiscreteExplicit`` class is used to encapsulate demand
-	generation for discrete explicit demands.
-
-	Attributes
-	----------
-	_type : DemandType
-		The demand type.
-	_demands : list
-		List of possible demand values.
-	_probabilities : list
-		List of probabilities of each demand value.
-	"""
-
-	def __init__(self):
-		self._type = DemandType.DISCRETE_EXPLICIT
-		self._demands = None
-		self._probabilities = None
-
-	# PROPERTIES
-
-	@property
-	def type(self):
-		# Read-only property.
-		return self._type
-
-	@property
-	def demands(self):
-		return self._demands
-
-	@demands.setter
-	def demands(self, demands):
-		self._demands = demands
+	def demand_list(self):
+		return self._demand_list
+
+	@demand_list.setter
+	def demand_list(self, value):
+		self._demand_list = value
 
 	@property
 	def probabilities(self):
 		return self._probabilities
 
 	@probabilities.setter
-	def probabilities(self, probabilities):
-		assert np.sum(probabilities) == 1, "For DISCRETE_EXPLICIT demand, probabilities must sum to 1"
-		self._probabilities = probabilities
+	def probabilities(self, value):
+		self._probabilities = value
 
-	# SPECIAL METHODS
+	@property
+	def lo(self):
+		return self._lo
+
+	@lo.setter
+	def lo(self, value):
+		self._lo = value
+
+	@property
+	def hi(self):
+		return self._hi
+
+	@hi.setter
+	def hi(self, value):
+		self._hi = value
+
+	@property
+	def round_to_int(self):
+		return self._round_to_int
+
+	@round_to_int.setter
+	def round_to_int(self, value):
+		self._round_to_int = value
+		
+	# READ-ONLY PROPERTIES
+	@property
+	def demand_distribution(self):
+		"""Demand distribution, as a ``scipy.stats.rv_continuous`` or
+		``scipy.stats.rv_discrete`` object.
+		"""
+		if self.type is None:
+			distribution = None
+		elif self.type == 'N':
+			distribution = scipy.stats.norm(self.mean, self.standard_deviation)
+		elif self.type == 'UD':
+			distribution = scipy.stats.randint(self.lo, self.hi+1)
+		elif self.type == 'UC':
+			distribution = scipy.stats.uniform(self.lo, self.hi - self.lo)
+		elif self.type == 'D':
+			# TODO: is there something better to do here?
+			distribution = None
+		elif self.type == 'CD':
+			distribution = scipy.stats.rv_discrete(name='custom',
+												   values=(self.demand_list, self.probabilities))
+
+		return distribution
+
+	# SPECIAL MEMBERS
 
 	def __repr__(self):
 		"""
@@ -645,90 +178,225 @@ class DemandSourceDiscreteExplicit(DemandSource):
 		Returns
 		-------
 			A string representation of the ``DemandSource`` instance.
+
 		"""
 		# Build string of parameters.
-		param_str = "demands={}, probabilities={}".format(self._demands, self._probabilities)
+		if self.type is None:
+			return "DemandSource(None)"
+		elif self.type == 'N':
+			param_str = "mean={:.2f}, standard_deviation={:.2f}".format(
+				self.mean, self.standard_deviation)
+		elif self.type in ('UD', 'UC'):
+			param_str = "lo={:.2f}, hi={:.2f}".format(
+				self.lo, self.hi)
+		elif self.type == 'D':
+			if not is_list(self.demand_list) or len(self.demand_list) <= 8:
+				param_str = "demand_list={}".format(self.demand_list)
+			else:
+				param_str = "demand_list={}...".format(self.demand_list[0:8])
+		elif self.type == 'CD':
+			if len(self.demand_list) <= 8:
+				param_str = "demand_list={}, probabilities={}".format(
+					self.demand_list, self.probabilities)
+			else:
+				param_str = "demand_list={}..., probabilities={}...".format(
+					self.demand_list[0:8], self.probabilities[0:8])
+		else:
+			param_str = ""
 
-		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
+		return "DemandSource({:s}: {:s})".format(self.type, param_str)
 
-	# METHODS
+	def __str__(self):
+		"""
+		Return the full name of the ``DemandSource`` instance.
+
+		Returns
+		-------
+			The demand_source name.
+
+		"""
+		return self.__repr__()
+
+	# DEMAND GENERATION
 
 	def generate_demand(self, period=None):
-		"""Generate demand from deterministic demand source.
+		"""Generate a demand value using the demand type specified in type.
+		If ``type`` is ``None``, returns ``None``.
 
 		Parameters
 		----------
 		period : int, optional
-			Ignored for this demand source type.
+			The period to generate a demand value for. If ``type`` = 'D' (deterministic),
+			this is required if ``demand_list`` is a list of demands, one per period. If omitted,
+			will return first (or only) demand in list.
 
 		Returns
 		-------
 		demand : float
 			The demand value.
-		"""
-		# Check parameters.
-		assert self._demands is not None, "For DISCRETE_EXPLICIT demand, demands must be provided"
-		assert self._probabilities is not None, "For DISCRETE_EXPLICIT demand, probabilities must be provided"
-		assert len(self._demands) == len(self._probabilities), \
-			"For DISCRETE_EXPLICIT demand, demands and probabilities must have equal lengths"
 
-		demand = np.random.choice(self.demands, p=self.probabilities)
+		"""
+
+		if self.type is None:
+			return None
+		if self.type == 'N':
+			demand = self.generate_demand_normal()
+		elif self.type == 'UD':
+			demand = self.generate_demand_uniform_discrete()
+		elif self.type == 'UC':
+			demand = self.generate_demand_uniform_continuous()
+		elif self.type == 'D':
+			demand = self.generate_demand_deterministic(period)
+		elif self.type == 'CD':
+			demand = self.generate_demand_custom_discrete()
+		else:
+			demand = None
+
+		if self.round_to_int:
+			demand = np.round(demand)
 
 		return demand
 
-
-# ===============================================================================
-# DemandSourceFactory Class
-# ===============================================================================
-
-class DemandSourceFactory(object):
-	"""The ``DemandSourceFactory`` class is used to build ``DemandSource``
-	objects.
-
-	Example
-	-------
-	To build a ``DemandSourceNormal`` object:
-
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
-
-	It is also possible to create the subclass object directly, e.g.,
-
-		demand_source = DemandSourceNormal()
-
-	"""
-
-	def build_demand_source(self, demand_type):
-		"""Build and return a DemandSource object of the specified type.
-
-		Parameters
-		----------
-		demand_type : DemandType
-			The desired demand type.
+	def generate_demand_normal(self):
+		"""Generate demand from normal distribution.
 
 		Returns
 		-------
-		demand_source : DemandSource
-			The DemandSource object.
+		demand : float
+			The demand value.
 
 		"""
-		if demand_type == DemandType.NONE:
-			demand_source = DemandSourceNone()
-		elif demand_type == DemandType.NORMAL:
-			demand_source = DemandSourceNormal()
-		elif demand_type == DemandType.UNIFORM_DISCRETE:
-			demand_source = DemandSourceUniformDiscrete()
-		elif demand_type == DemandType.UNIFORM_CONTINUOUS:
-			demand_source = DemandSourceUniformContinuous()
-		elif demand_type == DemandType.DETERMINISTIC:
-			demand_source = DemandSourceDeterministic()
-		elif demand_type == DemandType.DISCRETE_EXPLICIT:
-			demand_source = DemandSourceDiscreteExplicit()
+		return np.random.normal(self.mean, self.standard_deviation)
+
+	def generate_demand_uniform_discrete(self):
+		"""Generate demand from discrete uniform distribution.
+
+		Returns
+		-------
+		demand : float
+			The demand value.
+
+		"""
+		return np.random.randint(int(self.lo), int(self.hi) + 1)
+
+	def generate_demand_uniform_continuous(self):
+		"""Generate demand from continuous uniform distribution.
+
+		Returns
+		-------
+		demand : float
+			The demand value.
+
+		"""
+		return np.random.uniform(self.lo, self.hi - self.lo)
+
+	def generate_demand_deterministic(self, period=None):
+		"""Generate deterministic demand.
+
+		Returns
+		-------
+		demand : float
+			The demand value.
+
+		"""
+		if is_iterable(self.demand_list):
+			if period is None:
+				# Return first demand in demands list.
+				return self.demand_list[0]
+			else:
+				# Get demand for period mod (# periods in demands list), i.e.,
+				# if we are past the end of the demands list, loop back to the beginning.
+				return self.demand_list[period % len(self.demand_list)]
 		else:
-			raise(ValueError, "Unknown demand source type")
+			# Return demands singleton.
+			return self.demand_list
 
-		return demand_source
+	def generate_demand_custom_discrete(self):
+		"""Generate demand from custom discrete distribution.
 
+		Returns
+		-------
+		demand : float
+			The demand value.
 
+		"""
+		return np.random.choice(self.demand_list, p=self.probabilities)
+
+	# OTHER FUNCTIONS
+
+	def validate_parameters(self):
+		"""Check that appropriate parameters have been provided for the given
+		demand type. Raise an exception if not.
+		"""
+		assert self.type in (None, 'N', 'UD', 'UC', 'D', 'CD'), \
+			"Valid type in (None, 'N', 'UD', 'UC', 'D', 'CD') must be provided"
+
+		if self.type == 'N':
+			assert self.mean is not None, \
+				"For 'N' (normal) demand, mean must be provided"
+			assert self.mean >= 0, \
+				"For 'N' (normal) demand, mean must be non-negative"
+			assert self.standard_deviation is not None, \
+				"For 'N' (normal) demand, standard_deviation must be provided"
+			assert self.standard_deviation >= 0, \
+				"For 'N' (normal) demand, standard_deviation must be non-negative"
+		elif self.type == 'UD':
+			assert self.lo is not None,\
+				"For 'UD' (uniform discrete) demand, lo must be provided"
+			assert self.lo >= 0 and is_integer(self.lo), \
+				"For 'UD' (uniform discrete) demand, lo must be a non-negative integer"
+			assert self.hi is not None, \
+				"For 'UD' (uniform discrete) demand, hi must be provided"
+			assert self.hi >= 0 and is_integer(self.hi), \
+				"For 'UD' (uniform discrete) demand, hi must be a non-negative integer"
+			assert self.lo <= self.hi, \
+				"For 'UD' (uniform discrete) demand, lo must be <= hi"
+		elif self.type == 'UC':
+			assert self.lo is not None, \
+				"For 'UC' (uniform continuous) demand, lo must be provided"
+			assert self.lo >= 0, \
+				"For 'UC' (uniform continuous) demand, lo must be non-negative"
+			assert self.hi is not None, \
+				"For 'UC' (uniform continuous) demand, hi must be provided"
+			assert self.hi >= 0, \
+				"For 'UC' (uniform continuous) demand, hi must be non-negative"
+			assert self.lo <= self.hi, \
+				"For 'UC' (uniform continuous) demand, lo must be <= hi"
+		elif self.type == 'D':
+			assert self.demand_list is not None,\
+				"For 'D' (deterministic) demand, demand_list must be provided"
+		elif self.type == 'CD':
+			assert self.demand_list is not None, \
+				"For 'CD' (custom discrete) demand, demand_list must be provided"
+			assert self.probabilities is not None, \
+				"For 'CD' (custom discrete) demand, probabilities must be provided"
+			assert len(self.demand_list) == len(self.probabilities), \
+				"For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths"
+			assert np.sum(self.probabilities) == 1, \
+				"For 'CD' (custom discrete) demand, probabilities must sum to 1"
+
+	def cdf(self, x):
+		"""Cumulative distribution function of demand distribution.
+
+		In some cases, this is just a wrapper around ``cdf()`` functionm
+		of ``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
+
+		Parameters
+		----------
+		x : float
+			Value to calculate cdf for.
+
+		Returns
+		-------
+		F : float
+			cdf of ``x``.
+
+		"""
+
+		if self.type in (None, 'D'):
+			return None
+		else:
+			distribution = self.demand_distribution
+			return distribution.cdf(x)
 
 

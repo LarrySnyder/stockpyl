@@ -11,13 +11,13 @@ The following attributes are used to specify input data:
 		- stockout_cost [p]
 		- lead_time [L] TODO: create "alias" shipment_lead_time
 		- order_lead_time
-		- demand_type
-		- demand_mean [mu]
-		- demand_standard_deviation [sigma]
+		- type
+		- mean [mu]
+		- standard_deviation [sigma]
 		- demands [d]
 		- probabilities
-		- demand_lo
-		- demand_hi
+		- lo
+		- hi
 		- inventory_policy
 	* Edge-level attributes
 		(None.)
@@ -67,7 +67,7 @@ def generate_demand(node, period=None):
 	node : node
 		NetworkX node representing the node to generate demand for.
 	period : int
-		Time period. Required if demand_type = DETERMINISTIC; ignored otherwise.
+		Time period. Required if type = DETERMINISTIC; ignored otherwise.
 
 	Returns
 	-------
@@ -76,22 +76,22 @@ def generate_demand(node, period=None):
 
 	"""
 
-	if node['demand_type'] == DemandType.NONE:
+	if node['type'] == DemandType.NONE:
 		demand = None
-	elif node['demand_type'] == DemandType.NORMAL:
-		demand = np.random.normal(node['demand_mean'], node['demand_standard_deviation'])
-	elif node['demand_type'] == DemandType.UNIFORM_DISCRETE:
-		demand = np.random.randint(node['demand_lo'], node['demand_hi'] + 1)
-	elif node['demand_type'] == DemandType.UNIFORM_CONTINUOUS:
-		demand = np.random.uniform(node['demand_lo'], node['demand_hi'])
-	elif node['demand_type'] == DemandType.DETERMINISTIC:
+	elif node['type'] == DemandType.NORMAL:
+		demand = np.random.normal(node['mean'], node['standard_deviation'])
+	elif node['type'] == DemandType.UNIFORM_DISCRETE:
+		demand = np.random.randint(node['lo'], node['hi'] + 1)
+	elif node['type'] == DemandType.UNIFORM_CONTINUOUS:
+		demand = np.random.uniform(node['lo'], node['hi'])
+	elif node['type'] == DemandType.DETERMINISTIC:
 		# Get demand for period mod (# periods in demands list), i.e.,
 		# if we are past the end of the demands list, loop back to the beginning.
 		demand = node['demands'][period % len(node['demands'])]
-	elif node['demand_type'] == DemandType.DISCRETE_EXPLICIT:
+	elif node['type'] == DemandType.DISCRETE_EXPLICIT:
 		demand = np.random.choice(node['demands'], p=node['probabilities'])
 	else:
-		raise ValueError('Valid demand_type not provided')
+		raise ValueError('Valid type not provided')
 
 	return demand
 
@@ -140,7 +140,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	visited[node_index] = True
 
 	# Does node have external demand?
-	if network.nodes[node_index]['demand_type'] != DemandType.NONE:
+	if network.nodes[node_index]['type'] != DemandType.NONE:
 		# Generate demand and fill it in 'IO'.
 		network.nodes[node_index]['IO'][None][period] = \
 			generate_demand(network.nodes[node_index], period)

@@ -277,7 +277,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	stockout_cost
 	order_lead_time
 	shipment_lead_time
-	demand_type # TODO: allow string representation
+	type # TODO: allow string representation
 	demand_mean
 	demand_standard_deviation
 	demand_lo
@@ -506,7 +506,7 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 
 	# Check that valid demand info has been provided.
 	if demand_type is None or demand_type == DemandType.NONE:
-		raise ValueError("Valid demand_type has not been provided")
+		raise ValueError("Valid type has not been provided")
 	elif demand_type == DemandType.NORMAL and (demand_mean is None or demand_standard_deviation is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
 	elif (demand_type == DemandType.UNIFORM_DISCRETE or
@@ -715,7 +715,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 	# Check that valid demand info has been provided.
 	if demand_type_dict[downstream_node] is None or demand_type_dict[downstream_node] == DemandType.NONE:
-		raise ValueError("Valid demand_type has not been provided")
+		raise ValueError("Valid type has not been provided")
 	elif demand_type_dict[downstream_node] == DemandType.NORMAL and (demand_mean_dict[downstream_node] is None or demand_standard_deviation_dict[downstream_node] is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
 	elif (demand_type_dict[downstream_node] == DemandType.UNIFORM_DISCRETE or
@@ -951,7 +951,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	# TODO: write separate functions to do these type/input checks
 	# Check that valid demand info has been provided.
 	if demand_type_list[0] is None or demand_type_list[0] == DemandType.NONE:
-		raise ValueError("Valid demand_type has not been provided")
+		raise ValueError("Valid type has not been provided")
 	elif demand_type_list[0] == DemandType.NORMAL and (demand_mean_list[0] is None or demand_standard_deviation_list[0] is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
 	elif (demand_type_list[0] == DemandType.UNIFORM_DISCRETE or

@@ -25,80 +25,148 @@ def tear_down_module():
 	print_status('---', 'tear_down_module()')
 
 
-class TestDemandSourceParameters(unittest.TestCase):
+class TestValidateParameters(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestDemandSourceParameters', 'set_up_class()')
+		print_status('TestValidateParameters', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestDemandSourceParameters', 'tear_down_class()')
+		print_status('TestValidateParameters', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test that DemandSourceNormal correctly raises errors on invalid parameters.
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for normal distribution.
 		"""
-		print_status('TestDemandSourceParameters', 'test_normal()')
+		print_status('TestValidateParameters', 'test_normal()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
+		demand_source.mean = -100
 		with self.assertRaises(AssertionError):
-			demand_source.mean = -100
+			demand_source.validate_parameters()
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
+		demand_source.standard_deviation = -100
 		with self.assertRaises(AssertionError):
-			demand_source.standard_deviation = -100
+			demand_source.validate_parameters()
 
-	def test_init_uniform_discrete(self):
-		"""Test that DemandSourceUniformDiscrete correctly raises errors on invalid parameters.
+	def test_uniform_discrete(self):
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for uniform discrete distribution.
 		"""
-		print_status('TestDemandSourceParameters', 'test_init_uniform_discrete()')
+		print_status('TestValidateParameters', 'test_uniform_discrete()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.lo = -100
+		demand_source.hi = 100
 		with self.assertRaises(AssertionError):
-			demand_source.lo = -100
+			demand_source.validate_parameters()
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.lo = 10
+		demand_source.hi = -100
 		with self.assertRaises(AssertionError):
-			demand_source.hi = -100
+			demand_source.validate_parameters()
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.lo = 3.8
+		demand_source.hi = 100
 		with self.assertRaises(AssertionError):
-			demand_source.lo = 3.8
+			demand_source.validate_parameters()
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.hi = 72.3
+		demand_source.lo = 50
 		with self.assertRaises(AssertionError):
-			demand_source.hi = 7.9
+			demand_source.validate_parameters()
 
-	def test_init_uniform_continuous(self):
-		"""Test that DemandSourceUniformContinuous correctly raises errors on invalid parameters.
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.lo = 50
+		demand_source.hi = 20
+		with self.assertRaises(AssertionError):
+			demand_source.validate_parameters()
+
+	def test_uniform_continuous(self):
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for uniform continuous distribution.
 		"""
-		print_status('TestDemandSourceParameters', 'test_init_uniform_continuous()')
+		print_status('TestValidateParameters', 'test_uniform_continuous()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source = DemandSource()
+		demand_source.type = 'UC'
+		demand_source.lo = -100
+		demand_source.hi = 100
 		with self.assertRaises(AssertionError):
-			demand_source.lo = -100
+			demand_source.validate_parameters()
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source = DemandSource()
+		demand_source.type = 'UC'
+		demand_source.lo = 10
+		demand_source.hi = -100
 		with self.assertRaises(AssertionError):
-			demand_source.hi = -100
+			demand_source.validate_parameters()
 
-	def test_init_discrete_explicit(self):
-		"""Test that DemandSourceDiscreteExplicit correctly raises errors on invalid parameters.
+		demand_source = DemandSource()
+		demand_source.type = 'UC'
+		demand_source.lo = 50
+		demand_source.hi = 20
+		with self.assertRaises(AssertionError):
+			demand_source.validate_parameters()
+
+	def test_deterministic(self):
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for deterministic distribution.
 		"""
-		print_status('TestDemandSourceInit', 'TestDemandSourceParameters()')
+		print_status('TestValidateParameters', 'test_deterministic()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.DISCRETE_EXPLICIT)
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = None
 		with self.assertRaises(AssertionError):
-			demand_source.probabilities = [0.2, 0.5, 0.2]
+			demand_source.validate_parameters()
+
+	def test_custom_discrete(self):
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for custom discrete distribution.
+		"""
+		print_status('TestValidateParameters', 'test_custom_discrete()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = None
+		demand_source.probabilities = 4 * [0.25]
+		with self.assertRaises(AssertionError):
+			demand_source.validate_parameters()
+
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = [1, 2, 3, 4]
+		demand_source.probabilities = None
+		with self.assertRaises(AssertionError):
+			demand_source.validate_parameters()
+
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = [1, 2, 3, 4, 5]
+		demand_source.probabilities = 4 * [0.25]
+		with self.assertRaises(AssertionError):
+			demand_source.validate_parameters()
+
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = [1, 2, 3, 4]
+		demand_source.probabilities = 4 * [0.2]
+		with self.assertRaises(AssertionError):
+			demand_source.validate_parameters()
 
 
 class TestDemandSourceRepr(unittest.TestCase):
@@ -113,84 +181,99 @@ class TestDemandSourceRepr(unittest.TestCase):
 		print_status('TestDemandSourceRepr', 'tear_down_class()')
 
 	def test_none(self):
-		"""Test that DemandSourceNone.__repr__() correctly returns demand source string.
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is None.
 		"""
-		demand_source_factory = DemandSourceFactory()
+		print_status('TestDemandSourceRepr', 'test_none()')
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+		demand_source = DemandSource()
+		demand_source.type = None
+
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(NONE)")
+		self.assertEqual(demand_source_str, "DemandSource(None)")
 
 	def test_normal(self):
-		"""Test that DemandSourceNormal.__repr__() correctly returns demand source string.
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'N'.
 		"""
 		print_status('TestDemandSourceRepr', 'test_normal()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
 		demand_source.mean = 50
 		demand_source.standard_deviation = 8
+
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(NORMAL: mean=50.00, standard_deviation=8.00)")
+		self.assertEqual(demand_source_str, "DemandSource(N: mean=50.00, standard_deviation=8.00)")
 
 	def test_uniform_discrete(self):
-		"""Test that DemandSourceUniformDiscrete.__repr__() correctly returns demand source string.
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'UD'.
 		"""
 		print_status('TestDemandSourceRepr', 'test_uniform_discrete()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
 		demand_source.lo = 50
 		demand_source.hi = 80
+
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(UNIFORM_DISCRETE: lo=50.00, hi=80.00)")
+		self.assertEqual(demand_source_str, "DemandSource(UD: lo=50.00, hi=80.00)")
 
 	def test_uniform_continuous(self):
-		"""Test that DemandSourceUniformContinuous.__repr__() correctly returns demand source string.
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'UC'.
 		"""
 		print_status('TestDemandSourceRepr', 'test_uniform_continuous()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source = DemandSource()
+		demand_source.type = 'UC'
 		demand_source.lo = 50
 		demand_source.hi = 80
+
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(UNIFORM_CONTINUOUS: lo=50.00, hi=80.00)")
+		self.assertEqual(demand_source_str, "DemandSource(UC: lo=50.00, hi=80.00)")
 
 	def test_deterministic(self):
-		"""Test that DemandSource.__repr__() correctly returns demand source string for
-		deterministic demands.
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'D'.
 		"""
 		print_status('TestDemandSourceRepr', 'test_deterministic()')
 
-		demand_source_factory = DemandSourceFactory()
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = 5
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-		demand_source.demands = 5
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(DETERMINISTIC: demands=5)")
+		self.assertEqual(demand_source_str, "DemandSource(D: demand_list=5)")
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-		demand_source.demands = [5, 4, 3]
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = [5, 10, 5, 10]
+
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(DETERMINISTIC: demands=[5, 4, 3])")
+		self.assertEqual(demand_source_str, "DemandSource(D: demand_list=[5, 10, 5, 10])")
 
-	def test_discrete_explicit(self):
-		"""Test that DemandSource.__repr__() correctly returns demand source string for
-		discrete explicit demands.
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = 5 * [5, 10, 5, 10]
+
+		demand_source_str = demand_source.__repr__()
+		self.assertEqual(demand_source_str, "DemandSource(D: demand_list=[5, 10, 5, 10, 5, 10, 5, 10]...)")
+
+	def test_custom_discrete(self):
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'CD'.
 		"""
-		print_status('TestDemandSourceRepr', 'test_discrete_explicit()')
+		print_status('TestDemandSourceRepr', 'test_custom_discrete()')
 
-		demand_source_factory = DemandSourceFactory()
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = [5, 10, 15, 20]
+		demand_source.probabilities = [0.1, 0.2, 0.3, 0.4]
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.DISCRETE_EXPLICIT)
-		demand_source.demands = [5, 4, 3]
-		demand_source.probabilities = [0.2, 0.5, 0.3]
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(DISCRETE_EXPLICIT: demands=[5, 4, 3], probabilities=[0.2, 0.5, 0.3])")
+		self.assertEqual(demand_source_str, "DemandSource(CD: demand_list=[5, 10, 15, 20], probabilities=[0.1, 0.2, 0.3, 0.4])")
 
 
 class TestGenerateDemand(unittest.TestCase):
@@ -204,108 +287,26 @@ class TestGenerateDemand(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestGenerateDemand', 'tear_down_class()')
 
-	def test_normal(self):
-		"""Test that generate_demand() returns valid demand values for normal demands.
-		"""
-		print_status('TestGenerateDemand', 'test_normal()')
-
-		demand_source_factory = DemandSourceFactory()
-
-		# Check for correct errors.
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
-		demand_source.mean = 4
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
-		demand_source.standard_deviation = 4
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-
-	def test_uniform_discrete(self):
-		"""Test that generate_demand() returns valid demand values for discrete uniform demands.
-		"""
-		print_status('TestGenerateDemand', 'test_uniform_discrete()')
-
-		demand_source_factory = DemandSourceFactory()
-
-		# Check for correct errors.
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
-		demand_source.lo = 4
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
-		demand_source.hi = 12
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
-		demand_source.lo = 12
-		demand_source.hi = 4
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-
-		# Check for correct demand values.
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
-		demand_source.lo = 4
-		demand_source.hi = 12
-		for _ in range(100):
-			d = demand_source.generate_demand()
-			self.assertTrue(d >= 4, d <= 12)
-
-	def test_uniform_continuous(self):
-		"""Test that generate_demand() returns valid demand values for continuous uniform demands.
-		"""
-		print_status('TestGenerateDemand', 'test_uniform_continuous()')
-
-		demand_source_factory = DemandSourceFactory()
-
-		# Check for correct errors.
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
-		demand_source.lo = 4
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
-		demand_source.hi = 12
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
-		demand_source.lo = 12
-		demand_source.hi = 4
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-
-		# Check for correct demand values.
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
-		demand_source.lo = 4
-		demand_source.hi = 12
-		for _ in range(100):
-			d = demand_source.generate_demand()
-			self.assertTrue(d >= 4, d <= 12)
-
 	def test_deterministic(self):
 		"""Test that generate_demand() returns valid demand values for deterministic demands.
 		"""
 		print_status('TestGenerateDemand', 'test_deterministic()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		# Check for correct errors.
-		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-
-		# Check for correct demand values.
-		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-		demand_source.demands = 5
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = 5
 		d = demand_source.generate_demand()
 		self.assertEqual(d, 5)
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-		demand_source.demands = [5, 4, 3, 2]
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = [5, 4, 3, 2]
 		d = demand_source.generate_demand()
 		self.assertEqual(d, 5)
 
-		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-		demand_source.demands = [5, 4, 3, 2]
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = [5, 4, 3, 2]
 		d = demand_source.generate_demand(period=2)
 		self.assertEqual(d, 3)
 
@@ -314,21 +315,9 @@ class TestGenerateDemand(unittest.TestCase):
 		"""
 		print_status('TestGenerateDemand', 'test_discrete_explicit()')
 
-		demand_source_factory = DemandSourceFactory()
-
-		# Check for correct errors.
-		demand_source = demand_source_factory.build_demand_source(DemandType.DISCRETE_EXPLICIT)
-		demand_source.demands = [5, 4, 3, 2]
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-		demand_source = demand_source_factory.build_demand_source(DemandType.DISCRETE_EXPLICIT)
-		demand_source.probabilities = [0.25, 0.25, 0.2, 0.3]
-		with self.assertRaises(AssertionError):
-			_ = demand_source.generate_demand()
-
-		# Check for correct demand values.
-		demand_source = demand_source_factory.build_demand_source(DemandType.DISCRETE_EXPLICIT)
-		demand_source. demands = [5, 4, 3, 2]
+		demand_source = DemandSource()
+		demand_source.type = 'D'
+		demand_source.demand_list = [5, 4, 3, 2]
 		demand_source.probabilities = [0.25, 0.25, 0.2, 0.3]
 		for _ in range(100):
 			d = demand_source.generate_demand()
@@ -351,46 +340,79 @@ class TestDemandDistribution(unittest.TestCase):
 		"""
 		print_status('TestDemandDistribution', 'test_normal()')
 
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
 		demand_source.mean = 50
 		demand_source.standard_deviation = 8
 
-		distribution = demand_source.demand_distribution()
-#		a = distribution.a
-#		b = distribution.b
+		distribution = demand_source.demand_distribution
 		mu = distribution.mean()
 		sigma = distribution.std()
 		z = distribution.ppf(0.85)
 
-#		self.assertEqual(a, float("-inf"))
-#		self.assertEqual(b, float("inf"))
 		self.assertEqual(mu, 50)
 		self.assertEqual(sigma, 8)
 		self.assertAlmostEqual(z, 58.291467115950319)
+
+	def test_uniform_discrete(self):
+		"""Test demand_distribution() for discrete uniform demands.
+		"""
+		print_status('TestDemandDistribution', 'test_uniform_discrete()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.lo = 50
+		demand_source.hi = 100
+
+		distribution = demand_source.demand_distribution
+		mu = distribution.mean()
+		sigma = distribution.std()
+		z = distribution.ppf(0.85)
+
+		self.assertEqual(mu, 75)
+		self.assertAlmostEqual(sigma, np.sqrt((51**2 - 1) / 12))
+		self.assertEqual(z, 93)
 
 	def test_uniform_continuous(self):
 		"""Test demand_distribution() for continuous uniform demands.
 		"""
 		print_status('TestDemandDistribution', 'test_uniform_continuous()')
 
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source = DemandSource()
+		demand_source.type = 'UC'
 		demand_source.lo = 50
 		demand_source.hi = 100
 
-		distribution = demand_source.demand_distribution()
-#		a = distribution.a
-#		b = distribution.b
+		distribution = demand_source.demand_distribution
 		mu = distribution.mean()
 		sigma = distribution.std()
 		z = distribution.ppf(0.85)
 
-#		self.assertEqual(a, 50)
-#		self.assertEqual(b, 100)
 		self.assertEqual(mu, 75)
 		self.assertAlmostEqual(sigma, 50 / np.sqrt(12))
 		self.assertEqual(z, 92.5)
+
+	def test_custom_discrete(self):
+		"""Test demand_distribution() for custom discrete demands.
+		"""
+		print_status('TestDemandDistribution', 'test_custom_discrete()')
+
+		d = [1, 4, 7, 10]
+		p = [0.1, 0.2, 0.3, 0.4]
+
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = d
+		demand_source.probabilities = p
+
+		distribution = demand_source.demand_distribution
+		mu = distribution.mean()
+		sigma = distribution.std()
+		z = distribution.ppf(0.85)
+
+		self.assertEqual(mu, np.dot(d, p))
+		self.assertAlmostEqual(sigma, np.sqrt(np.dot(np.square(d), p) - mu**2))
+		self.assertEqual(z, 10)
 
 
 class TestCDF(unittest.TestCase):
@@ -405,12 +427,12 @@ class TestCDF(unittest.TestCase):
 		print_status('TestCDF', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test that cdf() returns correct values normal demands.
+		"""Test that cdf() returns correct values for normal demands.
 		"""
 		print_status('TestCDF', 'test_normal()')
 
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
 		demand_source.mean = 50
 		demand_source.standard_deviation = 8
 
@@ -421,20 +443,61 @@ class TestCDF(unittest.TestCase):
 		self.assertAlmostEqual(F, 0.105649773666855)
 
 	def test_uniform_continuous(self):
-		"""Test that truncation_bounds() returns correct bounds for continuous
+		"""Test that cdf() returns correct values for continuous
 		uniform demands.
 		"""
 		print_status('TestCDF', 'test_uniform_continuous()')
 
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+		demand_source = DemandSource()
+		demand_source.type = 'UC'
 		demand_source.lo = 50
 		demand_source.hi = 100
 
 		F = demand_source.cdf(55)
-		self.assertEqual(F, 0.100000000000000)
+		self.assertEqual(F, 0.1)
 
 		F = demand_source.cdf(80)
-		self.assertEqual(F, 0.600000000000000)
+		self.assertEqual(F, 0.6)
+
+	def test_uniform_discrete(self):
+		"""Test that cdf() returns correct values for discrete
+		uniform demands.
+		"""
+		print_status('TestCDF', 'test_uniform_discrete()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
+		demand_source.lo = 50
+		demand_source.hi = 100
+
+		F = demand_source.cdf(55)
+		self.assertEqual(F, 0.11764705882352941)
+
+		F = demand_source.cdf(80)
+		self.assertEqual(F, 0.6078431372549019)
+
+	def test_custom_discrete(self):
+		"""Test that cdf() returns correct values for custom discrete
+		demands.
+		"""
+		print_status('TestCDF', 'test_custom_discrete()')
+
+		d = [10, 40, 70, 100]
+		p = [0.1, 0.2, 0.3, 0.4]
+
+		demand_source = DemandSource()
+		demand_source.type = 'CD'
+		demand_source.demand_list = d
+		demand_source.probabilities = p
+
+		F = demand_source.cdf(55)
+		self.assertAlmostEqual(F, 0.3)
+
+		F = demand_source.cdf(80)
+		self.assertAlmostEqual(F, 0.6)
+
+
+
+
 
 

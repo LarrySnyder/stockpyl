@@ -85,7 +85,7 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	# Check that parameters are positive.
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_mean > 0, "mean must be positive."
 	assert demand_sd > 0, "demand_sd must be positive."
 
 	# Calculate lead-time demand parameters.
@@ -163,7 +163,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 	# Check that parameters are positive.
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_mean > 0, "mean must be positive."
 	assert demand_sd > 0, "demand_sd must be positive."
 
 	# Calculate lead-time demand parameters.
@@ -232,7 +232,7 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	# Check that parameters are positive.
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_mean > 0, "mean must be positive."
 	if base_stock_level is not None:
 		assert is_integer(base_stock_level), "base_stock_level must be an integer (or None)"
 
@@ -305,7 +305,7 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 	# Check that parameters are positive.
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_mean > 0, "mean must be positive."
 	if base_stock_level is not None:
 		assert is_integer(base_stock_level), "base_stock_level must be an integer (or None)"
 
@@ -921,7 +921,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	# Check that parameters are positive.
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "demand_mean must be positive."
+	assert demand_mean > 0, "mean must be positive."
 	assert demand_sd > 0, "demand_sd must be positive."
 
 	# Calculate lead-time demand parameters.

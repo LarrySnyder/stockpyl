@@ -67,24 +67,24 @@ class DemandSourceOld(object):
 	round : bool
 		Round demand to nearest integer?
 	demand_mean : float
-		Mean of demand per period. Required if ``demand_type`` == ``NORMAL``,
+		Mean of demand per period. Required if ``type`` == ``NORMAL``,
 		ignored otherwise. [mu]
 	demand_standard_deviation : float
-		Standard deviation of demand per period. Required if ``demand_type`` ==
+		Standard deviation of demand per period. Required if ``type`` ==
 		``NORMAL``, ignored otherwise. [sigma]
 	demands : list
-		List of demands, one per period (if ``demand_type`` == ``DETERMINISTIC``),
-		or list of possible demand values (if ``demand_type`` ==
-		``DISCRETE_EXPLICIT``). Required if ``demand_type`` == ``DETERMINISTIC``
+		List of demands, one per period (if ``type`` == ``DETERMINISTIC``),
+		or list of possible demand values (if ``type`` ==
+		``DISCRETE_EXPLICIT``). Required if ``type`` == ``DETERMINISTIC``
 		or ``DISCRETE_EXPLICIT``, ignored otherwise. [d]
 	demand_probabilities : list
-		List of probabilities of each demand value. Required if ``demand_type``
+		List of probabilities of each demand value. Required if ``type``
 		== ``DISCRETE_EXPLICIT``, ignored otherwise.
 	demand_lo : float
-		Low value of demand range. Required if ``demand_type`` ==
+		Low value of demand range. Required if ``type`` ==
 		``UNIFORM_DISCRETE`` or ``UNIFORM_CONTINUOUS``, ignored otherwise.
 	demand_hi : float
-		High value of demand range. Required if ``demand_type`` ==
+		High value of demand range. Required if ``type`` ==
 		``UNIFORM_DISCRETE`` or ``UNIFORM_CONTINUOUS``, ignored otherwise.
 	"""
 
@@ -106,27 +106,27 @@ class DemandSourceOld(object):
 		demand_type : DemandType
 			The demand type.
 		demand_mean : float
-			Mean of demand per period. Required if ``demand_type`` == ``NORMAL``,
+			Mean of demand per period. Required if ``type`` == ``NORMAL``,
 			ignored otherwise. [mu]
 		demand_standard_deviation : float
-			Standard deviation of demand per period. Required if ``demand_type`` ==
+			Standard deviation of demand per period. Required if ``type`` ==
 			``NORMAL``, ignored otherwise. [sigma]
 		demands : list
-			List of demands, one per period (if ``demand_type`` == ``DETERMINISTIC``),
-			or list of possible demand values (if ``demand_type`` ==
-			``DISCRETE_EXPLICIT``). Required if ``demand_type`` == ``DETERMINISTIC``
+			List of demands, one per period (if ``type`` == ``DETERMINISTIC``),
+			or list of possible demand values (if ``type`` ==
+			``DISCRETE_EXPLICIT``). Required if ``type`` == ``DETERMINISTIC``
 			or ``DISCRETE_EXPLICIT``, ignored otherwise. [d]
 		demand_probabilities : list
-			List of probabilities of each demand value. Required if ``demand_type``
+			List of probabilities of each demand value. Required if ``type``
 			== ``DISCRETE_EXPLICIT``, ignored otherwise.
 		demand_lo : float
-			Low value of demand range. Required if ``demand_type`` ==
+			Low value of demand range. Required if ``type`` ==
 			``UNIFORM_DISCRETE`` or ``UNIFORM_CONTINUOUS``, ignored otherwise.
 		demand_hi : float
-			High value of demand range. Required if ``demand_type`` ==
+			High value of demand range. Required if ``type`` ==
 			``UNIFORM_DISCRETE`` or ``UNIFORM_CONTINUOUS``, ignored otherwise.
 		"""
-		# Set demand_type.
+		# Set type.
 		self.demand_type = demand_type
 
 		# Set round_to_int.
@@ -144,28 +144,28 @@ class DemandSourceOld(object):
 		# Set (and validate) demand parameters.
 		# TODO: change this so that all of this can be set after __init__
 		if demand_type == DemandType.NORMAL:
-			assert demand_mean is not None, "For NORMAL demand, demand_mean must be provided"
-			assert demand_mean >= 0, "For NORMAL demand, demand_mean must be non-negative"
-			assert demand_standard_deviation is not None, "For NORMAL demand, demand_standard_deviation must be provided"
-			assert demand_standard_deviation >= 0, "For NORMAL demand, demand_standard_deviation must be non-negative"
+			assert demand_mean is not None, "For NORMAL demand, mean must be provided"
+			assert demand_mean >= 0, "For NORMAL demand, mean must be non-negative"
+			assert demand_standard_deviation is not None, "For NORMAL demand, standard_deviation must be provided"
+			assert demand_standard_deviation >= 0, "For NORMAL demand, standard_deviation must be non-negative"
 			self.demand_mean = demand_mean
 			self.demand_standard_deviation = demand_standard_deviation
 		elif demand_type == DemandType.UNIFORM_DISCRETE:
-			assert demand_lo is not None, "For UNIFORM_DISCRETE demand, demand_lo must be provided"
+			assert demand_lo is not None, "For UNIFORM_DISCRETE demand, lo must be provided"
 			assert demand_lo >= 0 and is_integer(demand_lo), \
-				"For UNIFORM_DISCRETE demand, demand_lo must be a non-negative integer"
-			assert demand_hi is not None, "For UNIFORM_DISCRETE demand, demand_hi must be provided"
+				"For UNIFORM_DISCRETE demand, lo must be a non-negative integer"
+			assert demand_hi is not None, "For UNIFORM_DISCRETE demand, hi must be provided"
 			assert demand_hi >= 0 and is_integer(demand_hi), \
-				"For UNIFORM_DISCRETE demand, demand_hi must be a non-negative integer"
-			assert demand_lo <= demand_hi, "For UNIFORM_DISCRETE demand, demand_lo must be <= demand_hi"
+				"For UNIFORM_DISCRETE demand, hi must be a non-negative integer"
+			assert demand_lo <= demand_hi, "For UNIFORM_DISCRETE demand, lo must be <= hi"
 			self.demand_lo = demand_lo
 			self.demand_hi = demand_hi
 		elif demand_type == DemandType.UNIFORM_CONTINUOUS:
-			assert demand_lo is not None, "For UNIFORM_CONTINUOUS demand, demand_lo must be provided"
-			assert demand_lo >= 0, "For UNIFORM_CONTINUOUS demand, demand_lo must be non-negative"
-			assert demand_hi is not None, "For UNIFORM_CONTINUOUS demand, demand_hi must be provided"
-			assert demand_hi >= 0, "For UNIFORM_CONTINUOUS demand, demand_hi must be non-negative"
-			assert demand_lo <= demand_hi, "For UNIFORM_CONTINUOUS demand, demand_lo must be <= demand_hi"
+			assert demand_lo is not None, "For UNIFORM_CONTINUOUS demand, lo must be provided"
+			assert demand_lo >= 0, "For UNIFORM_CONTINUOUS demand, lo must be non-negative"
+			assert demand_hi is not None, "For UNIFORM_CONTINUOUS demand, hi must be provided"
+			assert demand_hi >= 0, "For UNIFORM_CONTINUOUS demand, hi must be non-negative"
+			assert demand_lo <= demand_hi, "For UNIFORM_CONTINUOUS demand, lo must be <= hi"
 			self.demand_lo = demand_lo
 			self.demand_hi = demand_hi
 		elif demand_type == DemandType.DETERMINISTIC:
@@ -196,10 +196,10 @@ class DemandSourceOld(object):
 			param_str = ""
 		elif self.demand_type == DemandType.NORMAL:
 			param_str = \
-				"demand_mean={:.2f}, demand_standard_deviation={:.2f}".format(self.demand_mean, self.demand_standard_deviation)
+				"mean={:.2f}, standard_deviation={:.2f}".format(self.demand_mean, self.demand_standard_deviation)
 		elif self.demand_type in (DemandType.UNIFORM_DISCRETE, DemandType.UNIFORM_CONTINUOUS):
 			param_str = \
-				"demand_lo={:.2f}, demand_hi={:.2f}".format(self.demand_lo, self.demand_hi)
+				"lo={:.2f}, hi={:.2f}".format(self.demand_lo, self.demand_hi)
 		elif self.demand_type == DemandType.DETERMINISTIC:
 			param_str = "demands={}".format(self.demands)
 		elif self.demand_type == DemandType.DISCRETE_EXPLICIT:
@@ -220,15 +220,15 @@ class DemandSourceOld(object):
 
 	def generate_demand(self, period=None):
 		"""Generate a demand value using the demand type specified in
-		demand_type.
+		type.
 
 		Parameters
 		----------
 		period : int, optional
-			The period to generate a demand value for. If ``demand_type`` ==
+			The period to generate a demand value for. If ``type`` ==
 			``DETERMINISTIC``, this is required if ``demands`` is a list of
 			demands, on per period. If omitted, will return first (or only)
-			demand in list. Ignored if ``demand_type`` != ``DETERMINISTIC``.
+			demand in list. Ignored if ``type`` != ``DETERMINISTIC``.
 
 		Returns
 		-------

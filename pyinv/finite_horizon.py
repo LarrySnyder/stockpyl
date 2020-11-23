@@ -194,7 +194,7 @@ def finite_horizon_dp(
 	purchase_cost = np.array(ensure_list_for_time_periods(purchase_cost, num_periods, var_name="purchase_cost"))
 	fixed_cost = np.array(ensure_list_for_time_periods(fixed_cost, num_periods, var_name="fixed_cost"))
 	discount_factor = np.array(ensure_list_for_time_periods(discount_factor, num_periods, var_name="discount_factor"))
-	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="demand_mean"))
+	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="mean"))
 	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
 
 	# Validate other parameters.
@@ -204,7 +204,7 @@ def finite_horizon_dp(
 	assert np.all(np.array(fixed_cost[1:]) >= 0), "fixed_cost must be non-negative."
 	assert np.all(np.array(discount_factor[1:]) > 0) and \
 		   np.all(np.array(discount_factor[1:]) <= 1), "discount_factor must be <0 and <=1."
-	assert np.all(np.array(demand_mean[1:]) >= 0), "demand_mean must be non-negative."
+	assert np.all(np.array(demand_mean[1:]) >= 0), "mean must be non-negative."
 	assert np.all(np.array(demand_sd[1:]) >= 0), "demand_sd must be non-negative."
 
 	# Determine initial truncation settings.
@@ -250,9 +250,9 @@ def finite_horizon_dp(
 	for t in range(1, num_periods+1):
 		nv[t] = demand_mean[t]
 #		if demand_sd[t] == 0:
-#			nv[t] = demand_mean[t]
+#			nv[t] = mean[t]
 #		else:
-#			nv[t] = norm.ppf(alpha[t], demand_mean[t], demand_sd[t])
+#			nv[t] = norm.ppf(alpha[t], mean[t], demand_sd[t])
 
 	# Calculate EOQB.
 	# TODO: vectorize eoqb() so this is cleaner
@@ -467,7 +467,7 @@ def myopic_bounds(
 	purchase_cost = np.array(ensure_list_for_time_periods(purchase_cost, num_periods, var_name="purchase_cost"))
 	fixed_cost = np.array(ensure_list_for_time_periods(fixed_cost, num_periods, var_name="fixed_cost"))
 	discount_factor = np.array(ensure_list_for_time_periods(discount_factor, num_periods, var_name="discount_factor"))
-	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="demand_mean"))
+	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="mean"))
 	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
 
 	# Validate other parameters.
@@ -477,7 +477,7 @@ def myopic_bounds(
 	assert np.all(np.array(fixed_cost[1:]) >= 0), "fixed_cost must be non-negative."
 	assert np.all(np.array(discount_factor[1:]) > 0) and \
 		   np.all(np.array(discount_factor[1:]) <= 1), "discount_factor must be <0 and <=1."
-	assert np.all(np.array(demand_mean[1:]) >= 0), "demand_mean must be non-negative."
+	assert np.all(np.array(demand_mean[1:]) >= 0), "mean must be non-negative."
 	assert np.all(np.array(demand_sd[1:]) >= 0), "demand_sd must be non-negative."
 
 	# Redefine holding and stockout costs in last period to include terminal
@@ -539,7 +539,7 @@ def myopic_bounds(
 if __name__ == "__main__":
 
 	# num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-	# 	terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+	# 	terminal_stockout_cost, purchase_cost, fixed_cost, mean, \
 	# 	demand_sd, discount_factor, initial_inventory_level = \
 	# 	get_named_instance("problem_4_29")
 

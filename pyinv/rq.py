@@ -86,7 +86,7 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
@@ -265,7 +265,7 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
@@ -360,7 +360,7 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
@@ -433,7 +433,7 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
@@ -513,7 +513,7 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert demand_sd >= 0, "demand_sd must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
@@ -604,7 +604,7 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate mu (mean lead-time demand).
@@ -675,7 +675,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "demand_mean must be non-negative"
+	assert demand_mean >= 0, "mean must be non-negative"
 	assert lead_time >= 0, "lead_time must be non-negative"
 
 	# Calculate alpha.

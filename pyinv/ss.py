@@ -50,8 +50,8 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 		Fixed cost per order. [:math:`K`]
 	poisson_dist : bool
 		Set to ``True`` to use Poisson distribution, ``False`` to use custom
-		discrete distribution. If ``True``, then ``demand_mean`` must be
-		provided; if ``False``, then ``demand_hi`` and ``demand_pdf`` must
+		discrete distribution. If ``True``, then ``mean`` must be
+		provided; if ``False``, then ``hi`` and ``demand_pdf`` must
 		be provied.
 	demand_mean : float, optional
 		Mean demand per period. Required if ``use_poisson`` is ``True``,
@@ -60,7 +60,7 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 		Upper limit of support of demand per period (lower limit is assumed to
 		be 0). Required if ``use_poisson`` is ``False``, ignored otherwise.
 	demand_pmf : list, optional
-		List of pmf values for demand values 0, ..., ``demand_hi``. Required
+		List of pmf values for demand values 0, ..., ``hi``. Required
 		if ``use_poisson`` is ``False``, ignored otherwise.
 
 	Returns
@@ -99,12 +99,12 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean is None or demand_mean >= 0, "demand_mean must be non-negative (or None)"
+	assert demand_mean is None or demand_mean >= 0, "mean must be non-negative (or None)"
 	assert demand_hi is None or (demand_hi >= 0 and is_integer(demand_hi)), \
-		"demand_hi must be a non-negative integer (or None)"
+		"hi must be a non-negative integer (or None)"
 	assert demand_pmf is None or \
 		(is_list(demand_pmf) and len(demand_pmf) == demand_hi+1), \
-		"demand_pmf must be a list of length demand_hi+1 (or None)"
+		"demand_pmf must be a list of length hi+1 (or None)"
 
 	# Determine demand pmf to use based on use_poisson.
 	if use_poisson:
@@ -164,8 +164,8 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 		Fixed cost per order. [:math:`K`]
 	poisson_dist : bool
 		Set to ``True`` to use Poisson distribution, ``False`` to use custom
-		discrete distribution. If ``True``, then ``demand_mean`` must be
-		provided; if ``False``, then ``demand_hi`` and ``demand_pdf`` must
+		discrete distribution. If ``True``, then ``mean`` must be
+		provided; if ``False``, then ``hi`` and ``demand_pdf`` must
 		be provied.
 	demand_mean : float, optional
 		Mean demand per period. Required if ``use_poisson`` is ``True``,
@@ -174,7 +174,7 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 		Upper limit of support of demand per period (lower limit is assumed to
 		be 0). Required if ``use_poisson`` is ``False``, ignored otherwise.
 	demand_pmf : list, optional
-		List of pmf values for demand values 0, ..., ``demand_hi``. Required
+		List of pmf values for demand values 0, ..., ``hi``. Required
 		if ``use_poisson`` is ``False``, ignored otherwise.
 
 	Returns
@@ -209,12 +209,12 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 	assert holding_cost > 0, "holding_cost must be positive."
 	assert stockout_cost > 0, "stockout_cost must be positive."
 	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean is None or demand_mean >= 0, "demand_mean must be non-negative (or None)"
+	assert demand_mean is None or demand_mean >= 0, "mean must be non-negative (or None)"
 	assert demand_hi is None or (demand_hi >= 0 and is_integer(demand_hi)), \
-		"demand_hi must be a non-negative integer (or None)"
+		"hi must be a non-negative integer (or None)"
 	assert demand_pmf is None or \
 		(is_list(demand_pmf) and len(demand_pmf) == demand_hi+1), \
-		"demand_pmf must be a list of length demand_hi+1 (or None)"
+		"demand_pmf must be a list of length hi+1 (or None)"
 
 	# Determine y^*.
 	if use_poisson:

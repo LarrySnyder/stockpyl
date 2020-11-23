@@ -11,8 +11,8 @@ The following parameters are used to specify input data:
 		- echelon_holding_cost [h]
 		- stockout_cost [p]
 		- lead_time [L]
-		- demand_mean [mu]
-		- demand_standard_deviation [sigma]
+		- mean [mu]
+		- standard_deviation [sigma]
 	* Edge-level parameters
 		(None.)
 

@@ -754,9 +754,9 @@ def main():
 
 	# network = serial_system(
 	# 	num_nodes=1,
-	# 	demand_type=DemandType.NORMAL,
-	# 	demand_mean=20,
-	# 	demand_standard_deviation=4,
+	# 	type=DemandType.NORMAL,
+	# 	mean=20,
+	# 	standard_deviation=4,
 	# 	inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 	# 	local_base_stock_levels=[25],
 	# 	shipment_lead_time=[1],

@@ -555,9 +555,9 @@ class TestGSMToSSM(unittest.TestCase):
 
 		# correct_SSM_tree = nx.DiGraph()
 		# correct_SSM_tree.add_node(1, lead_time=3, echelon_holding_cost=1)
-		# correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		# correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
 		# correct_SSM_tree.add_node(3, lead_time=1, echelon_holding_cost=1)
-		# correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		# correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
 		# correct_SSM_tree.add_edge(1, 3)
 		# correct_SSM_tree.add_edge(3, 2)
 		# correct_SSM_tree.add_edge(3, 4)

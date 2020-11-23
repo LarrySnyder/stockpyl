@@ -448,10 +448,10 @@ def GSM_to_SSM(tree, p=None):
 			lead_time=tree.nodes[n]['processing_time']+tree.nodes[n]['external_inbound_cst'],
 			echelon_holding_cost=tree.nodes[n]['holding_cost'] - upstream_h)
 		if 'external_demand_mean' in tree.nodes[n]:
-			SSM_tree.nodes[n]['demand_mean'] = \
+			SSM_tree.nodes[n]['mean'] = \
 				tree.nodes[n]['external_demand_mean']
 		if 'external_demand_standard_deviation' in tree.nodes[n]:
-			SSM_tree.nodes[n]['demand_standard_deviation'] = \
+			SSM_tree.nodes[n]['standard_deviation'] = \
 				tree.nodes[n]['external_demand_standard_deviation']
 		if p is not None:
 			if tree.nodes[n]['external_demand_mean'] > 0 or \
