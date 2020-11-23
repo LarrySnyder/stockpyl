@@ -266,7 +266,7 @@ class DemandSource(object):
 			The demand value.
 
 		"""
-		return np.random.normal(self.mean, self.standard_deviation)
+		return max(0, np.random.normal(self.mean, self.standard_deviation))
 
 	def generate_demand_uniform_discrete(self):
 		"""Generate demand from discrete uniform distribution.

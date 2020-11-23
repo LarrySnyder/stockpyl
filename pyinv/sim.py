@@ -711,7 +711,7 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 
 
 def main():
-	T = 95
+	T = 100
 
 	#
 	network = get_named_instance("rosling_figure_1")
