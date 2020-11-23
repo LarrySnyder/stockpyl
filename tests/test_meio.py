@@ -346,3 +346,4 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		self.assertDictEqual(best_S, {0: 46.137514205286905, 1: 22.8116265434347, 2: 22.8116265434347, 3: 11.599007310905623, 4: 11.599007310905623, 5: 11.599007310905623, 6: 11.599007310905623})
 		self.assertAlmostEqual(best_cost, 267.103456382861)
 
+	# TODO: DEBUG THIS!!!!!!!!!!!!!!!!!!!!

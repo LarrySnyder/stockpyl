@@ -9,7 +9,7 @@
 
 """
 This module contains the ``DemandSource`` class. A ``DemandSource``
-object is used to generate demands.
+object is used to generate demand_list.
 
 Notation and equation and section numbers refer to Snyder and Shen,
 "Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
@@ -49,7 +49,7 @@ class DemandSource(object):
 	_standard_deviation : float, optional
 		Standard deviation of demand per period. Required if ``type`` =='N'. [:math:`\sigma`]
 	_demand_list : list, optional
-		List of demands, one per period (for deterministic demand types), or list
+		List of demand_list, one per period (for deterministic demand types), or list
 		of possible demand values (for custom discrete demand types). For deterministic
 		demand types, if demand is required in a period beyond the length of the list,
 		the list is restarted at the beginning. This also allows ``demand_list`` to be
@@ -227,7 +227,7 @@ class DemandSource(object):
 		----------
 		period : int, optional
 			The period to generate a demand value for. If ``type`` = 'D' (deterministic),
-			this is required if ``demand_list`` is a list of demands, one per period. If omitted,
+			this is required if ``demand_list`` is a list of demand_list, one per period. If omitted,
 			will return first (or only) demand in list.
 
 		Returns
@@ -301,14 +301,14 @@ class DemandSource(object):
 		"""
 		if is_iterable(self.demand_list):
 			if period is None:
-				# Return first demand in demands list.
+				# Return first demand in demand_list list.
 				return self.demand_list[0]
 			else:
-				# Get demand for period mod (# periods in demands list), i.e.,
-				# if we are past the end of the demands list, loop back to the beginning.
+				# Get demand for period mod (# periods in demand_list list), i.e.,
+				# if we are past the end of the demand_list list, loop back to the beginning.
 				return self.demand_list[period % len(self.demand_list)]
 		else:
-			# Return demands singleton.
+			# Return demand_list singleton.
 			return self.demand_list
 
 	def generate_demand_custom_discrete(self):
@@ -399,4 +399,42 @@ class DemandSource(object):
 			distribution = self.demand_distribution
 			return distribution.cdf(x)
 
+	def lead_time_demand_distribution(self, lead_time):
+		"""Return lead-time demand distribution, as a
+		``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
 
+		NOTE: For 'UC' and 'UD' demands, this method calculates the lead-time
+		demand distribution as the sum of ``lead_time`` uniform random variables.
+		Therefore, the method requires ``lead_time`` to be an integer for these
+		distributions. If it is not, it raises a value error.
+
+		Parameters
+		----------
+		lead_time : float
+			The lead time. [:math:`L`]
+
+		Returns
+		-------
+		distribution : rv_continuous or rv_discrete
+			The lead-time demand distribution object.
+
+		Raises
+		------
+		ValueError
+			If ``type`` is 'UC' or 'UD' and ``lead_time`` is not an integer.
+		"""
+
+		# Check whether lead_time is an integer.
+		if self.type in ('UC', 'UD') and not is_integer(lead_time):
+			raise(ValueError, "lead_time must be an integer for 'UC' and 'UD' demand")
+
+		# Get distribution object.
+		if self.type == 'N':
+			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * np.sqrt(lead_time))
+		elif self.type in ('UC', 'UD'):
+			distribution = sum_of_uniforms_distribution(lead_time, self.lo, self.hi)
+		else:
+			# TODO: handle 'CD' demands
+			return None
+
+		return distribution

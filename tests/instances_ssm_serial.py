@@ -16,7 +16,7 @@ instance_2_stage.add_node(1, echelon_holding_cost=1,
 						  	 initial_shipments=0,
 						  	 order_lead_time=0,
 						  	 shipment_lead_time=0,
-						  	 demand_type=DemandType.NORMAL,
+						  	 demand_type='N',
 						  	 supply_type=SupplyType.NONE)
 instance_2_stage.add_node(2, echelon_holding_cost=1,
 						  	 lead_time=1,
@@ -25,7 +25,7 @@ instance_2_stage.add_node(2, echelon_holding_cost=1,
 						  	 initial_shipments=0,
 						  	 order_lead_time=0,
 						  	 shipment_lead_time=0,
-						  	 demand_type=DemandType.NONE,
+						  	 demand_type='N',
 						  	 supply_type=SupplyType.UNLIMITED)
 instance_2_stage.add_edge(2, 1)
 

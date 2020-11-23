@@ -233,15 +233,15 @@ class SupplyChainNetwork(object):
 # ===============================================================================
 
 def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_holding_cost=0,
-						   stockout_cost=0, order_lead_time=0,
-						   shipment_lead_time=0, demand_type=None, demand_mean=0,
-						   demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-						   demands=None, demand_probabilities=None, initial_IL=0,
-						   initial_orders=0, initial_shipments=0, supply_type=None,
-						   inventory_policy_type=None, local_base_stock_levels=None,
-						   echelon_base_stock_levels=None,
-						   reorder_points=None, order_quantities=None,
-						   order_up_to_levels=None):
+					   stockout_cost=0, order_lead_time=0,
+					   shipment_lead_time=0, demand_type=None, demand_mean=0,
+					   demand_standard_deviation=0, demand_lo=0, demand_hi=0,
+					   demand_list=None, probabilities=None, initial_IL=0,
+					   initial_orders=0, initial_shipments=0, supply_type=None,
+					   inventory_policy_type=None, local_base_stock_levels=None,
+					   echelon_base_stock_levels=None,
+					   reorder_points=None, order_quantities=None,
+					   order_up_to_levels=None):
 	"""Construct supply chain network with the specified edges.
 
 	Other than ``edges``, all parameters are optional. If they are provided,
@@ -282,7 +282,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	demand_standard_deviation
 	demand_lo
 	demand_hi
-	demands
+	demand_list
 	initial_IL
 	initial_orders
 	initial_shipments
@@ -338,8 +338,8 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	demand_standard_deviation_list = ensure_dict_for_nodes(demand_standard_deviation, node_indices, None)
 	demand_lo_list = ensure_dict_for_nodes(demand_lo, node_indices, None)
 	demand_hi_list = ensure_dict_for_nodes(demand_hi, node_indices, None)
-#	demands_list = ensure_list_for_time_periods(demands, node_indices, None)
-	demand_probabilities_list = ensure_dict_for_nodes(demand_probabilities, node_indices, None)
+#	demands_list = ensure_list_for_time_periods(demand_list, node_indices, None)
+	probabilities_list = ensure_dict_for_nodes(probabilities, node_indices, None)
 	initial_IL_list = ensure_dict_for_nodes(initial_IL, node_indices, None)
 	initial_orders_list = ensure_dict_for_nodes(initial_orders, node_indices, None)
 	initial_shipments_list = ensure_dict_for_nodes(initial_shipments, node_indices, None)
@@ -353,16 +353,16 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 
 	# Check that valid demand info has been provided.
 	for n in network.nodes:
-		if demand_type_list[n.index] == DemandType.NORMAL and (demand_mean_list[n.index] is None or demand_standard_deviation_list[n.index] is None):
+		if demand_type_list[n.index] == 'N' and (demand_mean_list[n.index] is None or demand_standard_deviation_list[n.index] is None):
 			raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-		elif (demand_type_list[n.index] == DemandType.UNIFORM_DISCRETE or
-			  demand_type_list[n.index] == DemandType.UNIFORM_CONTINUOUS) and \
+		elif (demand_type_list[n.index] == 'UD' or
+			  demand_type_list[n.index] == 'UC') and \
 			(demand_lo_list[n.index] is None or demand_hi_list[n.index] is None):
 			raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-		elif demand_type_list[n.index] == DemandType.DETERMINISTIC and demands is None:
-			raise ValueError("Demand type was specified as deterministic but demands were not provided")
-		elif demand_type_list[n.index] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
-			raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+		elif demand_type_list[n.index] == 'D' and demand_list is None:
+			raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+		elif demand_type_list[n.index] == 'CD' and (demand_list is None or probabilities_list is None):
+			raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
 	for n in network.nodes:
@@ -401,20 +401,20 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		n.order_lead_time = order_lead_time_list[n.index]
 
 		# Build and set demand source.
-		demand_source_factory = DemandSourceFactory()
+		demand_source = DemandSource()
 		demand_type = demand_type_list[n.index]
-		demand_source = demand_source_factory.build_demand_source(demand_type)
-		if demand_type == DemandType.NORMAL:
+		demand_source.type = demand_type
+		if demand_type == 'N':
 			demand_source.mean = demand_mean_list[n.index]
 			demand_source.standard_deviation = demand_standard_deviation_list[n.index]
-		elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+		elif demand_type in ('UC', 'UD'):
 			demand_source.lo = demand_lo_list[n.index]
 			demand_source.hi = demand_hi_list[n.index]
-		elif demand_type == DemandType.DETERMINISTIC:
-			demand_source.demands = demands[n.index]
-		elif demand_type == DemandType.DISCRETE_EXPLICIT:
-			demand_source.demands = demands[n.index]
-			demand_source.probabilities = demand_probabilities_list[n.index]
+		elif demand_type == 'D':
+			demand_source.demand_list = demand_list[n.index]
+		elif demand_type == 'CD':
+			demand_source.demand_list = demand_list[n.index]
+			demand_source.probabilities = probabilities_list[n.index]
 		n.demand_source = demand_source
 
 		# Set initial quantities.
@@ -462,13 +462,13 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 # ===============================================================================
 
 def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
-				  shipment_lead_time=0, demand_type=None, demand_mean=0,
-				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				  demands=None, demand_probabilities=None, initial_IL=0,
-				  initial_orders=0, initial_shipments=0, supply_type=None,
-				  inventory_policy_type=None, base_stock_level=None,
-				  reorder_point=None, order_quantity=None,
-				  order_up_to_level=None):
+				 shipment_lead_time=0, demand_type=None, demand_mean=0,
+				 demand_standard_deviation=0, demand_lo=0, demand_hi=0,
+				 demand_list=None, probabilities=None, initial_IL=0,
+				 initial_orders=0, initial_shipments=0, supply_type=None,
+				 inventory_policy_type=None, base_stock_level=None,
+				 reorder_point=None, order_quantity=None,
+				 order_up_to_level=None):
 	"""Generate single-stage system.
 
 	All parameters are optional.
@@ -485,7 +485,7 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	demand_standard_deviation
 	demand_lo
 	demand_hi
-	demands
+	demand_list
 	initial_IL
 	initial_orders
 	initial_shipments
@@ -505,18 +505,16 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	"""
 
 	# Check that valid demand info has been provided.
-	if demand_type is None or demand_type == DemandType.NONE:
-		raise ValueError("Valid type has not been provided")
-	elif demand_type == DemandType.NORMAL and (demand_mean is None or demand_standard_deviation is None):
+	if demand_type == 'N' and (demand_mean is None or demand_standard_deviation is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type == DemandType.UNIFORM_DISCRETE or
-		  demand_type == DemandType.UNIFORM_CONTINUOUS) and \
+	elif (demand_type == 'UD' or
+		  demand_type == 'UC') and \
 		(demand_lo is None or demand_hi is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type == DemandType.DETERMINISTIC and demands is None:
-		raise ValueError("Demand type was specified as deterministic but demands were not provided")
-	elif demand_type == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities is None):
-		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+	elif demand_type == 'D' and demand_list is None:
+		raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+	elif demand_type == 'CD' and (demand_list is None or probabilities is None):
+		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
 	if inventory_policy_type is None:
@@ -555,20 +553,20 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	node.order_lead_time = order_lead_time
 
 	# Build and set demand source.
-	demand_source_factory = DemandSourceFactory()
 	demand_type = demand_type
-	demand_source = demand_source_factory.build_demand_source(demand_type)
-	if demand_type == DemandType.NORMAL:
+	demand_source = DemandSource()
+	demand_source.type = demand_type
+	if demand_type == 'N':
 		demand_source.mean = demand_mean
 		demand_source.standard_deviation = demand_standard_deviation
-	elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+	elif demand_type in ('UC', 'UD'):
 		demand_source.lo = demand_lo
 		demand_source.hi = demand_hi
-	elif demand_type == DemandType.DETERMINISTIC:
-		demand_source.demands = demands
-	elif demand_type == DemandType.DISCRETE_EXPLICIT:
-		demand_source.demands = demands
-		demand_source.probabilities = demand_probabilities
+	elif demand_type == 'D':
+		demand_source.demand_list = demand_list
+	elif demand_type == 'CD':
+		demand_source.demand_list = demand_list
+		demand_source.probabilities = probabilities
 	node.demand_source = demand_source
 
 	# Set initial quantities.
@@ -613,7 +611,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 				  stockout_cost=0, order_lead_time=0,
 				  shipment_lead_time=0, demand_type=None, demand_mean=0,
 				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				  demands=None, demand_probabilities=None, initial_IL=0,
+				  demand_list=None, probabilities=None, initial_IL=0,
 				  initial_orders=0, initial_shipments=0, supply_type=None,
 				  inventory_policy_type=None, local_base_stock_levels=None,
 				  echelon_base_stock_levels=None,
@@ -657,7 +655,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	demand_standard_deviation
 	demand_lo
 	demand_hi
-	demands
+	demand_list
 	initial_IL
 	initial_orders
 	initial_shipments
@@ -688,7 +686,6 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		indices = list(range(num_nodes-1, -1, -1))
 		downstream_node = num_nodes-1
 
-
 	# Build dicts of attributes.
 	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, indices, 0.0)
 	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices, 0.0)
@@ -700,8 +697,8 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	demand_standard_deviation_dict = ensure_dict_for_nodes(demand_standard_deviation, indices, None)
 	demand_lo_dict = ensure_dict_for_nodes(demand_lo, indices, None)
 	demand_hi_dict = ensure_dict_for_nodes(demand_hi, indices, None)
-#	demands_dict = ensure_dict_for_time_periods(demands, indices, None)
-	demand_probabilities_dict = ensure_dict_for_nodes(demand_probabilities, indices, None)
+#	demands_dict = ensure_dict_for_time_periods(demand_list, indices, None)
+	probabilities_dict = ensure_dict_for_nodes(probabilities, indices, None)
 	initial_IL_dict = ensure_dict_for_nodes(initial_IL, indices, None)
 	initial_orders_dict = ensure_dict_for_nodes(initial_orders, indices, None)
 	initial_shipments_dict = ensure_dict_for_nodes(initial_shipments, indices, None)
@@ -714,18 +711,18 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	order_up_to_levels_dict = ensure_dict_for_nodes(order_up_to_levels, indices, None)
 
 	# Check that valid demand info has been provided.
-	if demand_type_dict[downstream_node] is None or demand_type_dict[downstream_node] == DemandType.NONE:
+	if demand_type_dict[downstream_node] is None:
 		raise ValueError("Valid type has not been provided")
-	elif demand_type_dict[downstream_node] == DemandType.NORMAL and (demand_mean_dict[downstream_node] is None or demand_standard_deviation_dict[downstream_node] is None):
+	elif demand_type_dict[downstream_node] == 'N' and (demand_mean_dict[downstream_node] is None or demand_standard_deviation_dict[downstream_node] is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type_dict[downstream_node] == DemandType.UNIFORM_DISCRETE or
-		  demand_type_dict[downstream_node] == DemandType.UNIFORM_CONTINUOUS) and \
+	elif (demand_type_dict[downstream_node] == 'UD' or
+		  demand_type_dict[downstream_node] == 'UC') and \
 		(demand_lo_dict[downstream_node] is None or demand_hi_dict[downstream_node] is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type_dict[downstream_node] == DemandType.DETERMINISTIC and demands is None:
-		raise ValueError("Demand type was specified as deterministic but demands were not provided")
-	elif demand_type_dict[downstream_node] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_dict is None):
-		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+	elif demand_type_dict[downstream_node] == 'D' and demand_list is None:
+		raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+	elif demand_type_dict[downstream_node] == 'CD' and (demand_list is None or probabilities_dict is None):
+		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
 	for n_index in indices:
@@ -773,23 +770,23 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.order_lead_time = order_lead_time_dict[n_ind]
 
 		# Build and set demand source.
-		demand_source_factory = DemandSourceFactory()
 		demand_type = demand_type_dict[n_ind]
 		if n == 0:
-			demand_source = demand_source_factory.build_demand_source(demand_type)
-			if demand_type == DemandType.NORMAL:
+			demand_source = DemandSource()
+			demand_source.type = demand_type
+			if demand_type == 'N':
 				demand_source.mean = demand_mean_dict[n_ind]
 				demand_source.standard_deviation = demand_standard_deviation_dict[n_ind]
-			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+			elif demand_type in ('UC', 'UD'):
 				demand_source.lo = demand_lo_dict[n_ind]
 				demand_source.hi = demand_hi_dict[n_ind]
-			elif demand_type == DemandType.DETERMINISTIC:
-				demand_source.demands = demands[n_ind]
-			elif demand_type == DemandType.DISCRETE_EXPLICIT:
-				demand_source.demands = demands[n_ind]
-				demand_source.probabilities = demand_probabilities_dict[n_ind]
+			elif demand_type == 'D':
+				demand_source.demand_list = demand_list[n_ind]
+			elif demand_type == 'CD':
+				demand_source.demand_list = demand_list[n_ind]
+				demand_source.probabilities = probabilities_dict[n_ind]
 		else:
-			demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+			demand_source = None
 		node.demand_source = demand_source
 
 		# Set initial quantities.
@@ -847,7 +844,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 				stockout_cost=0, order_lead_time=0,
 				shipment_lead_time=0, demand_type=None, demand_mean=0,
 				demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				demands=None, demand_probabilities=None, initial_IL=0,
+				demand_list=None, probabilities=None, initial_IL=0,
 				initial_orders=0, initial_shipments=0, supply_type=None,
 				inventory_policy_type=None, local_base_stock_levels=None,
 				echelon_base_stock_levels=None,
@@ -893,7 +890,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	demand_standard_deviation
 	demand_lo
 	demand_hi
-	demands
+	demand_list
 	initial_IL
 	initial_orders
 	initial_shipments
@@ -935,8 +932,8 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	demand_standard_deviation_list = ensure_list_for_nodes(demand_standard_deviation, num_nodes, None)
 	demand_lo_list = ensure_list_for_nodes(demand_lo, num_nodes, None)
 	demand_hi_list = ensure_list_for_nodes(demand_hi, num_nodes, None)
-#	demands_list = ensure_list_for_time_periods(demands, num_nodes, None)
-	demand_probabilities_list = ensure_list_for_nodes(demand_probabilities, num_nodes, None)
+#	demands_list = ensure_list_for_time_periods(demand_list, num_nodes, None)
+	probabilities_list = ensure_list_for_nodes(probabilities, num_nodes, None)
 	initial_IL_list = ensure_list_for_nodes(initial_IL, num_nodes, None)
 	initial_orders_list = ensure_list_for_nodes(initial_orders, num_nodes, None)
 	initial_shipments_list = ensure_list_for_nodes(initial_shipments, num_nodes, None)
@@ -950,18 +947,18 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 
 	# TODO: write separate functions to do these type/input checks
 	# Check that valid demand info has been provided.
-	if demand_type_list[0] is None or demand_type_list[0] == DemandType.NONE:
+	if demand_type_list[0] is None or demand_type_list[0] == None:
 		raise ValueError("Valid type has not been provided")
-	elif demand_type_list[0] == DemandType.NORMAL and (demand_mean_list[0] is None or demand_standard_deviation_list[0] is None):
+	elif demand_type_list[0] == 'N' and (demand_mean_list[0] is None or demand_standard_deviation_list[0] is None):
 		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type_list[0] == DemandType.UNIFORM_DISCRETE or
-		  demand_type_list[0] == DemandType.UNIFORM_CONTINUOUS) and \
+	elif (demand_type_list[0] == 'UD' or
+		  demand_type_list[0] == 'UC') and \
 		(demand_lo_list[0] is None or demand_hi_list[0] is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type_list[0] == DemandType.DETERMINISTIC and demands is None:
-		raise ValueError("Demand type was specified as deterministic but demands were not provided")
-	elif demand_type_list[0] == DemandType.DISCRETE_EXPLICIT and (demands is None or demand_probabilities_list is None):
-		raise ValueError("Demand type was specified as discrete explicit but demands and/or probabilities were not provided")
+	elif demand_type_list[0] == 'D' and demand_list is None:
+		raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+	elif demand_type_list[0] == 'CD' and (demand_list is None or probabilities_list is None):
+		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
 	for n_index in range(num_nodes):
@@ -1009,23 +1006,23 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 
 		# Build and set demand source.
 		# TODO: make a one-line way to create demand source -- this is way too cumbersome
-		demand_source_factory = DemandSourceFactory()
 		demand_type = demand_type_list[n]
 		if n == 0:
-			demand_source = demand_source_factory.build_demand_source(demand_type)
-			if demand_type == DemandType.NORMAL:
+			demand_source = DemandSource()
+			demand_source.type = demand_type
+			if demand_type == 'N':
 				demand_source.mean = demand_mean_list[n]
 				demand_source.standard_deviation = demand_standard_deviation_list[n]
-			elif demand_type in (DemandType.UNIFORM_CONTINUOUS, DemandType.UNIFORM_DISCRETE):
+			elif demand_type in ('UC', 'UD'):
 				demand_source.lo = demand_lo_list[n]
 				demand_source.hi = demand_hi_list[n]
-			elif demand_type == DemandType.DETERMINISTIC:
-				demand_source.demands = demands[n]
-			elif demand_type == DemandType.DISCRETE_EXPLICIT:
-				demand_source.demands = demands[n]
-				demand_source.probabilities = demand_probabilities_list[n]
+			elif demand_type == 'D':
+				demand_source.demand_list = demand_list[n]
+			elif demand_type == 'CD':
+				demand_source.demand_list = demand_list[n]
+				demand_source.probabilities = probabilities_list[n]
 		else:
-			demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+			demand_source = None
 		node.demand_source = demand_source
 
 		# Set initial quantities.

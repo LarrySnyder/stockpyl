@@ -287,7 +287,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 
 	# Get shortcuts to parameters (for convenience).
 	sink = network.get_node_from_index(1)
-	mu = sink.demand_source.demand_distribution().mean()
+	mu = sink.demand_source.demand_distribution.mean()
 	L = np.zeros(N+1)
 	h = np.zeros(N+1)
 	for j in network.nodes:
@@ -334,7 +334,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		x_delta = x[1] - x[0]
 
 	# Standard normal demand array (truncated and discretized).
-	# (Use mu + d * sigma to get distribution-specific demands).
+	# (Use mu + d * sigma to get distribution-specific demand_list).
 	# d_lo = -4
 	# d_hi = 4
 	# d_delta = (d_hi - d_lo) / d_num
@@ -418,7 +418,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 			# Get index of closest element of x to y.
 			the_x = find_nearest(x, y, True)
 
-			# Loop through demands and calculate expected cost.
+			# Loop through demand_list and calculate expected cost.
 			# This method uses the following result (see Problem X.X):
 			# TODO: supply problem number
 			# lim_{y -> -infty} C_j(y) = -(p + h'_{j+1})(y - sum_{i=1}^j E[D_i])

@@ -287,7 +287,7 @@ class TestSingleStageSystem(unittest.TestCase):
 
 		network = single_stage(holding_cost=0.18,
 							    stockout_cost=0.70,
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=50, demand_standard_deviation=8,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								base_stock_level=56.6)
@@ -308,7 +308,7 @@ class TestSingleStageSystem(unittest.TestCase):
 
 		network = serial_system(3, downstream_0=False,
 								local_holding_cost=[7, 4, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[5, 5, 5])
@@ -349,7 +349,7 @@ class TestSingleStageSystem(unittest.TestCase):
 
 		network = serial_system(3, node_indices=[17, 14, 12],
 								local_holding_cost=[7, 4, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[5, 5, 5])
@@ -401,7 +401,7 @@ class TestSerialSystem(unittest.TestCase):
 		print_status('TestSerialSystem', 'test_3_node_serial_downstream_0()')
 
 		network = serial_system(3, local_holding_cost=[7, 4, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[5, 5, 5])
@@ -442,7 +442,7 @@ class TestSerialSystem(unittest.TestCase):
 
 		network = serial_system(3, downstream_0=False,
 								local_holding_cost=[7, 4, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[5, 5, 5])
@@ -483,7 +483,7 @@ class TestSerialSystem(unittest.TestCase):
 
 		network = serial_system(3, node_indices=[17, 14, 12],
 								local_holding_cost={17: 7, 14: 4, 12: 2},
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=5)
@@ -535,7 +535,7 @@ class TestMWORSystem(unittest.TestCase):
 		print_status('TestMWORSystem', 'test_4_node_mwor_downstream_0()')
 
 		network = mwor_system(3, local_holding_cost=[5, 1, 1, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[10, 10, 10, 10])
@@ -583,7 +583,7 @@ class TestMWORSystem(unittest.TestCase):
 
 		network = mwor_system(3, downstream_0=False,
 								local_holding_cost=[5, 1, 1, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[10, 10, 10, 10])
@@ -631,7 +631,7 @@ class TestMWORSystem(unittest.TestCase):
 
 		network = mwor_system(3, node_indices=[17, 14, 12, 5],
 								local_holding_cost=[5, 1, 1, 2],
-								demand_type=DemandType.NORMAL,
+								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
 								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
 								local_base_stock_levels=[10, 10, 10, 10])

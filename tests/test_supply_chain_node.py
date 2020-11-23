@@ -318,8 +318,8 @@ class TestDerivedDemandMean(unittest.TestCase):
 		print_status('TestDerivedDemandMean', 'test_assembly()')
 
 		network = get_named_instance("rosling_figure_1")
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
 		demand_source.mean = 15
 		demand_source.standard_deviation = 2
 		network.get_node_from_index(1).demand_source = demand_source
@@ -413,8 +413,8 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		print_status('TestDerivedDemandStandardDeviation', 'test_assembly()')
 
 		network = get_named_instance("rosling_figure_1")
-		demand_source_factory = DemandSourceFactory()
-		demand_source = demand_source_factory.build_demand_source(DemandType.NORMAL)
+		demand_source = DemandSource()
+		demand_source.type = 'N'
 		demand_source.mean = 15
 		demand_source.standard_deviation = 2
 		network.get_node_from_index(1).demand_source = demand_source

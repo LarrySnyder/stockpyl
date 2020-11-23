@@ -9,7 +9,7 @@
 
 """
 This module contains the ``DemandSource`` class. A ``DemandSource``
-object is used to generate demands.
+object is used to generate demand_list.
 
 Notation and equation and section numbers refer to Snyder and Shen,
 "Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
@@ -36,8 +36,8 @@ class DemandType(Enum):
 	NORMAL = 1
 	UNIFORM_DISCRETE = 2
 	UNIFORM_CONTINUOUS = 3
-	DETERMINISTIC = 4			# must supply 'demands' parameter
-	DISCRETE_EXPLICIT = 5		# must supply 'demands' and 'demand_probs' parameters
+	DETERMINISTIC = 4			# must supply 'demand_list' parameter
+	DISCRETE_EXPLICIT = 5		# must supply 'demand_list' and 'demand_probs' parameters
 
 
 # ===============================================================================
@@ -73,7 +73,7 @@ class DemandSourceOld(object):
 		Standard deviation of demand per period. Required if ``type`` ==
 		``NORMAL``, ignored otherwise. [sigma]
 	demands : list
-		List of demands, one per period (if ``type`` == ``DETERMINISTIC``),
+		List of demand_list, one per period (if ``type`` == ``DETERMINISTIC``),
 		or list of possible demand values (if ``type`` ==
 		``DISCRETE_EXPLICIT``). Required if ``type`` == ``DETERMINISTIC``
 		or ``DISCRETE_EXPLICIT``, ignored otherwise. [d]
@@ -112,7 +112,7 @@ class DemandSourceOld(object):
 			Standard deviation of demand per period. Required if ``type`` ==
 			``NORMAL``, ignored otherwise. [sigma]
 		demands : list
-			List of demands, one per period (if ``type`` == ``DETERMINISTIC``),
+			List of demand_list, one per period (if ``type`` == ``DETERMINISTIC``),
 			or list of possible demand values (if ``type`` ==
 			``DISCRETE_EXPLICIT``). Required if ``type`` == ``DETERMINISTIC``
 			or ``DISCRETE_EXPLICIT``, ignored otherwise. [d]
@@ -169,13 +169,13 @@ class DemandSourceOld(object):
 			self.demand_lo = demand_lo
 			self.demand_hi = demand_hi
 		elif demand_type == DemandType.DETERMINISTIC:
-			assert demands is not None, "For DETERMINISTIC demand, demands must be provided"
+			assert demands is not None, "For DETERMINISTIC demand, demand_list must be provided"
 			self.demands = demands
 		elif demand_type == DemandType.DISCRETE_EXPLICIT:
-			assert demands is not None, "For DISCRETE_EXPLICIT demand, demands must be provided"
+			assert demands is not None, "For DISCRETE_EXPLICIT demand, demand_list must be provided"
 			assert demand_probabilities is not None, "For DISCRETE_EXPLICIT demand, probabilities must be provided"
 			assert len(demands) == len(demand_probabilities), \
-				"For DISCRETE_EXPLICIT demand, demands and probabilities must have equal lengths"
+				"For DISCRETE_EXPLICIT demand, demand_list and probabilities must have equal lengths"
 			assert np.sum(demand_probabilities) == 1, "For DISCRETE_EXPLICIT demand, probabilities must sum to 1"
 			self.demands = demands
 			self.demand_probabilities = demand_probabilities
@@ -201,9 +201,9 @@ class DemandSourceOld(object):
 			param_str = \
 				"lo={:.2f}, hi={:.2f}".format(self.demand_lo, self.demand_hi)
 		elif self.demand_type == DemandType.DETERMINISTIC:
-			param_str = "demands={}".format(self.demands)
+			param_str = "demand_list={}".format(self.demands)
 		elif self.demand_type == DemandType.DISCRETE_EXPLICIT:
-			param_str = "demands={}, probabilities={}".format(self.demands, self.demand_probabilities)
+			param_str = "demand_list={}, probabilities={}".format(self.demands, self.demand_probabilities)
 
 		return "DemandSource({:s}: {:s})".format(self.demand_type.name, param_str)
 
@@ -226,8 +226,8 @@ class DemandSourceOld(object):
 		----------
 		period : int, optional
 			The period to generate a demand value for. If ``type`` ==
-			``DETERMINISTIC``, this is required if ``demands`` is a list of
-			demands, on per period. If omitted, will return first (or only)
+			``DETERMINISTIC``, this is required if ``demand_list`` is a list of
+			demand_list, on per period. If omitted, will return first (or only)
 			demand in list. Ignored if ``type`` != ``DETERMINISTIC``.
 
 		Returns
@@ -297,14 +297,14 @@ class DemandSourceOld(object):
 		"""
 		if is_iterable(self.demands):
 			if period is None:
-				# Return first demand in demands list.
+				# Return first demand in demand_list list.
 				return self.demands[0]
 			else:
-				# Get demand for period mod (# periods in demands list), i.e.,
-				# if we are past the end of the demands list, loop back to the beginning.
+				# Get demand for period mod (# periods in demand_list list), i.e.,
+				# if we are past the end of the demand_list list, loop back to the beginning.
 				return self.demands[period % len(self.demands)]
 		else:
-			# Return demands singleton.
+			# Return demand_list singleton.
 			return self.demands
 
 	def generate_demand_discrete_explicit(self):

@@ -526,9 +526,9 @@ class TestGSMToSSM(unittest.TestCase):
 
 		correct_SSM_tree = nx.DiGraph()
 		correct_SSM_tree.add_node(1, lead_time=3, echelon_holding_cost=1)
-		correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
 		correct_SSM_tree.add_node(3, lead_time=1, echelon_holding_cost=1)
-		correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, demand_standard_deviation=1)
+		correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
 		correct_SSM_tree.add_edge(1, 3)
 		correct_SSM_tree.add_edge(3, 2)
 		correct_SSM_tree.add_edge(3, 4)
@@ -581,8 +581,8 @@ class TestGSMToSSM(unittest.TestCase):
 		SSM_tree = gsm_tree.GSM_to_SSM(tree)
 
 		correct_SSM_tree = nx.DiGraph()
-		correct_SSM_tree.add_node(1, lead_time=7, echelon_holding_cost=130 * 0.2 / 365, demand_mean=22.0, demand_standard_deviation=4.1)
-		correct_SSM_tree.add_node(2, lead_time=7, echelon_holding_cost=50 * 0.2 / 365, demand_mean=15.3, demand_standard_deviation=6.2)
+		correct_SSM_tree.add_node(1, lead_time=7, echelon_holding_cost=130 * 0.2 / 365, mean=22.0, standard_deviation=4.1)
+		correct_SSM_tree.add_node(2, lead_time=7, echelon_holding_cost=50 * 0.2 / 365, mean=15.3, standard_deviation=6.2)
 		correct_SSM_tree.add_node(3, lead_time=21, echelon_holding_cost=65 * 0.2 / 365)
 		correct_SSM_tree.add_node(4, lead_time=3, echelon_holding_cost=5 * 0.2 / 365)
 		correct_SSM_tree.add_node(5, lead_time=8, echelon_holding_cost=12.5 * 0.2 / 365)

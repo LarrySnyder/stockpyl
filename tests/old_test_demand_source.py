@@ -208,7 +208,7 @@ class TestDemandSourceRepr(unittest.TestCase):
 
 	def test_deterministic(self):
 		"""Test that DemandSource.__repr__() correctly returns demand source string for
-		deterministic demands.
+		deterministic demand_list.
 		"""
 		print_status('TestDemandSourceRepr', 'test_deterministic()')
 
@@ -217,16 +217,16 @@ class TestDemandSourceRepr(unittest.TestCase):
 		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
 		demand_source.demands = 5
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(DETERMINISTIC: demands=5)")
+		self.assertEqual(demand_source_str, "DemandSource(DETERMINISTIC: demand_list=5)")
 
 		demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
 		demand_source.demands = [5, 4, 3]
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(DETERMINISTIC: demands=[5, 4, 3])")
+		self.assertEqual(demand_source_str, "DemandSource(DETERMINISTIC: demand_list=[5, 4, 3])")
 
 	def test_discrete_explicit(self):
 		"""Test that DemandSource.__repr__() correctly returns demand source string for
-		discrete explicit demands.
+		discrete explicit demand_list.
 		"""
 		print_status('TestDemandSourceRepr', 'test_discrete_explicit()')
 
@@ -236,7 +236,7 @@ class TestDemandSourceRepr(unittest.TestCase):
 		demand_source.demands = [5, 4, 3]
 		demand_source.probabilities = [0.2, 0.5, 0.3]
 		demand_source_str = demand_source.__repr__()
-		self.assertEqual(demand_source_str, "DemandSource(DISCRETE_EXPLICIT: demands=[5, 4, 3], probabilities=[0.2, 0.5, 0.3])")
+		self.assertEqual(demand_source_str, "DemandSource(DISCRETE_EXPLICIT: demand_list=[5, 4, 3], probabilities=[0.2, 0.5, 0.3])")
 
 
 class TestGenerateDemand(unittest.TestCase):
@@ -251,7 +251,7 @@ class TestGenerateDemand(unittest.TestCase):
 		print_status('TestGenerateDemand', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test that generate_demand() returns valid demand values for normal demands.
+		"""Test that generate_demand() returns valid demand values for normal demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_normal()')
 
@@ -268,7 +268,7 @@ class TestGenerateDemand(unittest.TestCase):
 			_ = demand_source.generate_demand()
 
 	def test_uniform_discrete(self):
-		"""Test that generate_demand() returns valid demand values for discrete uniform demands.
+		"""Test that generate_demand() returns valid demand values for discrete uniform demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_uniform_discrete()')
 
@@ -298,7 +298,7 @@ class TestGenerateDemand(unittest.TestCase):
 			self.assertTrue(d >= 4, d <= 12)
 
 	def test_uniform_continuous(self):
-		"""Test that generate_demand() returns valid demand values for continuous uniform demands.
+		"""Test that generate_demand() returns valid demand values for continuous uniform demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_uniform_continuous()')
 
@@ -328,7 +328,7 @@ class TestGenerateDemand(unittest.TestCase):
 			self.assertTrue(d >= 4, d <= 12)
 
 	def test_deterministic(self):
-		"""Test that generate_demand() returns valid demand values for deterministic demands.
+		"""Test that generate_demand() returns valid demand values for deterministic demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_deterministic()')
 
@@ -356,7 +356,7 @@ class TestGenerateDemand(unittest.TestCase):
 		self.assertEqual(d, 3)
 
 	def test_discrete_explicit(self):
-		"""Test that generate_demand() returns valid demand values for discrete explicit demands.
+		"""Test that generate_demand() returns valid demand values for discrete explicit demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_discrete_explicit()')
 
@@ -393,7 +393,7 @@ class TestDemandDistribution(unittest.TestCase):
 		print_status('TestDemandDistribution', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test demand_distribution() for normal demands.
+		"""Test demand_distribution() for normal demand_list.
 		"""
 		print_status('TestDemandDistribution', 'test_normal()')
 
@@ -416,7 +416,7 @@ class TestDemandDistribution(unittest.TestCase):
 		self.assertAlmostEqual(z, 58.291467115950319)
 
 	def test_uniform_continuous(self):
-		"""Test demand_distribution() for continuous uniform demands.
+		"""Test demand_distribution() for continuous uniform demand_list.
 		"""
 		print_status('TestDemandDistribution', 'test_uniform_continuous()')
 
@@ -451,7 +451,7 @@ class TestCDF(unittest.TestCase):
 		print_status('TestCDF', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test that cdf() returns correct values normal demands.
+		"""Test that cdf() returns correct values normal demand_list.
 		"""
 		print_status('TestCDF', 'test_normal()')
 
@@ -468,7 +468,7 @@ class TestCDF(unittest.TestCase):
 
 	def test_uniform_continuous(self):
 		"""Test that truncation_bounds() returns correct bounds for continuous
-		uniform demands.
+		uniform demand_list.
 		"""
 		print_status('TestCDF', 'test_uniform_continuous()')
 

@@ -131,7 +131,7 @@ def get_named_instance(instance_name):
 			num_nodes=1,
 			local_holding_cost=[0.18],
 			stockout_cost=[0.70],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=50,
 			demand_standard_deviation=8,
 			shipment_lead_time=[1],
@@ -291,7 +291,7 @@ def get_named_instance(instance_name):
 			local_holding_cost=[7, 4, 2],
 			echelon_holding_cost=[3, 2, 2],
 			stockout_cost=[37.12, 0, 0],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=5,
 			demand_standard_deviation=1,
 			shipment_lead_time=[1, 1, 2],
@@ -307,7 +307,7 @@ def get_named_instance(instance_name):
 			local_holding_cost=[2, 1],
 			echelon_holding_cost=[1, 1],
 			stockout_cost=[15, 0],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=100,
 			demand_standard_deviation=15,
 			shipment_lead_time=[1, 1],
@@ -323,7 +323,7 @@ def get_named_instance(instance_name):
 			local_holding_cost=[1, 2, 3, 5, 7],
 			echelon_holding_cost=[2, 2, 1, 1, 1],
 			stockout_cost=[24, 0, 0, 0, 0],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=64,
 			demand_standard_deviation=8,
 			shipment_lead_time=[0.5, 0.5, 0.5, 0.5, 0.5],
@@ -340,7 +340,7 @@ def get_named_instance(instance_name):
 			num_nodes=5,
 			local_holding_cost=list(np.array([1, 2, 3, 5, 7]) / 2),
 			stockout_cost=list(np.array([24, 0, 0, 0, 0]) / 2),
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=64 / 2,
 			demand_standard_deviation=8 / np.sqrt(2),
 			shipment_lead_time=[1, 1, 1, 1, 1],
@@ -362,7 +362,7 @@ def get_named_instance(instance_name):
 			num_nodes=2,
 			local_holding_cost=[7, 2],
 			stockout_cost=[24, 0],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=20,
 			demand_standard_deviation=4,
 			shipment_lead_time=[8, 3],
@@ -381,7 +381,7 @@ def get_named_instance(instance_name):
 			num_warehouses=2,
 			local_holding_cost=[2, 1, 1],
 			stockout_cost=[20, 0, 0],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=5,
 			demand_standard_deviation=1,
 			shipment_lead_time=[1, 2, 2],
@@ -397,7 +397,7 @@ def get_named_instance(instance_name):
 				edges=[(1, 3), (2, 3)],
 				local_holding_cost={1: 1, 2: 1, 3: 2},
 				stockout_cost={1: 0, 2: 0, 3: 20},
-				demand_type={1: DemandType.NONE, 2: DemandType.NONE, 3: DemandType.NORMAL},
+				demand_type={1: None, 2: None, 3: 'N'},
 				demand_mean=20,
 				demand_standard_deviation=5,
 				shipment_lead_time={1: 2, 2: 2, 3: 1},
@@ -424,7 +424,6 @@ def get_named_instance(instance_name):
 		# Note: Other than the structure and lead times, none of the remaining parameters are from Rosling's paper.
 		rosling_figure_1_network = SupplyChainNetwork()
 		nodes = {i: SupplyChainNode(index=i) for i in range(1, 8)}
-		demand_source_factory = DemandSourceFactory()
 		policy_factory = PolicyFactory()
 		# Inventory policies.
 		for n in nodes.values():
@@ -433,7 +432,8 @@ def get_named_instance(instance_name):
 			n.inventory_policy = policy
 		# Node 1.
 		nodes[1].shipment_lead_time = 1
-		demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_DISCRETE)
+		demand_source = DemandSource()
+		demand_source.type = 'UD'
 		demand_source.lo = 0
 		demand_source.hi = 10
 		nodes[1].demand_source = demand_source
@@ -481,7 +481,7 @@ def get_named_instance(instance_name):
 	elif instance_name == "kangye_4_stage":
 		kangye_4_stage = mwor_system(
 			num_warehouses=3,
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=20,
 			demand_standard_deviation=4,
 			shipment_lead_time=[1, 1, 2, 3],
@@ -495,7 +495,7 @@ def get_named_instance(instance_name):
 			num_nodes=3,
 			local_holding_cost=[1, 5, 10],
 			stockout_cost=[0, 0, 100],
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=5,
 			demand_standard_deviation=np.sqrt(5),
 			shipment_lead_time=[1, 1, 1],
@@ -511,7 +511,7 @@ def get_named_instance(instance_name):
 	elif instance_name == "michelle_sean_3_stage":
 		michelle_sean_3_stage = mwor_system(
 			num_warehouses=2,
-			demand_type=DemandType.NORMAL,
+			demand_type='N',
 			demand_mean=50,
 			demand_standard_deviation=10,
 			local_holding_cost=[10, 10, 10],
@@ -528,7 +528,7 @@ def get_named_instance(instance_name):
 		# TODO: add costs and lead times
 		rong_atan_snyder_figure_1a = network_from_edges(
 			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (2, 6)],
-			demand_type={0: DemandType.NONE, 1: DemandType.NONE, 2: DemandType.NONE, 3: DemandType.NORMAL, 4: DemandType.NORMAL, 5: DemandType.NORMAL, 6: DemandType.NORMAL},
+			demand_type={0: None, 1: None, 2: None, 3: 'N', 4: 'N', 5: 'N', 6: 'N'},
 			demand_mean=8,
 			demand_standard_deviation=np.sqrt(8),
 			local_holding_cost={0: 1/3, 1: 2/3, 2: 2/3, 3: 1, 4: 1, 5: 1, 6: 1},
@@ -541,7 +541,7 @@ def get_named_instance(instance_name):
 	elif instance_name == "rong_atan_snyder_figure_1b":
 		# Uses normal demand instead of Poisson.
 		# TODO: add costs and lead times
-		demand_type = {i: DemandType.NORMAL if i >= 3 else DemandType.NONE for i in range(11)}
+		demand_type = {i: 'N' if i >= 3 else None for i in range(11)}
 		rong_atan_snyder_figure_1b = network_from_edges(
 			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, 8), (2, 9), (2, 10)],
 			demand_type=demand_type,
@@ -556,7 +556,7 @@ def get_named_instance(instance_name):
 		# TODO: add costs and lead times
 		rong_atan_snyder_figure_1c = network_from_edges(
 			edges=[(0, 1), (0, 2), (2, 3), (2, 4), (2, 5)],
-			demand_type={0: DemandType.NONE, 1: DemandType.NORMAL, 2: DemandType.NONE, 3: DemandType.NORMAL, 4: DemandType.NORMAL, 5: DemandType.NORMAL},
+			demand_type={0: None, 1: 'N', 2: None, 3: 'N', 4: 'N', 5: 'N'},
 			demand_mean=8,
 			demand_standard_deviation=np.sqrt(8),
 			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,

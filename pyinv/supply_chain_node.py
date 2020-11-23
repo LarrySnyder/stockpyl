@@ -127,7 +127,7 @@ class SupplyChainNode(object):
 		self.stockout_cost_function = None
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
-		self.demand_source = None
+		self.demand_source = DemandSource()
 		self.initial_inventory_level = 0
 		self.initial_orders = 0
 		self.initial_shipments = 0
@@ -149,7 +149,7 @@ class SupplyChainNode(object):
 
 	def successors(self, include_external=False):
 		if include_external and \
-				(self.demand_source is not None and self.demand_source.type != DemandType.NONE):
+				(self.demand_source is not None and self.demand_source.type is not None):
 			return self._successors + [None]
 		else:
 			return self._successors
@@ -214,12 +214,12 @@ class SupplyChainNode(object):
 	def derived_demand_mean(self):
 		# Mean of derived demand, i.e., external demand at node and all of its descendants.
 		# TODO: handle non-normal demand
-		if self.demand_source is not None and self.demand_source.type == DemandType.NORMAL:
+		if self.demand_source is not None and self.demand_source.type == 'N':
 			DDM = self.demand_source.mean
 		else:
 			DDM = 0
 		for d in self.descendants:
-			if d.demand_source is not None and d.demand_source.type == DemandType.NORMAL:
+			if d.demand_source is not None and d.demand_source.type == 'N':
 				DDM += d.demand_source.mean
 		return DDM
 
@@ -227,12 +227,12 @@ class SupplyChainNode(object):
 	def derived_demand_standard_deviation(self):
 		# Standard deviation of derived demand, i.e., external demand at node and all of its descendants.
 		# TODO: handle non-normal demand
-		if self.demand_source is not None and self.demand_source.type == DemandType.NORMAL:
+		if self.demand_source is not None and self.demand_source.type == 'N':
 			DDV = self.demand_source.standard_deviation ** 2
 		else:
 			DDV = 0
 		for d in self.descendants:
-			if d.demand_source is not None and d.demand_source.type == DemandType.NORMAL:
+			if d.demand_source is not None and d.demand_source.type == 'N':
 				DDV += d.demand_source.standard_deviation ** 2
 		return np.sqrt(DDV)
 
@@ -500,7 +500,7 @@ class NodeStateVars(object):
 	demand_met_from_stock : float
 		Demands met from stock at the node in the period.
 	demand_met_from_stock_cumul : float
-		Cumulative demands met from stock from period 0 through the current period.
+		Cumulative demand_list met from stock from period 0 through the current period.
 		(Used for fill_rate calculation.)
 	fill_rate : float
 		Cumulative fill rate in periods 0, ..., period.
@@ -547,7 +547,8 @@ class NodeStateVars(object):
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
 			# or its own order lead time.)
-			if node.demand_source is None or node.demand_source.type != DemandType.NONE:
+			# TODO: should this be ... or node.demand_source.type is None?
+			if node.demand_source is None or node.demand_source.type is not None:
 				self.inbound_order_pipeline[None] = [0]
 			self.inbound_order = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.outbound_shipment = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}

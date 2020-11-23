@@ -14,7 +14,7 @@ The following attributes are used to specify input data:
 		- type
 		- mean [mu]
 		- standard_deviation [sigma]
-		- demands [d]
+		- demand_list [d]
 		- probabilities
 		- lo
 		- hi
@@ -85,11 +85,11 @@ def generate_demand(node, period=None):
 	elif node['type'] == DemandType.UNIFORM_CONTINUOUS:
 		demand = np.random.uniform(node['lo'], node['hi'])
 	elif node['type'] == DemandType.DETERMINISTIC:
-		# Get demand for period mod (# periods in demands list), i.e.,
-		# if we are past the end of the demands list, loop back to the beginning.
-		demand = node['demands'][period % len(node['demands'])]
+		# Get demand for period mod (# periods in demand_list list), i.e.,
+		# if we are past the end of the demand_list list, loop back to the beginning.
+		demand = node['demand_list'][period % len(node['demand_list'])]
 	elif node['type'] == DemandType.DISCRETE_EXPLICIT:
-		demand = np.random.choice(node['demands'], p=node['probabilities'])
+		demand = np.random.choice(node['demand_list'], p=node['probabilities'])
 	else:
 		raise ValueError('Valid type not provided')
 
@@ -112,7 +112,7 @@ def order_quantity(node_index, network, period):
 
 
 def generate_downstream_orders(node_index, network, period, visited):
-	"""Generate demands and orders for all downstream nodes using depth-first-search.
+	"""Generate demand_list and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
 	Parameters
@@ -233,7 +233,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 									node['BO'][s][period] +
 									node['IO'][s][period])
 		# Calculate demand met from stock. (Note: This assumes that if there
-		# are backorders, they get priority of current period's demands.)
+		# are backorders, they get priority of current period's demand_list.)
 		# TODO: handle successor-level DMFS and FR.
 		node['DMFS'][period] = max(0, node['OS'][s][period] - node['BO'][s][period])
 		# Update EIL and BO.
@@ -242,9 +242,9 @@ def generate_downstream_shipments(node_index, network, period, visited):
 
 	# node['OS'][period] = min(current_on_hand, current_backorders + IO)
 	#
-	# # Determine number of current period's demands (inbound orders) that are
+	# # Determine number of current period's demand_list (inbound orders) that are
 	# # met from stock. (Note: This assumes that if there are backorders, current
-	# # period's demands get priority.)
+	# # period's demand_list get priority.)
 	# node['DMFS'][period] = min(current_on_hand, IO)
 
 	# Calculate fill rate (cumulative in periods 0,...,t).
@@ -403,7 +403,7 @@ def simulation(network, num_periods, rand_seed=None):
 		G.nodes[n]['ITHC'] = np.zeros(num_periods)
 		G.nodes[n]['TC'] = np.zeros(num_periods)
 
-		# Fill Rates: DMFS[t] = demands met from stock at stage in period t;
+		# Fill Rates: DMFS[t] = demand_list met from stock at stage in period t;
 		# FR[t] = cumulative fill rate in periods 0,...,t.
 		G.nodes[n]['DMFS'] = np.zeros(num_periods)
 		G.nodes[n]['FR'] = np.zeros(num_periods)
@@ -457,7 +457,7 @@ def simulation(network, num_periods, rand_seed=None):
 		# Initialize visited dict.
 		visited = {n: False for n in G.nodes}
 
-		# Generate demands and place orders. Use depth-first search, starting
+		# Generate demand_list and place orders. Use depth-first search, starting
 		# at nodes with no _predecessors, and propagating orders upstream.
 		for n in no_pred:
 			generate_downstream_orders(n, G, t, visited)

@@ -624,7 +624,7 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 					  demand_mean, lead_time):
-	"""Determine optimal :math:`r` and :math:`Q` for Poisson demands, using
+	"""Determine optimal :math:`r` and :math:`Q` for Poisson demand_list, using
 	algorithm by Federgruen and Zheng (1992).
 
 	Parameters
@@ -656,7 +656,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 
 		g(r,Q) = \\frac{K\\lambda + \\sum_{y=r+1}^{r+Q} g(y)}{Q}
 
-	where :math:`g(y)` is the newsvendor cost function for Poisson demands.
+	where :math:`g(y)` is the newsvendor cost function for Poisson demand_list.
 
 	**Example** (Example 5.8):
 

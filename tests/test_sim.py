@@ -23,7 +23,7 @@ def tear_down_module():
 	print_status('---', 'tear_down_module()')
 
 
-# TODO: add tests for non-normal demands
+# TODO: add tests for non-normal demand_list
 
 class TestSimulation(unittest.TestCase):
 	@classmethod

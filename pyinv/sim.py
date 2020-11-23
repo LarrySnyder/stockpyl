@@ -124,7 +124,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		# Initialize visited dict.
 		visited = {n.index: False for n in network.nodes}
 
-		# Generate demands and place orders. Use depth-first search, starting
+		# Generate demand_list and place orders. Use depth-first search, starting
 		# at nodes with no successors, and propagating orders upstream.
 		for n in network.source_nodes:
 			generate_downstream_orders(n.index, network, t, visited)
@@ -160,7 +160,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 # HELPER FUNCTIONS
 
 def generate_downstream_orders(node_index, network, period, visited):
-	"""Generate demands and orders for all downstream nodes using depth-first-search.
+	"""Generate demand_list and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
 	Parameters
@@ -188,7 +188,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	node = network.get_node_from_index(node_index)
 
 	# Does node have external demand?
-	if node.demand_source is not None and node.demand_source.type != DemandType.NONE:
+	if node.demand_source is not None and node.demand_source.type is not None:
 		# Generate demand and fill it in inbound_order_pipeline.
 		node.state_vars_current.inbound_order_pipeline[None][0] = \
 			node.demand_source.generate_demand(period)
@@ -576,13 +576,13 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 
 		# How much of outbound shipment was used to clear backorders?
 		# (Assumes backorders are cleared before satisfying current period's
-		# demands.)
+		# demand_list.)
 		BO_OS = min(node.state_vars_current.outbound_shipment[s_index],
 					node.state_vars_current.backorders_by_successor[s_index])
 		non_BO_OS = node.state_vars_current.outbound_shipment[s_index] - BO_OS
 
 		# Calculate demand met from stock. (Note: This assumes that if there
-		# are backorders, they get priority over current period's demands.)
+		# are backorders, they get priority over current period's demand_list.)
 		# TODO: handle successor-level DMFS and FR.
 		DMFS = max(0, node.state_vars_current.outbound_shipment[s_index]
 				- node.state_vars_current.backorders_by_successor[s_index])
@@ -711,28 +711,21 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 
 
 def main():
-	T = 100
+	T = 95
 
 	#
 	network = get_named_instance("rosling_figure_1")
-	# Make the BS levels a little smaller so there are some stockouts.
-	network.get_node_from_index(1).inventory_policy.echelon_base_stock_level = 6
-	network.get_node_from_index(2).inventory_policy.echelon_base_stock_level = 20
-	network.get_node_from_index(3).inventory_policy.echelon_base_stock_level = 35
-	network.get_node_from_index(4).inventory_policy.echelon_base_stock_level = 58
-	network.get_node_from_index(5).inventory_policy.echelon_base_stock_level = 45
-	network.get_node_from_index(6).inventory_policy.echelon_base_stock_level = 65
-	network.get_node_from_index(7).inventory_policy.echelon_base_stock_level = 75
+
 	#
 	# # additional handling for Kangye's instance
 	# for n in network.nodes:
 	# 	print("node {} forward_echelon_LT = {} equivalent_LT = {}".format(n.index, n.forward_echelon_lead_time, n.equivalent_lead_time))
 	# import pandas as pd
 	# kangye_df = pd.read_csv("../debugging_files/kangye-4node-randseed1.csv")
-	# demands = kangye_df['demand'].to_numpy()
+	# demand_list = kangye_df['demand'].to_numpy()
 	# demand_source_factory = DemandSourceFactory()
 	# demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-	# demand_source.demands = demands
+	# demand_source.demand_list = demand_list
 	# network.nodes[0].demand_source = demand_source
 	# network.nodes[0].order_lead_time = 1
 
@@ -779,18 +772,18 @@ def main():
 	# mean_cost, sem_cost = run_multiple_trials(network, num_trials=1000, num_periods=3)
 	# print("mean_cost = {}, sem_cost = {}".format(mean_cost, sem_cost))
 
-# 	network = get_named_instance("rong_atan_snyder_figure_1a")
-# 	network.get_node_from_index(0).inventory_policy.local_base_stock_level = 24
-# 	network.get_node_from_index(1).inventory_policy.local_base_stock_level = 12
-# 	network.get_node_from_index(2).inventory_policy.local_base_stock_level = 12
-# 	network.get_node_from_index(3).inventory_policy.local_base_stock_level = 6
-# 	network.get_node_from_index(4).inventory_policy.local_base_stock_level = 6
-# 	network.get_node_from_index(5).inventory_policy.local_base_stock_level = 6
-# 	network.get_node_from_index(6).inventory_policy.local_base_stock_level = 6
-# 	network.get_node_from_index(3).demand_source.round_to_int = True
-# 	network.get_node_from_index(4).demand_source.round_to_int = True
-# 	network.get_node_from_index(5).demand_source.round_to_int = True
-# 	network.get_node_from_index(6).demand_source.round_to_int = True
+	network = get_named_instance("rong_atan_snyder_figure_1a")
+	network.get_node_from_index(0).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(1).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(2).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(3).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(4).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(5).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(6).inventory_policy.local_base_stock_level = 32
+	network.get_node_from_index(3).demand_source.round_to_int = True
+	network.get_node_from_index(4).demand_source.round_to_int = True
+	network.get_node_from_index(5).demand_source.round_to_int = True
+	network.get_node_from_index(6).demand_source.round_to_int = True
 # 	network.get_node_from_index(0).initial_inventory_level = 24
 # 	network.get_node_from_index(1).initial_inventory_level = 12
 # 	network.get_node_from_index(2).initial_inventory_level = 12
@@ -800,7 +793,7 @@ def main():
 # 	network.get_node_from_index(6).initial_inventory_level = 6
 #
 #
-	total_cost = simulation(network, T, rand_seed=17)
+	total_cost = simulation(network, T, rand_seed=1079)
 # #	write_results(network, T, total_cost, write_csv=False)
 	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
 

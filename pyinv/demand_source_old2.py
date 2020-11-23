@@ -9,7 +9,7 @@
 
 """
 This module contains the ``DemandSource`` class. A ``DemandSource``
-object is used to generate demands.
+object is used to generate demand_list.
 
 Notation and equation and section numbers refer to Snyder and Shen,
 "Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
@@ -38,8 +38,8 @@ class DemandType(Enum):
 	NORMAL = 1
 	UNIFORM_DISCRETE = 2
 	UNIFORM_CONTINUOUS = 3
-	DETERMINISTIC = 4			# must supply 'demands' parameter
-	DISCRETE_EXPLICIT = 5		# must supply 'demands' and 'demand_probs' parameters
+	DETERMINISTIC = 4			# must supply 'demand_list' parameter
+	DISCRETE_EXPLICIT = 5		# must supply 'demand_list' and 'demand_probs' parameters
 
 
 # ===============================================================================
@@ -111,7 +111,7 @@ class DemandSourceNone(DemandSource):
 
 class DemandSourceNormal(DemandSource):
 	"""The ``DemandSourceNormal`` class is used to encapsulate demand generation
-	for demands with normal distribution.
+	for demand_list with normal distribution.
 
 	Attributes
 	----------
@@ -260,7 +260,7 @@ class DemandSourceNormal(DemandSource):
 
 class DemandSourceUniformDiscrete(DemandSource):
 	"""The ``DemandSourceUniformDiscrete`` class is used to encapsulate demand
-	generation for demands with discrete uniform distribution.
+	generation for demand_list with discrete uniform distribution.
 
 	Attributes
 	----------
@@ -346,7 +346,7 @@ class DemandSourceUniformDiscrete(DemandSource):
 
 class DemandSourceUniformContinuous(DemandSource):
 	"""The ``DemandSourceUniformContinuous`` class is used to encapsulate demand
-	generation for demands with continuous uniform distribution.
+	generation for demand_list with continuous uniform distribution.
 
 	Attributes
 	----------
@@ -515,14 +515,14 @@ class DemandSourceUniformContinuous(DemandSource):
 
 class DemandSourceDeterministic(DemandSource):
 	"""The ``DemandSourceDeterministic`` class is used to encapsulate demand
-	generation for deterministic demands.
+	generation for deterministic demand_list.
 
 	Attributes
 	----------
 	_type : DemandType
 		The demand type.
 	_demands : list
-		List of demands, one per period. [d]
+		List of demand_list, one per period. [d]
 	"""
 
 	def __init__(self):
@@ -555,7 +555,7 @@ class DemandSourceDeterministic(DemandSource):
 			A string representation of the ``DemandSource`` instance.
 		"""
 		# Build string of parameters.
-		param_str = "demands={}".format(self.demands)
+		param_str = "demand_list={}".format(self.demands)
 
 		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
 
@@ -576,18 +576,18 @@ class DemandSourceDeterministic(DemandSource):
 			The demand value.
 		"""
 		# Check parameters.
-		assert self._demands is not None, "For DETERMINISTIC demand, demands must be provided"
+		assert self._demands is not None, "For DETERMINISTIC demand, demand_list must be provided"
 
 		if is_iterable(self._demands):
 			if period is None:
-				# Return first demand in demands list.
+				# Return first demand in demand_list list.
 				demand = self._demands[0]
 			else:
-				# Get demand for period mod (# periods in demands list), i.e.,
-				# if we are past the end of the demands list, loop back to the beginning.
+				# Get demand for period mod (# periods in demand_list list), i.e.,
+				# if we are past the end of the demand_list list, loop back to the beginning.
 				demand = self._demands[period % len(self._demands)]
 		else:
-			# Return demands singleton.
+			# Return demand_list singleton.
 			demand = self._demands
 
 		return demand
@@ -595,7 +595,7 @@ class DemandSourceDeterministic(DemandSource):
 
 class DemandSourceDiscreteExplicit(DemandSource):
 	"""The ``DemandSourceDiscreteExplicit`` class is used to encapsulate demand
-	generation for discrete explicit demands.
+	generation for discrete explicit demand_list.
 
 	Attributes
 	----------
@@ -647,7 +647,7 @@ class DemandSourceDiscreteExplicit(DemandSource):
 			A string representation of the ``DemandSource`` instance.
 		"""
 		# Build string of parameters.
-		param_str = "demands={}, probabilities={}".format(self._demands, self._probabilities)
+		param_str = "demand_list={}, probabilities={}".format(self._demands, self._probabilities)
 
 		return "DemandSource({:s}: {:s})".format(self._type.name, param_str)
 
@@ -667,10 +667,10 @@ class DemandSourceDiscreteExplicit(DemandSource):
 			The demand value.
 		"""
 		# Check parameters.
-		assert self._demands is not None, "For DISCRETE_EXPLICIT demand, demands must be provided"
+		assert self._demands is not None, "For DISCRETE_EXPLICIT demand, demand_list must be provided"
 		assert self._probabilities is not None, "For DISCRETE_EXPLICIT demand, probabilities must be provided"
 		assert len(self._demands) == len(self._probabilities), \
-			"For DISCRETE_EXPLICIT demand, demands and probabilities must have equal lengths"
+			"For DISCRETE_EXPLICIT demand, demand_list and probabilities must have equal lengths"
 
 		demand = np.random.choice(self.demands, p=self.probabilities)
 

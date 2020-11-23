@@ -335,7 +335,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 
 	def test_example_6_1_uniform(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes
-		network in Example 6.1 with uniform demands.
+		network in Example 6.1 with uniform demand_list.
 		"""
 
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_uniform()')
@@ -343,14 +343,14 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
-		demand_source_factory = DemandSourceFactory()
 		for n in instance.nodes:
 			if n.index == 1:
-				demand_source = demand_source_factory.build_demand_source(DemandType.UNIFORM_CONTINUOUS)
+				demand_source = DemandSource()
+				demand_source.type = 'UC'
 				demand_source.lo = 5 - np.sqrt(12) / 2
 				demand_source.hi = 5 + np.sqrt(12) / 2
 			else:
-				demand_source = demand_source_factory.build_demand_source(DemandType.NONE)
+				demand_source = None
 			n.demand_source = demand_source
 
 		S_star, C_star = ssm_serial.optimize_base_stock_levels(

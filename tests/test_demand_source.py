@@ -288,7 +288,7 @@ class TestGenerateDemand(unittest.TestCase):
 		print_status('TestGenerateDemand', 'tear_down_class()')
 
 	def test_deterministic(self):
-		"""Test that generate_demand() returns valid demand values for deterministic demands.
+		"""Test that generate_demand() returns valid demand values for deterministic demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_deterministic()')
 
@@ -311,7 +311,7 @@ class TestGenerateDemand(unittest.TestCase):
 		self.assertEqual(d, 3)
 
 	def test_discrete_explicit(self):
-		"""Test that generate_demand() returns valid demand values for discrete explicit demands.
+		"""Test that generate_demand() returns valid demand values for discrete explicit demand_list.
 		"""
 		print_status('TestGenerateDemand', 'test_discrete_explicit()')
 
@@ -336,7 +336,7 @@ class TestDemandDistribution(unittest.TestCase):
 		print_status('TestDemandDistribution', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test demand_distribution() for normal demands.
+		"""Test demand_distribution() for normal demand_list.
 		"""
 		print_status('TestDemandDistribution', 'test_normal()')
 
@@ -355,7 +355,7 @@ class TestDemandDistribution(unittest.TestCase):
 		self.assertAlmostEqual(z, 58.291467115950319)
 
 	def test_uniform_discrete(self):
-		"""Test demand_distribution() for discrete uniform demands.
+		"""Test demand_distribution() for discrete uniform demand_list.
 		"""
 		print_status('TestDemandDistribution', 'test_uniform_discrete()')
 
@@ -374,7 +374,7 @@ class TestDemandDistribution(unittest.TestCase):
 		self.assertEqual(z, 93)
 
 	def test_uniform_continuous(self):
-		"""Test demand_distribution() for continuous uniform demands.
+		"""Test demand_distribution() for continuous uniform demand_list.
 		"""
 		print_status('TestDemandDistribution', 'test_uniform_continuous()')
 
@@ -393,7 +393,7 @@ class TestDemandDistribution(unittest.TestCase):
 		self.assertEqual(z, 92.5)
 
 	def test_custom_discrete(self):
-		"""Test demand_distribution() for custom discrete demands.
+		"""Test demand_distribution() for custom discrete demand_list.
 		"""
 		print_status('TestDemandDistribution', 'test_custom_discrete()')
 
@@ -427,7 +427,7 @@ class TestCDF(unittest.TestCase):
 		print_status('TestCDF', 'tear_down_class()')
 
 	def test_normal(self):
-		"""Test that cdf() returns correct values for normal demands.
+		"""Test that cdf() returns correct values for normal demand_list.
 		"""
 		print_status('TestCDF', 'test_normal()')
 
@@ -444,7 +444,7 @@ class TestCDF(unittest.TestCase):
 
 	def test_uniform_continuous(self):
 		"""Test that cdf() returns correct values for continuous
-		uniform demands.
+		uniform demand_list.
 		"""
 		print_status('TestCDF', 'test_uniform_continuous()')
 
@@ -461,7 +461,7 @@ class TestCDF(unittest.TestCase):
 
 	def test_uniform_discrete(self):
 		"""Test that cdf() returns correct values for discrete
-		uniform demands.
+		uniform demand_list.
 		"""
 		print_status('TestCDF', 'test_uniform_discrete()')
 
@@ -478,7 +478,7 @@ class TestCDF(unittest.TestCase):
 
 	def test_custom_discrete(self):
 		"""Test that cdf() returns correct values for custom discrete
-		demands.
+		demand_list.
 		"""
 		print_status('TestCDF', 'test_custom_discrete()')
 

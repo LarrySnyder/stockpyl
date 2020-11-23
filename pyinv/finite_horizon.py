@@ -95,7 +95,7 @@ def finite_horizon_dp(
 	Output arrays are all 1-indexed; for example, ``reorder_point[5]`` gives
 	:math:`s^*_5`, the order point for period 5.
 
-	Discretization is done at the integer level, i.e., all demands and
+	Discretization is done at the integer level, i.e., all demand_list and
 	inventory positions are rounded to the nearest integer. The state space
 	(range of possible inventory positions) is truncated using settings
 	specified in the code.
@@ -179,7 +179,7 @@ def finite_horizon_dp(
 		1558.6946467384014
 	"""
 
-	# TODO: handle non-normal demands
+	# TODO: handle non-normal demand_list
 	# TODO: handle arbitrary discretizations
 	# TODO: explain truncation settings in docstring
 
