@@ -173,7 +173,7 @@ class Policy(object):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None):
+	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
 		"""Calculate order quantity using the policy type specified in ``type``.
 		If ``type`` is ``None``, return ``None``.
 
@@ -194,6 +194,10 @@ class Policy(object):
 		inventory_position : float, optional
 			Inventory position immediately before order is placed. Required for
 			most policy types.
+		predecessor_index : int, optional
+			The predecessor for which the order quantity should be calculated.
+			Use ``None'' for external supplier, or if node has only one predecessor
+			(including external supplier).
 
 		Returns
 		-------
@@ -213,14 +217,14 @@ class Policy(object):
 			return self.get_order_quantity_fixed_quantity()
 		elif self.type == 'EBS':
 			# Determine echelon inventory position.
-			EIP = self.node.state_vars_current.echelon_inventory_position()
+			EIP = self.node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index)
 			return self.get_order_quantity_echelon_base_stock(EIP)
 		elif self.type == 'BEBS':
 			# Determine echelon inventory position.
 			# Echelon IP at stage i = sum of on-hand inventories at i and at or
 			# in transit to all of its downstream stages, minus backorders at
 			# downstream-most stage, plus on-order inventory at stage i.
-			EIP = self.node.state_vars_current.echelon_inventory_position()
+			EIP = self.node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index)
 
 			# Determine partner node and adjusted echelon inventory position.
 			if self.node.index == max(self.node.network.node_indices):

@@ -463,13 +463,7 @@ def get_order_quantity(node, period, predecessor_index=None):
 		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
 		order_quantity = node.inventory_policy.get_order_quantity()
 	elif node.inventory_policy.type == 'BEBS':
-		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
-		if node.index == max(node.network.node_indices):
-			EIPA = np.inf
-		else:
-			partner_node = node.network.get_node_from_index(node.index+1)
-			EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
-		order_quantity = node.inventory_policy.get_order_quantity()
+		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index)
 	elif node.inventory_policy.type == 'BS':
 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
 		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
@@ -707,94 +701,3 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 	return mean_cost, sem_cost
 
 
-def main():
-	T = 100
-
-	#
-	network = get_named_instance("rosling_figure_1")
-
-	#
-	# # additional handling for Kangye's instance
-	# for n in network.nodes:
-	# 	print("node {} forward_echelon_LT = {} equivalent_LT = {}".format(n.index, n.forward_echelon_lead_time, n.equivalent_lead_time))
-	# import pandas as pd
-	# kangye_df = pd.read_csv("../debugging_files/kangye-4node-randseed1.csv")
-	# demand_list = kangye_df['demand'].to_numpy()
-	# demand_source_factory = DemandSourceFactory()
-	# demand_source = demand_source_factory.build_demand_source(DemandType.DETERMINISTIC)
-	# demand_source.demand_list = demand_list
-	# network.nodes[0].demand_source = demand_source
-	# network.nodes[0].order_lead_time = 1
-
-	# Set initial inventory levels to local BS levels (otherwise local and echelon policies
-	# will differ in the first few periods).
-#	for n in network.nodes:
-#		n.initial_inventory_level = n.inventory_policy.base_stock_level
-
-	# # Calculate echelon base-stock levels.
-	# S_local = {n.index: n.inventory_policy.base_stock_level for n in network.nodes}
-	# from pyinv.ssm_serial import local_to_echelon_base_stock_levels
-	# S_echelon = local_to_echelon_base_stock_levels(network, S_local)
-	#
-	# # Create and fill echelon base-stock policies.
-	# policy_factory = PolicyFactory()
-	# for n in network.nodes:
-	# 	n.inventory_policy = policy_factory.build_policy('EBS',
-	# 													 base_stock_level=S_echelon[n.index])
-
-	# network = serial_system(
-	# 	num_nodes=1,
-	# 	type=DemandType.NORMAL,
-	# 	mean=20,
-	# 	standard_deviation=4,
-	# 	inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-	# 	local_base_stock_levels=[25],
-	# 	shipment_lead_time=[1],
-	# 	local_holding_cost=None,
-	# 	stockout_cost=1,
-	# 	initial_IL=60
-	# )
-	#
-	# def holding_cost_function(x):
-	# 	if x < 0:
-	# 		return 0
-	# 	elif x < 20 or x >= 80:
-	# 		return 1.0 * x
-	# 	else:
-	# 		return 500.0
-	#
-	# network.nodes[0].holding_cost_function = holding_cost_function
-	#
-	#
-	# mean_cost, sem_cost = run_multiple_trials(network, num_trials=1000, num_periods=3)
-	# print("mean_cost = {}, sem_cost = {}".format(mean_cost, sem_cost))
-
-	network = get_named_instance("rong_atan_snyder_figure_1a")
-	network.get_node_from_index(0).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(1).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(2).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(3).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(4).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(5).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(6).inventory_policy.local_base_stock_level = 32
-	network.get_node_from_index(3).demand_source.round_to_int = True
-	network.get_node_from_index(4).demand_source.round_to_int = True
-	network.get_node_from_index(5).demand_source.round_to_int = True
-	network.get_node_from_index(6).demand_source.round_to_int = True
-# 	network.get_node_from_index(0).initial_inventory_level = 24
-# 	network.get_node_from_index(1).initial_inventory_level = 12
-# 	network.get_node_from_index(2).initial_inventory_level = 12
-# 	network.get_node_from_index(3).initial_inventory_level = 6
-# 	network.get_node_from_index(4).initial_inventory_level = 6
-# 	network.get_node_from_index(5).initial_inventory_level = 6
-# 	network.get_node_from_index(6).initial_inventory_level = 6
-#
-#
-	total_cost = simulation(network, T, rand_seed=1079)
-# #	write_results(network, T, total_cost, write_csv=False)
-	write_results(network, T, total_cost, write_csv=True, csv_filename='temp.csv')
-
-
-if __name__ == "__main__":
-#	cProfile.run('main()')
-	main()
