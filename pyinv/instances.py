@@ -1,6 +1,7 @@
 import copy
 
 from pyinv.supply_chain_network import *
+from pyinv.supply_chain_node import *
 
 
 def get_named_instance(instance_name):
@@ -135,8 +136,8 @@ def get_named_instance(instance_name):
 			demand_mean=50,
 			demand_standard_deviation=8,
 			shipment_lead_time=[1],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[56.6]
+			inventory_policy_type='BS',
+			base_stock_levels=[56.6]
 		)
 		return example_4_1_network
 	elif instance_name == "example_4_1":
@@ -295,8 +296,8 @@ def get_named_instance(instance_name):
 			demand_mean=5,
 			demand_standard_deviation=1,
 			shipment_lead_time=[1, 1, 2],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[6.49, 5.53, 10.69],
+			inventory_policy_type='BS',
+			base_stock_levels=[6.49, 5.53, 10.69],
 			downstream_0=True
 		)
 		return example_6_1_network
@@ -311,8 +312,8 @@ def get_named_instance(instance_name):
 			demand_mean=100,
 			demand_standard_deviation=15,
 			shipment_lead_time=[1, 1],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[100, 94],
+			inventory_policy_type='BS',
+			base_stock_levels=[100, 94],
 			downstream_0=True
 		)
 		return problem_6_1_network
@@ -327,8 +328,8 @@ def get_named_instance(instance_name):
 			demand_mean=64,
 			demand_standard_deviation=8,
 			shipment_lead_time=[0.5, 0.5, 0.5, 0.5, 0.5],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[40.59, 33.87, 35.14, 33.30, 32.93],
+			inventory_policy_type='BS',
+			base_stock_levels=[40.59, 33.87, 35.14, 33.30, 32.93],
 			downstream_0=True
 		)
 		return problem_6_2a_network
@@ -344,8 +345,8 @@ def get_named_instance(instance_name):
 			demand_mean=64 / 2,
 			demand_standard_deviation=8 / np.sqrt(2),
 			shipment_lead_time=[1, 1, 1, 1, 1],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[40.59, 33.87, 35.14, 33.30, 32.93],
+			inventory_policy_type='BS',
+			base_stock_levels=[40.59, 33.87, 35.14, 33.30, 32.93],
 			downstream_0=True
 		)
 		return problem_6_2a_network_adj
@@ -353,6 +354,7 @@ def get_named_instance(instance_name):
 		# Problem 6.2b, adjusted for periodic review.
 		# (Since L=0.5 in that problem, here we treat each period as
 		# having length 0.5 in the original problem.)
+		problem_6_2a_network_adj = get_named_instance('problem_6_2a_adj')
 		problem_6_2b_network_adjusted = copy.deepcopy(problem_6_2a_network_adj)
 		# TODO: build this instance - -need to add Poisson demand capability
 		return problem_6_2b_network_adjusted
@@ -366,8 +368,8 @@ def get_named_instance(instance_name):
 			demand_mean=20,
 			demand_standard_deviation=4,
 			shipment_lead_time=[8, 3],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[171.1912, 57.7257],
+			inventory_policy_type='BS',
+			base_stock_levels=[171.1912, 57.7257],
 			initial_IL=20,
 			initial_orders=20,
 			initial_shipments=20,
@@ -385,8 +387,8 @@ def get_named_instance(instance_name):
 			demand_mean=5,
 			demand_standard_deviation=1,
 			shipment_lead_time=[1, 2, 2],
-			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-			local_base_stock_levels=[7, 13, 11],
+			inventory_policy_type='BS',
+			base_stock_levels=[7, 13, 11],
 			initial_IL=[7, 13, 11],
 			downstream_0=True
 		)
@@ -401,20 +403,20 @@ def get_named_instance(instance_name):
 				demand_mean=20,
 				demand_standard_deviation=5,
 				shipment_lead_time={1: 2, 2: 2, 3: 1},
-				inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-				local_base_stock_levels={1: 44, 2: 52, 3: 28},
+				inventory_policy_type='BS',
+				base_stock_levels={1: 44, 2: 52, 3: 28},
 				initial_IL={1: 44, 2: 52, 3: 28}
 			)
 			# assembly_3_stage_2_network = mwor_system(
 			# 	num_warehouses=2,
 			# 	local_holding_cost=[2, 1, 1],
 			# 	stockout_cost=[20, 0, 0],
-			# 	type=DemandType.NORMAL,
+			# 	type='D',
 			# 	mean=20,
 			# 	standard_deviation=5,
 			# 	shipment_lead_time=[1, 2, 2],
-			# 	inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-			# 	local_base_stock_levels=[28, 52, 44],
+			# 	inventory_policy_type='BS',
+			# 	base_stock_levels=[28, 52, 44],
 			# 	initial_IL=[28, 52, 44],
 			# 	downstream_0=True)
 			assembly_3_stage_2_network.get_node_from_index(3).demand_source.round_to_int = True
@@ -424,12 +426,10 @@ def get_named_instance(instance_name):
 		# Note: Other than the structure and lead times, none of the remaining parameters are from Rosling's paper.
 		rosling_figure_1_network = SupplyChainNetwork()
 		nodes = {i: SupplyChainNode(index=i) for i in range(1, 8)}
-		policy_factory = PolicyFactory()
 		# Inventory policies.
 		for n in nodes.values():
-			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-												 base_stock_level=None)
-			n.inventory_policy = policy
+			n.inventory_policy.type = 'BEBS'
+			n.inventory_policy.base_stock_level = None
 		# Node 1.
 		nodes[1].shipment_lead_time = 1
 		demand_source = DemandSource()
@@ -485,8 +485,8 @@ def get_named_instance(instance_name):
 			demand_mean=20,
 			demand_standard_deviation=4,
 			shipment_lead_time=[1, 1, 2, 3],
-			inventory_policy_type=InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-			echelon_base_stock_levels=[30, 50, 70, 90],
+			inventory_policy_type='BEBS',
+			base_stock_levels=[30, 50, 70, 90],
 			downstream_0=True
 		)
 		return kangye_4_stage
@@ -499,8 +499,8 @@ def get_named_instance(instance_name):
 			demand_mean=5,
 			demand_standard_deviation=np.sqrt(5),
 			shipment_lead_time=[1, 1, 1],
-			inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-			local_base_stock_levels=[7, 7, 7],
+			inventory_policy_type='BS',
+			base_stock_levels=[7, 7, 7],
 			initial_IL=[7, 7, 7],
 			downstream_0=False
 		)
@@ -517,8 +517,8 @@ def get_named_instance(instance_name):
 			local_holding_cost=[10, 10, 10],
 			stockout_cost=[10, 10, 10],
 			shipment_lead_time=[1, 1, 1],
-			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-			local_base_stock_levels=[60, 50, 60],
+			inventory_policy_type='BS',
+			base_stock_levels=[60, 50, 60],
 			downstream_0=True,
 			initial_IL=[60, 50, 60]
 		)
@@ -534,8 +534,8 @@ def get_named_instance(instance_name):
 			local_holding_cost={0: 1/3, 1: 2/3, 2: 2/3, 3: 1, 4: 1, 5: 1, 6: 1},
 			stockout_cost=20,
 			shipment_lead_time=1,
-			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-			local_base_stock_levels={i: 0 for i in range(0, 7)}
+			inventory_policy_type='BS',
+			base_stock_levels={i: 0 for i in range(0, 7)}
 		)
 		return rong_atan_snyder_figure_1a
 	elif instance_name == "rong_atan_snyder_figure_1b":
@@ -547,8 +547,8 @@ def get_named_instance(instance_name):
 			demand_type=demand_type,
 			demand_mean=8,
 			demand_standard_deviation=np.sqrt(8),
-			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-			local_base_stock_levels={i: 0 for i in range(0, 11)}
+			inventory_policy_type='BS',
+			base_stock_levels={i: 0 for i in range(0, 11)}
 		)
 		return rong_atan_snyder_figure_1b
 	elif instance_name == "rong_atan_snyder_figure_1c":
@@ -559,7 +559,7 @@ def get_named_instance(instance_name):
 			demand_type={0: None, 1: 'N', 2: None, 3: 'N', 4: 'N', 5: 'N'},
 			demand_mean=8,
 			demand_standard_deviation=np.sqrt(8),
-			inventory_policy_type=InventoryPolicyType.LOCAL_BASE_STOCK,
-			local_base_stock_levels={i: 0 for i in range(0, 6)}
+			inventory_policy_type='BS',
+			base_stock_levels={i: 0 for i in range(0, 6)}
 		)
 		return rong_atan_snyder_figure_1c

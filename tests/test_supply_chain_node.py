@@ -5,7 +5,8 @@ import unittest
 # from scipy.stats import poisson
 # from scipy.stats import lognorm
 
-from pyinv.supply_chain_node import *
+#from pyinv.supply_chain_node import *
+from pyinv.supply_chain_network import *
 from pyinv.instances import *
 from pyinv.sim import *
 
@@ -610,7 +611,7 @@ class TestStateVariables(unittest.TestCase):
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
-			n.initial_inventory_level = n.inventory_policy.local_base_stock_level
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
 
 		# Strategy for these tests: run sim for a few periods, test state
 		# variables.
@@ -678,7 +679,7 @@ class TestStateVariables(unittest.TestCase):
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
-			n.initial_inventory_level = n.inventory_policy.local_base_stock_level
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
 
 		# Strategy for these tests: run sim for a few periods, test state
 		# variables.

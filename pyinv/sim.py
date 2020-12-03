@@ -456,29 +456,26 @@ def get_order_quantity(node, period, predecessor_index=None):
 	# external demand.
 	demand = node.get_attribute_total('inbound_order', period)
 
+# TODO: clean this up
 	if node.inventory_policy is None:
 		order_quantity = 0
-	elif node.inventory_policy.policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
+	elif node.inventory_policy.type == 'EBS':
 		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
-																  echelon_inventory_position=current_IP)
-	elif node.inventory_policy.policy_type == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
+		order_quantity = node.inventory_policy.get_order_quantity()
+	elif node.inventory_policy.type == 'BEBS':
 		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
 		if node.index == max(node.network.node_indices):
 			EIPA = np.inf
 		else:
 			partner_node = node.network.get_node_from_index(node.index+1)
 			EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
-		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
-																  echelon_inventory_position=current_IP,
-																  echelon_inventory_position_adjusted=EIPA)
-	elif node.inventory_policy.policy_type == InventoryPolicyType.LOCAL_BASE_STOCK:
+		order_quantity = node.inventory_policy.get_order_quantity()
+	elif node.inventory_policy.type == 'BS':
 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index,
-																  inventory_position=current_IP)
+		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
 	else:
 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index, inventory_position=current_IP)
+		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
 	return order_quantity
 
 
@@ -742,7 +739,7 @@ def main():
 	# # Create and fill echelon base-stock policies.
 	# policy_factory = PolicyFactory()
 	# for n in network.nodes:
-	# 	n.inventory_policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
+	# 	n.inventory_policy = policy_factory.build_policy('EBS',
 	# 													 base_stock_level=S_echelon[n.index])
 
 	# network = serial_system(

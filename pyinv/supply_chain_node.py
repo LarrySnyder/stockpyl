@@ -83,7 +83,7 @@ class SupplyChainNode(object):
 	initial shipments : float # TODO: allow list
 		Initial inbound shipment quantity.
 	inventory_policy : Policy
-		Inventory policy to be used to make pyinv decisions.
+		Inventory policy to be used to make inventory decisions.
 	supply_type : SupplyType
 		Supply type (unlimited, etc.).
 	state_vars : list of NodeStateVars
@@ -131,7 +131,8 @@ class SupplyChainNode(object):
 		self.initial_inventory_level = 0
 		self.initial_orders = 0
 		self.initial_shipments = 0
-		self.inventory_policy = None
+		self.inventory_policy = Policy()
+		self.inventory_policy.node = self # TODO: do this in constructor?
 		self.supply_type = SupplyType.NONE # TODO: this is awkward; make default UNLIMITED?
 
 		# --- State Variables --- #
@@ -790,9 +791,9 @@ class NodeStateVars(object):
 		for p in self.node.predecessors(include_external=False):
 			change_dict_key(self.inbound_shipment_pipeline, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.inbound_shipment, p.index, old_to_new_dict[p.index])
-			change_dict_key(self.on_order_by_predecessor, s.index, old_to_new_dict[s.index])
-			change_dict_key(self.raw_material_inventory, s.index, old_to_new_dict[s.index])
-			change_dict_key(self.order_quantity, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.on_order_by_predecessor, p.index, old_to_new_dict[p.index])
+			change_dict_key(self.raw_material_inventory, p.index, old_to_new_dict[p.index])
+			change_dict_key(self.order_quantity, p.index, old_to_new_dict[p.index])
 
 		# State variables indexed by successor.
 		for s in self.node.successors(include_external=False):

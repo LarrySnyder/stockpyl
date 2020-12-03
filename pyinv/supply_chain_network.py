@@ -16,11 +16,12 @@ This module contains the ``SupplyChainNetwork`` class.
 # Imports
 # ===============================================================================
 
-from pyinv.supply_chain_node import *
+import networkx as nx
+
+#import pyinv.supply_chain_node
+#from pyinv.supply_chain_node import *
 from pyinv.policy import *
 from pyinv.helpers import *
-
-import networkx as nx
 
 
 # ===============================================================================
@@ -238,8 +239,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 					   demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 					   demand_list=None, probabilities=None, initial_IL=0,
 					   initial_orders=0, initial_shipments=0, supply_type=None,
-					   inventory_policy_type=None, local_base_stock_levels=None,
-					   echelon_base_stock_levels=None,
+					   inventory_policy_type=None, base_stock_levels=None,
 					   reorder_points=None, order_quantities=None,
 					   order_up_to_levels=None):
 	"""Construct supply chain network with the specified edges.
@@ -287,8 +287,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	initial_orders
 	initial_shipments
 	inventory_policy_type
-	local_base_stock_levels
-	echelon_base_stock_levels
+	base_stock_levels
 	reorder_points
 	order_quantities
 	order_up_to_levels
@@ -345,8 +344,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	initial_shipments_list = ensure_dict_for_nodes(initial_shipments, node_indices, None)
 	supply_type_list = ensure_dict_for_nodes(supply_type, node_indices, None)
 	inventory_policy_type_list = ensure_dict_for_nodes(inventory_policy_type, node_indices, None)
-	local_base_stock_levels_list = ensure_dict_for_nodes(local_base_stock_levels, node_indices, None)
-	echelon_base_stock_levels_list = ensure_dict_for_nodes(echelon_base_stock_levels, node_indices, None)
+	base_stock_levels_list = ensure_dict_for_nodes(base_stock_levels, node_indices, None)
 	reorder_points_list = ensure_dict_for_nodes(reorder_points, node_indices, None)
 	order_quantities_list = ensure_dict_for_nodes(order_quantities, node_indices, None)
 	order_up_to_levels_list = ensure_dict_for_nodes(order_up_to_levels, node_indices, None)
@@ -369,25 +367,19 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		# Check parameters for inventory policy type.
 		if inventory_policy_type_list[n.index] is None:
 			raise ValueError("Valid inventory_policy_type has not been provided")
-		elif inventory_policy_type_list[n.index] in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
-			and local_base_stock_levels_list[n.index] is None:
+		elif inventory_policy_type_list[n.index] in ('BS', 'EBS', 'BEBS') and base_stock_levels_list[n.index] is None:
 			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.r_Q \
+		elif inventory_policy_type_list[n.index] == 'rQ' \
 			and (reorder_points_list[n.index] is None or order_quantities_list[n.index] is None):
 			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
 							 "provided")
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.s_S \
+		elif inventory_policy_type_list[n.index] == 'sS' \
 			and (reorder_points_list[n.index] is None or order_up_to_levels_list[n.index] is None):
 			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
 							 "provided")
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.FIXED_QUANTITY \
+		elif inventory_policy_type_list[n.index] == 'FQ' \
 			and order_quantities_list[n.index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-		elif inventory_policy_type_list[n.index] in \
-				(InventoryPolicyType.ECHELON_BASE_STOCK, InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK) \
-			and echelon_base_stock_levels[n.index] is None:
-			raise ValueError("Policy type was specified as echelon base-stock or balanced echelon base-stock but "
-							"echelon base-stock level was not provided")
 
 	# Set parameters.
 	for n in network.nodes:
@@ -423,30 +415,17 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		n.initial_shipments = initial_shipments_list[n.index]
 
 		# Set inventory policy.
-		policy_factory = PolicyFactory()
-		if inventory_policy_type_list[n.index] == InventoryPolicyType.BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n.index])
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.r_Q:
-			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-												 reorder_point=reorder_points_list[n.index],
-												 order_quantity=order_quantities_list[n.index])
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.s_S:
-			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-												 reorder_point=reorder_points_list[n.index],
-												 order_up_to_level=order_up_to_levels_list[n.index])
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.FIXED_QUANTITY:
-			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-												 order_quantity=order_quantities_list[n.index])
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.ECHELON_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_list[n.index])
-		elif inventory_policy_type_list[n.index] == InventoryPolicyType.LOCAL_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n.index])
-		else:
-			policy = None
-		n.inventory_policy = policy
+		n.inventory_policy = inventory_policy_type_list[n.index]
+		if inventory_policy_type_list[n.index] in ('BS', 'EBS', 'BEBS'):
+			n.inventory_policy.base_stock_level = base_stock_levels_list[n.index]
+		elif inventory_policy_type_list[n.index] == 'rQ':
+			n.inventory_policy.reorder_point = reorder_points_list[n.index]
+			n.inventory_policy.order_quantity = order_quantities_list[n.index]
+		elif inventory_policy_type_list[n.index] == 'sS':
+			n.inventory_policy.reorder_point = reorder_points_list[n.index]
+			n.inventory_policy.order_up_to_level = order_up_to_levels_list[n.index]
+		elif inventory_policy_type_list[n.index] == 'FQ':
+			n.inventory_policy.order_quantity=order_quantities_list[n.index]
 
 		# Set supply type.
 		if len(n.predecessors()) == 0:
@@ -519,22 +498,20 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	# Check that valid inventory policy has been provided.
 	if inventory_policy_type is None:
 		raise ValueError("Valid inventory_policy_type has not been provided")
-	elif inventory_policy_type in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
+	elif inventory_policy_type in ('BS', 'EBS', 'BEBS') \
 		and base_stock_level is None:
 		raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-	elif inventory_policy_type == InventoryPolicyType.r_Q \
+	elif inventory_policy_type == 'rQ' \
 		and (reorder_point is None or order_quantity is None):
 		raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
 						 "provided")
-	elif inventory_policy_type == InventoryPolicyType.s_S \
+	elif inventory_policy_type == 'sS' \
 		and (reorder_point is None or order_up_to_level is None):
 		raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
 						 "provided")
-	elif inventory_policy_type == InventoryPolicyType.FIXED_QUANTITY \
+	elif inventory_policy_type == 'FQ' \
 		and order_quantity is None:
 		raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-	elif inventory_policy_type in (InventoryPolicyType.ECHELON_BASE_STOCK, InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK):
-		raise ValueError("Echelon base-stock policies are not allowed for single-stage systems")
 
 	# Build network.
 	network = SupplyChainNetwork()
@@ -575,24 +552,17 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	node.initial_shipments = initial_shipments
 
 	# Set inventory policy.
-	policy_factory = PolicyFactory()
-	if inventory_policy_type == InventoryPolicyType.BASE_STOCK:
-		policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-											 base_stock_level=base_stock_level)
-	elif inventory_policy_type == InventoryPolicyType.r_Q:
-		policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-											 reorder_point=reorder_point,
-											 order_quantity=order_quantity)
-	elif inventory_policy_type == InventoryPolicyType.s_S:
-		policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-											 reorder_point=reorder_point,
-											 order_up_to_level=order_up_to_level)
-	elif inventory_policy_type == InventoryPolicyType.FIXED_QUANTITY:
-		policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-											 order_quantity=order_quantity)
-	elif inventory_policy_type == InventoryPolicyType.LOCAL_BASE_STOCK:
-		policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-											 base_stock_level=base_stock_level)
+	node.inventory_policy.type = inventory_policy_type
+	if inventory_policy_type in ('BS', 'EBS', 'BEBS'):
+		node.inventory_policy.base_stock_level = base_stock_level
+	elif inventory_policy_type == 'rQ':
+		node.inventory_policy.reorder_point = reorder_point
+		node.inventory_policy.order_quantity = order_quantity
+	elif inventory_policy_type == 'sS':
+		node.inventory_policy.reorder_point = reorder_point
+		node.inventory_policy.order_up_to_level = order_up_to_level
+	elif inventory_policy_type == 'FQ':
+		node.inventory_policy.order_quantity = order_quantity
 	else:
 		policy = None
 	node.inventory_policy = policy
@@ -613,8 +583,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 				  demand_list=None, probabilities=None, initial_IL=0,
 				  initial_orders=0, initial_shipments=0, supply_type=None,
-				  inventory_policy_type=None, local_base_stock_levels=None,
-				  echelon_base_stock_levels=None,
+				  inventory_policy_type=None, base_stock_levels=None,
 				  reorder_points=None, order_quantities=None,
 				  order_up_to_levels=None):
 	"""Generate serial system with specified number of nodes.
@@ -661,8 +630,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	initial_shipments
 	supply_type
 	inventory_policy_type
-	local_base_stock_levels
-	echelon_base_stock_levels
+	base_stock_levels
 	reorder_points
 	order_quantities
 	order_up_to_levels
@@ -704,8 +672,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	initial_shipments_dict = ensure_dict_for_nodes(initial_shipments, indices, None)
 	supply_type_dict = ensure_dict_for_nodes(supply_type, indices, None)
 	inventory_policy_type_dict = ensure_dict_for_nodes(inventory_policy_type, indices, None)
-	local_base_stock_levels_dict = ensure_dict_for_nodes(local_base_stock_levels, indices, None)
-	echelon_base_stock_levels_dict = ensure_dict_for_nodes(echelon_base_stock_levels, indices, None)
+	base_stock_levels_dict = ensure_dict_for_nodes(base_stock_levels, indices, None)
 	reorder_points_dict = ensure_dict_for_nodes(reorder_points, indices, None)
 	order_quantities_dict = ensure_dict_for_nodes(order_quantities, indices, None)
 	order_up_to_levels_dict = ensure_dict_for_nodes(order_up_to_levels, indices, None)
@@ -729,25 +696,20 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Check parameters for inventory policy type.
 		if inventory_policy_type_dict[n_index] is None:
 			raise ValueError("Valid inventory_policy_type has not been provided")
-		elif inventory_policy_type_dict[n_index] in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
-			and local_base_stock_levels_dict[n_index] is None:
+		elif inventory_policy_type_dict[n_index] in ('BS', 'EBS', 'BEBS') \
+			and base_stock_levels_dict[n_index] is None:
 			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-		elif inventory_policy_type_dict[n_index] == InventoryPolicyType.r_Q \
+		elif inventory_policy_type_dict[n_index] == 'rQ' \
 			and (reorder_points_dict[n_index] is None or order_quantities_dict[n_index] is None):
 			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
 							 "provided")
-		elif inventory_policy_type_dict[n_index] == InventoryPolicyType.s_S \
+		elif inventory_policy_type_dict[n_index] == 'sS' \
 			and (reorder_points_dict[n_index] is None or order_up_to_levels_dict[n_index] is None):
 			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
 							 "provided")
-		elif inventory_policy_type_dict[n_index] == InventoryPolicyType.FIXED_QUANTITY \
+		elif inventory_policy_type_dict[n_index] == 'FQ' \
 			and order_quantities_dict[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-		elif inventory_policy_type_dict[n_index] in (InventoryPolicyType.ECHELON_BASE_STOCK,
-			InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK) \
-			and echelon_base_stock_levels[n_index] is None:
-			raise ValueError("Policy type was specified as echelon base-stock but echelon base-stock level was not "
-							 "provided")
 
 	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
@@ -795,33 +757,17 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_dict[n_ind]
 
 		# Set inventory policy.
-		policy_factory = PolicyFactory()
-		if inventory_policy_type_dict[n_ind] == InventoryPolicyType.BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_dict[n_ind])
-		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.r_Q:
-			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-												 reorder_point=reorder_points_dict[n_ind],
-												 order_quantity=order_quantities_dict[n_ind])
-		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.s_S:
-			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-												 reorder_point=reorder_points_dict[n_ind],
-												 order_up_to_level=order_up_to_levels_dict[n_ind])
-		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.FIXED_QUANTITY:
-			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-												 order_quantity=order_quantities_dict[n_ind])
-		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.ECHELON_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_dict[n_ind])
-		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-												 echelon_base_stock_level=echelon_base_stock_levels_dict[n_ind])
-		elif inventory_policy_type_dict[n_ind] == InventoryPolicyType.LOCAL_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_dict[n_ind])
-		else:
-			policy = None
-		node.inventory_policy = policy
+		node.inventory_policy.type = inventory_policy_type_dict[n_ind]
+		if inventory_policy_type_dict[n_ind] in ('BS', 'EBS', 'BEBS'):
+			node.inventory_policy.base_stock_level = base_stock_levels_dict[n_ind]
+		elif inventory_policy_type_dict[n_ind] == 'rQ':
+			node.inventory_policy.reorder_point = reorder_points_dict[n_ind]
+			node.inventory_policy.order_quantity = order_quantities_dict[n_ind]
+		elif inventory_policy_type_dict[n_ind] == 'sS':
+			node.inventory_policy.reorder_point = reorder_points_dict[n_ind]
+			node.inventory_policy.order_up_to_level = order_up_to_levels_dict[n_ind]
+		elif inventory_policy_type_dict[n_ind] == 'FQ':
+			node.inventory_policy.order_quantity=order_quantities_dict[n_ind]
 
 		# Set supply type.
 		if n == num_nodes-1:
@@ -846,8 +792,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 				demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 				demand_list=None, probabilities=None, initial_IL=0,
 				initial_orders=0, initial_shipments=0, supply_type=None,
-				inventory_policy_type=None, local_base_stock_levels=None,
-				echelon_base_stock_levels=None,
+				inventory_policy_type=None, base_stock_levels=None,
 				reorder_points=None, order_quantities=None,
 				order_up_to_levels=None):
 	"""Generate multiple-warehouse, one-retailer (MWOR) (i.e., 2-echelon assembly)
@@ -896,8 +841,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	initial_shipments
 	supply_type
 	inventory_policy_type
-	local_base_stock_levels
-	echelon_base_stock_levels
+	base_stock_levels
 	reorder_points
 	order_quantities
 	order_up_to_levels
@@ -939,8 +883,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	initial_shipments_list = ensure_list_for_nodes(initial_shipments, num_nodes, None)
 	supply_type_list = ensure_list_for_nodes(supply_type, num_nodes, None)
 	inventory_policy_type_list = ensure_list_for_nodes(inventory_policy_type, num_nodes, None)
-	local_base_stock_levels_list = ensure_list_for_nodes(local_base_stock_levels, num_nodes, None)
-	echelon_base_stock_levels_list = ensure_list_for_nodes(echelon_base_stock_levels, num_nodes, None)
+	base_stock_levels_list = ensure_list_for_nodes(base_stock_levels, num_nodes, None)
 	reorder_points_list = ensure_list_for_nodes(reorder_points, num_nodes, None)
 	order_quantities_list = ensure_list_for_nodes(order_quantities, num_nodes, None)
 	order_up_to_levels_list = ensure_list_for_nodes(order_up_to_levels, num_nodes, None)
@@ -965,25 +908,20 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		# Check parameters for inventory policy type.
 		if inventory_policy_type_list[n_index] is None:
 			raise ValueError("Valid inventory_policy_type has not been provided")
-		elif inventory_policy_type_list[n_index] in (InventoryPolicyType.BASE_STOCK, InventoryPolicyType.LOCAL_BASE_STOCK) \
-			and local_base_stock_levels_list[n_index] is None:
+		elif inventory_policy_type_list[n_index] in ('BS', 'EBS', 'BEBS') \
+			and base_stock_levels_list[n_index] is None:
 			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.r_Q \
+		elif inventory_policy_type_list[n_index] == 'rQ' \
 			and (reorder_points_list[n_index] is None or order_quantities_list[n_index] is None):
 			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
 							 "provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.s_S \
+		elif inventory_policy_type_list[n_index] == 'sS' \
 			and (reorder_points_list[n_index] is None or order_up_to_levels_list[n_index] is None):
 			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
 							 "provided")
-		elif inventory_policy_type_list[n_index] == InventoryPolicyType.FIXED_QUANTITY \
+		elif inventory_policy_type_list[n_index] == 'FQ' \
 			and order_quantities_list[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-		elif inventory_policy_type_list[n_index] in (InventoryPolicyType.ECHELON_BASE_STOCK,
-													 InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK) \
-			and echelon_base_stock_levels[n_index] is None:
-			raise ValueError("Policy type was specified as echelon base-stock or balanced echelon base-stock but echelon base-stock level was not "
-							 "provided")
 
 	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
@@ -1031,31 +969,17 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
-		# TODO: one-line way to do this too
-		policy_factory = PolicyFactory()
-		if inventory_policy_type_list[n] == InventoryPolicyType.BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.r_Q:
-			policy = policy_factory.build_policy(InventoryPolicyType.r_Q,
-												 reorder_point=reorder_points_list[n],
-												 order_quantity=order_quantities_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.s_S:
-			policy = policy_factory.build_policy(InventoryPolicyType.s_S,
-												 reorder_point=reorder_points_list[n],
-												 order_up_to_level=order_up_to_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.FIXED_QUANTITY:
-			policy = policy_factory.build_policy(InventoryPolicyType.FIXED_QUANTITY,
-												 order_quantity=order_quantities_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.ECHELON_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 base_stock_level=echelon_base_stock_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK,
-												 base_stock_level=echelon_base_stock_levels_list[n])
-		elif inventory_policy_type_list[n] == InventoryPolicyType.LOCAL_BASE_STOCK:
-			policy = policy_factory.build_policy(InventoryPolicyType.LOCAL_BASE_STOCK,
-												 base_stock_level=local_base_stock_levels_list[n])
+		policy = Policy(inventory_policy_type_list[n], n)
+		if inventory_policy_type_list[n] in ('BS', 'EBS', 'BEBS'):
+			policy.base_stock_level = base_stock_levels_list[n]
+		elif inventory_policy_type_list[n] == 'rQ':
+			policy.reorder_point = reorder_points_list[n]
+			policy.order_quantity = order_quantities_list[n]
+		elif inventory_policy_type_list[n] == 'sS':
+			policy.reorder_point = reorder_points_list[n]
+			policy.order_up_to_level = order_up_to_levels_list[n]
+		elif inventory_policy_type_list[n] == 'FQ':
+			policy.order_quantity=order_quantities_list[n]
 		else:
 			policy = None
 		node.inventory_policy = policy

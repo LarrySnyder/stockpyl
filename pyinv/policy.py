@@ -2,7 +2,7 @@
 # PyInv - Policy Class
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 03-06-2020
+# Updated: 11-25-2020
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -11,74 +11,94 @@
 This module contains the ``Policy`` class. A ``Policy`` object is used to make
 order quantity calculations.
 
+Notation and equation and section numbers refer to Snyder and Shen,
+"Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
 """
 
 # ===============================================================================
 # Imports
 # ===============================================================================
 
-from enum import Enum
-from abc import ABC, abstractmethod
+from pyinv.supply_chain_node import *
 
 
 # ===============================================================================
 # Data Types
 # ===============================================================================
 
-class InventoryPolicyType(Enum):
-	CUSTOM = 0
-	BASE_STOCK = 1
-	r_Q = 2
-	s_S = 3
-	FIXED_QUANTITY = 4
-	ECHELON_BASE_STOCK = 5
-	BALANCED_ECHELON_BASE_STOCK = 6
-	LOCAL_BASE_STOCK = 7
-#	STERMAN = 3
-#	RANDOM = 4
-
+# class InventoryPolicyType(Enum):
+# 	CUSTOM = 0
+# 	BASE_STOCK = 1
+# 	r_Q = 2
+# 	s_S = 3
+# 	FIXED_QUANTITY = 4
+# 	ECHELON_BASE_STOCK = 5
+# 	BALANCED_ECHELON_BASE_STOCK = 6
+# 	LOCAL_BASE_STOCK = 7
+# #	STERMAN = 3
+# #	RANDOM = 4
+#
 
 # ===============================================================================
-# Policy Class and Subclasses
+# Policy Class
 # ===============================================================================
 
-class Policy(ABC):
+class Policy(object):
 	"""The ``Policy`` class is used to encapsulate inventory policy calculations.
-	This is an abstract class, so it must be subclassed. Subclasses define the
-	actual policy.
-	"""
-
-	@abstractmethod
-	def get_order_quantity(self, predecessor_index=None):
-		pass
-
-
-class PolicyBaseStock(Policy):
-	"""The ``PolicyBaseStock`` class is used for base-stock policies.
 
 	Attributes
 	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
+	_type : str
+		The policy type, as a string. Currently supported strings are:
+			* None
+			* 'BS' (base stock)
+			* 'sS' (s, S)
+			* 'rQ' (r, Q)
+			* 'FQ' (fixed quantity)
+			* 'EBS' (echelon base-stock)
+			* 'BEBS' (balanced echelon base-stock)
+	_node : SupplyChainNode
+		The node the policy refers to.
 	_base_stock_level : float
-		The base-stock level. [:math:`S`]
+		The base-stock level used by the policy, if applicable.
+	_order_quantity : float
+		The order quantity used by the policy, if applicable.
+	_reorder_point : float
+		The reorder point used by the policy, if applicable.
+	_order_up_to_level : float
+		The order-up-to level used by the policy, if applicable.
+
 	"""
 
-	def __init__(self, base_stock_level):
+	# TODO: handle predecessor-specific order quantities
+
+	def __init__(self, type=None, node=None):
 		"""Policy constructor method.
 		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.BASE_STOCK
+		# Initialize parameters to None. (Relevant parameters will be filled later.)
+		self._type = type
+		self._node = node
+		self._base_stock_level = None
+		self._order_quantity = None
+		self._reorder_point = None
+		self._order_up_to_level = None
 
-		# Set policy parameter(s).
-		self._base_stock_level = base_stock_level
+	# PROPERTY GETTERS AND SETTERS
+	@property
+	def type(self):
+		return self._type
 
-	# PROPERTIES
+	@type.setter
+	def type(self, value):
+		self._type = value
 
 	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
+	def node(self):
+		return self._node
+
+	@node.setter
+	def node(self, value):
+		self._node = value
 
 	@property
 	def base_stock_level(self):
@@ -88,86 +108,13 @@ class PolicyBaseStock(Policy):
 	def base_stock_level(self, value):
 		self._base_stock_level = value
 
-	# SPECIAL MEMBERS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``Policy`` instance.
-
-		Returns
-		-------
-			A string representation of the ``Policy`` instance.
-
-		"""
-		# Build string of parameters.
-		param_str = "base_stock_level={:.2f}".format(self.base_stock_level)
-
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``Policy`` instance.
-
-		Returns
-		-------
-			The policy name.
-
-		"""
-		return self.__repr__()
-
-	# METHODS
-
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
-		# TODO: doesn't currently make use of predecessor_index -- this will be needed when BS levels are pred-specific
-		"""Calculate order quantity.
-
-		Parameters
-		----------
-		inventory_position : float
-			Inventory position immediately before order is placed.
-		predecessor_index : int, optional
-			The predecessor for which the order quantity should be calculated.
-			Use ``None'' for external supplier, or if node has only one predecessor
-			(including external supplier).
-
-		Returns
-		-------
-		order_quantity : float
-			The order quantity.
-		"""
-
-		return max(0.0, self._base_stock_level - inventory_position)
-
-
-class PolicysS(Policy):
-	"""The ``PolicysS`` class is used for (s,S) policies.
-
-	Attributes
-	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
-	_reorder_point : float
-		The reorder point. [:math:`s`]
-	_order_up_to_level : float
-		The order-up-to level. [:math:`S`]
-	"""
-
-	def __init__(self, reorder_point, order_up_to_level):
-		"""Policy constructor method.
-		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.s_S
-
-		# Set policy parameter(s).
-		self._reorder_point = reorder_point
-		self._order_up_to_level = order_up_to_level
-
-	# PROPERTIES
-
 	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
+	def order_quantity(self):
+		return self._order_quantity
+
+	@order_quantity.setter
+	def order_quantity(self, value):
+		self._order_quantity = value
 
 	@property
 	def reorder_point(self):
@@ -197,9 +144,21 @@ class PolicysS(Policy):
 
 		"""
 		# Build string of parameters.
-		param_str = "reorder_point={:.2f}, order_up_to_level={:.2f}".format(self._reorder_point, self._order_up_to_level)
+		if self.type is None:
+			return "Policy(None)"
+		elif self.type in ('BS', 'EBS', 'BEBS'):
+			param_str = "base_stock_level={:.2f}".format(self.base_stock_level)
+		elif self.type == 'sS':
+			param_str = "reorder_point={:.2f}, order_up_to_level={:.2f}".format(self.reorder_point,
+																				self.order_up_to_level)
+		elif self.type == 'rQ':
+			param_str = "reorder_point={:.2f}, order_quantity={:.2f}".format(self.reorder_point, self.order_quantity)
+		elif self.type == 'FQ':
+			param_str = "order_quantity={:.2f}".format(self.order_quantity)
+		else:
+			param_str = ""
 
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
+		return "Policy({:s}: {:s})".format(self.type, param_str)
 
 	def __str__(self):
 		"""
@@ -214,17 +173,27 @@ class PolicysS(Policy):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
-		"""Calculate order quantity using an (s,S) policy.
+	def get_order_quantity(self, inventory_position=None):
+		"""Calculate order quantity using the policy type specified in ``type``.
+		If ``type`` is ``None``, return ``None``.
+
+		For the most common inventory policy types, the only state variable
+		required is the inventory position. For other policy types (including
+		custom types), the method can obtain the necessary state variables
+		from ``self.node.network``.
+
+		Note that policies that require only inventory position can be queried
+		even if no node or network is provided, while other policies require
+		a node and network to be provided, with state variables filled appropriately.
+		(Individual policy methods, such as ``get_order_quantity_echelon_base_stock()``,
+		can be queried without a node or network since the relevant state variables
+		are passed to them directly.)
 
 		Parameters
 		----------
-		inventory_position : float
-			Inventory position immediately before order is placed.
-		predecessor_index : int, optional
-			The predecessor for which the order quantity should be calculated.
-			Use ``None'' for external supplier, or if node has only one predecessor
-			(including external supplier).
+		inventory_position : float, optional
+			Inventory position immediately before order is placed. Required for
+			most policy types.
 
 		Returns
 		-------
@@ -232,93 +201,78 @@ class PolicysS(Policy):
 			The order quantity.
 		"""
 
-		if inventory_position <= self._reorder_point:
-			return self._order_up_to_level - inventory_position
+		if self.type is None:
+			return None
+		elif self.type == 'BS':
+			return self.get_order_quantity_base_stock(inventory_position)
+		elif self.type == 'sS':
+			return self.get_order_quantity_s_S(inventory_position)
+		elif self.type == 'rQ':
+			return self.get_order_quantity_r_Q(inventory_position)
+		elif self.type == 'FQ':
+			return self.get_order_quantity_fixed_quantity()
+		elif self.type == 'EBS':
+			# Determine echelon inventory position.
+			EIP = self.node.state_vars_current.echelon_inventory_position()
+			return self.get_order_quantity_echelon_base_stock(EIP)
+		elif self.type == 'BEBS':
+			# Determine echelon inventory position.
+			# Echelon IP at stage i = sum of on-hand inventories at i and at or
+			# in transit to all of its downstream stages, minus backorders at
+			# downstream-most stage, plus on-order inventory at stage i.
+			EIP = self.node.state_vars_current.echelon_inventory_position()
+
+			# Determine partner node and adjusted echelon inventory position.
+			if self.node.index == max(self.node.network.node_indices):
+				EIPA = np.inf
+			else:
+				partner_node = self.node.network.get_node_from_index(self.node.index + 1)
+				EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
+
+			return self.get_order_quantity_balanced_echelon_base_stock(EIP, EIPA)
+		else:
+			return None
+
+	def get_order_quantity_base_stock(self, inventory_position):
+		"""Calculate order quantity using base-stock policy.
+
+		Parameters
+		-------
+		inventory_position : float
+			Inventory position immediately before order is placed.
+
+		Returns
+		-------
+		order_quantity : float
+			The order quantity.
+		"""
+
+		return max(0.0, self.base_stock_level - inventory_position)
+
+	def get_order_quantity_s_S(self, inventory_position):
+		"""Calculate order quantity using (s,S) policy.
+
+		Parameters
+		-------
+		inventory_position : float
+			Inventory position immediately before order is placed.
+
+		Returns
+		-------
+		order_quantity : float
+			The order quantity.
+		"""
+
+		if inventory_position <= self.reorder_point:
+			return self.order_up_to_level - inventory_position
 		else:
 			return 0
 
-
-class PolicyrQ(Policy):
-	"""The ``PolicyrQ`` class is used for (r,Q) policies.
-
-	Attributes
-	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
-	_reorder_point : float
-		The reorder point. [:math:`r`]
-	_order_quantity : float
-		The order quantity. [:math:`Q`]
-	"""
-
-	def __init__(self, reorder_point, order_quantity):
-		"""Policy constructor method.
-		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.r_Q
-
-		# Set policy parameter(s).
-		self._reorder_point = reorder_point
-		self._order_quantity = order_quantity
-
-	# PROPERTIES
-
-	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
-
-	@property
-	def reorder_point(self):
-		return self._reorder_point
-
-	@reorder_point.setter
-	def reorder_point(self, value):
-		self._reorder_point = value
-
-	@property
-	def order_quantity(self):
-		return self._order_quantity
-
-	@order_quantity.setter
-	def order_quantity(self, value):
-		self._order_quantity = value
-
-	# SPECIAL MEMBERS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``Policy`` instance.
-
-		Returns
-		-------
-			A string representation of the ``Policy`` instance.
-
-		"""
-		# Build string of parameters.
-		param_str = "reorder_point={:.2f}, order_quantity={:.2f}".format(self._reorder_point,
-																			self._order_quantity)
-
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``Policy`` instance.
-
-		Returns
-		-------
-			The policy name.
-
-		"""
-		return self.__repr__()
-
-	# METHODS
-
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
-		"""Calculate order quantity using an (s,S) policy.
+	def get_order_quantity_r_Q(self, inventory_position):
+		"""Calculate order quantity using (r,Q) policy.
 
 		Parameters
-		----------
+		-------
 		inventory_position : float
 			Inventory position immediately before order is placed.
 
@@ -333,79 +287,8 @@ class PolicyrQ(Policy):
 		else:
 			return 0.0
 
-
-class PolicyFixedQuantity(Policy):
-	"""The ``PolicyrQ`` class is used for fixed-quantity policies.
-
-	Attributes
-	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
-	_order_quantity : float
-		The order quantity. [:math:`Q`]
-	"""
-
-	def __init__(self, order_quantity):
-		"""Policy constructor method.
-		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.FIXED_QUANTITY
-
-		# Set policy parameter(s).
-		self._order_quantity = order_quantity
-
-	# PROPERTIES
-
-	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
-
-	@property
-	def order_quantity(self):
-		return self._order_quantity
-
-	@order_quantity.setter
-	def order_quantity(self, value):
-		self._order_quantity = value
-
-	# SPECIAL MEMBERS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``Policy`` instance.
-
-		Returns
-		-------
-			A string representation of the ``Policy`` instance.
-
-		"""
-		# Build string of parameters.
-		param_str = "order_quantity={:.2f}".format(self._order_quantity)
-
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``Policy`` instance.
-
-		Returns
-		-------
-			The policy name.
-
-		"""
-		return self.__repr__()
-
-	# METHODS
-
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
-		"""Calculate order quantity using a fixed-quantity policy.
-
-		Parameters
-		----------
-		inventory_position : float
-			Inventory position immediately before order is placed.
-			(Ignored for this inventory policy type.)
+	def get_order_quantity_fixed_quantity(self):
+		"""Calculate order quantity using fixed-quantity policy.
 
 		Returns
 		-------
@@ -415,82 +298,8 @@ class PolicyFixedQuantity(Policy):
 
 		return self.order_quantity
 
-
-class PolicyEchelonBaseStock(Policy):
-	"""The ``PolicyEchelonBaseStock`` class is used for echelon base-stock
-	policies.
-
-	Attributes
-	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
-	_echelon_base_stock_level : float
-		The echelon base-stock level. [:math:`S`]
-	"""
-
-	def __init__(self, echelon_base_stock_level):
-		"""Policy constructor method.
-		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.ECHELON_BASE_STOCK
-
-		# Set policy parameter(s).
-		self._echelon_base_stock_level = echelon_base_stock_level
-
-	# PROPERTIES
-
-	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
-
-	@property
-	def echelon_base_stock_level(self):
-		return self._echelon_base_stock_level
-
-	@echelon_base_stock_level.setter
-	def echelon_base_stock_level(self, value):
-		self._echelon_base_stock_level = value
-
-	# SPECIAL MEMBERS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``Policy`` instance.
-
-		Returns
-		-------
-			A string representation of the ``Policy`` instance.
-
-		"""
-		# Build string of parameters.
-		param_str = "echelon_base_stock_level={:.2f}".format(self.echelon_base_stock_level)
-
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``Policy`` instance.
-
-		Returns
-		-------
-			The policy name.
-
-		"""
-		return self.__repr__()
-
-	# METHODS
-
-	def get_order_quantity(self, echelon_inventory_position=None, predecessor_index=None):
-		"""Calculate order quantity.
-
-		Parameters
-		----------
-		echelon_inventory_position : float
-			Echelon inventory position immediately before order is placed.
-			Echelon IP at stage i = sum of on-hand inventories at i and at or
-			in transit to all of its downstream stages, minus backorders at
-			downstream-most stage, plus on-order inventory at stage i.
+	def get_order_quantity_echelon_base_stock(self, echelon_inventory_position):
+		"""Calculate order quantity using echelon base-stock policy.
 
 		Returns
 		-------
@@ -498,85 +307,22 @@ class PolicyEchelonBaseStock(Policy):
 			The order quantity.
 		"""
 
-		return max(0.0, self._echelon_base_stock_level - echelon_inventory_position)
+		return max(0.0, self.base_stock_level - echelon_inventory_position)
 
-
-class PolicyBalancedEchelonBaseStock(Policy):
-	"""The ``PolicyBalancedEchelonBaseStock`` class is used for balanced echelon
-	base-stock policies.
-
-	Attributes
-	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
-	_echelon_base_stock_level : float
-		The echelon base-stock level. [:math:`S`]
-	"""
-
-	def __init__(self, echelon_base_stock_level):
-		"""Policy constructor method.
-		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK
-
-		# Set policy parameter(s).
-		self._echelon_base_stock_level = echelon_base_stock_level
-
-	# PROPERTIES
-
-	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
-
-	@property
-	def echelon_base_stock_level(self):
-		return self._echelon_base_stock_level
-
-	@echelon_base_stock_level.setter
-	def echelon_base_stock_level(self, value):
-		self._echelon_base_stock_level = value
-
-	# SPECIAL MEMBERS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``Policy`` instance.
-
-		Returns
-		-------
-			A string representation of the ``Policy`` instance.
-
-		"""
-		# Build string of parameters.
-		param_str = "echelon_base_stock_level={:.2f}".format(self.echelon_base_stock_level)
-
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``Policy`` instance.
-
-		Returns
-		-------
-			The policy name.
-
-		"""
-		return self.__repr__()
-
-	# METHODS
-
-	def get_order_quantity(self, echelon_inventory_position, echelon_inventory_position_adjusted, predecessor_index):
+	def get_order_quantity_balanced_echelon_base_stock(self, echelon_inventory_position,
+													   echelon_inventory_position_adjusted):
 		"""Calculate order quantity.
-		Follows a balanced echelon base-stock policy, i.e., order up to min{S_i, IN^+_{i+1}}, where
-		S_i is the echelon base-stock level and IN^+_{i+1} is the adjusted echelon inventory position
-		for node i+1.
+		Follows a balanced echelon base-stock policy, i.e., order up to :math:`min{S_i, IN^+_{i+1}}`, where
+		:math:`S_i` is the echelon base-stock level and :math:`IN^+_{i+1}` is the adjusted echelon inventory position
+		for node :math:`i+1`.
 		A balanced echelon base-stock policy is optimal for assembly systems (see Rosling (1989)), but
 		only if the system is in long-run balance (again, see Rosling). If the system
 		is not in long-run balance, the policy also requires checking that the predecessor
 		nodes have sufficient inventory, which this function does not do. The system may
 		begin in long-run balance for certain initial conditions, but no matter the initial
 		conditions, it will eventually reach long-run balance; see Rosling.
+
+		Obtains the state variables it needs from ``self.node.network``.
 
 		Parameters
 		----------
@@ -594,162 +340,35 @@ class PolicyBalancedEchelonBaseStock(Policy):
 			The order quantity.
 		"""
 
+		# TODO: unit tests
+
 		# Determine target inventory position.
-		target_IP = min(self.echelon_base_stock_level, echelon_inventory_position_adjusted)
+		target_IP = min(self.base_stock_level, echelon_inventory_position_adjusted)
 		order_quantity = max(0.0, target_IP - echelon_inventory_position)
 
 		return max(0.0, order_quantity)
 
+	# OTHER METHODS
 
-class PolicyLocalBaseStock(Policy):
-	"""The ``PolicyLocalBaseStock`` class is used for local base-stock
-	policies for multi-echelon systems. A local base-stock policy uses only
-	the local inventory position at a given stage to make ordering decisions,
-	ignoring inventory states at other nodes. This includes predecessor nodes,
-	meaning that a node ignores stockouts at its predecessors when placing orders.
-
-	Attributes
-	----------
-	_policy_type : InventoryPolicyType
-		The inventory policy type.
-	_local_base_stock_level : float
-		The local base-stock level. [:math:`S'`]
-	"""
-
-	def __init__(self, local_base_stock_level):
-		"""Policy constructor method.
+	def validate_parameters(self):
+		"""Check that appropriate parameters have been provided for the given
+		policy type. Raise an exception if not.
 		"""
-		# Set policy_type.
-		self._policy_type = InventoryPolicyType.LOCAL_BASE_STOCK
+		assert self.type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS'), "Valid type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS') must be provided"
 
-		# Set policy parameter(s).
-		self._local_base_stock_level = local_base_stock_level
-
-	# PROPERTIES
-
-	@property
-	def policy_type(self):
-		# Read only.
-		return self._policy_type
-
-	@property
-	def local_base_stock_level(self):
-		return self._local_base_stock_level
-
-	@local_base_stock_level.setter
-	def local_base_stock_level(self, value):
-		self._local_base_stock_level = value
-
-	# SPECIAL MEMBERS
-
-	def __repr__(self):
-		"""
-		Return a string representation of the ``Policy`` instance.
-
-		Returns
-		-------
-			A string representation of the ``Policy`` instance.
-
-		"""
-		# Build string of parameters.
-		param_str = "local_base_stock_level={:.2f}".format(self.local_base_stock_level)
-
-		return "Policy({:s}: {:s})".format(self.policy_type.name, param_str)
-
-	def __str__(self):
-		"""
-		Return the full name of the ``Policy`` instance.
-
-		Returns
-		-------
-			The policy name.
-
-		"""
-		return self.__repr__()
-
-	# METHODS
-
-# TODO: write unit tests
-
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
-		"""Calculate order quantity.
-
-		Parameters
-		----------
-		inventory_position : float
-			(Local) inventory position immediately before order is placed.
-			Local IP at stage i = local inventory level at stage i plus on-order
-			inventory at stage i.
-
-		Returns
-		-------
-		order_quantity : float
-			The order quantity.
-		"""
-
-		return max(0.0, self._local_base_stock_level - inventory_position)
+		if self.type == 'BS':
+			assert self.base_stock_level is not None, "For 'BS' (base-stock) policy, base_stock_level must be provided"
+		elif self.type == 'sS':
+			assert self.reorder_point is not None, "For 'sS' (s,S) policy, reorder_point must be provided"
+			assert self.order_up_to_level is not None, "For 'sS' (s,S) policy, order_up_to_level must be provided"
+			assert self.reorder_point <= self.order_up_to_level, "For 'sS' (s,S) policy, reorder_point must be <= order_up_to_level"
+		elif self.type == 'rQ':
+			assert self.reorder_point is not None, "For 'rQ' (r,Q) policy, reorder_point must be provided"
+			assert self.order_quantity is not None, "For 'rQ' (r,Q) policy, order_quantity must be provided"
+		if self.type == 'EBS':
+			assert self.base_stock_level is not None, "For 'EBS' (echelon base-stock) policy, base_stock_level must be provided"
+		if self.type == 'BEBS':
+			assert self.base_stock_level is not None, "For 'BEBS' (balanced echelon base-stock) policy, base_stock_level must be provided"
 
 
-# ===============================================================================
-# PolicyFactory Class
-# ===============================================================================
 
-class PolicyFactory(object):
-	"""The ``PolicyFactory`` class is used to build ``Policy`` objects.
-
-	Example
-	-------
-	To build a ``PolicyBaseStock`` object:
-
-		policy_factory = PolicyFactory()
-		policy = policy_factory.build_policy(InventoryPolicyType.BASE_STOCK, base_stock_level=100)
-
-	It is also possible to create the subclass object directly, e.g.,
-
-		policy = PolicyBaseStock(base_stock_level=100)
-
-	"""
-
-	def build_policy(self, policy_type, base_stock_level=None,
-					 reorder_point=None, order_up_to_level=None,
-					 order_quantity=None):
-		"""
-		Build and return a Policy object of the specified type.
-
-		Parameters
-		----------
-		policy_type : InventoryPolicyType
-			The desired inventory policy type.
-		base_stock_level : float, optional
-			The base-stock level. Required for BASE_STOCK policies.
-		reorder_point : float, optional
-			The reorder point. Required for r_Q and s_S policies.
-		order_up_to_level : float, optional
-			The order-up-to level. Required for s_S policies.
-		order_quantity : float, optional
-			The order quantity. Required for r_Q and FIXED_QUANTITY policies.
-
-		Returns
-		-------
-		policy : Policy
-			The Policy object.
-
-		"""
-		if policy_type == InventoryPolicyType.BASE_STOCK:
-			policy = PolicyBaseStock(base_stock_level=base_stock_level)
-		elif policy_type == InventoryPolicyType.r_Q:
-			policy = PolicyrQ(reorder_point=reorder_point, order_quantity=order_quantity)
-		elif policy_type == InventoryPolicyType.s_S:
-			policy = PolicysS(reorder_point=reorder_point, order_up_to_level=order_up_to_level)
-		elif policy_type == InventoryPolicyType.FIXED_QUANTITY:
-			policy = PolicyFixedQuantity(order_quantity=order_quantity)
-		elif policy_type == InventoryPolicyType.ECHELON_BASE_STOCK:
-			policy = PolicyEchelonBaseStock(echelon_base_stock_level=base_stock_level)
-		elif policy_type == InventoryPolicyType.BALANCED_ECHELON_BASE_STOCK:
-			policy = PolicyBalancedEchelonBaseStock(echelon_base_stock_level=base_stock_level)
-		elif policy_type == InventoryPolicyType.LOCAL_BASE_STOCK:
-			policy = PolicyLocalBaseStock(local_base_stock_level=base_stock_level)
-		else:
-			raise(ValueError, "Unknown inventory policy type")
-
-		return policy

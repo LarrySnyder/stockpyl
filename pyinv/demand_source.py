@@ -9,7 +9,7 @@
 
 """
 This module contains the ``DemandSource`` class. A ``DemandSource``
-object is used to generate demand_list.
+object is used to generate demands.
 
 Notation and equation and section numbers refer to Snyder and Shen,
 "Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
@@ -220,7 +220,7 @@ class DemandSource(object):
 	# DEMAND GENERATION
 
 	def generate_demand(self, period=None):
-		"""Generate a demand value using the demand type specified in type.
+		"""Generate a demand value using the demand type specified in ``type``.
 		If ``type`` is ``None``, returns ``None``.
 
 		Parameters
@@ -322,7 +322,7 @@ class DemandSource(object):
 		"""
 		return np.random.choice(self.demand_list, p=self.probabilities)
 
-	# OTHER FUNCTIONS
+	# OTHER METHODS
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given

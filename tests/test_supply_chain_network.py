@@ -5,7 +5,7 @@ import unittest
 # from scipy.stats import poisson
 # from scipy.stats import lognorm
 
-from pyinv.supply_chain_node import *
+#from pyinv.supply_chain_node import *
 from pyinv.supply_chain_network import *
 from pyinv.instances import *
 from pyinv.sim import *
@@ -165,13 +165,13 @@ class TestReindexNodes(unittest.TestCase):
 
 		network = get_named_instance("rosling_figure_1")
 		# Make the BS levels a little smaller so there are some stockouts.
-		network.get_node_from_index(1).inventory_policy.echelon_base_stock_level = 6
-		network.get_node_from_index(2).inventory_policy.echelon_base_stock_level = 20
-		network.get_node_from_index(3).inventory_policy.echelon_base_stock_level = 35
-		network.get_node_from_index(4).inventory_policy.echelon_base_stock_level = 58
-		network.get_node_from_index(5).inventory_policy.echelon_base_stock_level = 45
-		network.get_node_from_index(6).inventory_policy.echelon_base_stock_level = 65
-		network.get_node_from_index(7).inventory_policy.echelon_base_stock_level = 75
+		network.get_node_from_index(1).inventory_policy.base_stock_level = 6
+		network.get_node_from_index(2).inventory_policy.base_stock_level = 20
+		network.get_node_from_index(3).inventory_policy.base_stock_level = 35
+		network.get_node_from_index(4).inventory_policy.base_stock_level = 58
+		network.get_node_from_index(5).inventory_policy.base_stock_level = 45
+		network.get_node_from_index(6).inventory_policy.base_stock_level = 65
+		network.get_node_from_index(7).inventory_policy.base_stock_level = 75
 
 		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
 
@@ -221,13 +221,13 @@ def test_rosling_figure_1_with_state_vars_post(self):
 
 	network = get_named_instance("rosling_figure_1")
 	# Make the BS levels a little smaller so there are some stockouts.
-	network.get_node_from_index(1).inventory_policy.echelon_base_stock_level = 6
-	network.get_node_from_index(2).inventory_policy.echelon_base_stock_level = 20
-	network.get_node_from_index(3).inventory_policy.echelon_base_stock_level = 35
-	network.get_node_from_index(4).inventory_policy.echelon_base_stock_level = 58
-	network.get_node_from_index(5).inventory_policy.echelon_base_stock_level = 45
-	network.get_node_from_index(6).inventory_policy.echelon_base_stock_level = 65
-	network.get_node_from_index(7).inventory_policy.echelon_base_stock_level = 75
+	network.get_node_from_index(1).inventory_policy.base_stock_level = 6
+	network.get_node_from_index(2).inventory_policy.base_stock_level = 20
+	network.get_node_from_index(3).inventory_policy.base_stock_level = 35
+	network.get_node_from_index(4).inventory_policy.base_stock_level = 58
+	network.get_node_from_index(5).inventory_policy.base_stock_level = 45
+	network.get_node_from_index(6).inventory_policy.base_stock_level = 65
+	network.get_node_from_index(7).inventory_policy.base_stock_level = 75
 
 	total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
@@ -289,7 +289,7 @@ class TestSingleStageSystem(unittest.TestCase):
 							    stockout_cost=0.70,
 								demand_type='N',
 								demand_mean=50, demand_standard_deviation=8,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
+								inventory_policy_type='BS',
 								base_stock_level=56.6)
 
 		node = network.nodes[0]
@@ -310,8 +310,8 @@ class TestSingleStageSystem(unittest.TestCase):
 								local_holding_cost=[7, 4, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[5, 5, 5])
+								inventory_policy_type='BS',
+								base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -351,8 +351,8 @@ class TestSingleStageSystem(unittest.TestCase):
 								local_holding_cost=[7, 4, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[5, 5, 5])
+								inventory_policy_type='BS',
+								base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -403,8 +403,8 @@ class TestSerialSystem(unittest.TestCase):
 		network = serial_system(3, local_holding_cost=[7, 4, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[5, 5, 5])
+								inventory_policy_type='BS',
+								base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -444,8 +444,8 @@ class TestSerialSystem(unittest.TestCase):
 								local_holding_cost=[7, 4, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[5, 5, 5])
+								inventory_policy_type='BS',
+								base_stock_levels=[5, 5, 5])
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -485,8 +485,8 @@ class TestSerialSystem(unittest.TestCase):
 								local_holding_cost={17: 7, 14: 4, 12: 2},
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=5)
+								inventory_policy_type='BS',
+								base_stock_levels=5)
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -537,8 +537,8 @@ class TestMWORSystem(unittest.TestCase):
 		network = mwor_system(3, local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[10, 10, 10, 10])
+								inventory_policy_type='BS',
+								base_stock_levels=[10, 10, 10, 10])
 
 		# Get nodes.
 		wh1 = network.source_nodes[0]
@@ -585,8 +585,8 @@ class TestMWORSystem(unittest.TestCase):
 								local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[10, 10, 10, 10])
+								inventory_policy_type='BS',
+								base_stock_levels=[10, 10, 10, 10])
 
 		# Get nodes.
 		wh1 = network.source_nodes[0]
@@ -633,8 +633,8 @@ class TestMWORSystem(unittest.TestCase):
 								local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type=InventoryPolicyType.BASE_STOCK,
-								local_base_stock_levels=[10, 10, 10, 10])
+								inventory_policy_type='BS',
+								base_stock_levels=[10, 10, 10, 10])
 
 		# Get nodes.
 		wh1 = network.source_nodes[0]
