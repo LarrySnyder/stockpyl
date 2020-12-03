@@ -19,7 +19,7 @@ Notation and equation and section numbers refer to Snyder and Shen,
 # Imports
 # ===============================================================================
 
-from pyinv.supply_chain_node import *
+import numpy as np
 
 
 # ===============================================================================

@@ -274,10 +274,9 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 		S_echelon = local_to_echelon_base_stock_levels(network_ech, S_local)
 
 		# Create and fill echelon base-stock policies.
-		policy_factory = PolicyFactory()
 		for n in network_ech.nodes:
-			n.inventory_policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 base_stock_level=S_echelon[n.index])
+			n.inventory_policy.type = 'EBS'
+			n.inventory_policy.base_stock_level = S_echelon[n.index]
 
 		# Simulate with echelon BS policy.
 		total_cost_ech = simulation(network_ech, 100, rand_seed=41, progress_bar=False)
@@ -332,10 +331,9 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 		S_echelon = local_to_echelon_base_stock_levels(network_ech, S_local)
 
 		# Create and fill echelon base-stock policies.
-		policy_factory = PolicyFactory()
 		for n in network_ech.nodes:
-			n.inventory_policy = policy_factory.build_policy(InventoryPolicyType.ECHELON_BASE_STOCK,
-												 base_stock_level=S_echelon[n.index])
+			n.inventory_policy.type = 'EBS'
+			n.inventory_policy.base_stock_level = S_echelon[n.index]
 
 		# Simulate with echelon BS policy.
 		total_cost_ech = simulation(network_ech, 100, rand_seed=41, progress_bar=False)

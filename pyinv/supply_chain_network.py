@@ -19,7 +19,8 @@ This module contains the ``SupplyChainNetwork`` class.
 import networkx as nx
 
 #import pyinv.supply_chain_node
-#from pyinv.supply_chain_node import *
+from pyinv.demand_source import *
+from pyinv.supply_chain_node import *
 from pyinv.policy import *
 from pyinv.helpers import *
 
@@ -415,7 +416,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		n.initial_shipments = initial_shipments_list[n.index]
 
 		# Set inventory policy.
-		n.inventory_policy = inventory_policy_type_list[n.index]
+		n.inventory_policy.type = inventory_policy_type_list[n.index]
 		if inventory_policy_type_list[n.index] in ('BS', 'EBS', 'BEBS'):
 			n.inventory_policy.base_stock_level = base_stock_levels_list[n.index]
 		elif inventory_policy_type_list[n.index] == 'rQ':
@@ -563,9 +564,6 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 		node.inventory_policy.order_up_to_level = order_up_to_level
 	elif inventory_policy_type == 'FQ':
 		node.inventory_policy.order_quantity = order_quantity
-	else:
-		policy = None
-	node.inventory_policy = policy
 
 	# Set supply type.
 	node.supply_type = SupplyType.UNLIMITED

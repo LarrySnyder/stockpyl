@@ -13,7 +13,7 @@ from scipy.stats import rv_discrete, rv_continuous
 from math import factorial
 import numpy as np
 
-from pyinv.datatypes import *
+#from pyinv.datatypes import *
 
 
 ### CONSTANTS ###

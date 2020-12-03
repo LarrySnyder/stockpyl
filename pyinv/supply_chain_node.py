@@ -21,8 +21,8 @@ import numpy as np
 import networkx as nx
 
 from pyinv.datatypes import *
-from pyinv.policy import *
-from pyinv.demand_source import *
+from pyinv import policy
+from pyinv import demand_source
 from pyinv.helpers import *
 
 
@@ -127,11 +127,11 @@ class SupplyChainNode(object):
 		self.stockout_cost_function = None
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
-		self.demand_source = DemandSource()
+		self.demand_source = demand_source.DemandSource()
 		self.initial_inventory_level = 0
 		self.initial_orders = 0
 		self.initial_shipments = 0
-		self.inventory_policy = Policy()
+		self.inventory_policy = policy.Policy()
 		self.inventory_policy.node = self # TODO: do this in constructor?
 		self.supply_type = SupplyType.NONE # TODO: this is awkward; make default UNLIMITED?
 
