@@ -120,8 +120,6 @@ class SupplyChainNetwork(object):
 	def reindex_nodes(self, old_to_new_dict, new_names=None):
 		"""Change indices of the nodes in the network using ``old_to_new_dict``.
 
-		# TODO: need to change indices of all state variable dicts!!!!
-
 		Parameters
 		----------
 		old_to_new_dict : dict
@@ -430,9 +428,9 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 
 		# Set supply type.
 		if len(n.predecessors()) == 0:
-			n.supply_type = SupplyType.UNLIMITED
+			n.supply_type = 'U'
 		else:
-			n.supply_type = SupplyType.NONE
+			n.supply_type = None
 
 	return network
 
@@ -566,7 +564,7 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 		node.inventory_policy.order_quantity = order_quantity
 
 	# Set supply type.
-	node.supply_type = SupplyType.UNLIMITED
+	node.supply_type = 'U'
 
 	# Add node to network.
 	network.add_node(node)
@@ -769,9 +767,9 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 		# Set supply type.
 		if n == num_nodes-1:
-			node.supply_type = SupplyType.UNLIMITED
+			node.supply_type = 'U'
 		else:
-			node.supply_type = SupplyType.NONE
+			node.supply_type = None
 
 		# Add node to network.
 		if n == 0:
@@ -984,9 +982,9 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 
 		# Set supply type.
 		if n == 0:
-			node.supply_type = SupplyType.NONE
+			node.supply_type = None
 		else:
-			node.supply_type = SupplyType.UNLIMITED
+			node.supply_type = 'U'
 
 		# Add node to network.
 		if n == 0:

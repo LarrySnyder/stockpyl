@@ -84,7 +84,7 @@ class SupplyChainNode(object):
 		Initial inbound shipment quantity.
 	inventory_policy : Policy
 		Inventory policy to be used to make inventory decisions.
-	supply_type : SupplyType
+	supply_type : str
 		Supply type (unlimited, etc.).
 	state_vars : list of NodeStateVars
 		List of NodeStateVars, one for each period in a simulation.
@@ -133,17 +133,15 @@ class SupplyChainNode(object):
 		self.initial_shipments = 0
 		self.inventory_policy = policy.Policy()
 		self.inventory_policy.node = self # TODO: do this in constructor?
-		self.supply_type = SupplyType.NONE # TODO: this is awkward; make default UNLIMITED?
+		self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
 
 		# --- State Variables --- #
 		self.state_vars = []
 
-	# TODO: write a function to calculate aggregate demand at the node (implied from downstream nodes)
-
 	# Properties and functions related to network structure.
 
 	def predecessors(self, include_external=False):
-		if include_external and self.supply_type != SupplyType.NONE:
+		if include_external and self.supply_type is not None:
 			return self._predecessors + [None]
 		else:
 			return self._predecessors
