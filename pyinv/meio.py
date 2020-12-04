@@ -320,7 +320,7 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 		else:
 			# Set base-stock levels for all nodes.
 			for n in network.nodes:
-				if n.inventory_policy.policy_type == InventoryPolicyType.BASE_STOCK:
+				if n.inventory_policy.type == 'BS':
 					n.inventory_policy.base_stock_level = S_complete[n.index]
 				else:
 					n.inventory_policy.local_base_stock_level = S_complete[n.index]
@@ -503,7 +503,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 		else:
 			# Set base-stock levels for all nodes.
 			for n in network.nodes:
-				if n.inventory_policy.policy_type == InventoryPolicyType.BASE_STOCK:
+				if n.inventory_policy.type == 'BS':
 					n.inventory_policy.base_stock_level = S[n.index]
 				else:
 					n.inventory_policy.local_base_stock_level = S[n.index]

@@ -173,67 +173,92 @@ class Policy(object):
 
 	# METHODS
 
-	def get_order_quantity(self, inventory_position=None, predecessor_index=None):
+	def get_order_quantity(self, predecessor_index=None, inventory_position=None,
+						   echelon_inventory_position_adjusted=None):
 		"""Calculate order quantity using the policy type specified in ``type``.
 		If ``type`` is ``None``, return ``None``.
 
-		For the most common inventory policy types, the only state variable
-		required is the inventory position. For other policy types (including
-		custom types), the method can obtain the necessary state variables
-		from ``self.node.network``.
+		The method obtains the necessary state variables (typically inventory position,
+		and sometimes others) from ``self.node.network``.
 
-		Note that policies that require only inventory position can be queried
-		even if no node or network is provided, while other policies require
-		a node and network to be provided, with state variables filled appropriately.
-		(Individual policy methods, such as ``get_order_quantity_echelon_base_stock()``,
-		can be queried without a node or network since the relevant state variables
-		are passed to them directly.)
+		If ``inventory_position`` (and ``echelon_inventory_position_adjusted``, for
+		balanced echelon base-stock policies) are provided, they will override the
+		values indicated by the node's current state variables. This allows the
+		policy to be queried for an order quantity even if no node or network are
+		provided or have no state variables objects. If ``inventory_position``
+		and ``echelon_inventory_position_adjusted`` are omitted
+		(which is the typical use case), the current state variables will be used.
 
 		Parameters
 		----------
-		inventory_position : float, optional
-			Inventory position immediately before order is placed. Required for
-			most policy types.
 		predecessor_index : int, optional
 			The predecessor for which the order quantity should be calculated.
 			Use ``None'' for external supplier, or if node has only one predecessor
 			(including external supplier).
+		inventory_position : float, optional
+			Inventory position immediately before order is placed (after demand is subtracted).
+			If provided, the policy will use this IP instead of the IP indicated by the
+			current state variables.
+		echelon_inventory_position_adjusted : float, optional
+			Adjusted echelon inventory position at node i+1, where i is the current node.
+			If provided, the policy will use this EIPA instead of the EIPA indicated by
+			current state variables. Used only for balanced echelon base-stock policies.
 
 		Returns
 		-------
 		order_quantity : float
 			The order quantity.
 		"""
-
 		if self.type is None:
 			return None
-		elif self.type == 'BS':
-			return self.get_order_quantity_base_stock(inventory_position)
+
+		# Was inventory_position provided?
+		if inventory_position is not None:
+			IP = inventory_position
+		else:
+			if self.type == 'FQ':
+				# Fixed-quantity policy does not need inventory position.
+				IP = None
+			else:
+				# Calculate total demand (inbound orders), including successor nodes and
+				# external demand.
+				demand = self.node.get_attribute_total('inbound_order', self.node.network.period)
+
+				# Calculate (local or echelon) inventory position, before demand is subtracted.
+				if self.type in ('EBS', 'BEBS'):
+					IP_before_demand = \
+						self.node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index)
+				else:
+					IP_before_demand = \
+						self.node.state_vars_current.inventory_position(predecessor_index=predecessor_index)
+
+				# Calculate current inventory position, after demand is subtracted.
+				IP = IP_before_demand - demand
+
+		# Determine order quantity based on policy.
+		if self.type == 'BS':
+			return self.get_order_quantity_base_stock(IP)
 		elif self.type == 'sS':
-			return self.get_order_quantity_s_S(inventory_position)
+			return self.get_order_quantity_s_S(IP)
 		elif self.type == 'rQ':
-			return self.get_order_quantity_r_Q(inventory_position)
+			return self.get_order_quantity_r_Q(IP)
 		elif self.type == 'FQ':
 			return self.get_order_quantity_fixed_quantity()
 		elif self.type == 'EBS':
-			# Determine echelon inventory position.
-			EIP = self.node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index)
-			return self.get_order_quantity_echelon_base_stock(EIP)
+			return self.get_order_quantity_echelon_base_stock(IP)
 		elif self.type == 'BEBS':
-			# Determine echelon inventory position.
-			# Echelon IP at stage i = sum of on-hand inventories at i and at or
-			# in transit to all of its downstream stages, minus backorders at
-			# downstream-most stage, plus on-order inventory at stage i.
-			EIP = self.node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index)
-
-			# Determine partner node and adjusted echelon inventory position.
-			if self.node.index == max(self.node.network.node_indices):
-				EIPA = np.inf
+			# Was EIPA provided?
+			if echelon_inventory_position_adjusted is not None:
+				EIPA = echelon_inventory_position_adjusted
 			else:
-				partner_node = self.node.network.get_node_from_index(self.node.index + 1)
-				EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
+				# Determine partner node and adjusted echelon inventory position.
+				if self.node.index == max(self.node.network.node_indices):
+					EIPA = np.inf
+				else:
+					partner_node = self.node.network.get_node_from_index(self.node.index + 1)
+					EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
 
-			return self.get_order_quantity_balanced_echelon_base_stock(EIP, EIPA)
+			return self.get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
 		else:
 			return None
 

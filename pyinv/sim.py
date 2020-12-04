@@ -209,7 +209,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	for p in node.predecessors(include_external=True):
 		if p is not None:
 			# Calculate order quantity.
-			order_quantity = get_order_quantity(node, period, predecessor_index=p.index)
+			order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=p.index)
 			# Place order in predecessor's order pipeline.
 			# TODO: handle this in a separate function (at the predecessor node)
 			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
@@ -217,7 +217,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 			p_index = p.index
 		else:
 			# Calculate order quantity.
-			order_quantity = get_order_quantity(node, period, predecessor_index=None)
+			order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
 			# Place order to external supplier.
 			# (For now, this just means adding to inbound shipment pipeline.)
 			# TODO: Handle other types of supply functions
@@ -432,45 +432,45 @@ def calculate_period_costs(network, period):
 			n.state_vars[period].in_transit_holding_cost_incurred
 
 
-def get_order_quantity(node, period, predecessor_index=None):
-	"""Calculate order quantity for the given node.
-
-	Parameters
-	----------
-	node : SupplyChainNode
-		The supply chain node.
-	period : int
-		Time period.
-	predecessor_index : int, optional
-		The predecessor for which the order quantity should be calculated.
-		Use ``None'' for external supplier, or if node has only one predecessor
-		(including external supplier).
-
-	Returns
-	-------
-	order_quantity : float
-		The order quantity.
-
-	"""
-	# Calculate total demand (inbound orders), including successor nodes and
-	# external demand.
-	demand = node.get_attribute_total('inbound_order', period)
-
-# TODO: clean this up
-	if node.inventory_policy is None:
-		order_quantity = 0
-	elif node.inventory_policy.type == 'EBS':
-		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity()
-	elif node.inventory_policy.type == 'BEBS':
-		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index)
-	elif node.inventory_policy.type == 'BS':
-		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
-	else:
-		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
-		order_quantity = node.inventory_policy.get_order_quantity(inventory_position=current_IP)
-	return order_quantity
+# def get_order_quantity(node, period, predecessor_index=None):
+# 	"""Calculate order quantity for the given node.
+#
+# 	Parameters
+# 	----------
+# 	node : SupplyChainNode
+# 		The supply chain node.
+# 	period : int
+# 		Time period.
+# 	predecessor_index : int, optional
+# 		The predecessor for which the order quantity should be calculated.
+# 		Use ``None'' for external supplier, or if node has only one predecessor
+# 		(including external supplier).
+#
+# 	Returns
+# 	-------
+# 	order_quantity : float
+# 		The order quantity.
+#
+# 	"""
+# 	# Calculate total demand (inbound orders), including successor nodes and
+# 	# external demand.
+# 	demand = node.get_attribute_total('inbound_order', period)
+#
+# # TODO: clean this up
+# 	if node.inventory_policy is None:
+# 		order_quantity = 0
+# 	elif node.inventory_policy.type == 'EBS':
+# 		current_IP = node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index) - demand
+# 		order_quantity = node.inventory_policy.get_order_quantity()
+# 	elif node.inventory_policy.type == 'BEBS':
+# 		order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=predecessor_index)
+# 	elif node.inventory_policy.type == 'BS':
+# 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
+# 		order_quantity = node.inventory_policy.get_order_quantity(IP_before_order=current_IP)
+# 	else:
+# 		current_IP = node.state_vars_current.inventory_position(predecessor_index=predecessor_index) - demand
+# 		order_quantity = node.inventory_policy.get_order_quantity(IP_before_order=current_IP)
+# 	return order_quantity
 
 
 def receive_inbound_shipments(node):

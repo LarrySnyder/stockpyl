@@ -967,7 +967,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
-		policy = Policy(inventory_policy_type_list[n], n)
+		policy = Policy(inventory_policy_type_list[n], node)
 		if inventory_policy_type_list[n] in ('BS', 'EBS', 'BEBS'):
 			policy.base_stock_level = base_stock_levels_list[n]
 		elif inventory_policy_type_list[n] == 'rQ':

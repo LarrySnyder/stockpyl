@@ -125,11 +125,11 @@ class TestGetOrderQuantity(unittest.TestCase):
 		policy.type = 'BS'
 		policy.base_stock_level = 100
 
-		q1 = policy.get_order_quantity(85)
+		q1 = policy.get_order_quantity(inventory_position=85)
 		self.assertEqual(q1, 15)
-		q2 = policy.get_order_quantity(-20)
+		q2 = policy.get_order_quantity(inventory_position=-20)
 		self.assertEqual(q2, 120)
-		q3 = policy.get_order_quantity(140)
+		q3 = policy.get_order_quantity(inventory_position=140)
 		self.assertEqual(q3, 0)
 
 	def test_r_Q(self):
@@ -143,11 +143,11 @@ class TestGetOrderQuantity(unittest.TestCase):
 		policy.reorder_point = 100
 		policy.order_quantity = 200
 
-		q1 = policy.get_order_quantity(75)
+		q1 = policy.get_order_quantity(inventory_position=75)
 		self.assertEqual(q1, 200)
-		q2 = policy.get_order_quantity(-20)
+		q2 = policy.get_order_quantity(inventory_position=-20)
 		self.assertEqual(q2, 200)
-		q3 = policy.get_order_quantity(140)
+		q3 = policy.get_order_quantity(inventory_position=140)
 		self.assertEqual(q3, 0)
 
 	def test_s_S(self):
@@ -161,11 +161,11 @@ class TestGetOrderQuantity(unittest.TestCase):
 		policy.reorder_point = 50
 		policy.order_up_to_level = 100
 
-		q1 = policy.get_order_quantity(15)
+		q1 = policy.get_order_quantity(inventory_position=15)
 		self.assertEqual(q1, 85)
-		q2 = policy.get_order_quantity(-20)
+		q2 = policy.get_order_quantity(inventory_position=-20)
 		self.assertEqual(q2, 120)
-		q3 = policy.get_order_quantity(70)
+		q3 = policy.get_order_quantity(inventory_position=70)
 		self.assertEqual(q3, 0)
 
 	def test_fixed_quantity(self):
@@ -191,11 +191,11 @@ class TestGetOrderQuantity(unittest.TestCase):
 		policy.type = 'EBS'
 		policy.base_stock_level = 100
 
-		q1 = policy.get_order_quantity_echelon_base_stock(echelon_inventory_position=85)
+		q1 = policy.get_order_quantity(inventory_position=85)
 		self.assertEqual(q1, 15)
-		q2 = policy.get_order_quantity_echelon_base_stock(echelon_inventory_position=-20)
+		q2 = policy.get_order_quantity(inventory_position=-20)
 		self.assertEqual(q2, 120)
-		q3 = policy.get_order_quantity_echelon_base_stock(echelon_inventory_position=140)
+		q3 = policy.get_order_quantity(inventory_position=140)
 		self.assertEqual(q3, 0)
 
 
