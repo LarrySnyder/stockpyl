@@ -11,4 +11,7 @@ API Documentation
     rq
     ss
     finite_horizon
+    sim
+    loss_functions
+
 

@@ -4,7 +4,7 @@ for multi-echelon pyinv systems with tree structures by Graves and Willems (2000
 'node' and 'stage' are used interchangeably in the documentation.
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 

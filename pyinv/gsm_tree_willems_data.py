@@ -14,7 +14,7 @@ TODO: handle clusters of commonality
 For now, this approach is a dead end.
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 

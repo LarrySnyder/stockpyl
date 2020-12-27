@@ -90,6 +90,8 @@
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -307,7 +309,7 @@ refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edit
 <span class="gp">&gt;&gt;&gt; </span><span class="n">individual_fixed_costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">840</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">holding_costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">160</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">demand_rates</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">joint_replenishment_problem_silver_heuristic</span><span class="p">(</span><span class="n">shared_fixed_cost</span><span class="p">,</span>                     <span class="n">individual_fixed_costs</span><span class="p">,</span> <span class="n">holding_costs</span><span class="p">,</span> <span class="n">demand_rates</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">joint_replenishment_problem_silver_heuristic</span><span class="p">(</span><span class="n">shared_fixed_cost</span><span class="p">,</span> <span class="n">individual_fixed_costs</span><span class="p">,</span> <span class="n">holding_costs</span><span class="p">,</span> <span class="n">demand_rates</span><span class="p">)</span>
 <span class="go">([3.103164454170876, 9.309493362512628, 3.103164454170876], 3.103164454170876, [1, 3, 1], 837.8544026261366)</span>
 </pre></div>
 </div>

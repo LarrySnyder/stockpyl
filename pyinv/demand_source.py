@@ -9,7 +9,7 @@
 
 """
 This module contains the ``DemandSource`` class. A ``DemandSource``
-object is used to generate demands.
+object is used to generate demands and to get attributes of the demand distribution.
 
 Notation and equation and section numbers refer to Snyder and Shen,
 "Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
@@ -160,12 +160,11 @@ class DemandSource(object):
 			distribution = scipy.stats.randint(self.lo, self.hi+1)
 		elif self.type == 'UC':
 			distribution = scipy.stats.uniform(self.lo, self.hi - self.lo)
-		elif self.type == 'D':
-			# TODO: is there something better to do here?
-			distribution = None
 		elif self.type == 'CD':
 			distribution = scipy.stats.rv_discrete(name='custom',
 												   values=(self.demand_list, self.probabilities))
+		else:
+			distribution = None
 
 		return distribution
 
@@ -421,8 +420,10 @@ class DemandSource(object):
 		Raises
 		------
 		ValueError
-			If ``type`` is 'UC' or 'UD' and ``lead_time`` is not an integer.
+			If ``type`` is 'UC', 'UD', or 'CD' and ``lead_time`` is not an integer.
 		"""
+
+		# TODO: unit tests
 
 		# Check whether lead_time is an integer.
 		if self.type in ('UC', 'UD') and not is_integer(lead_time):
@@ -433,8 +434,12 @@ class DemandSource(object):
 			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * np.sqrt(lead_time))
 		elif self.type in ('UC', 'UD'):
 			distribution = sum_of_uniforms_distribution(lead_time, self.lo, self.hi)
+		elif self.type == 'CD':
+			# TODO: handle what happens if demand list is not in the form lo, ..., hi
+			distribution = sum_of_discretes_distribution(lead_time, min(self.demand_list), max(self.demand_list), self.probabilities)
 		else:
 			# TODO: handle 'CD' demands
+			# use this: https://stackoverflow.com/a/29236193/3453768
 			return None
 
 		return distribution

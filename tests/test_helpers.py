@@ -584,3 +584,62 @@ class TestChangeDictKey(unittest.TestCase):
 		with self.assertRaises(KeyError):
 			helpers.change_dict_key(a, 1, 77)
 
+
+class TestConvolveMany(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestConvolveMany', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestConvolveMany', 'tear_down_class()')
+
+	def test_convolve_many(self):
+		"""Test that convolve_many() returns correct result.
+		"""
+		print_status('TestConvolveMany', 'test_convolve_many()')
+
+		a1 = helpers.convolve_many([[0.6, 0.3, 0.1], [0.5, 0.4, 0.1], [0.3, 0.7], [1.0]])
+		a2 = helpers.convolve_many([[0.1, 0.7, 0.2], [0.1, 0.7, 0.2], [0.1, 0.7, 0.2]])
+
+		a1_correct = [0.09, 0.327, 0.342, 0.182, 0.052, 0.007]
+		a2_correct = [0.001, 0.021, 0.153, 0.427, 0.306, 0.084, 0.008]
+
+		for i in range(len(a1)):
+			self.assertAlmostEqual(a1[i], a1_correct[i])
+
+		for i in range(len(a2)):
+			self.assertAlmostEqual(a2[i], a2_correct[i])
+
+
+class TestSumOfDiscretesDistribution(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSumOfDiscretesDistribution', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSumOfDiscretesDistribution', 'tear_down_class()')
+
+	def test_sum_of_discretes_distribution(self):
+		"""Test that sum_of_discretes_distribution() returns correct result.
+		"""
+		print_status('TestSumOfDiscretesDistribution', 'test_sum_of_discretes_distribution()')
+
+		dist1 = helpers.sum_of_discretes_distribution(3, 0, 2, [0.1, 0.7, 0.2])
+		dist2 = helpers.sum_of_discretes_distribution(3, 4, 7, [0.25, 0.25, 0.25, 0.25])
+
+		a1_xk = range(0, 7)
+		a1_pk = [0.001, 0.021, 0.153, 0.427, 0.306, 0.084, 0.008]
+		a2_xk = range(12, 22)
+		a2_pk = [0.015625, 0.046875, 0.09375, 0.15625, 0.1875, 0.1875, 0.15625, 0.09375, 0.046875, 0.015625]
+
+		for i in range(len(a1_pk)):
+			self.assertAlmostEqual(dist1.pmf(a1_xk[i]), a1_pk[i])
+		for i in range(len(a2_pk)):
+			self.assertAlmostEqual(dist2.pmf(a2_xk[i]), a2_pk[i])
+

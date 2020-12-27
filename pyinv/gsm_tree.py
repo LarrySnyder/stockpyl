@@ -31,7 +31,7 @@ The following attributes are used to store outputs and intermediate values:
 		- max_replenishment_time [M]
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 

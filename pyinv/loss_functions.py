@@ -1,4 +1,26 @@
-"""Loss function calculations.
+# ===============================================================================
+# PyInv - eoq Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 04-15-2020
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
+"""The :mod:`loss_functions` module contains code for calculating loss functions.
+
+For a random variable :math:`X`, the loss function, :math:`n(x)`, and the
+complementary loss function, :math:`\\bar{n}(x)`, are defined as:
+
+	* :math:`n(x) = E[(X-x)^+]`
+	* :math:`\\bar{n}(x) = E[(X-x)^-]`,
+
+where :math:`x^+ = \\max\\{x,0\\}` and :math:`x^- = |\\min\\{x,0\\}|`. The second-order
+loss function, :math:`n^{(2)}(x)`, and the second-order complementary loss function,
+:math:`\\bar{n}^{(2)}(x)`, are defined as:
+
+	* :math:`n^{(2)}(x) = \\frac{1}{2}E\\left[\\left([X-x]^+\\right)^2\\right]`
+	* :math:`\\bar{n}^{(2)}(x) = \\frac{1}{2}E\\left[\\left([X-x]^-\\right)^2\\right]`
 
 Equation and section numbers refer to Snyder and Shen, "Fundamentals of Supply
 Chain Theory", Wiley, 2019, 2nd ed., except as noted.
@@ -12,6 +34,7 @@ import numpy as np
 from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import nbinom
+from scipy.stats import gamma
 from scipy.integrate import quad
 from types import *
 from numbers import Number
@@ -40,7 +63,7 @@ def standard_normal_loss(z):
 	L : float
 		Loss function. [:math:`\\mathscr{L}(z)`]
 	L_bar : float
-		Complementary loss function. [:math:`\\bar{\\mathscr{L}}(z)]
+		Complementary loss function. [:math:`\\bar{\\mathscr{L}}(z)`]
 
 
 	**Equations Used** (equations (C.22) and (C.23)):
@@ -48,6 +71,9 @@ def standard_normal_loss(z):
 	.. math::
 
 		\\mathscr{L}(z) = \\phi(z) - z(1 - \\Phi(z))
+
+	.. math::
+
 		\\bar{\\mathscr{L}}(z) = z + \\mathscr{L}(z)
 
 	**Example**:
@@ -85,7 +111,7 @@ def standard_normal_second_loss(z):
 	L2 : float
 		Loss function. [:math:`\\mathscr{L}^{(2)}(z)`]
 	L2_bar : float
-		Complementary loss function. [:math:`\\bar{\\mathscr{L}}^{(2)}(z)]
+		Complementary loss function. [:math:`\\bar{\\mathscr{L}}^{(2)}(z)`]
 
 
 	**Equations Used** (equations (C.27) and (C.28)):
@@ -93,6 +119,8 @@ def standard_normal_second_loss(z):
 	.. math::
 
 		\\mathscr{L}^{(2)}(z) = \\frac12\\left[\\left(z^2+1\\right)(1-\\Phi(z)) - z\\phi(z)\\right]
+
+	.. math::
 
 		\\bar{\\mathscr{L}}^{(2)}(z) = \\frac12(z^2 + 1) - \\mathscr{L}^{(2)}(z)
 
@@ -126,16 +154,16 @@ def normal_loss(x, mean, sd):
 	x : float
 		Argument of loss function.
 	mean : float
-		Mean of normal distribution. [mu]
+		Mean of normal distribution. [:math:`\\mu`]
 	sd : float
-		Standard deviation of normal distribution. [sigma]
+		Standard deviation of normal distribution. [:math:`\\sigma`]
 
 	Returns
 	-------
 	n : float
-		Loss function. [n(x)]
+		Loss function. [:math:`n(x)`]
 	n_bar : float
-		Complementary loss function. [\bar{n}(x)]
+		Complementary loss function. [:math:`\\bar{n}(x)`]
 
 
 	**Equations Used** (equations (C.31) and (C.32)):
@@ -146,7 +174,9 @@ def normal_loss(x, mean, sd):
 
 		\\bar{n}(x) = \\bar{\\mathscr{L}}(z) \\sigma
 
-	where :math:`z = (x-\\mu)/\\sigma`.
+	where :math:`z = (x-\\mu)/\\sigma` and :math:`\\mathscr{L}(z)` and
+	:math:`\\bar{\\mathscr{L}}(z)` are the standard normal loss and complementary
+	loss functions.
 
 	**Example**:
 
@@ -191,6 +221,7 @@ def normal_second_loss(x, mean, sd):
 	n2_bar : float
 		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
 
+
 	**Equations Used** (equations (C.33) and (C.34)):
 
 	.. math::
@@ -199,7 +230,9 @@ def normal_second_loss(x, mean, sd):
 
 		\\bar{n}^{(2)}(x) = \\bar{\\mathscr{L}}^{(2)}(z) \\sigma^2
 
-	where :math:`z = (x-\\mu)/\\sigma`.
+	where :math:`z = (x-\\mu)/\\sigma` and :math:`\\mathscr{L}^{(2)}(z)` and
+	:math:`\\bar{\\mathscr{L}}^{(2)}(z)` are the standard normal second-order
+	loss and complementary loss functions.
 
 	**Example**:
 
@@ -224,31 +257,47 @@ def normal_second_loss(x, mean, sd):
 
 def lognormal_loss(x, mu, sigma):
 	"""
-	Return lognormal loss and complementary loss functions for logN(mu,sigma)
+	Return lognormal loss and complementary loss functions for :math:`\\text{lognormal}(\\mu,\\sigma)`
 	distribution.
-
-	Identities used:
-		- n(x) = e^{mu+sigma^2/2} * Phi((mu+sigma^2-ln x)/sigma) -
-			x(1 - Phi((ln x - mu)/sigma)); see equation (4.102)
-		- \bar{n}(x) = x - E[X] + n(x); see equation (C.14)
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
 
 	Parameters
 	----------
 	x : float
 		Argument of loss function.
 	mu : float
-		Mean of distribution of ln X.
+		Mean of distribution of [:math:`\\ln X`].
 	sigma : float
-		Standard deviation of distribution of ln X.
+		Standard deviation of distribution of [:math:`\\ln X`].
 
 	Returns
 	-------
 	n : float
-		Loss function. [n(x)]
+		Loss function. [:math:`n(x)`]
 	n_bar : float
-		Complementary loss function. [\bar{n}(x)]
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+
+	**Equations Used** (equations (4.102) and (C.14)):
+
+	.. math::
+
+		n(x) = e^{\\mu+\\sigma^2/2} * \\Phi((\\mu+\\sigma^2-\\ln x)/\\sigma) - x(1 - \\Phi((\\ln x - \\mu)/\\sigma))
+
+	.. math::
+
+		\\bar{n}(x) = x - E[X] + n(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> lognormal_loss(10, 2, 0.3)
+		(0.28364973888106326, 2.5544912009711833)
 	"""
 	# Calculate E[X].
 	E = np.exp(mu + sigma**2/2)
@@ -264,18 +313,284 @@ def lognormal_loss(x, mu, sigma):
 	return n, n_bar
 
 
+def exponential_loss(x, mu):
+	"""
+	Return exponential loss and complementary loss functions for :math:`\\text{exp}(\\mu)`
+	distribution.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	mu : float
+		Rate of exponential distribution.
+
+	Returns
+	-------
+	n : float
+		Loss function. [:math:`n(x)`]
+	n_bar : float
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` < 0.
+
+
+	**Equations Used** (Zipkin (2000), p. 457 and (C.14)):
+
+	.. math::
+
+		n(x) = \\frac{e^{-\\mu x}}{\\mu}
+
+	.. math::
+
+		\\bar{n}(x) = x - E[X] + n(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> exponential_loss(1, 0.2)
+		(4.0936537653899085, 0.09365376538990855)
+	"""
+	# Check that x >= 0.
+	if x < 0:
+		raise ValueError("x must be >= 0.")
+
+	# Calculate E[X].
+	E = 1.0 / mu
+
+	n = np.exp(-mu * x) / mu
+	n_bar = x - E + n
+
+	return n, n_bar
+
+
+def exponential_second_loss(x, mu):
+	"""
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	exponential loss function and complementary second-order loss function for an
+	:math:`\\text{exp}(\\mu)` distribution.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	mu : float
+		Rate of exponential distribution.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` < 0.
+
+
+	**Equations Used** (Zipkin (2000), p. 457 and (C.19)):
+
+	.. math::
+
+		n^{(2)}(x) = \\frac{e^{-\\mu x}}{\\mu^2}
+
+	.. math::
+
+		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> exponential_second_loss(1, 0.2)
+		(20.46826882694954, 0.031731173050459915)
+
+	"""
+	# Check that x >= 0.
+	if x < 0:
+		raise ValueError("x must be >= 0.")
+
+	# Calculate E[X] and Var[X].
+	E = 1.0 / mu
+	V = 1.0 / mu**2
+
+	n = np.exp(-mu * x) / mu**2
+	n_bar = 0.5 * ((x - E)**2 + V) - n
+
+	return n, n_bar
+
+
+def gamma_loss(x, a, b):
+	"""
+	Return gamma loss and complementary loss functions for a :math:`\\text{Gamma}(a,b)`
+	distribution with shape parameter :math:`a` and scale parameter :math:`b`, i.e.,
+	a distribution with pdf
+
+	.. math::
+
+		f(x) = \\frac{x^{a-1}e^{-\\frac{x}{b}}}{\\Gamma(a)b^a},
+
+	where :math:`\\Gamma(\cdot)` is the gamma function.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	a : float
+		Shape parameter of gamma distribution.
+	b : float
+		Scale parameter of gamma distribution.
+
+	Returns
+	-------
+	n : float
+		Loss function. [:math:`n(x)`]
+	n_bar : float
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` <= 0.
+
+
+	**Equations Used** (Zipkin (2000), p. 457 and (C.14)):
+
+	.. math::
+
+		n(x) = \\left[\\left(a - \\frac{x}{b}\\right)(1-F(x)) + xf(x)\\right]b,
+
+	where :math:`f(x)` and :math:`F(x)` are the gamma pdf and cdf, respectively.
+
+	.. math::
+
+		\\bar{n}(x) = x - E[X] + n(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> gamma_loss(4, 2, 3)
+		(2.635971381157268, 0.635971381157268)
+	"""
+	# Check that x > 0.
+	if x <= 0:
+		raise ValueError("x must be > 0.")
+
+	# Calculate f(x), F(x), and E[X].
+	f = gamma.pdf(x, a, scale=b)
+	F = gamma.cdf(x, a, scale=b)
+	E = gamma.mean(a, scale=b)
+
+	n = ((a - x/b) * (1 - F) + x * f) * b
+	n_bar = x - E + n
+
+	return n, n_bar
+
+
+def gamma_second_loss(x, a, b):
+	"""
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	loss and complementary loss functions for a
+	:math:`\\text{Gamma}(a,b)` distribution with shape parameter :math:`a` and
+	scale parameter :math:`b`, i.e., a distribution with pdf
+
+	.. math::
+
+		f(x) = \\frac{x^{a-1}e^{-\\frac{x}{b}}}{\\Gamma(a)b^a},
+
+	where :math:`\\Gamma(\cdot)` is the gamma function.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	a : float
+		Shape parameter of gamma distribution.
+	b : float
+		Scale parameter of gamma distribution.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` < 0.
+
+
+	**Equations Used** (Zipkin (2000), p. 457 and (C.19)):
+
+	.. math::
+
+		n^{(2)}(x) = \\frac{1}{2}\\left[\\left[\\left(a-\\frac{x}{b}\\right)^2 + a\\right](1-F(x)) + \\left(a - \\frac{x}{b} + 1\\right)xf(x)\\right]b^2,
+
+	where :math:`f(x)` and :math:`F(x)` are the gamma pdf and cdf, respectively.
+
+	.. math::
+
+		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> gamma_second_loss(4, 2, 3)
+		(10.280288386513346, 0.7197116134866537)
+
+	"""
+	# Check that x >= 0.
+	if x < 0:
+		raise ValueError("x must be >= 0.")
+
+	# Calculate f(x), F(x), and E[X].
+	f = gamma.pdf(x, a, scale=b)
+	F = gamma.cdf(x, a, scale=b)
+	E = a * b
+	V = a * b**2
+
+	n = 0.5 * (((a - x/b)**2 + a) * (1 - F) + (a - x/b + 1) * x * f) * b**2
+	n_bar = 0.5 * ((x - E)**2 + V) - n
+
+	return n, n_bar
+
+
 def continuous_loss(x, distrib):
 	"""
 	Return loss and complementary loss functions for an arbitrary continuous
-	distribution.
+	distribution, using numerical integration.
 
 	TODO: handle distribution supplied as pdf function
-
-	Identities used:
-		- n(x) = \int_x^\infty \bar{F}(y)dy; see equation (C.12)
-		- \bar{n}(x) = \int_{-\infty}^x F(y)dy; see equation (C.13)
-
-	Calculates integrals using numerical integration.
 
 	Parameters
 	----------
@@ -287,9 +602,55 @@ def continuous_loss(x, distrib):
 	Returns
 	-------
 	n : float
-		Loss function. [n(x)]
+		Loss function. [:math:`n(x)`]
 	n_bar : float
-		Complementary loss function. [\bar{n}(x)]
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+
+	**Equations Used** (equations (C.12) and (C.13)):
+
+	.. math::
+
+		n(x) = \\int_x^\\infty \\bar{F}(y)dy
+
+		\\bar{n}(x) = \\int_{-\\infty}^x F(y)dy
+
+
+	**Example**:
+
+	Calculate loss function for :math:`\\exp(10)` distribution, by declaring a
+	custom ``rv_continuous`` distribution:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> from scipy import stats
+		>>> import math
+		>>> class my_exp(stats.rv_continuous):
+		...     def _pdf(self, x):
+		...         if x >= 0:
+		...             return 10 * math.exp(-10 * x)
+		...         else:
+		...             return 0
+		>>> my_dist = my_exp()
+		>>> continuous_loss(0.2, my_dist)
+		(0.013533528323661264, 0.10522318598177341)
+
+	Or by using a "frozen" built-in exponential distribution:
+
+	.. doctest::
+
+		>>> from scipy.stats import expon
+		>>> my_dist = expon(scale=1/10)
+		>>> continuous_loss(0.2, my_dist)
+		(0.013533528103402742, 0.11353352830366131)
+
+	(The calculations are slightly different due to differences in the ways the
+	two ``rv_continuous`` generate the distribution.)
+
 	"""
 	# Find values lb and ub such that F(lb) ~ 0 and F(ub) ~ 1.
 	# (These will be the ranges for integration.)
@@ -308,20 +669,17 @@ def continuous_loss(x, distrib):
 	return n, n_bar
 
 
+# TODO: continuous and discrete 2nd loss
+
+
 ####################################################
 # DISCRETE DISTRIBUTIONS
 ####################################################
 
 def poisson_loss(x, mean):
 	"""
-	Return Poisson loss and complementary loss functions for Pois(mu)
+	Return Poisson loss and complementary loss functions for :math:`\\text{Pois}` (``mean``)
 	distribution.
-
-	Identities used:
-		- n(x) = -(x - mu)\bar{F}(x) + mu * f(x); see equation (C.41)
-		- \bar{n}(x) = (x - mu) * F(x) + mu * f(x); see equation (C.42)
-
-	Raises ValueError if x is not an integer.
 
 	Parameters
 	----------
@@ -333,12 +691,41 @@ def poisson_loss(x, mean):
 	Returns
 	-------
 	n : int
-		Loss function. [n(x)]
+		Loss function. [:math:`n(x)`]
 	n_bar : float
-		Complementary loss function. [\bar{n}(x)]
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not an integer.
+
+
+	**Equations Used** (equations (C.41) and (C.42)):
+
+	.. math::
+
+		n(x) = -(x - \\mu)\\bar{F}(x) + \\mu * f(x)
+
+	.. math::
+
+		\\bar{n}(x) = (x - \\mu) * F(x) + \\mu * f(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> poisson_loss(18, 15)
+		(0.5176095282584724, 3.5176095282584723)
 	"""
 	# Check for integer x.
-	assert is_integer(x), "x must be an integer"
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
 
 	n = -(x - mean) * (1 - poisson.cdf(x, mean)) + mean * poisson.pmf(x, mean)
 	n_bar = (x - mean) * poisson.cdf(x, mean) + mean * poisson.pmf(x, mean)
@@ -348,17 +735,11 @@ def poisson_loss(x, mean):
 
 def negative_binomial_loss(x, mean, sd):
 	"""
-	Return negative binomial loss and complementary loss functions for NB
+	Return negative binomial (NB) loss and complementary loss functions for NB
 	distribution with given mean and standard deviation.
 
-	(Function calculates n and p, the NB parameters.) Assumes mu < sigma^2.
-
-	Identities used:
-		- n(x) = -(x - n*beta)\bar{F}(x) + (x + n) * beta * f(x), where
-			beta = p/(1-p); see Zipkin (2000), Section C.2.3.6.
-		- \bar{n}(x) = x - E[X] + n(x); see equation (C.14)
-
-	Raises ValueError if x is not an integer.
+	(Function calculates :math:`n` and :math:`p`, the NB parameters, internally.)
+	Assumes ``mean < sd**2``.
 
 	Parameters
 	----------
@@ -372,17 +753,55 @@ def negative_binomial_loss(x, mean, sd):
 	Returns
 	-------
 	n : int
-		Loss function. [n(x)]
+		Loss function. [:math:`n(x)`]
 	n_bar : float
-		Complementary loss function. [\bar{n}(x)]
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not an integer.
+	ValueError
+		If ``mean`` is not less than ``sd ** 2``.
+
+
+	**Equations Used** (Zipkin (2000), Section C.2.3.6 and equation (C.14)):
+
+	.. math::
+
+		n(x) = -(x - n*\\beta)\\bar{F}(x) + (x + n) * \\beta * f(x)
+
+	.. math::
+
+		\\bar{n}(x) = x - E[X] + n(x)
+
+	where :math:`\\beta = p/(1-p)`.
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> negative_binomial_loss(14, 23, 8)
+		(9.32645998015693, 0.3264599801569302)
 	"""
 	# Check for integer x.
-	assert is_integer(x), "x must be an integer"
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
+
+	# Check that mean < sigma^2.
+	if not mean < sd ** 2:
+		raise ValueError("mean must be less than sd^2")
 
 	r = 1.0 * mean ** 2 / (sd ** 2 - mean)
 	p = 1 - (sd ** 2 - mean) / (sd ** 2)
 	beta = p / (1 - p)
 
+	# TODO: fix this
 #	return discrete_loss(x, nbinom(r, p))
 #	n = -(x - r * beta) * (1 - nbinom.cdf(x, r, p)) + (x + r) * beta * nbinom.pmf(x, r, p)
 #	n_bar = x - mean + n
@@ -398,14 +817,10 @@ def discrete_loss(x, distrib=None, pmf=None):
 	Return loss and complementary loss function for an arbitrary discrete
 	distribution.
 
-	Must provide either rv_discrete distribution (in distrib) or
-	demand pmf (in pmf, as a dict).
+	Must provide either ``rv_discrete`` distribution (in ``distrib``) or
+	demand pmf (in ``pmf``, as a ``dict``).
 
-	Assumes cdf(x) = 0 for x < 0.
-
-	Identities used: (C.36), (C.37)
-
-	Raises ValueError if x is not an integer.
+	Assumes :math:`F(x) = 0` for :math:`x < 0` (where :math:`F(\\cdot)` is the cdf).
 
 	Parameters
 	----------
@@ -420,15 +835,64 @@ def discrete_loss(x, distrib=None, pmf=None):
 	Returns
 	-------
 	n : float
-		Loss function. [n(x)]
+		Loss function. [:math:`n(x)`]
 	n_bar : float
-		Complementary loss function. [\bar{n}(x)]
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not an integer.
+	ValueError
+		If ``distrib`` and ``pmf`` are both ``None``.
+
+
+	**Equations Used** (equations (C.36) and (C.37)):
+
+	.. math::
+
+		n(x) = \\sum_{y=x}^\\infty (y-x)f(y) = \\sum_{y=x}^\\infty \\bar{F}(y)dy
+
+		\\bar{n}(x) = \\sum_{y=-\\infty}^x (x-y)f(y) = \\sum_{-\\infty}^{x-1} F(y)dy
+
+
+	**Example**:
+
+	Calculate loss function for :math:`\\text{geom}(0.2)` distribution, by declaring a
+	custom ``rv_discrete`` distribution:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+		# TODO: why isn't this working??!?
+
+	.. doctest::
+
+		>>> from scipy import stats
+		>>> class my_geom(stats.rv_discrete):
+		...     def _pmf(self, x):
+		...         return np.where(x >= 1, ((1 - 0.2) ** (x - 1)) * 0.2, 0)
+		>>> my_dist = my_geom()
+		>>> discrete_loss(4, my_dist)
+		(2.0479999999999743, 1.048)
+
+	Or by using a "frozen" built-in exponential distribution:
+
+	.. doctest::
+
+		>>> from scipy.stats import geom
+		>>> my_dist = geom(0.2)
+		>>> discrete_loss(4, my_dist)
+		(2.048, 1.048)
 	"""
 	# Check for integer x.
-	assert is_integer(x), "x must be an integer"
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
 
 	# Check that either distribution or pmf have been supplied.
-	assert (distrib is not None) or (pmf is not None), "must provide distrib or pmf"
+	if (distrib is None) and (pmf is None):
+		raise ValueError("must provide distrib or pmf")
 
 	if distrib is not None:
 		# rv_discrete object has been provided.

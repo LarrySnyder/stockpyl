@@ -2,41 +2,11 @@
 
 'node' and 'stage' are used interchangeably in the documentation.
 
-The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode``s
+The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` s
 that it contains, which contains all of the data for the simulation instance.
 
-The following parameters are used to specify input data:
-	* Node-level parameters
-		- local_holding_cost [h'] TODO: allow echelon h.c.
-		- stockout_cost [p]
-		- lead_time [L] TODO: create "alias" shipment_lead_time
-		- order_lead_time
-		- demand_source
-		- inventory_policy
-	* Edge-level parameters
-		(None.)
-
-The following attributes are used to store outputs and intermediate values:
-	* Graph-level parameters
-		- total_cost
-	* Node-level parameters
-		- IS
-		- IO
-		- OS
-		- OO
-		- IL
-		- BO
-		- EIL
-		- HC
-		- SC
-		- ITHC
-		- TC
-		- DMFS
-		- FR
-		- OQ
-
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 
@@ -286,6 +256,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 
 def initialize_state_vars(network):
 	"""Initialize the state variables for each node:
+
 		* inventory_level = to initial_inventory_level
 		* inbound_shipment_pipeline = initial_shipments
 		* on_order = initial_shipments * shipment_lead_time + initial_orders * order_lead_time
@@ -324,6 +295,7 @@ def initialize_state_vars(network):
 
 def receive_inbound_orders(node):
 	"""Receive inbound orders:
+
 		* Set inbound order from pipeline.
 		* Remove inbound order from pipeline.
 		* Update cumulative demand.
@@ -344,9 +316,10 @@ def receive_inbound_orders(node):
 
 
 def initialize_next_period_state_vars(network, period):
-	"""Set initial values for state variables in period ``period``+1.
-		* Update shipment and order pipelines by "advancing" them by 1 period
-	and adding a 0 in the last element.
+	"""Set initial values for state variables in period ``period`` + 1.
+
+		* Update shipment and order pipelines by "advancing" them by 1 period \
+		and adding a 0 in the last element.
 		* Set IL, BO, RM, and OO next period = ending values this period.
 		* Set _cumul attributes = ending values this period.
 
@@ -434,6 +407,7 @@ def calculate_period_costs(network, period):
 
 def receive_inbound_shipments(node):
 	"""Receive inbound shipment for the node:
+
 		* Set inbound_shipment.
 		* Remove from shipment pipeline and add to raw material inventory.
 		* Process as many units as possible.
@@ -460,6 +434,7 @@ def receive_inbound_shipments(node):
 
 def raw_materials_to_finished_goods(node):
 	"""Process raw materials to convert them to finished goods:
+
 		* Remove items from raw material inventory.
 		* Update IL.
 
@@ -489,7 +464,8 @@ def raw_materials_to_finished_goods(node):
 
 def process_outbound_shipments(node, starting_inventory_level, new_finished_goods):
 	"""Process outbound shipments for the node:
-		* Determine outbound shipments. Demands are satisfied in order of
+
+		* Determine outbound shipments. Demands are satisfied in order of \
 		successor node index.
 		* Update inventory level.
 		* Calculate demand met from stock.

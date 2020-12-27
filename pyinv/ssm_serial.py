@@ -23,7 +23,7 @@ The following attributes are used to store outputs and intermediate values:
 		(None.)
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 

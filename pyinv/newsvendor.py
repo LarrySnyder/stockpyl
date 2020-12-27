@@ -784,6 +784,7 @@ def set_myopic_cost_to(
 	ValueError
 		If ``cost`` is less than :math:`G_t(\\underline{S}_t)`.
 
+
 	**Example** (Example 4.1):
 
 	.. testsetup:: *

@@ -6,7 +6,7 @@ The primary data object is the NetworkX DiGraph, which contains all of the data
 for the simulation instance.
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 

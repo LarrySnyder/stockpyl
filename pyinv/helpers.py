@@ -1,7 +1,7 @@
 """Helper functions for pyinv package.
 
 (c) Lawrence V. Snyder
-Lehigh University and Opex Analytics
+Lehigh University
 
 """
 
@@ -505,6 +505,66 @@ def change_dict_key(dict_to_change, old_key, new_key):
 
 ### STATS FUNCTIONS ###
 
+def convolve_many(arrays):
+	"""Convolve a list of 1-dimensional float arrays together, using FFTs.
+	The arrays need not have the same length, but each array should
+	have length at least 1.
+
+	If the arrays represent pmfs of discrete random variables
+	:math:`X_1,\\ldots,X_n`, then the output represents the pmf of
+	:math:`X_1+\\cdots+X_n`. Assuming the possible values of all of the random
+	variables are equally spaced with spacing :math:`s`, the possible values of
+	:math:`X_1+\\cdots+X_n` corresponding to the output are
+	:math:`\\min_i\\{\\min X_i\\},\\ldots,\\sum_i \\max X_i`, with spacing :math:`s`.
+
+	Code is adapted from https://stackoverflow.com/a/29236193/3453768.
+
+	Parameters
+	----------
+	arrays : list of 1-dimensional float arrays
+		The arrays to convolve.
+
+	Returns
+	-------
+	convolution : array
+		Array of elements in the convolution.
+
+	**Example**
+	Let :math:`X_1 = \\{0, 1, 2\\}` with probabilities :math:`[0.6, 0.3, 0.1]`,
+	:math:`X_2 = \\{0, 1, 2\\}` with probabilities :math:`[0.5, 0.4, 0.1]`,
+	:math:`X_3 = \\{0, 1\\}` with probabilities :math:`[0.3, 0.7]`, and
+	:math:`X_4 = 0` with probability :math:`1`.
+
+	.. testsetup:: *
+
+		from pyinv.helpers import *
+
+	.. doctest::
+
+		>>> convolve_many([[0.6, 0.3, 0.1], [0.5, 0.4, 0.1], [0.3, 0.7], [1.0]])
+		array([0.09 , 0.327, 0.342, 0.182, 0.052, 0.007])
+
+	In other words, :math:`X_1+\\cdots+X_4 = \\{0, 1, \\ldots, 5\\}`: with
+	probabilities :math:`[0.09 , 0.327, 0.342, 0.182, 0.052, 0.007]`.
+
+	"""
+	result_length = 1 + sum((len(a) - 1) for a in arrays)
+
+	# Copy each array into a 2d array of the appropriate shape.
+	rows = np.zeros((len(arrays), result_length))
+	for i, a in enumerate(arrays):
+		rows[i, :len(a)] = a
+
+	# Transform, take the product, and do the inverse transform
+	# to get the convolution.
+	fft_of_rows = np.fft.fft(rows)
+	fft_of_convolution = fft_of_rows.prod(axis=0)
+	convolution = np.fft.ifft(fft_of_convolution)
+
+	# Assuming real inputs, the imaginary part of the output can be ignored.
+	return convolution.real
+
+
 def irwin_hall_cdf(x, n):
 	"""Return cdf of Irwin-Hall distribution, i.e., distribution of sum of ``n``
 	U[0,1] random variables.
@@ -534,7 +594,7 @@ def irwin_hall_cdf(x, n):
 
 
 def sum_of_uniforms_distribution(n, lo=0, hi=1):
-	"""Return distribution of sum of ``n`` uniform random variables as
+	"""Return distribution of sum of ``n`` identical uniform random variables as
 	``rv_continuous`` object.
 
 	If ``lo`` = 0 and ``hi`` = 1, this distribution is the Irwin-Hall
@@ -568,6 +628,40 @@ def sum_of_uniforms_distribution(n, lo=0, hi=1):
 				return irwin_hall_cdf((x - n * lo) / (hi - lo), n)
 
 	distribution = sum_of_uniforms_rv()
+
+	return distribution
+
+
+def sum_of_discretes_distribution(n, lo, hi, p):
+	"""Return distribution of convolution of ``n`` identical discrete random variables as
+	``rv_discrete`` object.
+
+	The random variables must have support ``lo``, ``lo``+1, ..., ``hi``.
+	(The convolution will have support ``n * lo``, ``n * lo``+1, ..., ``n * hi``.
+
+
+	Parameters
+	----------
+	n : int
+		Number of uniform random variables in the sum.
+	lo : int
+		Smallest value of the support of the random variable.
+	hi : int
+		Largest value of the support of the random variable.
+	p : list
+		Probabilities of each of the values.
+
+	Returns
+	-------
+	distribution : rv_discrete
+		The rv_discrete object.
+
+	"""
+
+	xk = np.arange(n * lo, n * hi + 1)
+	pk = convolve_many([p for _ in range(n)])
+
+	distribution = stats.rv_discrete(name='sum_of_discretes', values=(xk, pk))
 
 	return distribution
 
