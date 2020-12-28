@@ -705,7 +705,7 @@ def poisson_loss(x, mean):
 
 	.. math::
 
-		n(x) = -(x - \\mu)\\bar{F}(x) + \\mu * f(x)
+		n(x) = -(x - \\mu)(1-F(x)) + \\mu * f(x)
 
 	.. math::
 
@@ -727,55 +727,51 @@ def poisson_loss(x, mean):
 	if not is_integer(x):
 		raise ValueError("x must be an integer")
 
-	n = -(x - mean) * (1 - poisson.cdf(x, mean)) + mean * poisson.pmf(x, mean)
-	n_bar = (x - mean) * poisson.cdf(x, mean) + mean * poisson.pmf(x, mean)
+	# Calculate f(x) and F(x).
+	f = poisson.pmf(x, mean)
+	F = poisson.cdf(x, mean)
+
+	n = -(x - mean) * (1 - F) + mean * f
+	n_bar = (x - mean) * F + mean * f
 
 	return n, n_bar
 
 
-def negative_binomial_loss(x, mean, sd):
+def poisson_second_loss(x, mean):
 	"""
-	Return negative binomial (NB) loss and complementary loss functions for NB
-	distribution with given mean and standard deviation.
-
-	(Function calculates :math:`n` and :math:`p`, the NB parameters, internally.)
-	Assumes ``mean < sd**2``.
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	Poisson loss function and complementary second-order loss function for a :math:`\\text{Pois}` (``mean``)
+	distribution.
 
 	Parameters
 	----------
 	x : float
 		Argument of loss function.
 	mean : float
-		Mean of NB distribution.
-	sd : float
-		Standard deviation of NB distribution.
+		Mean of Poisson distribution. [:math:`\\mu`]
 
 	Returns
 	-------
-	n : int
-		Loss function. [:math:`n(x)`]
-	n_bar : float
-		Complementary loss function. [:math:`\\bar{n}(x)`]
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
 
 	Raises
 	------
 	ValueError
 		If ``x`` is not an integer.
-	ValueError
-		If ``mean`` is not less than ``sd ** 2``.
 
 
-	**Equations Used** (Zipkin (2000), Section C.2.3.6 and equation (C.14)):
+	**Equations Used** (equations (C.41) and (C.42)):
 
 	.. math::
 
-		n(x) = -(x - n*\\beta)\\bar{F}(x) + (x + n) * \\beta * f(x)
+		n^{(2)}(x) = \\frac12 \\left[\\left((x-\\mu)^2 + x\\right)(1-F(x)) - \\mu(x-\\mu)f(x)\\right]
 
 	.. math::
 
-		\\bar{n}(x) = x - E[X] + n(x)
-
-	where :math:`\\beta = p/(1-p)`.
+		\\bar{n}^{(2)}(x) = \\frac12 \\left[\\left((x-\\mu)^2 + x\\right)F(x) + \\mu(x-\\mu)f(x)\\right]
 
 
 	**Example**:
@@ -786,28 +782,253 @@ def negative_binomial_loss(x, mean, sd):
 
 	.. doctest::
 
-		>>> negative_binomial_loss(14, 23, 8)
-		(9.32645998015693, 0.3264599801569302)
+		>>> poisson_second_loss(18, 15)
+		(0.848340302917789, 12.651659697082211)
 	"""
 	# Check for integer x.
 	if not is_integer(x):
 		raise ValueError("x must be an integer")
 
+	# Calculate f(x) and F(x).
+	f = poisson.pmf(x, mean)
+	F = poisson.cdf(x, mean)
+
+	n2 = 0.5 * (((x - mean)**2 + x) * (1 - F) - mean * (x - mean) * f)
+	n2_bar = 0.5 * (((x - mean)**2 + x) * F + mean * (x - mean) * f)
+
+	return n2, n2_bar
+
+
+def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
+	"""
+	Return negative binomial (NB) loss and complementary loss functions for NB
+	distribution with shape parameters :math:`r` and :math:`p`. The pmf of this distribution
+	is given by
+
+	.. math::
+
+		f(x) = {x+r-1 \\choose r-1}p^r(1-p)^x
+
+	(See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html.)
+
+	If ``mean`` and ``sd`` are provided instead of ``r`` and ``p``, the function calculates
+	:math:`r` and :math:`p` from ``mean`` (:math:`\\mu`) and ``sd``	 (:math:`\\sigma`) using
+
+	.. math::
+
+		r = \\frac{\\mu^2}{\\sigma^2 - \\mu}
+
+	.. math::
+
+		p = 1 - \\frac{\\sigma^2 - \\mu}{\\sigma^2}
+
+	Assumes ``mean < sd**2``; an exception is raised if not.
+
+	Parameters
+	----------
+	x : int
+		Argument of loss function.
+	r : int, optional
+		Shape parameter of NB distribution representing number of successes until Bernoulli trials stop.
+	p : float, optional
+		Shape parameter of NB distribution representing success probability for one Bernoulli trial.
+	mean : float, optional
+		Mean of NB distribution. Ignored if ``r`` and ``p`` are both provided, required otherwise.
+	sd : float, optional
+		Standard deviation of NB distribution. Ignored if ``r`` and ``p`` are both provided, required otherwise.
+
+	Returns
+	-------
+	n : float
+		Loss function. [:math:`n(x)`]
+	n_bar : float
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` or ``r`` is not an integer.
+	ValueError
+		If ``r`` and ``p`` are not both provided and ``mean`` and ``sd`` are also not both provided.
+	ValueError
+		If ``mean`` is not less than ``sd ** 2``.
+
+
+	**Equations Used** (Zipkin (2000), Section C.2.3.6, and equation (C.14)):
+
+	.. math::
+
+		n(x) = -(x - r*\\beta)(1-F(x)) + (x + r) * \\beta * f(x),
+
+	where :math:`\\beta = (1-p)/p`.
+
+	.. math::
+
+		\\bar{n}(x) = x - E[X] + n(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> negative_binomial_loss(14, 4, 0.2)
+		(4.447304632028365, 2.4473046320283647)
+		>>> negative_binomial_loss(14, mean=23, sd=8)
+		(9.326459980156917, 0.32645998015691724)
+	"""
+
+	# Check for integer x.
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
+
+	# Check that correct parameters have been provided.
+	if (r is None or p is None) and (mean is None or sd is None):
+		raise ValueError("Either r and p or mean and sd must be provided")
+
+	# Calculate mean and sd from r and p, or vice-versa.
+	if r is None or p is None:
+		r = 1.0 * mean ** 2 / (sd ** 2 - mean)
+		p = 1 - (sd ** 2 - mean) / (sd ** 2)
+	else:
+		mean = (1 - p) * r / p
+		sd = np.sqrt((1 - p) * r) / p
+
 	# Check that mean < sigma^2.
 	if not mean < sd ** 2:
-		raise ValueError("mean must be less than sd^2")
+		raise ValueError("mean must be less than variance")
 
-	r = 1.0 * mean ** 2 / (sd ** 2 - mean)
-	p = 1 - (sd ** 2 - mean) / (sd ** 2)
-	beta = p / (1 - p)
+	beta = (1 - p) / p
 
-	# TODO: fix this
-#	return discrete_loss(x, nbinom(r, p))
-#	n = -(x - r * beta) * (1 - nbinom.cdf(x, r, p)) + (x + r) * beta * nbinom.pmf(x, r, p)
-#	n_bar = x - mean + n
+	# Calculate f(x) and F(x).
+	f = nbinom.pmf(x, r, p)
+	F = nbinom.cdf(x, r, p)
+
+	n = -(x - r * beta) * (1 - F) + (x + r) * beta * f
+	n_bar = x - mean + n
 	# formula above does not seem to be working (e.g., if r = 6, p = 0.4, then
 	# returns negative value for n(10). So for now, using generic function:
-	n, n_bar = discrete_loss(x, nbinom(r, p))
+#	n, n_bar = discrete_loss(x, nbinom(r, p))
+
+	return n, n_bar
+
+
+def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
+	"""
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	exponential loss function and complementary second-order loss function for a
+	negative binomial (NB) distribution with shape parameters :math:`r` and :math:`p`.
+	The pmf of this distribution is given by
+
+	.. math::
+
+		f(x) = \\choose{x+r-1}{r-1}p^r(1-p)^x
+
+	(See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html.)
+
+	If ``mean`` and ``sd`` are provided instead of ``r`` and ``p``, the function calculates
+	:math:`r` and :math:`p` from ``mean`` (:math:`\\mu`) and ``sd``	 (:math:`\\sigma`) using
+
+	.. math::
+
+		r = \\frac{\\mu^2}{\\sigma^2 - \\mu}
+
+	.. math::
+
+		p = 1 - \\frac{\\sigma^2 - \\mu}{\\sigma^2}
+
+	Assumes ``mean < sd**2``; an exception is raised if not.
+
+	Parameters
+	----------
+	x : int
+		Argument of loss function.
+	r : int, optional
+		Shape parameter of NB distribution representing number of successes until Bernoulli trials stop.
+	p : float, optional
+		Shape parameter of NB distribution representing success probability for one Bernoulli trial.
+	mean : float, optional
+		Mean of NB distribution. Ignored if `r` and `p` are both provided, required otherwise.
+	sd : float, optional
+		Standard deviation of NB distribution. Ignored if `r` and `p` are both provided, required otherwise.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` or ``r`` is not an integer.
+	ValueError
+		If ``r`` and ``p`` are not both provided and ``mean`` and ``sd`` are also not both provided.
+	ValueError
+		If ``mean`` is not less than ``sd ** 2``.
+
+
+	**Equations Used** (Zipkin (2000), Section C.2.3.6, and (C.19)):
+
+	.. math::
+
+		n^{(2)}(x) = \\frac12\\left[\\left[r(r+1)\\beta^2 - 2r\\beta x + x(x+1)\\right](1-F(x))
+		+ \\left[(r+1)\\beta - x\\right](x+r)\\beta f(x)\\right],
+
+	where :math:`\\beta = (1-p)/p`.
+
+	.. math::
+
+		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> negative_binomial_second_loss(14, 4, 0.2)
+		(30.877804945158942, 11.122195054841043)
+		>>> negative_binomial_second_loss(14, mean=23, sd=8)
+		(67.10108087745225, 5.398919122547753)
+
+	"""
+	# Check for integer x.
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
+
+	# Check that correct parameters have been provided.
+	if (r is None or p is None) and (mean is None or sd is None):
+		raise ValueError("Either r and p or mean and sd must be provided")
+
+	# Calculate mean and sd from r and p, or vice-versa.
+	if r is None or p is None:
+		r = 1.0 * mean ** 2 / (sd ** 2 - mean)
+		p = 1 - (sd ** 2 - mean) / (sd ** 2)
+	else:
+		mean = (1 - p) * r / p
+		sd = np.sqrt((1 - p) * r) / p
+
+	# Check that mean < sigma^2.
+	if not mean < sd ** 2:
+		raise ValueError("mean must be less than variance")
+
+	beta = (1 - p) / p
+
+	# Calculate f(x) and F(x).
+	f = nbinom.pmf(x, r, p)
+	F = nbinom.cdf(x, r, p)
+
+	n = 0.5 * ((r * (r + 1) * beta**2 - 2 * r * beta * x + x * (x + 1)) * (1 - F) \
+		+ ((r + 1) * beta - x) * (x + r) * beta * f)
+	n_bar = 0.5 * ((x - mean)**2 + sd**2) - n
 
 	return n, n_bar
 
@@ -920,4 +1141,7 @@ def discrete_loss(x, distrib=None, pmf=None):
 		n_bar = np.sum([(x - y) * pmf[y] for y in x_values if y <= x])
 
 	return n, n_bar
+
+
+
 

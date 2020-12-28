@@ -542,15 +542,21 @@ class TestPoissonLoss(unittest.TestCase):
 
 		x1 = 220
 		mean1 = 200
-		n1, n_bar1 = loss_functions.discrete_loss(x1, poisson(mean1))
+		n1, n_bar1 = loss_functions.poisson_loss(x1, mean1)
 		self.assertAlmostEqual(n1, 0.536005857158494)
 		self.assertAlmostEqual(n_bar1, 20.536005857158482)
 
 		x2 = 5
 		mean2 = 7
-		n2, n_bar2 = loss_functions.discrete_loss(x2, poisson(mean1))
-		self.assertAlmostEqual(n1, 0.536005857158494)
-		self.assertAlmostEqual(n_bar1, 20.536005857158482)
+		n2, n_bar2 = loss_functions.poisson_loss(x2, mean2)
+		self.assertAlmostEqual(n2, 2.292600125697305)
+		self.assertAlmostEqual(n_bar2, 0.292600125697305)
+
+		x3 = 50
+		mean3 = 47
+		n3, n_bar3 = loss_functions.poisson_loss(x3, mean3)
+		self.assertAlmostEqual(n3, 1.514546939496945)
+		self.assertAlmostEqual(n_bar3, 4.514546939496945)
 
 	def test_non_integer(self):
 		"""Test that poisson_loss function raises exception on non-integer x.
@@ -573,6 +579,62 @@ class TestPoissonLoss(unittest.TestCase):
 			n, n_bar = loss_functions.poisson_loss(x, mean)
 
 
+class TestPoissonSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestPoissonSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPoissonSecondLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that poisson_second_loss function correctly calculates n and n_bar for
+		a few instances.
+		"""
+		print_status('TestPoissonSecondLoss', 'test()')
+
+		x1 = 18
+		mean1 = 15
+		n1, n_bar1 = loss_functions.poisson_second_loss(x1, mean1)
+		self.assertAlmostEqual(n1, 0.848340302917794)
+		self.assertAlmostEqual(n_bar1, 12.651659697082206)
+
+		x2 = 5
+		mean2 = 7
+		n2, n_bar2 = loss_functions.poisson_second_loss(x2, mean2)
+		self.assertAlmostEqual(n2, 4.040829435261403)
+		self.assertAlmostEqual(n_bar2, 0.459170564738597)
+
+		x3 = 50
+		mean3 = 47
+		n3, n_bar3 = loss_functions.poisson_second_loss(x3, mean3)
+		self.assertAlmostEqual(n3, 5.192979532973098)
+		self.assertAlmostEqual(n_bar3, 24.307020467026899)
+
+	def test_non_integer(self):
+		"""Test that poisson_second_loss function raises exception on non-integer x.
+		"""
+		print_status('TestPoissonSecondLoss', 'test_non_integer()')
+
+		x = 0.3
+		mean = 0.5
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.poisson_second_loss(x, mean)
+
+	def test_non_numeric(self):
+		"""Test that poisson_second_loss function raises exception on non-numeric x.
+		"""
+		print_status('TestPoissonSecondLoss', 'test_non_numeric()')
+
+		x = "foo"
+		mean = 5
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.poisson_second_loss(x, mean)
+
+
 class TestNegativeBinomialLoss(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -584,30 +646,60 @@ class TestNegativeBinomialLoss(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestNegativeBinomialLoss', 'tear_down_class()')
 
-	def test(self):
+	def test_from_r_p(self):
 		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
-		a few instances.
+		a few instances when passed r and p as parameters.
 		"""
-		print_status('TestNegativeBinomialLoss', 'test()')
+		print_status('TestNegativeBinomialLoss', 'test_from_r_p()')
+
+		x1 = 10
+		r1 = 3
+		p1 = 0.2
+		n1, n_bar1 = loss_functions.negative_binomial_loss(x1, r1, p1)
+		n1a, n_bar1a = loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		self.assertAlmostEqual(n1, n1a, places=4)
+		self.assertAlmostEqual(n_bar1, n_bar1a, places=4)
+
+		x2 = 20
+		r2 = 10
+		p2 = 0.5
+		n2, n_bar2 = loss_functions.negative_binomial_loss(x2, r2, p2)
+		n2a, n_bar2a = loss_functions.discrete_loss(x2, nbinom(r2, p2))
+		self.assertAlmostEqual(n2, n2a, places=4)
+		self.assertAlmostEqual(n_bar2, n_bar2a, places=4)
+
+		x3 = 50
+		r3 = 3
+		p3 = 0.02
+		n3, n_bar3 = loss_functions.negative_binomial_loss(x3, r3, p3)
+		n3a, n_bar3a = loss_functions.discrete_loss(x3, nbinom(r3, p3))
+		self.assertAlmostEqual(n3, n3a, places=4)
+		self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
+
+	def test_from_mean_sd(self):
+		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
+		a few instances when passed mean and sd as parameters.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_from_mean_sd()')
 
 		x1 = 14
 		mean1 = 23.333333333333336
 		sd1 = 8.819171036881968
-		n1, n_bar1 = loss_functions.negative_binomial_loss(x1, mean1, sd1)
+		n1, n_bar1 = loss_functions.negative_binomial_loss(x1, mean=mean1, sd=sd1)
 		self.assertAlmostEqual(n1, 9.740089476453932, places=4)
 		self.assertAlmostEqual(n_bar1, 0.406758474515445, places=4)
 
 		x2 = 28
 		mean2 = 23.333333333333336
 		sd2 = 8.819171036881968
-		n2, n_bar2 = loss_functions.negative_binomial_loss(x2, mean2, sd2)
+		n2, n_bar2 = loss_functions.negative_binomial_loss(x2, mean=mean2, sd=sd2)
 		self.assertAlmostEqual(n2, 1.805485505752903, places=4)
 		self.assertAlmostEqual(n_bar2, 6.472154141707762, places=4)
 
 		x3 = 10
 		mean3 = 15
 		sd3 = 6.123724356957944
-		n3, n_bar3 = loss_functions.negative_binomial_loss(x3, mean3, sd3)
+		n3, n_bar3 = loss_functions.negative_binomial_loss(x3, mean=mean3, sd=sd3)
 		self.assertAlmostEqual(n3, 5.533809274622726, places=4)
 		self.assertAlmostEqual(n_bar3, 0.533809274627819, places=4)
 
@@ -631,14 +723,174 @@ class TestNegativeBinomialLoss(unittest.TestCase):
 		self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
 
 	def test_non_integer(self):
-		"""Test that poisson_loss function raises exception on non-integer x.
+		"""Test that negative_binomial_loss function raises exception on non-integer x or r.
 		"""
-		print_status('TestPoissonLoss', 'test_non_integer()')
+		print_status('TestNegativeBinomialLoss', 'test_non_integer()')
 
 		x = 0.3
 		mean = 0.5
+		sd = 0.1
 		with self.assertRaises(ValueError):
-			n, n_bar = loss_functions.poisson_loss(x, mean)
+			n, n_bar = loss_functions.negative_binomial_loss(x, mean=mean, sd=sd)
+
+		x = 0.3
+		r = 0.5
+		p = 0.1
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, r, p)
+
+	def test_bad_mean_var(self):
+		"""Test that negative_binomial_loss function raises exception if mean > variance.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_bad_mean_var()')
+
+		x = 2
+		mean = 5
+		sd = 2
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, mean=mean, sd=sd)
+
+	def test_bad_params(self):
+		"""Test that negative_binomial_loss function raises exception if incorrect
+		parameters are provided.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_bad_params()')
+
+		x = 2
+		mean = 5
+		sd = 4
+		r = 3
+		p = 0.2
+
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, r=r, sd=sd)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, p=p, sd=sd)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, r=r)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, sd=sd)
+
+
+class TestNegativeBinomialSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNegativeBinomialSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNegativeBinomialSecondLoss', 'tear_down_class()')
+
+	def test_from_r_p(self):
+		"""Test that negative_binomial_second_loss function correctly calculates n and n_bar for
+		a few instances when passed r and p as parameters.
+		"""
+		print_status('TestNegativeBinomialSecondLoss', 'test_from_r_p()')
+
+		x1 = 14
+		r1 = 4
+		p1 = 0.2
+		n1, n_bar1 = loss_functions.negative_binomial_second_loss(x1, r1, p1)
+		n1a, n_bar1a = (30.877804945158992, 11.122195054841001) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		self.assertAlmostEqual(n1, n1a, places=4)
+		self.assertAlmostEqual(n_bar1, n_bar1a, places=4)
+
+		x2 = 14
+		r2 = 10
+		p2 = 0.3
+		n2, n_bar2 = loss_functions.negative_binomial_second_loss(x2, r2, p2)
+		n2a, n_bar2a = (76.585631112912552, 5.858813331531906) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		self.assertAlmostEqual(n2, n2a, places=4)
+		self.assertAlmostEqual(n_bar2, n_bar2a, places=4)
+
+		x3 = 10
+		r3 = 10
+		p3 = 0.4
+		n3, n_bar3 = loss_functions.negative_binomial_second_loss(x3, r3, p3)
+		n3a, n_bar3a = (27.426595183995328, 3.823404816004668) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		self.assertAlmostEqual(n3, n3a, places=4)
+	#	self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
+
+	def test_from_mean_sd(self):
+		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
+		a few instances when passed mean and sd as parameters.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_from_mean_sd()')
+
+		x1 = 14
+		mean1 = 16
+		sd1 = np.sqrt(80)
+		n1, n_bar1 = loss_functions.negative_binomial_second_loss(x1, mean=mean1, sd=sd1)
+		n1a, n_bar1a = (30.877804945158992, 11.122195054841001)
+		self.assertAlmostEqual(n1, n1a, places=4)
+		self.assertAlmostEqual(n_bar1, n_bar1a, places=4)
+
+		x2 = 28
+		mean2 = 23.333333333333336
+		sd2 = 8.819171036881968
+		n2, n_bar2 = loss_functions.negative_binomial_second_loss(x2, mean=mean2, sd=sd2)
+		n2a, n_bar2a = (9.799361902620475, 39.978415875157289)
+		self.assertAlmostEqual(n2, n2a, places=4)
+		self.assertAlmostEqual(n_bar2, n_bar2a, places=4)
+
+		x3 = 10
+		mean3 = 15
+		sd3 = 6.123724356957944
+		n3, n_bar3 = loss_functions.negative_binomial_second_loss(x3, mean=mean3, sd=sd3)
+		n3a, n_bar3a = (27.426595183995310, 3.823404816004697)
+		self.assertAlmostEqual(n3, n3a, places=4)
+		self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
+
+	def test_non_integer(self):
+		"""Test that negative_binomial_loss function raises exception on non-integer x or r.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_non_integer()')
+
+		x = 0.3
+		mean = 0.5
+		sd = 0.1
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, mean=mean, sd=sd)
+
+		x = 0.3
+		r = 0.5
+		p = 0.1
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, r, p)
+
+	def test_bad_mean_var(self):
+		"""Test that negative_binomial_loss function raises exception if mean > variance.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_bad_mean_var()')
+
+		x = 2
+		mean = 5
+		sd = 2
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, mean=mean, sd=sd)
+
+	def test_bad_params(self):
+		"""Test that negative_binomial_loss function raises exception if incorrect
+		parameters are provided.
+		"""
+		print_status('TestNegativeBinomialLoss', 'test_bad_params()')
+
+		x = 2
+		mean = 5
+		sd = 4
+		r = 3
+		p = 0.2
+
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, r=r, sd=sd)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, p=p, sd=sd)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, r=r)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.negative_binomial_loss(x, sd=sd)
 
 
 class TestDiscreteLoss(unittest.TestCase):
