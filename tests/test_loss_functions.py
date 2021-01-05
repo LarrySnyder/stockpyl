@@ -74,7 +74,7 @@ class TestStandardNormalSecondLoss(unittest.TestCase):
 
 	def test(self):
 		"""Test that standard_normal_loss function correctly calculates L2 and
-		L2_bar for a few instances.
+		L2_bar for a few instances. Also compare against continuous_second_loss().
 		"""
 		print_status('TestStandardNormalSecondLoss', 'test()')
 
@@ -82,16 +82,26 @@ class TestStandardNormalSecondLoss(unittest.TestCase):
 		L2, L2_bar = loss_functions.standard_normal_second_loss(z)
 		self.assertAlmostEqual(L2, 1.465289370279040)
 		self.assertAlmostEqual(L2_bar, 0.014710629720960)
+		L2a, L2a_bar = loss_functions.continuous_second_loss(z, norm())
+		self.assertAlmostEqual(L2, L2a)
+		self.assertAlmostEqual(L2_bar, L2a_bar)
 
 		z = 0.3
 		L2, L2_bar = loss_functions.standard_normal_second_loss(z)
 		self.assertAlmostEqual(L2, 0.151030102587942)
 		self.assertAlmostEqual(L2_bar, 0.393969897412058)
+		L2a, L2a_bar = loss_functions.continuous_second_loss(z, norm())
+		self.assertAlmostEqual(L2, L2a)
+		self.assertAlmostEqual(L2_bar, L2a_bar)
 
 		z = 3.1
 		L2, L2_bar = loss_functions.standard_normal_second_loss(z)
 		self.assertAlmostEqual(L2, 6.956550901328958e-05)
 		self.assertAlmostEqual(L2_bar, 5.304930434490987)
+		L2a, L2a_bar = loss_functions.continuous_second_loss(z, norm())
+		self.assertAlmostEqual(L2, L2a)
+		self.assertAlmostEqual(L2_bar, L2a_bar)
+
 
 
 class TestNormalLoss(unittest.TestCase):
@@ -146,7 +156,7 @@ class TestNormalSecondLoss(unittest.TestCase):
 
 	def test(self):
 		"""Test that normal_second_loss function correctly calculates n2 and
-		n2_bar for a few instances.
+		n2_bar for a few instances. Also test against continuous_second_loss().
 		"""
 		print_status('TestNormalSecondLoss', 'test()')
 
@@ -156,6 +166,9 @@ class TestNormalSecondLoss(unittest.TestCase):
 		n2, n2_bar = loss_functions.normal_second_loss(x, mean, sd)
 		self.assertAlmostEqual(n2, 1.465289370279040)
 		self.assertAlmostEqual(n2_bar, 0.014710629720960)
+		n2a, n2a_bar = loss_functions.continuous_second_loss(x, norm(mean, sd))
+		self.assertAlmostEqual(n2, n2a, places=4)
+		self.assertAlmostEqual(n2_bar, n2a_bar, places=4)
 
 		x = 11.0
 		mean = 8
@@ -163,6 +176,9 @@ class TestNormalSecondLoss(unittest.TestCase):
 		n2, n2_bar = loss_functions.normal_second_loss(x, mean, sd)
 		self.assertAlmostEqual(n2, 0.339029025046969)
 		self.assertAlmostEqual(n2_bar, 8.660970974953031)
+		n2a, n2a_bar = loss_functions.continuous_second_loss(x, norm(mean, sd))
+		self.assertAlmostEqual(n2, n2a, places=4)
+		self.assertAlmostEqual(n2_bar, n2a_bar, places=4)
 
 		x = 10.5
 		mean = 15
@@ -170,6 +186,9 @@ class TestNormalSecondLoss(unittest.TestCase):
 		n2, n2_bar = loss_functions.normal_second_loss(x, mean, sd)
 		self.assertAlmostEqual(n2, 21.454098725390558)
 		self.assertAlmostEqual(n2_bar, 1.170901274609442)
+		n2a, n2a_bar = loss_functions.continuous_second_loss(x, norm(mean, sd))
+		self.assertAlmostEqual(n2, n2a, places=4)
+		self.assertAlmostEqual(n2_bar, n2a_bar, places=4)
 
 
 class TestLognormalLoss(unittest.TestCase):
@@ -308,22 +327,22 @@ class TestExponentialSecondLoss(unittest.TestCase):
 		self.assertAlmostEqual(n3, 0.091969860292861)
 		self.assertAlmostEqual(n_bar3, 0.033030139707139)
 
-		# # Test using continuous_loss, too, just as a triple-check.
-		#
-		# dist1 = expon(scale=1/mu1)
-		# n1a, n_bar1a = loss_functions.continuous_second_loss(x1, dist1)
-		# self.assertAlmostEqual(n1a, 20.468268826949540)
-		# self.assertAlmostEqual(n_bar1a, 0.031731173050460)
-		#
-		# dist2 = expon(scale=1/mu2)
-		# n2a, n_bar2a = loss_functions.continuous_second_loss(x2, dist2)
-		# self.assertAlmostEqual(n2a, 0.082084998623899)
-		# self.assertAlmostEqual(n_bar2a, 1.542915001376101)
-		#
-		# dist3 = expon(scale=1/mu3)
-		# n3a, n_bar3a = loss_functions.continuous_second_loss(x3, dist3)
-		# self.assertAlmostEqual(n3a, 0.091969860292861)
-		# self.assertAlmostEqual(n_bar3a, 0.033030139707139)
+		# Test using continuous_loss, too, just as a triple-check.
+
+		dist1 = expon(scale=1/mu1)
+		n1a, n_bar1a = loss_functions.continuous_second_loss(x1, dist1)
+		self.assertAlmostEqual(n1a, 20.468268826949540, places=4)
+		self.assertAlmostEqual(n_bar1a, 0.031731173050460, places=4)
+
+		dist2 = expon(scale=1/mu2)
+		n2a, n_bar2a = loss_functions.continuous_second_loss(x2, dist2)
+		self.assertAlmostEqual(n2a, 0.082084998623899, places=4)
+		self.assertAlmostEqual(n_bar2a, 1.542915001376101, places=4)
+
+		dist3 = expon(scale=1/mu3)
+		n3a, n_bar3a = loss_functions.continuous_second_loss(x3, dist3)
+		self.assertAlmostEqual(n3a, 0.091969860292861, places=4)
+		self.assertAlmostEqual(n_bar3a, 0.033030139707139, places=4)
 
 	def test_negative_x(self):
 		"""Test that exponential_second_loss correctly raises exception if x < 0."""
@@ -439,23 +458,22 @@ class TestGammaSecondLoss(unittest.TestCase):
 		self.assertAlmostEqual(n3, 0.050685800735730)
 		self.assertAlmostEqual(n_bar3, 4.199314199264270)
 
-		# TODO:
-		# # Test using continuous_loss, too, just as a triple-check.
-		#
-		# dist1 = expon(scale=1/mu1)
-		# n1a, n_bar1a = loss_functions.continuous_second_loss(x1, dist1)
-		# self.assertAlmostEqual(n1a, 20.468268826949540)
-		# self.assertAlmostEqual(n_bar1a, 0.031731173050460)
-		#
-		# dist2 = expon(scale=1/mu2)
-		# n2a, n_bar2a = loss_functions.continuous_second_loss(x2, dist2)
-		# self.assertAlmostEqual(n2a, 0.082084998623899)
-		# self.assertAlmostEqual(n_bar2a, 1.542915001376101)
-		#
-		# dist3 = expon(scale=1/mu3)
-		# n3a, n_bar3a = loss_functions.continuous_second_loss(x3, dist3)
-		# self.assertAlmostEqual(n3a, 0.091969860292861)
-		# self.assertAlmostEqual(n_bar3a, 0.033030139707139)
+		# Test using continuous_loss, too, just as a triple-check.
+
+		dist1 = gamma(a1, scale=b1)
+		n1a, n_bar1a = loss_functions.continuous_second_loss(x1, dist1)
+		self.assertAlmostEqual(n1a, n1, places=4)
+		self.assertAlmostEqual(n_bar1a, n_bar1, places=4)
+
+		dist2 = gamma(a2, scale=b2)
+		n2a, n_bar2a = loss_functions.continuous_second_loss(x2, dist2)
+		self.assertAlmostEqual(n2a, n2, places=4)
+		self.assertAlmostEqual(n_bar2a, n_bar2, places=4)
+
+		dist3 = gamma(a3, scale=b3)
+		n3a, n_bar3a = loss_functions.continuous_second_loss(x3, dist3)
+		self.assertAlmostEqual(n3a, n3, places=4)
+		self.assertAlmostEqual(n_bar3a, n_bar3, places=4)
 
 	def test_negative_x(self):
 		"""Test that gamma_second_loss correctly raises exception if x < 0."""
@@ -521,6 +539,65 @@ class TestContinuousLoss(unittest.TestCase):
 		n2, n_bar2 = loss_functions.continuous_loss(x2, lognorm(sigma2, 0, np.exp(mu2)))
 		self.assertAlmostEqual(n2, 0.887025638033385, places=4)
 		self.assertAlmostEqual(n_bar2, 0.306808789115353, places=4)
+
+
+class TestContinuousSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestContinuousSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestContinuousSecondLoss', 'tear_down_class()')
+
+	def test_normal(self):
+		"""Test that continuous_second_loss function correctly calculates n2 and n2_bar
+		for a normally distributed instance.
+		"""
+		print_status('TestContinuousSecondLoss', 'test_normal()')
+
+		x1 = -1.4
+		mean1 = 0
+		sd1 = 1
+		n1, n_bar1 = loss_functions.continuous_second_loss(x1, norm(mean1, sd1))
+		self.assertAlmostEqual(n1, 1.465289370279040)
+		self.assertAlmostEqual(n_bar1, 0.014710629720960)
+
+		x2 = 11.0
+		mean2 = 8
+		sd2 = 3
+		n2, n_bar2 = loss_functions.continuous_second_loss(x2, norm(mean2, sd2))
+		self.assertAlmostEqual(n2, 0.339029025046969)
+		self.assertAlmostEqual(n_bar2, 8.660970974953031)
+
+	def test_gamma(self):
+		"""Test that continuous_second_loss function correctly calculates n2 and n2_bar
+		for a gamma distributed instance.
+		"""
+		print_status('TestContinuousSecondLoss', 'test_gamma()')
+
+		x1 = 4
+		a1 = 2
+		b1 = 3
+		n1, n_bar1 = loss_functions.continuous_second_loss(x1, gamma(a1, scale=b1))
+		self.assertAlmostEqual(n1, 10.280288386513346, places=4)
+		self.assertAlmostEqual(n_bar1, 0.7197116134866537, places=4)
+
+		x2 = 0.4
+		a2 = 0.5
+		b2 = 1.0
+		n2, n_bar2 = loss_functions.continuous_second_loss(x2, gamma(a2, scale=b2))
+		self.assertAlmostEqual(n2, 0.226181566792298, places=4)
+		self.assertAlmostEqual(n_bar2, 0.028818433207702, places=4)
+
+		x3 = 7
+		a3 = 9
+		b3 = 0.5
+		n3, n_bar3 = loss_functions.continuous_second_loss(x3, gamma(a3, scale=b3))
+		self.assertAlmostEqual(n3, 0.050685800735730, places=4)
+		self.assertAlmostEqual(n_bar3, 4.199314199264270, places=4)
 
 
 class TestPoissonLoss(unittest.TestCase):
@@ -592,7 +669,7 @@ class TestPoissonSecondLoss(unittest.TestCase):
 
 	def test(self):
 		"""Test that poisson_second_loss function correctly calculates n and n_bar for
-		a few instances.
+		a few instances. Also test against discrete_second_loss().
 		"""
 		print_status('TestPoissonSecondLoss', 'test()')
 
@@ -601,18 +678,27 @@ class TestPoissonSecondLoss(unittest.TestCase):
 		n1, n_bar1 = loss_functions.poisson_second_loss(x1, mean1)
 		self.assertAlmostEqual(n1, 0.848340302917794)
 		self.assertAlmostEqual(n_bar1, 12.651659697082206)
+		n1a, n_bar1a = loss_functions.discrete_second_loss(x1, poisson(mean1))
+		self.assertAlmostEqual(n1, n1a)
+		self.assertAlmostEqual(n_bar1, n_bar1a)
 
 		x2 = 5
 		mean2 = 7
 		n2, n_bar2 = loss_functions.poisson_second_loss(x2, mean2)
 		self.assertAlmostEqual(n2, 4.040829435261403)
 		self.assertAlmostEqual(n_bar2, 0.459170564738597)
+		n2a, n_bar2a = loss_functions.discrete_second_loss(x2, poisson(mean2))
+		self.assertAlmostEqual(n2, n2a)
+		self.assertAlmostEqual(n_bar2, n_bar2a)
 
 		x3 = 50
 		mean3 = 47
 		n3, n_bar3 = loss_functions.poisson_second_loss(x3, mean3)
 		self.assertAlmostEqual(n3, 5.192979532973098)
 		self.assertAlmostEqual(n_bar3, 24.307020467026899)
+		n3a, n_bar3a = loss_functions.discrete_second_loss(x3, poisson(mean3))
+		self.assertAlmostEqual(n3, n3a)
+		self.assertAlmostEqual(n_bar3, n_bar3a)
 
 	def test_non_integer(self):
 		"""Test that poisson_second_loss function raises exception on non-integer x.
@@ -635,6 +721,68 @@ class TestPoissonSecondLoss(unittest.TestCase):
 			n, n_bar = loss_functions.poisson_second_loss(x, mean)
 
 
+class TestGeometricLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestGeometricLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGeometricLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that geometric_loss function correctly calculates n and n_bar for
+		a few instances.
+		"""
+		print_status('TestGeometricLoss', 'test()')
+
+		x = 5
+		p = 0.2
+		n, n_bar = loss_functions.geometric_loss(x, p)
+		n_a, n_bar_a = loss_functions.discrete_loss(x, geom(p))
+		self.assertAlmostEqual(n, n_a)
+		self.assertAlmostEqual(n_bar, n_bar_a)
+
+		x = 15
+		p = 0.1
+		n, n_bar = loss_functions.geometric_loss(x, p)
+		n_a, n_bar_a = loss_functions.discrete_loss(x, geom(p))
+		self.assertAlmostEqual(n, n_a)
+		self.assertAlmostEqual(n_bar, n_bar_a)
+
+		x = 2
+		p = 0.8
+		n, n_bar = loss_functions.geometric_loss(x, p)
+		n_a, n_bar_a = loss_functions.discrete_loss(x, geom(p))
+		self.assertAlmostEqual(n, n_a)
+		self.assertAlmostEqual(n_bar, n_bar_a)
+
+	def test_non_integer(self):
+		"""Test that geometric_loss function raises exception on non-integer x.
+		"""
+		print_status('TestGeometricLoss', 'test_non_integer()')
+
+		x = 0.3
+		p = 0.5
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.geometric_loss(x, p)
+
+	def test_non_numeric(self):
+		"""Test that geometric_loss function raises exception on non-numeric x.
+		"""
+		print_status('TestGeometricLoss', 'test_non_numeric()')
+
+		x = "foo"
+		p = 0.5
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.geometric_loss(x, p)
+
+
+# TODO: geometric_second_loss
+
+
 class TestNegativeBinomialLoss(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -648,7 +796,7 @@ class TestNegativeBinomialLoss(unittest.TestCase):
 
 	def test_from_r_p(self):
 		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
-		a few instances when passed r and p as parameters.
+		a few instances when passed r and p as parameters. Also test against discrete_loss().
 		"""
 		print_status('TestNegativeBinomialLoss', 'test_from_r_p()')
 
@@ -785,33 +933,51 @@ class TestNegativeBinomialSecondLoss(unittest.TestCase):
 
 	def test_from_r_p(self):
 		"""Test that negative_binomial_second_loss function correctly calculates n and n_bar for
-		a few instances when passed r and p as parameters.
+		a few instances when passed r and p as parameters. Also test against
+		discrete_second_loss().
 		"""
 		print_status('TestNegativeBinomialSecondLoss', 'test_from_r_p()')
+
+		x1 = 10
+		r1 = 3
+		p1 = 0.2
+		n1, n_bar1 = loss_functions.negative_binomial_second_loss(x1, r1, p1)
+		n1a, n_bar1a = loss_functions.discrete_second_loss(x1, nbinom(r1, p1))
+		self.assertAlmostEqual(n1, n1a, places=4)
+		self.assertAlmostEqual(n_bar1, n_bar1a, places=4)
 
 		x1 = 14
 		r1 = 4
 		p1 = 0.2
 		n1, n_bar1 = loss_functions.negative_binomial_second_loss(x1, r1, p1)
-		n1a, n_bar1a = (30.877804945158992, 11.122195054841001) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		n1a, n_bar1a = (30.877804945158992, 10.122195054841001) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
 		self.assertAlmostEqual(n1, n1a, places=4)
 		self.assertAlmostEqual(n_bar1, n_bar1a, places=4)
+		n1a, n_bar1a = loss_functions.discrete_second_loss(x1, nbinom(r1, p1))
+		self.assertAlmostEqual(n1, n1a)
+		self.assertAlmostEqual(n_bar1, n_bar1a)
 
 		x2 = 14
 		r2 = 10
 		p2 = 0.3
 		n2, n_bar2 = loss_functions.negative_binomial_second_loss(x2, r2, p2)
-		n2a, n_bar2a = (76.585631112912552, 5.858813331531906) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		n2a, n_bar2a = (76.585631112912552, 1.192146664865263) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
 		self.assertAlmostEqual(n2, n2a, places=4)
 		self.assertAlmostEqual(n_bar2, n_bar2a, places=4)
+		n2a, n_bar2a = loss_functions.discrete_second_loss(x2, nbinom(r2, p2))
+		self.assertAlmostEqual(n2, n2a)
+		self.assertAlmostEqual(n_bar2, n_bar2a)
 
 		x3 = 10
 		r3 = 10
 		p3 = 0.4
 		n3, n_bar3 = loss_functions.negative_binomial_second_loss(x3, r3, p3)
-		n3a, n_bar3a = (27.426595183995328, 3.823404816004668) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
+		n3a, n_bar3a = (27.426595183995328, 1.323404816004658) #loss_functions.discrete_loss(x1, nbinom(r1, p1))
 		self.assertAlmostEqual(n3, n3a, places=4)
 	#	self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
+		n3a, n_bar3a = loss_functions.discrete_second_loss(x3, nbinom(r3, p3))
+		self.assertAlmostEqual(n3, n3a)
+		self.assertAlmostEqual(n_bar3, n_bar3a)
 
 	def test_from_mean_sd(self):
 		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
@@ -823,7 +989,7 @@ class TestNegativeBinomialSecondLoss(unittest.TestCase):
 		mean1 = 16
 		sd1 = np.sqrt(80)
 		n1, n_bar1 = loss_functions.negative_binomial_second_loss(x1, mean=mean1, sd=sd1)
-		n1a, n_bar1a = (30.877804945158992, 11.122195054841001)
+		n1a, n_bar1a = (30.877804945158992, 10.122195054841001)
 		self.assertAlmostEqual(n1, n1a, places=4)
 		self.assertAlmostEqual(n_bar1, n_bar1a, places=4)
 
@@ -831,7 +997,7 @@ class TestNegativeBinomialSecondLoss(unittest.TestCase):
 		mean2 = 23.333333333333336
 		sd2 = 8.819171036881968
 		n2, n_bar2 = loss_functions.negative_binomial_second_loss(x2, mean=mean2, sd=sd2)
-		n2a, n_bar2a = (9.799361902620475, 39.978415875157289)
+		n2a, n_bar2a = (9.799361902620475, 42.311749208490880)
 		self.assertAlmostEqual(n2, n2a, places=4)
 		self.assertAlmostEqual(n_bar2, n_bar2a, places=4)
 
@@ -839,7 +1005,7 @@ class TestNegativeBinomialSecondLoss(unittest.TestCase):
 		mean3 = 15
 		sd3 = 6.123724356957944
 		n3, n_bar3 = loss_functions.negative_binomial_second_loss(x3, mean=mean3, sd=sd3)
-		n3a, n_bar3a = (27.426595183995310, 3.823404816004697)
+		n3a, n_bar3a = (27.426595183995310, 1.323404816004658)
 		self.assertAlmostEqual(n3, n3a, places=4)
 		self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
 
@@ -971,6 +1137,87 @@ class TestDiscreteLoss(unittest.TestCase):
 
 		with self.assertRaises(ValueError):
 			n, n_bar = loss_functions.discrete_loss(0, None, None)
+
+
+class TestDiscreteSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDiscreteSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDiscreteSecondLoss', 'tear_down_class()')
+
+	def test_poisson(self):
+		"""Test that discrete_second_loss function correctly calculates n and n_bar
+		for a Poisson distributed instance.
+		"""
+		print_status('TestDiscreteSecondLoss', 'test_poisson()')
+
+		x1 = 220
+		mean1 = 200
+		n1, n_bar1 = loss_functions.discrete_second_loss(x1, poisson(mean1))
+		self.assertAlmostEqual(n1, 2.923100096116592, places=4)
+		self.assertAlmostEqual(n_bar1, 3.070768999038834e+02, places=4)
+
+		x2 = 5
+		mean2 = 7
+		n2, n_bar2 = loss_functions.discrete_second_loss(x2, poisson(mean2))
+		self.assertAlmostEqual(n2, 4.040829435261403, places=4)
+		self.assertAlmostEqual(n_bar2, 0.459170564738597, places=4)
+
+	def test_geometric(self):
+		"""Test that discrete_second_loss function correctly calculates n and n_bar
+		for a geometric distributed instance.
+		"""
+		print_status('TestDiscreteSecondLoss', 'test_geometric()')
+
+		x1 = 5
+		p1 = 0.2
+		# Setting loc=-1 changes geom to "# failures" form.
+		n1, n_bar1 = loss_functions.discrete_second_loss(x1, geom(p1, -1))
+		self.assertAlmostEqual(n1, 5.242879191704128, places=3)
+		self.assertAlmostEqual(n_bar1, 5.757120000000000, places=3)
+
+		x2 = 3
+		p2 = 0.7
+		n2, n_bar2 = loss_functions.discrete_second_loss(x2, geom(p2, -1))
+		self.assertAlmostEqual(n2, 0.004959183673469, places=3)
+		self.assertAlmostEqual(n_bar2, 4.892999999999999, places=3)
+
+	def test_pmf(self):
+		"""Test that discrete_second_loss function correctly calculates n and n_bar
+		if provided with a pmf instead of a distribution object.
+		"""
+		print_status('TestDiscreteSecondLoss', 'test_pmf()')
+
+		d1 = range(1, 11)
+		f1 = [.13, .15, .02, .15, .10, .02, .04, .09, .15, .15]
+		pmf1 = dict(zip(d1, f1))
+		x1 = 6
+		n1, n_bar1 = loss_functions.discrete_second_loss(x1, None, pmf1)
+		self.assertAlmostEqual(n1, 1.44)
+		self.assertAlmostEqual(n_bar1, 4.12)
+
+		d2 = range(0, 41)
+		f2 = [poisson.pmf(d, 7) for d in d2]
+		pmf2 = dict(zip(d2, f2))
+		x2 = 11
+		n2, n_bar2 = loss_functions.discrete_second_loss(x2, None, pmf2)
+		self.assertAlmostEqual(n2, 0.087823519115083)
+		self.assertAlmostEqual(n_bar2, 13.412176480884916)
+
+	def test_no_distrib(self):
+		"""Test that discrete_second_loss function correctly raises exception if
+		both distrib and pmf are None.
+		"""
+		print_status('TestDiscreteSecondLoss', 'test_pmf()')
+
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.discrete_second_loss(0, None, None)
+
 
 
 

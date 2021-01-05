@@ -648,8 +648,8 @@ def continuous_loss(x, distrib):
 		>>> continuous_loss(0.2, my_dist)
 		(0.013533528103402742, 0.11353352830366131)
 
-	(The calculations are slightly different due to differences in the ways the
-	two ``rv_continuous`` generate the distribution.)
+	(The two methods give slightly different results due to differences in the ways the
+	two ``rv_continuous`` objects generate the distribution.)
 
 	"""
 	# Find values lb and ub such that F(lb) ~ 0 and F(ub) ~ 1.
@@ -667,6 +667,97 @@ def continuous_loss(x, distrib):
 #	n_bar = quad(lambda y: distrib.cdf(y), -float("inf"), x)[0]
 
 	return n, n_bar
+
+
+def continuous_second_loss(x, distrib):
+	"""
+	Return second-order loss and complementary loss functions for an arbitrary continuous
+	distribution, using numerical integration.
+
+	TODO: handle distribution supplied as pdf function
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	distrib : rv_continuous
+		Desired distribution.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}(x)`]
+
+
+	**Equations Used** (equations (C.17) and (C.18)):
+
+	.. math::
+
+		n^{(2)}(x) = \\frac12\\int_x^\\infty (y-x)^2 f(y)dy
+
+	.. math::
+
+		n^{(2)}(x) = \\frac12\\int_0^x (x-y)^2 f(y)dy
+
+	**Example**:
+
+	Calculate second-order loss functions for :math:`\\exp(10)` distribution, by declaring a
+	custom ``rv_continuous`` distribution:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest:: # TODO
+
+		>>> from scipy import stats
+		>>> import math
+		>>> class my_exp(stats.rv_continuous):
+		...     def _pdf(self, x):
+		...         if x >= 0:
+		...             return 10 * math.exp(-10 * x)
+		...         else:
+		...             return 0
+		>>> my_dist = my_exp()
+		>>> continuous_second_loss(0.2, my_dist)
+		(0.0013533528323661267, 0.007824431159359786)
+
+	Or by using a "frozen" built-in exponential distribution:
+
+	.. doctest::
+
+		>>> from scipy.stats import expon
+		>>> my_dist = expon(scale=1/10)
+		>>> continuous_second_loss(0.2, my_dist)
+		(0.001353352589297054, 0.008646647165633875)
+
+	(The two methods give slightly different results due to differences in the ways the
+	two ``rv_continuous`` objects generate the distribution.)
+
+	"""
+	# Find values lb and ub such that F(lb) ~ 0 and F(ub) ~ 1.
+	# (These will be the ranges for integration.)
+	lb = distrib.ppf(1.0e-10)
+	ub = distrib.ppf(1.0 - 1.0e-10)
+
+	# Find E[X] and Var[X].
+#	E, V = distrib.stats(moments='mv')
+
+	# TODO: allow different methods of computation
+
+	# Calculate loss functions.
+	n2 = 0.5 * distrib.expect(lambda y: max(y - x, 0)**2, lb=x, ub=ub)
+	n2_bar = 0.5 * distrib.expect(lambda y: max(x - y, 0)**2, lb=lb, ub=x)
+	#n2_bar = 0.5 * ((x - E)**2 + V) - n2
+
+	# Original version; the new version seems to be more accurate (and maybe
+	# faster).
+#	n = quad(lambda y: 1 - distrib.cdf(y), x, float("inf"))[0]
+#	n_bar = quad(lambda y: distrib.cdf(y), -float("inf"), x)[0]
+
+	return n2, n2_bar
 
 
 # TODO: continuous and discrete 2nd loss
@@ -799,6 +890,154 @@ def poisson_second_loss(x, mean):
 	return n2, n2_bar
 
 
+def geometric_loss(x, p):
+	"""
+	Return geometric loss and complementary loss functions for :math:`\\text{Geom}` (``p``)
+	distribution. Uses the "number of trials" version of the geometric distribution,
+	i.e., the pmf is
+
+	.. math::
+
+		f(x) = (1-p)^{x-1}p
+
+	(This is the same version of the distribution used by scipy.)
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	p : float
+		Success probability for geometric distribution.
+
+	Returns
+	-------
+	n : int
+		Loss function. [:math:`n(x)`]
+	n_bar : float
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not an integer.
+
+
+	**Equations Used** (Zipkin (2000), Section C.2.3.5, and (C.14)):
+
+	.. math::
+
+		n(x) = \\left(\\frac{1-p}{p}\\right)(1-p)^{x-1}
+
+	.. math::
+
+		\\bar{n}(x) = x - E[X] + n(x)
+
+	(Note that Zipkin (2000) uses the "number of failures" version of the
+	geometric distribution and uses :math:`p` to refer to the failure probability rather
+	than the success probability. The notation has been adjusted to account for
+	the version we use here.)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> geometric_loss(7, 0.2)
+		(1.0485760000000004, 3.0485760000000006)
+	"""
+	# Check for integer x.
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
+
+	# Calculate E[X].
+	E = 1.0 / p
+
+	n = ((1 - p) / p) * (1 - p)**(x-1)
+	n_bar = x - E + n
+
+	return n, n_bar
+
+
+def geometric_second_loss(x, p):
+	"""
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	geometric loss function and complementary second-order loss function for a :math:`\\text{Geom}` (``p``)
+	distribution. Uses the "number of trials" version of the geometric distribution,
+	i.e., the pmf is
+
+	.. math::
+
+		f(x) = (1-p)^{x-1}p
+
+	(This is the same version of the distribution used by scipy.)
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	p : float
+		Success probability for geometric distribution.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not an integer.
+
+
+	**Equations Used** (Zipkin (2000), Section C.2.3.5, and (C.19)):
+
+	.. math::
+
+		n^{(2)}(x) = \\left(\\frac{1-p}{p}\\right)^2 (1-p)^{x-1}
+
+	.. math::
+
+		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+	(Note that Zipkin (2000) uses the "number of failures" version of the
+	geometric distribution and uses :math:`p` to refer to the failure probability rather
+	than the success probability. The notation has been adjusted to account for
+	the version we use here.)
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> geometric_second_loss(7, 0.2)
+		(4.194304000000002, 7.805695999999997)
+	"""
+	# Check for integer x.
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
+
+	# Calculate f(x) and F(x).
+	E = 1.0 / p
+	V = (1.0 - p) / p**2
+
+	n2 = ((1 - p) / p)**2 * (1 - p)**(x - 1)
+	n2_bar = 0.5 * ((x - E)**2 + V) - n2
+
+	return n2, n2_bar
+
+	# TODO: unit tests
+
+
 def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 	"""
 	Return negative binomial (NB) loss and complementary loss functions for NB
@@ -866,6 +1105,9 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 
 		\\bar{n}(x) = x - E[X] + n(x)
 
+	(Note that Zipkin (2000) uses a different version of the negative-binomial distribution.
+	The notation has been adjusted to account for the version we use here.)
+
 
 	**Example**:
 
@@ -925,7 +1167,7 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 
 	.. math::
 
-		f(x) = \\choose{x+r-1}{r-1}p^r(1-p)^x
+		f(x) = {x+r-1 \\choose r-1}p^r(1-p)^x
 
 	(See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html.)
 
@@ -983,7 +1225,10 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 
 	.. math::
 
-		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + (x-E[X]) + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+	(Note that Zipkin (2000) uses a different version of the negative-binomial distribution.
+	The notation has been adjusted to account for the version we use here.)
 
 
 	**Example**:
@@ -995,9 +1240,9 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 	.. doctest::
 
 		>>> negative_binomial_second_loss(14, 4, 0.2)
-		(30.877804945158942, 11.122195054841043)
+		(30.877804945158942, 10.122195054841043)
 		>>> negative_binomial_second_loss(14, mean=23, sd=8)
-		(67.10108087745225, 5.398919122547753)
+		(67.10108087745225, 0.8989191225477526)
 
 	"""
 	# Check for integer x.
@@ -1028,7 +1273,7 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 
 	n = 0.5 * ((r * (r + 1) * beta**2 - 2 * r * beta * x + x * (x + 1)) * (1 - F) \
 		+ ((r + 1) * beta - x) * (x + r) * beta * f)
-	n_bar = 0.5 * ((x - mean)**2 + sd**2) - n
+	n_bar = 0.5 * ((x - mean)**2 + (x - mean) + sd**2) - n
 
 	return n, n_bar
 
@@ -1142,6 +1387,113 @@ def discrete_loss(x, distrib=None, pmf=None):
 
 	return n, n_bar
 
+
+def discrete_second_loss(x, distrib=None, pmf=None):
+	"""
+	Return second-order loss and complementary loss function for an arbitrary discrete
+	distribution.
+
+	Must provide either ``rv_discrete`` distribution (in ``distrib``) or
+	demand pmf (in ``pmf``, as a ``dict``).
+
+	Assumes the random variable cannot take negative values; i.e.,
+	:math:`F(x) = 0` for :math:`x < 0` (where :math:`F(\\cdot)` is the cdf).
+
+	Parameters
+	----------
+	x : int
+		Argument of loss function.
+	distrib : rv_discrete, optional
+		Desired distribution.
+	pmf : dict, optional
+		pmf, as a dict in which keys are the support of the distribution and
+		values are their probabilities. Ignored if distrib is not ``None``.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not an integer.
+	ValueError
+		If ``distrib`` and ``pmf`` are both ``None``.
+
+
+	**Equations Used** (equations (C.38)-(C.40)):
+
+	.. math::
+
+		n^{(2)}(x) = \\frac12\\sum_{y=x}^\infty (y-x)(y-x-1)f(y) = \\sum_{y=x}^\\infty (y-x)(1-F(y))
+
+		\\bar{n}^{(2)}(x) = \\frac12\\sum_{y=0}^x (x-y)(x+1-y)f(y) = \\sum_{y=0}^x (x-y)F(y)
+
+	.. math::
+
+		\\bar{n}^{(2)}(x) = \\frac12\\left(\\left(x - E[X]\\right)^2 + (x - E[X]) + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+	**Example**:
+
+	Calculate loss function for :math:`\\text{geom}(0.2)` distribution, by declaring a
+	custom ``rv_discrete`` distribution:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+		# TODO: why isn't this working??!?
+
+	.. doctest::
+
+		>>> from scipy import stats
+		>>> class my_geom(stats.rv_discrete):
+		...     def _pmf(self, x):
+		...         return np.where(x >= 1, ((1 - 0.2) ** (x - 1)) * 0.2, 0)
+		>>> my_dist = my_geom()
+		>>> discrete_loss(4, my_dist)
+		(2.0479999999999743, 1.048)
+
+	Or by using a "frozen" built-in exponential distribution:
+
+	.. doctest::
+
+		>>> from scipy.stats import geom
+		>>> my_dist = geom(0.2)
+		>>> discrete_loss(4, my_dist)
+		(2.048, 1.048)
+	"""
+	# Check for integer x.
+	if not is_integer(x):
+		raise ValueError("x must be an integer")
+
+	# Check that either distribution or pmf have been supplied.
+	if (distrib is None) and (pmf is None):
+		raise ValueError("must provide distrib or pmf")
+
+	if distrib is not None:
+		# rv_discrete object has been provided.
+
+		# Calculate E[X] and Var[x].
+		E, V = distrib.stats(moments='mv')
+
+		# Calculate loss functions.
+		n2_bar = np.dot([np.subtract(x, range(int(x)))], distrib.cdf(range(int(x))))
+		n2 = 0.5 * ((x - E)**2 + (x - E) + V) - n2_bar
+
+	else:
+		# pmf dict has been provided.
+		x_values = list(pmf.keys())
+		x_values.sort()
+		# TODO: vectorize this
+		n2 = 0.5 * np.sum([(y - x) * (y - x - 1) * pmf[y] for y in x_values if y >= x])
+		n2_bar = 0.5 * np.sum([(x - y) * (x + 1 - y) * pmf[y] for y in x_values if y <= x])
+
+	# .item() removes singleton from ndarray.
+	return n2.item(), n2_bar.item()
 
 
 
