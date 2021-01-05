@@ -313,6 +313,9 @@ def lognormal_loss(x, mu, sigma):
 	return n, n_bar
 
 
+# TODO: lognormal second loss
+
+
 def exponential_loss(x, mu):
 	"""
 	Return exponential loss and complementary loss functions for :math:`\\text{exp}(\\mu)`
@@ -585,6 +588,124 @@ def gamma_second_loss(x, a, b):
 	return n, n_bar
 
 
+def uniform_loss(x, a, b):
+	"""
+	Return uniform loss and complementary loss functions for a continuous :math:`U[a,b]`
+	distribution.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	a : float
+		Lower bound of uniform distribution.
+	b : float
+		Upper bound of uniform distribution.
+
+	Returns
+	-------
+	n : float
+		Loss function. [:math:`n(x)`]
+	n_bar : float
+		Complementary loss function. [:math:`\\bar{n}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` < ``a`` or > ``b``.
+		# TODO: actually this is OK, just figure out what function equals in this case
+
+
+	**Equations Used:**
+
+	.. math::
+
+		n(x) = \\frac{(b-x)^2}{2(b-a)}
+
+		\\bar{n}(x) = \\frac{(x-a)^2}{2(b-a)}
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> uniform_loss(4, 2, 3)
+		(2.635971381157268, 0.635971381157268)
+	"""
+	# Check that a <= x <= b.
+	if x < a or x > b:
+		raise ValueError("x must be >= a and <= b.")
+
+	n = (b - x)**2 / (2 * (b - a))
+	n_bar = (x - a)**2 / (2 * (b - a))
+
+	return n, n_bar
+
+
+def uniform_second_loss(x, a, b):
+	"""
+	Return :math:`n^{(2)}(x)` and :math:`\\bar{n}^{(2)}(x)``, the second-order
+	loss and complementary loss functions for a
+	:math:`U[a,b]` distribution.
+
+	Parameters
+	----------
+	x : float
+		Argument of loss function.
+	a : float
+		Lower bound of uniform distribution.
+	b : float
+		Upper bound of uniform distribution.
+
+	Returns
+	-------
+	n2 : float
+		Second-order loss function. [:math:`n^{(2)}(x)`]
+	n2_bar : float
+		Complementary second-order loss function. [:math:`\\bar{n}^{(n)}(x)`]
+
+	Raises
+	------
+	ValueError
+		If ``x`` < ``a`` or > ``b``.
+		# TODO: actually this is OK, just figure out what function equals in this case
+
+
+	**Equations Used:**
+
+	.. math::
+
+		n^{(2)}(x) = \\frac{(b-x)^3}{6(b-a)}
+
+		\\bar{n}^{(2)}(x) = \\frac{(x-a)^3}{6(b-a)}
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.loss_functions import *
+
+	.. doctest::
+
+		>>> uniform_second_loss(4, 2, 3)
+		(10.280288386513346, 0.7197116134866537)
+
+	"""
+	# Check that a <= x <= b.
+	if x < a or x > b:
+		raise ValueError("x must be >= a and <= b.")
+
+	n2 = (b - x)**3 / (6 * (b - a))
+	n2_bar = (x - a)**3 / (6 * (b - a))
+
+	return n2, n2_bar
+
+
 def continuous_loss(x, distrib):
 	"""
 	Return loss and complementary loss functions for an arbitrary continuous
@@ -758,9 +879,6 @@ def continuous_second_loss(x, distrib):
 #	n_bar = quad(lambda y: distrib.cdf(y), -float("inf"), x)[0]
 
 	return n2, n2_bar
-
-
-# TODO: continuous and discrete 2nd loss
 
 
 ####################################################
@@ -995,7 +1113,7 @@ def geometric_second_loss(x, p):
 		If ``x`` is not an integer.
 
 
-	**Equations Used** (Zipkin (2000), Section C.2.3.5, and (C.19)):
+	**Equations Used** (Zipkin (2000), Section C.2.3.5, and (C.40)):
 
 	.. math::
 
@@ -1003,7 +1121,7 @@ def geometric_second_loss(x, p):
 
 	.. math::
 
-		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + (x-E[X]) + \\text{Var}[X]\\right) - n^{(2)}(x)
 
 	(Note that Zipkin (2000) uses the "number of failures" version of the
 	geometric distribution and uses :math:`p` to refer to the failure probability rather
@@ -1031,11 +1149,9 @@ def geometric_second_loss(x, p):
 	V = (1.0 - p) / p**2
 
 	n2 = ((1 - p) / p)**2 * (1 - p)**(x - 1)
-	n2_bar = 0.5 * ((x - E)**2 + V) - n2
+	n2_bar = 0.5 * ((x - E)**2 + (x - E) + V) - n2
 
 	return n2, n2_bar
-
-	# TODO: unit tests
 
 
 def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
@@ -1214,7 +1330,7 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 		If ``mean`` is not less than ``sd ** 2``.
 
 
-	**Equations Used** (Zipkin (2000), Section C.2.3.6, and (C.19)):
+	**Equations Used** (Zipkin (2000), Section C.2.3.6, and (C.40)):
 
 	.. math::
 

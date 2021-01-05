@@ -8,6 +8,7 @@ from scipy.stats import geom
 from scipy.stats import expon
 from scipy.stats import gamma
 from scipy.stats import nbinom
+from scipy.stats import uniform
 
 from pyinv import loss_functions
 
@@ -101,7 +102,6 @@ class TestStandardNormalSecondLoss(unittest.TestCase):
 		L2a, L2a_bar = loss_functions.continuous_second_loss(z, norm())
 		self.assertAlmostEqual(L2, L2a)
 		self.assertAlmostEqual(L2_bar, L2a_bar)
-
 
 
 class TestNormalLoss(unittest.TestCase):
@@ -410,8 +410,8 @@ class TestGammaLoss(unittest.TestCase):
 		self.assertAlmostEqual(n_bar3a, 2.557910792089881)
 
 	def test_negative_x(self):
-		"""Test that exponential_loss correctly raises exception if x < 0."""
-		print_status('TestExponentialLoss', 'test_negative_x()')
+		"""Test that gamma_loss() correctly raises exception if x < 0."""
+		print_status('TestGammaLoss', 'test_negative_x()')
 
 		x = -2
 		a = 2
@@ -484,6 +484,112 @@ class TestGammaSecondLoss(unittest.TestCase):
 		b = 1
 		with self.assertRaises(ValueError):
 			n, n_bar = loss_functions.gamma_second_loss(x, a, b)
+
+
+class TestUniformLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestUniformLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestUniformLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that uniform_loss() function correctly calculates n and n_bar for
+		a few instances by comparing against continuous_loss().
+		"""
+		print_status('TestUniformLoss', 'test()')
+
+		x = 4
+		a = 2
+		b = 12
+		n, n_bar = loss_functions.uniform_loss(x, a, b)
+		na, na_bar = loss_functions.continuous_loss(x, uniform(a, b-a))
+		self.assertAlmostEqual(n, na)
+		self.assertAlmostEqual(n_bar, na_bar)
+
+		x = 0.3
+		a = 0
+		b = 1
+		n, n_bar = loss_functions.uniform_loss(x, a, b)
+		na, na_bar = loss_functions.continuous_loss(x, uniform(a, b-a))
+		self.assertAlmostEqual(n, na)
+		self.assertAlmostEqual(n_bar, na_bar)
+
+		x = -3
+		a = -5
+		b = 12
+		n, n_bar = loss_functions.uniform_loss(x, a, b)
+		na, na_bar = loss_functions.continuous_loss(x, uniform(a, b-a))
+		self.assertAlmostEqual(n, na)
+		self.assertAlmostEqual(n_bar, na_bar)
+
+	def test_bad_x(self):
+		"""Test that uniform_loss() correctly raises exception if x < a or > b."""
+		print_status('TestUniformLoss', 'test_negative_x()')
+
+		a = 1
+		b = 5
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.uniform_loss(0.5, a, b)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.uniform_loss(7, a, b)
+
+
+class TestUniformSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestUniformSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestUniformSecondLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that uniform_second_loss() function correctly calculates n and n_bar for
+		a few instances by comparing against continuous_second_loss().
+		"""
+		print_status('TestUniformSecondLoss', 'test()')
+
+		x = 4
+		a = 2
+		b = 12
+		n, n_bar = loss_functions.uniform_second_loss(x, a, b)
+		na, na_bar = loss_functions.continuous_second_loss(x, uniform(a, b-a))
+		self.assertAlmostEqual(n, na)
+		self.assertAlmostEqual(n_bar, na_bar)
+
+		x = 0.3
+		a = 0
+		b = 1
+		n, n_bar = loss_functions.uniform_second_loss(x, a, b)
+		na, na_bar = loss_functions.continuous_second_loss(x, uniform(a, b-a))
+		self.assertAlmostEqual(n, na)
+		self.assertAlmostEqual(n_bar, na_bar)
+
+		x = -3
+		a = -5
+		b = 12
+		n, n_bar = loss_functions.uniform_second_loss(x, a, b)
+		na, na_bar = loss_functions.continuous_second_loss(x, uniform(a, b-a))
+		self.assertAlmostEqual(n, na)
+		self.assertAlmostEqual(n_bar, na_bar)
+
+	def test_bad_x(self):
+		"""Test that uniform_second_loss() correctly raises exception if x < a or > b."""
+		print_status('TestUniformSecondLoss', 'test_negative_x()')
+
+		a = 1
+		b = 5
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.uniform_second_loss(0.5, a, b)
+		with self.assertRaises(ValueError):
+			n, n_bar = loss_functions.uniform_second_loss(7, a, b)
 
 
 class TestContinuousLoss(unittest.TestCase):
@@ -734,7 +840,7 @@ class TestGeometricLoss(unittest.TestCase):
 
 	def test(self):
 		"""Test that geometric_loss function correctly calculates n and n_bar for
-		a few instances.
+		a few instances by testing against discrete_loss().
 		"""
 		print_status('TestGeometricLoss', 'test()')
 
@@ -780,7 +886,63 @@ class TestGeometricLoss(unittest.TestCase):
 			n, n_bar = loss_functions.geometric_loss(x, p)
 
 
-# TODO: geometric_second_loss
+class TestGeometricSecondLoss(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestGeometricSecondLoss', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGeometricSecondLoss', 'tear_down_class()')
+
+	def test(self):
+		"""Test that geometric_second_loss function correctly calculates n and n_bar for
+		a few instances by testing against discrete_second_loss().
+		"""
+		print_status('TestGeometricSecondLoss', 'test()')
+
+		x = 5
+		p = 0.2
+		n2, n2_bar = loss_functions.geometric_second_loss(x, p)
+		n2_a, n2_bar_a = loss_functions.discrete_second_loss(x, geom(p))
+		self.assertAlmostEqual(n2, n2_a)
+		self.assertAlmostEqual(n2_bar, n2_bar_a)
+
+		x = 15
+		p = 0.1
+		n2, n2_bar = loss_functions.geometric_second_loss(x, p)
+		n2_a, n2_bar_a = loss_functions.discrete_second_loss(x, geom(p))
+		self.assertAlmostEqual(n2, n2_a)
+		self.assertAlmostEqual(n2_bar, n2_bar_a)
+
+		x = 2
+		p = 0.8
+		n2, n2_bar = loss_functions.geometric_second_loss(x, p)
+		n2_a, n2_bar_a = loss_functions.discrete_second_loss(x, geom(p))
+		self.assertAlmostEqual(n2, n2_a)
+		self.assertAlmostEqual(n2_bar, n2_bar_a)
+
+	def test_non_integer(self):
+		"""Test that geometric_second_loss function raises exception on non-integer x.
+		"""
+		print_status('TestGeometricSecondLoss', 'test_non_integer()')
+
+		x = 0.3
+		p = 0.5
+		with self.assertRaises(ValueError):
+			n2, n2_bar = loss_functions.geometric_second_loss(x, p)
+
+	def test_non_numeric(self):
+		"""Test that geometric_second_loss function raises exception on non-numeric x.
+		"""
+		print_status('TestGeometricSecondLoss', 'test_non_numeric()')
+
+		x = "foo"
+		p = 0.5
+		with self.assertRaises(ValueError):
+			n2, n2_bar = loss_functions.geometric_second_loss(x, p)
 
 
 class TestNegativeBinomialLoss(unittest.TestCase):
