@@ -147,6 +147,14 @@ def get_named_instance(instance_name):
 		demand_mean = 50
 		demand_sd = 8
 		return holding_cost, stockout_cost, demand_mean, demand_sd
+	elif instance_name == "example_4_2":
+		# Example 4.2 (newsvendor explicit).
+		selling_revenue = 1
+		purchase_cost = 0.3
+		salvage_value = 0.12
+		demand_mean = 50
+		demand_sd = 8
+		return selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd
 	elif instance_name == "example_4_3":
 		# Example 4.3 (= Example 4.1).
 		return get_named_instance("example_4_1")
@@ -157,6 +165,14 @@ def get_named_instance(instance_name):
 		demand_mean = 900
 		demand_sd = 60
 		return holding_cost, stockout_cost, demand_mean, demand_sd
+	elif instance_name == "problem_4_3b":
+		# Problem 4.3(b) (newsvendor explicit -- In-Flight Meals).
+		selling_revenue = 7
+		purchase_cost = 2.5
+		salvage_value = 1.5
+		demand_mean = 50
+		demand_sd = 10
+		return selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd
 	elif instance_name == "example_4_4":
 		# Example 4.4.
 		holding_cost = 0.18

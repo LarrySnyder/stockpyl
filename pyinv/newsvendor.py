@@ -863,9 +863,12 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	problem with normal distribution, or (if ``base_stock_level`` is supplied)
 	calculate profit of given solution.
 
+	Assumes ``salvage_value`` < ``purchase_cost`` < ``selling_revenue``
+	(otherwise the solution is not well-defined).
+
 	Parameters
 	----------
-	sales_revenue : float
+	selling_revenue : float
 		Revenue per unit sold. [:math:`r`]
 	purchase_cost : float
 		Cost per unit purchased. [:math:`c`]
@@ -884,7 +887,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	lead_time : int, optional
 		Lead time. Default = 0. [:math:`L`]
 	base_stock_level : float, optional
-		Base-stock level for cost evaluation. If supplied, no
+		Base-stock level for profit evaluation. If supplied, no
 		optimization will be performed. [:math:`S`]
 
 	Returns
@@ -892,7 +895,16 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	base_stock_level : float
 		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
 	profit : float
-		Profit per period attained by ``base_stock_level``. [:math:`\pi^*`]
+		Profit per period attained by ``base_stock_level``. [:math:`\\pi^*`]
+
+	Raises
+	------
+	ValueError
+		If ``r`` < ``c`` or ``c`` < ``v``.
+	ValueError
+		If ``h`` < 0 or ``p`` < 0.
+	ValueError
+		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
 
 	**Equations Used**:
@@ -901,12 +913,15 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 
 		S^* = \\mu + z_{\\alpha}\\sigma
 
-		g^* = (h+p)\phi(z_{\\alpha})\\sigma
+		\\pi^* = (r-c)\\mu - (r-v+h+p)\phi(z_{\\alpha})\\sigma
+
+		\\pi(S) = (r-c+p)S - p\\mu + (v-r-h-p)\\bar{n}(S),
 
 	where :math:`\\mu` and :math:`\\sigma` are the lead-time demand mean
-	and standard deviation, and :math:`\\alpha = p/(h+p)`.
+	and standard deviation, :math:`\\alpha = (p+r-c)/(h+p+r-v)`,
+	and :math:`\\bar{n}(\\cdot)` is the normal complementary loss function.
 
-	**Example** (Example 4.3):
+	**Example** (Example 4.2):
 
 	.. testsetup:: *
 
@@ -920,10 +935,12 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	"""
 
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
+	assert holding_cost >= 0, "holding_cost must be non-negative."
+	assert stockout_cost >= 0, "stockout_cost must be non-negative."
 	assert demand_mean > 0, "mean must be positive."
 	assert demand_sd > 0, "demand_sd must be positive."
+	assert selling_revenue > purchase_cost, "selling_revenue must be > purchase_cost"
+	assert purchase_cost > salvage_value, "purchase_cost must be > salvage_value"
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -932,18 +949,23 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	# Is S provided?
 	if base_stock_level is None:
 		# Calculate alpha.
-		alpha = stockout_cost / (stockout_cost + holding_cost)
+		alpha = (stockout_cost + selling_revenue - purchase_cost) \
+				/ (stockout_cost + holding_cost + selling_revenue - salvage_value)
 
 		# Calculate optimal order quantity and cost.
 		base_stock_level = stats.norm.ppf(alpha, ltd_mean, ltd_sd)
-		cost = (holding_cost + stockout_cost) * stats.norm.pdf(stats.norm.ppf(alpha, 0, 1)) * ltd_sd
+		profit = (selling_revenue - purchase_cost) * ltd_mean \
+			- (selling_revenue - salvage_value + holding_cost + stockout_cost) \
+			   * stats.norm.pdf(stats.norm.ppf(alpha, 0, 1)) * ltd_sd
 	else:
 		# Calculate loss functions.
-		n, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
+		_, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
 
-		# Calculate cost.
-		cost = holding_cost * n_bar + stockout_cost * n
+		# Calculate profit.
+		profit = (selling_revenue - purchase_cost + stockout_cost) * base_stock_level \
+			- stockout_cost * ltd_mean \
+			+ (salvage_value - selling_revenue - holding_cost - stockout_cost) * n_bar
 
-	return base_stock_level, cost
+	return base_stock_level, profit
 
 

@@ -845,3 +845,94 @@ class TestSetMyopicCostTo(unittest.TestCase):
 															 discount_factor,
 															 False)
 
+
+class TestNewsvendorNormalExplicit(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorNormalExplicit', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorNormalExplicit', 'tear_down_class()')
+
+	def test_example_4_2(self):
+		"""Test that newsvendor_normal function correctly solves Example 4.2.
+		"""
+		print_status('TestNewsvendorNormalExplicit', 'test_example_4_2()')
+
+		selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd \
+			= get_named_instance("example_4_2")
+
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd)
+		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
+		self.assertAlmostEqual(profit, 33.002394806823354)
+
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd, \
+									base_stock_level=40)
+		self.assertAlmostEqual(base_stock_level, 40)
+		self.assertAlmostEqual(profit, 27.643868447129613)
+
+	def test_problem_4_3b(self):
+		"""Test that newsvendor_normal function correctly solves Problem 4.3(b).
+		"""
+		print_status('TestNewsvendorNormalExplicit', 'test_problem_4_3b()')
+
+		selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd \
+			= get_named_instance("problem_4_3b")
+
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd)
+		self.assertAlmostEqual(base_stock_level, 59.084578685373856)
+		self.assertAlmostEqual(profit, 2.104768082523147e+02)
+
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd, \
+									base_stock_level=62)
+		self.assertAlmostEqual(base_stock_level, 62)
+		self.assertAlmostEqual(profit, 2.099143652105560e+02)
+
+		# Add a holding and stockout cost, and test again.
+		holding_cost = 1
+		stockout_cost = 5
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+									purchase_cost, salvage_value, holding_cost, stockout_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(base_stock_level, 59.388143168769034)
+		self.assertAlmostEqual(profit, 1.954729310431908e+02)
+
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+									purchase_cost, salvage_value, holding_cost, stockout_cost, demand_mean, demand_sd, \
+									base_stock_level=62)
+		self.assertAlmostEqual(base_stock_level, 62)
+		self.assertAlmostEqual(profit, 1.945482181675262e+02)
+
+	def test_bad_type(self):
+		"""Test that newsvendor_normal_explicit function raises exception on bad type.
+		"""
+		print_status('TestNewsvendorNormalExplicit', 'test_bad_type()')
+
+		selling_revenue = "taco"
+		purchase_cost = 0.3
+		salvage_value = 0.12
+		demand_mean = 50
+		demand_sd = 8
+		with self.assertRaises(TypeError):
+			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
+				salvage_value, 0, 0, demand_mean, demand_sd)
+
+	def test_negative_parameter(self):
+		"""Test that newsvendor_normal_explicit function raises exception on negative parameter.
+		"""
+		print_status('TestNewsvendorNormalExplicit', 'test_negative_parameter()')
+
+		selling_revenue = -4
+		purchase_cost = 0.3
+		salvage_value = 0.12
+		demand_mean = 50
+		demand_sd = 8
+		with self.assertRaises(AssertionError):
+			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
+				salvage_value, 0, 0, demand_mean, demand_sd)
