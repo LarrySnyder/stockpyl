@@ -13,5 +13,6 @@ API Documentation
     finite_horizon
     sim
     loss_functions
+    supply_uncertainty
 
 

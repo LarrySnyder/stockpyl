@@ -18,7 +18,6 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 """
 
-# TODO: add explicit formulation
 
 from scipy import stats
 from scipy.optimize import brentq
@@ -866,6 +865,8 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	Assumes ``salvage_value`` < ``purchase_cost`` < ``selling_revenue``
 	(otherwise the solution is not well-defined).
 
+	# TODO: handle non-normal demand
+
 	Parameters
 	----------
 	selling_revenue : float
@@ -929,8 +930,8 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 
 	.. doctest::
 
-		>>> newsvendor_normal(0.18, 0.70, 50, 8)
-		(56.60395592743389, 1.9976051931766445)
+		>>> newsvendor_normal_explicit(1, 0.3, 0.12, 0, 0, 50, 8)
+		(56.60395592743389, 33.002394806823354)
 
 	"""
 

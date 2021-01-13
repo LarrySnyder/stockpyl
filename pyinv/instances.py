@@ -393,6 +393,26 @@ def get_named_instance(instance_name):
 		)
 		return problem_6_16_network
 
+	# CHAPTER 9
+	if instance_name == "example_9_1":
+		# Example 9.1.
+		holding_cost = 0.225
+		stockout_cost = 5
+		fixed_cost = 8
+		demand_rate = 1300
+		disruption_rate = 1.5
+		recovery_rate = 14
+		return holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate
+	if instance_name == "problem_9_8":
+		# Problem 9.8.
+		holding_cost = 4
+		stockout_cost = 22
+		fixed_cost = 35
+		demand_rate = 30
+		disruption_rate = 1
+		recovery_rate = 12
+		return holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate
+
 	# INSTANCES NOT FROM TEXTBOOK
 	if instance_name == "assembly_3_stage":
 		assembly_3_stage_network = mwor_system(

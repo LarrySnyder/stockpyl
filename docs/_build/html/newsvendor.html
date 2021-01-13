@@ -92,6 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -478,12 +479,15 @@ loss and complementary loss functions.</p>
 <dd><p>Solve the “explicit”, profit-maximization version of the newsvendor
 problem with normal distribution, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied)
 calculate profit of given solution.</p>
+<p>Assumes <code class="docutils literal notranslate"><span class="pre">salvage_value</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">selling_revenue</span></code>
+(otherwise the solution is not well-defined).</p>
+<p># TODO: handle non-normal demand</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sales_revenue</strong> (<em>float</em>) – Revenue per unit sold. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>selling_revenue</strong> (<em>float</em>) – Revenue per unit sold. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
 <li><strong>purchase_cost</strong> (<em>float</em>) – Cost per unit purchased. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
 <li><strong>salvage_value</strong> (<em>float</em>) – Revenue per unit unsold. [<span class="math notranslate nohighlight">\(v\)</span>]</li>
 <li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period, excluding costs and revenues from
@@ -493,28 +497,36 @@ buying, selling, or salvaging items. [<span class="math notranslate nohighlight"
 <li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
 <li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
 <li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for profit evaluation. If supplied, no
 optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
 <li><strong>profit</strong> (<em>float</em>) – Profit per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(\pi^*\)</span>]</li>
 </ul>
 </p>
 </td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">r</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">c</span></code> or <code class="docutils literal notranslate"><span class="pre">c</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">v</span></code>.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt; 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt; 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Equations Used</strong>:</p>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = \mu + z_{\alpha}\sigma\\g^* = (h+p)\phi(z_{\alpha})\sigma\end{aligned}\end{align} \]</div>
+\[ \begin{align}\begin{aligned}S^* = \mu + z_{\alpha}\sigma\\\pi^* = (r-c)\mu - (r-v+h+p)\phi(z_{\alpha})\sigma\\\pi(S) = (r-c+p)S - p\mu + (v-r-h-p)\bar{n}(S),\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> are the lead-time demand mean
-and standard deviation, and <span class="math notranslate nohighlight">\(\alpha = p/(h+p)\)</span>.</p>
-<p><strong>Example</strong> (Example 4.3):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="go">(56.60395592743389, 1.9976051931766445)</span>
+and standard deviation, <span class="math notranslate nohighlight">\(\alpha = (p+r-c)/(h+p+r-v)\)</span>,
+and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> is the normal complementary loss function.</p>
+<p><strong>Example</strong> (Example 4.2):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_explicit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">(56.60395592743389, 33.002394806823354)</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -633,8 +633,8 @@ def uniform_loss(x, a, b):
 
 	.. doctest::
 
-		>>> uniform_loss(4, 2, 3)
-		(2.635971381157268, 0.635971381157268)
+		>>> uniform_loss(4, 2, 8)
+		(1.3333333333333333, 0.3333333333333333)
 	"""
 	# Check that a <= x <= b.
 	if x < a or x > b:
@@ -692,8 +692,8 @@ def uniform_second_loss(x, a, b):
 
 	.. doctest::
 
-		>>> uniform_second_loss(4, 2, 3)
-		(10.280288386513346, 0.7197116134866537)
+		>>> uniform_second_loss(4, 2, 8)
+		(1.7777777777777777, 0.2222222222222222)
 
 	"""
 	# Check that a <= x <= b.
@@ -1138,7 +1138,7 @@ def geometric_second_loss(x, p):
 	.. doctest::
 
 		>>> geometric_second_loss(7, 0.2)
-		(4.194304000000002, 7.805695999999997)
+		(4.194304000000002, 8.805695999999998)
 	"""
 	# Check for integer x.
 	if not is_integer(x):
