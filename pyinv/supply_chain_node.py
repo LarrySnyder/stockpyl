@@ -59,7 +59,7 @@ class SupplyChainNode(object):
 		ending IL. Function should check that IL > 0.
 	in_transit_holding_cost : float
 		Holding cost coefficient used to calculate in-transit holding cost for
-		shipments en route from the node to its downstream succesors, if any.
+		shipments en route from the node to its downstream successors, if any.
 		If in_transit_holding_cost is None, then the stage's local_holding_cost
 		is used. To ignore in-transit holding costs, set in_transit_holding_cost = 0.
 	stockout_cost : float
@@ -68,6 +68,12 @@ class SupplyChainNode(object):
 		Function that calculates stockout cost per period, as a function
 		of ending inventory level. Function must take exactly one argument, the
 		ending IL. Function should check that IL < 0.
+	purchase_cost : float
+		Cost incurred per unit
+	# TODO: purchase cost, salvage value
+	# TODO: does purchase cost live at upstream or downstream node? is it incurred on purhcase or delivery? does it count as revenue at the upstream node?
+	revenue : float
+		Revenue earned per unit of demand met. [r]
 	lead_time : int
 		Shipment lead time. [L]
 	shipment_lead_time : int
@@ -125,6 +131,7 @@ class SupplyChainNode(object):
 		self.in_transit_holding_cost = None
 		self.stockout_cost = 0
 		self.stockout_cost_function = None
+		self.revenue = 0
 		self.shipment_lead_time = 0
 		self.order_lead_time = 0
 		self.demand_source = demand_source.DemandSource()
@@ -494,8 +501,10 @@ class NodeStateVars(object):
 		Stockout cost incurred at the node in the period.
 	in_transit_holding_cost_incurred : float
 		In-transit holding cost incurred at the node in the period.
+	revenue_earned : float
+		Revenue earned at the node in the period.
 	total_cost_incurred : float
-		Total cost incurred at the node in the period.
+		Total cost (less revenue) incurred at the node in the period.
 	demand_met_from_stock : float
 		Demands met from stock at the node in the period.
 	demand_met_from_stock_cumul : float
@@ -577,6 +586,7 @@ class NodeStateVars(object):
 		self.holding_cost_incurred = 0
 		self.stockout_cost_incurred = 0
 		self.in_transit_holding_cost_incurred = 0
+		self.revenue_earned = 0
 		self.total_cost_incurred = 0
 
 		# Fill rate quantities.

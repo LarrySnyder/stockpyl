@@ -30,7 +30,7 @@ from pyinv.helpers import *
 def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 					  lead_time=0, base_stock_level=None):
 	"""Solve the newsvendor problem with normal distribution, or (if
-	``base_stock_level`` is supplied) calculate cost of given solution.
+	``base_stock_level`` is supplied) calculate expected cost of given solution.
 
 	Parameters
 	----------
@@ -53,7 +53,7 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	base_stock_level : float
 		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
 	cost : float
-		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
+		Expected cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
 
 	**Equations Used** (equations (4.24) and (4.30), modified for non-zero

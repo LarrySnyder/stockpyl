@@ -359,7 +359,7 @@ def initialize_next_period_state_vars(network, period):
 
 
 def calculate_period_costs(network, period):
-	"""Calculate costs for one period.
+	"""Calculate costs and revenues for one period.
 
 	Parameters
 	----------
@@ -397,12 +397,17 @@ def calculate_period_costs(network, period):
 			h = n.in_transit_holding_cost
 		n.state_vars[period].in_transit_holding_cost_incurred = \
 			h * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
+		# Revenue.
+		n.state_vars[period].revenue_earned = n.revenue * \
+			np.sum([n.state_vars[period].outbound_shipment[s_index] \
+					for s_index in n.successor_indices(include_external=True)])
 
 		# Total cost.
 		n.state_vars[period].total_cost_incurred = \
 			n.state_vars[period].holding_cost_incurred + \
 			n.state_vars[period].stockout_cost_incurred + \
-			n.state_vars[period].in_transit_holding_cost_incurred
+			n.state_vars[period].in_transit_holding_cost_incurred - \
+			n.state_vars[period].revenue_earned
 
 
 def receive_inbound_shipments(node):

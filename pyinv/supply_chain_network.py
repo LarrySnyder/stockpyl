@@ -233,7 +233,7 @@ class SupplyChainNetwork(object):
 # ===============================================================================
 
 def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_holding_cost=0,
-					   stockout_cost=0, order_lead_time=0,
+					   stockout_cost=0, revenue=0, order_lead_time=0,
 					   shipment_lead_time=0, demand_type=None, demand_mean=0,
 					   demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 					   demand_list=None, probabilities=None, initial_IL=0,
@@ -274,6 +274,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	local_holding_cost
 	echelon_holding_cost
 	stockout_cost
+	revenue
 	order_lead_time
 	shipment_lead_time
 	type # TODO: allow string representation
@@ -329,6 +330,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 	local_holding_cost_list = ensure_dict_for_nodes(local_holding_cost, node_indices, 0.0)
 	echelon_holding_cost_list = ensure_dict_for_nodes(echelon_holding_cost, node_indices, 0.0)
 	stockout_cost_list = ensure_dict_for_nodes(stockout_cost, node_indices, 0.0)
+	revenue_list = ensure_dict_for_nodes(revenue, node_indices, 0.0)
 	order_lead_time_list = ensure_dict_for_nodes(order_lead_time, node_indices, 0)
 	shipment_lead_time_list = ensure_dict_for_nodes(shipment_lead_time, node_indices, 0)
 	demand_type_list = ensure_dict_for_nodes(demand_type, node_indices, None)
@@ -387,6 +389,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		n.local_holding_cost = local_holding_cost_list[n.index]
 		n.echelon_holding_cost = echelon_holding_cost_list[n.index]
 		n.stockout_cost = stockout_cost_list[n.index]
+		n.revenue = revenue_list[n.index]
 #		node.lead_time = shipment_lead_time_list[n]
 		n.shipment_lead_time = shipment_lead_time_list[n.index]
 		n.order_lead_time = order_lead_time_list[n.index]
@@ -439,7 +442,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 # Methods to Create Specific Network Structures
 # ===============================================================================
 
-def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
+def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 				 shipment_lead_time=0, demand_type=None, demand_mean=0,
 				 demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 				 demand_list=None, probabilities=None, initial_IL=0,
@@ -456,6 +459,7 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	holding_cost
 	holding_cost
 	stockout_cost
+	revenue
 	order_lead_time
 	shipment_lead_time
 	demand_type
@@ -524,6 +528,7 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 	node.local_holding_cost = holding_cost
 	node.echelon_holding_cost = holding_cost
 	node.stockout_cost = stockout_cost
+	node.revenue = revenue
 #		node.lead_time = shipment_lead_time
 	node.shipment_lead_time = shipment_lead_time
 	node.order_lead_time = order_lead_time
@@ -574,7 +579,7 @@ def single_stage(holding_cost=0, stockout_cost=0, order_lead_time=0,
 
 def serial_system(num_nodes, node_indices=None, downstream_0=True,
 				  local_holding_cost=0, echelon_holding_cost=0,
-				  stockout_cost=0, order_lead_time=0,
+				  stockout_cost=0, revenue=0, order_lead_time=0,
 				  shipment_lead_time=0, demand_type=None, demand_mean=0,
 				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 				  demand_list=None, probabilities=None, initial_IL=0,
@@ -613,6 +618,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	local_holding_cost
 	echelon_holding_cost
 	stockout_cost
+	revenue
 	order_lead_time
 	shipment_lead_time
 	demand_type
@@ -654,6 +660,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, indices, 0.0)
 	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices, 0.0)
 	stockout_cost_dict = ensure_dict_for_nodes(stockout_cost, indices, 0.0)
+	revenue_dict = ensure_dict_for_nodes(revenue, indices, 0.0)
 	order_lead_time_dict = ensure_dict_for_nodes(order_lead_time, indices, 0)
 	shipment_lead_time_dict = ensure_dict_for_nodes(shipment_lead_time, indices, 0)
 	demand_type_dict = ensure_dict_for_nodes(demand_type, indices, None)
@@ -723,6 +730,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		node.local_holding_cost = local_holding_cost_dict[n_ind]
 		node.echelon_holding_cost = echelon_holding_cost_dict[n_ind]
 		node.stockout_cost = stockout_cost_dict[n_ind]
+		node.revenue = revenue_dict[n_ind]
 #		node.lead_time = shipment_lead_time_dict[n_ind]
 		node.shipment_lead_time = shipment_lead_time_dict[n_ind]
 		node.order_lead_time = order_lead_time_dict[n_ind]
@@ -783,7 +791,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 				local_holding_cost=0, echelon_holding_cost=0,
-				stockout_cost=0, order_lead_time=0,
+				stockout_cost=0, revenue=0, order_lead_time=0,
 				shipment_lead_time=0, demand_type=None, demand_mean=0,
 				demand_standard_deviation=0, demand_lo=0, demand_hi=0,
 				demand_list=None, probabilities=None, initial_IL=0,
@@ -824,6 +832,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	local_holding_cost
 	echelon_holding_cost
 	stockout_cost
+	revenue
 	order_lead_time
 	shipment_lead_time
 	demand_type
@@ -865,6 +874,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	local_holding_cost_list = ensure_list_for_nodes(local_holding_cost, num_nodes, 0.0)
 	echelon_holding_cost_list = ensure_list_for_nodes(echelon_holding_cost, num_nodes, 0.0)
 	stockout_cost_list = ensure_list_for_nodes(stockout_cost, num_nodes, 0.0)
+	revenue_list = ensure_list_for_nodes(revenue, num_nodes, 0.0)
 	order_lead_time_list = ensure_list_for_nodes(order_lead_time, num_nodes, 0)
 	shipment_lead_time_list = ensure_list_for_nodes(shipment_lead_time, num_nodes, 0)
 	demand_type_list = ensure_list_for_nodes(demand_type, num_nodes, None)
@@ -934,6 +944,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.local_holding_cost = local_holding_cost_list[n]
 		node.echelon_holding_cost = echelon_holding_cost_list[n]
 		node.stockout_cost = stockout_cost_list[n]
+		node.revenue = revenue_list[n]
 #		node.lead_time = shipment_lead_time_list[n]
 		node.shipment_lead_time = shipment_lead_time_list[n]
 		node.order_lead_time = order_lead_time_list[n]

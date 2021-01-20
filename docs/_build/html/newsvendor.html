@@ -396,7 +396,7 @@ respectively.</p>
 <dt id="pyinv.newsvendor.newsvendor_normal">
 <code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_normal</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with normal distribution, or (if
-<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
+<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -414,7 +414,7 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+<li><strong>cost</strong> (<em>float</em>) – Expected cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 </ul>
 </p>
 </td>

@@ -97,6 +97,7 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 					node.state_vars[t].holding_cost_incurred,
 					node.state_vars[t].stockout_cost_incurred,
 					node.state_vars[t].in_transit_holding_cost_incurred,
+					node.state_vars[t].revenue_earned,
 					node.state_vars[t].total_cost_incurred]
 		results.append(temp)
 		if t+1 not in periods_to_print and t < num_periods-1:
@@ -114,7 +115,7 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 		headers += dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
 		headers += dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
 		headers += dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
-		headers += ["DMFS", "FR", "IL", "HC", "SC", "ITHC", "TC"]
+		headers += ["DMFS", "FR", "IL", "HC", "SC", "ITHC", "REV", "TC"]
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))

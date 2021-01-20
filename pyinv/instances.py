@@ -155,6 +155,19 @@ def get_named_instance(instance_name):
 		demand_mean = 50
 		demand_sd = 8
 		return selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd
+	elif instance_name == "example_4_2_network":
+		# Example 4.2 (newsvendo rexplicit), as SupplyChainNetwork object.
+		example_4_2_network = serial_system(
+			num_nodes=1,
+			local_holding_cost=[0.18],
+			stockout_cost=[0.70],
+			demand_type='N',
+			demand_mean=50,
+			demand_standard_deviation=8,
+			shipment_lead_time=[1],
+			inventory_policy_type='BS',
+			base_stock_levels=[56.6])
+		return example_4_2_network
 	elif instance_name == "example_4_3":
 		# Example 4.3 (= Example 4.1).
 		return get_named_instance("example_4_1")
@@ -403,7 +416,7 @@ def get_named_instance(instance_name):
 		disruption_rate = 1.5
 		recovery_rate = 14
 		return holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate
-	if instance_name == "problem_9_8":
+	elif instance_name == "problem_9_8":
 		# Problem 9.8.
 		holding_cost = 4
 		stockout_cost = 22
@@ -412,6 +425,58 @@ def get_named_instance(instance_name):
 		disruption_rate = 1
 		recovery_rate = 12
 		return holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate
+	elif instance_name == "example_9_3":
+		# Example 9.3.
+		holding_cost = 0.25
+		stockout_cost = 3
+		disruption_prob = 0.04
+		recovery_prob = 0.25
+		demand = 2000
+		return holding_cost, stockout_cost, demand, disruption_prob, recovery_prob
+	elif instance_name == "example_9_4":
+		# Example 9.4.
+		fixed_cost = 18500
+		holding_cost = 0.06
+		demand_rate = 75000
+		yield_mean = -15000
+		yield_sd = 9000
+		return fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd
+	elif instance_name == "problem_9_4a":
+		# Problem 9.4a.
+		fixed_cost, holding_cost, demand_rate = get_named_instance("problem_3_1")
+		yield_mean = -1/0.02
+		yield_sd = 0.02
+		return fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd
+	elif instance_name == "problem_9_4b":
+		# Problem 9.4b.
+		fixed_cost, holding_cost, demand_rate = get_named_instance("problem_3_1")
+		yield_mean = 0.9
+		yield_sd = 0.2 / np.sqrt(12)
+		return fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd
+	elif instance_name == "example_9_5":
+		# Example 9.5.
+		fixed_cost = 18500
+		holding_cost = 0.06
+		demand_rate = 75000
+		yield_mean = 5.0/6
+		yield_sd = np.sqrt(5.0/(36*7))
+		return fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd
+	elif instance_name == "example_9_6":
+		# Example 9.6.
+		holding_cost = 15000000
+		stockout_cost = 75000000
+		demand = 1.5
+		yield_lo = -0.5
+		yield_hi = 0.5
+		return holding_cost, stockout_cost, demand, yield_lo, yield_hi
+	elif instance_name == "problem_9_5":
+		# Problem 9.5.
+		holding_cost = 150
+		stockout_cost = 1200
+		demand = 25
+		yield_lo = -5
+		yield_hi = 0
+		return holding_cost, stockout_cost, demand, yield_lo, yield_hi
 
 	# INSTANCES NOT FROM TEXTBOOK
 	if instance_name == "assembly_3_stage":
