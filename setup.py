@@ -29,6 +29,8 @@ setup(
 		'tqdm',
 		'csv'
 	],
-	zip_safe=False
+	zip_safe=False,
+	test_suite='nose.collector',
+	test_require=['nose']
 	# TODO: add long_descriptions, classifier, 
 )
