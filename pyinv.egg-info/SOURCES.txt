@@ -28,4 +28,5 @@ pyinv.egg-info/PKG-INFO
 pyinv.egg-info/SOURCES.txt
 pyinv.egg-info/dependency_links.txt
 pyinv.egg-info/not-zip-safe
+pyinv.egg-info/requires.txt
 pyinv.egg-info/top_level.txt
