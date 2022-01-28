@@ -57,7 +57,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from eoq import *
 
 	.. doctest::
 
@@ -77,6 +77,8 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	return order_quantity, cost
 
+
+# TODO: need an eoq_cost() function, or an order_quantity parameter in eoq()
 
 def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate):
 	"""Solve the economic order quantity with backorders (EOQB) problem.
@@ -116,7 +118,7 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from eoq import *
 
 	.. doctest::
 
@@ -176,7 +178,7 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from eoq import *
 
 	.. doctest::
 
@@ -253,7 +255,7 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from eoq import *
 
 	.. doctest::
 

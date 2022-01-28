@@ -1,6 +1,6 @@
 import unittest
 
-from pyinv import eoq
+from pyinv.eoq import *
 from pyinv.instances import *
 
 
@@ -39,7 +39,7 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 
 		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
 
-		order_quantity, cost = eoq.economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 304.0467800264368)
 		self.assertAlmostEqual(cost, 68.410525505948272)
 
@@ -50,7 +50,7 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 
 		fixed_cost, holding_cost, demand_rate = get_named_instance("problem_3_1")
 
-		order_quantity, cost = eoq.economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 1728.109844993551)
 		self.assertAlmostEqual(cost, 475230.2073732266)
 
@@ -63,7 +63,7 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
 		with self.assertRaises(TypeError):
-			order_quantity, cost = eoq.economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+			order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 
 	def test_negative_parameter(self):
 		"""Test that EOQ function raises exception on negative parameter.
@@ -74,7 +74,7 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
 		with self.assertRaises(AssertionError):
-			order_quantity, cost = eoq.economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+			order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 
 
 class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
@@ -97,7 +97,7 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 			get_named_instance("example_3_8")
 
 		order_quantity, stockout_fraction, cost = \
-			eoq.economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+			economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 310.8125551589646)
 		self.assertAlmostEqual(stockout_fraction, 0.043062200956938)
 		self.assertAlmostEqual(cost, 66.921363550973254)
@@ -111,7 +111,7 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 			get_named_instance("problem_3_2b")
 
 		order_quantity, stockout_fraction, cost = \
-			eoq.economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+			economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 83.235448128898042)
 		self.assertAlmostEqual(stockout_fraction, 0.400299850074962)
 		self.assertAlmostEqual(cost, 1999.148244415212)
@@ -127,7 +127,7 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		demand_rate = 1300
 		with self.assertRaises(TypeError):
 			order_quantity, stockout_fraction, cost = \
-				eoq.economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+				economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 
 	def test_negative_parameter(self):
 		"""Test that EOQB function raises exception on negative parameter.
@@ -140,7 +140,7 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		demand_rate = 1300
 		with self.assertRaises(AssertionError):
 			order_quantity, stockout_fraction, cost = \
-				eoq.economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+				economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 
 
 class TestEconomicProductionQuantity(unittest.TestCase):
@@ -162,7 +162,7 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
 		production_rate = 2000
 
-		order_quantity, cost = eoq.economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+		order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 		self.assertAlmostEqual(order_quantity, 513.9328595516969)
 		self.assertAlmostEqual(cost, 40.472212689696120)
 
@@ -174,7 +174,7 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		fixed_cost, holding_cost, demand_rate, production_rate = \
 			get_named_instance("problem_3_22")
 
-		order_quantity, cost = eoq.economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+		order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 		self.assertAlmostEqual(order_quantity, 171.2697677155351)
 		self.assertAlmostEqual(cost, 3.736794931975310)
 
@@ -188,7 +188,7 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		demand_rate = 1300
 		production_rate = 2000
 		with self.assertRaises(TypeError):
-			order_quantity, cost = eoq.economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+			order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 
 	def test_negative_parameter(self):
 		"""Test that EPQ function raises exception on negative parameter.
@@ -200,7 +200,7 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		demand_rate = 1300
 		production_rate = 2000
 		with self.assertRaises(AssertionError):
-			order_quantity, cost = eoq.economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+			order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 
 
 class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
@@ -223,7 +223,7 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_ex")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			eoq.joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
 
 		self.assertListEqual(order_quantities, [3.103164454170876, 9.309493362512628, 3.103164454170876])
 		self.assertEqual(base_cycle_time, 3.103164454170876)
@@ -239,7 +239,7 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_hw_1")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			eoq.joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
 
 		self.assertListEqual(order_quantities, [434.91461289169166, 217.45730644584583, 224.78732801143613, 128.2753773978304])
 		self.assertEqual(base_cycle_time, 0.24433405218634363)
@@ -255,7 +255,7 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_silver")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			eoq.joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
 
 		self.assertListEqual(order_quantities, [488.4707307805676, 184.58340978804858, 157.00844917946816, 143.50234602424507, 119.8666655026047])
 		self.assertEqual(base_cycle_time, 0.2813771490671472)
@@ -271,7 +271,7 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_spp")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			eoq.joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
 
 		self.assertListEqual(order_quantities, [6550.912625995079, 952.1675328481219, 426.57105471595867, 685.5606236506478])
 		self.assertEqual(base_cycle_time, 0.07617340262784976)

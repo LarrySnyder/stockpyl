@@ -13,7 +13,7 @@ from scipy.stats import rv_discrete, rv_continuous
 from math import factorial
 import numpy as np
 
-#from pyinv.datatypes import *
+#from datatypes import *
 
 
 ### CONSTANTS ###
@@ -537,7 +537,7 @@ def convolve_many(arrays):
 
 	.. testsetup:: *
 
-		from pyinv.helpers import *
+		from helpers import *
 
 	.. doctest::
 

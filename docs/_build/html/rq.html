@@ -1,0 +1,543 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rq Module &mdash; PyInv 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ss Module" href="ss.html" />
+    <link rel="prev" title="newsvendor Module" href="newsvendor.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyInv
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyInv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api.html">API Documentation</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/rq.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pyinv.rq">
+<span id="rq-module"></span><h1><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module<a class="headerlink" href="#module-pyinv.rq" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">rq</span></code> module contains code for solving the <span class="math notranslate nohighlight">\((r,Q)\)</span> problem.</p>
+<p>Functions in this module are called directly; they are not wrapped in a class.</p>
+<p>The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
+(2019).</p>
+<dl class="function">
+<dt id="pyinv.rq.r_q_cost">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_cost</code><span class="sig-paren">(</span><em>reorder_point</em>, <em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
+policy with given parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (5.7)):</p>
+<div class="math notranslate nohighlight">
+\[g(r,Q) = \frac{K\lambda + \int_r^{r+Q} g(y)dy}{Q}\]</div>
+<p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
+<p><strong>Example</strong> (Example 5.1):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="mf">126.8</span><span class="p">,</span> <span class="mf">328.5</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">78.07116250928294</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_cost_poisson">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_cost_poisson</code><span class="sig-paren">(</span><em>reorder_point</em>, <em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost_poisson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
+policy with given parameters under Poisson demand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (5.48)):</p>
+<div class="math notranslate nohighlight">
+\[g(r,Q) = \frac{K\lambda + \sum_{y=r+1}^{r+Q} g(y)}{Q}\]</div>
+<p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
+<p><strong>Example</strong> (Example 5.8):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost_poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">107.92358063314975</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_eil_approximation">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eil_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “expected-inventory-level” (EIL)
+approximation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
+when both <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of their previous values.
+[<span class="math notranslate nohighlight">\(\epsilon\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<li><strong>cost</strong> (<em>float</em>) – Approximate expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (5.17), (5.18), (5.16)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}r = F^{-1}\left(1 - \frac{Qh}{p\lambda}\right)\\Q = \sqrt{\frac{2\lambda[K + pn(r)]}{h}}\\g(r,Q) = h\left(r - \lambda L + \frac{Q}{2}\right) + \frac{K\lambda}{Q} + \frac{p\lambda n(r)}{Q}\end{aligned}\end{align} \]</div>
+<p><strong>Algorithm Used:</strong> Iterative algorithm for EIL approximation for <span class="math notranslate nohighlight">\((r,Q)\)</span> policy (Algorithm 5.1)</p>
+<p><strong>Example</strong> (Example 5.2):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eil_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">(213.97044213580244, 318.5901810768729, 95.45114022285196)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_eoqb_approximation">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eoqb_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ with backorders” (EOQB)
+approximation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (3.27) and (5.9)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda(h+p)}{hp}}\\g(r) = g(r+Q)\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
+<p><strong>Example</strong> (Example 5.2):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqb_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">(128.63781442427097, 308.5737801203754)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_eoqss_approximation">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eoqss_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqss_approximation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ plus safety stock”
+(EOQ+SS) approximation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (3.4) and (5.21)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda}{h}}\\r = \mu + z_{\alpha}\sigma\end{aligned}\end{align} \]</div>
+<p><strong>Example</strong> (Example 5.5):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqss_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">(190.3369965715624, 304.0467800264368)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_loss_function_approximation">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_loss_function_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “loss function”
+approximation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
+when both <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of their previous values.
+[<span class="math notranslate nohighlight">\(\epsilon\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (5.28) and (5.29)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}Q = \sqrt{\frac{2\left[K\lambda + (h+p)n^{(2)}(r)\right]}{h}}\\n(r) = \frac{hQ}{h+p}\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(n^{(2)}(\cdot)\)</span> are the first- and
+second-order loss functions for the lead-time demand distribution.</p>
+<p><strong>Example</strong> (Example 5.6):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_loss_function_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">(126.8670634479628, 328.4491421980451)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_optimal_r_for_q">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_optimal_r_for_q</code><span class="sig-paren">(</span><em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_optimal_r_for_q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate optimal <span class="math notranslate nohighlight">\(r\)</span> for the given <span class="math notranslate nohighlight">\(Q\)</span>.</p>
+<p>Finds <span class="math notranslate nohighlight">\(r\)</span> using bisection search.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
+when <span class="math notranslate nohighlight">\(g(r)\)</span> and <span class="math notranslate nohighlight">\(g(r+Q)\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of each other.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>reorder_point</strong> – Optimal reorder point for given order quantity. [<span class="math notranslate nohighlight">\(r(Q)\)</span>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equation Used</strong> (equation (5.9)):</p>
+<div class="math notranslate nohighlight">
+\[g(r) = g(r+Q)\]</div>
+<p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
+<p><strong>Example</strong> (Example 5.2):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_optimal_r_for_q</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">129.4272799263067</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.rq.r_q_poisson_exact">
+<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_poisson_exact</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_poisson_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine optimal <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> for Poisson demand_list, using
+algorithm by Federgruen and Zheng (1992).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<li><strong>cost</strong> (<em>float</em>) – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equation (5.48)):</p>
+<div class="math notranslate nohighlight">
+\[g(r,Q) = \frac{K\lambda + \sum_{y=r+1}^{r+Q} g(y)}{Q}\]</div>
+<p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function for Poisson demand_list.</p>
+<p><strong>Example</strong> (Example 5.8):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_poisson_exact</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">(3, 5, 107.92358063314975)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ss.html" class="btn btn-neutral float-right" title="ss Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="newsvendor.html" class="btn btn-neutral float-left" title="newsvendor Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Larry Snyder
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

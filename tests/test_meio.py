@@ -1,7 +1,7 @@
 import unittest
 from scipy import stats
 
-from pyinv import meio
+import pyinv.meio as meio
 from pyinv.instances import *
 from pyinv.ssm_serial import *
 from pyinv.newsvendor import newsvendor_normal_cost

@@ -20,7 +20,7 @@ def golden_section_search(f, a, b, tol=1e-5, verbose=False):
 
 	.. testsetup:: *
 
-		from pyinv.optimization import *
+		from optimization import *
 
 	.. doctest::
 

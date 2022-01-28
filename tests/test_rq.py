@@ -5,7 +5,7 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import lognorm
 
-from pyinv import rq
+import pyinv.rq as rq
 from pyinv.instances import *
 
 

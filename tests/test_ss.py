@@ -5,7 +5,7 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import lognorm
 
-from pyinv import ss
+from pyinv.ss import *
 from pyinv.instances import *
 from tests.settings import *
 
@@ -46,11 +46,11 @@ class TestsSCost(unittest.TestCase):
 		holding_cost, stockout_cost, fixed_cost, demand_mean = \
 			get_named_instance("example_4_7")
 
-		cost = ss.s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
+		cost = s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
 		self.assertAlmostEqual(cost, 8.034111561471644)
 
-		cost = ss.s_s_cost_discrete(6, 18, holding_cost, stockout_cost,
+		cost = s_s_cost_discrete(6, 18, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
 		self.assertAlmostEqual(cost, 10.193798671644046)
 
@@ -62,11 +62,11 @@ class TestsSCost(unittest.TestCase):
 		holding_cost, stockout_cost, fixed_cost, demand_mean = \
 			get_named_instance("problem_4_31")
 
-		cost = ss.s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
+		cost = s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
 		self.assertAlmostEqual(cost, 2.622755613772775e+02)
 
-		cost = ss.s_s_cost_discrete(2, 7, holding_cost, stockout_cost,
+		cost = s_s_cost_discrete(2, 7, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
 		self.assertAlmostEqual(cost, 2.235748295669688e+02)
 
@@ -91,7 +91,7 @@ class TestsSCost(unittest.TestCase):
 			step = 10
 
 		for n in range(1, len(mu), step):
-			cost = ss.s_s_cost_discrete(s[n], S[n], h, p, K, True, mu[n], None, None)
+			cost = s_s_cost_discrete(s[n], S[n], h, p, K, True, mu[n], None, None)
 			self.assertAlmostEqual(cost, c[n], places=3)
 
 
@@ -114,7 +114,7 @@ class TestsSOptimalsS(unittest.TestCase):
 		holding_cost, stockout_cost, fixed_cost, demand_mean = \
 			get_named_instance("example_4_7")
 
-		s, S, g = ss.s_s_discrete_exact(holding_cost, stockout_cost,
+		s, S, g = s_s_discrete_exact(holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
 		self.assertEqual(s, 4)
 		self.assertEqual(S, 10)
@@ -128,13 +128,13 @@ class TestsSOptimalsS(unittest.TestCase):
 		holding_cost, stockout_cost, fixed_cost, demand_mean = \
 			get_named_instance("problem_4_31")
 
-		s, S, g = ss.s_s_discrete_exact(holding_cost, stockout_cost,
+		s, S, g = s_s_discrete_exact(holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
 		self.assertEqual(s, 2)
 		self.assertEqual(S, 7)
 		self.assertAlmostEqual(g, 2.235748295669688e+02)
 
-#	@unittest.skipUnless(RUN_ALL_TESTS, "TestsSOptimalsS.test_fz_instances skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
+#	@unittest.skipUnless(RUN_ALL_TESTS, "TestsSOptimaltest_fz_instances skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_fz_instances(self):
 		"""Test Zheng and Federgruen (1991) instances.
 		"""
@@ -156,7 +156,7 @@ class TestsSOptimalsS(unittest.TestCase):
 			step = 10
 
 		for n in range(1, len(mu), step):
-			s, S, g = ss.s_s_discrete_exact(h, p, K, True, mu[n])
+			s, S, g = s_s_discrete_exact(h, p, K, True, mu[n])
 			self.assertEqual(s, s_opt[n])
 			self.assertEqual(S, S_opt[n])
 			self.assertAlmostEqual(g, c_opt[n], places=3)
@@ -181,7 +181,7 @@ class TestsSPowerApproximation(unittest.TestCase):
 		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd = \
 			get_named_instance("example_4_8")
 
-		s, S = ss.s_s_power_approximation(holding_cost, stockout_cost,
+		s, S = s_s_power_approximation(holding_cost, stockout_cost,
 									fixed_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(s, 40.194616956474071)
 		self.assertAlmostEqual(S, 74.290170109805786)
@@ -194,7 +194,7 @@ class TestsSPowerApproximation(unittest.TestCase):
 		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd = \
 			get_named_instance("problem_4_32")
 
-		s, S = ss.s_s_power_approximation(holding_cost, stockout_cost,
+		s, S = s_s_power_approximation(holding_cost, stockout_cost,
 									fixed_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(s, 2.266137928222839e+02)
 		self.assertAlmostEqual(S, 3.243797868133974e+02)

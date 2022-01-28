@@ -1,7 +1,7 @@
 import unittest
 from scipy import stats
 
-from pyinv import helpers
+import pyinv.helpers as helpers
 
 
 # Module-level functions.

@@ -1,6 +1,6 @@
 import unittest
 
-from pyinv import wagner_whitin
+from pyinv.wagner_whitin import *
 from pyinv.instances import *
 
 
@@ -41,7 +41,7 @@ class TestWagnerWhitin(unittest.TestCase):
 			get_named_instance("example_3_9")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 210, 0, 150, 0])
 		self.assertEqual(next_order_periods, [0, 3, 5, 5, 5])
 		self.assertAlmostEqual(cost, 1380)
@@ -55,7 +55,7 @@ class TestWagnerWhitin(unittest.TestCase):
 			get_named_instance("problem_3_27")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 150, 180, 0, 200])
 		self.assertEqual(next_order_periods, [0, 2, 4, 4, 5])
 		self.assertAlmostEqual(cost, 424)
@@ -69,7 +69,7 @@ class TestWagnerWhitin(unittest.TestCase):
 			get_named_instance("problem_3_29")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 1310, 0, 1095, 0, 880])
 		self.assertEqual(next_order_periods, [0, 3, 4, 5, 6, 6])
 		self.assertAlmostEqual(cost, 423)
@@ -84,7 +84,7 @@ class TestWagnerWhitin(unittest.TestCase):
 			get_named_instance("ww_hw_c")
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost)
 
 		self.assertEqual(order_quantities, [0, 400, 3000, 0, 0, 0])
 		self.assertEqual(next_order_periods, [0, 2, 6, 6, 6, 6])
@@ -101,7 +101,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		demand = 200
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 400, 0, 600, 0, 0])
 		self.assertEqual(next_order_periods, [0, 3, 6, 6, 6, 6])
 		self.assertAlmostEqual(cost, 280)
@@ -118,7 +118,7 @@ class TestWagnerWhitin(unittest.TestCase):
 		demand = [0, 730, 580, 445, 650, 880]
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 		self.assertEqual(order_quantities, [0, 1310, 0, 1095, 0, 880])
 		self.assertEqual(next_order_periods, [0, 3, 4, 5, 6, 6])
 		self.assertAlmostEqual(cost, 423)
@@ -133,11 +133,11 @@ class TestWagnerWhitin(unittest.TestCase):
 		fixed_cost = [0, 100, 100, 100, 100, 100]
 		demand = [0, 730, 580, 445, 650, 880]
 		with self.assertRaises(AssertionError):
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 
 		num_periods = 5
 		holding_cost = [0.1, 0.1, -0.1, 0.1, 0.1]
 		fixed_cost = [0, 100, 100, 100, 100, 100]
 		demand = [0, 730, 580, 445, 650, 880]
 		with self.assertRaises(AssertionError):
-			wagner_whitin.wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)

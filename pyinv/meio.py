@@ -20,7 +20,7 @@ from pyinv.helpers import *
 from pyinv.sim import *
 from pyinv.ssm_serial import *
 from pyinv.instances import *
-from pyinv import optimization
+import pyinv.optimization as optimization
 
 
 # -------------------

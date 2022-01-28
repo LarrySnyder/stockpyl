@@ -18,7 +18,7 @@ This module contains the ``SupplyChainNetwork`` class.
 
 import networkx as nx
 
-#import pyinv.supply_chain_node
+#import supply_chain_node
 from pyinv.demand_source import *
 from pyinv.supply_chain_node import *
 from pyinv.policy import *

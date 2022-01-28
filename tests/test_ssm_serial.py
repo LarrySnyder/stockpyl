@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from pyinv import ssm_serial
+from pyinv.ssm_serial import *
 from tests.instances_ssm_serial import *
 from pyinv.instances import *
 
@@ -45,15 +45,15 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_local = {1: 4, 2: 5, 3: 1}
-		S_echelon = ssm_serial.local_to_echelon_base_stock_levels(instance, S_local)
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
 		self.assertDictEqual(S_echelon, {1: 4, 2: 9, 3: 10})
 
 		S_local = {1: 10, 2: 0, 3: 2}
-		S_echelon = ssm_serial.local_to_echelon_base_stock_levels(instance, S_local)
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
 		self.assertDictEqual(S_echelon, {1: 10, 2: 10, 3: 12})
 
 		S_local = {1: 3, 2: -4, 3: 5}
-		S_echelon = ssm_serial.local_to_echelon_base_stock_levels(instance, S_local)
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
 		self.assertDictEqual(S_echelon, {1: 3, 2: -1, 3: 4})
 
 
@@ -80,19 +80,19 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
-		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
 		self.assertDictEqual(S_local, {1: 4, 2: 5, 3: 1})
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
-		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
 		self.assertDictEqual(S_local, {1: 10, 2: 0, 3: 2})
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
-		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
 		self.assertDictEqual(S_local, {1: -1, 2: 0, 3: 5})
 
 		S_echelon = {1: 10, 2: 15, 3: 5}
-		S_local = ssm_serial.echelon_to_local_base_stock_levels(instance, S_echelon)
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
 		self.assertDictEqual(S_local, {1: 5, 2: 0, 3: 0})
 
 
@@ -119,7 +119,7 @@ class TestExpectedCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
-		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -127,7 +127,7 @@ class TestExpectedCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 4.025320847013973e+02)
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
-		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -135,7 +135,7 @@ class TestExpectedCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 3.227131745107600e+02)
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
-		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -153,7 +153,7 @@ class TestExpectedCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2})
 
 		S_echelon = {1: 1.242440692221066e+02, 2: 2.287925107043527e+02}
-		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -161,7 +161,7 @@ class TestExpectedCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 1.693611203524711e+02)
 
 		S_echelon = {1: 50, 2: 125}
-		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -169,7 +169,7 @@ class TestExpectedCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 1.218952430250280e+03)
 
 		S_echelon = {1: 75, 2: 50}
-		cost = ssm_serial.expected_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -200,7 +200,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -208,7 +208,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 29.979059977933002)
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -216,7 +216,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 30.013403869820511)
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -234,7 +234,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		instance.reindex_nodes({0: 1, 1: 2})
 
 		S_echelon = {1: 1.242440692221066e+02, 2: 2.287925107043527e+02}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -242,7 +242,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 1.526476024969551e+02)
 
 		S_echelon = {1: 50, 2: 125}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -250,7 +250,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 1.002946042252444e+02)
 
 		S_echelon = {1: 75, 2: 50}
-		cost = ssm_serial.expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
+		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
@@ -280,7 +280,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
-		S_star, C_star = ssm_serial.optimize_base_stock_levels(
+		S_star, C_star = optimize_base_stock_levels(
 			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
@@ -301,7 +301,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance = copy.deepcopy(get_named_instance("problem_6_1"))
 		instance.reindex_nodes({0: 1, 1: 2})
 
-		S_star, C_star = ssm_serial.optimize_base_stock_levels(
+		S_star, C_star = optimize_base_stock_levels(
 			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1 - stats.norm.cdf(4),
 			ltd_upper_tail_prob=1 - stats.norm.cdf(4),
@@ -322,7 +322,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		instance = copy.deepcopy(get_named_instance("problem_6_2a"))
 		instance.reindex_nodes({n: n+1 for n in instance.node_indices})
 
-		S_star, C_star = ssm_serial.optimize_base_stock_levels(
+		S_star, C_star = optimize_base_stock_levels(
 			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1 - stats.norm.cdf(4),
 			ltd_upper_tail_prob=1 - stats.norm.cdf(4),
@@ -353,7 +353,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				demand_source = None
 			n.demand_source = demand_source
 
-		S_star, C_star = ssm_serial.optimize_base_stock_levels(
+		S_star, C_star = optimize_base_stock_levels(
 			instance, S=None, plots=False, x=None, x_num=100, d_num=10)
 		correct_S_star = {1: 6.293580485578014, 2: 11.95126810804254, 3: 22.601033044446353}
 		for n in instance.node_indices:

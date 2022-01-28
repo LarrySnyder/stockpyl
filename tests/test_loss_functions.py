@@ -10,7 +10,7 @@ from scipy.stats import gamma
 from scipy.stats import nbinom
 from scipy.stats import uniform
 
-from pyinv import loss_functions
+import pyinv.loss_functions as loss_functions
 
 # Module-level functions.
 

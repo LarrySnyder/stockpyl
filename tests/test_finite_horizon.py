@@ -6,7 +6,7 @@ from scipy.stats import poisson
 from scipy.stats import lognorm
 import scipy.io as sio
 
-from pyinv import finite_horizon
+import pyinv.finite_horizon as finite_horizon
 from pyinv.instances import *
 from tests.settings import *
 
@@ -105,7 +105,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
 										total_cost, cost_matrix, oul_matrix, x_range,
-			'additional_files/problem_4_29')
+			'tests/additional_files/problem_4_29')
 
 	def test_problem_4_29_with_T_arrays(self):
 		"""Test that finite_horizon() function correctly solves Problem 4.29
@@ -135,7 +135,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
 										total_cost, cost_matrix, oul_matrix, x_range,
-			'additional_files/problem_4_29')
+			'tests/additional_files/problem_4_29')
 
 	def test_problem_4_29_with_T1_arrays(self):
 		"""Test that finite_horizon() function correctly solves Problem 4.29
@@ -165,7 +165,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
 										total_cost, cost_matrix, oul_matrix, x_range,
-			'additional_files/problem_4_29')
+			'tests/additional_files/problem_4_29')
 
 	def test_problem_4_29_with_mixed_inputs(self):
 		"""Test that finite_horizon() function correctly solves Problem 4.29
@@ -194,7 +194,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
 										total_cost, cost_matrix, oul_matrix, x_range,
-			'additional_files/problem_4_29')
+			'tests/additional_files/problem_4_29')
 
 	def test_problem_4_30(self):
 		"""Test that finite_horizon() function correctly solves Problem 4.30.
@@ -216,7 +216,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
 										total_cost, cost_matrix, oul_matrix, x_range,
-			'additional_files/problem_4_30')
+			'tests/additional_files/problem_4_30')
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestFiniteHorizon.test_instance_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_instance_1(self):
@@ -248,7 +248,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
 										total_cost, cost_matrix, oul_matrix, x_range,
-										'additional_files/instance_1', sample_frac=None)
+										'tests/additional_files/instance_1', sample_frac=None)
 
 
 

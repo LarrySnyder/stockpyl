@@ -1,9 +1,9 @@
 import unittest
 
-from pyinv import optimization
+import pyinv.optimization as optimization
 from pyinv.instances import *
 from pyinv.newsvendor import *
-from pyinv import ssm_serial
+import pyinv.ssm_serial as ssm_serial
 
 
 # Module-level functions.

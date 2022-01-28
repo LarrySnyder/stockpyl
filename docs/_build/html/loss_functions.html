@@ -1,0 +1,1199 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>loss_functions Module &mdash; PyInv 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="supply_uncertainty Module" href="supply_uncertainty.html" />
+    <link rel="prev" title="sim Module" href="sim.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyInv
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyInv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api.html">API Documentation</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/loss_functions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pyinv.loss_functions">
+<span id="loss-functions-module"></span><h1><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module<a class="headerlink" href="#module-pyinv.loss_functions" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">loss_functions</span></code> module contains code for calculating loss functions.</p>
+<p>For a random variable <span class="math notranslate nohighlight">\(X\)</span>, the loss function, <span class="math notranslate nohighlight">\(n(x)\)</span>, and the
+complementary loss function, <span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>, are defined as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><span class="math notranslate nohighlight">\(n(x) = E[(X-x)^+]\)</span></li>
+<li><span class="math notranslate nohighlight">\(\bar{n}(x) = E[(X-x)^-]\)</span>,</li>
+</ul>
+</div></blockquote>
+<p>where <span class="math notranslate nohighlight">\(x^+ = \max\{x,0\}\)</span> and <span class="math notranslate nohighlight">\(x^- = |\min\{x,0\}|\)</span>. The second-order
+loss function, <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>, and the second-order complementary loss function,
+<span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, are defined as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><span class="math notranslate nohighlight">\(n^{(2)}(x) = \frac{1}{2}E\left[\left([X-x]^+\right)^2\right]\)</span></li>
+<li><span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x) = \frac{1}{2}E\left[\left([X-x]^-\right)^2\right]\)</span></li>
+</ul>
+</div></blockquote>
+<p>Equation and section numbers refer to Snyder and Shen, “Fundamentals of Supply
+Chain Theory”, Wiley, 2019, 2nd ed., except as noted.</p>
+<p>(c) Lawrence V. Snyder
+Lehigh University</p>
+<dl class="function">
+<dt id="pyinv.loss_functions.continuous_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">continuous_loss</code><span class="sig-paren">(</span><em>x</em>, <em>distrib</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.continuous_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return loss and complementary loss functions for an arbitrary continuous
+distribution, using numerical integration.</p>
+<p>TODO: handle distribution supplied as pdf function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>distrib</strong> (<em>rv_continuous</em>) – Desired distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.12) and (C.13)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n(x) = \int_x^\infty \bar{F}(y)dy\\\bar{n}(x) = \int_{-\infty}^x F(y)dy\end{aligned}\end{align} \]</div>
+<p><strong>Example</strong>:</p>
+<p>Calculate loss function for <span class="math notranslate nohighlight">\(\exp(10)\)</span> distribution, by declaring a
+custom <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">my_exp</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">rv_continuous</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="k">return</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">my_exp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">continuous_loss</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(0.013533528323661264, 0.10522318598177341)</span>
+</pre></div>
+</div>
+<p>Or by using a “frozen” built-in exponential distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">expon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">expon</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">continuous_loss</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(0.013533528103402742, 0.11353352830366131)</span>
+</pre></div>
+</div>
+<p>(The two methods give slightly different results due to differences in the ways the
+two <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> objects generate the distribution.)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.continuous_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">continuous_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>distrib</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.continuous_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return second-order loss and complementary loss functions for an arbitrary continuous
+distribution, using numerical integration.</p>
+<p>TODO: handle distribution supplied as pdf function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>distrib</strong> (<em>rv_continuous</em>) – Desired distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.17) and (C.18)):</p>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \frac12\int_x^\infty (y-x)^2 f(y)dy\]</div>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \frac12\int_0^x (x-y)^2 f(y)dy\]</div>
+<p><strong>Example</strong>:</p>
+<p>Calculate second-order loss functions for <span class="math notranslate nohighlight">\(\exp(10)\)</span> distribution, by declaring a
+custom <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">my_exp</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">rv_continuous</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="k">return</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">my_exp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">continuous_second_loss</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(0.0013533528323661267, 0.007824431159359786)</span>
+</pre></div>
+</div>
+<p>Or by using a “frozen” built-in exponential distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">expon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">expon</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">continuous_second_loss</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(0.001353352589297054, 0.008646647165633875)</span>
+</pre></div>
+</div>
+<p>(The two methods give slightly different results due to differences in the ways the
+two <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> objects generate the distribution.)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.discrete_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">discrete_loss</code><span class="sig-paren">(</span><em>x</em>, <em>distrib=None</em>, <em>pmf=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.discrete_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return loss and complementary loss function for an arbitrary discrete
+distribution.</p>
+<p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">distrib</span></code>) or
+demand pmf (in <code class="docutils literal notranslate"><span class="pre">pmf</span></code>, as a <code class="docutils literal notranslate"><span class="pre">dict</span></code>).</p>
+<p>Assumes <span class="math notranslate nohighlight">\(F(x) = 0\)</span> for <span class="math notranslate nohighlight">\(x &lt; 0\)</span> (where <span class="math notranslate nohighlight">\(F(\cdot)\)</span> is the cdf).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>int</em>) – Argument of loss function.</li>
+<li><strong>distrib</strong> (<em>rv_discrete</em><em>, </em><em>optional</em>) – Desired distribution.</li>
+<li><strong>pmf</strong> (<em>dict</em><em>, </em><em>optional</em>) – pmf, as a dict in which keys are the support of the distribution and
+values are their probabilities. Ignored if distrib is not None.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is not an integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">pmf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.36) and (C.37)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n(x) = \sum_{y=x}^\infty (y-x)f(y) = \sum_{y=x}^\infty \bar{F}(y)dy\\\bar{n}(x) = \sum_{y=-\infty}^x (x-y)f(y) = \sum_{-\infty}^{x-1} F(y)dy\end{aligned}\end{align} \]</div>
+<p><strong>Example</strong>:</p>
+<p>Calculate loss function for <span class="math notranslate nohighlight">\(\text{geom}(0.2)\)</span> distribution, by declaring a
+custom <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">my_geom</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">rv_discrete</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_pmf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">my_geom</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">discrete_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(2.0479999999999743, 1.048)</span>
+</pre></div>
+</div>
+<p>Or by using a “frozen” built-in exponential distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">geom</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">geom</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">discrete_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(2.048, 1.048)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.discrete_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">discrete_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>distrib=None</em>, <em>pmf=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.discrete_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return second-order loss and complementary loss function for an arbitrary discrete
+distribution.</p>
+<p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">distrib</span></code>) or
+demand pmf (in <code class="docutils literal notranslate"><span class="pre">pmf</span></code>, as a <code class="docutils literal notranslate"><span class="pre">dict</span></code>).</p>
+<p>Assumes the random variable cannot take negative values; i.e.,
+<span class="math notranslate nohighlight">\(F(x) = 0\)</span> for <span class="math notranslate nohighlight">\(x &lt; 0\)</span> (where <span class="math notranslate nohighlight">\(F(\cdot)\)</span> is the cdf).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>int</em>) – Argument of loss function.</li>
+<li><strong>distrib</strong> (<em>rv_discrete</em><em>, </em><em>optional</em>) – Desired distribution.</li>
+<li><strong>pmf</strong> (<em>dict</em><em>, </em><em>optional</em>) – pmf, as a dict in which keys are the support of the distribution and
+values are their probabilities. Ignored if distrib is not <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is not an integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">pmf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.38)-(C.40)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n^{(2)}(x) = \frac12\sum_{y=x}^\infty (y-x)(y-x-1)f(y) = \sum_{y=x}^\infty (y-x)(1-F(y))\\\bar{n}^{(2)}(x) = \frac12\sum_{y=0}^x (x-y)(x+1-y)f(y) = \sum_{y=0}^x (x-y)F(y)\end{aligned}\end{align} \]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}^{(2)}(x) = \frac12\left(\left(x - E[X]\right)^2 + (x - E[X]) + \text{Var}[X]\right) - n^{(2)}(x)\]</div>
+<p><strong>Example</strong>:</p>
+<p>Calculate loss function for <span class="math notranslate nohighlight">\(\text{geom}(0.2)\)</span> distribution, by declaring a
+custom <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">my_geom</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">rv_discrete</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_pmf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">my_geom</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">discrete_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(2.0479999999999743, 1.048)</span>
+</pre></div>
+</div>
+<p>Or by using a “frozen” built-in exponential distribution:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">geom</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_dist</span> <span class="o">=</span> <span class="n">geom</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">discrete_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">my_dist</span><span class="p">)</span>
+<span class="go">(2.048, 1.048)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.exponential_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">exponential_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mu</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.exponential_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return exponential loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{exp}(\mu)\)</span>
+distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mu</strong> (<em>float</em>) – Rate of exponential distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> &lt; 0.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), p. 457 and (C.14)):</p>
+<div class="math notranslate nohighlight">
+\[n(x) = \frac{e^{-\mu x}}{\mu}\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}(x) = x - E[X] + n(x)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">exponential_loss</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">(4.0936537653899085, 0.09365376538990855)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.exponential_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">exponential_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mu</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.exponential_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+exponential loss function and complementary second-order loss function for an
+<span class="math notranslate nohighlight">\(\text{exp}(\mu)\)</span> distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mu</strong> (<em>float</em>) – Rate of exponential distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> &lt; 0.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), p. 457 and (C.19)):</p>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \frac{e^{-\mu x}}{\mu^2}\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}^{(2)}(x) = \frac12\left((x-E[X])^2 + \text{Var}[X]\right) - n^{(2)}(x)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">exponential_second_loss</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">(20.46826882694954, 0.031731173050459915)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.gamma_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">gamma_loss</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.gamma_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return gamma loss and complementary loss functions for a <span class="math notranslate nohighlight">\(\text{Gamma}(a,b)\)</span>
+distribution with shape parameter <span class="math notranslate nohighlight">\(a\)</span> and scale parameter <span class="math notranslate nohighlight">\(b\)</span>, i.e.,
+a distribution with pdf</p>
+<div class="math notranslate nohighlight">
+\[f(x) = \frac{x^{a-1}e^{-\frac{x}{b}}}{\Gamma(a)b^a},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Gamma(\cdot)\)</span> is the gamma function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>a</strong> (<em>float</em>) – Shape parameter of gamma distribution.</li>
+<li><strong>b</strong> (<em>float</em>) – Scale parameter of gamma distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> &lt;= 0.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), p. 457 and (C.14)):</p>
+<div class="math notranslate nohighlight">
+\[n(x) = \left[\left(a - \frac{x}{b}\right)(1-F(x)) + xf(x)\right]b,\]</div>
+<p>where <span class="math notranslate nohighlight">\(f(x)\)</span> and <span class="math notranslate nohighlight">\(F(x)\)</span> are the gamma pdf and cdf, respectively.</p>
+<div class="math notranslate nohighlight">
+\[\bar{n}(x) = x - E[X] + n(x)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gamma_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">(2.635971381157268, 0.635971381157268)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.gamma_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">gamma_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.gamma_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+loss and complementary loss functions for a
+<span class="math notranslate nohighlight">\(\text{Gamma}(a,b)\)</span> distribution with shape parameter <span class="math notranslate nohighlight">\(a\)</span> and
+scale parameter <span class="math notranslate nohighlight">\(b\)</span>, i.e., a distribution with pdf</p>
+<div class="math notranslate nohighlight">
+\[f(x) = \frac{x^{a-1}e^{-\frac{x}{b}}}{\Gamma(a)b^a},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Gamma(\cdot)\)</span> is the gamma function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>a</strong> (<em>float</em>) – Shape parameter of gamma distribution.</li>
+<li><strong>b</strong> (<em>float</em>) – Scale parameter of gamma distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> &lt; 0.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), p. 457 and (C.19)):</p>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \frac{1}{2}\left[\left[\left(a-\frac{x}{b}\right)^2 + a\right](1-F(x)) + \left(a - \frac{x}{b} + 1\right)xf(x)\right]b^2,\]</div>
+<p>where <span class="math notranslate nohighlight">\(f(x)\)</span> and <span class="math notranslate nohighlight">\(F(x)\)</span> are the gamma pdf and cdf, respectively.</p>
+<div class="math notranslate nohighlight">
+\[\bar{n}^{(2)}(x) = \frac12\left((x-E[X])^2 + \text{Var}[X]\right) - n^{(2)}(x)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gamma_second_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">(10.280288386513346, 0.7197116134866537)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.geometric_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">geometric_loss</code><span class="sig-paren">(</span><em>x</em>, <em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.geometric_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return geometric loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{Geom}\)</span> (<code class="docutils literal notranslate"><span class="pre">p</span></code>)
+distribution. Uses the “number of trials” version of the geometric distribution,
+i.e., the pmf is</p>
+<div class="math notranslate nohighlight">
+\[f(x) = (1-p)^{x-1}p\]</div>
+<p>(This is the same version of the distribution used by scipy.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>p</strong> (<em>float</em>) – Success probability for geometric distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>int</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is not an integer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), Section C.2.3.5, and (C.14)):</p>
+<div class="math notranslate nohighlight">
+\[n(x) = \left(\frac{1-p}{p}\right)(1-p)^{x-1}\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}(x) = x - E[X] + n(x)\]</div>
+<p>(Note that Zipkin (2000) uses the “number of failures” version of the
+geometric distribution and uses <span class="math notranslate nohighlight">\(p\)</span> to refer to the failure probability rather
+than the success probability. The notation has been adjusted to account for
+the version we use here.)</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">geometric_loss</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">(1.0485760000000004, 3.0485760000000006)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.geometric_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">geometric_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.geometric_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+geometric loss function and complementary second-order loss function for a <span class="math notranslate nohighlight">\(\text{Geom}\)</span> (<code class="docutils literal notranslate"><span class="pre">p</span></code>)
+distribution. Uses the “number of trials” version of the geometric distribution,
+i.e., the pmf is</p>
+<div class="math notranslate nohighlight">
+\[f(x) = (1-p)^{x-1}p\]</div>
+<p>(This is the same version of the distribution used by scipy.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>p</strong> (<em>float</em>) – Success probability for geometric distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is not an integer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), Section C.2.3.5, and (C.40)):</p>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \left(\frac{1-p}{p}\right)^2 (1-p)^{x-1}\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}^{(2)}(x) = \frac12\left((x-E[X])^2 + (x-E[X]) + \text{Var}[X]\right) - n^{(2)}(x)\]</div>
+<p>(Note that Zipkin (2000) uses the “number of failures” version of the
+geometric distribution and uses <span class="math notranslate nohighlight">\(p\)</span> to refer to the failure probability rather
+than the success probability. The notation has been adjusted to account for
+the version we use here.)</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">geometric_second_loss</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">(4.194304000000002, 8.805695999999998)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.lognormal_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">lognormal_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mu</em>, <em>sigma</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.lognormal_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return lognormal loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{lognormal}(\mu,\sigma)\)</span>
+distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mu</strong> (<em>float</em>) – Mean of distribution of [<span class="math notranslate nohighlight">\(\ln X\)</span>].</li>
+<li><strong>sigma</strong> (<em>float</em>) – Standard deviation of distribution of [<span class="math notranslate nohighlight">\(\ln X\)</span>].</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (4.102) and (C.14)):</p>
+<div class="math notranslate nohighlight">
+\[n(x) = e^{\mu+\sigma^2/2} * \Phi((\mu+\sigma^2-\ln x)/\sigma) - x(1 - \Phi((\ln x - \mu)/\sigma))\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}(x) = x - E[X] + n(x)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lognormal_loss</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+<span class="go">(0.28364973888106326, 2.5544912009711833)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.negative_binomial_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">negative_binomial_loss</code><span class="sig-paren">(</span><em>x</em>, <em>r=None</em>, <em>p=None</em>, <em>mean=None</em>, <em>sd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.negative_binomial_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return negative binomial (NB) loss and complementary loss functions for NB
+distribution with shape parameters <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p\)</span>. The pmf of this distribution
+is given by</p>
+<div class="math notranslate nohighlight">
+\[f(x) = {x+r-1 \choose r-1}p^r(1-p)^x\]</div>
+<p>(See <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html</a>.)</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">sd</span></code> are provided instead of <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code>, the function calculates
+<span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p\)</span> from <code class="docutils literal notranslate"><span class="pre">mean</span></code> (<span class="math notranslate nohighlight">\(\mu\)</span>) and <code class="docutils literal notranslate"><span class="pre">sd</span></code>   (<span class="math notranslate nohighlight">\(\sigma\)</span>) using</p>
+<div class="math notranslate nohighlight">
+\[r = \frac{\mu^2}{\sigma^2 - \mu}\]</div>
+<div class="math notranslate nohighlight">
+\[p = 1 - \frac{\sigma^2 - \mu}{\sigma^2}\]</div>
+<p>Assumes <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">&lt;</span> <span class="pre">sd**2</span></code>; an exception is raised if not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>int</em>) – Argument of loss function.</li>
+<li><strong>r</strong> (<em>int</em><em>, </em><em>optional</em>) – Shape parameter of NB distribution representing number of successes until Bernoulli trials stop.</li>
+<li><strong>p</strong> (<em>float</em><em>, </em><em>optional</em>) – Shape parameter of NB distribution representing success probability for one Bernoulli trial.</li>
+<li><strong>mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean of NB distribution. Ignored if <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code> are both provided, required otherwise.</li>
+<li><strong>sd</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of NB distribution. Ignored if <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code> are both provided, required otherwise.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> or <code class="docutils literal notranslate"><span class="pre">r</span></code> is not an integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code> are not both provided and <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">sd</span></code> are also not both provided.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">mean</span></code> is not less than <code class="docutils literal notranslate"><span class="pre">sd</span> <span class="pre">**</span> <span class="pre">2</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), Section C.2.3.6, and equation (C.14)):</p>
+<div class="math notranslate nohighlight">
+\[n(x) = -(x - r*\beta)(1-F(x)) + (x + r) * \beta * f(x),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta = (1-p)/p\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\bar{n}(x) = x - E[X] + n(x)\]</div>
+<p>(Note that Zipkin (2000) uses a different version of the negative-binomial distribution.
+The notation has been adjusted to account for the version we use here.)</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">(4.447304632028365, 2.4473046320283647)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">(9.326459980156917, 0.32645998015691724)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.negative_binomial_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">negative_binomial_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>r=None</em>, <em>p=None</em>, <em>mean=None</em>, <em>sd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.negative_binomial_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+exponential loss function and complementary second-order loss function for a
+negative binomial (NB) distribution with shape parameters <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p\)</span>.
+The pmf of this distribution is given by</p>
+<div class="math notranslate nohighlight">
+\[f(x) = {x+r-1 \choose r-1}p^r(1-p)^x\]</div>
+<p>(See <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.nbinom.html</a>.)</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">sd</span></code> are provided instead of <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code>, the function calculates
+<span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p\)</span> from <code class="docutils literal notranslate"><span class="pre">mean</span></code> (<span class="math notranslate nohighlight">\(\mu\)</span>) and <code class="docutils literal notranslate"><span class="pre">sd</span></code>   (<span class="math notranslate nohighlight">\(\sigma\)</span>) using</p>
+<div class="math notranslate nohighlight">
+\[r = \frac{\mu^2}{\sigma^2 - \mu}\]</div>
+<div class="math notranslate nohighlight">
+\[p = 1 - \frac{\sigma^2 - \mu}{\sigma^2}\]</div>
+<p>Assumes <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">&lt;</span> <span class="pre">sd**2</span></code>; an exception is raised if not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>int</em>) – Argument of loss function.</li>
+<li><strong>r</strong> (<em>int</em><em>, </em><em>optional</em>) – Shape parameter of NB distribution representing number of successes until Bernoulli trials stop.</li>
+<li><strong>p</strong> (<em>float</em><em>, </em><em>optional</em>) – Shape parameter of NB distribution representing success probability for one Bernoulli trial.</li>
+<li><strong>mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean of NB distribution. Ignored if <cite>r</cite> and <cite>p</cite> are both provided, required otherwise.</li>
+<li><strong>sd</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of NB distribution. Ignored if <cite>r</cite> and <cite>p</cite> are both provided, required otherwise.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> or <code class="docutils literal notranslate"><span class="pre">r</span></code> is not an integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code> are not both provided and <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">sd</span></code> are also not both provided.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">mean</span></code> is not less than <code class="docutils literal notranslate"><span class="pre">sd</span> <span class="pre">**</span> <span class="pre">2</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (Zipkin (2000), Section C.2.3.6, and (C.40)):</p>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \frac12\left[\left[r(r+1)\beta^2 - 2r\beta x + x(x+1)\right](1-F(x))
++ \left[(r+1)\beta - x\right](x+r)\beta f(x)\right],\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta = (1-p)/p\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\bar{n}^{(2)}(x) = \frac12\left((x-E[X])^2 + (x-E[X]) + \text{Var}[X]\right) - n^{(2)}(x)\]</div>
+<p>(Note that Zipkin (2000) uses a different version of the negative-binomial distribution.
+The notation has been adjusted to account for the version we use here.)</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_second_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">(30.877804945158942, 10.122195054841043)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_second_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">(67.10108087745225, 0.8989191225477526)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.normal_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">normal_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mean</em>, <em>sd</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.normal_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>, the normal loss function and
+complementary loss functions for a <span class="math notranslate nohighlight">\(N(\mu,\sigma^2)\)</span>
+distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mean</strong> (<em>float</em>) – Mean of normal distribution. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>sd</strong> (<em>float</em>) – Standard deviation of normal distribution. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.31) and (C.32)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n(x) = \mathscr{L}(z) \sigma\\\bar{n}(x) = \bar{\mathscr{L}}(z) \sigma\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(z = (x-\mu)/\sigma\)</span> and <span class="math notranslate nohighlight">\(\mathscr{L}(z)\)</span> and
+<span class="math notranslate nohighlight">\(\bar{\mathscr{L}}(z)\)</span> are the standard normal loss and complementary
+loss functions.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normal_loss</span><span class="p">(</span><span class="mf">18.6</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">(0.1683073521514889, 3.7683073521514903)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.normal_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">normal_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mean</em>, <em>sd</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.normal_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+normal loss function and complementary second-order loss function for a
+<span class="math notranslate nohighlight">\(N(\mu,\sigma^2)\)</span> distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mean</strong> (<em>float</em>) – Mean of normal distribution. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>sd</strong> (<em>float</em>) – Standard deviation of normal distribution. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.33) and (C.34)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n^{(2)}(x) = \mathscr{L}^{(2)}(z) \sigma^2\\\bar{n}^{(2)}(x) = \bar{\mathscr{L}}^{(2)}(z) \sigma^2\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(z = (x-\mu)/\sigma\)</span> and <span class="math notranslate nohighlight">\(\mathscr{L}^{(2)}(z)\)</span> and
+<span class="math notranslate nohighlight">\(\bar{\mathscr{L}}^{(2)}(z)\)</span> are the standard normal second-order
+loss and complementary loss functions.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normal_second_loss</span><span class="p">(</span><span class="mf">18.6</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">(0.21486028212500707, 10.765139717874998)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.poisson_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">poisson_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mean</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.poisson_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Poisson loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{Pois}\)</span> (<code class="docutils literal notranslate"><span class="pre">mean</span></code>)
+distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mean</strong> (<em>float</em>) – Mean of Poisson distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>int</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is not an integer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.41) and (C.42)):</p>
+<div class="math notranslate nohighlight">
+\[n(x) = -(x - \mu)(1-F(x)) + \mu * f(x)\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}(x) = (x - \mu) * F(x) + \mu * f(x)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poisson_loss</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+<span class="go">(0.5176095282584724, 3.5176095282584723)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.poisson_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">poisson_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>mean</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.poisson_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+Poisson loss function and complementary second-order loss function for a <span class="math notranslate nohighlight">\(\text{Pois}\)</span> (<code class="docutils literal notranslate"><span class="pre">mean</span></code>)
+distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>mean</strong> (<em>float</em>) – Mean of Poisson distribution. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is not an integer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.41) and (C.42)):</p>
+<div class="math notranslate nohighlight">
+\[n^{(2)}(x) = \frac12 \left[\left((x-\mu)^2 + x\right)(1-F(x)) - \mu(x-\mu)f(x)\right]\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{n}^{(2)}(x) = \frac12 \left[\left((x-\mu)^2 + x\right)F(x) + \mu(x-\mu)f(x)\right]\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poisson_second_loss</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+<span class="go">(0.848340302917789, 12.651659697082211)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.standard_normal_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">standard_normal_loss</code><span class="sig-paren">(</span><em>z</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.standard_normal_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(\mathscr{L}(z)\)</span> and <span class="math notranslate nohighlight">\(\bar{\mathscr{L}}(z)\)</span>, the
+standard normal loss and complementary loss functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> (<em>float</em>) – Argument of loss function.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>L</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(\mathscr{L}(z)\)</span>]</li>
+<li><strong>L_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{\mathscr{L}}(z)\)</span>]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.22) and (C.23)):</p>
+<div class="math notranslate nohighlight">
+\[\mathscr{L}(z) = \phi(z) - z(1 - \Phi(z))\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{\mathscr{L}}(z) = z + \mathscr{L}(z)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">standard_normal_loss</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+<span class="go">(0.04552796208651397, 1.345527962086514)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.standard_normal_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">standard_normal_second_loss</code><span class="sig-paren">(</span><em>z</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.standard_normal_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(\mathscr{L}^{(2)}(z)\)</span> and
+<span class="math notranslate nohighlight">\(\bar{\mathscr{L}}^{(2)}(z)\)</span>, the standard normal second-order loss
+and complementary loss functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> (<em>float</em>) – Argument of loss function.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>L2</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(\mathscr{L}^{(2)}(z)\)</span>]</li>
+<li><strong>L2_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{\mathscr{L}}^{(2)}(z)\)</span>]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used</strong> (equations (C.27) and (C.28)):</p>
+<div class="math notranslate nohighlight">
+\[\mathscr{L}^{(2)}(z) = \frac12\left[\left(z^2+1\right)(1-\Phi(z)) - z\phi(z)\right]\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{\mathscr{L}}^{(2)}(z) = \frac12(z^2 + 1) - \mathscr{L}^{(2)}(z)\]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">standard_normal_second_loss</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+<span class="go">(0.01880706693657111, 1.326192933063429)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.uniform_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">uniform_loss</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.uniform_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return uniform loss and complementary loss functions for a continuous <span class="math notranslate nohighlight">\(U[a,b]\)</span>
+distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>a</strong> (<em>float</em>) – Lower bound of uniform distribution.</li>
+<li><strong>b</strong> (<em>float</em>) – Upper bound of uniform distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n</strong> (<em>float</em>) – Loss function. [<span class="math notranslate nohighlight">\(n(x)\)</span>]</li>
+<li><strong>n_bar</strong> (<em>float</em>) – Complementary loss function. [<span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">a</span></code> or &gt; <code class="docutils literal notranslate"><span class="pre">b</span></code>.
+# TODO: actually this is OK, just figure out what function equals in this case</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used:</strong></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n(x) = \frac{(b-x)^2}{2(b-a)}\\\bar{n}(x) = \frac{(x-a)^2}{2(b-a)}\end{aligned}\end{align} \]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">uniform_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">(1.3333333333333333, 0.3333333333333333)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyinv.loss_functions.uniform_second_loss">
+<code class="descclassname">pyinv.loss_functions.</code><code class="descname">uniform_second_loss</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.loss_functions.uniform_second_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
+loss and complementary loss functions for a
+<span class="math notranslate nohighlight">\(U[a,b]\)</span> distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>float</em>) – Argument of loss function.</li>
+<li><strong>a</strong> (<em>float</em>) – Lower bound of uniform distribution.</li>
+<li><strong>b</strong> (<em>float</em>) – Upper bound of uniform distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>n2</strong> (<em>float</em>) – Second-order loss function. [<span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span>]</li>
+<li><strong>n2_bar</strong> (<em>float</em>) – Complementary second-order loss function. [<span class="math notranslate nohighlight">\(\bar{n}^{(n)}(x)\)</span>]</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">a</span></code> or &gt; <code class="docutils literal notranslate"><span class="pre">b</span></code>.
+# TODO: actually this is OK, just figure out what function equals in this case</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Equations Used:</strong></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}n^{(2)}(x) = \frac{(b-x)^3}{6(b-a)}\\\bar{n}^{(2)}(x) = \frac{(x-a)^3}{6(b-a)}\end{aligned}\end{align} \]</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">uniform_second_loss</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">(1.7777777777777777, 0.2222222222222222)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="supply_uncertainty.html" class="btn btn-neutral float-right" title="supply_uncertainty Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sim.html" class="btn btn-neutral float-left" title="sim Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Larry Snyder
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
