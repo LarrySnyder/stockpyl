@@ -173,6 +173,9 @@ refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edit
 <dt id="pyinv.eoq.economic_order_quantity">
 <code class="descclassname">pyinv.eoq.</code><code class="descname">economic_order_quantity</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>demand_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity (EOQ) problem.</p>
+<p>Input parameters may be singletons or list-like objects, or a combination.
+All list-like objects must have the same dimensions. Return values will
+be singletons if all input parameters are singletons and will be ndarrays otherwise.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

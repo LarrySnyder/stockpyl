@@ -166,7 +166,7 @@ def finite_horizon_dp(
 
 	.. testsetup:: *
 
-		from finite_horizon import *
+		from pyinv.finite_horizon import *
 
 	.. doctest::
 

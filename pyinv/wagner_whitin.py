@@ -81,7 +81,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 
 	.. testsetup:: *
 
-		from wagner_whitin import *
+		from pyinv.wagner_whitin import *
 
 	.. doctest::
 
@@ -205,7 +205,7 @@ def wagner_whitin_capac(num_periods, holding_cost, fixed_cost, demand, purchase_
 
 	.. testsetup:: *
 
-		from wagner_whitin import *
+		from pyinv.wagner_whitin import *
 
 	.. doctest::
 

@@ -104,7 +104,7 @@ def eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 
 	.. testsetup:: *
 
-		from eoq import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -222,7 +222,7 @@ def eoq_with_disruptions_cost(order_quantity, fixed_cost,
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -326,7 +326,7 @@ def newsvendor_with_disruptions(holding_cost, stockout_cost, demand, disruption_
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -435,7 +435,7 @@ def eoq_with_additive_yield_uncertainty(fixed_cost, holding_cost, demand_rate, y
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -516,7 +516,7 @@ def eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_r
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -614,7 +614,7 @@ def newsvendor_with_additive_yield_uncertainty(holding_cost, stockout_cost, dema
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	Using generic function to calculate loss functions:
 
@@ -628,7 +628,7 @@ def newsvendor_with_additive_yield_uncertainty(holding_cost, stockout_cost, dema
 
 	.. doctest::
 
-		>>> from loss_functions import uniform_loss
+		>>> from pyinv.loss_functions import uniform_loss
 		>>> loss_function = lambda x: uniform_loss(x, -500000, 500000)
 		>>> newsvendor_with_additive_yield_uncertainty(15, 75, 1.5e6, yield_distribution=uniform(-500000, 1000000), loss_function=loss_function)
 		(1833333.3333333335, 6250000.000000001)

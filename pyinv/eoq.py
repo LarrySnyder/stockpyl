@@ -31,7 +31,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 	"""Solve the economic order quantity (EOQ) problem.
 
 	Input parameters may be singletons or list-like objects, or a combination.
-	All list-like objects must have the same size. Return values will
+	All list-like objects must have the same dimensions. Return values will
 	be singletons if all input parameters are singletons and will be ndarrays otherwise.
 
 	Parameters
@@ -63,7 +63,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	.. testsetup:: *
 
-		from eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 
@@ -135,7 +135,7 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 	.. testsetup:: *
 
-		from eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 
@@ -195,7 +195,7 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 
 	.. testsetup:: *
 
-		from eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 
@@ -272,7 +272,7 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 
 	.. testsetup:: *
 
-		from eoq import *
+		from pyinv.eoq import *
 
 	.. doctest::
 

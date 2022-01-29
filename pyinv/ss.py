@@ -82,7 +82,7 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 
 	.. testsetup:: *
 
-		from ss import *
+		from pyinv.ss import *
 
 	.. doctest::
 
@@ -194,7 +194,7 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 	.. testsetup:: *
 
-		from ss import *
+		from pyinv.ss import *
 
 	.. doctest::
 
@@ -367,7 +367,7 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from ss import *
+		from pyinv.ss import *
 
 	.. doctest::
 

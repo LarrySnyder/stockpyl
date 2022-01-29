@@ -562,7 +562,7 @@ def convolve_many(arrays):
 
 	.. testsetup:: *
 
-		from helpers import *
+		from pyinv.helpers import *
 
 	.. doctest::
 

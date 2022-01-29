@@ -80,7 +80,7 @@ def standard_normal_loss(z):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -128,7 +128,7 @@ def standard_normal_second_loss(z):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -182,7 +182,7 @@ def normal_loss(x, mean, sd):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -238,7 +238,7 @@ def normal_second_loss(x, mean, sd):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -292,7 +292,7 @@ def lognormal_loss(x, mu, sigma):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -356,7 +356,7 @@ def exponential_loss(x, mu):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -417,7 +417,7 @@ def exponential_second_loss(x, mu):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -490,7 +490,7 @@ def gamma_loss(x, a, b):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -564,7 +564,7 @@ def gamma_second_loss(x, a, b):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -629,7 +629,7 @@ def uniform_loss(x, a, b):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -688,7 +688,7 @@ def uniform_second_loss(x, a, b):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -744,7 +744,7 @@ def continuous_loss(x, distrib):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -829,7 +829,7 @@ def continuous_second_loss(x, distrib):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest:: # TODO
 
@@ -925,7 +925,7 @@ def poisson_loss(x, mean):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -987,7 +987,7 @@ def poisson_second_loss(x, mean):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -1060,7 +1060,7 @@ def geometric_loss(x, p):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -1133,7 +1133,7 @@ def geometric_second_loss(x, p):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -1229,7 +1229,7 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -1351,7 +1351,7 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 	.. doctest::
 
@@ -1445,7 +1445,7 @@ def discrete_loss(x, distrib=None, pmf=None):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 		# TODO: why isn't this working??!?
 
@@ -1559,7 +1559,7 @@ def discrete_second_loss(x, distrib=None, pmf=None):
 
 	.. testsetup:: *
 
-		from loss_functions import *
+		from pyinv.loss_functions import *
 
 		# TODO: why isn't this working??!?
 

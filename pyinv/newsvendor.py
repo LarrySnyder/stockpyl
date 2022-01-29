@@ -72,7 +72,7 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -148,7 +148,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -219,7 +219,7 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -292,7 +292,7 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -366,7 +366,7 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -473,7 +473,7 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -613,7 +613,7 @@ def myopic(
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -713,7 +713,7 @@ def myopic_cost(
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -788,7 +788,7 @@ def set_myopic_cost_to(
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -926,7 +926,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
