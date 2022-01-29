@@ -1,4 +1,4 @@
-from .. pyinv.eoq import *
+from eoq import *
 
 import numpy as np
 

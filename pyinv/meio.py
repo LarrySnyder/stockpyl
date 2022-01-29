@@ -1,5 +1,6 @@
 """Code for optimizing multi-echelon inventory systems using a variety of
 generic methods.
+# TODO: rename to meio_generic?
 
 'node' and 'stage' are used interchangeably in the documentation.
 

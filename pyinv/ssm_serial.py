@@ -1,5 +1,6 @@
 """Code to implement Chen-Zheng (1994) algorithm for stochastic serial systems
 under stochastic service model (SSM), as described in Snyder and Shen (2019).
+# TODO: also cite Clark-Scarf
 
 'node' and 'stage' are used interchangeably in the documentation.
 

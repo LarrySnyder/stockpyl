@@ -20,13 +20,17 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 # TODO: allow these functions to take lists or ndarrays
 
-from pyinv.instances import *
+#from instances import *
 
 import numpy as np
 
 
 def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 	"""Solve the economic order quantity (EOQ) problem.
+
+	Input parameters may be singletons or list-like objects, or a combination.
+	All list-like objects must have the same dimensions. Return values will
+	be singletons if all input parameters are singletons and will be ndarrays otherwise.
 
 	Parameters
 	----------
@@ -66,10 +70,18 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	"""
 
+	# TODO: doctest with list inputs
+	
+
+	# Convert input parameters to numpy arrays.
+	fixed_cost = np.array(fixed_cost)
+	holding_cost = np.array(holding_cost)
+	demand_rate = np.array(demand_rate)
+
 	# Check that parameters are positive.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert demand_rate >= 0, "demand_rate must be non-negative."
+	assert np.all(fixed_cost >= 0), "fixed_cost must be non-negative."
+	assert np.all(holding_cost > 0), "holding_cost must be positive."
+	assert np.all(demand_rate >= 0), "demand_rate must be non-negative."
 
 	# Calculate optimal order quantity and cost.
 	order_quantity = np.sqrt(2 * fixed_cost * demand_rate / holding_cost)

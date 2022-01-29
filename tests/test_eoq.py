@@ -1,5 +1,7 @@
 import unittest
 
+from numpy import ndarray
+
 from pyinv.eoq import *
 from pyinv.instances import *
 
@@ -42,6 +44,114 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 		self.assertAlmostEqual(order_quantity, 304.0467800264368)
 		self.assertAlmostEqual(cost, 68.410525505948272)
+
+	def test_lists(self):
+		"""Test that EOQ function works correctly when parameters are provided as lists.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_lists()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = [fixed_cost] * 3
+		holding_cost = [holding_cost] * 3
+		demand_rate = [demand_rate] * 3
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
+
+	def test_some_lists(self):
+		"""Test that EOQ function works correctly when some parameters are provided as lists
+		and some as singletons.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_some_lists()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = [fixed_cost] * 3
+		holding_cost = [holding_cost] * 3
+		demand_rate = demand_rate
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
+
+	def test_ndarrays(self):
+		"""Test that EOQ function works correctly when parameters are provided as ndarrays.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_ndarrays()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = np.array([fixed_cost] * 3)
+		holding_cost = np.array([holding_cost] * 3)
+		demand_rate = np.array([demand_rate] * 3)
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
+
+	def test_some_ndarrays(self):
+		"""Test that EOQ function works correctly when some parameters are provided as ndarrays
+		and some as singletons.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_some_ndarrays()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = np.array([fixed_cost] * 3)
+		holding_cost = holding_cost
+		demand_rate = demand_rate
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
+
+	def test_tuples(self):
+		"""Test that EOQ function works correctly when parameters are provided as tuples.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_tuples()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = (fixed_cost, fixed_cost, fixed_cost)
+		holding_cost = (holding_cost, holding_cost, holding_cost)
+		demand_rate = (demand_rate, demand_rate, demand_rate)
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
+
+	def test_mixed_parameters(self):
+		"""Test that EOQ function works correctly when parameters are as various list-types.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_mixed_parameters()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = (fixed_cost, fixed_cost, fixed_cost)
+		holding_cost = [holding_cost] * 3
+		demand_rate = np.array([demand_rate] * 3)
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
+
+	def test_mixed_parameters2(self):
+		"""Test that EOQ function works correctly when parameters are as various list-types and
+		singletons.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_mixed_parameters2()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+
+		fixed_cost = fixed_cost
+		holding_cost = [holding_cost] * 3
+		demand_rate = np.array([demand_rate] * 3)
+
+		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([304.0467800264368] * 3))
+		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
 
 	def test_problem_3_1(self):
 		"""Test that EOQ function correctly solves Problem 3.1.
