@@ -1,46 +1,5 @@
-Results of doctest builder run on 2022-01-29 12:00:28
+Results of doctest builder run on 2022-01-29 15:15:58
 =====================================================
-
-Document: newsvendor
---------------------
-1 items passed all tests:
-  28 tests in default
-28 tests in 1 items.
-28 passed and 0 failed.
-Test passed.
-
-Document: eoq
--------------
-1 items passed all tests:
-  10 tests in default
-10 tests in 1 items.
-10 passed and 0 failed.
-Test passed.
-
-Document: ss
-------------
-1 items passed all tests:
-   3 tests in default
-3 tests in 1 items.
-3 passed and 0 failed.
-Test passed.
-
-Document: rq
-------------
-1 items passed all tests:
-   8 tests in default
-8 tests in 1 items.
-8 passed and 0 failed.
-Test passed.
-
-Document: loss_functions
-------------------------
-2 items passed all tests:
-   5 tests in # TODO
-  44 tests in default
-49 tests in 2 items.
-49 passed and 0 failed.
-Test passed.
 
 Document: wagner_whitin
 -----------------------
@@ -58,6 +17,31 @@ Document: supply_uncertainty
 15 passed and 0 failed.
 Test passed.
 
+Document: ss
+------------
+1 items passed all tests:
+   3 tests in default
+3 tests in 1 items.
+3 passed and 0 failed.
+Test passed.
+
+Document: loss_functions
+------------------------
+2 items passed all tests:
+   5 tests in # TODO
+  44 tests in default
+49 tests in 2 items.
+49 passed and 0 failed.
+Test passed.
+
+Document: eoq
+-------------
+1 items passed all tests:
+  11 tests in default
+11 tests in 1 items.
+11 passed and 0 failed.
+Test passed.
+
 Document: finite_horizon
 ------------------------
 1 items passed all tests:
@@ -66,9 +50,25 @@ Document: finite_horizon
 4 passed and 0 failed.
 Test passed.
 
+Document: rq
+------------
+1 items passed all tests:
+   8 tests in default
+8 tests in 1 items.
+8 passed and 0 failed.
+Test passed.
+
+Document: newsvendor
+--------------------
+1 items passed all tests:
+  28 tests in default
+28 tests in 1 items.
+28 passed and 0 failed.
+Test passed.
+
 Doctest summary
 ===============
-  127 tests
+  128 tests
     0 failures in tests
     0 failures in setup code
     0 failures in cleanup code

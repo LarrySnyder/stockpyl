@@ -36,11 +36,11 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	Parameters
 	----------
-	fixed_cost : float or list-like
+	fixed_cost : float or list-like of floats
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float or list-like
+	holding_cost : float or list-like of floats
 		Holding cost per item per unit time. [:math:`h`]
-	demand_rate : float or list-like
+	demand_rate : float or list-like of floats
 		Demand (items) per unit time. [:math:`\\lambda`]
 
 	Returns
@@ -114,22 +114,22 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 	Parameters
 	----------
-	fixed_cost : float or list-like
+	fixed_cost : float or list-like of floats
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float or list-like
+	holding_cost : float or list-like of floats
 		Holding cost per item per unit time. [:math:`h`]
-	stockout_cost : float or list-like
+	stockout_cost : float or list-like of floats
 		Stockout cost per item per unit time. [:math:`p`]
-	demand_rate : float or list-like
+	demand_rate : float or list-like of floats
 		Demand (items) per unit time. [:math:`\\lambda`]
 
 	Returns
 	-------
-	order_quantity : float or list-like
+	order_quantity : float or ndarray
 		Optimal order quantity (items). [:math:`Q^*`]
-	stockout_fraction : float or list-like
+	stockout_fraction : float or ndarray
 		Optimal stockout fraction (items). [:math:`x^*`]
-	cost : float or list-like
+	cost : float or ndarray
 		Optimal cost per unit time. [:math:`g^*`]
 
 
@@ -194,22 +194,26 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 def economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate):
 	"""Solve the economic production quantity (EPQ) problem.
 
+	Input parameters may be singletons or list-like objects, or a combination.
+	All list-like objects must have the same dimensions. Return values will
+	be singletons if all input parameters are singletons and will be ndarrays otherwise.
+
 	Parameters
 	----------
-	fixed_cost : float
+	fixed_cost : float or list-like of floats
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float
+	holding_cost : float or list-like of floats
 		Holding cost per item per unit time. [:math:`h`]
-	demand_rate : float
+	demand_rate : float or list-like of floats
 		Demand (items) per unit time. [:math:`\\lambda`]
-	production_rate : float
+	production_rate : float or list-like of floats
 		Production quantity (items) per unit time. [:math:`\\mu`]
 
 	Returns
 	-------
-	order_quantity : float
+	order_quantity : float or ndarray
 		Optimal order quantity (items). [:math:`Q^*`]
-	cost : float
+	cost : float or ndarray
 		Optimal cost per unit time. [:math:`g^*`]
 
 
@@ -234,15 +238,36 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 		>>> economic_production_quantity(8, 0.225, 1300, 1700)
 		(626.8084945889684, 33.183979125298336)
 
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.eoq import *
+
+	.. doctest::
+
+		>>> economic_production_quantity([8, 20], [0.225, 1], [1300, 100], [1700, 200])
+		(array([626.80849459,  89.4427191 ]), array([33.18397913, 44.72135955]))
+
 	"""
 
-	# Check that parameters are positive.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert demand_rate > 0, "demand_rate must be non-negative."
-	assert production_rate > 0, "production_rate must be non-negative."
+	# Convert input parameters to numpy arrays.
+	fixed_cost = np.array(fixed_cost)
+	holding_cost = np.array(holding_cost)
+	demand_rate = np.array(demand_rate)
+	production_rate = np.array(production_rate)
 
-	# TODO: check demand rate < production rate
+	# Check that parameters are non-negative/positive.
+	if not np.all(fixed_cost >= 0): raise ValueError("fixed_cost must be non-negative.")
+	if not np.all(holding_cost > 0): raise ValueError( "holding_cost must be positive.")
+	if not np.all(demand_rate >= 0): raise ValueError( "demand_rate must be non-negative.")
+	if not np.all(production_rate > 0): raise ValueError( "production_rate must be positive.")
+
+	# Check that parameters are singletons or same-size iterables.
+	if not check_iterable_sizes([fixed_cost, holding_cost, demand_rate, production_rate]): raise ValueError("Input parameters must singletons or list-like objects of the same size.")
+
+	# Check that demand rate < production rate.
+	if not np.all(demand_rate < production_rate): raise ValueError("demand_rate must be less than production_rate.")
 
 	# Calculate rho.
 	rho = demand_rate / production_rate
@@ -370,13 +395,3 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 
 	return order_quantities, base_cycle_time, order_multiples, cost
 
-
-# shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_spp")
-#
-# order_quantities, base_cycle_time, order_multiples, cost = joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs,
-# 																		holding_costs, demand_rates)
-#
-# print("Q = ", order_quantities)
-# print("T = ", base_cycle_time)
-# print("m_n = ", order_multiples)
-# print("g = ", cost)

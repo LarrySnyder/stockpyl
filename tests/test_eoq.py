@@ -1,3 +1,4 @@
+#from math import *
 from multiprocessing.sharedctypes import Value
 import unittest
 
@@ -309,6 +310,42 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		self.assertAlmostEqual(order_quantity, 513.9328595516969)
 		self.assertAlmostEqual(cost, 40.472212689696120)
 
+	def test_lists(self):
+		"""Test that EPQ function correctly solves Example 3.1 plus mu = 2000, and
+		another instance, when parameters are provided as lists
+		"""
+		print_status('TestEconomicProductionQuantity', 'test_lists()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		production_rate = 2000
+
+		fixed_cost = [fixed_cost] * 2 + [20]
+		holding_cost = [holding_cost] * 2 + [1]
+		demand_rate = [demand_rate] * 2 + [100]
+		production_rate = [production_rate] * 2 + [200]
+
+		order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+		np.testing.assert_allclose(order_quantity, np.array([513.9328595516969] * 2 + [89.4427191]))
+		np.testing.assert_allclose(cost, np.array([40.472212689696120] * 2 + [44.72135955]))
+
+	def test_mixed_parameters(self):
+		"""Test that EPQ function works correctly when parameters are as various list-types and
+		singletons.
+		"""
+		print_status('TestEconomicProductionQuantity', 'test_mixed_parameters()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		production_rate = 2000
+
+		fixed_cost = [fixed_cost] * 2 + [20]
+		holding_cost = (holding_cost, holding_cost, 1)
+		demand_rate = demand_rate
+		production_rate = np.array([production_rate, production_rate, 1700])
+
+		order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+		np.testing.assert_allclose(order_quantity, np.array([513.9328595516969] * 2 + [470.10637094172625]))
+		np.testing.assert_allclose(cost, np.array([40.472212689696120] * 2 + [110.61326375099443]))
+
 	def test_problem_3_22(self):
 		"""Test that EPQ function correctly solves Problem 3.22.
 		"""
@@ -342,9 +379,24 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
 		production_rate = 2000
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 
+	def test_bad_producition_rate(self):
+		"""Test that EPQ function raises exception when mu < lambda.
+		"""
+		print_status('TestEconomicProductionQuantity', 'test_bad_producition_rate()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		production_rate = 2000
+
+		fixed_cost = [fixed_cost] * 2 
+		holding_cost = [holding_cost] * 2
+		demand_rate = [demand_rate] * 2
+		production_rate = [production_rate, 800]
+
+		with self.assertRaises(ValueError):
+			order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
 
 class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 	@classmethod

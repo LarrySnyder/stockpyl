@@ -259,21 +259,24 @@ be singletons if all input parameters are singletons and will be ndarrays otherw
 <dt id="pyinv.eoq.economic_production_quantity">
 <code class="descclassname">pyinv.eoq.</code><code class="descname">economic_production_quantity</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>demand_rate</em>, <em>production_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_production_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic production quantity (EPQ) problem.</p>
+<p>Input parameters may be singletons or list-like objects, or a combination.
+All list-like objects must have the same dimensions. Return values will
+be singletons if all input parameters are singletons and will be ndarrays otherwise.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>production_rate</strong> (<em>float</em>) – Production quantity (items) per unit time. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list-like</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list-like</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>demand_rate</strong> (<em>float</em><em> or </em><em>list-like</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
+<li><strong>production_rate</strong> (<em>float</em><em> or </em><em>list-like</em>) – Production quantity (items) per unit time. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Optimal cost per unit time. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+<li><strong>order_quantity</strong> (<em>float or list-like</em>) – Optimal order quantity (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
+<li><strong>cost</strong> (<em>float or list-like</em>) – Optimal cost per unit time. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 </ul>
 </p>
 </td>
@@ -287,6 +290,11 @@ be singletons if all input parameters are singletons and will be ndarrays otherw
 <p><strong>Example</strong>:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_production_quantity</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">1700</span><span class="p">)</span>
 <span class="go">(626.8084945889684, 33.183979125298336)</span>
+</pre></div>
+</div>
+<p><strong>Example</strong> :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_production_quantity</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.225</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1300</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mi">1700</span><span class="p">,</span> <span class="mi">200</span><span class="p">])</span>
+<span class="go">(array([626.80849459,  89.4427191 ]), array([33.18397913, 44.72135955]))</span>
 </pre></div>
 </div>
 </dd></dl>
