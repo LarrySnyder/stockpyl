@@ -1,5 +1,6 @@
 import unittest
 from scipy import stats
+import numpy as np
 
 import pyinv.helpers as helpers
 
@@ -325,6 +326,78 @@ class TestIsContinuousDistribution(unittest.TestCase):
 
 		is_discrete = helpers.is_continuous_distribution(dist)
 		self.assertEqual(is_discrete, True)
+
+
+class TestCheckIterableSizes(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCheckIterableSizes', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCheckIterableSizes', 'tear_down_class()')
+
+	def test_singletons(self):
+		"""Test that check_iterable_sizes() returns correct result if given
+		only singletons.
+		"""
+		print_status('TestCheckIterableSizes', 'test_singletons()')
+
+		self.assertTrue(helpers.check_iterable_sizes([3.14, 5]))
+
+	def test_list_of_equals(self):
+		"""Test that check_iterable_sizes() returns correct result if given
+		a list of equal-sized iterables.
+		"""
+		print_status('TestCheckIterableSizes', 'test_list_of_equals()')
+
+		self.assertTrue(helpers.check_iterable_sizes([
+			[3.14, 5], 
+			('a', 'b'), 
+			np.array([1, 2])
+		]))
+
+	def test_list_of_equals_and_singletons(self):
+		"""Test that check_iterable_sizes() returns correct result if given
+		a list of equal-sized iterables with some singletons too.
+		"""
+		print_status('TestCheckIterableSizes', 'test_list_of_equals_and_singletons()')
+
+		self.assertTrue(helpers.check_iterable_sizes([
+			[3.14, 5], 
+			7,
+			('a', 'b'), 
+			np.array([1, 2]),
+			42
+		]))
+
+	def test_list_of_unequals(self):
+		"""Test that check_iterable_sizes() returns correct result if given
+		a list of unequal-sized iterables.
+		"""
+		print_status('TestCheckIterableSizes', 'test_list_of_unequals()')
+
+		self.assertFalse(helpers.check_iterable_sizes([
+			[3.14, 5, 17], 
+			('a', 'b'), 
+			np.array([1, 2])
+		]))
+
+	def test_list_of_unequals_and_singletons(self):
+		"""Test that check_iterable_sizes() returns correct result if given
+		a list of unequal-sized iterables with some singletons too.
+		"""
+		print_status('TestCheckIterableSizes', 'test_list_of_unequals_and_singletons()')
+
+		self.assertFalse(helpers.check_iterable_sizes([
+			[3.14, 5, 17], 
+			7,
+			('a', 'b'), 
+			np.array([1, 2]),
+			42
+		]))
 
 
 class TestEnsureListForTimePeriods(unittest.TestCase):

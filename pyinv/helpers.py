@@ -281,10 +281,35 @@ def find_nearest(array, values, sorted=False):
 	return ind.astype(int)
 
 
-### LIST-BUILDING FUNCTIONS ###
+### LIST-HANDLING FUNCTIONS ###
+
+def check_iterable_sizes(iterable_list):
+	"""Check whether `iterable_list` is a list in which every item is an iterable of the
+	same size _or_ a singleton.
+
+	Examples:
+		- ensure_iterable_sizes([[5, 3, 1], ('a', 'b', 'c'), 7]) returns True
+		- ensure_iterable_sizes([[5, 3, 1], ('a, 'b'), 7]) returns False
+
+	Parameters
+	----------
+	iterable_list : list
+		List to check.
+
+	Returns
+	-------
+	True if `iterable_list` is a list in which every item is an iterable of the
+	same size _or_ a singleton, False otherwise.
+	"""
+	# Build set of lengths of items in list, excluding singletons.
+	lengths = {len(i) for i in iterable_list if is_iterable(i) and len(i) != 1}
+
+	# Check whether lengths contains at most one element.
+	return len(lengths) <= 1
+
 
 def ensure_list_for_time_periods(x, num_periods, var_name=None):
-	"""Ensure that x is a list suitable for time-period indexing; if not, create
+	"""Ensure that `x` is a list suitable for time-period indexing; if not, create
 	such a list and return it.
 
 	"Suitable for time-period indexing" means that it has length num_periods+1,

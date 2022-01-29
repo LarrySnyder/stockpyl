@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import unittest
 
 from numpy import ndarray
@@ -183,7 +184,19 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		fixed_cost = -8
 		holding_cost = 0.75 * 0.3
 		demand_rate = 1300
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
+			order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+
+	def test_wrong_size_parameters(self):
+		"""Test that EOQ function raises exception on parameter of unequal-sized lists.
+		"""
+		print_status('TestEconomicOrderQuantity', 'test_wrong_size_parameters()')
+
+		fixed_cost, holding_cost, demand_rate = get_named_instance("problem_3_1")
+
+		fixed_cost = [fixed_cost] * 3
+		holding_cost = [holding_cost] * 5
+		with self.assertRaises(ValueError):
 			order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 
 
