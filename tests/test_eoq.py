@@ -124,13 +124,14 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
 
 	def test_mixed_parameters(self):
-		"""Test that EOQ function works correctly when parameters are as various list-types.
+		"""Test that EOQ function works correctly when parameters are as various list-types and
+		singletons.
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_mixed_parameters()')
 
 		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
 
-		fixed_cost = (fixed_cost, fixed_cost, fixed_cost)
+		fixed_cost = fixed_cost
 		holding_cost = [holding_cost] * 3
 		demand_rate = np.array([demand_rate] * 3)
 
@@ -139,14 +140,13 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		np.testing.assert_allclose(cost, np.array([68.410525505948272] * 3))
 
 	def test_mixed_parameters2(self):
-		"""Test that EOQ function works correctly when parameters are as various list-types and
-		singletons.
+		"""Test that EOQ function works correctly when parameters are as various list-types.
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_mixed_parameters2()')
 
 		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
 
-		fixed_cost = fixed_cost
+		fixed_cost = (fixed_cost, fixed_cost, fixed_cost)
 		holding_cost = [holding_cost] * 3
 		demand_rate = np.array([demand_rate] * 3)
 
@@ -225,6 +225,26 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		self.assertAlmostEqual(stockout_fraction, 0.043062200956938)
 		self.assertAlmostEqual(cost, 66.921363550973254)
 
+	def test_mixed_parameters(self):
+		"""Test that EOQB function works correctly when parameters are as various list-types and
+		singletons.
+		"""
+		print_status('TestEconomicOrderQuantityWithBackorders', 'test_mixed_parameters()')
+
+		fixed_cost, holding_cost, stockout_cost, demand_rate = \
+			get_named_instance("example_3_8")
+
+		fixed_cost = fixed_cost
+		holding_cost = [holding_cost] * 3
+		stockout_cost = (stockout_cost, stockout_cost, stockout_cost)
+		demand_rate = np.array([demand_rate] * 3)
+
+		order_quantity, stockout_fraction, cost = \
+			economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+		np.testing.assert_allclose(order_quantity, np.array([310.8125551589646] * 3))
+		np.testing.assert_allclose(stockout_fraction, np.array([0.043062200956938] * 3))
+		np.testing.assert_allclose(cost, np.array([66.921363550973254] * 3))
+
 	def test_problem_3_2b(self):
 		"""Test that EOQB function correctly solves Problem 3.2(b).
 		"""
@@ -261,7 +281,7 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		holding_cost = 0.75 * 0.3
 		stockout_cost = 5
 		demand_rate = 1300
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			order_quantity, stockout_fraction, cost = \
 				economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
 

@@ -36,18 +36,18 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 
 	Parameters
 	----------
-	fixed_cost : float
+	fixed_cost : float or list-like
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float
+	holding_cost : float or list-like
 		Holding cost per item per unit time. [:math:`h`]
-	demand_rate : float
+	demand_rate : float or list-like
 		Demand (items) per unit time. [:math:`\\lambda`]
 
 	Returns
 	-------
-	order_quantity : float
+	order_quantity : float or ndarray
 		Optimal order quantity (items). [:math:`Q^*`]
-	cost : float
+	cost : float or ndarray
 		Optimal cost per unit time. [:math:`g^*`]
 
 
@@ -70,10 +70,18 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 		>>> economic_order_quantity(8, 0.225, 1300)
 		(304.0467800264368, 68.41052550594829)
 
+	**Example** (Example 3.1 and an example with :math:`K=20`, :math:`h=1`, :math:`\\lambda=100`):
+
+	.. testsetup:: *
+
+		from pyinv.eoq import *
+
+	.. doctest::
+
+		>>> economic_order_quantity([8, 20], [0.225, 1], [1300, 100])
+		(array([304.04678003,  63.2455532 ]), array([68.41052551, 63.2455532 ]))
+
 	"""
-
-	# TODO: doctest with list inputs
-
 
 	# Convert input parameters to numpy arrays.
 	fixed_cost = np.array(fixed_cost)
@@ -100,24 +108,28 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate):
 	"""Solve the economic order quantity with backorders (EOQB) problem.
 
+	Input parameters may be singletons or list-like objects, or a combination.
+	All list-like objects must have the same dimensions. Return values will
+	be singletons if all input parameters are singletons and will be ndarrays otherwise.
+
 	Parameters
 	----------
-	fixed_cost : float
+	fixed_cost : float or list-like
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float
+	holding_cost : float or list-like
 		Holding cost per item per unit time. [:math:`h`]
-	stockout_cost : float
+	stockout_cost : float or list-like
 		Stockout cost per item per unit time. [:math:`p`]
-	demand_rate : float
+	demand_rate : float or list-like
 		Demand (items) per unit time. [:math:`\\lambda`]
 
 	Returns
 	-------
-	order_quantity : float
+	order_quantity : float or list-like
 		Optimal order quantity (items). [:math:`Q^*`]
-	stockout_fraction : float
+	stockout_fraction : float or list-like
 		Optimal stockout fraction (items). [:math:`x^*`]
-	cost : float
+	cost : float or list-like
 		Optimal cost per unit time. [:math:`g^*`]
 
 
@@ -142,13 +154,33 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 		>>> economic_order_quantity_with_backorders(8, 0.225, 5, 1300)
 		(310.81255515896464, 0.0430622009569378, 66.92136355097325)
 
+	**Example** (Example 3.8 and an example with :math:`K=20`, :math:`h=1`, :math:`p=10`, :math:`\\lambda=100`):
+
+	.. testsetup:: *
+
+		from pyinv.eoq import *
+
+	.. doctest::
+
+		>>> economic_order_quantity_with_backorders([8, 20], [0.225, 1], [5, 10], [1300, 100])
+		(array([310.81255516,  66.33249581]), array([0.0430622 , 0.09090909]), array([66.92136355, 60.30226892]))
+
 	"""
 
+	# Convert input parameters to numpy arrays.
+	fixed_cost = np.array(fixed_cost)
+	holding_cost = np.array(holding_cost)
+	stockout_cost = np.array(stockout_cost)
+	demand_rate = np.array(demand_rate)
+	
 	# Check that parameters are positive.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_rate >= 0, "demand_rate must be non-negative."
+	if not np.all(fixed_cost >= 0): raise ValueError("fixed_cost must be non-negative.")
+	if not np.all(holding_cost > 0): raise ValueError( "holding_cost must be positive.")
+	if not np.all(stockout_cost > 0): raise ValueError( "stockout_cost must be positive.")
+	if not np.all(demand_rate >= 0): raise ValueError( "demand_rate must be non-negative.")
+
+	# Check that parameters are singletons or same-size iterables.
+	if not check_iterable_sizes([fixed_cost, holding_cost, stockout_cost, demand_rate]): raise ValueError("Input parameters must singletons or list-like objects of the same size.")
 
 	# Calculate optimal order quantity and cost.
 	order_quantity = np.sqrt(2 * fixed_cost * demand_rate * (holding_cost + stockout_cost)
