@@ -2,7 +2,7 @@
 # PyInv - wagner_whitin Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-15-2020
+# Updated: 01-30-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -68,6 +68,11 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 	next_order_periods : list
 		List of "next order" period. [:math:`s`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``fixed_cost``, ``demand``, or ``purchase_cost`` <= 0 for any time period.
+
 
 	**Equation Used** (modified from equation (3.39)):
 
@@ -97,10 +102,10 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 
 	"""
 	# Check that parameters are non-negative.
-	assert np.all(np.array(holding_cost) >= 0), "holding_cost must be non-negative."
-	assert np.all(np.array(fixed_cost) >= 0), "fixed_cost must be non-negative."
-	assert np.all(np.array(demand) >= 0), "demand must be non-negative."
-	assert np.all(np.array(purchase_cost) >= 0), "purchase_cost must be non-negative."
+	if not np.all(np.array(holding_cost) >= 0): raise ValueError("holding_cost must be non-negative")
+	if not np.all(np.array(fixed_cost) >= 0): raise ValueError("fixed_cost must be non-negative")
+	if not np.all(np.array(demand) >= 0): raise ValueError("demand must be non-negative")
+	if not np.all(np.array(purchase_cost) >= 0): raise ValueError("purchase_cost must be non-negative")
 
 	# Replace scalar parameters with lists (multiple copies of scalar).
 	holding_cost = ensure_list_for_time_periods(holding_cost, num_periods)

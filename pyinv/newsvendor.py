@@ -2,7 +2,7 @@
 # PyInv - newsvendor Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-15-2020
+# Updated: 01-30-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -59,7 +59,7 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	Raises
 	------
 	ValueError
-		If ``h`` <= 0 or ``p`` <= 0.
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
@@ -99,10 +99,10 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	"""
 
 	# Check that parameters are positive.
-	if holding_cost <= 0: raise ValueError("holding_cost must be positive.")
-	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive.")
-	if demand_mean <= 0: raise ValueError("mean must be positive.")
-	if demand_sd <= 0: raise ValueError("demand_sd must be positive.")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -154,7 +154,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 	Raises
 	------
 	ValueError
-		If ``h`` <= 0 or ``p`` <= 0.
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
@@ -184,10 +184,10 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 	# TODO: delete this function since newsvendor_normal subsumes it?
 
 	# Check that parameters are positive.
-	if holding_cost <= 0: raise ValueError("holding_cost must be positive.")
-	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive.")
-	if demand_mean <= 0: raise ValueError("mean must be positive.")
-	if demand_sd <= 0: raise ValueError("demand_sd must be positive.")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -229,7 +229,7 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	Raises
 	------
 	ValueError
-		If ``h`` <= 0 or ``p`` <= 0.
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` <= 0.
 	ValueError
@@ -268,11 +268,11 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	"""
 
 	# Check that parameters are positive.
-	if holding_cost <= 0: raise ValueError("holding_cost must be positive.")
-	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive.")
-	if demand_mean <= 0: raise ValueError("mean must be positive.")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
 	if base_stock_level is not None and not is_integer(base_stock_level):
-		raise ValueError("base_stock_level must be an integer (or None).")
+		raise ValueError("base_stock_level must be an integer (or None)")
 
 	# TODO: handle lead time
 
@@ -319,7 +319,7 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 	Raises
 	------
 	ValueError
-		If ``h`` <= 0 or ``p`` <= 0.
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` <= 0.
 	ValueError
@@ -352,10 +352,10 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 	# TODO: delete this function since newsvendor_poisson() subsumes it?
 
 	# Check that parameters are positive.
-	if holding_cost <= 0: raise ValueError("holding_cost must be positive.")
-	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive.")
-	if demand_mean <= 0: raise ValueError("mean must be positive.")
-	if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer.")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer")
 
 	# TODO: handle lead time
 
@@ -401,7 +401,7 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 	Raises
 	------
 	ValueError
-		If ``h`` <= 0 or ``p`` <= 0.
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_distrib`` and ``demand_pdf`` are both ``None``.
 
@@ -445,11 +445,11 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 	"""
 
 	# Check that parameters are positive.
-	if holding_cost <= 0: raise ValueError("holding_cost must be positive.")
-	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive.")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 
 	# Check that either distribution or pmf have been supplied.
-	if demand_distrib is None and demand_pdf is None: raise ValueError("must provide demand_distrib or demand_pdf.")
+	if demand_distrib is None and demand_pdf is None: raise ValueError("must provide demand_distrib or demand_pdf")
 
 	# TODO: handle lead time
 	# TODO: handle demand_pdf as function
@@ -514,7 +514,7 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	Raises
 	------
 	ValueError
-		If ``h`` <= 0 or ``p`` <= 0.
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_distrib`` and ``demand_pdf`` are both ``None``.
 
@@ -558,11 +558,11 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	"""
 
 	# Check that parameters are positive.
-	if holding_cost <= 0: raise ValueError("holding_cost must be positive.")
-	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative.")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
 
 	# Check that either distribution or pmf have been supplied.
-	if demand_distrib is None and demand_pmf is None: raise ValueError("must provide demand_distrib or demand_pmf.")
+	if demand_distrib is None and demand_pmf is None: raise ValueError("must provide demand_distrib or demand_pmf")
 
 	# TODO: handle lead time
 
@@ -591,7 +591,7 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 			base_stock_level = demand_values[i-1]
 	else:
 		# Check for integer base_stock_level
-		if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer.")
+		if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer")
 
 	# Calculate loss functions.
 	n, n_bar = lf.discrete_loss(base_stock_level, demand_distrib, demand_pmf)
@@ -878,7 +878,7 @@ def set_myopic_cost_to(
 
 	# Validate c_plus.
 	if c_plus < -holding_cost or c_plus > stockout_cost:
-		raise ValueError("set_myopic_cost_to() requires -h_t <= c_t - gamma * c_{t+1} <= p_t.")
+		raise ValueError("set_myopic_cost_to() requires -h_t <= c_t - gamma * c_{t+1} <= p_t")
 
 	# Set critical ratio.
 	critical_ratio = (stockout_cost - c_plus) / (stockout_cost + holding_cost)
@@ -893,7 +893,7 @@ def set_myopic_cost_to(
 
 	# Check that cost >= G_S_underbar.
 	if cost < G_S_underbar:
-		raise ValueError("cost < G_t(S_underbar), so there is no y s.t. G_t(y) = cost.")
+		raise ValueError("cost < G_t(S_underbar), so there is no y s.t. G_t(y) = cost")
 
 	# Determine bounds for brentq() function.
 	delta = max(demand_mean, 10)
@@ -971,7 +971,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	ValueError
 		If ``r`` < ``c`` or ``c`` < ``v``.
 	ValueError
-		If ``h`` < 0 or ``p`` < 0.
+		If ``holding_cost`` < 0 or ``stockout_cost`` < 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
@@ -1004,12 +1004,12 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	"""
 
 	# Check that parameters are positive/non-negative.
-	if holding_cost < 0: raise ValueError("holding_cost must be non-negative.")
-	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative.")
-	if demand_mean <= 0: raise ValueError("mean must be positive.")
-	if demand_sd <= 0: raise ValueError("demand_sd must be positive.")
-	if selling_revenue <= purchase_cost: raise ValueError("selling_revenue must be > purchase_cost.")
-	if purchase_cost <= salvage_value: raise ValueError("purchase_cost must be > salvage_value.")
+	if holding_cost < 0: raise ValueError("holding_cost must be non-negative")
+	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
+	if selling_revenue <= purchase_cost: raise ValueError("selling_revenue must be > purchase_cost")
+	if purchase_cost <= salvage_value: raise ValueError("purchase_cost must be > salvage_value")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)

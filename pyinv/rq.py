@@ -2,7 +2,7 @@
 # PyInv - rq Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-15-2020
+# Updated: 01-30-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -28,10 +28,9 @@ import pyinv.loss_functions as lf
 
 
 def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
-			 fixed_cost, demand_mean, demand_sd,
-			 lead_time):
+			 fixed_cost, demand_mean, demand_sd, lead_time):
 	"""Calculate the exact cost of the given solution for an :math:`(r,Q)`
-	policy with given parameters.
+	policy with given parameters. Assumes demand is normally distributed.
 
 	Parameters
 	----------
@@ -57,6 +56,13 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 	cost : float
 		Expected cost per unit time. [:math:`g(r,Q)`]
 
+	Raises
+	------
+	ValueError
+		If ``order_quantity``, ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean``, ``demand_sd``, or ``lead_time`` < 0.
+
 
 	**Equations Used** (equation (5.7)):
 
@@ -81,21 +87,21 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	# TODO handle non-normal demand
 
-	# Check that parameters are positive.
-	assert order_quantity > 0, "order_quantity must be positive"
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert demand_sd >= 0, "demand_sd must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if order_quantity <= 0: raise ValueError("order_quantity must be positive")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
 	sigma = demand_sd * np.sqrt(lead_time)
 
 	# Build newsvendor cost function. (Note: lead_time=0 in newsvendor even
-	# though LT in (r,Q) <> 0.
+	# though LT in (r,Q) <> 0.)
 	newsvendor_cost = lambda S: newsvendor_normal_cost(S, holding_cost, stockout_cost,
 												  mu, sigma, lead_time=0)
 
@@ -110,10 +116,9 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 
 def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
-						demand_mean,
-						demand_sd, lead_time,
-						tol=1e-6):
-	"""Calculate optimal :math:`r` for the given :math:`Q`.
+						demand_mean, demand_sd, lead_time, tol=1e-6):
+	"""Calculate optimal :math:`r` for the given :math:`Q`. Assumes demand is 
+	normally distributed.
 
 	Finds :math:`r` using bisection search.
 
@@ -140,6 +145,13 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 	reorder_point : float
 		Optimal reorder point for given order quantity. [:math:`r(Q)`]
 
+	Raises
+	------
+	ValueError
+		If ``order_quantity``, ``holding_cost``, or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_mean``, ``demand_sd``, or ``lead_time`` < 0.
+
 
 	**Equation Used** (equation (5.9)):
 
@@ -163,6 +175,14 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 	"""
 
 	# TODO handle non-normal demand
+
+	# Check that parameters are positive/non-negative.
+	if order_quantity <= 0: raise ValueError("order_quantity must be positive")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
@@ -203,7 +223,7 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 						  demand_mean, demand_sd,
 						  lead_time, tol=1e-6):
 	"""Determine :math:`r` and :math:`Q` using the "expected-inventory-level" (EIL)
-	approximation.
+	approximation. Assumes demand is normally distributed.
 
 	Parameters
 	----------
@@ -233,6 +253,13 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 	cost : float
 		Approximate expected cost per unit time. [:math:`g(r,Q)`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean``, ``demand_sd``, or ``lead_time`` < 0.
+
 
 	**Equations Used** (equation (5.17), (5.18), (5.16)):
 
@@ -261,13 +288,13 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# TODO handle non-normal demand
 
-	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert demand_sd >= 0, "demand_sd must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
@@ -303,10 +330,9 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 
 
 def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
-						   demand_mean, demand_sd,
-						   lead_time):
+						   demand_mean, demand_sd, lead_time):
 	"""Determine :math:`r` and :math:`Q` using the "EOQ with backorders" (EOQB)
-	approximation.
+	approximation. Assumes demand is normally distributed.
 
 	Parameters
 	----------
@@ -329,6 +355,13 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 		Reorder point. [:math:`r`]
 	order_quantity : float
 		Order quantity. [:math:`Q`]
+
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean``, ``demand_sd``, or ``lead_time`` < 0.
 
 
 	**Equations Used** (equations (3.27) and (5.9)):
@@ -356,13 +389,13 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# TODO handle non-normal demand
 
-	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert demand_sd >= 0, "demand_sd must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate EOQB.
 	Q, _, _ = economic_order_quantity_with_backorders(fixed_cost, holding_cost,
@@ -378,10 +411,9 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 
 
 def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
-							demand_mean, demand_sd,
-							lead_time):
+							demand_mean, demand_sd, lead_time):
 	"""Determine :math:`r` and :math:`Q` using the "EOQ plus safety stock"
-	(EOQ+SS) approximation.
+	(EOQ+SS) approximation. Assumes demand is normally distributed.
 
 	Parameters
 	----------
@@ -404,6 +436,13 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 		Reorder point. [:math:`r`]
 	order_quantity : float
 		Order quantity. [:math:`Q`]
+
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean``, ``demand_sd``, or ``lead_time`` < 0.
 
 
 	**Equations Used** (equations (3.4) and (5.21)):
@@ -429,13 +468,13 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# TODO handle non-normal demand
 
-	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert demand_sd >= 0, "demand_sd must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
@@ -451,10 +490,9 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 
 
 def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
-									demand_mean, demand_sd,
-									lead_time, tol=1e-6):
+									demand_mean, demand_sd, lead_time, tol=1e-6):
 	"""Determine :math:`r` and :math:`Q` using the "loss function"
-	approximation.
+	approximation. Assumes demand is normally distributed.
 
 	Parameters
 	----------
@@ -481,6 +519,13 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 		Reorder point. [:math:`r`]
 	order_quantity : float
 		Order quantity. [:math:`Q`]
+
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean``, ``demand_sd``, or ``lead_time`` < 0.
 
 
 	**Equations Used** (equation (5.28) and (5.29)):
@@ -509,13 +554,13 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# TODO handle non-normal demand
 
-	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert demand_sd >= 0, "demand_sd must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
@@ -574,6 +619,16 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 	cost : float
 		Expected cost per unit time. [:math:`g(r,Q)`]
 
+	Raises
+	------
+	ValueError
+		If ``order_quantity`` <= 0 or is not an integer, or if ``reorder_point``
+		is not an integer.
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` or ``lead_time`` < 0.
+
 
 	**Equations Used** (equation (5.48)):
 
@@ -597,15 +652,14 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	"""
 
-	# Check that parameters are positive.
-	assert order_quantity > 0 and is_integer(order_quantity), \
-		"order_quantity must be a positive integer"
-	assert is_integer(reorder_point), "reorder_point must be an integer"
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if order_quantity < 0 or not is_integer(order_quantity): raise ValueError("order_quantity must be a positive integer")
+	if not is_integer(reorder_point): raise ValueError("reorder_point must be an integer")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate mu (mean lead-time demand).
 	mu = demand_mean * lead_time
@@ -649,6 +703,13 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 	cost : float
 		Expected cost per unit time. [:math:`g(r,Q)`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` or ``lead_time`` < 0.
+
 
 	**Equations Used** (equation (5.48)):
 
@@ -671,12 +732,12 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 
 	"""
 
-	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean >= 0, "mean must be non-negative"
-	assert lead_time >= 0, "lead_time must be non-negative"
+	# Check that parameters are positive/non-negative.
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if lead_time < 0: raise ValueError("lead_time must be non-negative")
 
 	# Calculate alpha.
 	alpha = stockout_cost / (stockout_cost + holding_cost)

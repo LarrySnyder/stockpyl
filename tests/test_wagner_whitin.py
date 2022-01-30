@@ -132,12 +132,12 @@ class TestWagnerWhitin(unittest.TestCase):
 		holding_cost = -0.5
 		fixed_cost = [0, 100, 100, 100, 100, 100]
 		demand = [0, 730, 580, 445, 650, 880]
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
 
 		num_periods = 5
 		holding_cost = [0.1, 0.1, -0.1, 0.1, 0.1]
 		fixed_cost = [0, 100, 100, 100, 100, 100]
 		demand = [0, 730, 580, 445, 650, 880]
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
