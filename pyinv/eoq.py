@@ -18,37 +18,34 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 """
 
-# TODO: allow these functions to take lists or ndarrays
-
-#from instances import *
-
+from multiprocessing.sharedctypes import Value
 import numpy as np
 
 from pyinv.helpers import check_iterable_sizes
 
 
-def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
-	"""Solve the economic order quantity (EOQ) problem.
-
-	Input parameters may be singletons or list-like objects, or a combination.
-	All list-like objects must have the same dimensions. Return values will
-	be singletons if all input parameters are singletons and will be ndarrays otherwise.
+def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantity=None):
+	"""Solve the economic order quantity (EOQ) problem, or (if
+	``order_quantity`` is supplied) calculate cost of given solution.
 
 	Parameters
 	----------
-	fixed_cost : float or list-like of floats
+	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float or list-like of floats
+	holding_cost : float
 		Holding cost per item per unit time. [:math:`h`]
-	demand_rate : float or list-like of floats
+	demand_rate : float
 		Demand (items) per unit time. [:math:`\\lambda`]
+	order_quantity : float, optional
+		Order quantity for cost evaluation. If supplied, no
+		optimization will be performed. [:math:`Q`]
 
 	Returns
 	-------
-	order_quantity : float or ndarray
-		Optimal order quantity (items). [:math:`Q^*`]
-	cost : float or ndarray
-		Optimal cost per unit time. [:math:`g^*`]
+	order_quantity : float
+		Optimal order quantity (or order quantity supplied) (items). [:math:`Q^*`]
+	cost : float
+		Cost per unit time attained by ``order_quantity``. [:math:`g^*`]
 
 
 	**Equations Used** (equations (3.4) and (3.5)):
@@ -58,6 +55,12 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 		Q^* = \\sqrt{\\frac{2K\\lambda}{h}}
 
 		g^* = \\sqrt{2K\\lambda h}
+
+	or
+
+	.. math::
+
+		g(Q) = \\frac{K\\lambda}{Q} + \\frac{hQ}{2}
 
 	**Example** (Example 3.1):
 
@@ -70,67 +73,54 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate):
 		>>> economic_order_quantity(8, 0.225, 1300)
 		(304.0467800264368, 68.41052550594829)
 
-	**Example** (Example 3.1 and an example with :math:`K=20`, :math:`h=1`, :math:`\\lambda=100`):
-
-	.. testsetup:: *
-
-		from pyinv.eoq import *
-
-	.. doctest::
-
-		>>> economic_order_quantity([8, 20], [0.225, 1], [1300, 100])
-		(array([304.04678003,  63.2455532 ]), array([68.41052551, 63.2455532 ]))
-
 	"""
 
-	# Convert input parameters to numpy arrays.
-	fixed_cost = np.array(fixed_cost)
-	holding_cost = np.array(holding_cost)
-	demand_rate = np.array(demand_rate)
-
 	# Check that parameters are non-negative/positive.
-	if not np.all(fixed_cost >= 0): raise ValueError("fixed_cost must be non-negative.")
-	if not np.all(holding_cost > 0): raise ValueError( "holding_cost must be positive.")
-	if not np.all(demand_rate >= 0): raise ValueError( "demand_rate must be non-negative.")
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative.")
+	if holding_cost <= 0: raise ValueError( "holding_cost must be positive.")
+	if demand_rate < 0: raise ValueError( "demand_rate must be non-negative.")
+	if order_quantity is not None and order_quantity <= 0: raise ValueError("order_quantity must be positive.")
 
-	# Check that parameters are singletons or same-size iterables.
-	if not check_iterable_sizes([fixed_cost, holding_cost, demand_rate]): raise ValueError("Input parameters must singletons or list-like objects of the same size.")
-
-	# Calculate optimal order quantity and cost.
-	order_quantity = np.sqrt(2 * fixed_cost * demand_rate / holding_cost)
-	cost = order_quantity * holding_cost
+	# Is Q provided?
+	if order_quantity is None:
+		# Calculate optimal order quantity and cost.
+		order_quantity = np.sqrt(2 * fixed_cost * demand_rate / holding_cost)
+		cost = order_quantity * holding_cost
+	else:
+		# Calculate cost.
+		cost = fixed_cost * demand_rate / order_quantity + holding_cost * order_quantity / 2
 
 	return order_quantity, cost
 
 
-# TODO: need an eoq_cost() function, or an order_quantity parameter in eoq()
-
-def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate):
-	"""Solve the economic order quantity with backorders (EOQB) problem.
-
-	Input parameters may be singletons or list-like objects, or a combination.
-	All list-like objects must have the same dimensions. Return values will
-	be singletons if all input parameters are singletons and will be ndarrays otherwise.
+def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate, order_quantity=None, stockout_fraction=None):
+	"""Solve the economic order quantity with backorders (EOQB) problem, or (if ``order_quantity`` and ``stockout_fraction`` are supplied) calculate cost of given solution.
 
 	Parameters
 	----------
-	fixed_cost : float or list-like of floats
+	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float or list-like of floats
+	holding_cost : float
 		Holding cost per item per unit time. [:math:`h`]
-	stockout_cost : float or list-like of floats
+	stockout_cost : float
 		Stockout cost per item per unit time. [:math:`p`]
-	demand_rate : float or list-like of floats
+	demand_rate : float
 		Demand (items) per unit time. [:math:`\\lambda`]
+	order_quantity : float, optional
+		Order quantity for cost evaluation. If supplied, no
+		optimization will be performed. [:math:`Q`]
+	stockout_fraction : float, optional
+		Stockout fraction for cost evaluation. If supplied, no
+		optimization will be performed. [:math:`x`]
 
 	Returns
 	-------
-	order_quantity : float or ndarray
-		Optimal order quantity (items). [:math:`Q^*`]
-	stockout_fraction : float or ndarray
-		Optimal stockout fraction (items). [:math:`x^*`]
-	cost : float or ndarray
-		Optimal cost per unit time. [:math:`g^*`]
+	order_quantity : float
+		Optimal order quantity (or order quantity supplied) (items). [:math:`Q^*`]
+	stockout_fraction : float
+		Optimal stockout fraction (or stockout fraction supplied) (items). [:math:`x^*`]
+	cost : float
+		Cost per unit time attained by ``order_quantity`` and ``stockout_fraction``. [:math:`g^*`]
 
 
 	**Equations Used** (equations (3.27)--(3.29)):
@@ -143,6 +133,12 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 		g^* = \\sqrt{\\frac{2K\\lambda hp}{h+p}}
 
+	or
+
+	.. math::
+
+		g(Q,x) = \\frac{hQ(1-x)^2}{2} + \\frac{pQx^2}}{2} + \\frac{K\lambda}{Q}
+
 	**Example** (Example 3.8):
 
 	.. testsetup:: *
@@ -154,67 +150,57 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 		>>> economic_order_quantity_with_backorders(8, 0.225, 5, 1300)
 		(310.81255515896464, 0.0430622009569378, 66.92136355097325)
 
-	**Example** (Example 3.8 and an example with :math:`K=20`, :math:`h=1`, :math:`p=10`, :math:`\\lambda=100`):
-
-	.. testsetup:: *
-
-		from pyinv.eoq import *
-
-	.. doctest::
-
-		>>> economic_order_quantity_with_backorders([8, 20], [0.225, 1], [5, 10], [1300, 100])
-		(array([310.81255516,  66.33249581]), array([0.0430622 , 0.09090909]), array([66.92136355, 60.30226892]))
-
 	"""
 
-	# Convert input parameters to numpy arrays.
-	fixed_cost = np.array(fixed_cost)
-	holding_cost = np.array(holding_cost)
-	stockout_cost = np.array(stockout_cost)
-	demand_rate = np.array(demand_rate)
-	
 	# Check that parameters are positive.
-	if not np.all(fixed_cost >= 0): raise ValueError("fixed_cost must be non-negative.")
-	if not np.all(holding_cost > 0): raise ValueError( "holding_cost must be positive.")
-	if not np.all(stockout_cost > 0): raise ValueError( "stockout_cost must be positive.")
-	if not np.all(demand_rate >= 0): raise ValueError( "demand_rate must be non-negative.")
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative.")
+	if holding_cost <= 0: raise ValueError( "holding_cost must be positive.")
+	if stockout_cost <= 0: raise ValueError( "stockout_cost must be positive.")
+	if demand_rate < 0: raise ValueError( "demand_rate must be non-negative.")
+	if order_quantity is not None and order_quantity <= 0: raise ValueError("order_quantity must be positive.")
+	if stockout_fraction is not None and (stockout_fraction < 0 or stockout_fraction > 1): raise ValueError("stockout_fraction must be between 0 and 1.")
 
-	# Check that parameters are singletons or same-size iterables.
-	if not check_iterable_sizes([fixed_cost, holding_cost, stockout_cost, demand_rate]): raise ValueError("Input parameters must singletons or list-like objects of the same size.")
+	# Check that both or neither order_quantity and stockout_fraction are  provided.
+	if (order_quantity is None and stockout_fraction is not None) or (order_quantity is not None and stockout_fraction is None): raise ValueError("You must provide both order_quantity and stockout_fraction or neither.")
 
-	# Calculate optimal order quantity and cost.
-	order_quantity = np.sqrt(2 * fixed_cost * demand_rate * (holding_cost + stockout_cost)
-								/ (holding_cost * stockout_cost))
-	stockout_fraction = holding_cost / (holding_cost + stockout_cost)
-	cost = order_quantity * (holding_cost * stockout_cost) / (holding_cost + stockout_cost)
+	# Is Q provided?
+	if order_quantity is None:
+		# Calculate optimal order quantity, stockout fraction, and cost.
+		order_quantity = np.sqrt(2 * fixed_cost * demand_rate * (holding_cost + stockout_cost)
+									/ (holding_cost * stockout_cost))
+		stockout_fraction = holding_cost / (holding_cost + stockout_cost)
+		cost = order_quantity * (holding_cost * stockout_cost) / (holding_cost + stockout_cost)
+	else:
+		# Caclulate cost.
+		cost = holding_cost * order_quantity * (1 - stockout_fraction) ** 2 / 2 \
+			+ stockout_cost * order_quantity * stockout_fraction ** 2 / 2 \
+			+ fixed_cost * demand_rate / order_quantity
 
 	return order_quantity, stockout_fraction, cost
 
 
-def economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate):
-	"""Solve the economic production quantity (EPQ) problem.
-
-	Input parameters may be singletons or list-like objects, or a combination.
-	All list-like objects must have the same dimensions. Return values will
-	be singletons if all input parameters are singletons and will be ndarrays otherwise.
+def economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate, order_quantity=None):
+	"""Solve the economic production quantity (EPQ) problem, or (if ``order_quantity`` is supplied) calculate cost of given solution.
 
 	Parameters
 	----------
-	fixed_cost : float or list-like of floats
+	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float or list-like of floats
+	holding_cost : float
 		Holding cost per item per unit time. [:math:`h`]
-	demand_rate : float or list-like of floats
+	demand_rate : float
 		Demand (items) per unit time. [:math:`\\lambda`]
-	production_rate : float or list-like of floats
+	production_rate : float
 		Production quantity (items) per unit time. [:math:`\\mu`]
+	order_quantity : float, optional
+		Order quantity for cost evaluation. If supplied, no optimization will be performed. [:math:`Q`]
 
 	Returns
 	-------
-	order_quantity : float or ndarray
-		Optimal order quantity (items). [:math:`Q^*`]
-	cost : float or ndarray
-		Optimal cost per unit time. [:math:`g^*`]
+	order_quantity : float
+		Optimal order quantity (or order quantity supplied) (items). [:math:`Q^*`]
+	cost : float
+		Cost per unit time attained by ``order_quantity``. [:math:`g^*`]
 
 
 	**Equations Used** (equations (3.31) and (3.32)):
@@ -224,6 +210,12 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 		Q^* = \\sqrt{\\frac{2K\\lambda}{h(1-\\rho)}}
 
 		g^* = \\sqrt{2K\\lambda h(1-\\rho)}
+
+	or
+
+	.. math::
+
+		g(Q) = \\frac{K\\lambda}{Q} + \\frac{h(1 - \\rho)Q}{2}
 
 	where :math:`\\rho = \\lambda/\\mu`.
 
@@ -238,44 +230,30 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 		>>> economic_production_quantity(8, 0.225, 1300, 1700)
 		(626.8084945889684, 33.183979125298336)
 
-	**Example**:
-
-	.. testsetup:: *
-
-		from pyinv.eoq import *
-
-	.. doctest::
-
-		>>> economic_production_quantity([8, 20], [0.225, 1], [1300, 100], [1700, 200])
-		(array([626.80849459,  89.4427191 ]), array([33.18397913, 44.72135955]))
-
 	"""
 
-	# Convert input parameters to numpy arrays.
-	fixed_cost = np.array(fixed_cost)
-	holding_cost = np.array(holding_cost)
-	demand_rate = np.array(demand_rate)
-	production_rate = np.array(production_rate)
-
 	# Check that parameters are non-negative/positive.
-	if not np.all(fixed_cost >= 0): raise ValueError("fixed_cost must be non-negative.")
-	if not np.all(holding_cost > 0): raise ValueError( "holding_cost must be positive.")
-	if not np.all(demand_rate >= 0): raise ValueError( "demand_rate must be non-negative.")
-	if not np.all(production_rate > 0): raise ValueError( "production_rate must be positive.")
-
-	# Check that parameters are singletons or same-size iterables.
-	if not check_iterable_sizes([fixed_cost, holding_cost, demand_rate, production_rate]): raise ValueError("Input parameters must singletons or list-like objects of the same size.")
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative.")
+	if holding_cost <= 0: raise ValueError( "holding_cost must be positive.")
+	if demand_rate < 0: raise ValueError( "demand_rate must be non-negative.")
+	if production_rate <= 0: raise ValueError( "production_rate must be positive.")
+	if order_quantity is not None and order_quantity <= 0: raise ValueError("order_quantity must be positive.")
 
 	# Check that demand rate < production rate.
-	if not np.all(demand_rate < production_rate): raise ValueError("demand_rate must be less than production_rate.")
+	if demand_rate >= production_rate: raise ValueError("demand_rate must be less than production_rate.")
 
 	# Calculate rho.
 	rho = demand_rate / production_rate
 
-	# Calculate optimal order quantity and cost.
-	order_quantity = np.sqrt(
-		2 * fixed_cost * demand_rate / (holding_cost * (1 - rho)))
-	cost = order_quantity * holding_cost * (1 - rho)
+	# Is Q provided?
+	if order_quantity is None:
+		# Calculate optimal order quantity and cost.
+		order_quantity = np.sqrt(
+			2 * fixed_cost * demand_rate / (holding_cost * (1 - rho)))
+		cost = order_quantity * holding_cost * (1 - rho)
+	else:
+		# Calculate cost.
+		cost = fixed_cost * demand_rate / order_quantity + holding_cost * (1 - rho) * order_quantity / 2
 
 	return order_quantity, cost
 
