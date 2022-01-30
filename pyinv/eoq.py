@@ -319,15 +319,12 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 		([3.103164454170876, 9.309493362512628, 3.103164454170876], 3.103164454170876, [1, 3, 1], 837.8544026261366)
 	"""
 
-	# TODO: unit tests
-
-	# Check that parameters are positive.
-	assert shared_fixed_cost >= 0, "shared_fixed_cost must be non-negative"
-	assert np.all(np.array(individual_fixed_costs) >= 0), "individual_fixed_costs must be non-negative."
-	assert np.all(np.array(holding_costs) > 0), "holding_costs must be non-negative."
-	assert np.all(np.array(demand_rates) > 0), "demand_rates must be non-negative."
-	assert len(individual_fixed_costs) == len(holding_costs) and len(holding_costs) == len(demand_rates), \
-		"all lists must have the same length"
+	# Check that parameters are non-negative/positive.
+	if shared_fixed_cost < 0: raise ValueError("shared_fixed_cost must be non-negative")
+	if not np.all(np.array(individual_fixed_costs) >= 0): raise ValueError("individual_fixed_costs must be non-negative.")
+	if not np.all(np.array(holding_costs) > 0): raise ValueError("holding_costs must be non-negative.")
+	if not np.all(np.array(demand_rates) > 0): raise ValueError("demand_rates must be non-negative.")
+	if len(individual_fixed_costs) != len(holding_costs) or len(holding_costs) != len(demand_rates): raise ValueError("all lists must have the same length")
 
 	# Determine number of products.
 	num_prod = len(individual_fixed_costs)
