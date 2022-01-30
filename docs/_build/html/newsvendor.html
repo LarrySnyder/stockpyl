@@ -173,7 +173,7 @@ refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edit
 <dt id="pyinv.newsvendor.myopic">
 <code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the optimizer of the myopic cost function, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>
-is supplied) calculate the cost of given solution.</p>
+is supplied) calculate the cost of given solution. Assumes demand is normally distributed.</p>
 <p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
 as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
 (2019), but the function is given in terms of Snyder-Shen notation below.</p>
@@ -196,11 +196,14 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock-level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – The myopic cost attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(G_t(S^*)\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <span class="math notranslate nohighlight">\(-h_t &gt; c_t - \gamma c_{t+1}\)</span> or <span class="math notranslate nohighlight">\(c_t - \gamma c_{t+1} &gt; p_t\)</span>.</p>
 </td>
 </tr>
 </tbody>
@@ -230,7 +233,7 @@ New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (19
 <dl class="function">
 <dt id="pyinv.newsvendor.myopic_cost">
 <code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate “myopic” cost function.</p>
+<dd><p>Calculate “myopic” cost function. Assumes demand is normally distributed.</p>
 <p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
 as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
 (2019), but the function is given in terms of Snyder-Shen notation below.</p>
@@ -302,18 +305,24 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 </ul>
 </p>
 </td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Equations Used</strong> (equations (4.35), (4.32)-(4.34)):</p>
+<p><strong>Equations Used</strong> (equations (4.27) and (4.24)):</p>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p}{h+p}\right)\\g(S^*) = h\bar{n}(S^*) + pn(S^*)\end{aligned}\end{align} \]</div>
+\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p}{h+p}\right)\\g(S) = h\bar{n}(S^*) + pn(S)\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
 the demand cdf, loss function, and complementary loss function,
 respectively.</p>
@@ -358,18 +367,24 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 </ul>
 </p>
 </td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Equations Used</strong> (equations (4.35), (4.32)-(4.34)):</p>
+<p><strong>Equations Used</strong>:</p>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = \text{smallest } S \text{ such that } F(S) \ge \frac{p}{h+p}\\g(S^*) = h\bar{n}(S^*) + pn(S^*)\end{aligned}\end{align} \]</div>
+\[ \begin{align}\begin{aligned}S^* = \text{smallest } S \text{ such that } F(S) \ge \frac{p}{h+p}\\g(S) = h\bar{n}(S^*) + pn(S)\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
 the demand cdf, loss function, and complementary loss function,
 respectively.</p>
@@ -412,21 +427,32 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Expected cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 </ul>
 </p>
 </td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Equations Used</strong> (equations (4.24) and (4.30), modified for non-zero
+<p><strong>Equations Used</strong> (equations (4.30), (4.37), and (4.24), modified for non-zero
 lead time):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}S^* = \mu + z_{\alpha}\sigma\\g^* = (h+p)\phi(z_{\alpha})\sigma\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> are the lead-time demand mean
-and standard deviation, and <span class="math notranslate nohighlight">\(\alpha = p/(h+p)\)</span>.</p>
+and standard deviation, and <span class="math notranslate nohighlight">\(\alpha = p/(h+p)\)</span>,</p>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[g(S) = h\bar{n}(S) + pn(S),\]</div>
+<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
+loss and complementary loss functions.</p>
 <p><strong>Example</strong> (Example 4.3):</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">(56.60395592743389, 1.9976051931766445)</span>
@@ -456,12 +482,18 @@ newsvendor problem with normal distribution.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p><strong>Equations Used</strong> (equation (4.6)):</p>
+<p><strong>Equations Used</strong> (equation (4.24)):</p>
 <div class="math notranslate nohighlight">
 \[g(S) = h\bar{n}(S) + pn(S),\]</div>
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
@@ -549,18 +581,28 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 </ul>
 </p>
 </td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied and is not an integer.</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Equations Used</strong> (equations (4.35), (4.32)-(4.34)):</p>
+<p><strong>Equations Used</strong>:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}S^* = \text{smallest } S \text{ such that } F(S) \ge \frac{p}{h+p}\\g(S^*) = h\bar{n}(S^*) + pn(S^*)\end{aligned}\end{align} \]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[g(S) = h\bar{n}(S) + pn(S),\]</div>
 <p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
 the Poisson cdf, loss function, and complementary loss function,
 respectively.</p>
@@ -592,7 +634,14 @@ newsvendor problem with Poisson distribution.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">h</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">p</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is not an integer.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -614,7 +663,7 @@ loss and complementary loss functions.</p>
 <code class="descclassname">pyinv.newsvendor.</code><code class="descname">set_myopic_cost_to</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>left_half=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the value of <span class="math notranslate nohighlight">\(y\)</span> such that <span class="math notranslate nohighlight">\(G_t(y)\)</span>
 equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>, where <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span> is the myopic cost function
-for the current period, given by <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code>.</p>
+for the current period, given by <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code>. Assumes demand is normally distrbuted.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">left_half</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>,
 where <span class="math notranslate nohighlight">\(\underline{S}_t\)</span> is the minimizer of <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span>.
 Otherwise, requires <span class="math notranslate nohighlight">\(S \ge \underline{S}_t\)</span>.</p>
@@ -643,7 +692,10 @@ requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</s
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(G_t(\underline{S}_t)\)</span>.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <span class="math notranslate nohighlight">\(-h_t &gt; c_t - \gamma c_{t+1}\)</span> or <span class="math notranslate nohighlight">\(c_t - \gamma c_{t+1} &gt; p_t\)</span>.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(G_t(\underline{S}_t)\)</span>.</li>
+</ul>
 </td>
 </tr>
 </tbody>

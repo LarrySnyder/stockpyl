@@ -107,7 +107,7 @@ class TestNewsvendorNormal(unittest.TestCase):
 		stockout_cost = 0.7
 		demand_mean = 50
 		demand_sd = 8
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 
 
@@ -222,7 +222,7 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		stockout_cost = 0.7
 		demand_mean = 50
 		demand_sd = 8
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
 
 
@@ -352,7 +352,7 @@ class TestNewsvendorContinuous(unittest.TestCase):
 
 		demand_distrib = norm(demand_mean, demand_sd)
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			base_stock_level, cost = newsvendor.newsvendor_continuous(holding_cost, stockout_cost, demand_distrib)
 
 
@@ -448,7 +448,7 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 
 		demand_distrib = poisson(demand_mean)
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_mean, demand_distrib)
 
 
@@ -933,6 +933,6 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		salvage_value = 0.12
 		demand_mean = 50
 		demand_sd = 8
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(ValueError):
 			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
 				salvage_value, 0, 0, demand_mean, demand_sd)

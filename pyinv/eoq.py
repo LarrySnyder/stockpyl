@@ -18,10 +18,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 """
 
-from multiprocessing.sharedctypes import Value
 import numpy as np
-
-from pyinv.helpers import check_iterable_sizes
 
 
 def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantity=None):
@@ -137,7 +134,7 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 	.. math::
 
-		g(Q,x) = \\frac{hQ(1-x)^2}{2} + \\frac{pQx^2}}{2} + \\frac{K\lambda}{Q}
+		g(Q,x) = \\frac{hQ(1-x)^2}{2} + \\frac{pQx^2}{2} + \\frac{K\lambda}{Q}
 
 	**Example** (Example 3.8):
 
