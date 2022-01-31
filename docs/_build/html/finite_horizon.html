@@ -163,25 +163,20 @@
             
   <div class="section" id="module-pyinv.finite_horizon">
 <span id="finite-horizon-module"></span><h1><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module<a class="headerlink" href="#module-pyinv.finite_horizon" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">finite_horizon</span></code> module contains code for solving the finite-horizon
-inventory optimization model using dynamic programming.</p>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">finite_horizon</span></code> module contains code for solving finite-horizon
+inventory optimization problems using dynamic programming.</p>
 <p>Functions in this module are called directly; they are not wrapped in a class.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="function">
 <dt id="pyinv.finite_horizon.finite_horizon_dp">
-<code class="descclassname">pyinv.finite_horizon.</code><code class="descname">finite_horizon_dp</code><span class="sig-paren">(</span><em>num_periods</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>terminal_holding_cost</em>, <em>terminal_stockout_cost</em>, <em>purchase_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>initial_inventory_level=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.finite_horizon.finite_horizon_dp" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyinv.finite_horizon.</code><code class="descname">finite_horizon_dp</code><span class="sig-paren">(</span><em>num_periods</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>terminal_holding_cost</em>, <em>terminal_stockout_cost</em>, <em>purchase_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>initial_inventory_level=0.0</em>, <em>trunc_tol=0.02</em>, <em>d_spread=4</em>, <em>s_spread=5</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.finite_horizon.finite_horizon_dp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the finite-horizon inventory optimization problem, with or without
 fixed costs, minimizing the expected discounted cost over the time horizon,
 using dynamic programming (DP).</p>
 <p>See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
 notation.</p>
-<p>Executes faster than straightforward implementation because it calculates
-<span class="math notranslate nohighlight">\(H_t(y)\)</span> (as defined in (4.87)) for each <span class="math notranslate nohighlight">\(t\)</span> and <span class="math notranslate nohighlight">\(y\)</span>,
-and then uses this when calculating <span class="math notranslate nohighlight">\(\theta_t(x)\)</span> for each <span class="math notranslate nohighlight">\(x\)</span>.
-This avoids having to recalculate the terms that don’t depend on <span class="math notranslate nohighlight">\(x\)</span>
-(which are computationally expensive).</p>
 <p>Returns <span class="math notranslate nohighlight">\(s^*_t\)</span> and <span class="math notranslate nohighlight">\(S^*_t\)</span> in the output lists <code class="docutils literal notranslate"><span class="pre">reorder_points</span></code>
 and <code class="docutils literal notranslate"><span class="pre">order_up_to_levels</span></code>, respectively. If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> = 0,
 then <code class="docutils literal notranslate"><span class="pre">reorder_points[t]</span></code> = <code class="docutils literal notranslate"><span class="pre">order_up_to_levels[t]</span></code> for all <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
@@ -191,13 +186,11 @@ expected discounted cost over the entire horizon is given by
 <code class="docutils literal notranslate"><span class="pre">x_range</span></code> gives the range of <span class="math notranslate nohighlight">\(x\)</span> values for which <span class="math notranslate nohighlight">\(\theta_t(x)\)</span>
 is calculated, i.e., the indices for the columns of <code class="docutils literal notranslate"><span class="pre">cost_matrix</span></code> and
 <code class="docutils literal notranslate"><span class="pre">oul_matrix</span></code>.</p>
-<p>The terminal cost function is assumed to be given by
-.. math:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">theta_</span><span class="p">{</span><span class="n">T</span><span class="o">+</span><span class="mi">1</span><span class="p">}(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">h_T</span> <span class="n">x</span><span class="o">^+</span> <span class="o">+</span> <span class="n">p_T</span> <span class="n">x</span><span class="o">^-</span><span class="p">,</span>
-</pre></div>
-</div>
-<p>where <span class="math notranslate nohighlight">\(h_T\)</span> = <code class="docutils literal notranslate"><span class="pre">terminal_holding_cost`,</span> <span class="pre">:math:`p_T`</span> <span class="pre">=</span>
-<span class="pre">``terminal_stockout_cost</span></code>, <span class="math notranslate nohighlight">\(x^+ = \max\{x,0\}\)</span>, and
+<p>The terminal cost function is assumed to be given by</p>
+<div class="math notranslate nohighlight">
+\[\theta_{T+1}(x) = h_T x^+ + p_T x^-,\]</div>
+<p>where <span class="math notranslate nohighlight">\(h_T\)</span> = <code class="docutils literal notranslate"><span class="pre">terminal_holding_cost</span></code>, <span class="math notranslate nohighlight">\(p_T\)</span> =
+<code class="docutils literal notranslate"><span class="pre">terminal_stockout_cost</span></code>, <span class="math notranslate nohighlight">\(x^+ = \max\{x,0\}\)</span>, and
 <span class="math notranslate nohighlight">\(x^- = \max\{-x,0\}\)</span>.</p>
 <p>Demands are assumed to be normally distributed.</p>
 <p>Most parameters may be given as a singleton or a list. If given as a
@@ -213,13 +206,18 @@ period. If given as a list, the list must be of length <code class="docutils lit
 </ul>
 <p>The parameters may be mixed, some scalars and some lists.</p>
 <p>Output arrays are all 1-indexed; for example, <code class="docutils literal notranslate"><span class="pre">reorder_point[5]</span></code> gives
-<span class="math notranslate nohighlight">\(s^*_5\)</span>, the order point for period 5.</p>
+<span class="math notranslate nohighlight">\(s^*_5\)</span>, the reorder point for period 5.</p>
 <p>Discretization is done at the integer level, i.e., all demand_list and
 inventory positions are rounded to the nearest integer. The state space
 (range of possible inventory positions) is truncated using settings
 specified in the code.</p>
 <p>Raises warnings if the discretization and truncation settings are likely to
 lead to suboptimal results. (See details in the code.)</p>
+<p>Executes faster than straightforward implementation because it calculates
+<span class="math notranslate nohighlight">\(H_t(y)\)</span> (as defined in (4.87)) for each <span class="math notranslate nohighlight">\(t\)</span> and <span class="math notranslate nohighlight">\(y\)</span>,
+and then uses this when calculating <span class="math notranslate nohighlight">\(\theta_t(x)\)</span> for each <span class="math notranslate nohighlight">\(x\)</span>.
+This avoids having to recalculate the terms that don’t depend on <span class="math notranslate nohighlight">\(x\)</span>
+(which are computationally expensive).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -236,10 +234,16 @@ lead to suboptimal results. (See details in the code.)</p>
 <li><strong>demand_sd</strong> (<em>float</em><em> or </em><em>list</em>) – Demand standard deviation per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
 <li><strong>discount_factor</strong> (<em>float</em><em> or </em><em>list</em>) – Discount factor, in <span class="math notranslate nohighlight">\((0,1]\)</span>. Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
 <li><strong>initial_inventory_level</strong> (<em>float</em>) – Initial inventory level at the start of period 1. [<span class="math notranslate nohighlight">\(x_1\)</span>]</li>
+<li><strong>trunc_tol</strong> (<em>float</em>) – Truncation tolerance; a warning is raised if <em>either</em> total probability of
+demand outside of <code class="docutils literal notranslate"><span class="pre">d_range</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">trunc_tol</span></code> for any time period, <em>or</em>
+<span class="math notranslate nohighlight">\(P(s_t - D &lt; x_{min})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">trunc_tol</span></code>, where <span class="math notranslate nohighlight">\(x_{min}\)</span> is the
+minimum value of <span class="math notranslate nohighlight">\(x\)</span> after truncation.</li>
+<li><strong>d_spread</strong> (<em>float</em>) – Number of standard deviations around mean to consider for demand truncation.</li>
+<li><strong>s_spread</strong> (<em>float</em>) – Number of (demand) standard deviations around <span class="math notranslate nohighlight">\((s,S)\)</span> estimates to consider.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_points</strong> (<em>list</em>) – List of reorder points in each time period. [<span class="math notranslate nohighlight">\(s^*_t\)</span>]</li>
 <li><strong>order_up_to_levels</strong> (<em>list</em>) – List of order-up-to levels in each time period. [<span class="math notranslate nohighlight">\(S^*_t\)</span>]</li>
 <li><strong>total_cost</strong> (<em>float</em>) – Optimal total expected discounted cost over the horizon, assuming IL in
@@ -256,6 +260,15 @@ indices of the columns of <code class="docutils literal notranslate"><span class
 </p>
 </td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> &lt;= 0 or is non-integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>,
+<code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt; 0 for any time period.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">discount_factor</span></code> &lt;= 0 or &gt; 1 for any time period.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">terminal_holding_cost</span></code> &lt; 0 or <code class="docutils literal notranslate"><span class="pre">terminal_stockout_cost</span></code> &lt; 0.</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Equation Used</strong> (equation (4.66)):</p>
@@ -265,6 +278,39 @@ indices of the columns of <code class="docutils literal notranslate"><span class
 <p>where <span class="math notranslate nohighlight">\(\delta(z) = 1\)</span> if <span class="math notranslate nohighlight">\(z&gt;0\)</span> and <span class="math notranslate nohighlight">\(0\)</span> otherwise,
 and where <span class="math notranslate nohighlight">\(g(\cdot)\)</span> is the newsvendor cost function.</p>
 <p><strong>Algorithm Used:</strong> DP for finite-horizon inventory problem (Algorithm 4.1)</p>
+<p><strong>Truncation and Discretization</strong> are performed as follows:</p>
+<blockquote>
+<div><p>1. Range of demand values is truncated at <span class="math notranslate nohighlight">\(\mu \pm\)</span> <code class="docutils literal notranslate"><span class="pre">d_spread</span></code><span class="math notranslate nohighlight">\(\sigma\)</span>,
+where <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> are the mean and
+standard deviation of the demand, truncating also at 0, and accounting conservatively
+for the variations in demand parameters across periods.</p>
+<p>2. If the total probability of demand outside the demand range in any time period
+is greater than <code class="docutils literal notranslate"><span class="pre">trunc_tol</span></code>, a warning is issued.</p>
+<p>3. <span class="math notranslate nohighlight">\(s\)</span> is estimated as the newsvendor solution and
+<span class="math notranslate nohighlight">\(S\)</span> is estimated as <span class="math notranslate nohighlight">\(s + Q_{EOQB}\)</span>, where <span class="math notranslate nohighlight">\(Q_{EOQB}\)</span> is the
+order quantity from the EOQB problem.</p>
+<p>4. <code class="docutils literal notranslate"><span class="pre">s_spread</span></code><span class="math notranslate nohighlight">\(\sigma\)</span> is subtracted from <span class="math notranslate nohighlight">\(s\)</span> and added to <span class="math notranslate nohighlight">\(S\)</span>
+to provide desired buffer, and <span class="math notranslate nohighlight">\(\mu + \sigma\)</span> <code class="docutils literal notranslate"><span class="pre">d_spread</span></code> is subtracted
+from <span class="math notranslate nohighlight">\(s\)</span> to account for demand, accounting conservatively for the
+variations in demand parameters across periods, and adjusting the final period
+to account for terminal costs.</p>
+<ol class="arabic simple" start="5">
+<li>Range of <span class="math notranslate nohighlight">\(x\)</span> values is set using these two bounds.</li>
+</ol>
+<p>6. When calculating <span class="math notranslate nohighlight">\(H_t(y)\)</span>, the demand range is further truncated to avoid
+<span class="math notranslate nohighlight">\(y-d\)</span> falling below the smallest value in the <span class="math notranslate nohighlight">\(x\)</span>-range.</p>
+<p>7. If, at any point in the optimization, the optimal order-up-to level for any <span class="math notranslate nohighlight">\(x\)</span>
+and <span class="math notranslate nohighlight">\(t\)</span> is the largest value in the <span class="math notranslate nohighlight">\(x\)</span>-range, suggesting that the uppper end
+of the range is too low and that the optimal order-up-to level may be greater than it, the
+optimization is terminated, the upper end of the <span class="math notranslate nohighlight">\(x\)</span>-range is doubled,
+and the optimization is restarted.</p>
+<p>8. If, at any point in the optimization, the total probability of demand values
+that could bring the inventory level below the smallest value in the <span class="math notranslate nohighlight">\(x\)</span>-range is
+greater than <code class="docutils literal notranslate"><span class="pre">trunc_tol</span></code>, suggesting that the lower end of the range is too high
+and that reasonable demand values could bump up against it, a warning is generated.
+The optimization is not terminated, but the user may wish to try again with
+a larger value of <code class="docutils literal notranslate"><span class="pre">s_spread</span></code> and/or <code class="docutils literal notranslate"><span class="pre">d_spread</span></code>.</p>
+</div></blockquote>
 <p><strong>Example</strong>:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">finite_horizon_dp</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span>
@@ -280,40 +326,101 @@ and where <span class="math notranslate nohighlight">\(g(\cdot)\)</span> is the 
 <dl class="function">
 <dt id="pyinv.finite_horizon.myopic_bounds">
 <code class="descclassname">pyinv.finite_horizon.</code><code class="descname">myopic_bounds</code><span class="sig-paren">(</span><em>num_periods</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>terminal_holding_cost</em>, <em>terminal_stockout_cost</em>, <em>purchase_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.finite_horizon.myopic_bounds" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Calculate the “myopic” bounds for the finite-horizon inventory optimization problem,
+with or without fixed costs.</p>
+<p>See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
+notation.</p>
+<p>The myopic bounds <span class="math notranslate nohighlight">\(\bar{s}_t\)</span>, <span class="math notranslate nohighlight">\(\underline{S}_t\)</span>,
+and <span class="math notranslate nohighlight">\(\bar{S}_t\)</span> are denoted <span class="math notranslate nohighlight">\(r^+(t)\)</span>, <span class="math notranslate nohighlight">\(s^+(t)\)</span>, and <span class="math notranslate nohighlight">\(s^++(t)\)</span>,
+respectively, in Zipkin (2000). (Zipkin does not have an analogous quantity
+to <span class="math notranslate nohighlight">\(\underline{s}_t\)</span>.) They are not used in Snyder and Shen
+(2019), but the bounds are given in terms of Snyder-Shen notation below.</p>
+<p>Demands are assumed to be normally distributed.</p>
+<p>Most parameters may be given as a singleton or a list. If given as a
+singleton, the parameter will be assumed to be the same in every time
+period. If given as a list, the list must be of length <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> or
+<code class="docutils literal notranslate"><span class="pre">num_periods</span></code>+1.</p>
+<ul class="simple">
+<li>In the former case, the list is assumed to contain values for periods
+1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 0, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>-1.</li>
+<li>In the latter case, the list is assumed to contain values for periods
+1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>, and the
+0th element is ignored.</li>
+</ul>
+<p>The parameters may be mixed, some scalars and some lists.</p>
+<p>Output arrays are all 1-indexed; for example, <code class="docutils literal notranslate"><span class="pre">S_underbar[5]</span></code> gives
+<span class="math notranslate nohighlight">\(\underline{s}_5\)</span>, the lower bound on <span class="math notranslate nohighlight">\(s_5\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>num_periods</strong> – </li>
-<li><strong>holding_cost</strong> – </li>
-<li><strong>stockout_cost</strong> – </li>
-<li><strong>purchase_cost</strong> – </li>
-<li><strong>fixed_cost</strong> – </li>
-<li><strong>demand_mean</strong> – </li>
-<li><strong>demand_sd</strong> – </li>
-<li><strong>discount_factor</strong> – </li>
+<li><strong>num_periods</strong> (<em>int</em>) – Number of periods in time horizon. [<span class="math notranslate nohighlight">\(T\)</span>]</li>
+<li><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
+<li><strong>stockout_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
+<li><strong>terminal_holding_cost</strong> (<em>float</em>) – Terminal holding cost per item. [<span class="math notranslate nohighlight">\(h_T\)</span>]</li>
+<li><strong>terminal_stockout_cost</strong> (<em>float</em>) – Terminal stockout cost per item. [<span class="math notranslate nohighlight">\(p_T\)</span>]</li>
+<li><strong>purchase_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Purchase cost per item. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
+<li><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
+<li><strong>demand_mean</strong> (<em>float</em><em> or </em><em>list</em>) – Demand mean per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
+<li><strong>demand_sd</strong> (<em>float</em><em> or </em><em>list</em>) – Demand standard deviation per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+<li><strong>discount_factor</strong> (<em>float</em><em> or </em><em>list</em>) – Discount factor, in <span class="math notranslate nohighlight">\((0,1]\)</span>. Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><em>S_underbar</em></li>
-<li><em>S_overbar</em></li>
-<li><em>s_underbar</em></li>
-<li><strong>s_overbar</strong> (<em>ndarray</em>) – List of <code class="docutils literal notranslate"><span class="pre">s_overbar</span></code> values. For periods <code class="docutils literal notranslate"><span class="pre">t</span></code> in which
+<li><strong>S_underbar</strong> (<em>ndarray</em>) – List of myopic lower bounds on <span class="math notranslate nohighlight">\(S_t\)</span>. [<span class="math notranslate nohighlight">\(\underline{S}_t\)</span>]</li>
+<li><strong>S_overbar</strong> (<em>ndarray</em>) – List of myopic upper bounds on <span class="math notranslate nohighlight">\(S_t\)</span>. [<span class="math notranslate nohighlight">\(\bar{S}_t\)</span>]</li>
+<li><strong>s_underbar</strong> (<em>ndarray</em>) – List of myopic lower bounds on <span class="math notranslate nohighlight">\(s_t\)</span>. [<span class="math notranslate nohighlight">\(\underline{s}_t\)</span>]</li>
+<li><strong>s_overbar</strong> (<em>ndarray</em>) – List of myopic upper bounds on <span class="math notranslate nohighlight">\(s_t\)</span>. For periods <code class="docutils literal notranslate"><span class="pre">t</span></code> in which
 <code class="docutils literal notranslate"><span class="pre">fixed_cost[t]</span> <span class="pre">-</span> <span class="pre">discount_factor[t]</span> <span class="pre">*</span> <span class="pre">fixed_cost[t+1]</span> <span class="pre">&lt;</span> <span class="pre">0</span></code>,
-<code class="docutils literal notranslate"><span class="pre">s_overbar[t]</span> <span class="pre">=</span> <span class="pre">None</span></code>. (<code class="docutils literal notranslate"><span class="pre">s_overbar</span></code> is invalid in these cases.)</li>
+<code class="docutils literal notranslate"><span class="pre">s_overbar[t]</span> <span class="pre">=</span> <span class="pre">None</span></code>. (<code class="docutils literal notranslate"><span class="pre">s_overbar</span></code> is invalid in these cases.) [<span class="math notranslate nohighlight">\(\bar{s}_t\)</span>]</li>
 </ul>
 </p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">purchase_cost[t]</span> <span class="pre">-</span> <span class="pre">discount_factor[t]</span> <span class="pre">*</span> <span class="pre">purchase_cost[t+1]</span></code> is
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> &lt;= 0 or is non-integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>,
+<code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt; 0 for any time period.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">discount_factor</span></code> &lt;= 0 or &gt; 1 for any time period.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">purchase_cost[t]</span> <span class="pre">-</span> <span class="pre">discount_factor[t]</span> <span class="pre">*</span> <span class="pre">purchase_cost[t+1]</span></code> is
 less than <code class="docutils literal notranslate"><span class="pre">-holding_cost[t]</span></code> or greater than <code class="docutils literal notranslate"><span class="pre">stockout_cost[t]</span></code>
-for some <code class="docutils literal notranslate"><span class="pre">t</span></code>. (This is required for myopic policy to be valid.)</p>
+for some <code class="docutils literal notranslate"><span class="pre">t</span></code>. (This is required for myopic policy to be valid.)</li>
+</ul>
 </td>
 </tr>
 </tbody>
 </table>
+<p><strong>Equations Used:</strong></p>
+<div class="math notranslate nohighlight">
+\[\underline{S}_t = \text{optimizer of } G_t(y)\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{S}_t = \text{the value of } y &gt; \underline{S}_t \text{ such that } G_t(y) = G_t(\underline{S}_t) + \gamma_tK_{t+1}\]</div>
+<div class="math notranslate nohighlight">
+\[\underline{s}_t = \text{the value of } y \le \underline{S}_t \text{ such that } G_t(y) = G_t(\underline{S}_t) + K_t\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{s}_t = \text{the value of } y \le \underline{S}_t \text{ such that } G_t(y) = G_t(\underline{S}_t) + K_t - \gamma_tK_{t+1},\]</div>
+<p>where <span class="math notranslate nohighlight">\(G_t(y)\)</span> is the myopic newsvendor cost function in period <span class="math notranslate nohighlight">\(t\)</span>,
+denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
+as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000), and is implemented in <code class="docutils literal notranslate"><span class="pre">pyinv.newsvendor.myopic()</span></code>.)</p>
+<p>In the fourth equation, if <span class="math notranslate nohighlight">\(K_t - \gamma_tK_{t+1} &lt; 0\)</span>, then <span class="math notranslate nohighlight">\(\bar{s}_t\)</span> is invalid and
+<code class="docutils literal notranslate"><span class="pre">s_overbar[t]</span></code> is set to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p class="rubric">References</p>
+<p>A. F. Veinott, Jr., On the Optimality of <span class="math notranslate nohighlight">\((s,S)\)</span> Inventory Policies:
+New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (1966).</p>
+<ol class="upperalpha simple" start="16">
+<li><ol class="first upperalpha" start="8">
+<li>Zipkin, <em>Foundations of Inventory Management</em>, Irwin/McGraw-Hill (2000).</li>
+</ol>
+</li>
+</ol>
+<p><strong>Example</strong>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">S_underbar</span><span class="p">,</span> <span class="n">S_overbar</span><span class="p">,</span> <span class="n">s_underbar</span><span class="p">,</span> <span class="n">s_overbar</span> <span class="o">=</span> <span class="n">myopic_bounds</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S_underbar</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">S_overbar</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s_underbar</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s_overbar</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">(133.36782387894158, 191.66022942788436, 110.26036848597217, 133.36782387894158)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>

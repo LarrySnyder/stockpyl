@@ -201,7 +201,15 @@ if <code class="docutils literal notranslate"><span class="pre">use_poisson</spa
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per period. [<span class="math notranslate nohighlight">\(g(s,S)\)</span>]</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">reorder_point</span></code> or <code class="docutils literal notranslate"><span class="pre">order_up_to_level</span></code> is not an integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> is not a non-negative integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code> is not a list of length <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> + 1.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -245,12 +253,19 @@ if <code class="docutils literal notranslate"><span class="pre">use_poisson</spa
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
 <li><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Expected cost per period. [<span class="math notranslate nohighlight">\(g(s,S)\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> is not a non-negative integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code> is not a list of length <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> + 1.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -282,11 +297,17 @@ policy under a normal demand distribution.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
 <li><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>

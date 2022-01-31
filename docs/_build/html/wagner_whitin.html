@@ -202,13 +202,16 @@ period. If given as a list, the list must be of length <code class="docutils lit
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>order_quantities</strong> (<em>list</em>) – List of order quantities in each time period. [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Optimal cost for entire horizon. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
 <li><strong>costs_to_go</strong> (<em>list</em>) – List of “costs to go”. [<span class="math notranslate nohighlight">\(\theta\)</span>]</li>
 <li><strong>next_order_periods</strong> (<em>list</em>) – List of “next order” period. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">demand</span></code>, or <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code> &lt;= 0 for any time period.</p>
 </td>
 </tr>
 </tbody>

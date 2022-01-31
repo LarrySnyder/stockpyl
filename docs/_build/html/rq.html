@@ -172,7 +172,7 @@ refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edit
 <dt id="pyinv.rq.r_q_cost">
 <code class="descclassname">pyinv.rq.</code><code class="descname">r_q_cost</code><span class="sig-paren">(</span><em>reorder_point</em>, <em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
-policy with given parameters.</p>
+policy with given parameters. Assumes demand is normally distributed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -192,7 +192,13 @@ policy with given parameters.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -231,7 +237,15 @@ policy with given parameters under Poisson demand.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> &lt;= 0 or is not an integer, or if <code class="docutils literal notranslate"><span class="pre">reorder_point</span></code>
+is not an integer.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -251,7 +265,7 @@ policy with given parameters under Poisson demand.</p>
 <dt id="pyinv.rq.r_q_eil_approximation">
 <code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eil_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “expected-inventory-level” (EIL)
-approximation.</p>
+approximation. Assumes demand is normally distributed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -269,12 +283,18 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
 <li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Approximate expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -294,7 +314,7 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 <dt id="pyinv.rq.r_q_eoqb_approximation">
 <code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eoqb_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ with backorders” (EOQB)
-approximation.</p>
+approximation. Assumes demand is normally distributed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -309,11 +329,17 @@ approximation.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
 <li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -333,7 +359,7 @@ approximation.</p>
 <dt id="pyinv.rq.r_q_eoqss_approximation">
 <code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eoqss_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqss_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ plus safety stock”
-(EOQ+SS) approximation.</p>
+(EOQ+SS) approximation. Assumes demand is normally distributed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -348,11 +374,17 @@ approximation.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
 <li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -371,7 +403,7 @@ approximation.</p>
 <dt id="pyinv.rq.r_q_loss_function_approximation">
 <code class="descclassname">pyinv.rq.</code><code class="descname">r_q_loss_function_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “loss function”
-approximation.</p>
+approximation. Assumes demand is normally distributed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -389,11 +421,17 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
 <li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -413,7 +451,8 @@ second-order loss functions for the lead-time demand distribution.</p>
 <dl class="function">
 <dt id="pyinv.rq.r_q_optimal_r_for_q">
 <code class="descclassname">pyinv.rq.</code><code class="descname">r_q_optimal_r_for_q</code><span class="sig-paren">(</span><em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_optimal_r_for_q" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate optimal <span class="math notranslate nohighlight">\(r\)</span> for the given <span class="math notranslate nohighlight">\(Q\)</span>.</p>
+<dd><p>Calculate optimal <span class="math notranslate nohighlight">\(r\)</span> for the given <span class="math notranslate nohighlight">\(Q\)</span>. Assumes demand is
+normally distributed.</p>
 <p>Finds <span class="math notranslate nohighlight">\(r\)</span> using bisection search.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -434,7 +473,13 @@ when <span class="math notranslate nohighlight">\(g(r)\)</span> and <span class=
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>reorder_point</strong> – Optimal reorder point for given order quantity. [<span class="math notranslate nohighlight">\(r(Q)\)</span>]</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -468,12 +513,18 @@ algorithm by Federgruen and Zheng (1992).</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
 <li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
 <li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
 <li><strong>cost</strong> (<em>float</em>) – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</li>
 </ul>
 </p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</ul>
 </td>
 </tr>
 </tbody>

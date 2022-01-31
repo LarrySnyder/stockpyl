@@ -50,6 +50,8 @@ class TestFiniteHorizon(unittest.TestCase):
 		MATLAB command to save results:
 		>> save('filename.mat', 's_small', 'S_large', 'total_cost', 'costmatrix', 'OULmatrix', 'xrange')
 		"""
+		print_status('TestFiniteHorizon', 'compare_solution_vs_matlab()')
+
 		# Read and parse solution obtained using MATLAB.
 		# MATLAB variables require some manipulation:
 		#   * Take transpose (because MATLAB outputs are column vectors).
@@ -218,6 +220,61 @@ class TestFiniteHorizon(unittest.TestCase):
 										total_cost, cost_matrix, oul_matrix, x_range,
 			'tests/additional_files/problem_4_30')
 
+	def test_bad_parameters(self):
+		"""Test that finite_horizon() function correctly raises errors on bad parameters.
+		"""
+		print_status('TestFiniteHorizon', 'test_bad_parameters()')
+
+		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+			demand_sd, discount_factor, initial_inventory_level = \
+			get_named_instance("problem_4_30")
+
+		num_periods = -3
+		with self.assertRaises(ValueError):
+			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
+				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+				initial_inventory_level)
+
+		num_periods = 5.7
+		with self.assertRaises(ValueError):
+			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
+				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+				initial_inventory_level)
+
+		num_periods = 10
+		terminal_holding_cost = -5
+		with self.assertRaises(ValueError):
+			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
+				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+				initial_inventory_level)
+
+		terminal_holding_cost = holding_cost
+		holding_cost = [1] * 10
+		holding_cost[3] = -5
+		with self.assertRaises(ValueError):
+			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
+				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+				initial_inventory_level)
+
+		holding_cost[3] = 1
+		discount_factor = [discount_factor] * 10
+		discount_factor[2] = 1.5
+		with self.assertRaises(ValueError):
+			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
+				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
+				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+				initial_inventory_level)
+
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestFiniteHorizon.test_instance_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_instance_1(self):
 		"""Test that finite_horizon() function correctly solves instance
@@ -251,4 +308,64 @@ class TestFiniteHorizon(unittest.TestCase):
 										'tests/additional_files/instance_1', sample_frac=None)
 
 
+class TestMyopicBounds(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestMyopicBounds', 'set_up_class()')
 
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestMyopicBounds', 'tear_down_class()')
+
+	def test_5_period_instance(self):
+		"""Test that myopic_bounds() function correctly finds bounds for a 5-period instance.
+		"""
+		print_status('TestMyopicBounds', 'test_5_period_instance()')
+
+		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(5, 1, 20, 1, 20, 2, 50, 100, 20)
+
+		np.testing.assert_allclose(S_underbar, [0., 133.36782388, 133.36782388, 133.36782388, 133.36782388, 126.18343434])
+		np.testing.assert_allclose(S_overbar, [0., 191.66022943, 191.66022943, 191.66022943, 191.66022943, 126.18343434])
+		np.testing.assert_allclose(s_underbar, [0., 110.26036849, 110.26036849, 110.26036849, 110.26036849, 111.66574177])
+		np.testing.assert_allclose(s_overbar, [0., 133.36782388, 133.36782388, 133.36782388, 133.36782388, 111.66574177])
+
+	def test_problem_4_29(self):
+		"""Test that myopic_bounds() function correctly finds bounds for Problem 4.29.
+		"""
+		print_status('TestMyopicBounds', 'test_problem_4_29()')
+
+		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+			demand_sd, discount_factor, initial_inventory_level = \
+			get_named_instance("problem_4_29")
+
+		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(num_periods, holding_cost,
+			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
+
+		np.testing.assert_allclose(S_underbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
+		np.testing.assert_allclose(S_overbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
+		np.testing.assert_allclose(s_underbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
+		np.testing.assert_allclose(s_overbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
+
+	def test_problem_4_29_with_K(self):
+		"""Test that myopic_bounds() function correctly finds bounds for Problem 4.29 with K = 100.
+		"""
+		print_status('TestMyopicBounds', 'test_problem_4_29_with_K()')
+
+		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+			demand_sd, discount_factor, initial_inventory_level = \
+			get_named_instance("problem_4_29")
+		fixed_cost = 100
+
+		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(num_periods, holding_cost,
+			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
+
+		np.testing.assert_allclose(S_underbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
+		np.testing.assert_allclose(S_overbar, [0., 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 22.7233349])
+		np.testing.assert_allclose(s_underbar, [0., 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 16.09987465])
+		np.testing.assert_allclose(s_overbar, [0., 21.34135253, 21.34135253, 21.34135253, 21.34135253, 21.34135253, 21.34135253, 21.34135253, 21.34135253, 21.34135253, 16.09987465])

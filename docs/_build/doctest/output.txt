@@ -1,20 +1,12 @@
-Results of doctest builder run on 2022-01-30 10:28:48
+Results of doctest builder run on 2022-01-30 21:06:58
 =====================================================
 
-Document: eoq
--------------
+Document: supply_uncertainty
+----------------------------
 1 items passed all tests:
-   8 tests in default
-8 tests in 1 items.
-8 passed and 0 failed.
-Test passed.
-
-Document: newsvendor
---------------------
-1 items passed all tests:
-  28 tests in default
-28 tests in 1 items.
-28 passed and 0 failed.
+  15 tests in default
+15 tests in 1 items.
+15 passed and 0 failed.
 Test passed.
 
 Document: wagner_whitin
@@ -25,20 +17,28 @@ Document: wagner_whitin
 10 passed and 0 failed.
 Test passed.
 
-Document: finite_horizon
-------------------------
+Document: newsvendor
+--------------------
 1 items passed all tests:
-   4 tests in default
-4 tests in 1 items.
-4 passed and 0 failed.
+  28 tests in default
+28 tests in 1 items.
+28 passed and 0 failed.
 Test passed.
 
-Document: supply_uncertainty
-----------------------------
+Document: ss
+------------
 1 items passed all tests:
-  15 tests in default
-15 tests in 1 items.
-15 passed and 0 failed.
+   3 tests in default
+3 tests in 1 items.
+3 passed and 0 failed.
+Test passed.
+
+Document: eoq
+-------------
+1 items passed all tests:
+   8 tests in default
+8 tests in 1 items.
+8 passed and 0 failed.
 Test passed.
 
 Document: loss_functions
@@ -58,17 +58,17 @@ Document: rq
 8 passed and 0 failed.
 Test passed.
 
-Document: ss
-------------
+Document: finite_horizon
+------------------------
 1 items passed all tests:
-   3 tests in default
-3 tests in 1 items.
-3 passed and 0 failed.
+   6 tests in default
+6 tests in 1 items.
+6 passed and 0 failed.
 Test passed.
 
 Doctest summary
 ===============
-  125 tests
+  127 tests
     0 failures in tests
     0 failures in setup code
     0 failures in cleanup code
