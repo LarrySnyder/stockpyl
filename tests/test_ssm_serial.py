@@ -145,6 +145,42 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(instance, S={n: 0 for n in instance.node_indices})
 
+	def test_bad_parameters(self):
+		"""Test that optimize_base_stock_levels() correctly raises exceptions if
+		bad parameters are given.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_bad_parameters()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		instance.nodes[1].order_lead_time = -20
+		with self.assertRaises(ValueError):
+			S_star, C_star = optimize_base_stock_levels(instance, S={n: 0 for n in instance.node_indices})
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		instance.nodes[0].stockout_cost = None
+		with self.assertRaises(ValueError):
+			S_star, C_star = optimize_base_stock_levels(instance, S={n: 0 for n in instance.node_indices})
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		instance.nodes[0].stockout_cost = -2
+		with self.assertRaises(ValueError):
+			S_star, C_star = optimize_base_stock_levels(instance, S={n: 0 for n in instance.node_indices})
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		instance.nodes[2].echelon_holding_cost = None
+		with self.assertRaises(ValueError):
+			S_star, C_star = optimize_base_stock_levels(instance, S={n: 0 for n in instance.node_indices})
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		instance.nodes[0].demand_distribution = None
+		with self.assertRaises(ValueError):
+			S_star, C_star = optimize_base_stock_levels(instance, S={n: 0 for n in instance.node_indices})
 
 class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 

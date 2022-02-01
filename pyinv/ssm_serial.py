@@ -71,15 +71,14 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	"""Chen-Zheng (1994) algorithm for stochastic serial systems under
 	stochastic service model (SSM), as described in Snyder and Shen (2019).
 
-	Stages must be indexed :math:`N, \\ldots, 1`. Demand is assumed to be
-	normally distributed.
+	Stages must be indexed :math:`N, \\ldots, 1`.
 
 	The nodes in ``network`` must provide the following attributes:
 
-	* **echelon_holding_cost**
-	* **lead_time** (optional, default=0)
-	* **stockout_cost** (node 1 only)
-	* **demand_distribution** (node 1 only)
+		* **echelon_holding_cost**
+		* **lead_time** (optional, default=0)
+		* **stockout_cost** (node 1 only)
+		* **demand_source** (node 1 only)
 
 
 	Parameters
@@ -126,6 +125,72 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	------
 	ValueError
 		If nodes are not indexed N, ..., 1.
+	ValueError
+		If ``echelon_holding_cost`` is ``None`` for any node or if
+		``stockout_cost`` or ``demand_source`` is ``None`` for node 1.
+	ValueError
+		If ``lead_time`` < 0 for any node or if ``stockout_cost`` < 0 for node 1.
+		
+
+	**Equations Used** (Theorem 6.3):
+
+	.. math::
+
+		\\underline{g}_0(x) = (p+h'_1)x^-
+	
+	For :math:`j=1,\\ldots,N`:
+
+	.. math::
+
+		\\begin{gather*}
+		\\hat{g}_j(x) = h_jx + \\underline{g}_{j-1}(x) \\\\
+		g_j(y) = E\left[\hat{g}_j(y-D_j)\\right] \\\\
+		S^*_j = \\mathrm{argmin} \\{g_j(y)\\} \\\\
+		\\underline{g}_j(x) = g_j(\\min\\{S_j^*,x\\})
+		\\end{gather*}
+
+
+	The range of :math:`x` values considered is discretized and truncated. 
+	The :math:`\\hat{g}_j(x)` functions sometimes need to be evaluated for :math:`x`
+	values outside this range. For those values, the following limits provide linear 
+	approximations that are used instead (see Problem 6.13):
+
+	.. math::
+
+		\\begin{gather*}
+		\\lim_{x \\rightarrow -\\infty} \\hat{g}_j(x) = \\sum_{i=1}^j h_i\\left(x - \\sum_{k=i}^{j-1} E[D_k]\\right) - (p+h'_1)\\left(x - \\sum_{k=1}^{j-1} E[D_k]\\right) \\\\
+		\\lim_{x \\rightarrow +\\infty} \\hat{g}_j(x) = \\begin{cases} h_jx + g_{j-1}(S^*_{j-1}), & \\text{if $j>1$} \\\\
+															h_jx, & \\text{if $j=1$} \\end{cases}
+		\\end{gather*}
+
+
+	**Example** (Example 6.1):
+
+	.. testsetup:: *
+
+		from pyinv.ssm_serial import *
+
+	.. doctest::
+
+		>>> from pyinv.supply_chain_network import serial_system
+		>>> network = serial_system(
+		... 	num_nodes=3, 
+		... 	node_indices=[1, 2, 3], 
+		... 	echelon_holding_cost=[3, 2, 2], 
+		... 	stockout_cost=[37.12, 0, 0], 
+		... 	demand_type='N', 
+		... 	demand_mean=5, 
+		... 	demand_standard_deviation=1, 
+		... 	shipment_lead_time=[1, 1, 2], 
+		... 	inventory_policy_type='BS', 
+		... 	base_stock_levels=[0, 0, 0]
+		...	)
+		>>> S_star, C_star = optimize_base_stock_levels(network)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
 
 	"""
 
@@ -143,17 +208,18 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 			node = None
 		else:
 			succ = node.successor_indices()
-			if succ != [node.index - 1]:
-				raise ValueError("nodes must be indexed N, ..., 1")
+			if succ != [node.index - 1]: raise ValueError("nodes must be indexed N, ..., 1")
 			else:
 				node = node.get_one_successor()	
 
 	# Check that nodes have the necessary attributes, and check their values.
-	
-
-	# TODO: check parameter values, raise exceptions
-
-	# TODO: Make sure echelon holding costs are provided.
+	for node in network.nodes:
+		if node.echelon_holding_cost is None: raise ValueError("echelon_holding_cost is required for all nodes")
+		if node.lead_time is not None and node.lead_time < 0: raise ValueError("lead_time must be non-negative")
+		if node.index == 1:
+			if node.stockout_cost is None: raise ValueError("stockout_cost is required for node 1")
+			elif node.stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+			if node.demand_source is None: raise ValueError("demand_source is required for node 1")
 
 	# Get shortcuts to parameters (for convenience).
 	sink = network.get_node_from_index(1)
@@ -161,7 +227,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	L = np.zeros(N+1)
 	h = np.zeros(N+1)
 	for j in network.nodes:
-		L[j.index] = j.lead_time
+		L[j.index] = j.lead_time or 0
 		h[j.index] = j.echelon_holding_cost
 	p = sink.stockout_cost
 
@@ -240,8 +306,6 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	# Loop through stages.
 	for j in range(1, N+1):
 
-#		print(str(j))
-
 		# Calculate C_hat.
 		C_hat[j, :] = h[j] * x + C_bar[j-1, :]
 
@@ -289,8 +353,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 			the_x = find_nearest(x, y, True)
 
 			# Loop through demand_list and calculate expected cost.
-			# This method uses the following result (see Problem X.X):
-			# TODO: supply problem number
+			# This method uses the following result (see Problem 6.13):
 			# lim_{y -> -infty} C_j(y) = -(p + h'_{j+1})(y - sum_{i=1}^j E[D_i])
 			# lim_{y -> +infty} C_j(y) = h_j(y - E[D_j]) + C_{j-1}(S*_{j-1})
 			# TODO: this can probably be vectorized and be much faster
