@@ -1,9 +1,17 @@
-"""Optimization-related functions.
+# ===============================================================================
+# PyInv - optimization Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 01-30-2022
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
 
-(c) Lawrence V. Snyder
-Lehigh University
+"""The :mod:`optimization` module contains optimization-related code used in other
+modules.
 
 """
+
 
 import math
 
