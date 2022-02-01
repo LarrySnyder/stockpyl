@@ -1,31 +1,54 @@
-"""Code to implement Chen-Zheng (1994) algorithm for stochastic serial systems
-under stochastic service model (SSM), as described in Snyder and Shen (2019).
-# TODO: also cite Clark-Scarf
+# ===============================================================================
+# PyInv - ssm_serial Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 01-30-2022
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
+"""The :mod:`ssm_serial` module contains code to implement Chen-Zheng (1994) algorithm 
+for stochastic serial systems under the stochastic service model (SSM), based on 
+Clark and Scarf (1960), as described in Snyder and Shen (2019).
 
 'node' and 'stage' are used interchangeably in the documentation.
 
-The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode``s
-that it contains, which contains all of the data for the SSM instance.
+The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` objects
+that it contains, which contain all of the data for the SSM instance.
 
 The following parameters are used to specify input data:
+
 	* Node-level parameters
-		- echelon_holding_cost [h]
-		- stockout_cost [p]
-		- lead_time [L]
-		- mean [mu]
-		- standard_deviation [sigma]
+
+		- **echelon_holding_cost** [:math:`h`]
+		- **stockout_cost** [:math:`p`]
+		- **lead_time** [:math:`L`]
+		- **mean** [:math:`\\mu`]
+		- **standard_deviation** [:math:`\\sigma`]
+
 	* Edge-level parameters
+
 		(None.)
 
 The following attributes are used to store outputs and intermediate values:
+
 	* Graph-level parameters
+
 		(None.)
+	
 	* Node-level parameters
+	
 		(None.)
 
-(c) Lawrence V. Snyder
-Lehigh University
+The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+(2019).
 
+References
+----------
+F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory systems. *Management Science*, 40(11):1426–1443, 1994.
+
+A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
 """
 
 import numpy as np
@@ -35,191 +58,6 @@ import matplotlib.pyplot as plt
 import copy
 
 from pyinv.helpers import *
-
-
-### NETWORK-HANDLING FUNCTIONS ###
-
-def local_to_echelon_base_stock_levels(network, S_local):
-	"""Convert local base-stock levels to echelon base-stock levels.
-
-	Assumes network is serial system but does not assume anything about the
-	labeling of the nodes.
-
-	Parameters
-	----------
-	network : SupplyChainNetwork
-		The serial inventory network.
-	S_local : dict
-		Dict of local base-stock levels.
-
-	Returns
-	-------
-	S_echelon : dict
-		Dict of echelon base-stock levels.
-
-	"""
-	S_echelon = {}
-	for n in network.nodes:
-		S_echelon[n.index] = S_local[n.index]
-		k = n.get_one_successor()
-		while k is not None:
-			S_echelon[n.index] += S_local[k.index]
-			k = k.get_one_successor()
-
-	return S_echelon
-
-
-def echelon_to_local_base_stock_levels(network, S_echelon):
-	"""Convert echelon base-stock levels to local base-stock levels.
-
-	Assumes network is serial system but does not assume anything about the
-	labeling of the nodes.
-
-	Parameters
-	----------
-	network : SupplyChainNetwork
-		The serial inventory network.
-	S_echelon : dict
-		Dict of echelon base-stock levels.
-
-	Returns
-	-------
-	S_local : dict
-		Dict of local base-stock levels.
-
-	"""
-	S_local = {}
-
-	# Determine indexing of nodes. (node_list[i] = index of i'th node, where
-	# i = 0 means sink node and i = N-1 means source node.)
-	node_list = []
-	n = network.sink_nodes[0]
-	while n is not None:
-		node_list.append(n.index)
-		n = n.get_one_predecessor()
-
-	# Calculate S-minus.
-	S_minus = {}
-	j = 0
-	for n in network.nodes:
-		S_minus[n.index] = np.min([S_echelon[node_list[i]]
-							 for i in range(j, len(S_echelon))])
-		j += 1
-
-	# Calculate S_local.
-	for n in network.nodes:
-		# Get successor.
-		k = n.get_one_successor()
-		if k is None:
-			S_local[n.index] = S_minus[n.index]
-		else:
-			S_local[n.index] = S_minus[n.index] - S_minus[k.index]
-
-	return S_local
-
-
-### COST-RELATED FUNCTIONS ###
-
-def expected_cost(network, echelon_S, x_num=1000, d_num=100,
-				  ltd_lower_tail_prob=1-stats.norm.cdf(4),
-				  ltd_upper_tail_prob=1-stats.norm.cdf(4),
-				  sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
-				  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
-	"""Calculate expected cost of given solution.
-
-	This is a wrapper function that calls ``optimize_base_stock_levels()``
-	without doing any optimization.
-
-	Parameters
-	----------
-	network : SupplyChainNetwork
-		The serial inventory network.
-	echelon_S : dict
-		Dict of echelon base-stock levels to be evaluated.
-	x_num : int, optional
-		Number of discretization intervals to use for ``x`` range.
-	d_num : int, optional
-		Number of discretization intervals to use for ``d`` range.
-	ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating lead-time demand
-		distribution.
-	ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating lead-time demand
-		distribution.
-	sum_ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
-	sum_ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
-
-	Returns
-	-------
-	cost : float
-		Expected cost of system.
-	"""
-	_, cost = optimize_base_stock_levels(network, S=echelon_S, plots=False,
-										 x=None, x_num=x_num, d_num=d_num,
-										 ltd_lower_tail_prob=ltd_lower_tail_prob,
-										 ltd_upper_tail_prob=ltd_upper_tail_prob,
-										 sum_ltd_lower_tail_prob=sum_ltd_lower_tail_prob,
-										 sum_ltd_upper_tail_prob=sum_ltd_upper_tail_prob)
-
-	return cost
-
-
-def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100,
-						  ltd_lower_tail_prob=1-stats.norm.cdf(4),
-						  ltd_upper_tail_prob=1-stats.norm.cdf(4),
-						  sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
-						  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
-	"""Calculate expected holding cost of given solution.
-
-	Basic idea: set stockout cost to 0 and call ``optimize_base_stock_levels()``
-	without doing any optimization.
-
-	Parameters
-	----------
-	network : SupplyChainNetwork
-		The serial inventory network.
-	echelon_S : dict
-		Dict of echelon base-stock levels to be evaluated.
-	x_num : int, optional
-		Number of discretization intervals to use for ``x`` range.
-	d_num : int, optional
-		Number of discretization intervals to use for ``d`` range.
-	ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating lead-time demand
-		distribution.
-	ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating lead-time demand
-		distribution.
-	sum_ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
-	sum_ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
-
-	Returns
-	-------
-	holding_cost : float
-		Expected holding cost of system.
-	"""
-
-	# Make copy of network and set stockout cost to 0.
-	network2 = copy.deepcopy(network)
-	for node in network2.nodes:
-		node.stockout_cost = 0
-
-	_, holding_cost = optimize_base_stock_levels(network2, S=echelon_S,
-								plots=False, x=None, x_num=x_num, d_num=d_num,
-								ltd_lower_tail_prob=ltd_lower_tail_prob,
-								ltd_upper_tail_prob=ltd_upper_tail_prob,
-								sum_ltd_lower_tail_prob=sum_ltd_lower_tail_prob,
-								sum_ltd_upper_tail_prob=sum_ltd_upper_tail_prob)
-
-	return holding_cost
 
 
 ### OPTIMIZATION ###
@@ -233,8 +71,16 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	"""Chen-Zheng (1994) algorithm for stochastic serial systems under
 	stochastic service model (SSM), as described in Snyder and Shen (2019).
 
-	Stages are assumed to be indexed N, ..., 1.
-	# TODO: handle other indexing
+	Stages must be indexed :math:`N, \\ldots, 1`. Demand is assumed to be
+	normally distributed.
+
+	The nodes in ``network`` must provide the following attributes:
+
+	* **echelon_holding_cost**
+	* **lead_time** (optional, default=0)
+	* **stockout_cost** (node 1 only)
+	* **demand_distribution** (node 1 only)
+
 
 	Parameters
 	----------
@@ -243,11 +89,11 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	S : dict, optional
 		Dict of echelon base-stock levels to evaluate. If present, no
 		optimization is performed and the function just returns the cost
-		under base-stock levels ``S``; to optimize instead, set ``S``=``None``
+		under base-stock levels ``S``; to optimize instead, set ``S`` = ``None``
 		(the default).
-	plots : bool
-		``True`` for the function to generate plots of C(.) functions,
-		``False`` o/w.
+	plots : bool, optional
+		``True`` for the function to generate plots of :math:`C(\\cdot)` functions,
+		``False`` otherwise.
 	x : ndarray, optional
 		x-array to use for truncation and discretization, or ``None`` (the default)
 		to determine automatically.
@@ -275,14 +121,37 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		Dict of optimal echelon base-stock levels.
 	C_star : float
 		Optimal expected cost.
+
+	Raises
+	------
+	ValueError
+		If nodes are not indexed N, ..., 1.
+
 	"""
+
+	# TODO: handle other indexing (other than N ... 1)
 
 	# Get number of nodes.
 	N = len(network.nodes)
 
 	# Make sure nodes are indexed correctly.
-	assert network.source_nodes[0].index == N and network.sink_nodes[0].index == 1, \
-		"nodes must be indexed N, ..., 1"
+	if network.source_nodes[0].index != N or network.sink_nodes[0].index != 1: \
+		raise ValueError("nodes must be indexed N, ..., 1")
+	node = network.source_nodes[0]
+	while node is not None:
+		if node.index == 1:
+			node = None
+		else:
+			succ = node.successor_indices()
+			if succ != [node.index - 1]:
+				raise ValueError("nodes must be indexed N, ..., 1")
+			else:
+				node = node.get_one_successor()	
+
+	# Check that nodes have the necessary attributes, and check their values.
+	
+
+	# TODO: check parameter values, raise exceptions
 
 	# TODO: Make sure echelon holding costs are provided.
 
@@ -483,6 +352,193 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		plt.show()
 
 	return S_star, C_star[N]
+
+
+### NETWORK-HANDLING FUNCTIONS ###
+
+def local_to_echelon_base_stock_levels(network, S_local):
+	"""Convert local base-stock levels to echelon base-stock levels.
+
+	Assumes network is serial system but does not assume anything about the
+	labeling of the nodes.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	S_local : dict
+		Dict of local base-stock levels.
+
+	Returns
+	-------
+	S_echelon : dict
+		Dict of echelon base-stock levels.
+
+	"""
+	S_echelon = {}
+	for n in network.nodes:
+		S_echelon[n.index] = S_local[n.index]
+		k = n.get_one_successor()
+		while k is not None:
+			S_echelon[n.index] += S_local[k.index]
+			k = k.get_one_successor()
+
+	return S_echelon
+
+
+def echelon_to_local_base_stock_levels(network, S_echelon):
+	"""Convert echelon base-stock levels to local base-stock levels.
+
+	Assumes network is serial system but does not assume anything about the
+	labeling of the nodes.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	S_echelon : dict
+		Dict of echelon base-stock levels.
+
+	Returns
+	-------
+	S_local : dict
+		Dict of local base-stock levels.
+
+	"""
+	S_local = {}
+
+	# Determine indexing of nodes. (node_list[i] = index of i'th node, where
+	# i = 0 means sink node and i = N-1 means source node.)
+	node_list = []
+	n = network.sink_nodes[0]
+	while n is not None:
+		node_list.append(n.index)
+		n = n.get_one_predecessor()
+
+	# Calculate S-minus.
+	S_minus = {}
+	j = 0
+	for n in network.nodes:
+		S_minus[n.index] = np.min([S_echelon[node_list[i]]
+							 for i in range(j, len(S_echelon))])
+		j += 1
+
+	# Calculate S_local.
+	for n in network.nodes:
+		# Get successor.
+		k = n.get_one_successor()
+		if k is None:
+			S_local[n.index] = S_minus[n.index]
+		else:
+			S_local[n.index] = S_minus[n.index] - S_minus[k.index]
+
+	return S_local
+
+
+### COST-RELATED FUNCTIONS ###
+
+def expected_cost(network, echelon_S, x_num=1000, d_num=100,
+				  ltd_lower_tail_prob=1-stats.norm.cdf(4),
+				  ltd_upper_tail_prob=1-stats.norm.cdf(4),
+				  sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+				  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
+	"""Calculate expected cost of given solution.
+
+	This is a wrapper function that calls ``optimize_base_stock_levels()``
+	without doing any optimization.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	echelon_S : dict
+		Dict of echelon base-stock levels to be evaluated.
+	x_num : int, optional
+		Number of discretization intervals to use for ``x`` range.
+	d_num : int, optional
+		Number of discretization intervals to use for ``d`` range.
+	ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating lead-time demand
+		distribution.
+	ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating lead-time demand
+		distribution.
+	sum_ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+	sum_ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+
+	Returns
+	-------
+	cost : float
+		Expected cost of system.
+	"""
+	_, cost = optimize_base_stock_levels(network, S=echelon_S, plots=False,
+										 x=None, x_num=x_num, d_num=d_num,
+										 ltd_lower_tail_prob=ltd_lower_tail_prob,
+										 ltd_upper_tail_prob=ltd_upper_tail_prob,
+										 sum_ltd_lower_tail_prob=sum_ltd_lower_tail_prob,
+										 sum_ltd_upper_tail_prob=sum_ltd_upper_tail_prob)
+
+	return cost
+
+
+def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100,
+						  ltd_lower_tail_prob=1-stats.norm.cdf(4),
+						  ltd_upper_tail_prob=1-stats.norm.cdf(4),
+						  sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+						  sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
+	"""Calculate expected holding cost of given solution.
+
+	Basic idea: set stockout cost to 0 and call ``optimize_base_stock_levels()``
+	without doing any optimization.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	echelon_S : dict
+		Dict of echelon base-stock levels to be evaluated.
+	x_num : int, optional
+		Number of discretization intervals to use for ``x`` range.
+	d_num : int, optional
+		Number of discretization intervals to use for ``d`` range.
+	ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating lead-time demand
+		distribution.
+	ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating lead-time demand
+		distribution.
+	sum_ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+	sum_ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+
+	Returns
+	-------
+	holding_cost : float
+		Expected holding cost of system.
+	"""
+
+	# Make copy of network and set stockout cost to 0.
+	network2 = copy.deepcopy(network)
+	for node in network2.nodes:
+		node.stockout_cost = 0
+
+	_, holding_cost = optimize_base_stock_levels(network2, S=echelon_S,
+								plots=False, x=None, x_num=x_num, d_num=d_num,
+								ltd_lower_tail_prob=ltd_lower_tail_prob,
+								ltd_upper_tail_prob=ltd_upper_tail_prob,
+								sum_ltd_lower_tail_prob=sum_ltd_lower_tail_prob,
+								sum_ltd_upper_tail_prob=sum_ltd_upper_tail_prob)
+
+	return holding_cost
+
+
 
 
 #S_star, C_star = optimize_base_stock_levels(instance_2_stage, plots=False)

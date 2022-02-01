@@ -232,12 +232,12 @@ class SupplyChainNetwork(object):
 # Network-Creation Methods
 # ===============================================================================
 
-def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_holding_cost=0,
-					   stockout_cost=0, revenue=0, order_lead_time=0,
-					   shipment_lead_time=0, demand_type=None, demand_mean=0,
-					   demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-					   demand_list=None, probabilities=None, initial_IL=0,
-					   initial_orders=0, initial_shipments=0, supply_type=None,
+def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelon_holding_cost=None,
+					   stockout_cost=None, revenue=None, order_lead_time=None,
+					   shipment_lead_time=None, demand_type=None, demand_mean=None,
+					   demand_standard_deviation=None, demand_lo=None, demand_hi=None,
+					   demand_list=None, probabilities=None, initial_IL=None,
+					   initial_orders=None, initial_shipments=None, supply_type=None,
 					   inventory_policy_type=None, base_stock_levels=None,
 					   reorder_points=None, order_quantities=None,
 					   order_up_to_levels=None):
@@ -327,12 +327,12 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=0, echelon_h
 		network.add_successor(source, sink)
 
 	# Build vectors of attributes.
-	local_holding_cost_list = ensure_dict_for_nodes(local_holding_cost, node_indices, 0.0)
-	echelon_holding_cost_list = ensure_dict_for_nodes(echelon_holding_cost, node_indices, 0.0)
-	stockout_cost_list = ensure_dict_for_nodes(stockout_cost, node_indices, 0.0)
-	revenue_list = ensure_dict_for_nodes(revenue, node_indices, 0.0)
-	order_lead_time_list = ensure_dict_for_nodes(order_lead_time, node_indices, 0)
-	shipment_lead_time_list = ensure_dict_for_nodes(shipment_lead_time, node_indices, 0)
+	local_holding_cost_list = ensure_dict_for_nodes(local_holding_cost, node_indices, None)
+	echelon_holding_cost_list = ensure_dict_for_nodes(echelon_holding_cost, node_indices, None)
+	stockout_cost_list = ensure_dict_for_nodes(stockout_cost, node_indices, None)
+	revenue_list = ensure_dict_for_nodes(revenue, node_indices, None)
+	order_lead_time_list = ensure_dict_for_nodes(order_lead_time, node_indices, None)
+	shipment_lead_time_list = ensure_dict_for_nodes(shipment_lead_time, node_indices, None)
 	demand_type_list = ensure_dict_for_nodes(demand_type, node_indices, None)
 	demand_mean_list = ensure_dict_for_nodes(demand_mean, node_indices, None)
 	demand_standard_deviation_list = ensure_dict_for_nodes(demand_standard_deviation, node_indices, None)
@@ -578,12 +578,12 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 
 
 def serial_system(num_nodes, node_indices=None, downstream_0=True,
-				  local_holding_cost=0, echelon_holding_cost=0,
-				  stockout_cost=0, revenue=0, order_lead_time=0,
-				  shipment_lead_time=0, demand_type=None, demand_mean=0,
-				  demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				  demand_list=None, probabilities=None, initial_IL=0,
-				  initial_orders=0, initial_shipments=0, supply_type=None,
+				  local_holding_cost=None, echelon_holding_cost=None,
+				  stockout_cost=None, revenue=None, order_lead_time=None,
+				  shipment_lead_time=None, demand_type=None, demand_mean=None,
+				  demand_standard_deviation=None, demand_lo=None, demand_hi=None,
+				  demand_list=None, probabilities=None, initial_IL=None,
+				  initial_orders=None, initial_shipments=None, supply_type=None,
 				  inventory_policy_type=None, base_stock_levels=None,
 				  reorder_points=None, order_quantities=None,
 				  order_up_to_levels=None):
@@ -657,12 +657,12 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		downstream_node = num_nodes-1
 
 	# Build dicts of attributes.
-	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, indices, 0.0)
-	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices, 0.0)
-	stockout_cost_dict = ensure_dict_for_nodes(stockout_cost, indices, 0.0)
-	revenue_dict = ensure_dict_for_nodes(revenue, indices, 0.0)
-	order_lead_time_dict = ensure_dict_for_nodes(order_lead_time, indices, 0)
-	shipment_lead_time_dict = ensure_dict_for_nodes(shipment_lead_time, indices, 0)
+	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, indices, None)
+	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices, None)
+	stockout_cost_dict = ensure_dict_for_nodes(stockout_cost, indices, None)
+	revenue_dict = ensure_dict_for_nodes(revenue, indices, None)
+	order_lead_time_dict = ensure_dict_for_nodes(order_lead_time, indices, None)
+	shipment_lead_time_dict = ensure_dict_for_nodes(shipment_lead_time, indices, None)
 	demand_type_dict = ensure_dict_for_nodes(demand_type, indices, None)
 	demand_mean_dict = ensure_dict_for_nodes(demand_mean, indices, None)
 	demand_standard_deviation_dict = ensure_dict_for_nodes(demand_standard_deviation, indices, None)
@@ -790,12 +790,12 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 
 def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
-				local_holding_cost=0, echelon_holding_cost=0,
-				stockout_cost=0, revenue=0, order_lead_time=0,
-				shipment_lead_time=0, demand_type=None, demand_mean=0,
-				demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				demand_list=None, probabilities=None, initial_IL=0,
-				initial_orders=0, initial_shipments=0, supply_type=None,
+				local_holding_cost=None, echelon_holding_cost=None,
+				stockout_cost=None, revenue=None, order_lead_time=None,
+				shipment_lead_time=None, demand_type=None, demand_mean=None,
+				demand_standard_deviation=None, demand_lo=None, demand_hi=None,
+				demand_list=None, probabilities=None, initial_IL=None,
+				initial_orders=None, initial_shipments=None, supply_type=None,
 				inventory_policy_type=None, base_stock_levels=None,
 				reorder_points=None, order_quantities=None,
 				order_up_to_levels=None):
@@ -871,12 +871,12 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		indices = list(range(num_nodes-1, -1, -1))
 
 	# Build vectors of attributes.
-	local_holding_cost_list = ensure_list_for_nodes(local_holding_cost, num_nodes, 0.0)
-	echelon_holding_cost_list = ensure_list_for_nodes(echelon_holding_cost, num_nodes, 0.0)
-	stockout_cost_list = ensure_list_for_nodes(stockout_cost, num_nodes, 0.0)
-	revenue_list = ensure_list_for_nodes(revenue, num_nodes, 0.0)
-	order_lead_time_list = ensure_list_for_nodes(order_lead_time, num_nodes, 0)
-	shipment_lead_time_list = ensure_list_for_nodes(shipment_lead_time, num_nodes, 0)
+	local_holding_cost_list = ensure_list_for_nodes(local_holding_cost, num_nodes, None)
+	echelon_holding_cost_list = ensure_list_for_nodes(echelon_holding_cost, num_nodes, None)
+	stockout_cost_list = ensure_list_for_nodes(stockout_cost, num_nodes, None)
+	revenue_list = ensure_list_for_nodes(revenue, num_nodes, None)
+	order_lead_time_list = ensure_list_for_nodes(order_lead_time, num_nodes, None)
+	shipment_lead_time_list = ensure_list_for_nodes(shipment_lead_time, num_nodes, None)
 	demand_type_list = ensure_list_for_nodes(demand_type, num_nodes, None)
 	demand_mean_list = ensure_list_for_nodes(demand_mean, num_nodes, None)
 	demand_standard_deviation_list = ensure_list_for_nodes(demand_standard_deviation, num_nodes, None)

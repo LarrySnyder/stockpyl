@@ -55,8 +55,8 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	# CONSTANTS
 
 	# Number of extra periods to allow for calculations past the last period.
-	extra_periods = int(round(np.max([n.order_lead_time for n in network.nodes]) \
-					+ np.max([n.shipment_lead_time for n in network.nodes]))) + 2
+	extra_periods = int(round(np.max([n.order_lead_time or 0 for n in network.nodes]) \
+					+ np.max([n.shipment_lead_time or 0 for n in network.nodes]))) + 2
 
 	# INITIALIZATION
 
@@ -172,8 +172,8 @@ def generate_downstream_orders(node_index, network, period, visited):
 	receive_inbound_orders(node)
 
 	# Get lead times (for convenience).
-	order_lead_time = node.order_lead_time
-	shipment_lead_time = node.shipment_lead_time
+	order_lead_time = node.order_lead_time or 0
+	shipment_lead_time = node.shipment_lead_time or 0
 
 	# Place orders to all predecessors.
 	for p in node.predecessors(include_external=True):
@@ -277,14 +277,14 @@ def initialize_state_vars(network):
 		# Initialize inbound shipment pipeline and on-order quantities.
 		# TODO: allow different initial shipment/order quantities for different pred/succ.
 		for p_index in n.predecessor_indices(include_external=True):
-			for l in range(n.shipment_lead_time):
-				n.state_vars[0].inbound_shipment_pipeline[p_index][l] = n.initial_shipments
+			for l in range(n.shipment_lead_time or 0):
+				n.state_vars[0].inbound_shipment_pipeline[p_index][l] = n.initial_shipments or 0
 			n.state_vars[0].on_order_by_predecessor[p_index] = \
-				n.initial_shipments * n.shipment_lead_time + n.initial_orders * n.order_lead_time
+				(n.initial_shipments or 0) * (n.shipment_lead_time or 0) + (n.initial_orders or 0) * (n.order_lead_time or 0)
 
 		# Initialize inbound order pipeline. (Exclude external demand.)
 		for s in n.successors():
-			for l in range(s.order_lead_time):
+			for l in range(s.order_lead_time or 0):
 				n.state_vars[0].inbound_order_pipeline[s.index][l] = s.initial_orders
 
 		# Initialize raw material inventory.
@@ -376,29 +376,29 @@ def calculate_period_costs(network, period):
 				n.local_holding_cost_function(n.state_vars[period].inventory_level)
 		except TypeError:
 			n.state_vars[period].holding_cost_incurred = \
-				n.local_holding_cost * max(0, n.state_vars[period].inventory_level)
+				(n.local_holding_cost or 0) * max(0, n.state_vars[period].inventory_level)
 		# Raw materials holding cost.
 		# TODO: Allow different holding costs. Allow holding cost functions.
 		# TODO: unit tests
 		for p in n.predecessors(include_external=False):
 			n.state_vars[period].holding_cost_incurred += \
-				p.local_holding_cost * n.state_vars[period].raw_material_inventory[p.index]
+				(p.local_holding_cost or 0) * n.state_vars[period].raw_material_inventory[p.index]
 		# Stockout cost.
 		try:
 			n.state_vars[period].stockout_cost_incurred = \
 				n.stockout_cost_function(n.state_vars[period].inventory_level)
 		except TypeError:
 			n.state_vars[period].stockout_cost_incurred = \
-				n.stockout_cost * max(0, -n.state_vars[period].inventory_level)
+				(n.stockout_cost or 0) * max(0, -n.state_vars[period].inventory_level)
 		# In-transit holding cost.
 		if n.in_transit_holding_cost is None:
-			h = n.local_holding_cost
+			h = n.local_holding_cost or 0
 		else:
-			h = n.in_transit_holding_cost
+			h = n.in_transit_holding_cost or 0
 		n.state_vars[period].in_transit_holding_cost_incurred = \
 			h * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
 		# Revenue.
-		n.state_vars[period].revenue_earned = n.revenue * \
+		n.state_vars[period].revenue_earned = (n.revenue or 0) * \
 			np.sum([n.state_vars[period].outbound_shipment[s_index] \
 					for s_index in n.successor_indices(include_external=True)])
 
@@ -569,7 +569,7 @@ def propagate_shipment_downstream(node):
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
 	# TODO: handle end of horizon -- if period+s.shipment_lead_time > T
 	for s in node.successors():
-		s.state_vars_current.inbound_shipment_pipeline[node.index][s.shipment_lead_time] \
+		s.state_vars_current.inbound_shipment_pipeline[node.index][s.shipment_lead_time or 0] \
 			= node.state_vars_current.outbound_shipment[s.index]
 
 

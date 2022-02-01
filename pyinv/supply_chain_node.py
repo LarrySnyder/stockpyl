@@ -125,19 +125,19 @@ class SupplyChainNode(object):
 
 		# --- Data/Inputs --- #
 		# TODO: when set local or echelon h.c., update the other
-		self.local_holding_cost = 0
-		self.echelon_holding_cost = 0
+		self.local_holding_cost = None
+		self.echelon_holding_cost = None
 		self.local_holding_cost_function = None
 		self.in_transit_holding_cost = None
-		self.stockout_cost = 0
+		self.stockout_cost = None
 		self.stockout_cost_function = None
-		self.revenue = 0
-		self.shipment_lead_time = 0
-		self.order_lead_time = 0
+		self.revenue = None
+		self.shipment_lead_time = None
+		self.order_lead_time = None
 		self.demand_source = DemandSource()
-		self.initial_inventory_level = 0
-		self.initial_orders = 0
-		self.initial_shipments = 0
+		self.initial_inventory_level = None
+		self.initial_orders = None
+		self.initial_shipments = None
 		self.inventory_policy = Policy()
 		self.inventory_policy.node = self # TODO: do this in constructor?
 		self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
@@ -545,12 +545,12 @@ class NodeStateVars(object):
 			# Initialize dicts with appropriate keys.
 			# TODO: this should happen elsewhere; what if some successors or predecessors haven't been added to the network yet??
 			self.inbound_shipment_pipeline = {p_index:
-				[0] * (self.node.shipment_lead_time+self.node.shipment_lead_time+1)
+				[0] * ((self.node.order_lead_time or 0) + (self.node.shipment_lead_time or 0) + 1)
 											for p_index in self.node.predecessor_indices(include_external=True)}
 			self.inbound_shipment = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			# TODO: nodes without predecessors cannot have order lead time; either fix this or document it (the workaround is just to add it to the shipment lead time)
 			self.inbound_order_pipeline = {s_index:
-				[0] * (self.node.network.get_node_from_index(s_index).order_lead_time+1)
+				[0] * ((self.node.network.get_node_from_index(s_index).order_lead_time or 0) + 1)
 										   for s_index in node.successor_indices()}
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,

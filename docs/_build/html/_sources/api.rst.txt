@@ -14,5 +14,6 @@ API Documentation
     sim
     loss_functions
     supply_uncertainty
+    ssm_serial
 
 

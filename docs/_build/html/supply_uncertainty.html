@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ssm_serial Module" href="ssm_serial.html" />
     <link rel="prev" title="loss_functions Module" href="loss_functions.html" /> 
 </head>
 
@@ -94,6 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -287,6 +289,19 @@ presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
 <div class="math notranslate nohighlight">
 \[\psi = \frac{\lambda}{\lambda+\mu}\]</div>
 <p>if <code class="docutils literal notranslate"><span class="pre">approximate</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p class="rubric">References</p>
+<ol class="upperalpha simple" start="13">
+<li><p>Parlar and D. Berkin. Future supply uncertainty in EOQ models. <em>Naval Research Logistics</em>, 38 (1):107–121, 1991.</p></li>
+</ol>
+<ol class="upperalpha simple" start="5">
+<li><p>Berk and A. Arreola-Risa. Note on “Future supply uncertainty in EOQ models”. <em>Naval Research Logistics</em>, 41(1):129–132, 1994.</p></li>
+</ol>
+<ol class="upperalpha simple" start="12">
+<li><ol class="upperalpha simple" start="22">
+<li><p>Snyder. A tight approximation for a continuousreview inventory model with supplier disruptions. <em>International Journal of Production Economics</em>, 155:91–108, 2014.</p></li>
+</ol>
+</li>
+</ol>
 <p><strong>Example</strong> (Example 9.1):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions_cost</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
 <span class="go">174.78711738886236</span>
@@ -519,6 +534,8 @@ and complementary loss function, respectively, of the yield distribution.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ssm_serial.html" class="btn btn-neutral float-right" title="ssm_serial Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="loss_functions.html" class="btn btn-neutral float-left" title="loss_functions Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
