@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="rq Module" href="rq.html" />
@@ -81,7 +83,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -169,279 +171,37 @@ problem and some of its variants.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
-<dl class="function">
-<dt id="pyinv.newsvendor.myopic">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimizer of the myopic cost function, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>
-is supplied) calculate the cost of given solution. Assumes demand is normally distributed.</p>
-<p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
-as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
-(2019), but the function is given in terms of Snyder-Shen notation below.</p>
-<p>Parameters are singleton values for the current period, not arrays.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
-<li><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
-<li><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
-Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock-level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – The myopic cost attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(G_t(S^*)\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <span class="math notranslate nohighlight">\(-h_t &gt; c_t - \gamma c_{t+1}\)</span> or <span class="math notranslate nohighlight">\(c_t - \gamma c_{t+1} &gt; p_t\)</span>.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equation Used</strong>:</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p - c^+}{p + h}\right)\\c^+ = c_t - \gamma c_{t+1}\\G_t(y) = c_ty + g_t(y) - \gamma_tc_{t+1}(y - E[D_t]),\end{aligned}\end{align} \]</div>
-<p>where <span class="math notranslate nohighlight">\(g_t(\cdot)\)</span> is the newsvendor cost function for period <span class="math notranslate nohighlight">\(t\)</span>.</p>
-<p class="rubric">References</p>
-<p>A. F. Veinott, Jr., On the Optimality of <span class="math notranslate nohighlight">\((s,S)\)</span> Inventory Policies:
-New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (1966).</p>
-<ol class="upperalpha simple" start="16">
-<li><ol class="first upperalpha" start="8">
-<li>Zipkin, <em>Foundations of Inventory Management</em>, Irwin/McGraw-Hill (2000).</li>
-</ol>
-</li>
-</ol>
-<p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">myopic</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
-<span class="go">(58.09891883213067, 16.682411764618777)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">myopic</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">62</span><span class="p">)</span>
-<span class="go">(62, 16.850319828088736)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.newsvendor.myopic_cost">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">myopic_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate “myopic” cost function. Assumes demand is normally distributed.</p>
-<p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
-as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
-(2019), but the function is given in terms of Snyder-Shen notation below.</p>
-<p>Parameters are singleton values for the current period, not arrays.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level to calculate cost for. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
-<li><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
-<li><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
-Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – The myopic cost.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equation Used</strong>:</p>
-<div class="math notranslate nohighlight">
-\[G_t(y) = c_ty + g_t(y) - \gamma_tc_{t+1}(y - E[D_t]),\]</div>
-<p>where <span class="math notranslate nohighlight">\(g_t(\cdot)\)</span> is the newsvendor cost function for period <span class="math notranslate nohighlight">\(t\)</span>.</p>
-<p class="rubric">References</p>
-<p>A. F. Veinott, Jr., On the Optimality of <span class="math notranslate nohighlight">\((s,S)\)</span> Inventory Policies:
-New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (1966).</p>
-<ol class="upperalpha simple" start="16">
-<li><ol class="first upperalpha" start="8">
-<li>Zipkin, <em>Foundations of Inventory Management</em>, Irwin/McGraw-Hill (2000).</li>
-</ol>
-</li>
-</ol>
-<p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">myopic_cost</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
-<span class="go">16.726131552870388</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_continuous">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_continuous</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_distrib=None</em>, <em>demand_pdf=None</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_continuous" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the newsvendor problem with generic continuous distribution, or (if
-<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
-<p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code>) or
-demand pdf (in <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code>, as a function).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_distrib</strong> (<em>rv_continuous</em><em>, </em><em>optional</em>) – Demand distribution object.</li>
-<li><strong>demand_pdf</strong> (<em>function</em><em>, </em><em>optional</em>) – Demand pdf, as a function. Ignored if <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> is not
-<code class="docutils literal notranslate"><span class="pre">None</span></code>. [<span class="math notranslate nohighlight">\(f(\cdot)\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong> (equations (4.27) and (4.24)):</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p}{h+p}\right)\\g(S) = h\bar{n}(S^*) + pn(S)\end{aligned}\end{align} \]</div>
-<p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
-the demand cdf, loss function, and complementary loss function,
-respectively.</p>
-<p><strong>Example</strong> (Example 4.3):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
-<span class="go">(56.60395592743389, 1.997605188935892)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
-<span class="go">(40, 7.35613154776623)</span>
-</pre></div>
-</div>
-<p><strong>Example</strong> (Problem 4.8(b)):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">lognorm</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">lognorm</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.1765</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
-<span class="go">(295.6266448071368, 29.44254351324322)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_discrete">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_discrete</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_distrib=None</em>, <em>demand_pmf=None</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_discrete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the newsvendor problem with generic discrete distribution, or (if
-<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
-<p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code>) or
-demand pmf (in <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code>, as a dict).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_distrib</strong> (<em>rv_discrete</em><em>, </em><em>optional</em>) – Demand distribution object.</li>
-<li><strong>demand_pmf</strong> (<em>dict</em><em>, </em><em>optional</em>) – Demand pmf, as a dict in which keys are possible demand values and
-values are their probabilities. Ignored if <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> is
-not <code class="docutils literal notranslate"><span class="pre">None</span></code>. [<span class="math notranslate nohighlight">\(f(\cdot)\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong>:</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = \text{smallest } S \text{ such that } F(S) \ge \frac{p}{h+p}\\g(S) = h\bar{n}(S^*) + pn(S)\end{aligned}\end{align} \]</div>
-<p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
-the demand cdf, loss function, and complementary loss function,
-respectively.</p>
-<p><strong>Example</strong> (Example 4.7):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
-<span class="go">(8.0, 3.5701069457709416)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">(5, 6.590296024616343)</span>
-</pre></div>
-</div>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">41</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">d_val</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="k">for</span> <span class="n">d_val</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_pmf</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_pmf</span><span class="o">=</span><span class="n">demand_pmf</span><span class="p">)</span>
-<span class="go">(8, 3.570106945770941)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_normal">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_normal</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_normal">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with normal distribution, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
-<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equations (4.30), (4.37), and (4.24), modified for non-zero
 lead time):</p>
 <div class="math notranslate nohighlight">
@@ -454,149 +214,83 @@ and standard deviation, and <span class="math notranslate nohighlight">\(\alpha 
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
 loss and complementary loss functions.</p>
 <p><strong>Example</strong> (Example 4.3):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">(56.60395592743389, 1.9976051931766445)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_normal_cost">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_normal_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal_cost" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_normal_cost">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> as the solution to the
 newsvendor problem with normal distribution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level for cost evaluation. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
-<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level for cost evaluation. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (4.24)):</p>
 <div class="math notranslate nohighlight">
 \[g(S) = h\bar{n}(S) + pn(S),\]</div>
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
 loss and complementary loss functions.</p>
 <p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">2.156131552870387</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_normal_explicit">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_normal_explicit</code><span class="sig-paren">(</span><em>selling_revenue</em>, <em>purchase_cost</em>, <em>salvage_value</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time=0</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal_explicit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the “explicit”, profit-maximization version of the newsvendor
-problem with normal distribution, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied)
-calculate profit of given solution.</p>
-<p>Assumes <code class="docutils literal notranslate"><span class="pre">salvage_value</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">selling_revenue</span></code>
-(otherwise the solution is not well-defined).</p>
-<p># TODO: handle non-normal demand</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>selling_revenue</strong> (<em>float</em>) – Revenue per unit sold. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>purchase_cost</strong> (<em>float</em>) – Cost per unit purchased. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
-<li><strong>salvage_value</strong> (<em>float</em>) – Revenue per unit unsold. [<span class="math notranslate nohighlight">\(v\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period, excluding costs and revenues from
-buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period, excluding costs and revenues from
-buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
-<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for profit evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>profit</strong> (<em>float</em>) – Profit per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(\pi^*\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">r</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">c</span></code> or <code class="docutils literal notranslate"><span class="pre">c</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">v</span></code>.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt; 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt; 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong>:</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}S^* = \mu + z_{\alpha}\sigma\\\pi^* = (r-c)\mu - (r-v+h+p)\phi(z_{\alpha})\sigma\\\pi(S) = (r-c+p)S - p\mu + (v-r-h-p)\bar{n}(S),\end{aligned}\end{align} \]</div>
-<p>where <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> are the lead-time demand mean
-and standard deviation, <span class="math notranslate nohighlight">\(\alpha = (p+r-c)/(h+p+r-v)\)</span>,
-and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> is the normal complementary loss function.</p>
-<p><strong>Example</strong> (Example 4.2):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_explicit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="go">(56.60395592743389, 33.002394806823354)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_poisson">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_poisson</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_poisson" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_poisson">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_poisson" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with Poisson distribution, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied and is not an integer.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied and is not an integer.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong>:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}S^* = \text{smallest } S \text{ such that } F(S) \ge \frac{p}{h+p}\\g(S^*) = h\bar{n}(S^*) + pn(S^*)\end{aligned}\end{align} \]</div>
@@ -607,101 +301,315 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 the Poisson cdf, loss function, and complementary loss function,
 respectively.</p>
 <p><strong>Example</strong>:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_poisson</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_poisson</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="go">(56.0, 1.797235211809178)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.newsvendor.newsvendor_poisson_cost">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">newsvendor_poisson_cost</code><span class="sig-paren">(</span><em>base_stock_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_poisson_cost" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_poisson_cost">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_poisson_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_poisson_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> as the solution to the
 newsvendor problem with Poisson distribution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level for cost evaluation. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level for cost evaluation. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is not an integer.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is not an integer.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (4.6)):</p>
 <div class="math notranslate nohighlight">
 \[g(S) = h\bar{n}(S) + pn(S),\]</div>
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the lead-time demand
 loss and complementary loss functions.</p>
 <p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_poisson_cost</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_poisson_cost</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="go">1.797235211809178</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.newsvendor.set_myopic_cost_to">
-<code class="descclassname">pyinv.newsvendor.</code><code class="descname">set_myopic_cost_to</code><span class="sig-paren">(</span><em>cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>purchase_cost</em>, <em>purchase_cost_next_per</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>discount_factor=1.0</em>, <em>left_half=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_continuous">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_continuous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_continuous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the newsvendor problem with generic continuous distribution, or (if
+<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
+<p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code>) or
+demand pdf (in <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code>, as a function).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_distrib</strong> (<em>rv_continuous</em><em>, </em><em>optional</em>) – Demand distribution object.</p></li>
+<li><p><strong>demand_pdf</strong> (<em>function</em><em>, </em><em>optional</em>) – Demand pdf, as a function. Ignored if <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> is not
+<code class="docutils literal notranslate"><span class="pre">None</span></code>. [<span class="math notranslate nohighlight">\(f(\cdot)\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Equations Used</strong> (equations (4.27) and (4.24)):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p}{h+p}\right)\\g(S) = h\bar{n}(S^*) + pn(S)\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
+the demand cdf, loss function, and complementary loss function,
+respectively.</p>
+<p><strong>Example</strong> (Example 4.3):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
+<span class="go">(56.60395592743389, 1.997605188935892)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<span class="go">(40, 7.35613154776623)</span>
+</pre></div>
+</div>
+<p><strong>Example</strong> (Problem 4.8(b)):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">lognorm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">lognorm</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.1765</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
+<span class="go">(295.6266448071368, 29.44254351324322)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_discrete">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_discrete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the newsvendor problem with generic discrete distribution, or (if
+<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
+<p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code>) or
+demand pmf (in <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code>, as a dict).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_distrib</strong> (<em>rv_discrete</em><em>, </em><em>optional</em>) – Demand distribution object.</p></li>
+<li><p><strong>demand_pmf</strong> (<em>dict</em><em>, </em><em>optional</em>) – Demand pmf, as a dict in which keys are possible demand values and
+values are their probabilities. Ignored if <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> is
+not <code class="docutils literal notranslate"><span class="pre">None</span></code>. [<span class="math notranslate nohighlight">\(f(\cdot)\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Equations Used</strong>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}S^* = \text{smallest } S \text{ such that } F(S) \ge \frac{p}{h+p}\\g(S) = h\bar{n}(S^*) + pn(S)\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(F(\cdot)\)</span>, <span class="math notranslate nohighlight">\(n(\cdot)\)</span>, and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are
+the demand cdf, loss function, and complementary loss function,
+respectively.</p>
+<p><strong>Example</strong> (Example 4.7):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">)</span>
+<span class="go">(8.0, 3.5701069457709416)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">(5, 6.590296024616343)</span>
+</pre></div>
+</div>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">41</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">d_val</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="k">for</span> <span class="n">d_val</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_pmf</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">demand_pmf</span><span class="o">=</span><span class="n">demand_pmf</span><span class="p">)</span>
+<span class="go">(8, 3.570106945770941)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.myopic">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">myopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimizer of the myopic cost function, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>
+is supplied) calculate the cost of given solution. Assumes demand is normally distributed.</p>
+<p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
+as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
+(2019), but the function is given in terms of Snyder-Shen notation below.</p>
+<p>Parameters are singleton values for the current period, not arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
+<li><p><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
+Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock-level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – The myopic cost attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(G_t(S^*)\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <span class="math notranslate nohighlight">\(-h_t &gt; c_t - \gamma c_{t+1}\)</span> or <span class="math notranslate nohighlight">\(c_t - \gamma c_{t+1} &gt; p_t\)</span>.</p>
+</dd>
+</dl>
+<p><strong>Equation Used</strong>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}S^* = F^{-1}\left(\frac{p - c^+}{p + h}\right)\\c^+ = c_t - \gamma c_{t+1}\\G_t(y) = c_ty + g_t(y) - \gamma_tc_{t+1}(y - E[D_t]),\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(g_t(\cdot)\)</span> is the newsvendor cost function for period <span class="math notranslate nohighlight">\(t\)</span>.</p>
+<p class="rubric">References</p>
+<p>A. F. Veinott, Jr., On the Optimality of <span class="math notranslate nohighlight">\((s,S)\)</span> Inventory Policies:
+New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (1966).</p>
+<ol class="upperalpha simple" start="16">
+<li><ol class="upperalpha simple" start="8">
+<li><p>Zipkin, <em>Foundations of Inventory Management</em>, Irwin/McGraw-Hill (2000).</p></li>
+</ol>
+</li>
+</ol>
+<p><strong>Example</strong> (Example 4.1):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">myopic</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
+<span class="go">(58.09891883213067, 16.682411764618777)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myopic</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">62</span><span class="p">)</span>
+<span class="go">(62, 16.850319828088736)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.myopic_cost">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">myopic_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate “myopic” cost function. Assumes demand is normally distributed.</p>
+<p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
+as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
+(2019), but the function is given in terms of Snyder-Shen notation below.</p>
+<p>Parameters are singleton values for the current period, not arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Base-stock level to calculate cost for. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
+<li><p><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
+Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – The myopic cost.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p><strong>Equation Used</strong>:</p>
+<div class="math notranslate nohighlight">
+\[G_t(y) = c_ty + g_t(y) - \gamma_tc_{t+1}(y - E[D_t]),\]</div>
+<p>where <span class="math notranslate nohighlight">\(g_t(\cdot)\)</span> is the newsvendor cost function for period <span class="math notranslate nohighlight">\(t\)</span>.</p>
+<p class="rubric">References</p>
+<p>A. F. Veinott, Jr., On the Optimality of <span class="math notranslate nohighlight">\((s,S)\)</span> Inventory Policies:
+New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (1966).</p>
+<ol class="upperalpha simple" start="16">
+<li><ol class="upperalpha simple" start="8">
+<li><p>Zipkin, <em>Foundations of Inventory Management</em>, Irwin/McGraw-Hill (2000).</p></li>
+</ol>
+</li>
+</ol>
+<p><strong>Example</strong> (Example 4.1):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">myopic_cost</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
+<span class="go">16.726131552870388</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.set_myopic_cost_to">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">set_myopic_cost_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_half</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the value of <span class="math notranslate nohighlight">\(y\)</span> such that <span class="math notranslate nohighlight">\(G_t(y)\)</span>
 equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>, where <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span> is the myopic cost function
 for the current period, given by <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code>. Assumes demand is normally distrbuted.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">left_half</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>,
 where <span class="math notranslate nohighlight">\(\underline{S}_t\)</span> is the minimizer of <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span>.
 Otherwise, requires <span class="math notranslate nohighlight">\(S \ge \underline{S}_t\)</span>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cost</strong> (<em>float</em>) – The cost to set <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code> equal to.</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
-<li><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
-<li><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
-Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</li>
-<li><strong>left_half</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>; otherwise,
-requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</span>. Default = <code class="docutils literal notranslate"><span class="pre">True</span></code>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cost</strong> (<em>float</em>) – The cost to set <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code> equal to.</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost in the current period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost in the current period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>purchase_cost</strong> (<em>float</em>) – Purchase cost in the current period. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
+<li><p><strong>purchase_cost_next_per</strong> (<em>float</em>) – Purchase cost in the next period. [<span class="math notranslate nohighlight">\(c_{t+1}\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand in the current period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand in the current period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>discount_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Discount factor in the current period, in <span class="math notranslate nohighlight">\((0,1]\)</span>.
+Default = 1. [<span class="math notranslate nohighlight">\(\gamma\)</span>]</p></li>
+<li><p><strong>left_half</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, requires <span class="math notranslate nohighlight">\(y \le \underline{S}_t\)</span>; otherwise,
+requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</span>. Default = <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>base_stock_level</strong> – The <span class="math notranslate nohighlight">\(y\)</span> so that <code class="docutils literal notranslate"><span class="pre">myopic_cost(y)</span></code> equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <span class="math notranslate nohighlight">\(-h_t &gt; c_t - \gamma c_{t+1}\)</span> or <span class="math notranslate nohighlight">\(c_t - \gamma c_{t+1} &gt; p_t\)</span>.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(G_t(\underline{S}_t)\)</span>.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>base_stock_level</strong> – The <span class="math notranslate nohighlight">\(y\)</span> so that <code class="docutils literal notranslate"><span class="pre">myopic_cost(y)</span></code> equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <span class="math notranslate nohighlight">\(-h_t &gt; c_t - \gamma c_{t+1}\)</span> or <span class="math notranslate nohighlight">\(c_t - \gamma c_{t+1} &gt; p_t\)</span>.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">cost</span></code> is less than <span class="math notranslate nohighlight">\(G_t(\underline{S}_t)\)</span>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Example</strong> (Example 4.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_myopic_cost_to</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">left_half</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_myopic_cost_to</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">left_half</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">49.394684658734164</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">myopic_cost</span><span class="p">(</span><span class="mf">49.394684658734164</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
 <span class="go">17.999999999999996</span>
@@ -709,6 +617,60 @@ requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</s
 <span class="go">71.84861989932769</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">myopic_cost</span><span class="p">(</span><span class="mf">71.84861989932769</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
 <span class="go">18.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.newsvendor.newsvendor_normal_explicit">
+<span class="sig-prename descclassname"><span class="pre">pyinv.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal_explicit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selling_revenue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salvage_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.newsvendor.newsvendor_normal_explicit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the “explicit”, profit-maximization version of the newsvendor
+problem with normal distribution, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied)
+calculate profit of given solution.</p>
+<p>Assumes <code class="docutils literal notranslate"><span class="pre">salvage_value</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">selling_revenue</span></code>
+(otherwise the solution is not well-defined).</p>
+<p># TODO: handle non-normal demand</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>selling_revenue</strong> (<em>float</em>) – Revenue per unit sold. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>purchase_cost</strong> (<em>float</em>) – Cost per unit purchased. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
+<li><p><strong>salvage_value</strong> (<em>float</em>) – Revenue per unit unsold. [<span class="math notranslate nohighlight">\(v\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period, excluding costs and revenues from
+buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period, excluding costs and revenues from
+buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for profit evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>profit</strong> (<em>float</em>) – Profit per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(\pi^*\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">r</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">c</span></code> or <code class="docutils literal notranslate"><span class="pre">c</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt; 0 or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt; 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt;= 0.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Equations Used</strong>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}S^* = \mu + z_{\alpha}\sigma\\\pi^* = (r-c)\mu - (r-v+h+p)\phi(z_{\alpha})\sigma\\\pi(S) = (r-c+p)S - p\mu + (v-r-h-p)\bar{n}(S),\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> are the lead-time demand mean
+and standard deviation, <span class="math notranslate nohighlight">\(\alpha = (p+r-c)/(h+p+r-v)\)</span>,
+and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> is the normal complementary loss function.</p>
+<p><strong>Example</strong> (Example 4.2):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_explicit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="go">(56.60395592743389, 33.002394806823354)</span>
 </pre></div>
 </div>
 </dd></dl>

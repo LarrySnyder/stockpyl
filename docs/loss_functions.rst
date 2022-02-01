@@ -3,3 +3,4 @@
 
 .. automodule:: pyinv.loss_functions
     :members:
+    :member-order: bysource

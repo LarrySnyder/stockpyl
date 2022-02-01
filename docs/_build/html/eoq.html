@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="wagner_whitin Module" href="wagner_whitin.html" />
@@ -81,7 +83,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -169,33 +171,29 @@
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
-<dl class="function">
-<dt id="pyinv.eoq.economic_order_quantity">
-<code class="descclassname">pyinv.eoq.</code><code class="descname">economic_order_quantity</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>demand_rate</em>, <em>order_quantity=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.eoq.economic_order_quantity">
+<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_order_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity (EOQ) problem, or (if
 <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate cost of given solution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied) (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied) (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equations (3.4) and (3.5)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda}{h}}\\g^* = \sqrt{2K\lambda h}\end{aligned}\end{align} \]</div>
@@ -203,42 +201,38 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(Q\
 <div class="math notranslate nohighlight">
 \[g(Q) = \frac{K\lambda}{Q} + \frac{hQ}{2}\]</div>
 <p><strong>Example</strong> (Example 3.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_order_quantity</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">1300</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_order_quantity</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">1300</span><span class="p">)</span>
 <span class="go">(304.0467800264368, 68.41052550594829)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.eoq.economic_order_quantity_with_backorders">
-<code class="descclassname">pyinv.eoq.</code><code class="descname">economic_order_quantity_with_backorders</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_rate</em>, <em>order_quantity=None</em>, <em>stockout_fraction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity_with_backorders" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.eoq.economic_order_quantity_with_backorders">
+<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_order_quantity_with_backorders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity_with_backorders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity with backorders (EOQB) problem, or (if <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> and <code class="docutils literal notranslate"><span class="pre">stockout_fraction</span></code> are supplied) calculate cost of given solution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>stockout_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Stockout fraction for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(x\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>stockout_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Stockout fraction for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(x\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied) (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>stockout_fraction</strong> (<em>float</em>) – Optimal stockout fraction (or stockout fraction supplied) (items). [<span class="math notranslate nohighlight">\(x^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> and <code class="docutils literal notranslate"><span class="pre">stockout_fraction</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied) (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>stockout_fraction</strong> (<em>float</em>) – Optimal stockout fraction (or stockout fraction supplied) (items). [<span class="math notranslate nohighlight">\(x^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> and <code class="docutils literal notranslate"><span class="pre">stockout_fraction</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equations (3.27)–(3.29)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda(h+p)}{hp}}\\x^* = \frac{h}{h+p}\\g^* = \sqrt{\frac{2K\lambda hp}{h+p}}\end{aligned}\end{align} \]</div>
@@ -246,38 +240,34 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(x\
 <div class="math notranslate nohighlight">
 \[g(Q,x) = \frac{hQ(1-x)^2}{2} + \frac{pQx^2}{2} + \frac{K\lambda}{Q}\]</div>
 <p><strong>Example</strong> (Example 3.8):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_order_quantity_with_backorders</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_order_quantity_with_backorders</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">)</span>
 <span class="go">(310.81255515896464, 0.0430622009569378, 66.92136355097325)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.eoq.economic_production_quantity">
-<code class="descclassname">pyinv.eoq.</code><code class="descname">economic_production_quantity</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>demand_rate</em>, <em>production_rate</em>, <em>order_quantity=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_production_quantity" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.eoq.economic_production_quantity">
+<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_production_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">production_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_production_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic production quantity (EPQ) problem, or (if <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate cost of given solution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>production_rate</strong> (<em>float</em>) – Production quantity (items) per unit time. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>production_rate</strong> (<em>float</em>) – Production quantity (items) per unit time. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied) (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied) (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equations (3.31) and (3.32)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda}{h(1-\rho)}}\\g^* = \sqrt{2K\lambda h(1-\rho)}\end{aligned}\end{align} \]</div>
@@ -286,44 +276,40 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(x\
 \[g(Q) = \frac{K\lambda}{Q} + \frac{h(1 - \rho)Q}{2}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\rho = \lambda/\mu\)</span>.</p>
 <p><strong>Example</strong>:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_production_quantity</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">1700</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">economic_production_quantity</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">1700</span><span class="p">)</span>
 <span class="go">(626.8084945889684, 33.183979125298336)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.eoq.joint_replenishment_problem_silver_heuristic">
-<code class="descclassname">pyinv.eoq.</code><code class="descname">joint_replenishment_problem_silver_heuristic</code><span class="sig-paren">(</span><em>shared_fixed_cost</em>, <em>individual_fixed_costs</em>, <em>holding_costs</em>, <em>demand_rates</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.joint_replenishment_problem_silver_heuristic" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.eoq.joint_replenishment_problem_silver_heuristic">
+<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">joint_replenishment_problem_silver_heuristic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shared_fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_fixed_costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.joint_replenishment_problem_silver_heuristic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the joint replenishment problem (JRP) using Silver’s (1976) heuristic.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>shared_fixed_cost</strong> (<em>float</em>) – Shared fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>individual_fixed_costs</strong> (<em>list of floats</em>) – Individual fixed cost if product <code class="docutils literal notranslate"><span class="pre">n</span></code> is included in order. [<span class="math notranslate nohighlight">\(k_n\)</span>]</li>
-<li><strong>holding_costs</strong> (<em>list of floats</em>) – Holding cost per item per unit time for product <code class="docutils literal notranslate"><span class="pre">n</span></code>. [<span class="math notranslate nohighlight">\(h_n\)</span>]</li>
-<li><strong>demand_rates</strong> (<em>list of floats</em>) – Demand (items) per unit time for product <code class="docutils literal notranslate"><span class="pre">n</span></code>. [<span class="math notranslate nohighlight">\(\lambda_n\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shared_fixed_cost</strong> (<em>float</em>) – Shared fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>individual_fixed_costs</strong> (<em>list of floats</em>) – Individual fixed cost if product <code class="docutils literal notranslate"><span class="pre">n</span></code> is included in order. [<span class="math notranslate nohighlight">\(k_n\)</span>]</p></li>
+<li><p><strong>holding_costs</strong> (<em>list of floats</em>) – Holding cost per item per unit time for product <code class="docutils literal notranslate"><span class="pre">n</span></code>. [<span class="math notranslate nohighlight">\(h_n\)</span>]</p></li>
+<li><p><strong>demand_rates</strong> (<em>list of floats</em>) – Demand (items) per unit time for product <code class="docutils literal notranslate"><span class="pre">n</span></code>. [<span class="math notranslate nohighlight">\(\lambda_n\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>order_quantities</strong> (<em>list of floats</em>) – Order quantities (items). [<span class="math notranslate nohighlight">\(Q_n\)</span>]</li>
-<li><strong>base_cycle_time</strong> (<em>float</em>) – Interval between consecutive orders. [<span class="math notranslate nohighlight">\(T\)</span>]</li>
-<li><strong>order_multiples</strong> (<em>list of ints</em>) – Product <code class="docutils literal notranslate"><span class="pre">n</span></code> is included in every <code class="docutils literal notranslate"><span class="pre">order_multiples[n]</span></code> orders. [<span class="math notranslate nohighlight">\(m_n\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Cost per unit time. [<span class="math notranslate nohighlight">\(g\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantities</strong> (<em>list of floats</em>) – Order quantities (items). [<span class="math notranslate nohighlight">\(Q_n\)</span>]</p></li>
+<li><p><strong>base_cycle_time</strong> (<em>float</em>) – Interval between consecutive orders. [<span class="math notranslate nohighlight">\(T\)</span>]</p></li>
+<li><p><strong>order_multiples</strong> (<em>list of ints</em>) – Product <code class="docutils literal notranslate"><span class="pre">n</span></code> is included in every <code class="docutils literal notranslate"><span class="pre">order_multiples[n]</span></code> orders. [<span class="math notranslate nohighlight">\(m_n\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Cost per unit time. [<span class="math notranslate nohighlight">\(g\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong>:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}\hat{n} = n \text{ that minimizes } k_n / h_n\lambda_n\\m_{\hat{n}} = 1\\m_n = \sqrt{\frac{k_n}{h_n\lambda_n} \times \frac{h_{\hat{n}}\lambda_{\hat{n}}}{K+k_{\hat{n}}}} \text{ (rounded)}\\T = \sqrt{\frac{2(K+\sum_{n=1}^N \frac{k_n}{m_n}}{\sum_{n=1}^N h_nm_n\lambda_n}}\\Q_n = Tm_n\lambda_n\\g = \frac{K + \sum_{n=1}^N \frac{k_n}{m_n}}{T} + \frac{T}{2}\sum_{n=1}^N h_nm_n\lambda_n\end{aligned}\end{align} \]</div>
 <p><strong>Example</strong>:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">shared_fixed_cost</span> <span class="o">=</span> <span class="mi">600</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">shared_fixed_cost</span> <span class="o">=</span> <span class="mi">600</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">individual_fixed_costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">840</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">holding_costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">160</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">demand_rates</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>

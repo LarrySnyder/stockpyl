@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="ss Module" href="ss.html" />
@@ -81,7 +83,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -168,373 +170,341 @@
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
-<dl class="function">
-<dt id="pyinv.rq.r_q_cost">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_cost</code><span class="sig-paren">(</span><em>reorder_point</em>, <em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_cost">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
 policy with given parameters. Assumes demand is normally distributed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (5.7)):</p>
 <div class="math notranslate nohighlight">
 \[g(r,Q) = \frac{K\lambda + \int_r^{r+Q} g(y)dy}{Q}\]</div>
 <p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
 <p><strong>Example</strong> (Example 5.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="mf">126.8</span><span class="p">,</span> <span class="mf">328.5</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="mf">126.8</span><span class="p">,</span> <span class="mf">328.5</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">78.07116250928294</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_cost_poisson">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_cost_poisson</code><span class="sig-paren">(</span><em>reorder_point</em>, <em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost_poisson" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
-policy with given parameters under Poisson demand.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_optimal_r_for_q">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_optimal_r_for_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_optimal_r_for_q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate optimal <span class="math notranslate nohighlight">\(r\)</span> for the given <span class="math notranslate nohighlight">\(Q\)</span>. Assumes demand is
+normally distributed.</p>
+<p>Finds <span class="math notranslate nohighlight">\(r\)</span> using bisection search.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
+when <span class="math notranslate nohighlight">\(g(r)\)</span> and <span class="math notranslate nohighlight">\(g(r+Q)\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of each other.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> &lt;= 0 or is not an integer, or if <code class="docutils literal notranslate"><span class="pre">reorder_point</span></code>
-is not an integer.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>reorder_point</strong> – Optimal reorder point for given order quantity. [<span class="math notranslate nohighlight">\(r(Q)\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong> (equation (5.48)):</p>
+</dd>
+</dl>
+<p><strong>Equation Used</strong> (equation (5.9)):</p>
 <div class="math notranslate nohighlight">
-\[g(r,Q) = \frac{K\lambda + \sum_{y=r+1}^{r+Q} g(y)}{Q}\]</div>
+\[g(r) = g(r+Q)\]</div>
 <p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
-<p><strong>Example</strong> (Example 5.8):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost_poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="go">107.92358063314975</span>
+<p><strong>Example</strong> (Example 5.2):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_optimal_r_for_q</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<span class="go">129.4272799263067</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_eil_approximation">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eil_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_eil_approximation">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eil_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “expected-inventory-level” (EIL)
 approximation. Assumes demand is normally distributed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
-<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
 when both <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of their previous values.
-[<span class="math notranslate nohighlight">\(\epsilon\)</span>]</li>
+[<span class="math notranslate nohighlight">\(\epsilon\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Approximate expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Approximate expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (5.17), (5.18), (5.16)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}r = F^{-1}\left(1 - \frac{Qh}{p\lambda}\right)\\Q = \sqrt{\frac{2\lambda[K + pn(r)]}{h}}\\g(r,Q) = h\left(r - \lambda L + \frac{Q}{2}\right) + \frac{K\lambda}{Q} + \frac{p\lambda n(r)}{Q}\end{aligned}\end{align} \]</div>
 <p><strong>Algorithm Used:</strong> Iterative algorithm for EIL approximation for <span class="math notranslate nohighlight">\((r,Q)\)</span> policy (Algorithm 5.1)</p>
 <p><strong>Example</strong> (Example 5.2):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eil_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eil_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(213.97044213580244, 318.5901810768729, 95.45114022285196)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_eoqb_approximation">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eoqb_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_eoqb_approximation">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqb_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ with backorders” (EOQB)
 approximation. Assumes demand is normally distributed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equations (3.27) and (5.9)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda(h+p)}{hp}}\\g(r) = g(r+Q)\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
 <p><strong>Example</strong> (Example 5.2):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqb_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqb_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(128.63781442427097, 308.5737801203754)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_eoqss_approximation">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_eoqss_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqss_approximation" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_eoqss_approximation">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqss_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqss_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ plus safety stock”
 (EOQ+SS) approximation. Assumes demand is normally distributed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equations (3.4) and (5.21)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda}{h}}\\r = \mu + z_{\alpha}\sigma\end{aligned}\end{align} \]</div>
 <p><strong>Example</strong> (Example 5.5):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqss_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqss_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(190.3369965715624, 304.0467800264368)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_loss_function_approximation">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_loss_function_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_loss_function_approximation">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_loss_function_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “loss function”
 approximation. Assumes demand is normally distributed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
-<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
 when both <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of their previous values.
-[<span class="math notranslate nohighlight">\(\epsilon\)</span>]</li>
+[<span class="math notranslate nohighlight">\(\epsilon\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (5.28) and (5.29)):</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q = \sqrt{\frac{2\left[K\lambda + (h+p)n^{(2)}(r)\right]}{h}}\\n(r) = \frac{hQ}{h+p}\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(n^{(2)}(\cdot)\)</span> are the first- and
 second-order loss functions for the lead-time demand distribution.</p>
 <p><strong>Example</strong> (Example 5.6):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_loss_function_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_loss_function_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(126.8670634479628, 328.4491421980451)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_optimal_r_for_q">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_optimal_r_for_q</code><span class="sig-paren">(</span><em>order_quantity</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_mean</em>, <em>demand_sd</em>, <em>lead_time</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_optimal_r_for_q" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate optimal <span class="math notranslate nohighlight">\(r\)</span> for the given <span class="math notranslate nohighlight">\(Q\)</span>. Assumes demand is
-normally distributed.</p>
-<p>Finds <span class="math notranslate nohighlight">\(r\)</span> using bisection search.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per unit time. [<span class="math notranslate nohighlight">\(\tau\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
-<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance to use for convergence. The algorithm terminates
-when <span class="math notranslate nohighlight">\(g(r)\)</span> and <span class="math notranslate nohighlight">\(g(r+Q)\)</span> are within <code class="docutils literal notranslate"><span class="pre">tol</span></code> of each other.</li>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_cost_poisson">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost_poisson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
+policy with given parameters under Poisson demand.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>reorder_point</strong> – Optimal reorder point for given order quantity. [<span class="math notranslate nohighlight">\(r(Q)\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code>, or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> &lt;= 0 or is not an integer, or if <code class="docutils literal notranslate"><span class="pre">reorder_point</span></code>
+    is not an integer.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equation Used</strong> (equation (5.9)):</p>
+</dd>
+</dl>
+<p><strong>Equations Used</strong> (equation (5.48)):</p>
 <div class="math notranslate nohighlight">
-\[g(r) = g(r+Q)\]</div>
+\[g(r,Q) = \frac{K\lambda + \sum_{y=r+1}^{r+Q} g(y)}{Q}\]</div>
 <p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
-<p><strong>Example</strong> (Example 5.2):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_optimal_r_for_q</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
-<span class="go">129.4272799263067</span>
+<p><strong>Example</strong> (Example 5.8):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost_poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">107.92358063314975</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.rq.r_q_poisson_exact">
-<code class="descclassname">pyinv.rq.</code><code class="descname">r_q_poisson_exact</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>lead_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_poisson_exact" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.rq.r_q_poisson_exact">
+<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_poisson_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_poisson_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine optimal <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> for Poisson demand_list, using
 algorithm by Federgruen and Zheng (1992).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per unit time. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per unit time. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>lead_time</strong> (<em>float</em>) – Lead time. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per unit time. [<span class="math notranslate nohighlight">\(g(r,Q)\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">lead_time</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (5.48)):</p>
 <div class="math notranslate nohighlight">
 \[g(r,Q) = \frac{K\lambda + \sum_{y=r+1}^{r+Q} g(y)}{Q}\]</div>
 <p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function for Poisson demand_list.</p>
 <p><strong>Example</strong> (Example 5.8):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_poisson_exact</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_poisson_exact</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="go">(3, 5, 107.92358063314975)</span>
 </pre></div>
 </div>

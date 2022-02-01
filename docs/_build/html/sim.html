@@ -21,11 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +33,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="loss_functions Module" href="loss_functions.html" />
@@ -81,7 +82,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -169,247 +170,235 @@
 that it contains, which contains all of the data for the simulation instance.</p>
 <p>(c) Lawrence V. Snyder
 Lehigh University</p>
-<dl class="function">
-<dt id="pyinv.sim.calculate_fill_rate">
-<code class="descclassname">pyinv.sim.</code><code class="descname">calculate_fill_rate</code><span class="sig-paren">(</span><em>node</em>, <em>period</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.calculate_fill_rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate fill rate for the node in the period.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</li>
-<li><strong>period</strong> (<em>int</em>) – Time period.</li>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.simulation">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the simulation for <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> periods. Fills performance
+measures directly into <code class="docutils literal notranslate"><span class="pre">network</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>num_periods</strong> (<em>int</em>) – Number of periods to simulate.</p></li>
+<li><p><strong>rand_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random number generator seed.</p></li>
+<li><p><strong>progress_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display a progress bar?</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Total cost over all nodes and periods.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.sim.calculate_period_costs">
-<code class="descclassname">pyinv.sim.</code><code class="descname">calculate_period_costs</code><span class="sig-paren">(</span><em>network</em>, <em>period</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.calculate_period_costs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate costs and revenues for one period.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</li>
-<li><strong>period</strong> (<em>int</em>) – The time period.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.sim.generate_downstream_orders">
-<code class="descclassname">pyinv.sim.</code><code class="descname">generate_downstream_orders</code><span class="sig-paren">(</span><em>node_index</em>, <em>network</em>, <em>period</em>, <em>visited</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.generate_downstream_orders" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.generate_downstream_orders">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.generate_downstream_orders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate demand_list and orders for all downstream nodes using depth-first-search.
 Ignore nodes for which visited=True.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node_index</strong> (<em>int</em>) – Index of starting node for depth-first search.</li>
-<li><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</li>
-<li><strong>period</strong> (<em>int</em>) – Time period.</li>
-<li><strong>visited</strong> (<em>dict</em>) – Dictionary indicating whether each node in network has already been
-visited by the depth-first search.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_index</strong> (<em>int</em>) – Index of starting node for depth-first search.</p></li>
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
+<li><p><strong>visited</strong> (<em>dict</em>) – Dictionary indicating whether each node in network has already been
+visited by the depth-first search.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.sim.generate_downstream_shipments">
-<code class="descclassname">pyinv.sim.</code><code class="descname">generate_downstream_shipments</code><span class="sig-paren">(</span><em>node_index</em>, <em>network</em>, <em>period</em>, <em>visited</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.generate_downstream_shipments" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.generate_downstream_shipments">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.generate_downstream_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate shipments to all downstream nodes using depth-first-search.
 Ignore nodes for which visited=True.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node_index</strong> (<em>int</em>) – Index of starting node for depth-first search.</li>
-<li><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</li>
-<li><strong>period</strong> (<em>int</em>) – Time period.</li>
-<li><strong>visited</strong> (<em>dict</em>) – Dictionary indicating whether each node in network has already been
-visited by the depth-first search.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_index</strong> (<em>int</em>) – Index of starting node for depth-first search.</p></li>
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
+<li><p><strong>visited</strong> (<em>dict</em>) – Dictionary indicating whether each node in network has already been
+visited by the depth-first search.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.sim.initialize_next_period_state_vars">
-<code class="descclassname">pyinv.sim.</code><code class="descname">initialize_next_period_state_vars</code><span class="sig-paren">(</span><em>network</em>, <em>period</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.initialize_next_period_state_vars" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set initial values for state variables in period <code class="docutils literal notranslate"><span class="pre">period</span></code> + 1.</p>
-<blockquote>
-<div><ul class="simple">
-<li>Update shipment and order pipelines by “advancing” them by 1 period           and adding a 0 in the last element.</li>
-<li>Set IL, BO, RM, and OO next period = ending values this period.</li>
-<li>Set _cumul attributes = ending values this period.</li>
-</ul>
-</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</li>
-<li><strong>period</strong> (<em>int</em>) – The current time period.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.sim.initialize_state_vars">
-<code class="descclassname">pyinv.sim.</code><code class="descname">initialize_state_vars</code><span class="sig-paren">(</span><em>network</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.initialize_state_vars" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.initialize_state_vars">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.initialize_state_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the state variables for each node:</p>
 <blockquote>
 <div><ul class="simple">
-<li>inventory_level = to initial_inventory_level</li>
-<li>inbound_shipment_pipeline = initial_shipments</li>
-<li>on_order = initial_shipments * shipment_lead_time + initial_orders * order_lead_time</li>
-<li>inbound_order_pipeline = initial_orders</li>
+<li><p>inventory_level = to initial_inventory_level</p></li>
+<li><p>inbound_shipment_pipeline = initial_shipments</p></li>
+<li><p>on_order = initial_shipments * shipment_lead_time + initial_orders * order_lead_time</p></li>
+<li><p>inbound_order_pipeline = initial_orders</p></li>
 </ul>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.sim.process_outbound_shipments">
-<code class="descclassname">pyinv.sim.</code><code class="descname">process_outbound_shipments</code><span class="sig-paren">(</span><em>node</em>, <em>starting_inventory_level</em>, <em>new_finished_goods</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.process_outbound_shipments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process outbound shipments for the node:</p>
-<blockquote>
-<div><ul class="simple">
-<li>Determine outbound shipments. Demands are satisfied in order of               successor node index.</li>
-<li>Update inventory level.</li>
-<li>Calculate demand met from stock.</li>
-</ul>
-</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</li>
-<li><strong>starting_inventory_level</strong> (<em>float</em>) – Starting inventory level for the period.</li>
-<li><strong>new_finished_goods</strong> (<em>float</em>) – Number of new finished goods added to inventory this period.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.sim.propagate_shipment_downstream">
-<code class="descclassname">pyinv.sim.</code><code class="descname">propagate_shipment_downstream</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.propagate_shipment_downstream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Propagate shipment downstream, i.e., add it to successors’ <code class="docutils literal notranslate"><span class="pre">inbound_shipment_pipeline</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>inbound_shipment</strong> – The inbound shipment quantity.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.sim.raw_materials_to_finished_goods">
-<code class="descclassname">pyinv.sim.</code><code class="descname">raw_materials_to_finished_goods</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.raw_materials_to_finished_goods" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process raw materials to convert them to finished goods:</p>
-<blockquote>
-<div><ul class="simple">
-<li>Remove items from raw material inventory.</li>
-<li>Update IL.</li>
-</ul>
-</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>new_finished_goods</strong> – Number of new finished goods added to inventory this period.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.sim.receive_inbound_orders">
-<code class="descclassname">pyinv.sim.</code><code class="descname">receive_inbound_orders</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.receive_inbound_orders" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.receive_inbound_orders">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.receive_inbound_orders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive inbound orders:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Set inbound order from pipeline.</li>
-<li>Remove inbound order from pipeline.</li>
-<li>Update cumulative demand.</li>
+<li><p>Set inbound order from pipeline.</p></li>
+<li><p>Remove inbound order from pipeline.</p></li>
+<li><p>Update cumulative demand.</p></li>
 </ul>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.sim.receive_inbound_shipments">
-<code class="descclassname">pyinv.sim.</code><code class="descname">receive_inbound_shipments</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.receive_inbound_shipments" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.initialize_next_period_state_vars">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_next_period_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.initialize_next_period_state_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set initial values for state variables in period <code class="docutils literal notranslate"><span class="pre">period</span></code> + 1.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Update shipment and order pipelines by “advancing” them by 1 period           and adding a 0 in the last element.</p></li>
+<li><p>Set IL, BO, RM, and OO next period = ending values this period.</p></li>
+<li><p>Set _cumul attributes = ending values this period.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – The current time period.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.calculate_period_costs">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_period_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.calculate_period_costs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate costs and revenues for one period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – The time period.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.receive_inbound_shipments">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.receive_inbound_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive inbound shipment for the node:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Set inbound_shipment.</li>
-<li>Remove from shipment pipeline and add to raw material inventory.</li>
-<li>Process as many units as possible.</li>
-<li>Update IL and OO.</li>
+<li><p>Set inbound_shipment.</p></li>
+<li><p>Remove from shipment pipeline and add to raw material inventory.</p></li>
+<li><p>Process as many units as possible.</p></li>
+<li><p>Update IL and OO.</p></li>
 </ul>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.sim.run_multiple_trials">
-<code class="descclassname">pyinv.sim.</code><code class="descname">run_multiple_trials</code><span class="sig-paren">(</span><em>network</em>, <em>num_trials</em>, <em>num_periods</em>, <em>rand_seed=None</em>, <em>progress_bar=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.run_multiple_trials" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.raw_materials_to_finished_goods">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">raw_materials_to_finished_goods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.raw_materials_to_finished_goods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process raw materials to convert them to finished goods:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Remove items from raw material inventory.</p></li>
+<li><p>Update IL.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_finished_goods</strong> – Number of new finished goods added to inventory this period.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.process_outbound_shipments">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">process_outbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_inventory_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_finished_goods</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.process_outbound_shipments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process outbound shipments for the node:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Determine outbound shipments. Demands are satisfied in order of               successor node index.</p></li>
+<li><p>Update inventory level.</p></li>
+<li><p>Calculate demand met from stock.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p></li>
+<li><p><strong>starting_inventory_level</strong> (<em>float</em>) – Starting inventory level for the period.</p></li>
+<li><p><strong>new_finished_goods</strong> (<em>float</em>) – Number of new finished goods added to inventory this period.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.calculate_fill_rate">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_fill_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.calculate_fill_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate fill rate for the node in the period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.propagate_shipment_downstream">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">propagate_shipment_downstream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.propagate_shipment_downstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Propagate shipment downstream, i.e., add it to successors’ <code class="docutils literal notranslate"><span class="pre">inbound_shipment_pipeline</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>inbound_shipment</strong> – The inbound shipment quantity.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.sim.run_multiple_trials">
+<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">run_multiple_trials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.run_multiple_trials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run <code class="docutils literal notranslate"><span class="pre">num_trials</span></code> trials of the simulation, each with  <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>
 periods. Return mean and SEM of average cost.</p>
 <p>(To build alpha-confidence interval, use
@@ -417,55 +406,24 @@ periods. Return mean and SEM of average cost.</p>
 <p>Note: After trials, <code class="docutils literal notranslate"><span class="pre">network</span></code> will contain performance measures for the
 most recent trial.</p>
 <p>TODO: figure out how to handle randseed – need to avoid setting it in simulation()</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</li>
-<li><strong>num_trials</strong> (<em>int</em>) – Number of trials to simulate.</li>
-<li><strong>num_periods</strong> (<em>int</em>) – Number of periods to simulate.</li>
-<li><strong>rand_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random number generator seed.</li>
-<li><strong>progress_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display a progress bar?</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>num_trials</strong> (<em>int</em>) – Number of trials to simulate.</p></li>
+<li><p><strong>num_periods</strong> (<em>int</em>) – Number of periods to simulate.</p></li>
+<li><p><strong>rand_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random number generator seed.</p></li>
+<li><p><strong>progress_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display a progress bar?</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>mean_cost</strong> (<em>float</em>) – Mean of average costs across all trials.</li>
-<li><strong>sem_cost</strong> (<em>float</em>) – Standard error of average costs across all trials.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mean_cost</strong> (<em>float</em>) – Mean of average costs across all trials.</p></li>
+<li><p><strong>sem_cost</strong> (<em>float</em>) – Standard error of average costs across all trials.</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.sim.simulation">
-<code class="descclassname">pyinv.sim.</code><code class="descname">simulation</code><span class="sig-paren">(</span><em>network</em>, <em>num_periods</em>, <em>rand_seed=None</em>, <em>progress_bar=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.simulation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the simulation for <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> periods. Fills performance
-measures directly into <code class="docutils literal notranslate"><span class="pre">network</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</li>
-<li><strong>num_periods</strong> (<em>int</em>) – Number of periods to simulate.</li>
-<li><strong>rand_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random number generator seed.</li>
-<li><strong>progress_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display a progress bar?</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Total cost over all nodes and periods.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

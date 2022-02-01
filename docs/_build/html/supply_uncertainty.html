@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="loss_functions Module" href="loss_functions.html" /> 
@@ -80,7 +82,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -168,95 +170,40 @@ problems with supply uncertainty.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
-<dl class="function">
-<dt id="pyinv.supply_uncertainty.eoq_with_additive_yield_uncertainty">
-<code class="descclassname">pyinv.supply_uncertainty.</code><code class="descname">eoq_with_additive_yield_uncertainty</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>demand_rate</em>, <em>yield_mean</em>, <em>yield_sd</em>, <em>order_quantity=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the EOQ problem with additive yield uncertainty and deterministic demand, or (if
-<code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
-<p>Note that the optimal solution depends only on the mean and standard deviation
-of the yield distribution, not the distribution itself.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>yield_mean</strong> (<em>float</em>) – Mean of yield distribution. [<span class="math notranslate nohighlight">\(E[Y]\)</span>]</li>
-<li><strong>yield_sd</strong> (<em>float</em>) – Standard deviation of yield distribution. [<span class="math notranslate nohighlight">\(\text{SD}[Y]\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code>, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> &lt; 0.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong> ((9.23) and (9.22)):</p>
-<div class="math notranslate nohighlight">
-\[Q^* = \sqrt{\frac{2Kd}{h} + \text{Var}[Y]} - E[Y]\]</div>
-<div class="math notranslate nohighlight">
-\[g(Q) = \frac{2Kd + h\text{Var}[Y]}{2(Q+E[Y])} + \frac{h(Q+E[Y])}{2}\]</div>
-<p><strong>Example</strong> (Example 9.4):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="o">-</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">)</span>
-<span class="go">(230246.37046881882, 12914.78222812913)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="o">-</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="n">order_quantity</span><span class="o">=</span><span class="mi">300000</span><span class="p">)</span>
-<span class="go">(300000, 13426.947368421053)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.supply_uncertainty.eoq_with_disruptions">
-<code class="descclassname">pyinv.supply_uncertainty.</code><code class="descname">eoq_with_disruptions</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_rate</em>, <em>disruption_rate</em>, <em>recovery_rate</em>, <em>approximate=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_disruptions">
+<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity problem with disruptions (EOQD) as
 presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).
 Problem is solved numerically using golden section search.</p>
 <p>Set <code class="docutils literal notranslate"><span class="pre">approximate</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> to use the approximation by Snyder (2014).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>disruption_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “up” intervals. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>recovery_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “down” intervals. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>approximate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Use approximate cost function?</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>disruption_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “up” intervals. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>recovery_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “down” intervals. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>approximate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Use approximate cost function?</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Optimal cost per unit time. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (items). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Optimal cost per unit time. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> or
-<code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">disruption_rate</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">recovery_rate</span></code> &lt;= 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> or
+    <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">disruption_rate</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">recovery_rate</span></code> &lt;= 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (9.5)):</p>
 <div class="math notranslate nohighlight">
 \[g(Q) = \frac{K + hQ^2/2d + pd\psi/\mu}{Q/d + \psi/\mu},\]</div>
@@ -274,7 +221,7 @@ Problem is solved numerically using golden section search.</p>
 \[g(Q^*) = hQ^*.\]</div>
 <p>(See Snyder (2014).)</p>
 <p><strong>Example</strong> (Example 3.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
 <span class="go">(772.8110739983106, 173.95000257319708)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="n">approximate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -283,44 +230,40 @@ Problem is solved numerically using golden section search.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.supply_uncertainty.eoq_with_disruptions_cost">
-<code class="descclassname">pyinv.supply_uncertainty.</code><code class="descname">eoq_with_disruptions_cost</code><span class="sig-paren">(</span><em>order_quantity</em>, <em>fixed_cost</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>demand_rate</em>, <em>disruption_rate</em>, <em>recovery_rate</em>, <em>approximate=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_disruptions_cost" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_disruptions_cost">
+<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_disruptions_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> as the solution to
 the economic order quantity problem with disruptions (EOQD) as
 presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
 <p>Set <code class="docutils literal notranslate"><span class="pre">approximate</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> to use the approximation by Snyder (2014).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Order quantity for cost evaluation. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>disruption_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “up” intervals. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</li>
-<li><strong>recovery_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “down” intervals. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>approximate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Use approximate cost function?</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Order quantity for cost evaluation. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>disruption_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “up” intervals. [<span class="math notranslate nohighlight">\(\lambda\)</span>]</p></li>
+<li><p><strong>recovery_rate</strong> (<em>float</em>) – Parameter of exponential distribution governing length of “down” intervals. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>approximate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Use approximate cost function?</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Optimal cost per unit time. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>,
-<code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">disruption_rate</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">recovery_rate</span></code> &lt;= 0.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – Optimal cost per unit time. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>,
+    <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">disruption_rate</span></code> &lt;= 0 or <code class="docutils literal notranslate"><span class="pre">recovery_rate</span></code> &lt;= 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (9.5)):</p>
 <div class="math notranslate nohighlight">
 \[g(Q) = \frac{K + hQ^2/2d + pd\psi/\mu}{Q/d + \psi/\mu},\]</div>
@@ -332,7 +275,7 @@ presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
 \[\psi = \frac{\lambda}{\lambda+\mu}\]</div>
 <p>if <code class="docutils literal notranslate"><span class="pre">approximate</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p><strong>Example</strong> (Example 9.1):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions_cost</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions_cost</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
 <span class="go">174.78711738886236</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_disruptions_cost</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="n">approximate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -341,163 +284,39 @@ presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">
-<code class="descclassname">pyinv.supply_uncertainty.</code><code class="descname">eoq_with_multiplicative_yield_uncertainty</code><span class="sig-paren">(</span><em>fixed_cost</em>, <em>holding_cost</em>, <em>demand_rate</em>, <em>yield_mean</em>, <em>yield_sd</em>, <em>order_quantity=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the EOQ problem with multiplicative yield uncertainty and deterministic demand, or (if
-<code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
-<p>Note that the optimal solution depends only on the mean and standard deviation
-of the yield distribution, not the distribution itself.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>yield_mean</strong> (<em>float</em>) – Mean of yield distribution. [<span class="math notranslate nohighlight">\(E[Z]\)</span>]</li>
-<li><strong>yield_sd</strong> (<em>float</em>) – Standard deviation of yield distribution. [<span class="math notranslate nohighlight">\(\text{SD}[Z]\)</span>]</li>
-<li><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code>, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> &lt; 0.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong> ((9.25) and (9.24)):</p>
-<div class="math notranslate nohighlight">
-\[Q^* = \sqrt{\frac{2Kd}{h(\text{Var}[Z] + E[Z]^2)}}\]</div>
-<div class="math notranslate nohighlight">
-\[g(Q) = \frac{Kd}{QE[Z]} + \frac{hQ(\text{Var}[Z] + E[Z]^2)}{2E[Z]}\]</div>
-<p><strong>Example</strong> (Example 9.4):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_multiplicative_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="mf">0.8333</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.0198</span><span class="p">))</span>
-<span class="go">(254477.46130342316, 13086.16169098594)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_multiplicative_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="mf">0.8333</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.0198</span><span class="p">),</span> <span class="n">order_quantity</span><span class="o">=</span><span class="mi">300000</span><span class="p">)</span>
-<span class="go">(300000, 13263.770562822512)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">
-<code class="descclassname">pyinv.supply_uncertainty.</code><code class="descname">newsvendor_with_additive_yield_uncertainty</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand</em>, <em>yield_mean=None</em>, <em>yield_sd=None</em>, <em>yield_distribution=None</em>, <em>loss_function=None</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.newsvendor_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the newsvendor problem with additive yield uncertainty and deterministic demand, or (if
-<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
-<p>Either provide <code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> and <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> to use a normal yield distribution,
-or provide <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> as a frozen <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> or <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> object.
-If <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> is provided, then loss functions are calculated using
-<code class="docutils literal notranslate"><span class="pre">loss_functions.continuous_loss()</span></code> or <code class="docutils literal notranslate"><span class="pre">loss_functions.discrete_loss()</span></code>,
-unless <code class="docutils literal notranslate"><span class="pre">loss_function</span></code> is provided. (Loss functions are used in expected-cost calculation.)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand</strong> (<em>float</em>) – Demand per period. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>yield_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean of yield distribution. [<span class="math notranslate nohighlight">\(E[Y]\)</span>]</li>
-<li><strong>yield_sd</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of yield distribution. [<span class="math notranslate nohighlight">\(\text{SD}[Y]\)</span>]</li>
-<li><strong>yield_distribution</strong> (<em>rv_continuous</em><em> or </em><em>rv_discrete</em><em>, </em><em>optional</em>) – Yield distribution. Required if <code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-<li><strong>loss_function</strong> (<em>function</em><em>, </em><em>optional</em>) – Function that takes a single argument and returns the a tuple consisting
-of the loss function and complementary loss function value of that argument.
-Ignored if <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-</ul>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">demand</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If (<code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>) and
-<code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Equations Used</strong> ((9.28) and (9.27)):</p>
-<div class="math notranslate nohighlight">
-\[S^* = d - F_Y^{-1}\left(\frac{h}{h+p}\right)\]</div>
-<div class="math notranslate nohighlight">
-\[g(S) = p\bar{n}(S) + hn(S),\]</div>
-<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the loss function
-and complementary loss function, respectively, of the yield distribution.</p>
-<p><strong>Example</strong> (Example 9.6):</p>
-<p>Using generic function to calculate loss functions:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mf">1.5e6</span><span class="p">,</span> <span class="n">yield_distribution</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">))</span>
-<span class="go">(1833333.3333333335, 6249999.997499999)</span>
-</pre></div>
-</div>
-<p>Using <code class="docutils literal notranslate"><span class="pre">uniform_loss()</span></code> to calculate loss functions, which is more accurate:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyinv.loss_functions</span> <span class="kn">import</span> <span class="n">uniform_loss</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">uniform_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">500000</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mf">1.5e6</span><span class="p">,</span> <span class="n">yield_distribution</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">),</span> <span class="n">loss_function</span><span class="o">=</span><span class="n">loss_function</span><span class="p">)</span>
-<span class="go">(1833333.3333333335, 6250000.000000001)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyinv.supply_uncertainty.newsvendor_with_disruptions">
-<code class="descclassname">pyinv.supply_uncertainty.</code><code class="descname">newsvendor_with_disruptions</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>demand</em>, <em>disruption_prob</em>, <em>recovery_prob</em>, <em>base_stock_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.newsvendor_with_disruptions" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.supply_uncertainty.newsvendor_with_disruptions">
+<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.newsvendor_with_disruptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with disruptions and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>demand</strong> (<em>float</em>) – Demand per period. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>disruption_prob</strong> (<em>float</em>) – Probability of disruption in period <span class="math notranslate nohighlight">\(t+1\)</span> given that there is no
-disruption in period <span class="math notranslate nohighlight">\(t\)</span>. [<span class="math notranslate nohighlight">\(\alpha\)</span>]</li>
-<li><strong>recovery_prob</strong> (<em>float</em>) – Probability of no disruption in period <span class="math notranslate nohighlight">\(t+1\)</span> given that there is a
-disruption in period <span class="math notranslate nohighlight">\(t\)</span>. [<span class="math notranslate nohighlight">\(\beta\)</span>]</li>
-<li><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
-optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand</strong> (<em>float</em>) – Demand per period. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>disruption_prob</strong> (<em>float</em>) – Probability of disruption in period <span class="math notranslate nohighlight">\(t+1\)</span> given that there is no
+disruption in period <span class="math notranslate nohighlight">\(t\)</span>. [<span class="math notranslate nohighlight">\(\alpha\)</span>]</p></li>
+<li><p><strong>recovery_prob</strong> (<em>float</em>) – Probability of no disruption in period <span class="math notranslate nohighlight">\(t+1\)</span> given that there is a
+disruption in period <span class="math notranslate nohighlight">\(t\)</span>. [<span class="math notranslate nohighlight">\(\beta\)</span>]</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per period attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">demand</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">disruption_prob</span></code> or <code class="docutils literal notranslate"><span class="pre">recovery_prob</span></code> is not in (0,1).</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">demand</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">disruption_prob</span></code> or <code class="docutils literal notranslate"><span class="pre">recovery_prob</span></code> is not in (0,1).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> ((9.18), (9.14), and Lemma 9.2):</p>
 <div class="math notranslate nohighlight">
 \[S^* = d + dF^{-1}\left(\frac{p}{p+h}\right)\]</div>
@@ -511,10 +330,169 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 <div class="math notranslate nohighlight">
 \[F(n) = 1 - \frac{\alpha}{\alpha+\beta}(1-\beta)^n.\]</div>
 <p><strong>Example</strong> (Example 9.3):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_disruptions</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_disruptions</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
 <span class="go">(8000, 2737.0689302470355)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_disruptions</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">1200</span><span class="p">)</span>
 <span class="go">(1200, 5710.344790717086)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_additive_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the EOQ problem with additive yield uncertainty and deterministic demand, or (if
+<code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
+<p>Note that the optimal solution depends only on the mean and standard deviation
+of the yield distribution, not the distribution itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>yield_mean</strong> (<em>float</em>) – Mean of yield distribution. [<span class="math notranslate nohighlight">\(E[Y]\)</span>]</p></li>
+<li><p><strong>yield_sd</strong> (<em>float</em>) – Standard deviation of yield distribution. [<span class="math notranslate nohighlight">\(\text{SD}[Y]\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code>, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> &lt; 0.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Equations Used</strong> ((9.23) and (9.22)):</p>
+<div class="math notranslate nohighlight">
+\[Q^* = \sqrt{\frac{2Kd}{h} + \text{Var}[Y]} - E[Y]\]</div>
+<div class="math notranslate nohighlight">
+\[g(Q) = \frac{2Kd + h\text{Var}[Y]}{2(Q+E[Y])} + \frac{h(Q+E[Y])}{2}\]</div>
+<p><strong>Example</strong> (Example 9.4):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="o">-</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">)</span>
+<span class="go">(230246.37046881882, 12914.78222812913)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="o">-</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="n">order_quantity</span><span class="o">=</span><span class="mi">300000</span><span class="p">)</span>
+<span class="go">(300000, 13426.947368421053)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_multiplicative_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the EOQ problem with multiplicative yield uncertainty and deterministic demand, or (if
+<code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
+<p>Note that the optimal solution depends only on the mean and standard deviation
+of the yield distribution, not the distribution itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per unit time. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>demand_rate</strong> (<em>float</em>) – Demand (items) per unit time. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>yield_mean</strong> (<em>float</em>) – Mean of yield distribution. [<span class="math notranslate nohighlight">\(E[Z]\)</span>]</p></li>
+<li><p><strong>yield_sd</strong> (<em>float</em>) – Standard deviation of yield distribution. [<span class="math notranslate nohighlight">\(\text{SD}[Z]\)</span>]</p></li>
+<li><p><strong>order_quantity</strong> (<em>float</em><em>, </em><em>optional</em>) – Order quantity for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(Q\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantity</strong> (<em>float</em>) – Optimal order quantity (or order quantity supplied). [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_rate</span></code>, or if <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> &lt; 0.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Equations Used</strong> ((9.25) and (9.24)):</p>
+<div class="math notranslate nohighlight">
+\[Q^* = \sqrt{\frac{2Kd}{h(\text{Var}[Z] + E[Z]^2)}}\]</div>
+<div class="math notranslate nohighlight">
+\[g(Q) = \frac{Kd}{QE[Z]} + \frac{hQ(\text{Var}[Z] + E[Z]^2)}{2E[Z]}\]</div>
+<p><strong>Example</strong> (Example 9.4):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_multiplicative_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="mf">0.8333</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.0198</span><span class="p">))</span>
+<span class="go">(254477.46130342316, 13086.16169098594)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eoq_with_multiplicative_yield_uncertainty</span><span class="p">(</span><span class="mi">18500</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="mf">0.8333</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.0198</span><span class="p">),</span> <span class="n">order_quantity</span><span class="o">=</span><span class="mi">300000</span><span class="p">)</span>
+<span class="go">(300000, 13263.770562822512)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.newsvendor_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the newsvendor problem with additive yield uncertainty and deterministic demand, or (if
+<code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
+<p>Either provide <code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> and <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> to use a normal yield distribution,
+or provide <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> as a frozen <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> or <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> object.
+If <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> is provided, then loss functions are calculated using
+<code class="docutils literal notranslate"><span class="pre">loss_functions.continuous_loss()</span></code> or <code class="docutils literal notranslate"><span class="pre">loss_functions.discrete_loss()</span></code>,
+unless <code class="docutils literal notranslate"><span class="pre">loss_function</span></code> is provided. (Loss functions are used in expected-cost calculation.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>demand</strong> (<em>float</em>) – Demand per period. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>yield_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean of yield distribution. [<span class="math notranslate nohighlight">\(E[Y]\)</span>]</p></li>
+<li><p><strong>yield_sd</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of yield distribution. [<span class="math notranslate nohighlight">\(\text{SD}[Y]\)</span>]</p></li>
+<li><p><strong>yield_distribution</strong> (<em>rv_continuous</em><em> or </em><em>rv_discrete</em><em>, </em><em>optional</em>) – Yield distribution. Required if <code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>loss_function</strong> (<em>function</em><em>, </em><em>optional</em>) – Function that takes a single argument and returns the a tuple consisting
+of the loss function and complementary loss function value of that argument.
+Ignored if <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for cost evaluation. If supplied, no
+optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_stock_level</strong> (<em>float</em>) – Optimal base-stock level (or base-stock level supplied). [<span class="math notranslate nohighlight">\(S^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per unit time attained by <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">demand</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If (<code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>) and
+    <code class="docutils literal notranslate"><span class="pre">yield_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Equations Used</strong> ((9.28) and (9.27)):</p>
+<div class="math notranslate nohighlight">
+\[S^* = d - F_Y^{-1}\left(\frac{h}{h+p}\right)\]</div>
+<div class="math notranslate nohighlight">
+\[g(S) = p\bar{n}(S) + hn(S),\]</div>
+<p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> are the loss function
+and complementary loss function, respectively, of the yield distribution.</p>
+<p><strong>Example</strong> (Example 9.6):</p>
+<p>Using generic function to calculate loss functions:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mf">1.5e6</span><span class="p">,</span> <span class="n">yield_distribution</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">))</span>
+<span class="go">(1833333.3333333335, 6249999.997499999)</span>
+</pre></div>
+</div>
+<p>Using <code class="docutils literal notranslate"><span class="pre">uniform_loss()</span></code> to calculate loss functions, which is more accurate:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyinv.loss_functions</span> <span class="kn">import</span> <span class="n">uniform_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">uniform_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">500000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mf">1.5e6</span><span class="p">,</span> <span class="n">yield_distribution</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">),</span> <span class="n">loss_function</span><span class="o">=</span><span class="n">loss_function</span><span class="p">)</span>
+<span class="go">(1833333.3333333335, 6250000.000000001)</span>
 </pre></div>
 </div>
 </dd></dl>

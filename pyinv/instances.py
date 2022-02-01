@@ -4,6 +4,8 @@ from pyinv.supply_chain_network import *
 from pyinv.supply_chain_node import *
 
 
+# TODO: save all instance data to json and read from there by instance_name.
+
 def get_named_instance(instance_name):
 	"""Return the named instance specified by ``instance_name``. Return
 	variables depend on the instance.

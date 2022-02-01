@@ -2,7 +2,7 @@
 # PyInv - loss_functions Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-15-2020
+# Updated: 01-31-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -35,7 +35,7 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import nbinom
 from scipy.stats import gamma
-from scipy.integrate import quad
+#from scipy.integrate import quad
 from types import *
 from numbers import Number
 from numbers import Integral
@@ -281,7 +281,7 @@ def lognormal_loss(x, mu, sigma):
 
 	.. math::
 
-		n(x) = e^{\\mu+\\sigma^2/2} * \\Phi((\\mu+\\sigma^2-\\ln x)/\\sigma) - x(1 - \\Phi((\\ln x - \\mu)/\\sigma))
+		n(x) = e^{\\mu+\\sigma^2/2} \\Phi((\\mu+\\sigma^2-\\ln x)/\\sigma) - x(1 - \\Phi((\\ln x - \\mu)/\\sigma))
 
 	.. math::
 
@@ -352,6 +352,11 @@ def exponential_loss(x, mu):
 		\\bar{n}(x) = x - E[X] + n(x)
 
 
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
+
 	**Example**:
 
 	.. testsetup:: *
@@ -411,6 +416,11 @@ def exponential_second_loss(x, mu):
 	.. math::
 
 		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
 
 
 	**Example**:
@@ -486,6 +496,10 @@ def gamma_loss(x, a, b):
 		\\bar{n}(x) = x - E[X] + n(x)
 
 
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
 	**Example**:
 
 	.. testsetup:: *
@@ -558,6 +572,10 @@ def gamma_second_loss(x, a, b):
 	.. math::
 
 		\\bar{n}^{(2)}(x) = \\frac12\\left((x-E[X])^2 + \\text{Var}[X]\\right) - n^{(2)}(x)
+
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
 
 
 	**Example**:
@@ -831,7 +849,7 @@ def continuous_second_loss(x, distrib):
 
 		from pyinv.loss_functions import *
 
-	.. doctest:: # TODO
+	.. doctest:: 
 
 		>>> from scipy import stats
 		>>> import math
@@ -1055,6 +1073,10 @@ def geometric_loss(x, p):
 	than the success probability. The notation has been adjusted to account for
 	the version we use here.)
 
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
 
 	**Example**:
 
@@ -1127,6 +1149,10 @@ def geometric_second_loss(x, p):
 	geometric distribution and uses :math:`p` to refer to the failure probability rather
 	than the success probability. The notation has been adjusted to account for
 	the version we use here.)
+
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
 
 
 	**Example**:
@@ -1224,6 +1250,10 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 	(Note that Zipkin (2000) uses a different version of the negative-binomial distribution.
 	The notation has been adjusted to account for the version we use here.)
 
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
 
 	**Example**:
 
@@ -1270,6 +1300,7 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 	# formula above does not seem to be working (e.g., if r = 6, p = 0.4, then
 	# returns negative value for n(10). So for now, using generic function:
 #	n, n_bar = discrete_loss(x, nbinom(r, p))
+	# TODO: what's going on above?
 
 	return n, n_bar
 
@@ -1345,6 +1376,10 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 
 	(Note that Zipkin (2000) uses a different version of the negative-binomial distribution.
 	The notation has been adjusted to account for the version we use here.)
+
+	References
+	----------
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
 
 
 	**Example**:
@@ -1447,8 +1482,6 @@ def discrete_loss(x, distrib=None, pmf=None):
 
 		from pyinv.loss_functions import *
 
-		# TODO: why isn't this working??!?
-
 	.. doctest::
 
 		>>> from scipy import stats
@@ -1497,7 +1530,7 @@ def discrete_loss(x, distrib=None, pmf=None):
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
-		# TODO: vectorize this
+		# TODO: vectorize this?
 		n = np.sum([(y - x) * pmf[y] for y in x_values if y >= x])
 		n_bar = np.sum([(x - y) * pmf[y] for y in x_values if y <= x])
 
@@ -1561,8 +1594,6 @@ def discrete_second_loss(x, distrib=None, pmf=None):
 
 		from pyinv.loss_functions import *
 
-		# TODO: why isn't this working??!?
-
 	.. doctest::
 
 		>>> from scipy import stats
@@ -1604,7 +1635,7 @@ def discrete_second_loss(x, distrib=None, pmf=None):
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
-		# TODO: vectorize this
+		# TODO: vectorize this?
 		n2 = 0.5 * np.sum([(y - x) * (y - x - 1) * pmf[y] for y in x_values if y >= x])
 		n2_bar = 0.5 * np.sum([(x - y) * (x + 1 - y) * pmf[y] for y in x_values if y <= x])
 

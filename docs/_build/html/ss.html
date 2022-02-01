@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="finite_horizon Module" href="finite_horizon.html" />
@@ -81,7 +83,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -168,150 +170,138 @@
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
-<dl class="function">
-<dt id="pyinv.ss.s_s_cost_discrete">
-<code class="descclassname">pyinv.ss.</code><code class="descname">s_s_cost_discrete</code><span class="sig-paren">(</span><em>reorder_point</em>, <em>order_up_to_level</em>, <em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>use_poisson</em>, <em>demand_mean=None</em>, <em>demand_hi=None</em>, <em>demand_pmf=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.ss.s_s_cost_discrete" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.ss.s_s_cost_discrete">
+<span class="sig-prename descclassname"><span class="pre">pyinv.ss.</span></span><span class="sig-name descname"><span class="pre">s_s_cost_discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_up_to_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_poisson</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.ss.s_s_cost_discrete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((s,S)\)</span>
 policy with given parameters under a discrete (Poisson or custom) demand
 distribution.</p>
 <p>Uses method described in Zheng and Federgruen (1991).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
-<li><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>poisson_dist</strong> (<em>bool</em>) – Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to use Poisson distribution, <code class="docutils literal notranslate"><span class="pre">False</span></code> to use custom
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</p></li>
+<li><p><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>poisson_dist</strong> (<em>bool</em>) – Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to use Poisson distribution, <code class="docutils literal notranslate"><span class="pre">False</span></code> to use custom
 discrete distribution. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then <code class="docutils literal notranslate"><span class="pre">mean</span></code> must be
 provided; if <code class="docutils literal notranslate"><span class="pre">False</span></code>, then <code class="docutils literal notranslate"><span class="pre">hi</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> must
-be provied.</li>
-<li><strong>demand_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean demand per period. Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>,
-ignored otherwise. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_hi</strong> (<em>int</em><em>, </em><em>optional</em>) – Upper limit of support of demand per period (lower limit is assumed to
-be 0). Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</li>
-<li><strong>demand_pmf</strong> (<em>list</em><em>, </em><em>optional</em>) – List of pmf values for demand values 0, …, <code class="docutils literal notranslate"><span class="pre">hi</span></code>. Required
-if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</li>
+be provied.</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean demand per period. Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+ignored otherwise. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_hi</strong> (<em>int</em><em>, </em><em>optional</em>) – Upper limit of support of demand per period (lower limit is assumed to
+be 0). Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</p></li>
+<li><p><strong>demand_pmf</strong> (<em>list</em><em>, </em><em>optional</em>) – List of pmf values for demand values 0, …, <code class="docutils literal notranslate"><span class="pre">hi</span></code>. Required
+if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> – Expected cost per period. [<span class="math notranslate nohighlight">\(g(s,S)\)</span>]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">reorder_point</span></code> or <code class="docutils literal notranslate"><span class="pre">order_up_to_level</span></code> is not an integer.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> is not a non-negative integer.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code> is not a list of length <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> + 1.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost</strong> – Expected cost per period. [<span class="math notranslate nohighlight">\(g(s,S)\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">reorder_point</span></code> or <code class="docutils literal notranslate"><span class="pre">order_up_to_level</span></code> is not an integer.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> is not a non-negative integer.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code> is not a list of length <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> + 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equations Used</strong> (equation (5.7)):</p>
 <div class="math notranslate nohighlight">
 \[g(s,S) = \frac{K + \sum_{d=0}^{S-s-1} m(d)g(S-d)}{M(S-s)},\]</div>
 <p>where <span class="math notranslate nohighlight">\(g(\cdot)\)</span> is the newsvendor cost function and <span class="math notranslate nohighlight">\(M(\cdot)\)</span>
 and <span class="math notranslate nohighlight">\(m(\cdot)\)</span> are as described in equations (4.71)–(4.75).</p>
 <p><strong>Example</strong> (Example 4.7):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s_s_cost_discrete</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s_s_cost_discrete</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 <span class="go">8.034111561471642</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.ss.s_s_discrete_exact">
-<code class="descclassname">pyinv.ss.</code><code class="descname">s_s_discrete_exact</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>use_poisson</em>, <em>demand_mean=None</em>, <em>demand_hi=None</em>, <em>demand_pmf=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.ss.s_s_discrete_exact" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.ss.s_s_discrete_exact">
+<span class="sig-prename descclassname"><span class="pre">pyinv.ss.</span></span><span class="sig-name descname"><span class="pre">s_s_discrete_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_poisson</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.ss.s_s_discrete_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine optimal <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(S\)</span> for an <span class="math notranslate nohighlight">\((s,S)\)</span>
 policy under a discrete (Poisson or custom) demand distribution.</p>
 <p>Uses method described in Zheng and Federgruen (1991).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>poisson_dist</strong> (<em>bool</em>) – Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to use Poisson distribution, <code class="docutils literal notranslate"><span class="pre">False</span></code> to use custom
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>poisson_dist</strong> (<em>bool</em>) – Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to use Poisson distribution, <code class="docutils literal notranslate"><span class="pre">False</span></code> to use custom
 discrete distribution. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then <code class="docutils literal notranslate"><span class="pre">mean</span></code> must be
 provided; if <code class="docutils literal notranslate"><span class="pre">False</span></code>, then <code class="docutils literal notranslate"><span class="pre">hi</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_pdf</span></code> must
-be provied.</li>
-<li><strong>demand_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean demand per period. Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>,
-ignored otherwise. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_hi</strong> (<em>int</em><em>, </em><em>optional</em>) – Upper limit of support of demand per period (lower limit is assumed to
-be 0). Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</li>
-<li><strong>demand_pmf</strong> (<em>list</em><em>, </em><em>optional</em>) – List of pmf values for demand values 0, …, <code class="docutils literal notranslate"><span class="pre">hi</span></code>. Required
-if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</li>
+be provied.</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – Mean demand per period. Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+ignored otherwise. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_hi</strong> (<em>int</em><em>, </em><em>optional</em>) – Upper limit of support of demand per period (lower limit is assumed to
+be 0). Required if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</p></li>
+<li><p><strong>demand_pmf</strong> (<em>list</em><em>, </em><em>optional</em>) – List of pmf values for demand values 0, …, <code class="docutils literal notranslate"><span class="pre">hi</span></code>. Required
+if <code class="docutils literal notranslate"><span class="pre">use_poisson</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, ignored otherwise.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
-<li><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Expected cost per period. [<span class="math notranslate nohighlight">\(g(s,S)\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</p></li>
+<li><p><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Expected cost per period. [<span class="math notranslate nohighlight">\(g(s,S)\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> is not a non-negative integer.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code> is not a list of length <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> + 1.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> &lt; 0, or if <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> is not a non-negative integer.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_pmf</span></code> is not a list of length <code class="docutils literal notranslate"><span class="pre">demand_hi</span></code> + 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Algorithm Used:</strong> Exact algorithm for periodic-review <span class="math notranslate nohighlight">\((s,S)\)</span>
 policies with discrete demand distribution (Algorithm 4.2)</p>
 <p><strong>Example</strong> (Example 4.7):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s_s_discrete_exact</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s_s_discrete_exact</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 <span class="go">(4.0, 10.0, 8.034111561471642)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.ss.s_s_power_approximation">
-<code class="descclassname">pyinv.ss.</code><code class="descname">s_s_power_approximation</code><span class="sig-paren">(</span><em>holding_cost</em>, <em>stockout_cost</em>, <em>fixed_cost</em>, <em>demand_mean</em>, <em>demand_sd</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.ss.s_s_power_approximation" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.ss.s_s_power_approximation">
+<span class="sig-prename descclassname"><span class="pre">pyinv.ss.</span></span><span class="sig-name descname"><span class="pre">s_s_power_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.ss.s_s_power_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine heuristic <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(S\)</span> for an <span class="math notranslate nohighlight">\((s,S)\)</span>
 policy under a normal demand distribution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</li>
-<li><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
+<li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
-<li><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reorder_point</strong> (<em>float</em>) – Reorder point. [<span class="math notranslate nohighlight">\(s\)</span>]</p></li>
+<li><p><strong>order_up_to_level</strong> (<em>float</em>) – Order-up-to level. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt; 0.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout_cost</span></code>, or <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code> &lt;= 0.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">demand_mean</span></code> or <code class="docutils literal notranslate"><span class="pre">demand_sd</span></code> &lt; 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">References</p>
 <p>R. Ehrhardt and C. Mosier, A Revision of the Power Approximation for
 Computing <span class="math notranslate nohighlight">\((s, S)\)</span> Policies, <em>Management Science</em> 30, 618-622 (1984).</p>
@@ -322,7 +312,7 @@ Computing <span class="math notranslate nohighlight">\((s, S)\)</span> Policies,
 <p>where <span class="math notranslate nohighlight">\(\mu_L = \mu L\)</span> and <span class="math notranslate nohighlight">\(\sigma^2_L = \sigma^2L\)</span> are the
 mean and standard deviation of the lead-time demand.</p>
 <p><strong>Example</strong> (Example 4.7):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s_s_power_approximation</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s_s_power_approximation</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">(40.19461695647407, 74.29017010980579)</span>
 </pre></div>
 </div>

@@ -75,6 +75,11 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# Sort order. (added LVS 1/31/22)
+#autodoc_member_order = 'bysource'
+autodoc_default_options = {
+    'member-order': 'bysource'
+}
 
 # -- Options for HTML output -------------------------------------------------
 

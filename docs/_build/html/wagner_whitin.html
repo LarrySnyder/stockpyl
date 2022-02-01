@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +34,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="newsvendor Module" href="newsvendor.html" />
@@ -81,7 +83,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -169,9 +171,9 @@ model.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
-<dl class="function">
-<dt id="pyinv.wagner_whitin.wagner_whitin">
-<code class="descclassname">pyinv.wagner_whitin.</code><code class="descname">wagner_whitin</code><span class="sig-paren">(</span><em>num_periods</em>, <em>holding_cost</em>, <em>fixed_cost</em>, <em>demand</em>, <em>purchase_cost=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.wagner_whitin.wagner_whitin" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.wagner_whitin.wagner_whitin">
+<span class="sig-prename descclassname"><span class="pre">pyinv.wagner_whitin.</span></span><span class="sig-name descname"><span class="pre">wagner_whitin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.wagner_whitin.wagner_whitin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the Wagner-Whitin problem using dynamic programming (DP).</p>
 <p>The time periods are indexed 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>. Lists given in
 outputs use the same indexing, which means that element 0
@@ -182,46 +184,42 @@ singleton, the parameter will be assumed to be the same in every time
 period. If given as a list, the list must be of length <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> or
 <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>+1.</p>
 <ul class="simple">
-<li>In the former case, the list is assumed to contain values for periods
-1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 0, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>-1.</li>
-<li>In the latter case, the list is assumed to contain values for periods
+<li><p>In the former case, the list is assumed to contain values for periods
+1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 0, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>-1.</p></li>
+<li><p>In the latter case, the list is assumed to contain values for periods
 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>, and the
-0th element is ignored.</li>
+0th element is ignored.</p></li>
 </ul>
 <p>The parameters may be mixed, some scalars and some lists.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>num_periods</strong> (<em>int</em>) – Number of periods in time horizon. [<span class="math notranslate nohighlight">\(T\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand</strong> (<em>float</em><em> or </em><em>list</em>) – Demand in each time period. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>purchase_cost</strong> (<em>float</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Purchase cost per item. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_periods</strong> (<em>int</em>) – Number of periods in time horizon. [<span class="math notranslate nohighlight">\(T\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand</strong> (<em>float</em><em> or </em><em>list</em>) – Demand in each time period. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>purchase_cost</strong> (<em>float</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Purchase cost per item. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>order_quantities</strong> (<em>list</em>) – List of order quantities in each time period. [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Optimal cost for entire horizon. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-<li><strong>costs_to_go</strong> (<em>list</em>) – List of “costs to go”. [<span class="math notranslate nohighlight">\(\theta\)</span>]</li>
-<li><strong>next_order_periods</strong> (<em>list</em>) – List of “next order” period. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantities</strong> (<em>list</em>) – List of order quantities in each time period. [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Optimal cost for entire horizon. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+<li><p><strong>costs_to_go</strong> (<em>list</em>) – List of “costs to go”. [<span class="math notranslate nohighlight">\(\theta\)</span>]</p></li>
+<li><p><strong>next_order_periods</strong> (<em>list</em>) – List of “next order” period. [<span class="math notranslate nohighlight">\(s\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">demand</span></code>, or <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code> &lt;= 0 for any time period.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">demand</span></code>, or <code class="docutils literal notranslate"><span class="pre">purchase_cost</span></code> &lt;= 0 for any time period.</p>
+</dd>
+</dl>
 <p><strong>Equation Used</strong> (modified from equation (3.39)):</p>
 <div class="math notranslate nohighlight">
 \[\theta_t = \min_{t &lt; s \le T+1} \left\{K + c_t\sum_{i=1}^{s-1}d_i + h\sum_{i=t}^{s-1}(i-t)d_i + \theta_s \right\}\]</div>
 <p><strong>Algorithm Used:</strong> Wagner-Whitin algorithm (Algorithm 3.1)</p>
 <p><strong>Example</strong> (Example 3.9):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">])</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
 <span class="go">[0, 210, 0, 150, 0]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
@@ -234,9 +232,9 @@ period. If given as a list, the list must be of length <code class="docutils lit
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="pyinv.wagner_whitin.wagner_whitin_capac">
-<code class="descclassname">pyinv.wagner_whitin.</code><code class="descname">wagner_whitin_capac</code><span class="sig-paren">(</span><em>num_periods</em>, <em>holding_cost</em>, <em>fixed_cost</em>, <em>demand</em>, <em>purchase_cost=0</em>, <em>capac=inf</em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.wagner_whitin.wagner_whitin_capac" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyinv.wagner_whitin.wagner_whitin_capac">
+<span class="sig-prename descclassname"><span class="pre">pyinv.wagner_whitin.</span></span><span class="sig-name descname"><span class="pre">wagner_whitin_capac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.wagner_whitin.wagner_whitin_capac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the Wagner-Whitin problem using dynamic programming (DP).</p>
 <p>The time periods are indexed 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>. Lists given in
 outputs use the same indexing, which means that element 0
@@ -247,43 +245,39 @@ singleton, the parameter will be assumed to be the same in every time
 period. If given as a list, the list must be of length <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> or
 <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>+1.</p>
 <ul class="simple">
-<li>In the former case, the list is assumed to contain values for periods
-1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 0, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>-1.</li>
-<li>In the latter case, the list is assumed to contain values for periods
+<li><p>In the former case, the list is assumed to contain values for periods
+1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 0, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>-1.</p></li>
+<li><p>In the latter case, the list is assumed to contain values for periods
 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> in elements 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>, and the
-0th element is ignored.</li>
+0th element is ignored.</p></li>
 </ul>
 <p>The parameters may be mixed, some scalars and some lists.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>num_periods</strong> (<em>int</em>) – Number of periods in time horizon. [<span class="math notranslate nohighlight">\(T\)</span>]</li>
-<li><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</li>
-<li><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</li>
-<li><strong>demand</strong> (<em>float</em><em> or </em><em>list</em>) – Demand in each time period. [<span class="math notranslate nohighlight">\(d\)</span>]</li>
-<li><strong>purchase_cost</strong> (<em>float</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Purchase cost per item. [<span class="math notranslate nohighlight">\(c\)</span>]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_periods</strong> (<em>int</em>) – Number of periods in time horizon. [<span class="math notranslate nohighlight">\(T\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Holding cost per item per period. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>fixed_cost</strong> (<em>float</em><em> or </em><em>list</em>) – Fixed cost per order. [<span class="math notranslate nohighlight">\(K\)</span>]</p></li>
+<li><p><strong>demand</strong> (<em>float</em><em> or </em><em>list</em>) – Demand in each time period. [<span class="math notranslate nohighlight">\(d\)</span>]</p></li>
+<li><p><strong>purchase_cost</strong> (<em>float</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Purchase cost per item. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>order_quantities</strong> (<em>list</em>) – List of order quantities in each time period. [<span class="math notranslate nohighlight">\(Q^*\)</span>]</li>
-<li><strong>cost</strong> (<em>float</em>) – Optimal cost for entire horizon. [<span class="math notranslate nohighlight">\(g^*\)</span>]</li>
-<li><strong>costs_to_go</strong> (<em>list</em>) – List of “costs to go”. [<span class="math notranslate nohighlight">\(\theta\)</span>]</li>
-<li><strong>next_order_periods</strong> (<em>list</em>) – List of “next order” period. [<span class="math notranslate nohighlight">\(s\)</span>]</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>order_quantities</strong> (<em>list</em>) – List of order quantities in each time period. [<span class="math notranslate nohighlight">\(Q^*\)</span>]</p></li>
+<li><p><strong>cost</strong> (<em>float</em>) – Optimal cost for entire horizon. [<span class="math notranslate nohighlight">\(g^*\)</span>]</p></li>
+<li><p><strong>costs_to_go</strong> (<em>list</em>) – List of “costs to go”. [<span class="math notranslate nohighlight">\(\theta\)</span>]</p></li>
+<li><p><strong>next_order_periods</strong> (<em>list</em>) – List of “next order” period. [<span class="math notranslate nohighlight">\(s\)</span>]</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Equation Used</strong> (modified from equation (3.39)):</p>
 <div class="math notranslate nohighlight">
 \[\theta_t = \min_{t &lt; s \le T+1} \left\{K + c_t\sum_{i=1}^{s-1}d_i + h\sum_{i=t}^{s-1}(i-t)d_i + \theta_s \right\}\]</div>
 <p><strong>Algorithm Used:</strong> Wagner-Whitin algorithm (Algorithm 3.1)</p>
 <p><strong>Example</strong> (Example 3.9):</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">])</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
 <span class="go">[0, 210, 0, 150, 0]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
