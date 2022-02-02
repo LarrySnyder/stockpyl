@@ -57,12 +57,13 @@ def optimize_base_stock_levels(num_nodes, echelon_holding_cost, lead_time,
 	The nodes in the network must be indexed :math:`N, \\ldots, 1`. The node-specific
 	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
 	a dict, a list, or a singleton, with the following requirements:
-		- If the parameter is a dict, its keys must equal 1,...,``num_nodes``,
-		each corresponding to a node index.
-		- If the parameter is a list, it must have length ``num_nodes``+1;
-		the 0th entry will be ignored and the other entries will correspond to the node indices.
-		- If the parameter is a singleton, all nodes will have that parameter set to the
-		singleton value.
+	
+	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
+	  each corresponding to a node index.
+	* If the parameter is a list, it must have length ``num_nodes`` + 1;
+	  the 0th entry will be ignored and the other entries will correspond to the node indices.
+	* If the parameter is a singleton, all nodes will have that parameter set to the
+	  singleton value.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed)
@@ -174,27 +175,18 @@ def optimize_base_stock_levels(num_nodes, echelon_holding_cost, lead_time,
 
 	.. doctest::
 
-# TODO
-		>>> from pyinv.supply_chain_network import serial_system
-		>>> network = serial_system(
+		>>> S_star, C_star = optimize_base_stock_levels(
 		... 	num_nodes=3, 
-		... 	node_indices=[1, 2, 3], 
 		... 	echelon_holding_cost=[3, 2, 2], 
-		... 	stockout_cost=[37.12, 0, 0], 
-		... 	demand_type='N', 
+		... 	lead_time=[1, 1, 2], 
+		... 	stockout_cost=37.12, 
 		... 	demand_mean=5, 
-		... 	demand_standard_deviation=1, 
-		... 	shipment_lead_time=[1, 1, 2], 
-		... 	inventory_policy_type='BS', 
-		... 	base_stock_levels=[0, 0, 0]
+		... 	demand_standard_deviation=1
 		...	)
-		>>> S_star, C_star = optimize_base_stock_levels(network)
 		>>> S_star
 		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
 		>>> C_star
 		47.668653127136345
-
-
 	"""
 
 	# TODO: handle other indexing (other than N ... 1)
@@ -364,7 +356,7 @@ def optimize_base_stock_levels_from_network(network, S=None, plots=False, x=None
 		... 	inventory_policy_type='BS', 
 		... 	base_stock_levels=[0, 0, 0]
 		...	)
-		>>> S_star, C_star = optimize_base_stock_levels(network)
+		>>> S_star, C_star = optimize_base_stock_levels_from_network(network)
 		>>> S_star
 		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
 		>>> C_star
