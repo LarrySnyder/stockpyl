@@ -16,30 +16,6 @@ Clark and Scarf (1960), as described in Snyder and Shen (2019).
 The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` objects
 that it contains, which contain all of the data for the SSM instance.
 
-The following parameters are used to specify input data:
-
-	* Node-level parameters
-
-		- **echelon_holding_cost** [:math:`h`]
-		- **stockout_cost** [:math:`p`]
-		- **lead_time** [:math:`L`]
-		- **mean** [:math:`\\mu`]
-		- **standard_deviation** [:math:`\\sigma`]
-
-	* Edge-level parameters
-
-		(None.)
-
-The following attributes are used to store outputs and intermediate values:
-
-	* Graph-level parameters
-
-		(None.)
-	
-	* Node-level parameters
-	
-		(None.)
-
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
@@ -51,6 +27,7 @@ F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory syst
 A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
 """
 
+from multiprocessing.sharedctypes import Value
 import numpy as np
 from scipy import stats
 #import math
@@ -58,38 +35,62 @@ import matplotlib.pyplot as plt
 import copy
 
 from pyinv.helpers import *
+from pyinv.supply_chain_network import *
 
 
 ### OPTIMIZATION ###
 
-def optimize_base_stock_levels(network, S=None, plots=False, x=None,
-							   x_num=1000, d_num=100,
-							   ltd_lower_tail_prob=1-stats.norm.cdf(4),
-							   ltd_upper_tail_prob=1-stats.norm.cdf(4),
-							   sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
-							   sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
+def optimize_base_stock_levels(num_nodes, echelon_holding_cost, lead_time,
+								stockout_cost, demand_mean=None, demand_standard_deviation=None,
+								demand_source=None, S=None, plots=False, x=None,
+								x_num=1000, d_num=100,
+								ltd_lower_tail_prob=1-stats.norm.cdf(4),
+								ltd_upper_tail_prob=1-stats.norm.cdf(4),
+								sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+								sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
 	"""Chen-Zheng (1994) algorithm for stochastic serial systems under
 	stochastic service model (SSM), as described in Snyder and Shen (2019).
 
-	Stages must be indexed :math:`N, \\ldots, 1`.
+	This function is essentially a wrapper, creating a ``SupplyChainNetwork``
+	object and passing it to :func:`optimize_base_stock_levels_from_network`.
 
-	The nodes in ``network`` must provide the following attributes:
+	The nodes in the network must be indexed :math:`N, \\ldots, 1`. The node-specific
+	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
+	a dict, a list, or a singleton, with the following requirements:
+		- If the parameter is a dict, its keys must equal 1,...,``num_nodes``,
+		each corresponding to a node index.
+		- If the parameter is a list, it must have length ``num_nodes``+1;
+		the 0th entry will be ignored and the other entries will correspond to the node indices.
+		- If the parameter is a singleton, all nodes will have that parameter set to the
+		singleton value.
 
-		* **echelon_holding_cost**
-		* **lead_time** (optional, default=0)
-		* **stockout_cost** (node 1 only)
-		* **demand_source** (node 1 only)
+	Either ``demand_mean`` and ``demand_standard_deviation`` must be
+	provided (in which case the demand will be assumed to be normally distributed)
+	or a ``demand_source`` must be provided.
 
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
-		The serial inventory network.
+	num_nodes : int
+		Number of nodes in serial system. [:math:`N`]
+	echelon_holding_cost : float, list, or dict
+		Echelon holding cost at each node. [:math:`h`]
+	lead_time : float, list, or dict
+		(Shipment) lead time at each node. [:math:`L`]
+	stockout_cost : float
+		Stockout cost per item per unit time at node 1. [:math:`p`]
+	demand_mean : float, optional
+		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
+	demand_standard_deviation : float, optional
+		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
+	demand_source : DemandSource, optional
+		A DemandSource object describing the demand distribution. Required if
+		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
 	S : dict, optional
 		Dict of echelon base-stock levels to evaluate. If present, no
 		optimization is performed and the function just returns the cost
 		under base-stock levels ``S``; to optimize instead, set ``S`` = ``None``
-		(the default).
+		(the default). [:math:`S`]
 	plots : bool, optional
 		``True`` for the function to generate plots of :math:`C(\\cdot)` functions,
 		``False`` otherwise.
@@ -117,9 +118,187 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 	Returns
 	-------
 	S_star : dict
-		Dict of optimal echelon base-stock levels.
+		Dict of optimal echelon base-stock levels. [:math:`S^*`]
 	C_star : float
-		Optimal expected cost.
+		Optimal expected cost. [:math:`C^*`]
+
+	Raises
+	------
+	ValueError
+		If ``stockout_cost`` is ``None`` or if ``echelon_holding_cost`` or
+		``lead_time`` is ``None`` for any node.
+	ValueError
+		If ``demand_mean`` or ``demand_standard_deviation`` is ``None`` and 
+		``demand_source`` is ``None``.
+	ValueError
+		If ``stockout_cost`` < 0 or if ``lead_time`` < 0 for any node.
+		
+
+	**Equations Used**: 
+
+	.. math::
+
+		\\underline{g}_0(x) = (p+h'_1)x^-
+	
+	For :math:`j=1,\\ldots,N`:
+
+	.. math::
+
+		\\begin{gather*}
+		\\hat{g}_j(x) = h_jx + \\underline{g}_{j-1}(x) \\\\
+		g_j(y) = E\left[\hat{g}_j(y-D_j)\\right] \\\\
+		S^*_j = \\mathrm{argmin} \\{g_j(y)\\} \\\\
+		\\underline{g}_j(x) = g_j(\\min\\{S_j^*,x\\})
+		\\end{gather*}
+
+
+	The range of :math:`x` values considered is discretized and truncated. 
+	The :math:`\\hat{g}_j(x)` functions sometimes need to be evaluated for :math:`x`
+	values outside this range. For those values, the following limits provide linear 
+	approximations that are used instead (see Problem 6.13):
+
+	.. math::
+
+		\\begin{gather*}
+		\\lim_{x \\rightarrow -\\infty} \\hat{g}_j(x) = \\sum_{i=1}^j h_i\\left(x - \\sum_{k=i}^{j-1} E[D_k]\\right) - (p+h'_1)\\left(x - \\sum_{k=1}^{j-1} E[D_k]\\right) \\\\
+		\\lim_{x \\rightarrow +\\infty} \\hat{g}_j(x) = \\begin{cases} h_jx + g_{j-1}(S^*_{j-1}), & \\text{if $j>1$} \\\\
+															h_jx, & \\text{if $j=1$} \\end{cases}
+		\\end{gather*}
+
+
+	**Example** (Example 6.1):
+
+	.. testsetup:: *
+
+		from pyinv.ssm_serial import *
+
+	.. doctest::
+
+# TODO
+		>>> from pyinv.supply_chain_network import serial_system
+		>>> network = serial_system(
+		... 	num_nodes=3, 
+		... 	node_indices=[1, 2, 3], 
+		... 	echelon_holding_cost=[3, 2, 2], 
+		... 	stockout_cost=[37.12, 0, 0], 
+		... 	demand_type='N', 
+		... 	demand_mean=5, 
+		... 	demand_standard_deviation=1, 
+		... 	shipment_lead_time=[1, 1, 2], 
+		... 	inventory_policy_type='BS', 
+		... 	base_stock_levels=[0, 0, 0]
+		...	)
+		>>> S_star, C_star = optimize_base_stock_levels(network)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+
+	"""
+
+	# TODO: handle other indexing (other than N ... 1)
+
+	# Build dicts of parameters.
+	indices = list(range(1, num_nodes+1))
+	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices)
+	lead_time_dict = ensure_dict_for_nodes(lead_time, indices)
+	stockout_cost_dict = {n: stockout_cost if n == 1 else 0 for n in indices}
+	# For demand_mean and demand_sd, replace None with 0 because serial_system doesn't allow None
+	# for normal demand and we'll be temporarily setting it to normal.
+	demand_mean_dict = {n: demand_mean or 0 if n == 1 else 0 for n in indices}
+	demand_standard_deviation_dict = {n: demand_standard_deviation or 0 if n == 1 else 0 for n in indices}
+	
+	# Validate parameters.
+	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
+	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
+	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
+	if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
+	elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	if (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
+		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
+
+	# Build SupplyChainNetwork.
+	# (Temporarily set demand to normal, even if it's not.)
+	network = serial_system(
+		num_nodes=num_nodes,
+		node_indices=indices,
+		echelon_holding_cost=echelon_holding_cost_dict,
+		stockout_cost=stockout_cost_dict,
+		shipment_lead_time=lead_time_dict,
+		demand_type='N',
+		demand_mean=demand_mean_dict,
+		demand_standard_deviation=demand_standard_deviation_dict,
+		inventory_policy_type='BS',
+		base_stock_levels=[0 for n in indices]
+	)
+	# If demand_source was provided, replace demand_source in network with it.
+	# (serial_system() does not accept demand_source as an argument; this is a workaround.)
+	if demand_source is not None:
+		network.get_node_from_index(1).demand_source = demand_source
+
+	return optimize_base_stock_levels_from_network(network, S, plots, x, x_num, d_num, ltd_lower_tail_prob, \
+		ltd_upper_tail_prob, sum_ltd_lower_tail_prob, sum_ltd_upper_tail_prob)
+
+
+def optimize_base_stock_levels_from_network(network, S=None, plots=False, x=None,
+							   x_num=1000, d_num=100,
+							   ltd_lower_tail_prob=1-stats.norm.cdf(4),
+							   ltd_upper_tail_prob=1-stats.norm.cdf(4),
+							   sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+							   sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
+	"""Chen-Zheng (1994) algorithm for stochastic serial systems under
+	stochastic service model (SSM), as described in Snyder and Shen (2019).
+	Takes as input a ``SupplyChainNetwork`` that contains the problem data.
+
+	The nodes in ``network`` must be indexed :math:`N, \\ldots, 1`. They
+	must provide the following attributes:
+
+		* **echelon_holding_cost**
+		* **lead_time** (optional, default=0)
+		* **stockout_cost** (node 1 only)
+		* **demand_source** (node 1 only)
+
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	S : dict, optional
+		Dict of echelon base-stock levels to evaluate. If present, no
+		optimization is performed and the function just returns the cost
+		under base-stock levels ``S``; to optimize instead, set ``S`` = ``None``
+		(the default). [:math:`S`]
+	plots : bool, optional
+		``True`` for the function to generate plots of :math:`C(\\cdot)` functions,
+		``False`` otherwise.
+	x : ndarray, optional
+		x-array to use for truncation and discretization, or ``None`` (the default)
+		to determine automatically.
+	x_num : int, optional
+		Number of discretization intervals to use for ``x`` range. Ignored if
+		``x`` is provided.
+	d_num : int, optional
+		Number of discretization intervals to use for ``d`` range.
+	ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating lead-time demand
+		distribution.
+	ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating lead-time demand
+		distribution.
+	sum_ltd_lower_tail_prob : float, optional
+		Lower tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+	sum_ltd_upper_tail_prob : float, optional
+		Upper tail probability to use when truncating "sum-of-lead-times"
+		demand distribution.
+
+	Returns
+	-------
+	S_star : dict
+		Dict of optimal echelon base-stock levels. [:math:`S^*`]
+	C_star : float
+		Optimal expected cost. [:math:`C^*`]
 
 	Raises
 	------
@@ -132,7 +311,7 @@ def optimize_base_stock_levels(network, S=None, plots=False, x=None,
 		If ``lead_time`` < 0 for any node or if ``stockout_cost`` < 0 for node 1.
 		
 
-	**Equations Used** (Theorem 6.3):
+	**Equations Used**: See documentation for :func:`optimize_base_stock_levels`.
 
 	.. math::
 
@@ -538,7 +717,7 @@ def expected_cost(network, echelon_S, x_num=1000, d_num=100,
 	cost : float
 		Expected cost of system.
 	"""
-	_, cost = optimize_base_stock_levels(network, S=echelon_S, plots=False,
+	_, cost = optimize_base_stock_levels_from_network(network, S=echelon_S, plots=False,
 										 x=None, x_num=x_num, d_num=d_num,
 										 ltd_lower_tail_prob=ltd_lower_tail_prob,
 										 ltd_upper_tail_prob=ltd_upper_tail_prob,
@@ -592,7 +771,7 @@ def expected_holding_cost(network, echelon_S, x_num=1000, d_num=100,
 	for node in network2.nodes:
 		node.stockout_cost = 0
 
-	_, holding_cost = optimize_base_stock_levels(network2, S=echelon_S,
+	_, holding_cost = optimize_base_stock_levels_from_network(network2, S=echelon_S,
 								plots=False, x=None, x_num=x_num, d_num=d_num,
 								ltd_lower_tail_prob=ltd_lower_tail_prob,
 								ltd_upper_tail_prob=ltd_upper_tail_prob,
