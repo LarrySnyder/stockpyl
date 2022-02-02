@@ -30,6 +30,8 @@ from pyinv.helpers import *
 # DemandSource Class
 # ===============================================================================
 
+# TODO: handle Poisson and custom continuous
+
 class DemandSource(object):
 	"""
 	Attributes

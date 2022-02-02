@@ -34,6 +34,7 @@ from build.lib.pyinv.demand_source import DemandSource
 
 from pyinv.helpers import *
 #from pyinv.supply_chain_network import *
+from pyinv.newsvendor import *
 
 
 ### OPTIMIZATION ###
@@ -233,7 +234,7 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	h = [0] + [echelon_holding_cost_dict[j] for j in range(1, N+1)]
 	p = stockout_cost
 
-	# Build (or get) "sum of lead-time demand" distribution (LTD distribution in
+	# Build "sum of lead-time demand" distribution (LTD distribution in
 	# which L = sum of all lead times)
 	if demand_source is None:
 		demand_source = DemandSource()
@@ -422,6 +423,205 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		plt.show()
 
 	return S_star, C_star[N]	
+
+
+def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=None,
+								stockout_cost=None, demand_mean=None, demand_standard_deviation=None,
+								demand_source=None, network=None, weight=0.5):
+	"""Shang-Song (2003) heuristic for stochastic serial systems under
+	stochastic service model (SSM), as described in Snyder and Shen (2019).
+
+	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
+	or in the ``network`` parameter.
+
+	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
+	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
+	a dict, a list, or a singleton, with the following requirements:
+	
+	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
+	  each corresponding to a node index.
+	* If the parameter is a list, it must have length ``num_nodes`` + 1;
+	  the 0th entry will be ignored and the other entries will correspond to the node indices.
+	* If the parameter is a singleton, all nodes will have that parameter set to the
+	  singleton value.
+
+	Either ``demand_mean`` and ``demand_standard_deviation`` must be
+	provided (in which case the demand will be assumed to be normally distributed)
+	or a ``demand_source`` must be provided.
+
+
+	Parameters
+	----------
+	num_nodes : int, optional
+		Number of nodes in serial system. [:math:`N`]
+	echelon_holding_cost : float, list, or dict, optional
+		Echelon holding cost at each node. [:math:`h`]
+	lead_time : float, list, or dict, optional
+		(Shipment) lead time at each node. [:math:`L`]
+	stockout_cost : float, optional
+		Stockout cost per item per unit time at node 1. [:math:`p`]
+	demand_mean : float, optional
+		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
+	demand_standard_deviation : float, optional
+		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
+	demand_source : DemandSource, optional
+		A DemandSource object describing the demand distribution. Required if
+		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
+	network : SupplyChainNetwork, optional
+		A SupplyChainNetwork object that provides all of the necessary data. If provided,
+		``num_nodes``, ..., ``demand_source`` are ignored.
+	weight : float, optional
+		Weight to use in weighted sum of lower- and upper-bound base-stock levels. 
+
+	Returns
+	-------
+	S_heur : dict
+		Dict of heuristic echelon base-stock levels. [:math:`\\tilde{S}`]
+
+	Raises
+	------
+	ValueError
+		If ``network`` is ``None`` and ``num_nodes``, ..., ``stockout_cost`` are ``None``.
+	ValueError
+		If ``stockout_cost`` is ``None`` or if ``echelon_holding_cost`` or
+		``lead_time`` is ``None`` for any node.
+	ValueError
+		If ``demand_mean`` or ``demand_standard_deviation`` is ``None`` and 
+		``demand_source`` is ``None``.
+	ValueError
+		If ``stockout_cost`` < 0 or if ``lead_time`` < 0 for any node.
+		
+
+	**Equation Used** (equation (6.32)): 
+
+	.. math::
+
+		\\tilde{S}_j = \\texttt{weight}\\tilde{F}_j^{-1}\\left(\\frac{p+\\sum_{i=j+1}^N h_i}{p+\\sum_{i=j}^N h_i}\\right) + (1-\\texttt{weight})\\tilde{F}_j^{-1}\\left(\\frac{p+\\sum_{i=j+1}^N h_i}{p+\\sum_{i=1}^N h_i}\\right)
+	
+	for :math:`j=1,\\ldots,N`.
+
+
+	**Example** (Example 6.1):
+
+	.. testsetup:: *
+
+		from pyinv.ssm_serial import *
+
+	.. doctest::
+
+		>>> S_heur = newsvendor_heuristic(
+		...		num_nodes=3, 
+		...		echelon_holding_cost=[3, 2, 2], 
+		...		lead_time=[1, 1, 2], 
+		...		stockout_cost=37.12, 
+		...		demand_mean=5, 
+		...		demand_standard_deviation=1
+		...		)
+		>>> S_heur # (optimal is {1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784})
+		{1: 6.490880975286938, 2: 12.027434723327854, 3: 22.634032391786285}
+		>>> # Calculate expected cost of heuristic solution. (optimal is 47.668653127136345)
+		>>> expected_cost(
+		...		echelon_S=S_heur,
+		...		num_nodes=3, 
+		...		echelon_holding_cost=[3, 2, 2], 
+		...		lead_time=[1, 1, 2], 
+		...		stockout_cost=37.12, 
+		...		demand_mean=5, 
+		...		demand_standard_deviation=1
+		...		)
+		47.68009914084217
+	"""
+
+	# Check for presence of data.
+	if network is None and (num_nodes is None or echelon_holding_cost is None or \
+		lead_time is None or stockout_cost is None):
+		raise ValueError("You must provide either network or num_nodes, ..., stockout_cost")
+
+	# Convert network to parameters, if network provided.
+	if network:
+		num_nodes = len(network.nodes)
+		echelon_holding_cost = {node.index: node.echelon_holding_cost for node in network.nodes}
+		lead_time = {node.index: node.lead_time for node in network.nodes}
+		stockout_cost = network.get_node_from_index(1).stockout_cost
+		demand_source = network.get_node_from_index(1).demand_source
+
+	# Build dicts of parameters.
+	indices = list(range(1, num_nodes+1))
+	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices)
+	lead_time_dict = ensure_dict_for_nodes(lead_time, indices, 0)
+	stockout_cost_dict = {n: stockout_cost if n == 1 else 0 for n in indices}
+	
+	# Validate parameters.
+	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
+	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
+	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
+	if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
+	elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	if (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
+		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
+
+	# Get shortcuts to some parameters (for convenience).
+	N = num_nodes
+	if demand_source is None:
+		mu = demand_mean
+		sigma = demand_standard_deviation
+	else:
+		mu = demand_source.demand_distribution.mean()
+		sigma = demand_source.demand_distribution.std()
+	L = [0] + [lead_time_dict[j] for j in range(1, N+1)]
+	h = [0] + [echelon_holding_cost_dict[j] for j in range(1, N+1)]
+	p = stockout_cost
+
+	# Build "sum of lead-time demand" distributions (LTD distribution in
+	# which L = sum of lead times of stages 1, ..., j) for j = 1, ..., N.
+	sum_ltd_dist = {}
+	if demand_source is None:
+		demand_source = DemandSource()
+		demand_source.type = 'N'
+		demand_source.mean = demand_mean
+		demand_source.standard_deviation = demand_standard_deviation
+	for j in indices:
+		sum_ltd_dist[j] = demand_source.lead_time_demand_distribution(float(np.sum(L[1:(j+1)])))
+
+	# TODO: unit tests for non-normal demand distributions
+	
+	# Solve newsvendor problems.
+	S_heur = {}
+	for j in indices:
+		# Calculate effective holding and stockout costs.
+		p_eff = p + np.sum(h[j+1:])
+		h_eff_u = h[j]
+		h_eff_l = np.sum(h[1:j+1])
+		if demand_source.type == 'N':
+			# Normal.
+			# Calculate parameters of LTD distribution.
+			mu_ltd = mu * np.sum(L[1:j+1])
+			sigma_ltd = sigma * np.sqrt(np.sum(L[1:j+1]))
+			# Calculate newsvendor quantities.
+			S_u, _ = newsvendor_normal(h_eff_u, p_eff, mu_ltd, sigma_ltd)
+			S_l, _ = newsvendor_normal(h_eff_l, p_eff, mu_ltd, sigma_ltd)
+		elif demand_source.type == 'UC':
+			# Uniform continuous.
+			# TODO: handle other continuous distributions (in DemandSource() too)
+			# Build LTD distribution.
+			ltd_distrib = demand_source.lead_time_demand_distribution(float(np.sum(L[1:(j+1)])))
+			# Calculate newsvendor quantities.
+			S_u, _ = newsvendor_continuous(h_eff_u, stockout_cost, ltd_distrib)
+			S_l, _ = newsvendor_continuous(h_eff_l, stockout_cost, ltd_distrib)
+		elif demand_source.type in ('UD', 'CD'):
+			# Discrete.
+			# Build LTD distribution.
+			ltd_distrib = demand_source.lead_time_demand_distribution(float(np.sum(L[1:(j+1)])))
+			# Calculate newsvendor quantities.
+			S_u, _ = newsvendor_discrete(h_eff_u, stockout_cost, ltd_distrib)
+			S_l, _ = newsvendor_discrete(h_eff_l, stockout_cost, ltd_distrib)
+		else:
+			raise ValueError(f"demand_source.type '{demand_source.type}' is not supported")
+		
+		# Take weighted average.
+		S_heur[j] = weight * S_l + (1 - weight) * S_u
+
+	return S_heur
 
 
 ### COST-RELATED FUNCTIONS ###

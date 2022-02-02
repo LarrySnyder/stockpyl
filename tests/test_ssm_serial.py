@@ -251,6 +251,210 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			)
 
 
+class TestNewsvendorHeuristic(unittest.TestCase):
+
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorHeuristic', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorHeuristic', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that newsvendor_heuristic() correctly optimizes
+		network in Example 6.1.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_example_6_1()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		S_heur = newsvendor_heuristic(
+			num_nodes=len(instance.nodes),
+			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+			stockout_cost=instance.get_node_from_index(1).stockout_cost,
+			demand_mean=instance.get_node_from_index(1).demand_source.mean,
+			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			demand_source=None)
+		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+	def test_example_6_1_from_network(self):
+		"""Test that newsvendor_heuristic() correctly optimizes
+		network in Example 6.1 when provided as a network object.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_example_6_1()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		S_heur = newsvendor_heuristic(network=instance)
+		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+		
+	def test_problem_6_1(self):
+		"""Test that newsvendor_heuristic() correctly optimizes network in
+		Problem 6.1.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_problem_6_1()')
+
+		instance = copy.deepcopy(get_named_instance("problem_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2})
+
+		S_heur = newsvendor_heuristic(
+			num_nodes=len(instance.nodes),
+			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+			stockout_cost=instance.get_node_from_index(1).stockout_cost,
+			demand_mean=instance.get_node_from_index(1).demand_source.mean,
+			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			demand_source=None)
+		correct_S_heur = [0, 123.4708970704270, 228.8600539144440]
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+
+	def test_problem_6_2a(self):
+		"""Test that newsvendor_heuristic() correctly optimizes network in
+		Problem 6.2a.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_problem_6_2a()')
+
+		instance = copy.deepcopy(get_named_instance("problem_6_2a"))
+		instance.reindex_nodes({n: n+1 for n in instance.node_indices})
+
+		S_heur = newsvendor_heuristic(
+			num_nodes=len(instance.nodes),
+			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+			stockout_cost=instance.get_node_from_index(1).stockout_cost,
+			demand_mean=instance.get_node_from_index(1).demand_source.mean,
+			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			demand_source=None)
+		correct_S_heur = [0, 40.5867040168793, 74.4580698705858, 109.5962562657559, 142.8985667640439, 175.8329858066735]
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+	# def test_example_6_1_uniform(self):
+	# 	"""Test that newsvendor_heuristic() correctly optimizes
+	# 	network in Example 6.1 with uniform demand_list.
+	# 	"""
+
+	# 	print_status('TestNewsvendorHeuristic', 'test_example_6_1_uniform()')
+
+	# 	instance = copy.deepcopy(get_named_instance("example_6_1"))
+	# 	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+	# 	for n in instance.nodes:
+	# 		if n.index == 1:
+	# 			demand_source = DemandSource()
+	# 			demand_source.type = 'UC'
+	# 			demand_source.lo = 5 - np.sqrt(12) / 2
+	# 			demand_source.hi = 5 + np.sqrt(12) / 2
+	# 		else:
+	# 			demand_source = None
+	# 		n.demand_source = demand_source
+
+		# TODO: this
+
+		# S_heur = newsvendor_heuristic(
+		# 	num_nodes=len(instance.nodes),
+		# 	echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+		# 	lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+		# 	stockout_cost=instance.get_node_from_index(1).stockout_cost,
+		# 	demand_mean=instance.get_node_from_index(1).demand_source.mean,
+		# 	demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+		# 	demand_source=None)
+		# correct_S_heur = [0, 40.5867040168793, 74.4580698705858, 109.5962562657559, 142.8985667640439, 175.8329858066735]
+		# for n in instance.node_indices:
+		# 	self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+
+	def test_bad_parameters(self):
+		"""Test that newsvendor_heuristic() correctly raises exceptions if
+		bad parameters are given.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_bad_parameters()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance.get_node_from_index(2).shipment_lead_time = -20
+		with self.assertRaises(ValueError):
+			S_heur = newsvendor_heuristic(
+				num_nodes=len(instance.nodes),
+				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				demand_mean=instance.get_node_from_index(1).demand_source.mean,
+				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				demand_source=None)
+		
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance.get_node_from_index(1).stockout_cost = None
+		with self.assertRaises(ValueError):
+			S_heur = newsvendor_heuristic(
+				num_nodes=len(instance.nodes),
+				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				demand_mean=instance.get_node_from_index(1).demand_source.mean,
+				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				demand_source=None)
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance.get_node_from_index(1).stockout_cost = -2
+		with self.assertRaises(ValueError):
+			S_heur = newsvendor_heuristic(
+				num_nodes=len(instance.nodes),
+				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				demand_mean=instance.get_node_from_index(1).demand_source.mean,
+				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				demand_source=None)
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance.get_node_from_index(2).echelon_holding_cost = None
+		with self.assertRaises(ValueError):
+			S_heur = newsvendor_heuristic(
+				num_nodes=len(instance.nodes),
+				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				demand_mean=instance.get_node_from_index(1).demand_source.mean,
+				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				demand_source=None)
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance.get_node_from_index(1).demand_source = None
+		instance.get_node_from_index(1).demand_mean = None
+		instance.get_node_from_index(1).demand_standard_deviation = 10
+		with self.assertRaises(ValueError):
+			S_heur = newsvendor_heuristic(
+				num_nodes=len(instance.nodes),
+				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				demand_mean=None,
+				demand_standard_deviation=10,
+				demand_source=None)
+
+
 class TestExpectedCost(unittest.TestCase):
 
 	@classmethod
