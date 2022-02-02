@@ -1,4 +1,4 @@
-"""Input-output code for simulating multi-echelon pyinv systems.
+"""Input-output code for simulating multi-echelon stockpyl systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -24,7 +24,7 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	Parameters
 	----------
 	network : SupplyChainNetwork
-		The multi-echelon pyinv network.
+		The multi-echelon inventory network.
 	num_periods : int
 		Number of periods in simulation.
 	total_cost : float

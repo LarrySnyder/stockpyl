@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - ssm_serial Module
+# stockpyl - ssm_serial Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -30,10 +30,10 @@ from scipy import stats
 #import math
 import matplotlib.pyplot as plt
 import copy
-from build.lib.pyinv.demand_source import DemandSource
+from build.lib.stockpyl.demand_source import DemandSource
 
 from stockpyl.helpers import *
-#from pyinv.supply_chain_network import *
+#from stockpyl.supply_chain_network import *
 
 
 ### OPTIMIZATION ###
@@ -166,7 +166,7 @@ def optimize_base_stock_levels(num_nodes, echelon_holding_cost, lead_time,
 
 	.. testsetup:: *
 
-		from pyinv.ssm_serial import *
+		from stockpyl.ssm_serial import *
 
 	.. doctest::
 
@@ -509,11 +509,11 @@ def optimize_base_stock_levels_from_network(network, S=None, plots=False, x=None
 
 	.. testsetup:: *
 
-		from pyinv.ssm_serial import *
+		from stockpyl.ssm_serial import *
 
 	.. doctest::
 
-		>>> from pyinv.supply_chain_network import serial_system
+		>>> from stockpyl.supply_chain_network import serial_system
 		>>> network = serial_system(
 		... 	num_nodes=3, 
 		... 	node_indices=[1, 2, 3], 

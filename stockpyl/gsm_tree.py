@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - gsm_tree Module
+# stockpyl - gsm_tree Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
-for multi-echelon pyinv systems with tree structures by Graves and Willems (2000).
+for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
 
 'node' and 'stage' are used interchangeably in the documentation.
 
@@ -911,7 +911,7 @@ def calculate_c(tree, k, S, SI, theta_in_partial, theta_out_partial):
 	cost : float
 		Value of c_k(S,SI).
 	stage_cost : float
-		Cost to hold pyinv at stage k (only) given CSTs of SI and S.
+		Cost to hold inventory at stage k (only) given CSTs of SI and S.
 	best_upstream_S : dict
 		Dict indicating, for each i that is immediately upstream from k,
 		the best outbound CST for node_k i given k's CSTs of SI and S.

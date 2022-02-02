@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - rq Module
+# stockpyl - rq Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -76,7 +76,7 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -165,7 +165,7 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -277,7 +277,7 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -378,7 +378,7 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -457,7 +457,7 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -543,7 +543,7 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -643,7 +643,7 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 
@@ -723,7 +723,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.rq import *
+		from stockpyl.rq import *
 
 	.. doctest::
 

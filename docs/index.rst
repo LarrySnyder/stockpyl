@@ -1,4 +1,4 @@
-PyInv Documentation
+stockpyl Documentation
 ===================
 
 .. toctree::

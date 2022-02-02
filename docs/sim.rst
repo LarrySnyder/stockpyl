@@ -1,5 +1,5 @@
 ``sim`` Module
 ========================
 
-.. automodule:: pyinv.sim
+.. automodule:: stockpyl.sim
     :members:

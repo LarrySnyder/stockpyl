@@ -1,5 +1,5 @@
 ``eoq`` Module
 ==============
 
-.. automodule:: pyinv.eoq
+.. automodule:: stockpyl.eoq
     :members:

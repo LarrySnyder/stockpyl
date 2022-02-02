@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - finite_horizon Module
+# stockpyl - finite_horizon Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2020
@@ -229,7 +229,7 @@ def finite_horizon_dp(
 
 	.. testsetup:: *
 
-		from pyinv.finite_horizon import *
+		from stockpyl.finite_horizon import *
 
 	.. doctest::
 
@@ -579,7 +579,7 @@ def myopic_bounds(
 
 	where :math:`G_t(y)` is the myopic newsvendor cost function in period :math:`t`,
 	denoted :math:`G_i(y)` in Veinott (1966) and
-	as :math:`C^+(t,y)` in Zipkin (2000), and is implemented in ``pyinv.newsvendor.myopic()``.)
+	as :math:`C^+(t,y)` in Zipkin (2000), and is implemented in ``stockpyl.newsvendor.myopic()``.)
 
 	In the fourth equation, if :math:`K_t - \\gamma_tK_{t+1} < 0`, then :math:`\\bar{s}_t` is invalid and
 	``s_overbar[t]`` is set to ``None``.
@@ -597,7 +597,7 @@ def myopic_bounds(
 
 	.. testsetup:: *
 
-		from pyinv.finite_horizon import *
+		from stockpyl.finite_horizon import *
 
 	.. doctest::
 

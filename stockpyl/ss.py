@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - ss Module
+# stockpyl - ss Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -24,7 +24,7 @@ from scipy.optimize import fsolve
 
 from stockpyl.newsvendor import *
 from stockpyl.eoq import *
-#import pyinv.loss_functions as lf
+#import stockpyl.loss_functions as lf
 
 
 def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
@@ -93,7 +93,7 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 
 	.. testsetup:: *
 
-		from pyinv.ss import *
+		from stockpyl.ss import *
 
 	.. doctest::
 
@@ -214,7 +214,7 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 	.. testsetup:: *
 
-		from pyinv.ss import *
+		from stockpyl.ss import *
 
 	.. doctest::
 
@@ -395,7 +395,7 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.ss import *
+		from stockpyl.ss import *
 
 	.. doctest::
 

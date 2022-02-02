@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - wagner_whitin Module
+# stockpyl - wagner_whitin Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -86,7 +86,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 
 	.. testsetup:: *
 
-		from pyinv.wagner_whitin import *
+		from stockpyl.wagner_whitin import *
 
 	.. doctest::
 
@@ -210,7 +210,7 @@ def wagner_whitin_capac(num_periods, holding_cost, fixed_cost, demand, purchase_
 
 	.. testsetup:: *
 
-		from pyinv.wagner_whitin import *
+		from stockpyl.wagner_whitin import *
 
 	.. doctest::
 

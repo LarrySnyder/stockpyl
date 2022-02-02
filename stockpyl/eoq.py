@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - eoq Module
+# stockpyl - eoq Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -63,7 +63,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantit
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from stockpyl.eoq import *
 
 	.. doctest::
 
@@ -140,7 +140,7 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from stockpyl.eoq import *
 
 	.. doctest::
 
@@ -220,7 +220,7 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from stockpyl.eoq import *
 
 	.. doctest::
 
@@ -304,7 +304,7 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 
 	.. testsetup:: *
 
-		from pyinv.eoq import *
+		from stockpyl.eoq import *
 
 	.. doctest::
 

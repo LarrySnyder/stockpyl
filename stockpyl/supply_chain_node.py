@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - SupplyChainNode Class
+# stockpyl - SupplyChainNode Class
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 03-06-2020
@@ -83,7 +83,7 @@ class SupplyChainNode(object):
 	demand_source : DemandSource
 		Demand source object.
 	initial_inventory_level : float
-		Initial pyinv level.
+		Initial inventory level.
 	initial_orders : float # TODO: allow list
 		Initial outbound order quantity.
 	initial shipments : float # TODO: allow list

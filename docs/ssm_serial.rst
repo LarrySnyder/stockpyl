@@ -1,5 +1,5 @@
 ``ssm_serial`` Module
 =====================
 
-.. automodule:: pyinv.ssm_serial
+.. automodule:: stockpyl.ssm_serial
     :members:

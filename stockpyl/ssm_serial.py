@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - ssm_serial Module
+# stockpyl - ssm_serial Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -30,10 +30,10 @@ from scipy import stats
 #import math
 import matplotlib.pyplot as plt
 import copy
-from build.lib.pyinv.demand_source import DemandSource
 
+from stockpyl.demand_source import DemandSource
 from stockpyl.helpers import *
-#from pyinv.supply_chain_network import *
+#from stockpyl.supply_chain_network import *
 from stockpyl.newsvendor import *
 
 
@@ -176,7 +176,7 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 
 	.. testsetup:: *
 
-		from pyinv.ssm_serial import *
+		from stockpyl.ssm_serial import *
 
 	.. doctest::
 
@@ -505,7 +505,7 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 
 	.. testsetup:: *
 
-		from pyinv.ssm_serial import *
+		from stockpyl.ssm_serial import *
 
 	.. doctest::
 
@@ -722,7 +722,7 @@ def expected_cost(echelon_S,
 
 	.. testsetup:: *
 
-		from pyinv.ssm_serial import *
+		from stockpyl.ssm_serial import *
 
 	.. doctest::
 
@@ -851,7 +851,7 @@ def expected_holding_cost(echelon_S,
 
 	.. testsetup:: *
 
-		from pyinv.ssm_serial import *
+		from stockpyl.ssm_serial import *
 
 	.. doctest::
 

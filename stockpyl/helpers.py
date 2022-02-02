@@ -1,4 +1,4 @@
-"""Helper functions for pyinv package.
+"""Helper functions for stockpyl package.
 
 (c) Lawrence V. Snyder
 Lehigh University
@@ -562,7 +562,7 @@ def convolve_many(arrays):
 
 	.. testsetup:: *
 
-		from pyinv.helpers import *
+		from stockpyl.helpers import *
 
 	.. doctest::
 

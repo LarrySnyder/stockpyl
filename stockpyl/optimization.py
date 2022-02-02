@@ -1,5 +1,5 @@
 # ===============================================================================
-# PyInv - optimization Module
+# stockpyl - optimization Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
 # Updated: 01-30-2022
@@ -28,7 +28,7 @@ def golden_section_search(f, a, b, tol=1e-5, verbose=False):
 
 	.. testsetup:: *
 
-		from pyinv.optimization import *
+		from stockpyl.optimization import *
 
 	.. doctest::
 

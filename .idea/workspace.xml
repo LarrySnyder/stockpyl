@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="01ee3351-ddb8-4f00-a615-195ccbc08198" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/debugging_files/scratch.py" beforeDir="false" afterPath="$PROJECT_DIR$/debugging_files/scratch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyinv/eoq.py" beforeDir="false" afterPath="$PROJECT_DIR$/pyinv/eoq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stockpyl/eoq.py" beforeDir="false" afterPath="$PROJECT_DIR$/pyinv/eoq.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
