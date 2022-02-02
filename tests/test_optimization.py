@@ -70,7 +70,7 @@ class TestGoldenSectionSearch(unittest.TestCase):
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
-		f = lambda S1: ssm_serial.expected_cost(instance, {1: S1, 2: 12.02, 3: 22.71}, x_num=100, d_num=10)
+		f = lambda S1: ssm_serial.expected_cost({1: S1, 2: 12.02, 3: 22.71}, network=instance, x_num=100, d_num=10)
 
 		S1_star, C_star = optimization.golden_section_search(f, 0, 12)
 

@@ -4,6 +4,7 @@ from scipy import stats
 import pyinv.meio as meio
 from pyinv.instances import *
 from pyinv.ssm_serial import *
+from pyinv.supply_chain_network import *
 from pyinv.newsvendor import newsvendor_normal_cost
 from tests.settings import *
 
@@ -218,7 +219,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 
 		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
 		network.reindex_nodes({0: 1, 1: 2, 2: 3})
-		obj_fcn = lambda S: expected_cost(network, local_to_echelon_base_stock_levels(network, S), x_num=100, d_num=10)
+		obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(network, S), network=network, x_num=100, d_num=10)
 		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
 												truncation_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn,
 												progress_bar=False, print_solutions=False)
@@ -318,7 +319,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 
 		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
 		network.reindex_nodes({0: 1, 1: 2, 2: 3})
-		obj_fcn = lambda S: expected_cost(network, local_to_echelon_base_stock_levels(network, S), x_num=100, d_num=10)
+		obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(network, S), network=network, x_num=100, d_num=10)
 		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
 												truncation_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn,
 												progress_bar=False, print_solutions=False)

@@ -1005,3 +1005,92 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 			network.add_predecessor(retailer_node, node)
 
 	return network
+
+
+# ===============================================================================
+# Local vs. Echelon Methods
+# ===============================================================================
+
+def local_to_echelon_base_stock_levels(network, S_local):
+	"""Convert local base-stock levels to echelon base-stock levels for a serial system.
+
+	Assumes network is serial system but does not assume anything about the
+	labeling of the nodes.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	S_local : dict
+		Dict of local base-stock levels.
+
+	Returns
+	-------
+	S_echelon : dict
+		Dict of echelon base-stock levels.
+
+	"""
+	# TODO: allow more general topologies.
+
+	S_echelon = {}
+	for n in network.nodes:
+		S_echelon[n.index] = S_local[n.index]
+		k = n.get_one_successor()
+		while k is not None:
+			S_echelon[n.index] += S_local[k.index]
+			k = k.get_one_successor()
+
+	return S_echelon
+
+
+def echelon_to_local_base_stock_levels(network, S_echelon):
+	"""Convert echelon base-stock levels to local base-stock levels for a serial system.
+
+	Assumes network is serial system but does not assume anything about the
+	labeling of the nodes.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The serial inventory network.
+	S_echelon : dict
+		Dict of echelon base-stock levels.
+
+	Returns
+	-------
+	S_local : dict
+		Dict of local base-stock levels.
+
+	"""
+	# TODO: allow more general topologies.
+
+	S_local = {}
+
+	# Determine indexing of nodes. (node_list[i] = index of i'th node, where
+	# i = 0 means sink node and i = N-1 means source node.)
+	node_list = []
+	n = network.sink_nodes[0]
+	while n is not None:
+		node_list.append(n.index)
+		n = n.get_one_predecessor()
+
+	# Calculate S-minus.
+	S_minus = {}
+	j = 0
+	for n in network.nodes:
+		S_minus[n.index] = np.min([S_echelon[node_list[i]]
+							 for i in range(j, len(S_echelon))])
+		j += 1
+
+	# Calculate S_local.
+	for n in network.nodes:
+		# Get successor.
+		k = n.get_one_successor()
+		if k is None:
+			S_local[n.index] = S_minus[n.index]
+		else:
+			S_local[n.index] = S_minus[n.index] - S_minus[k.index]
+
+	return S_local
+
+

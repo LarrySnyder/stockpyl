@@ -2,7 +2,7 @@ import unittest
 
 from pyinv.instances import *
 from pyinv.sim import *
-from pyinv.ssm_serial import local_to_echelon_base_stock_levels
+from pyinv.supply_chain_network import local_to_echelon_base_stock_levels
 from pyinv.policy import *
 
 

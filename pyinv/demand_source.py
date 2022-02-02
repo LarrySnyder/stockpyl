@@ -408,7 +408,7 @@ class DemandSource(object):
 
 		# Check whether lead_time is an integer.
 		if self.type in ('UC', 'UD') and not is_integer(lead_time):
-			raise(ValueError, "lead_time must be an integer for 'UC' and 'UD' demand")
+			raise ValueError("lead_time must be an integer for 'UC' and 'UD' demand")
 
 		# Get distribution object.
 		if self.type == 'N':

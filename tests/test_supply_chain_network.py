@@ -726,3 +726,77 @@ class TestNetworkxDigraph(unittest.TestCase):
 		self.assertEqual(set(digraph.edges), {(0, 3), (0, 2), (0, 1)})
 
 
+class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
+
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestLocalToEchelonBaseStockLevels', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestLocalToEchelonBaseStockLevels', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that local_to_echelon_base_stock_levels() correctly converts
+		a few different sets of BS levels for network in Example 6.1.
+		"""
+
+		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		S_local = {1: 4, 2: 5, 3: 1}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {1: 4, 2: 9, 3: 10})
+
+		S_local = {1: 10, 2: 0, 3: 2}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {1: 10, 2: 10, 3: 12})
+
+		S_local = {1: 3, 2: -4, 3: 5}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {1: 3, 2: -1, 3: 4})
+
+
+class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
+
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEchelonToLocalBaseStockLevels', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEchelonToLocalBaseStockLevels', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that echelon_to_local_base_stock_levels() correctly converts
+		a few different sets of BS levels for network in Example 6.1.
+		"""
+
+		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
+
+		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+
+		S_echelon = {1: 4, 2: 9, 3: 10}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 4, 2: 5, 3: 1})
+
+		S_echelon = {1: 10, 2: 10, 3: 12}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 10, 2: 0, 3: 2})
+
+		S_echelon = {1: 3, 2: -1, 3: 4}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: -1, 2: 0, 3: 5})
+
+		S_echelon = {1: 10, 2: 15, 3: 5}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 5, 2: 0, 3: 0})
+
+
