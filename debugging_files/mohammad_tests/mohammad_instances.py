@@ -1,6 +1,6 @@
 import copy
 
-from pyinv.supply_chain_network import *
+from stockpyl.supply_chain_network import *
 
 
 def get_mohammad_instance(instance_name):

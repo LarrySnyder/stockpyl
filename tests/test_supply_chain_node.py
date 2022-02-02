@@ -6,9 +6,9 @@ import unittest
 # from scipy.stats import lognorm
 
 #from supply_chain_node import *
-from pyinv.supply_chain_network import *
-from pyinv.instances import *
-from pyinv.sim import *
+from stockpyl.supply_chain_network import *
+from stockpyl.instances import *
+from stockpyl.sim import *
 
 
 # Module-level functions.

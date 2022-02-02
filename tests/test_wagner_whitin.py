@@ -1,7 +1,7 @@
 import unittest
 
-from pyinv.wagner_whitin import *
-from pyinv.instances import *
+from stockpyl.wagner_whitin import *
+from stockpyl.instances import *
 
 
 # Module-level functions.

@@ -5,7 +5,7 @@ import unittest
 # from scipy.stats import poisson
 # from scipy.stats import lognorm
 
-from pyinv.policy import *
+from stockpyl.policy import *
 
 
 # Module-level functions.

@@ -6,8 +6,8 @@ from scipy.stats import poisson
 from scipy.stats import lognorm
 import scipy.io as sio
 
-import pyinv.finite_horizon as finite_horizon
-from pyinv.instances import *
+import stockpyl.finite_horizon as finite_horizon
+from stockpyl.instances import *
 from tests.settings import *
 
 

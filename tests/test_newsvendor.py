@@ -5,8 +5,8 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import lognorm
 
-import pyinv.newsvendor as newsvendor
-from pyinv.instances import *
+import stockpyl.newsvendor as newsvendor
+from stockpyl.instances import *
 
 
 # Module-level functions.

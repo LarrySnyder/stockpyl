@@ -2,7 +2,7 @@
 # PyInv - supply_uncertainty Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 01-12-2021
+# Updated: 01-31-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -18,6 +18,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 """
 
+from multiprocessing.sharedctypes import Value
 import numpy as np
 from math import log
 from scipy.stats import *
@@ -100,11 +101,19 @@ def eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 
 	(See Snyder (2014).)
 
+	References
+	----------
+	M. Parlar and D. Berkin. Future supply uncertainty in EOQ models. *Naval Research Logistics*, 38 (1):107–121, 1991.
+
+	E. Berk and A. Arreola-Risa. Note on “Future supply uncertainty in EOQ models”. *Naval Research Logistics*, 41(1):129–132, 1994.
+
+	L. V. Snyder. A tight approximation for a continuousreview inventory model with supplier disruptions. *International Journal of Production Economics*, 155:91–108, 2014.
+
 	**Example** (Example 3.1):
 
 	.. testsetup:: *
 
-		from eoq import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -117,12 +126,12 @@ def eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 	"""
 
 	# Check parameters.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_rate >= 0, "demand_rate must be non-negative."
-	assert disruption_rate > 0, "disruption_rate must be positive"
-	assert recovery_rate > 0, "recovery_rate must be positive"
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_rate < 0: raise ValueError("demand_rate must be non-negative")
+	if disruption_rate <= 0: raise ValueError("disruption_rate must be positive")
+	if recovery_rate <= 0: raise ValueError("recovery_rate must be positive")
 
 	# Calculate approximate order quantity. Even if exact order quantity is
 	# requested, approximate quantity will be used for search bounds.
@@ -218,11 +227,19 @@ def eoq_with_disruptions_cost(order_quantity, fixed_cost,
 
 	if ``approximate`` is ``True``.
 
+	References
+	----------
+	M. Parlar and D. Berkin. Future supply uncertainty in EOQ models. *Naval Research Logistics*, 38 (1):107–121, 1991.
+
+	E. Berk and A. Arreola-Risa. Note on “Future supply uncertainty in EOQ models”. *Naval Research Logistics*, 41(1):129–132, 1994.
+
+	L. V. Snyder. A tight approximation for a continuousreview inventory model with supplier disruptions. *International Journal of Production Economics*, 155:91–108, 2014.
+
 	**Example** (Example 9.1):
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -233,16 +250,14 @@ def eoq_with_disruptions_cost(order_quantity, fixed_cost,
 		174.80614234644133
 	"""
 
-	# TODO: allow base_stock_level to be an array (for other _cost functions too)
-
 	# Check that parameters are positive.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_rate >= 0, "demand_rate must be non-negative."
-	assert order_quantity > 0, "order_quantity must be positive"
-	assert disruption_rate > 0, "disruption_rate must be positive"
-	assert recovery_rate > 0, "recovery_rate must be positive"
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_rate < 0: raise ValueError("demand_rate must be non-negative")
+	if order_quantity <= 0: raise ValueError("order_quantity must be positive")
+	if disruption_rate <= 0: raise ValueError("disruption_rate must be positive")
+	if recovery_rate <= 0: raise ValueError("recovery_rate must be positive")
 
 	# Calculate psi.
 	if approximate:
@@ -326,7 +341,7 @@ def newsvendor_with_disruptions(holding_cost, stockout_cost, demand, disruption_
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -338,11 +353,11 @@ def newsvendor_with_disruptions(holding_cost, stockout_cost, demand, disruption_
 	"""
 
 	# Check parameters.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand > 0, "demand must be positive."
-	assert 0 < disruption_prob < 1, "disruption_prob must be between 0 and 1."
-	assert 0 < recovery_prob < 1, "recovery_prob must be between 0 and 1."
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand <= 0: raise ValueError("demand must be positive")
+	if disruption_prob <= 0 or disruption_prob >= 1: raise ValueError("disruption_prob must be between 0 and 1")
+	if recovery_prob <= 0 or recovery_prob >= 1: raise ValueError("recovery_prob must be between 0 and 1")
 
 	# Calculate gamma.
 	gamma = stockout_cost / (stockout_cost + holding_cost)
@@ -435,7 +450,7 @@ def eoq_with_additive_yield_uncertainty(fixed_cost, holding_cost, demand_rate, y
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -446,10 +461,10 @@ def eoq_with_additive_yield_uncertainty(fixed_cost, holding_cost, demand_rate, y
 	"""
 
 	# Check parameters.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert demand_rate >= 0, "demand_rate must be non-negative."
-	assert yield_sd >= 0, "yield_sd must be non-negative"
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if demand_rate < 0: raise ValueError("demand_rate must be non-negative")
+	if yield_sd < 0: raise ValueError("yield_sd must be non-negative")
 
 	# Is Q provided?
 	if order_quantity is None:
@@ -516,7 +531,7 @@ def eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_r
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	.. doctest::
 
@@ -527,10 +542,10 @@ def eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_r
 	"""
 
 	# Check parameters.
-	assert fixed_cost >= 0, "fixed_cost must be non-negative."
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert demand_rate >= 0, "demand_rate must be non-negative."
-	assert yield_sd >= 0, "yield_sd must be non-negative"
+	if fixed_cost < 0: raise ValueError("fixed_cost must be non-negative")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if demand_rate < 0: raise ValueError("demand_rate must be non-negative")
+	if yield_sd < 0: raise ValueError("yield_sd must be non-negative")
 
 	# Is Q provided?
 	if order_quantity is None:
@@ -614,7 +629,7 @@ def newsvendor_with_additive_yield_uncertainty(holding_cost, stockout_cost, dema
 
 	.. testsetup:: *
 
-		from supply_uncertainty import *
+		from pyinv.supply_uncertainty import *
 
 	Using generic function to calculate loss functions:
 
@@ -628,19 +643,19 @@ def newsvendor_with_additive_yield_uncertainty(holding_cost, stockout_cost, dema
 
 	.. doctest::
 
-		>>> from loss_functions import uniform_loss
+		>>> from pyinv.loss_functions import uniform_loss
 		>>> loss_function = lambda x: uniform_loss(x, -500000, 500000)
 		>>> newsvendor_with_additive_yield_uncertainty(15, 75, 1.5e6, yield_distribution=uniform(-500000, 1000000), loss_function=loss_function)
 		(1833333.3333333335, 6250000.000000001)
 	"""
 
 	# Check parameters.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand > 0, "demand must be positive."
-	assert yield_sd or 0 >= 0, "yield_sd must be non-negative."
-	assert (yield_mean is not None and yield_sd is not None) or yield_distribution is not None, \
-		"Must provide either yield_mean and yield_sd or yield_distribution."
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand <= 0: raise ValueError("demand must be positive")
+	if yield_sd or 0 < 0: raise ValueError("yield_sd must be non-negative")
+	if (yield_mean is None or yield_sd is None) and yield_distribution is None: \
+		raise ValueError("Must provide either yield_mean and yield_sd or yield_distribution")
 
 	# Is S provided?
 	if base_stock_level is None:

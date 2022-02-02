@@ -2,7 +2,7 @@
 # PyInv - ss Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-15-2020
+# Updated: 01-30-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -68,6 +68,17 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 	cost : float
 		Expected cost per period. [:math:`g(s,S)`]
 
+	Raises
+	------
+	ValueError
+		If ``reorder_point`` or ``order_up_to_level`` is not an integer.
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` < 0, or if ``demand_hi`` is not a non-negative integer.
+	ValueError
+		If ``demand_pmf`` is not a list of length ``demand_hi`` + 1.
+
 
 	**Equations Used** (equation (5.7)):
 
@@ -82,7 +93,7 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 
 	.. testsetup:: *
 
-		from ss import *
+		from pyinv.ss import *
 
 	.. doctest::
 
@@ -94,17 +105,17 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 	# TODO: improve performance
 
 	# Check parameters.
-	assert is_integer(reorder_point), "reorder_point must be an integer"
-	assert is_integer(order_up_to_level), "order_up_to_level must be an integer"
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean is None or demand_mean >= 0, "mean must be non-negative (or None)"
-	assert demand_hi is None or (demand_hi >= 0 and is_integer(demand_hi)), \
-		"hi must be a non-negative integer (or None)"
-	assert demand_pmf is None or \
-		(is_list(demand_pmf) and len(demand_pmf) == demand_hi+1), \
-		"demand_pmf must be a list of length hi+1 (or None)"
+	if not is_integer(reorder_point): raise ValueError("reorder_point must be an integer")
+	if not is_integer(order_up_to_level): raise ValueError("order_up_to_level must be an integer")
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean is not None and demand_mean < 0: raise ValueError("demand_mean must be non-negative (or None)")
+	if demand_hi is not None and (demand_hi < 0 or not is_integer(demand_hi)):
+		raise ValueError("demand_hi must be a non-negative integer (or None)")
+	if demand_pmf is not None and \
+		(not is_list(demand_pmf) or len(demand_pmf) != demand_hi+1):
+		raise ValueError("demand_pmf must be a list of length demand_hi+1 (or None)")
 
 	# Determine demand pmf to use based on use_poisson.
 	if use_poisson:
@@ -186,6 +197,15 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 	cost : float
 		Expected cost per period. [:math:`g(s,S)`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` < 0, or if ``demand_hi`` is not a non-negative integer.
+	ValueError
+		If ``demand_pmf`` is not a list of length ``demand_hi`` + 1.
+
 
 	**Algorithm Used:** Exact algorithm for periodic-review :math:`(s,S)`
 	policies with discrete demand distribution (Algorithm 4.2)
@@ -194,7 +214,7 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 	.. testsetup:: *
 
-		from ss import *
+		from pyinv.ss import *
 
 	.. doctest::
 
@@ -206,15 +226,15 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 	# TODO: improve performance
 
 	# Check parameters.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert fixed_cost > 0, "fixed_cost must be positive."
-	assert demand_mean is None or demand_mean >= 0, "mean must be non-negative (or None)"
-	assert demand_hi is None or (demand_hi >= 0 and is_integer(demand_hi)), \
-		"hi must be a non-negative integer (or None)"
-	assert demand_pmf is None or \
-		(is_list(demand_pmf) and len(demand_pmf) == demand_hi+1), \
-		"demand_pmf must be a list of length hi+1 (or None)"
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean is not None and demand_mean < 0: raise ValueError("demand_mean must be non-negative (or None)")
+	if demand_hi is not None and (demand_hi < 0 or not is_integer(demand_hi)):
+		raise ValueError("demand_hi must be a non-negative integer (or None)")
+	if demand_pmf is not None and \
+		(not is_list(demand_pmf) or len(demand_pmf) != demand_hi+1):
+		raise ValueError("demand_pmf must be a list of length demand_hi+1 (or None)")
 
 	# Determine y^*.
 	if use_poisson:
@@ -341,6 +361,14 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 	order_up_to_level : float
 		Order-up-to level. [:math:`S`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` or ``demand_sd`` < 0.
+
+
 	References
 	----------
 	R. Ehrhardt and C. Mosier, A Revision of the Power Approximation for
@@ -367,7 +395,7 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. testsetup:: *
 
-		from ss import *
+		from pyinv.ss import *
 
 	.. doctest::
 
@@ -375,6 +403,13 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 		(40.19461695647407, 74.29017010980579)
 
 	"""
+
+	# Check that parameters are positive/non-negative.
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
+	if demand_mean < 0: raise ValueError("mean must be non-negative")
+	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
 
 	# Calculate Q and z.
 	Q = 1.30 * (demand_mean**0.494) * (fixed_cost / holding_cost)**0.506 \

@@ -5,8 +5,8 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from scipy.stats import lognorm
 
-from pyinv.ss import *
-from pyinv.instances import *
+from stockpyl.ss import *
+from stockpyl.instances import *
 from tests.settings import *
 
 

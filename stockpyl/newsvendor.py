@@ -2,7 +2,7 @@
 # PyInv - newsvendor Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-15-2020
+# Updated: 01-30-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
@@ -19,6 +19,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 """
 
 
+from multiprocessing.sharedctypes import Value
 from scipy import stats
 from scipy.optimize import brentq
 import numpy as np
@@ -55,8 +56,15 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	cost : float
 		Expected cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
-	**Equations Used** (equations (4.24) and (4.30), modified for non-zero
+
+	**Equations Used** (equations (4.30), (4.37), and (4.24), modified for non-zero
 	lead time):
 
 	.. math::
@@ -66,13 +74,22 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 		g^* = (h+p)\phi(z_{\\alpha})\\sigma
 
 	where :math:`\\mu` and :math:`\\sigma` are the lead-time demand mean
-	and standard deviation, and :math:`\\alpha = p/(h+p)`.
+	and standard deviation, and :math:`\\alpha = p/(h+p)`,
+
+	or
+
+	.. math::
+
+		g(S) = h\\bar{n}(S) + pn(S),
+
+	where :math:`n(\cdot)` and :math:`\\bar{n}(\cdot)` are the lead-time demand
+	loss and complementary loss functions.
 
 	**Example** (Example 4.3):
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -82,10 +99,10 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	"""
 
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "mean must be positive."
-	assert demand_sd > 0, "demand_sd must be positive."
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -134,8 +151,15 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 	cost : float
 		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
-	**Equations Used** (equation (4.6)):
+
+	**Equations Used** (equation (4.24)):
 
 	.. math::
 
@@ -148,7 +172,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -157,13 +181,13 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 
 	"""
 
-	# TODO: allow base_stock_level to be an array (for other _cost functions too)
+	# TODO: delete this function since newsvendor_normal subsumes it?
 
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "mean must be positive."
-	assert demand_sd > 0, "demand_sd must be positive."
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -202,14 +226,29 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	cost : float
 		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` <= 0.
+	ValueError
+		If ``base_stock_level`` is supplied and is not an integer.
 
-	**Equations Used** (equations (4.35), (4.32)-(4.34)):
+
+	**Equations Used**:
 
 	.. math::
 
 		S^* = \\text{smallest } S \\text{ such that } F(S) \\ge \\frac{p}{h+p}
 
 		g(S^*) = h\\bar{n}(S^*) + pn(S^*)
+
+	or
+
+	.. math::
+
+		g(S) = h\\bar{n}(S) + pn(S),
 
 	where :math:`F(\\cdot)`, :math:`n(\\cdot)`, and :math:`\\bar{n}(\\cdot)` are
 	the Poisson cdf, loss function, and complementary loss function,
@@ -219,7 +258,7 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -229,11 +268,11 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	"""
 
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "mean must be positive."
-	if base_stock_level is not None:
-		assert is_integer(base_stock_level), "base_stock_level must be an integer (or None)"
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if base_stock_level is not None and not is_integer(base_stock_level):
+		raise ValueError("base_stock_level must be an integer (or None)")
 
 	# TODO: handle lead time
 
@@ -277,6 +316,15 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 	cost : float
 		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_mean`` <= 0.
+	ValueError
+		If ``base_stock_level`` is not an integer.
+
 
 	**Equations Used** (equation (4.6)):
 
@@ -292,7 +340,7 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -301,12 +349,13 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 
 	"""
 
+	# TODO: delete this function since newsvendor_poisson() subsumes it?
+
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
-	assert demand_mean > 0, "mean must be positive."
-	if base_stock_level is not None:
-		assert is_integer(base_stock_level), "base_stock_level must be an integer (or None)"
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer")
 
 	# TODO: handle lead time
 
@@ -349,14 +398,21 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 	cost : float
 		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_distrib`` and ``demand_pdf`` are both ``None``.
 
-	**Equations Used** (equations (4.35), (4.32)-(4.34)):
+
+	**Equations Used** (equations (4.27) and (4.24)):
 
 	.. math::
 
 		S^* = F^{-1}\\left(\\frac{p}{h+p}\\right)
 
-		g(S^*) = h\\bar{n}(S^*) + pn(S^*)
+		g(S) = h\\bar{n}(S^*) + pn(S)
 
 	where :math:`F(\\cdot)`, :math:`n(\\cdot)`, and :math:`\\bar{n}(\\cdot)` are
 	the demand cdf, loss function, and complementary loss function,
@@ -366,7 +422,7 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -389,17 +445,16 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 	"""
 
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 
 	# Check that either distribution or pmf have been supplied.
-	assert (demand_distrib is not None) or (demand_pdf is not None), \
-		"must provide demand_distrib or demand_pdf"
+	if demand_distrib is None and demand_pdf is None: raise ValueError("must provide demand_distrib or demand_pdf")
 
 	# TODO: handle lead time
 	# TODO: handle demand_pdf as function
 
-	# For now, raise error if only demand_pdf is provided. (Need to add this
+	# For now, raise error if only demand_pdf is provided. TODO: (Need to add this
 	# capability.)
 	assert demand_distrib is not None, "newsvendor_continuous() does not yet support demand distributions passed as pdf functions"
 
@@ -456,14 +511,21 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	cost : float
 		Cost per period attained by ``base_stock_level``. [:math:`g^*`]
 
+	Raises
+	------
+	ValueError
+		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
+	ValueError
+		If ``demand_distrib`` and ``demand_pdf`` are both ``None``.
 
-	**Equations Used** (equations (4.35), (4.32)-(4.34)):
+
+	**Equations Used**:
 
 	.. math::
 
 		S^* = \\text{smallest } S \\text{ such that } F(S) \\ge \\frac{p}{h+p}
 
-		g(S^*) = h\\bar{n}(S^*) + pn(S^*)
+		g(S) = h\\bar{n}(S^*) + pn(S)
 
 	where :math:`F(\\cdot)`, :math:`n(\\cdot)`, and :math:`\\bar{n}(\\cdot)` are
 	the demand cdf, loss function, and complementary loss function,
@@ -473,7 +535,7 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -496,12 +558,11 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 	"""
 
 	# Check that parameters are positive.
-	assert holding_cost > 0, "holding_cost must be positive."
-	assert stockout_cost > 0, "stockout_cost must be positive."
+	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
+	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
 
 	# Check that either distribution or pmf have been supplied.
-	assert (demand_distrib is not None) or (demand_pmf is not None), \
-		"must provide demand_distrib or demand_pmf"
+	if demand_distrib is None and demand_pmf is None: raise ValueError("must provide demand_distrib or demand_pmf")
 
 	# TODO: handle lead time
 
@@ -530,7 +591,7 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 			base_stock_level = demand_values[i-1]
 	else:
 		# Check for integer base_stock_level
-		assert is_integer(base_stock_level), "base_stock_level must be an integer"
+		if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer")
 
 	# Calculate loss functions.
 	n, n_bar = lf.discrete_loss(base_stock_level, demand_distrib, demand_pmf)
@@ -551,7 +612,7 @@ def myopic(
 		discount_factor=1.0,
 		base_stock_level=None):
 	"""Find the optimizer of the myopic cost function, or (if ``base_stock_level``
-	is supplied) calculate the cost of given solution.
+	is supplied) calculate the cost of given solution. Assumes demand is normally distributed.
 
 	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
 	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in Snyder and Shen
@@ -587,6 +648,11 @@ def myopic(
 	cost : float
 		The myopic cost attained by ``base_stock_level``. [:math:`G_t(S^*)`]
 
+	Raises
+	------
+	ValueError
+		If :math:`-h_t > c_t - \\gamma c_{t+1}` or :math:`c_t - \\gamma c_{t+1} > p_t`.
+
 
 	**Equation Used**:
 
@@ -613,7 +679,7 @@ def myopic(
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -658,7 +724,7 @@ def myopic_cost(
 		demand_mean,
 		demand_sd,
 		discount_factor=1.0):
-	"""Calculate "myopic" cost function.
+	"""Calculate "myopic" cost function. Assumes demand is normally distributed.
 
 	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
 	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in Snyder and Shen
@@ -713,7 +779,7 @@ def myopic_cost(
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -744,7 +810,7 @@ def set_myopic_cost_to(
 		left_half=True):
 	"""Find the value of :math:`y` such that :math:`G_t(y)`
 	equals ``cost``, where :math:`G_t(\\cdot)` is the myopic cost function
-	for the current period, given by ``myopic_cost()``.
+	for the current period, given by ``myopic_cost()``. Assumes demand is normally distrbuted.
 
 	If ``left_half`` is ``True``, requires :math:`y \\le \\underline{S}_t`,
 	where :math:`\\underline{S}_t` is the minimizer of :math:`G_t(\\cdot)`.
@@ -781,6 +847,8 @@ def set_myopic_cost_to(
 	Raises
 	------
 	ValueError
+		If :math:`-h_t > c_t - \\gamma c_{t+1}` or :math:`c_t - \\gamma c_{t+1} > p_t`.
+	ValueError
 		If ``cost`` is less than :math:`G_t(\\underline{S}_t)`.
 
 
@@ -788,7 +856,7 @@ def set_myopic_cost_to(
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -903,7 +971,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	ValueError
 		If ``r`` < ``c`` or ``c`` < ``v``.
 	ValueError
-		If ``h`` < 0 or ``p`` < 0.
+		If ``holding_cost`` < 0 or ``stockout_cost`` < 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
 
@@ -926,7 +994,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 
 	.. testsetup:: *
 
-		from newsvendor import *
+		from pyinv.newsvendor import *
 
 	.. doctest::
 
@@ -935,13 +1003,13 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 
 	"""
 
-	# Check that parameters are positive.
-	assert holding_cost >= 0, "holding_cost must be non-negative."
-	assert stockout_cost >= 0, "stockout_cost must be non-negative."
-	assert demand_mean > 0, "mean must be positive."
-	assert demand_sd > 0, "demand_sd must be positive."
-	assert selling_revenue > purchase_cost, "selling_revenue must be > purchase_cost"
-	assert purchase_cost > salvage_value, "purchase_cost must be > salvage_value"
+	# Check that parameters are positive/non-negative.
+	if holding_cost < 0: raise ValueError("holding_cost must be non-negative")
+	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
+	if selling_revenue <= purchase_cost: raise ValueError("selling_revenue must be > purchase_cost")
+	if purchase_cost <= salvage_value: raise ValueError("purchase_cost must be > salvage_value")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)

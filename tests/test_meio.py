@@ -1,11 +1,11 @@
 import unittest
 from scipy import stats
 
-import pyinv.meio as meio
-from pyinv.instances import *
-from pyinv.ssm_serial import *
-from pyinv.supply_chain_network import *
-from pyinv.newsvendor import newsvendor_normal_cost
+import stockpyl.meio as meio
+from stockpyl.instances import *
+from stockpyl.ssm_serial import *
+from stockpyl.supply_chain_network import *
+from stockpyl.newsvendor import newsvendor_normal_cost
 from tests.settings import *
 
 

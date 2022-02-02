@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 
-import pyinv.helpers as helpers
-import pyinv.gsm_tree as gsm_tree
-import pyinv.gsm_tree_helpers as gsm_tree_helpers
+import stockpyl.helpers as helpers
+import stockpyl.gsm_tree as gsm_tree
+import stockpyl.gsm_tree_helpers as gsm_tree_helpers
 from tests.instances_gsm_tree import *
 
 

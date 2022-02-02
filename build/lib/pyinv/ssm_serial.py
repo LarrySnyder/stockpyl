@@ -33,7 +33,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import copy
 
-from pyinv.helpers import *
+from stockpyl.helpers import *
 
 
 ### NETWORK-HANDLING FUNCTIONS ###

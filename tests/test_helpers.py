@@ -2,7 +2,7 @@ import unittest
 from scipy import stats
 import numpy as np
 
-import pyinv.helpers as helpers
+import stockpyl.helpers as helpers
 
 
 # Module-level functions.

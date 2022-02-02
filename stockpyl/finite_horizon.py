@@ -2,13 +2,13 @@
 # PyInv - finite_horizon Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 04-24-2020
+# Updated: 01-30-2020
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`finite_horizon` module contains code for solving the finite-horizon
-inventory optimization model using dynamic programming.
+"""The :mod:`finite_horizon` module contains code for solving finite-horizon
+inventory optimization problems using dynamic programming.
 
 Functions in this module are called directly; they are not wrapped in a class.
 
@@ -20,7 +20,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 import numpy as np
 from scipy.stats import norm
-from scipy.optimize import brentq
+#from scipy.optimize import brentq
 import warnings
 from tabulate import tabulate
 
@@ -42,7 +42,10 @@ def finite_horizon_dp(
 		demand_mean,
 		demand_sd,
 		discount_factor=1.0,
-		initial_inventory_level=0.0):
+		initial_inventory_level=0.0,
+		trunc_tol=0.02,
+		d_spread=4,
+		s_spread=5):
 	"""
 	Solve the finite-horizon inventory optimization problem, with or without
 	fixed costs, minimizing the expected discounted cost over the time horizon,
@@ -50,12 +53,6 @@ def finite_horizon_dp(
 
 	See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
 	notation.
-
-	Executes faster than straightforward implementation because it calculates
-	:math:`H_t(y)` (as defined in (4.87)) for each :math:`t` and :math:`y`,
-	and then uses this when calculating :math:`\\theta_t(x)` for each :math:`x`.
-	This avoids having to recalculate the terms that don't depend on :math:`x`
-	(which are computationally expensive).
 
 	Returns :math:`s^*_t` and :math:`S^*_t` in the output lists ``reorder_points``
 	and ``order_up_to_levels``, respectively. If ``fixed_cost`` = 0,
@@ -69,11 +66,12 @@ def finite_horizon_dp(
 	``oul_matrix``.
 
 	The terminal cost function is assumed to be given by
+
 	.. math::
 
 		\\theta_{T+1}(x) = h_T x^+ + p_T x^-,
 
-	where :math:`h_T` = ``terminal_holding_cost`, :math:`p_T` =
+	where :math:`h_T` = ``terminal_holding_cost``, :math:`p_T` =
 	``terminal_stockout_cost``, :math:`x^+ = \\max\\{x,0\\}`, and
 	:math:`x^- = \\max\\{-x,0\\}`.
 
@@ -93,7 +91,7 @@ def finite_horizon_dp(
 	The parameters may be mixed, some scalars and some lists.
 
 	Output arrays are all 1-indexed; for example, ``reorder_point[5]`` gives
-	:math:`s^*_5`, the order point for period 5.
+	:math:`s^*_5`, the reorder point for period 5.
 
 	Discretization is done at the integer level, i.e., all demand_list and
 	inventory positions are rounded to the nearest integer. The state space
@@ -102,6 +100,12 @@ def finite_horizon_dp(
 
 	Raises warnings if the discretization and truncation settings are likely to
 	lead to suboptimal results. (See details in the code.)
+
+	Executes faster than straightforward implementation because it calculates
+	:math:`H_t(y)` (as defined in (4.87)) for each :math:`t` and :math:`y`,
+	and then uses this when calculating :math:`\\theta_t(x)` for each :math:`x`.
+	This avoids having to recalculate the terms that don't depend on :math:`x`
+	(which are computationally expensive).
 
 	Parameters
 	----------
@@ -127,6 +131,15 @@ def finite_horizon_dp(
 		Discount factor, in :math:`(0,1]`. Default = 1. [:math:`\\gamma`]
 	initial_inventory_level : float
 		Initial inventory level at the start of period 1. [:math:`x_1`]
+	trunc_tol : float
+		Truncation tolerance; a warning is raised if *either* total probability of 
+		demand outside of ``d_range`` > ``trunc_tol`` for any time period, *or*
+		:math:`P(s_t - D < x_{min})` > ``trunc_tol``, where :math:`x_{min}` is the 
+		minimum value of :math:`x` after truncation.
+	d_spread : float
+		Number of standard deviations around mean to consider for demand truncation.
+	s_spread : float
+		Number of (demand) standard deviations around :math:`(s,S)` estimates to consider.
 
 	Returns
 	-------
@@ -149,6 +162,18 @@ def finite_horizon_dp(
 		Vector of :math:`x`-values used in the discretization, i.e.,
 		indices of the columns of ``cost_matrix`` and ``oul_matrix``.
 
+	Raises
+	------
+	ValueError
+		If ``num_periods`` <= 0 or is non-integer.
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, ``purchase_cost``, ``fixed_cost``,
+		``demand_mean``, or ``demand_sd`` < 0 for any time period.
+	ValueError
+		If ``discount_factor`` <= 0 or > 1 for any time period.
+	ValueError
+		If ``terminal_holding_cost`` < 0 or ``terminal_stockout_cost`` < 0.
+
 
 	**Equation Used** (equation (4.66)):
 
@@ -162,11 +187,49 @@ def finite_horizon_dp(
 
 	**Algorithm Used:** DP for finite-horizon inventory problem (Algorithm 4.1)
 
+	**Truncation and Discretization** are performed as follows:
+
+		1. Range of demand values is truncated at :math:`\\mu \pm` ``d_spread``:math:`\\sigma`,
+		where :math:`\\mu` and :math:`\\sigma` are the mean and 
+		standard deviation of the demand, truncating also at 0, and accounting conservatively
+		for the variations in demand parameters across periods.
+
+		2. If the total probability of demand outside the demand range in any time period
+		is greater than ``trunc_tol``, a warning is issued.
+
+		3. :math:`s` is estimated as the newsvendor solution and
+		:math:`S` is estimated as :math:`s + Q_{EOQB}`, where :math:`Q_{EOQB}` is the
+		order quantity from the EOQB problem. 
+
+		4. ``s_spread``:math:`\\sigma` is subtracted from :math:`s` and added to :math:`S`
+		to provide desired buffer, and :math:`\\mu + \\sigma` ``d_spread`` is subtracted 
+		from :math:`s` to account for demand, accounting conservatively for the 
+		variations in demand parameters across periods, and adjusting the final period
+		to account for terminal costs.
+
+		5. Range of :math:`x` values is set using these two bounds.
+
+		6. When calculating :math:`H_t(y)`, the demand range is further truncated to avoid
+		:math:`y-d` falling below the smallest value in the :math:`x`-range. 
+
+		7. If, at any point in the optimization, the optimal order-up-to level for any :math:`x`
+		and :math:`t` is the largest value in the :math:`x`-range, suggesting that the uppper end
+		of the range is too low and that the optimal order-up-to level may be greater than it, the
+		optimization is terminated, the upper end of the :math:`x`-range is doubled,
+		and the optimization is restarted.
+
+		8. If, at any point in the optimization, the total probability of demand values
+		that could bring the inventory level below the smallest value in the :math:`x`-range is
+		greater than ``trunc_tol``, suggesting that the lower end of the range is too high
+		and that reasonable demand values could bump up against it, a warning is generated. 
+		The optimization is not terminated, but the user may wish to try again with 
+		a larger value of ``s_spread`` and/or ``d_spread``.
+
 	**Example**:
 
 	.. testsetup:: *
 
-		from finite_horizon import *
+		from pyinv.finite_horizon import *
 
 	.. doctest::
 
@@ -181,12 +244,11 @@ def finite_horizon_dp(
 
 	# TODO: handle non-normal demand_list
 	# TODO: handle arbitrary discretizations
-	# TODO: explain truncation settings in docstring
 
 	# Validate singleton parameters.
-	assert num_periods > 0 and is_integer(num_periods), "num_periods must be a positive integer."
-	assert terminal_holding_cost >= 0, "terminal_holding_cost must be non-negative"
-	assert terminal_stockout_cost >= 0, "terminal_stockout_cost must be non-negative"
+	if num_periods <= 0 or not is_integer(num_periods): raise ValueError("num_periods must be a positive integer")
+	if terminal_holding_cost < 0: raise ValueError("terminal_holding_cost must be non-negative")
+	if terminal_stockout_cost < 0: raise ValueError("terminal_stockout_cost must be non-negative")
 
 	# Replace scalar parameters with lists (multiple copies of scalar).
 	holding_cost = np.array(ensure_list_for_time_periods(holding_cost, num_periods, var_name="holding_cost"))
@@ -198,23 +260,14 @@ def finite_horizon_dp(
 	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
 
 	# Validate other parameters.
-	assert np.all(np.array(holding_cost[1:]) >= 0), "holding_cost must be non-negative."
-	assert np.all(np.array(stockout_cost[1:]) >= 0), "stockout_cost must be non-negative."
-	assert np.all(np.array(purchase_cost[1:]) >= 0), "purchase_cost must be non-negative."
-	assert np.all(np.array(fixed_cost[1:]) >= 0), "fixed_cost must be non-negative."
-	assert np.all(np.array(discount_factor[1:]) > 0) and \
-		   np.all(np.array(discount_factor[1:]) <= 1), "discount_factor must be <0 and <=1."
-	assert np.all(np.array(demand_mean[1:]) >= 0), "mean must be non-negative."
-	assert np.all(np.array(demand_sd[1:]) >= 0), "demand_sd must be non-negative."
-
-	# Determine initial truncation settings.
-	d_spread = 4			# number of SDs around mean to consider for demand
-	s_spread = 5			# number of (demand) SDs around (s,S) estimates to consider
-	trunctol = 0.02		# a warning is raised if EITHER:
-						# 1. total probability of demand outside of d_range
-						#	> trunctol for any t, OR
-						# 2. P(s_t - D < xmin) > trunctol
-	# TODO: make trunctol, and maybe d_spread and s_spread, input parameters
+	if not np.all(np.array(holding_cost[1:]) >= 0): raise ValueError("holding_cost must be non-negative")
+	if not np.all(np.array(stockout_cost[1:]) >= 0): raise ValueError("stockout_cost must be non-negative")
+	if not np.all(np.array(purchase_cost[1:]) >= 0): raise ValueError("purchase_cost must be non-negative")
+	if not np.all(np.array(fixed_cost[1:]) >= 0): raise ValueError("fixed_cost must be non-negative")
+	if not np.all(np.array(discount_factor[1:]) > 0) or \
+		not np.all(np.array(discount_factor[1:]) <= 1): raise ValueError("discount_factor must be <0 and <=1")
+	if not np.all(np.array(demand_mean[1:]) >= 0): raise ValueError("mean must be non-negative")
+	if not np.all(np.array(demand_sd[1:]) >= 0): raise ValueError("demand_sd must be non-negative")
 
 	# Determine truncation for D: mu +/- d_spread * sigma (but no negative values)
 	# (accounting appropriately for variations among periods)
@@ -223,14 +276,14 @@ def finite_horizon_dp(
 	d_range = np.array(range(d_min, d_max + 1))
 
 	# Calculate total probability of demand outside d_range for each t, and
-	# raise warning if > trunctol for any t. (prob is an array.)
+	# raise warning if > trunc_tol for any t. (prob is an array.)
 	# Ignore entry 0 (o/w divide-by-0) but then add back an entry for 0 to keep
 	# things consistent.
 	prob = norm.cdf(d_min, demand_mean[1:], demand_sd[1:]) + \
 		   (1 - norm.cdf(d_max, demand_mean[1:], demand_sd[1:]))
 	prob = np.append([0], prob)
-	if np.any(prob > trunctol):
-		warnings.warn("Total probability of demand outside demand-truncation range exceeds trunctol for at least one "
+	if np.any(prob > trunc_tol):
+		warnings.warn("Total probability of demand outside demand-truncation range exceeds trunc_tol for at least one "
 					  "period.")
 
 	# Calculate alpha (= p/(p+h)) in each period.
@@ -255,7 +308,6 @@ def finite_horizon_dp(
 #			nv[t] = norm.ppf(alpha[t], mean[t], demand_sd[t])
 
 	# Calculate EOQB.
-	# TODO: vectorize eoqb() so this is cleaner
 	Q = [economic_order_quantity_with_backorders(fixed_cost[t], holding_cost[t],
 			stockout_cost[t], demand_mean[t])[0] for t in range(1, num_periods+1)]
 
@@ -323,11 +375,11 @@ def finite_horizon_dp(
 				d_eff = np.maximum(np.minimum(d_range, y - x_min), y - x_max)
 
 				# Calculate amount of demand probability that was truncated
-				# and issue warning if truncprob > trunctol
+				# and issue warning if truncprob > trunc_tol
 				# TODO: fix this -- generates too many warnings
-				# truncprob = np.dot(prob, d_range != d_eff)
-				# if truncprob > trunctol:
-				# 	warnings.warn('Total probability of truncated demand exceeds trunctol: t = {:d}, y = {:d}, truncprob = {:f}'.format(t, y, truncprob))
+				#truncprob = np.dot(prob, d_range != d_eff)
+				#if truncprob > trunc_tol:
+				#	warnings.warn('Total probability of truncated demand exceeds trunc_tol: t = {:d}, y = {:d}, truncprob = {:f}'.format(t, y, truncprob))
 
 				# Calculate future cost for this y.
 				future_cost = discount_factor[t] * np.dot(prob,
@@ -396,13 +448,13 @@ def finite_horizon_dp(
 					reorder_points[t] += 1
 
 			# Raise warning if truncation makes it so that probability of
-			# demand bringing IL below x_range > trunctol (i.e., if
-			# P(s - D < x_min) > trunctol). (Issue warning in each period
+			# demand bringing IL below x_range > trunc_tol (i.e., if
+			# P(s - D < x_min) > trunc_tol). (Issue warning in each period
 			# in which there is a violation.)
 			prob_demand_below_range = 1 - \
 				norm.cdf(reorder_points[t] - x_min, demand_mean[t], demand_sd[t])
-			if prob_demand_below_range > trunctol:
-				warnings.warn('Probability that demand brings IL below x-truncation range exceeds trunctol: t = {:d}, prob = {:f}'.format(t, prob_demand_below_range))
+			if prob_demand_below_range > trunc_tol:
+				warnings.warn('Probability that demand brings IL below x-truncation range exceeds trunc_tol: t = {:d}, prob = {:f}'.format(t, prob_demand_below_range))
 
 		# If made it through all t without abort flag, set done = True.
 		if not abort:
@@ -426,35 +478,136 @@ def myopic_bounds(
 		demand_sd,
 		discount_factor=1.0):
 	"""
+	Calculate the "myopic" bounds for the finite-horizon inventory optimization problem,
+	with or without fixed costs. 
+
+	See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
+	notation.
+
+	The myopic bounds :math:`\\bar{s}_t`, :math:`\\underline{S}_t`,
+	and :math:`\\bar{S}_t` are denoted :math:`r^+(t)`, :math:`s^+(t)`, and :math:`s^++(t)`,
+	respectively, in Zipkin (2000). (Zipkin does not have an analogous quantity
+	to :math:`\\underline{s}_t`.) They are not used in Snyder and Shen
+	(2019), but the bounds are given in terms of Snyder-Shen notation below.
+
+	Demands are assumed to be normally distributed.
+
+	Most parameters may be given as a singleton or a list. If given as a
+	singleton, the parameter will be assumed to be the same in every time
+	period. If given as a list, the list must be of length ``num_periods`` or
+	``num_periods``\+1.
+
+	*	In the former case, the list is assumed to contain values for periods
+		1, ..., ``num_periods`` in elements 0, ..., ``num_periods``-1.
+	*	In the latter case, the list is assumed to contain values for periods
+		1, ..., ``num_periods`` in elements 1, ..., ``num_periods``, and the
+		0th element is ignored.
+
+	The parameters may be mixed, some scalars and some lists.
+
+	Output arrays are all 1-indexed; for example, ``S_underbar[5]`` gives
+	:math:`\\underline{s}_5`, the lower bound on :math:`s_5`.
 
 	Parameters
 	----------
-	num_periods
-	holding_cost
-	stockout_cost
-	purchase_cost
-	fixed_cost
-	demand_mean
-	demand_sd
-	discount_factor
+	num_periods : int
+		Number of periods in time horizon. [:math:`T`]
+	holding_cost : float or list
+		Holding cost per item per period. [:math:`h`]
+	stockout_cost : float or list
+		Stockout cost per item per period. [:math:`p`]
+	terminal_holding_cost : float
+		Terminal holding cost per item. [:math:`h_T`]
+	terminal_stockout_cost : float
+		Terminal stockout cost per item. [:math:`p_T`]
+	purchase_cost : float or list
+		Purchase cost per item. [:math:`c`]
+	fixed_cost : float or list
+		Fixed cost per order. [:math:`K`]
+	demand_mean : float or list
+		Demand mean per period. [:math:`\\mu`]
+	demand_sd : float or list
+		Demand standard deviation per period. [:math:`\\sigma`]
+	discount_factor : float or list
+		Discount factor, in :math:`(0,1]`. Default = 1. [:math:`\\gamma`]
 
 	Returns
 	-------
-	S_underbar
-	S_overbar
-	s_underbar
+	S_underbar : ndarray
+		List of myopic lower bounds on :math:`S_t`. [:math:`\\underline{S}_t`]
+	S_overbar : ndarray
+		List of myopic upper bounds on :math:`S_t`. [:math:`\\bar{S}_t`]
+	s_underbar : ndarray
+		List of myopic lower bounds on :math:`s_t`. [:math:`\\underline{s}_t`]
 	s_overbar : ndarray
-		List of ``s_overbar`` values. For periods ``t`` in which
+		List of myopic upper bounds on :math:`s_t`. For periods ``t`` in which
 		``fixed_cost[t] - discount_factor[t] * fixed_cost[t+1] < 0``,
-		``s_overbar[t] = None``. (``s_overbar`` is invalid in these cases.)
+		``s_overbar[t] = None``. (``s_overbar`` is invalid in these cases.) [:math:`\\bar{s}_t`]
 
 	Raises
 	------
 	ValueError
+		If ``num_periods`` <= 0 or is non-integer.
+	ValueError
+		If ``holding_cost``, ``stockout_cost``, ``purchase_cost``, ``fixed_cost``,
+		``demand_mean``, or ``demand_sd`` < 0 for any time period.
+	ValueError
+		If ``discount_factor`` <= 0 or > 1 for any time period.
+	ValueError
 		If ``purchase_cost[t] - discount_factor[t] * purchase_cost[t+1]`` is
 		less than ``-holding_cost[t]`` or greater than ``stockout_cost[t]``
 		for some ``t``. (This is required for myopic policy to be valid.)
+
+
+	**Equations Used:**
+
+	.. math::
+
+		\\underline{S}_t = \\text{optimizer of } G_t(y)
+
+	.. math::
+
+		\\bar{S}_t = \\text{the value of } y > \\underline{S}_t \\text{ such that } G_t(y) = G_t(\\underline{S}_t) + \\gamma_tK_{t+1}
+
+	.. math::
+
+		\\underline{s}_t = \\text{the value of } y \\le \\underline{S}_t \\text{ such that } G_t(y) = G_t(\\underline{S}_t) + K_t
+
+	.. math::
+
+		\\bar{s}_t = \\text{the value of } y \\le \\underline{S}_t \\text{ such that } G_t(y) = G_t(\\underline{S}_t) + K_t - \\gamma_tK_{t+1},
+
+	where :math:`G_t(y)` is the myopic newsvendor cost function in period :math:`t`,
+	denoted :math:`G_i(y)` in Veinott (1966) and
+	as :math:`C^+(t,y)` in Zipkin (2000), and is implemented in ``pyinv.newsvendor.myopic()``.)
+
+	In the fourth equation, if :math:`K_t - \\gamma_tK_{t+1} < 0`, then :math:`\\bar{s}_t` is invalid and
+	``s_overbar[t]`` is set to ``None``.
+
+
+	References
+	----------
+	A. F. Veinott, Jr., On the Optimality of :math:`(s,S)` Inventory Policies:
+	New Conditions and a New Proof, *J. SIAM Appl. Math* 14(5), 1067-1083 (1966).
+
+	P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
+
+
+	**Example**:
+
+	.. testsetup:: *
+
+		from pyinv.finite_horizon import *
+
+	.. doctest::
+
+		>>> S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(5, 1, 20, 1, 20, 2, 50, 100, 20)
+		>>> S_underbar[1], S_overbar[1], s_underbar[1], s_overbar[1]
+		(133.36782387894158, 191.66022942788436, 110.26036848597217, 133.36782387894158)
+
 	"""
+
+	# TODO: unit tests
 
 	# Validate singleton parameters.
 	assert num_periods > 0 and is_integer(num_periods), "num_periods must be a positive integer."
@@ -538,22 +691,22 @@ def myopic_bounds(
 
 if __name__ == "__main__":
 
-	# num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-	# 	terminal_stockout_cost, purchase_cost, fixed_cost, mean, \
-	# 	demand_sd, discount_factor, initial_inventory_level = \
-	# 	get_named_instance("problem_4_29")
+	num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
+		terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
+		demand_sd, discount_factor, initial_inventory_level = \
+		get_named_instance("problem_4_29")
 
-	num_periods = 6
-	holding_cost = [1, 1, 1, 1, 2, 2]
-	stockout_cost = [20, 20, 10, 15, 10, 10]
-	terminal_holding_cost = 4
-	terminal_stockout_cost = 50
-	purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
-	fixed_cost = 100
-	demand_mean = [20, 60, 110, 200, 200, 40]
-	demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
-	discount_factor = 0.98
-	initial_inventory_level = 0
+	# num_periods = 6
+	# holding_cost = [1, 1, 1, 1, 2, 2]
+	# stockout_cost = [20, 20, 10, 15, 10, 10]
+	# terminal_holding_cost = 4
+	# terminal_stockout_cost = 50
+	# purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
+	# fixed_cost = 100
+	# demand_mean = [20, 60, 110, 200, 200, 40]
+	# demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
+	# discount_factor = 0.98
+	# initial_inventory_level = 0
 
 	S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(num_periods, holding_cost,
 		stockout_cost, terminal_holding_cost, terminal_stockout_cost,
@@ -573,3 +726,7 @@ if __name__ == "__main__":
 
 	print(tabulate(results, headers=["t", "s", "S", "S_underbar", "S_overbar", "s_underbar", "s_overbar"]))
 
+	print(S_underbar, S_overbar, s_underbar, s_overbar)
+
+	# S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(5, 1, 20, 1, 20, 2, 50, 100, 20)
+	# print(S_underbar[1], S_overbar[1], s_underbar[1], s_overbar[1])

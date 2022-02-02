@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 
-from pyinv.ssm_serial import *
+from stockpyl.ssm_serial import *
 from tests.instances_ssm_serial import *
-from pyinv.instances import *
+from stockpyl.instances import *
 
 # Module-level functions.
 

@@ -20,7 +20,7 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 
 # TODO: allow these functions to take lists or ndarrays
 
-from pyinv.instances import *
+from stockpyl.instances import *
 
 import numpy as np
 

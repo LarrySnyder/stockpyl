@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from pyinv.supply_uncertainty import *
-from pyinv.instances import *
+from stockpyl.supply_uncertainty import *
+from stockpyl.instances import *
 
 
 # Module-level functions.

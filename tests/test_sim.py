@@ -1,9 +1,9 @@
 import unittest
 
-from pyinv.instances import *
-from pyinv.sim import *
-from pyinv.supply_chain_network import local_to_echelon_base_stock_levels
-from pyinv.policy import *
+from stockpyl.instances import *
+from stockpyl.sim import *
+from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
+from stockpyl.policy import *
 
 
 # Module-level functions.

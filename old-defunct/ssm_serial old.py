@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 import copy
 from build.lib.pyinv.demand_source import DemandSource
 
-from pyinv.helpers import *
+from stockpyl.helpers import *
 #from pyinv.supply_chain_network import *
 
 

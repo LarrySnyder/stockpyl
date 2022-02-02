@@ -1,3 +1,12 @@
+# ===============================================================================
+# PyInv - gsm_tree Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 01-30-2022
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
 """Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon pyinv systems with tree structures by Graves and Willems (2000).
 

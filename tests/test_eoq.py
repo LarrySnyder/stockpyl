@@ -4,8 +4,8 @@ import unittest
 
 from numpy import ndarray
 
-from pyinv.eoq import *
-from pyinv.instances import *
+from stockpyl.eoq import *
+from stockpyl.instances import *
 
 
 # Module-level functions.

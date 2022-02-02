@@ -30,6 +30,8 @@ from stockpyl.helpers import *
 # DemandSource Class
 # ===============================================================================
 
+# TODO: handle Poisson and custom continuous
+
 class DemandSource(object):
 	"""
 	Attributes
@@ -327,57 +329,37 @@ class DemandSource(object):
 		"""Check that appropriate parameters have been provided for the given
 		demand type. Raise an exception if not.
 		"""
-		assert self.type in (None, 'N', 'UD', 'UC', 'D', 'CD'), \
-			"Valid type in (None, 'N', 'UD', 'UC', 'D', 'CD') must be provided"
+		if self.type not in (None, 'N', 'UD', 'UC', 'D', 'CD'): raise ValueError("Valid type in (None, 'N', 'UD', 'UC', 'D', 'CD') must be provided")
 
 		if self.type == 'N':
-			assert self.mean is not None, \
-				"For 'N' (normal) demand, mean must be provided"
-			assert self.mean >= 0, \
-				"For 'N' (normal) demand, mean must be non-negative"
-			assert self.standard_deviation is not None, \
-				"For 'N' (normal) demand, standard_deviation must be provided"
-			assert self.standard_deviation >= 0, \
-				"For 'N' (normal) demand, standard_deviation must be non-negative"
+			if self.mean is None: raise ValueError("For 'N' (normal) demand, mean must be provided")
+			if self.mean < 0: raise ValueError("For 'N' (normal) demand, mean must be non-negative")
+			if self.standard_deviation is None: raise ValueError("For 'N' (normal) demand, standard_deviation must be provided")
+			if self.standard_deviation < 0: raise ValueError("For 'N' (normal) demand, standard_deviation must be non-negative")
 		elif self.type == 'UD':
-			assert self.lo is not None,\
-				"For 'UD' (uniform discrete) demand, lo must be provided"
-			assert self.lo >= 0 and is_integer(self.lo), \
-				"For 'UD' (uniform discrete) demand, lo must be a non-negative integer"
-			assert self.hi is not None, \
-				"For 'UD' (uniform discrete) demand, hi must be provided"
-			assert self.hi >= 0 and is_integer(self.hi), \
-				"For 'UD' (uniform discrete) demand, hi must be a non-negative integer"
-			assert self.lo <= self.hi, \
-				"For 'UD' (uniform discrete) demand, lo must be <= hi"
+			if self.lo is None: raise ValueError("For 'UD' (uniform discrete) demand, lo must be provided")
+			if self.lo < 0 or not is_integer(self.lo): raise ValueError("For 'UD' (uniform discrete) demand, lo must be a non-negative integer")
+			if self.hi is  None: raise ValueError("For 'UD' (uniform discrete) demand, hi must be provided")
+			if self.hi < 0 or not is_integer(self.hi): raise ValueError("For 'UD' (uniform discrete) demand, hi must be a non-negative integer")
+			if self.lo > self.hi: raise ValueError("For 'UD' (uniform discrete) demand, lo must be <= hi")
 		elif self.type == 'UC':
-			assert self.lo is not None, \
-				"For 'UC' (uniform continuous) demand, lo must be provided"
-			assert self.lo >= 0, \
-				"For 'UC' (uniform continuous) demand, lo must be non-negative"
-			assert self.hi is not None, \
-				"For 'UC' (uniform continuous) demand, hi must be provided"
-			assert self.hi >= 0, \
-				"For 'UC' (uniform continuous) demand, hi must be non-negative"
-			assert self.lo <= self.hi, \
-				"For 'UC' (uniform continuous) demand, lo must be <= hi"
+			if self.lo is None: raise ValueError("For 'UC' (uniform continuous) demand, lo must be provided")
+			if self.lo < 0: raise ValueError("For 'UC' (uniform continuous) demand, lo must be non-negative")
+			if self.hi is None: raise ValueError("For 'UC' (uniform continuous) demand, hi must be provided")
+			if self.hi < 0: raise ValueError("For 'UC' (uniform continuous) demand, hi must be non-negative")
+			if self.lo > self.hi: raise ValueError("For 'UC' (uniform continuous) demand, lo must be <= hi")
 		elif self.type == 'D':
-			assert self.demand_list is not None,\
-				"For 'D' (deterministic) demand, demand_list must be provided"
+			if self.demand_list is None: raise ValueError("For 'D' (deterministic) demand, demand_list must be provided")
 		elif self.type == 'CD':
-			assert self.demand_list is not None, \
-				"For 'CD' (custom discrete) demand, demand_list must be provided"
-			assert self.probabilities is not None, \
-				"For 'CD' (custom discrete) demand, probabilities must be provided"
-			assert len(self.demand_list) == len(self.probabilities), \
-				"For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths"
-			assert np.sum(self.probabilities) == 1, \
-				"For 'CD' (custom discrete) demand, probabilities must sum to 1"
+			if self.demand_list is None: raise ValueError("For 'CD' (custom discrete) demand, demand_list must be provided")
+			if self.probabilities is None: raise ValueError("For 'CD' (custom discrete) demand, probabilities must be provided")
+			if len(self.demand_list) != len(self.probabilities): raise ValueError("For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths")
+			if np.sum(self.probabilities) != 1: raise ValueError("For 'CD' (custom discrete) demand, probabilities must sum to 1")
 
 	def cdf(self, x):
 		"""Cumulative distribution function of demand distribution.
 
-		In some cases, this is just a wrapper around ``cdf()`` functionm
+		In some cases, this is just a wrapper around ``cdf()`` function
 		of ``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
 
 		Parameters
@@ -398,6 +380,7 @@ class DemandSource(object):
 			distribution = self.demand_distribution
 			return distribution.cdf(x)
 
+
 	def lead_time_demand_distribution(self, lead_time):
 		"""Return lead-time demand distribution, as a
 		``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
@@ -405,7 +388,7 @@ class DemandSource(object):
 		NOTE: For 'UC' and 'UD' demands, this method calculates the lead-time
 		demand distribution as the sum of ``lead_time`` uniform random variables.
 		Therefore, the method requires ``lead_time`` to be an integer for these
-		distributions. If it is not, it raises a value error.
+		distributions. If it is not, it raises a ``ValueError``.
 
 		Parameters
 		----------
@@ -427,7 +410,7 @@ class DemandSource(object):
 
 		# Check whether lead_time is an integer.
 		if self.type in ('UC', 'UD') and not is_integer(lead_time):
-			raise(ValueError, "lead_time must be an integer for 'UC' and 'UD' demand")
+			raise ValueError("lead_time must be an integer for 'UC' and 'UD' demand")
 
 		# Get distribution object.
 		if self.type == 'N':
