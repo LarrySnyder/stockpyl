@@ -270,9 +270,357 @@
 		},
 		{
 			"name": "example_4_1_network",
-			"description": "Example 4.1 (as SupplyChainNetwork)",
+			"description": "Example 4.1 (newsvendor) (as SupplyChainNetwork)",
 			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [], \"local_holding_cost\": 0.18, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0.7, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 50, \"_standard_deviation\": 8, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 56.6, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_period\": 0}"
+		},
+		{
+			"name": "example_4_1",
+			"description": "Example 4.1 (newsvendor)",
+			"data": {
+				"holding_cost": 0.18,
+				"stockout_cost": 0.7,
+				"demand_mean": 50,
+				"demand_sd": 8
+			}
+		},
+		{
+			"name": "example_4_2",
+			"description": "Example 4.2 (newsvendor explicit)",
+			"data": {
+				"selling_revenue": 1,
+				"purchase_cost": 0.3,
+				"salvage_value": 0.12,
+				"demand_mean": 50,
+				"demand_sd": 8
+			}
+		},
+		{
+			"name": "example_4_2_network",
+			"description": "Example 4.2 (newsvendor explicit) (as SupplyChainNetwork)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [], \"local_holding_cost\": 0.18, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0.7, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 50, \"_standard_deviation\": 8, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 56.6, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_period\": 0}"
+		},
+		{
+			"name": "example_4_3",
+			"description": "Example 4.3 (newsvendor) (= Example 4.1)",
+			"data": {
+				"holding_cost": 0.18,
+				"stockout_cost": 0.7,
+				"demand_mean": 50,
+				"demand_sd": 8
+			}
+		},
+		{
+			"name": "problem_4_1",
+			"description": "Problem 4.1 (newsvendor)",
+			"data": {
+				"holding_cost": 43,
+				"stockout_cost": 79,
+				"demand_mean": 900,
+				"demand_sd": 60
+			}
+		},
+		{
+			"name": "problem_4_3b",
+			"description": "Problem 4.3(b) (newsvendor explicit)",
+			"data": {
+				"selling_revenue": 7,
+				"purchase_cost": 2.5,
+				"salvage_value": 1.5,
+				"demand_mean": 50,
+				"demand_sd": 10
+			}
+		},
+		{
+			"name": "example_4_4",
+			"description": "Example 4.4 (base-stock optimization)",
+			"data": {
+				"holding_cost": 0.18,
+				"stockout_cost": 0.7,
+				"demand_mean": 50,
+				"demand_sd": 8,
+				"lead_time": 4
+			}
+		},
+		{
+			"name": "example_4_7",
+			"description": "Example 4.7 ((s,S) with Poisson demand)",
+			"data": {
+				"holding_cost": 1,
+				"stockout_cost": 4,
+				"fixed_cost": 5,
+				"demand_mean": 6
+			}
+		},
+		{
+			"name": "problem_4_7b",
+			"description": "Problem 4.7(b) (newsvendor with discrete demand)",
+			"data": {
+				"holding_cost": 500000,
+				"stockout_cost": 1000000,
+				"demand_pmf": {
+					"1": 0.25,
+					"2": 0.05,
+					"3": 0.1,
+					"4": 0.2,
+					"5": 0.15,
+					"6": 0.1,
+					"7": 0.1,
+					"8": 0.05
+				}
+			}
+		},
+		{
+			"name": "problem_4_8a",
+			"description": "Problem 4.8(a) (newsvendor with Poisson demand)",
+			"data": {
+				"holding_cost": 200,
+				"stockout_cost": 270,
+				"demand_mean": 18
+			}
+		},
+		{
+			"name": "problem_4_31",
+			"description": "Problem 4.31 ((s,S) with Poisson demand)",
+			"data": {
+				"holding_cost": 40,
+				"stockout_cost": 125,
+				"fixed_cost": 150,
+				"demand_mean": 4
+			}
+		},
+		{
+			"name": "example_4_8",
+			"description": "Example 4.8 ((s,S))",
+			"data": {
+				"holding_cost": 0.18,
+				"stockout_cost": 0.7,
+				"fixed_cost": 2.5,
+				"demand_mean": 50,
+				"demand_sd": 8
+			}
+		},
+		{
+			"name": "problem_4_32",
+			"description": "Problem 4.32 ((s,S))",
+			"data": {
+				"holding_cost": 2,
+				"stockout_cost": 36,
+				"fixed_cost": 60,
+				"demand_mean": 190,
+				"demand_sd": 48
+			}
+		},
+		{
+			"name": "problem_4_29",
+			"description": "Problem 4.29 (finite-horizon)",
+			"data": {
+				"num_periods": 10,
+				"holding_cost": 1,
+				"stockout_cost": 25,
+				"terminal_holding_cost": 1,
+				"terminal_stockout_cost": 25,
+				"purchase_cost": 1,
+				"fixed_cost": 0,
+				"demand_mean": 18,
+				"demand_sd": 3,
+				"discount_factor": 0.98,
+				"initial_inventory_level": 0
+			}
+		},
+		{
+			"name": "problem_4_30",
+			"description": "Problem 4.30 (finite-horizon)",
+			"data": {
+				"num_periods": 10,
+				"holding_cost": 1,
+				"stockout_cost": 25,
+				"terminal_holding_cost": 1,
+				"terminal_stockout_cost": 25,
+				"purchase_cost": 1,
+				"fixed_cost": 40,
+				"demand_mean": 18,
+				"demand_sd": 3,
+				"discount_factor": 0.98,
+				"initial_inventory_level": 0
+			}
+		},
+		{
+			"name": "example_5_1",
+			"description": "Example 5.1 ((r,Q))",
+			"data": {
+				"holding_cost": 0.225,
+				"stockout_cost": 7.5,
+				"fixed_cost": 8,
+				"demand_mean": 1300,
+				"demand_sd": 150,
+				"lead_time": 0.08333333333333333
+			}
+		},
+		{
+			"name": "problem_5_1",
+			"description": "Problem 5.1 ((r,Q))",
+			"data": {
+				"holding_cost": 3.1,
+				"stockout_cost": 45,
+				"fixed_cost": 50,
+				"demand_mean": 800,
+				"demand_sd": 40,
+				"lead_time": 0.010958904109589041
+			}
+		},
+		{
+			"name": "problem_5_2",
+			"description": "Problem 5.2 ((r,Q) with Poisson demand)",
+			"data": {
+				"holding_cost": 4,
+				"stockout_cost": 28,
+				"fixed_cost": 4,
+				"demand_mean": 12,
+				"lead_time": 0.5
+			}
+		},
+		{
+			"name": "problem_5_3",
+			"description": "Problem 5.3 ((r,Q))",
+			"data": {
+				"holding_cost": 0.21428571428571427,
+				"stockout_cost": 40,
+				"fixed_cost": 85,
+				"demand_mean": 192,
+				"demand_sd": 17.4,
+				"lead_time": 3
+			}
+		},
+		{
+			"name": "example_5_8",
+			"description": "Example 5.8 ((r,Q) with Poisson demand)",
+			"data": {
+				"holding_cost": 20,
+				"stockout_cost": 150,
+				"fixed_cost": 100,
+				"demand_mean": 1.5,
+				"lead_time": 2
+			}
+		},
+		{
+			"name": "example_6_1",
+			"description": "Example 6.1 (serial SSM)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 2, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 4}], \"local_holding_cost\": 2, \"echelon_holding_cost\": 2, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 2, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 6}, \"_base_stock_level\": 10.69, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": 4, \"echelon_holding_cost\": 2, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 5.53, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": 7, \"echelon_holding_cost\": 3, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 37.12, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 5, \"_standard_deviation\": 1, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 6.49, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}, {\"py/id\": 6}], \"_period\": 0}"
+		},
+		{
+			"name": "problem_6_1",
+			"description": "Problem 6.1 (serial SSM)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": 1, \"echelon_holding_cost\": 1, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 94, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": 2, \"echelon_holding_cost\": 1, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 15, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 100, \"_standard_deviation\": 15, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 100, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}], \"_period\": 0}"
+		},
+		{
+			"name": "problem_6_2a",
+			"description": "Problem 6.2(a) (serial SSM)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 2, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 3, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 4, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 8}], \"local_holding_cost\": 7, \"echelon_holding_cost\": 1, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 0.5, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 10}, \"_base_stock_level\": 32.93, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [{\"py/id\": 6}], \"local_holding_cost\": 5, \"echelon_holding_cost\": 1, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 0.5, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 8}, \"_base_stock_level\": 33.3, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 4}], \"local_holding_cost\": 3, \"echelon_holding_cost\": 1, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 0.5, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 6}, \"_base_stock_level\": 35.14, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": 2, \"echelon_holding_cost\": 2, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 0.5, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 33.87, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": 1, \"echelon_holding_cost\": 2, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 24, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 0.5, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 64, \"_standard_deviation\": 8, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 40.59, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}, {\"py/id\": 6}, {\"py/id\": 8}, {\"py/id\": 10}], \"_period\": 0}"
+		},
+		{
+			"name": "problem_6_2a_adj",
+			"description": "Problem 6.2(a) (serial SSM), adjusted for periodic review (since L=0.5 in that problem, here we treat each period as having length 0.5 in the original problem.)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 2, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 3, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 4, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 8}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/reduce\": [{\"py/type\": \"numpy.dtype\"}, {\"py/tuple\": [\"f8\", false, true]}, {\"py/tuple\": [3, \"<\", null, null, null, -1, -1, 0]}]}, {\"py/b64\": \"AAAAAAAADEA=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 10}, \"_base_stock_level\": 32.93, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [{\"py/id\": 6}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAABEA=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 8}, \"_base_stock_level\": 33.3, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 4}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAA+D8=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 6}, \"_base_stock_level\": 35.14, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAA8D8=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 33.87, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAA4D8=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAKEA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 32.0, \"_standard_deviation\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"zDt/Zp6gFkA=\"}]}]}, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 40.59, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}, {\"py/id\": 6}, {\"py/id\": 8}, {\"py/id\": 10}], \"_period\": 0}"
+		},
+		{
+			"name": "problem_6_2b_adj",
+			"description": "Problem 6.2(b) (serial SSM), adjusted for periodic review (since L=0.5 in that problem, here we treat each period as having length 0.5 in the original problem.)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 2, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 3, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 4, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 8}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/reduce\": [{\"py/type\": \"numpy.dtype\"}, {\"py/tuple\": [\"f8\", false, true]}, {\"py/tuple\": [3, \"<\", null, null, null, -1, -1, 0]}]}, {\"py/b64\": \"AAAAAAAADEA=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 10}, \"_base_stock_level\": 32.93, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [{\"py/id\": 6}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAABEA=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 8}, \"_base_stock_level\": 33.3, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 4}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAA+D8=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 6}, \"_base_stock_level\": 35.14, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAA8D8=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAAAA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 33.87, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAA4D8=\"}]}]}, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"AAAAAAAAKEA=\"}]}]}, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 32.0, \"_standard_deviation\": {\"py/reduce\": [{\"py/function\": \"numpy.core.multiarray.scalar\"}, {\"py/tuple\": [{\"py/id\": 14}, {\"py/b64\": \"zDt/Zp6gFkA=\"}]}]}, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 40.59, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}, {\"py/id\": 6}, {\"py/id\": 8}, {\"py/id\": 10}], \"_period\": 0}"
+		},
+		{
+			"name": "problem_6_16",
+			"description": "Problem 6.16 (serial SSM)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": 2, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 3, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": 20, \"initial_orders\": 20, \"initial_shipments\": 20, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 57.7257, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": 7, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 24, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 8, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 20, \"_standard_deviation\": 4, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 20, \"initial_orders\": 20, \"initial_shipments\": 20, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 171.1912, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}], \"_period\": 0}"
+		},
+		{
+			"name": "example_9_1",
+			"description": "Example 9.1 (EOQB)",
+			"data": {
+				"holding_cost": 0.225,
+				"stockout_cost": 5,
+				"fixed_cost": 8,
+				"demand_rate": 1300,
+				"disruption_rate": 1.5,
+				"recovery_rate": 14
+			}
+		},
+		{
+			"name": "problem_9_8",
+			"description": "Problem 9.8 (EOQB)",
+			"data": {
+				"holding_cost": 4,
+				"stockout_cost": 22,
+				"fixed_cost": 35,
+				"demand_rate": 30,
+				"disruption_rate": 1,
+				"recovery_rate": 12
+			}
+		},
+		{
+			"name": "example_9_3",
+			"description": "Problem 9.5 (EOQ with multiplicative yield uncertainty",
+			"data": {
+				"holding_cost": 0.06,
+				"fixed_cost": 18500,
+				"demand_rate": 75000,
+				"yield_mean": 0.8333333333333334,
+				"yield_sd": 0.14085904245475275
+			}
+		},
+		{
+			"name": "example_9_4",
+			"description": "Example 9.4 (EOQ with additive yield uncertainty",
+			"data": {
+				"holding_cost": 0.06,
+				"fixed_cost": 18500,
+				"demand_rate": 75000,
+				"yield_mean": -15000,
+				"yield_sd": 9000
+			}
+		},
+		{
+			"name": "problem_9_4a",
+			"description": "Problem 9.4(a) (EOQ with additive yield uncertainty",
+			"data": {
+				"holding_cost": 275,
+				"fixed_cost": 2250,
+				"demand_rate": 182500,
+				"yield_mean": -50.0,
+				"yield_sd": 0.02
+			}
+		},
+		{
+			"name": "example_9_6",
+			"description": "Example 9.6 (newsvendor with additive yield uncertainty",
+			"data": {
+				"holding_cost": 15000000,
+				"stockout_cost": 75000000,
+				"demand": 1.5,
+				"yield_lo": -0.5,
+				"yield_hi": 0.5
+			}
+		},
+		{
+			"name": "problem_9_5",
+			"description": "Problem 9.5 (newsvendor with additive yield uncertainty",
+			"data": {
+				"holding_cost": 150,
+				"stockout_cost": 1200,
+				"demand": 25,
+				"yield_lo": -5,
+				"yield_hi": 0
+			}
+		},
+		{
+			"name": "assembly_3_stage",
+			"description": "3-stage assembly system (2 warehouses, 1 retailer)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": 1, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 2, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": 13, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 13, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}, {\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 2, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": 1, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 2, \"order_lead_time\": null, \"demand_source\": null, \"initial_inventory_level\": 11, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 9}, \"_base_stock_level\": 11, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": 2, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 20, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 5, \"_standard_deviation\": 1, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": true}, \"initial_inventory_level\": 7, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 7, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}, {\"py/id\": 9}], \"_period\": 0}"
+		},
+		{
+			"name": "rosling_figure_1",
+			"description": "assembly system from Figure 1 in Rosling (1989) (structure and lead times are from Rosling; all other parameters are made up)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 1, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 2, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 5, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 4}], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 4, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": null, \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 32, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 6}, \"_base_stock_level\": 62, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": null, \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 8, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 4}, \"_base_stock_level\": 24, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 3, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 4, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 6, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 18}], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": null, \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 8, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 20}, \"_base_stock_level\": 84, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}, {\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 7, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [{\"py/id\": 18}], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 2, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": null, \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 16, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 26}, \"_base_stock_level\": 92, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_successors\": [{\"py/id\": 16}], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 2, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": null, \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 16, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 18}, \"_base_stock_level\": 76, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [{\"py/id\": 2}], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 3, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": null, \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": 24, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 16}, \"_base_stock_level\": 40, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}], \"_successors\": [], \"local_holding_cost\": null, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": null, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"UD\", \"_mean\": null, \"_standard_deviation\": null, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": 0, \"_hi\": 10, \"_round_to_int\": false}, \"initial_inventory_level\": 8, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BEBS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 8, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": null, \"state_vars\": []}, {\"py/id\": 4}, {\"py/id\": 16}, {\"py/id\": 18}, {\"py/id\": 6}, {\"py/id\": 20}, {\"py/id\": 26}], \"_period\": 0}"
 		}
 	],
-	"last_updated": "2022-02-03 09:58:18.007457"
+	"last_updated": "2022-02-03 13:09:29.163081"
 }

@@ -49,6 +49,7 @@ import networkx as nx
 from stockpyl.gsm_tree_helpers import *
 from stockpyl.helpers import *
 
+# TODO: add instances to instance JSON
 
 ### GRAPH MANIPULATION ###
 
