@@ -1,5 +1,5 @@
 ``finite_horizon`` Module
 =========================
 
-.. automodule:: pyinv.finite_horizon
+.. automodule:: stockpyl.finite_horizon
     :members:

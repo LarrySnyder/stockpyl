@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rq Module &mdash; PyInv 0.1 documentation</title>
+  <title>rq Module &mdash; stockpyl 0.1 documentation</title>
   
 
   
@@ -53,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> PyInv
+            <a href="index.html" class="icon icon-home"> stockpyl
           
 
           
@@ -112,7 +112,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PyInv</a>
+          <a href="index.html">stockpyl</a>
         
       </nav>
 
@@ -164,16 +164,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pyinv.rq">
-<span id="rq-module"></span><h1><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module<a class="headerlink" href="#module-pyinv.rq" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-stockpyl.rq">
+<span id="rq-module"></span><h1><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module<a class="headerlink" href="#module-stockpyl.rq" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">rq</span></code> module contains code for solving the <span class="math notranslate nohighlight">\((r,Q)\)</span> problem.</p>
 <p>Functions in this module are called directly; they are not wrapped in a class.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_cost">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_cost">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
 policy with given parameters. Assumes demand is normally distributed.</p>
 <dl class="field-list simple">
@@ -214,8 +214,8 @@ policy with given parameters. Assumes demand is normally distributed.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_optimal_r_for_q">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_optimal_r_for_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_optimal_r_for_q" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_optimal_r_for_q">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_optimal_r_for_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_optimal_r_for_q" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate optimal <span class="math notranslate nohighlight">\(r\)</span> for the given <span class="math notranslate nohighlight">\(Q\)</span>. Assumes demand is
 normally distributed.</p>
 <p>Finds <span class="math notranslate nohighlight">\(r\)</span> using bisection search.</p>
@@ -257,8 +257,8 @@ when <span class="math notranslate nohighlight">\(g(r)\)</span> and <span class=
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_eil_approximation">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eil_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_eil_approximation">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eil_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “expected-inventory-level” (EIL)
 approximation. Assumes demand is normally distributed.</p>
 <dl class="field-list simple">
@@ -302,8 +302,8 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_eoqb_approximation">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqb_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_eoqb_approximation">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqb_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ with backorders” (EOQB)
 approximation. Assumes demand is normally distributed.</p>
 <dl class="field-list simple">
@@ -343,8 +343,8 @@ approximation. Assumes demand is normally distributed.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_eoqss_approximation">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqss_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_eoqss_approximation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_eoqss_approximation">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqss_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_eoqss_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ plus safety stock”
 (EOQ+SS) approximation. Assumes demand is normally distributed.</p>
 <dl class="field-list simple">
@@ -383,8 +383,8 @@ approximation. Assumes demand is normally distributed.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_loss_function_approximation">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_loss_function_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_loss_function_approximation">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_loss_function_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “loss function”
 approximation. Assumes demand is normally distributed.</p>
 <dl class="field-list simple">
@@ -428,8 +428,8 @@ second-order loss functions for the lead-time demand distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_cost_poisson">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_cost_poisson" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_cost_poisson">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_cost_poisson" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((r,Q)\)</span>
 policy with given parameters under Poisson demand.</p>
 <dl class="field-list simple">
@@ -471,8 +471,8 @@ policy with given parameters under Poisson demand.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.rq.r_q_poisson_exact">
-<span class="sig-prename descclassname"><span class="pre">pyinv.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_poisson_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.rq.r_q_poisson_exact" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.rq.r_q_poisson_exact">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_poisson_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_poisson_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine optimal <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> for Poisson demand_list, using
 algorithm by Federgruen and Zheng (1992).</p>
 <dl class="field-list simple">

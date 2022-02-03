@@ -1,5 +1,5 @@
 ``newsvendor`` Module
 ========================
 
-.. automodule:: pyinv.newsvendor
+.. automodule:: stockpyl.newsvendor
     :members:

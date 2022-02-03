@@ -1,5 +1,5 @@
 ``ss`` Module
 ========================
 
-.. automodule:: pyinv.ss
+.. automodule:: stockpyl.ss
     :members:

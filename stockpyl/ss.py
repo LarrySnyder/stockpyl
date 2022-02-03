@@ -9,8 +9,6 @@
 
 """The :mod:`ss` module contains code for solving the :math:`(s,S)` problem.
 
-Functions in this module are called directly; they are not wrapped in a class.
-
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>sim Module &mdash; PyInv 0.1 documentation</title>
+  <title>sim Module &mdash; stockpyl 0.1 documentation</title>
   
 
   
@@ -52,7 +52,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> PyInv
+            <a href="index.html" class="icon icon-home"> stockpyl
           
 
           
@@ -111,7 +111,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PyInv</a>
+          <a href="index.html">stockpyl</a>
         
       </nav>
 
@@ -163,8 +163,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pyinv.sim">
-<span id="sim-module"></span><h1><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module<a class="headerlink" href="#module-pyinv.sim" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-stockpyl.sim">
+<span id="sim-module"></span><h1><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module<a class="headerlink" href="#module-stockpyl.sim" title="Permalink to this headline">¶</a></h1>
 <p>Code for simulating multi-echelon inventory systems.</p>
 <p>‘node’ and ‘stage’ are used interchangeably in the documentation.</p>
 <p>The primary data object is the <code class="docutils literal notranslate"><span class="pre">SupplyChainNetwork</span></code> and the <code class="docutils literal notranslate"><span class="pre">SupplyChainNode</span></code> s
@@ -172,8 +172,8 @@ that it contains, which contains all of the data for the simulation instance.</p
 <p>(c) Lawrence V. Snyder
 Lehigh University</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.simulation">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.simulation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.simulation">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the simulation for <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> periods. Fills performance
 measures directly into <code class="docutils literal notranslate"><span class="pre">network</span></code>.</p>
 <dl class="field-list simple">
@@ -195,8 +195,8 @@ measures directly into <code class="docutils literal notranslate"><span class="p
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.generate_downstream_orders">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.generate_downstream_orders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.generate_downstream_orders">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.generate_downstream_orders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate demand_list and orders for all downstream nodes using depth-first-search.
 Ignore nodes for which visited=True.</p>
 <dl class="field-list simple">
@@ -213,8 +213,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.generate_downstream_shipments">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.generate_downstream_shipments" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.generate_downstream_shipments">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.generate_downstream_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate shipments to all downstream nodes using depth-first-search.
 Ignore nodes for which visited=True.</p>
 <dl class="field-list simple">
@@ -231,8 +231,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.initialize_state_vars">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.initialize_state_vars" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.initialize_state_vars">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.initialize_state_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the state variables for each node:</p>
 <blockquote>
 <div><ul class="simple">
@@ -250,8 +250,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.receive_inbound_orders">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.receive_inbound_orders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.receive_inbound_orders">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.receive_inbound_orders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive inbound orders:</p>
 <blockquote>
 <div><ul class="simple">
@@ -268,8 +268,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.initialize_next_period_state_vars">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_next_period_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.initialize_next_period_state_vars" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.initialize_next_period_state_vars">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_next_period_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.initialize_next_period_state_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set initial values for state variables in period <code class="docutils literal notranslate"><span class="pre">period</span></code> + 1.</p>
 <blockquote>
 <div><ul class="simple">
@@ -289,8 +289,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.calculate_period_costs">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_period_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.calculate_period_costs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.calculate_period_costs">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_period_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.calculate_period_costs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate costs and revenues for one period.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -303,8 +303,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.receive_inbound_shipments">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.receive_inbound_shipments" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.receive_inbound_shipments">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.receive_inbound_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive inbound shipment for the node:</p>
 <blockquote>
 <div><ul class="simple">
@@ -322,8 +322,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.raw_materials_to_finished_goods">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">raw_materials_to_finished_goods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.raw_materials_to_finished_goods" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.raw_materials_to_finished_goods">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">raw_materials_to_finished_goods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.raw_materials_to_finished_goods" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process raw materials to convert them to finished goods:</p>
 <blockquote>
 <div><ul class="simple">
@@ -345,8 +345,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.process_outbound_shipments">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">process_outbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_inventory_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_finished_goods</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.process_outbound_shipments" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.process_outbound_shipments">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">process_outbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_inventory_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_finished_goods</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.process_outbound_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process outbound shipments for the node:</p>
 <blockquote>
 <div><ul class="simple">
@@ -367,8 +367,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.calculate_fill_rate">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_fill_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.calculate_fill_rate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.calculate_fill_rate">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_fill_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.calculate_fill_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate fill rate for the node in the period.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -381,8 +381,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.propagate_shipment_downstream">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">propagate_shipment_downstream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.propagate_shipment_downstream" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.propagate_shipment_downstream">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">propagate_shipment_downstream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.propagate_shipment_downstream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Propagate shipment downstream, i.e., add it to successors’ <code class="docutils literal notranslate"><span class="pre">inbound_shipment_pipeline</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -398,8 +398,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.sim.run_multiple_trials">
-<span class="sig-prename descclassname"><span class="pre">pyinv.sim.</span></span><span class="sig-name descname"><span class="pre">run_multiple_trials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.sim.run_multiple_trials" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.run_multiple_trials">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">run_multiple_trials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.run_multiple_trials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run <code class="docutils literal notranslate"><span class="pre">num_trials</span></code> trials of the simulation, each with  <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>
 periods. Return mean and SEM of average cost.</p>
 <p>(To build alpha-confidence interval, use

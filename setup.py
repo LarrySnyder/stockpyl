@@ -6,13 +6,13 @@ def readme():
 
 setup(
 	name='stockpyl',
-	version='0.1',
+	version='0.1.0-alpha',
 	description='Python package for inventory optimization',
 	long_description=open("README.md").read(),
 	url='https://github.com/LarrySnyder/stockpyl',
 	author='Larry Snyder',
 	author_email='larry.snyder@lehigh.edu',
-	license='MIT',
+	license='GPLv3',
 	packages=['stockpyl'],
 	install_requires=[
 		'networkx',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>finite_horizon Module &mdash; PyInv 0.1 documentation</title>
+  <title>finite_horizon Module &mdash; stockpyl 0.1 documentation</title>
   
 
   
@@ -53,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> PyInv
+            <a href="index.html" class="icon icon-home"> stockpyl
           
 
           
@@ -112,7 +112,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PyInv</a>
+          <a href="index.html">stockpyl</a>
         
       </nav>
 
@@ -164,8 +164,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pyinv.finite_horizon">
-<span id="finite-horizon-module"></span><h1><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module<a class="headerlink" href="#module-pyinv.finite_horizon" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-stockpyl.finite_horizon">
+<span id="finite-horizon-module"></span><h1><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module<a class="headerlink" href="#module-stockpyl.finite_horizon" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">finite_horizon</span></code> module contains code for solving finite-horizon
 inventory optimization problems using dynamic programming.</p>
 <p>Functions in this module are called directly; they are not wrapped in a class.</p>
@@ -173,8 +173,8 @@ inventory optimization problems using dynamic programming.</p>
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.finite_horizon.finite_horizon_dp">
-<span class="sig-prename descclassname"><span class="pre">pyinv.finite_horizon.</span></span><span class="sig-name descname"><span class="pre">finite_horizon_dp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_inventory_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trunc_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.finite_horizon.finite_horizon_dp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.finite_horizon.finite_horizon_dp">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.finite_horizon.</span></span><span class="sig-name descname"><span class="pre">finite_horizon_dp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_inventory_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trunc_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.finite_horizon.finite_horizon_dp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the finite-horizon inventory optimization problem, with or without
 fixed costs, minimizing the expected discounted cost over the time horizon,
 using dynamic programming (DP).</p>
@@ -323,8 +323,8 @@ a larger value of <code class="docutils literal notranslate"><span class="pre">s
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.finite_horizon.myopic_bounds">
-<span class="sig-prename descclassname"><span class="pre">pyinv.finite_horizon.</span></span><span class="sig-name descname"><span class="pre">myopic_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.finite_horizon.myopic_bounds" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.finite_horizon.myopic_bounds">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.finite_horizon.</span></span><span class="sig-name descname"><span class="pre">myopic_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.finite_horizon.myopic_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the “myopic” bounds for the finite-horizon inventory optimization problem,
 with or without fixed costs.</p>
 <p>See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
@@ -398,7 +398,7 @@ period. If given as a list, the list must be of length <code class="docutils lit
 \[\bar{s}_t = \text{the value of } y \le \underline{S}_t \text{ such that } G_t(y) = G_t(\underline{S}_t) + K_t - \gamma_tK_{t+1},\]</div>
 <p>where <span class="math notranslate nohighlight">\(G_t(y)\)</span> is the myopic newsvendor cost function in period <span class="math notranslate nohighlight">\(t\)</span>,
 denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
-as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000), and is implemented in <code class="docutils literal notranslate"><span class="pre">pyinv.newsvendor.myopic()</span></code>.)</p>
+as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000), and is implemented in <code class="docutils literal notranslate"><span class="pre">stockpyl.newsvendor.myopic()</span></code>.)</p>
 <p>In the fourth equation, if <span class="math notranslate nohighlight">\(K_t - \gamma_tK_{t+1} &lt; 0\)</span>, then <span class="math notranslate nohighlight">\(\bar{s}_t\)</span> is invalid and
 <code class="docutils literal notranslate"><span class="pre">s_overbar[t]</span></code> is set to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <p class="rubric">References</p>

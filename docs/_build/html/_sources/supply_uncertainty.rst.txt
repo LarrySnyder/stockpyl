@@ -1,5 +1,5 @@
 ``supply_uncertainty`` Module
 =============================
 
-.. automodule:: pyinv.supply_uncertainty
+.. automodule:: stockpyl.supply_uncertainty
     :members:

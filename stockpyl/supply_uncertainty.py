@@ -10,13 +10,13 @@
 """The :mod:`supply_uncertainty` module contains code for solving inventory
 problems with supply uncertainty.
 
-Functions in this module are called directly; they are not wrapped in a class.
-
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
 """
+
+# TODO: add Dada
 
 from multiprocessing.sharedctypes import Value
 import numpy as np

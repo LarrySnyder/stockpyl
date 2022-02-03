@@ -1,5 +1,5 @@
 ``rq`` Module
 ========================
 
-.. automodule:: pyinv.rq
+.. automodule:: stockpyl.rq
     :members:

@@ -10,8 +10,6 @@
 """The :mod:`finite_horizon` module contains code for solving finite-horizon
 inventory optimization problems using dynamic programming.
 
-Functions in this module are called directly; they are not wrapped in a class.
-
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).

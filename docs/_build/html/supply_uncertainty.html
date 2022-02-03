@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>supply_uncertainty Module &mdash; PyInv 0.1 documentation</title>
+  <title>supply_uncertainty Module &mdash; stockpyl 0.1 documentation</title>
   
 
   
@@ -53,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> PyInv
+            <a href="index.html" class="icon icon-home"> stockpyl
           
 
           
@@ -112,7 +112,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PyInv</a>
+          <a href="index.html">stockpyl</a>
         
       </nav>
 
@@ -164,8 +164,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pyinv.supply_uncertainty">
-<span id="supply-uncertainty-module"></span><h1><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module<a class="headerlink" href="#module-pyinv.supply_uncertainty" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-stockpyl.supply_uncertainty">
+<span id="supply-uncertainty-module"></span><h1><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module<a class="headerlink" href="#module-stockpyl.supply_uncertainty" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> module contains code for solving inventory
 problems with supply uncertainty.</p>
 <p>Functions in this module are called directly; they are not wrapped in a class.</p>
@@ -173,8 +173,8 @@ problems with supply uncertainty.</p>
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_disruptions">
-<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_disruptions">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity problem with disruptions (EOQD) as
 presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).
 Problem is solved numerically using golden section search.</p>
@@ -246,8 +246,8 @@ Problem is solved numerically using golden section search.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_disruptions_cost">
-<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_disruptions_cost" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_disruptions_cost">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> as the solution to
 the economic order quantity problem with disruptions (EOQD) as
 presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
@@ -313,8 +313,8 @@ presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.supply_uncertainty.newsvendor_with_disruptions">
-<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.newsvendor_with_disruptions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.newsvendor_with_disruptions">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.newsvendor_with_disruptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with disruptions and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
 <dl class="field-list simple">
@@ -367,8 +367,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_additive_yield_uncertainty">
-<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the EOQ problem with additive yield uncertainty and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
 <p>Note that the optimal solution depends only on the mean and standard deviation
@@ -414,8 +414,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(Q\
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">
-<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_multiplicative_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_multiplicative_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the EOQ problem with multiplicative yield uncertainty and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
 <p>Note that the optimal solution depends only on the mean and standard deviation
@@ -461,8 +461,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(Q\
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">
-<span class="sig-prename descclassname"><span class="pre">pyinv.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.supply_uncertainty.newsvendor_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with additive yield uncertainty and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
 <p>Either provide <code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> and <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> to use a normal yield distribution,
@@ -517,7 +517,7 @@ and complementary loss function, respectively, of the yield distribution.</p>
 </pre></div>
 </div>
 <p>Using <code class="docutils literal notranslate"><span class="pre">uniform_loss()</span></code> to calculate loss functions, which is more accurate:</p>
-<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyinv.loss_functions</span> <span class="kn">import</span> <span class="n">uniform_loss</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.loss_functions</span> <span class="kn">import</span> <span class="n">uniform_loss</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">loss_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">uniform_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">500000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mf">1.5e6</span><span class="p">,</span> <span class="n">yield_distribution</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">),</span> <span class="n">loss_function</span><span class="o">=</span><span class="n">loss_function</span><span class="p">)</span>
 <span class="go">(1833333.3333333335, 6250000.000000001)</span>

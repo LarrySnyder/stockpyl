@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>eoq Module &mdash; PyInv 0.1 documentation</title>
+  <title>eoq Module &mdash; stockpyl 0.1 documentation</title>
   
 
   
@@ -53,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> PyInv
+            <a href="index.html" class="icon icon-home"> stockpyl
           
 
           
@@ -112,7 +112,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PyInv</a>
+          <a href="index.html">stockpyl</a>
         
       </nav>
 
@@ -164,8 +164,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pyinv.eoq">
-<span id="eoq-module"></span><h1><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module<a class="headerlink" href="#module-pyinv.eoq" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-stockpyl.eoq">
+<span id="eoq-module"></span><h1><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module<a class="headerlink" href="#module-stockpyl.eoq" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">eoq</span></code> module contains code for solving the economic order quantity
 (EOQ) problem and some of its variants.</p>
 <p>Functions in this module are called directly; they are not wrapped in a class.</p>
@@ -173,8 +173,8 @@
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.eoq.economic_order_quantity">
-<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_order_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.eoq.economic_order_quantity">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_order_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.eoq.economic_order_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity (EOQ) problem, or (if
 <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate cost of given solution.</p>
 <dl class="field-list simple">
@@ -209,8 +209,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(Q\
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.eoq.economic_order_quantity_with_backorders">
-<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_order_quantity_with_backorders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_order_quantity_with_backorders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.eoq.economic_order_quantity_with_backorders">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_order_quantity_with_backorders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.eoq.economic_order_quantity_with_backorders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity with backorders (EOQB) problem, or (if <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> and <code class="docutils literal notranslate"><span class="pre">stockout_fraction</span></code> are supplied) calculate cost of given solution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -248,8 +248,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(x\
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.eoq.economic_production_quantity">
-<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_production_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">production_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.economic_production_quantity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.eoq.economic_production_quantity">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.eoq.</span></span><span class="sig-name descname"><span class="pre">economic_production_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">production_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.eoq.economic_production_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic production quantity (EPQ) problem, or (if <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate cost of given solution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -284,8 +284,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(x\
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyinv.eoq.joint_replenishment_problem_silver_heuristic">
-<span class="sig-prename descclassname"><span class="pre">pyinv.eoq.</span></span><span class="sig-name descname"><span class="pre">joint_replenishment_problem_silver_heuristic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shared_fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_fixed_costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyinv.eoq.joint_replenishment_problem_silver_heuristic" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.eoq.joint_replenishment_problem_silver_heuristic">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.eoq.</span></span><span class="sig-name descname"><span class="pre">joint_replenishment_problem_silver_heuristic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shared_fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_fixed_costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.eoq.joint_replenishment_problem_silver_heuristic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the joint replenishment problem (JRP) using Silver’s (1976) heuristic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

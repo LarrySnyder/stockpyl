@@ -1,5 +1,5 @@
-PyInv Documentation
-===================
+stockpyl Documentation
+======================
 
 .. toctree::
     :maxdepth: 2
