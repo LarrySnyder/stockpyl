@@ -17,6 +17,7 @@ This module contains the ``SupplyChainNetwork`` class.
 # ===============================================================================
 
 import networkx as nx
+import json
 
 #import supply_chain_node
 from stockpyl.demand_source import *

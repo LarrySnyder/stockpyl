@@ -1,0 +1,278 @@
+{
+	"_id": "",
+	"instances": [
+		{
+			"name": "example_3_1",
+			"description": "Example 3.1 (EOQ)",
+			"data": {
+				"fixed_cost": 8,
+				"holding_cost": 0.225,
+				"demand_rate": 1300
+			}
+		},
+		{
+			"name": "problem_3_1",
+			"description": "Problem 3.1 (EOQ)",
+			"data": {
+				"fixed_cost": 2250,
+				"holding_cost": 275,
+				"demand_rate": 182500
+			}
+		},
+		{
+			"name": "example_3_8",
+			"description": "Example 3.8 (EOQB)",
+			"data": {
+				"fixed_cost": 8,
+				"holding_cost": 0.225,
+				"stockout_cost": 5,
+				"demand_rate": 1300
+			}
+		},
+		{
+			"name": "problem_3_2b",
+			"description": "Problem 3.2(b) (EOQB)",
+			"data": {
+				"fixed_cost": 40,
+				"holding_cost": 40.05,
+				"stockout_cost": 60,
+				"demand_rate": 2080
+			}
+		},
+		{
+			"name": "problem_3_22",
+			"description": "Problem 3.22 (EPQ)",
+			"data": {
+				"fixed_cost": 4,
+				"holding_cost": 0.08,
+				"demand_rate": 80,
+				"production_rate": 110
+			}
+		},
+		{
+			"name": "example_3_9",
+			"description": "Example 3.9 (Wagner-Whitin)",
+			"data": {
+				"num_periods": 4,
+				"holding_cost": 2,
+				"fixed_cost": 500,
+				"demand": [
+					90,
+					120,
+					80,
+					70
+				]
+			}
+		},
+		{
+			"name": "problem_3_27",
+			"description": "Problem 3.27 (Wagner-Whitin)",
+			"data": {
+				"num_periods": 4,
+				"holding_cost": 0.8,
+				"fixed_cost": 120,
+				"demand": [
+					150,
+					100,
+					80,
+					200
+				]
+			}
+		},
+		{
+			"name": "problem_3_29",
+			"description": "Problem 3.29 (Wagner-Whitin)",
+			"data": {
+				"num_periods": 5,
+				"holding_cost": 0.1,
+				"fixed_cost": 100,
+				"demand": [
+					730,
+					580,
+					445,
+					650,
+					880
+				]
+			}
+		},
+		{
+			"name": "scmo_ww_hw_c",
+			"description": "SCMO (Wagner-Whitin with nonstationary purchase cost)",
+			"data": {
+				"num_periods": 5,
+				"holding_cost": 0.1,
+				"fixed_cost": 100,
+				"demand": [
+					400,
+					500,
+					500,
+					1100,
+					900
+				],
+				"purchase_cost": [
+					3,
+					1,
+					4,
+					6,
+					6
+				]
+			}
+		},
+		{
+			"name": "scmo_jrp_ex",
+			"description": "SCMO (JRP example)",
+			"data": {
+				"shared_fixed_cost": 600,
+				"individual_fixed_costs": [
+					120,
+					840,
+					300
+				],
+				"holding_costs": [
+					160,
+					20,
+					50
+				],
+				"demand_rates": [
+					1,
+					1,
+					1
+				]
+			}
+		},
+		{
+			"name": "spp_jrp",
+			"description": "Numerical JRP on p. 428 of Silver, Pyke, and Peterson (1998)",
+			"data": {
+				"shared_fixed_cost": 40,
+				"individual_fixed_costs": [
+					15,
+					15,
+					15,
+					15
+				],
+				"holding_costs": [
+					0.24,
+					0.24,
+					0.24,
+					0.24
+				],
+				"demand_rates": [
+					86000,
+					12500,
+					1400,
+					3000
+				]
+			}
+		},
+		{
+			"name": "scmo_jrp_hw_1",
+			"description": "SCMO (JRP problem 1)",
+			"data": {
+				"shared_fixed_cost": 20000,
+				"individual_fixed_costs": [
+					36000,
+					46000,
+					34000,
+					38000
+				],
+				"holding_costs": [
+					1000,
+					900,
+					1200,
+					1000
+				],
+				"demand_rates": [
+					1780,
+					445,
+					920,
+					175
+				]
+			}
+		},
+		{
+			"name": "scmo_jrp_hw_2",
+			"description": "SCMO (JRP problem 2)",
+			"data": {
+				"shared_fixed_cost": 1500,
+				"individual_fixed_costs": [
+					4000,
+					1000,
+					2000
+				],
+				"holding_costs": [
+					300,
+					200,
+					200
+				],
+				"demand_rates": [
+					9100,
+					83200,
+					20800
+				]
+			}
+		},
+		{
+			"name": "scmo_jrp_hw_3",
+			"description": "SCMO (JRP problem 3)",
+			"data": {
+				"shared_fixed_cost": 180,
+				"individual_fixed_costs": [
+					60,
+					100,
+					180,
+					115,
+					135
+				],
+				"holding_costs": [
+					5.32,
+					3.9200000000000004,
+					4.760000000000001,
+					3.9200000000000004,
+					3.3600000000000003
+				],
+				"demand_rates": [
+					6200,
+					1300,
+					400,
+					4400,
+					1800
+				]
+			}
+		},
+		{
+			"name": "silver_jrp",
+			"description": "Numerical JRP example in Silver (1976)",
+			"data": {
+				"shared_fixed_cost": 10,
+				"individual_fixed_costs": [
+					1.87,
+					5.27,
+					7.94,
+					8.19,
+					8.87
+				],
+				"holding_costs": [
+					0.2,
+					0.2,
+					0.2,
+					0.2,
+					0.2
+				],
+				"demand_rates": [
+					1736,
+					656,
+					558,
+					170,
+					142
+				]
+			}
+		},
+		{
+			"name": "example_4_1_network",
+			"description": "Example 4.1 (as SupplyChainNetwork)",
+			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [], \"local_holding_cost\": 0.18, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0.7, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 50, \"_standard_deviation\": 8, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 56.6, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_period\": 0}"
+		}
+	],
+	"last_updated": "2022-02-03 09:58:18.007457"
+}

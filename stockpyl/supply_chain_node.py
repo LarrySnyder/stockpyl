@@ -20,7 +20,7 @@ in a supply chain network.
 import numpy as np
 import networkx as nx
 
-from stockpyl.datatypes import *
+#from stockpyl.datatypes import *
 from stockpyl.policy import *
 from stockpyl.demand_source import *
 from stockpyl.helpers import *
@@ -113,6 +113,8 @@ class SupplyChainNode(object):
 			The network that contains the node.
 		"""
 		# Initialize attributes.
+
+		# NOTE: If attributes change, must also change to_dict() and from_dict().
 
 		# --- Index and Name --- #
 		self.index = index
@@ -438,7 +440,7 @@ class SupplyChainNode(object):
 		"""
 		for i in range(len(self.state_vars)):
 			self.state_vars[i].reindex_state_variabels(old_to_new_dict)
-
+			
 
 # ===============================================================================
 # NodeStateVars Class

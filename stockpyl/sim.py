@@ -16,7 +16,7 @@ from scipy import stats
 from tqdm import tqdm				# progress bar
 import cProfile
 
-from stockpyl.datatypes import *
+#from stockpyl.datatypes import *
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
 from stockpyl.sim_io import *

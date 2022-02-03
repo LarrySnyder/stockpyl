@@ -6,7 +6,7 @@ def readme():
 
 setup(
 	name='stockpyl',
-	version='0.1.0-alpha',
+	version='0.1.0a0',
 	description='Python package for inventory optimization',
 	long_description=open("README.md").read(),
 	url='https://github.com/LarrySnyder/stockpyl',

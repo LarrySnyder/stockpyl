@@ -1,6 +1,6 @@
 import networkx as nx
 
-from stockpyl.datatypes import *
+#from stockpyl.datatypes import *
 from stockpyl.demand_source import *
 
 
