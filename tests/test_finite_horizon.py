@@ -92,17 +92,23 @@ class TestFiniteHorizon(unittest.TestCase):
 		"""
 		print_status('TestFiniteHorizon', 'test_problem_4_29()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_29")
+		instance = load_instance("problem_4_29")
 
 		# Solve problem.
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-			initial_inventory_level)
+			x_range = finite_horizon.finite_horizon_dp(
+				instance['num_periods'], 
+				instance['holding_cost'], 
+				instance['stockout_cost'], 
+				instance['terminal_holding_cost'], 
+				instance['terminal_stockout_cost'], 
+				instance['purchase_cost'], 
+				instance['fixed_cost'], 
+				instance['demand_mean'], 
+				instance['demand_sd'], 
+				instance['discount_factor'], 
+				instance['initial_inventory_level']
+			)
 
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
@@ -115,24 +121,23 @@ class TestFiniteHorizon(unittest.TestCase):
 		"""
 		print_status('TestFiniteHorizon', 'test_problem_4_29_with_T_arrays()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_29")
-		holding_cost = [holding_cost] * num_periods
-		stockout_cost = [stockout_cost] * num_periods
-		purchase_cost = [purchase_cost] * num_periods
-		fixed_cost = [fixed_cost] * num_periods
-		demand_mean = [demand_mean] * num_periods
-		demand_sd = [demand_sd] * num_periods
-		discount_factor = [discount_factor] * num_periods
+		instance = load_instance("problem_4_29")
+
+		num_periods = instance['num_periods']
+		holding_cost = [instance['holding_cost']] * num_periods
+		stockout_cost = [instance['stockout_cost']] * num_periods
+		purchase_cost = [instance['purchase_cost']] * num_periods
+		fixed_cost = [instance['fixed_cost']] * num_periods
+		demand_mean = [instance['demand_mean']] * num_periods
+		demand_sd = [instance['demand_sd']] * num_periods
+		discount_factor = [instance['discount_factor']] * num_periods
 
 		# Solve problem.
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+			stockout_cost, instance['terminal_holding_cost'], instance['terminal_stockout_cost'],
 			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-			initial_inventory_level)
+			instance['initial_inventory_level'])
 
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
@@ -145,24 +150,23 @@ class TestFiniteHorizon(unittest.TestCase):
 		"""
 		print_status('TestFiniteHorizon', 'test_problem_4_29_with_T1_arrays()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_29")
-		holding_cost = [None] + [holding_cost] * num_periods
-		stockout_cost = [None] + [stockout_cost] * num_periods
-		purchase_cost = [None] + [purchase_cost] * num_periods
-		fixed_cost = [None] + [fixed_cost] * num_periods
-		demand_mean = [None] + [demand_mean] * num_periods
-		demand_sd = [None] + [demand_sd] * num_periods
-		discount_factor = [None] + [discount_factor] * num_periods
+		instance = load_instance("problem_4_29")
+
+		num_periods = instance['num_periods']
+		holding_cost = [None] + [instance['holding_cost']] * num_periods
+		stockout_cost = [None] + [instance['stockout_cost']] * num_periods
+		purchase_cost = [None] + [instance['purchase_cost']] * num_periods
+		fixed_cost = [None] + [instance['fixed_cost']] * num_periods
+		demand_mean = [None] + [instance['demand_mean']] * num_periods
+		demand_sd = [None] + [instance['demand_sd']] * num_periods
+		discount_factor = [None] + [instance['discount_factor']] * num_periods
 
 		# Solve problem.
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
+			stockout_cost, instance['terminal_holding_cost'], instance['terminal_stockout_cost'],
 			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-			initial_inventory_level)
+			instance['initial_inventory_level'])
 
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
@@ -176,22 +180,21 @@ class TestFiniteHorizon(unittest.TestCase):
 		"""
 		print_status('TestFiniteHorizon', 'test_problem_4_29_with_mixed_inputs()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_29")
-		holding_cost = [None] + [holding_cost] * num_periods
-		stockout_cost = [stockout_cost] * num_periods
-		demand_mean = [None] + [demand_mean] * num_periods
-		demand_sd = [demand_sd] * num_periods
-		discount_factor = [None] + [discount_factor] * num_periods
+		instance = load_instance("problem_4_29")
+
+		num_periods = instance['num_periods']
+		holding_cost = [None] + [instance['holding_cost']] * num_periods
+		stockout_cost = [instance['stockout_cost']] * num_periods
+		demand_mean = [None] + [instance['demand_mean']] * num_periods
+		demand_sd = [instance['demand_sd']] * num_periods
+		discount_factor = [None] + [instance['discount_factor']] * num_periods
 
 		# Solve problem.
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-			initial_inventory_level)
+			stockout_cost, instance['terminal_holding_cost'], instance['terminal_stockout_cost'],
+			instance['purchase_cost'], instance['fixed_cost'], demand_mean, demand_sd, discount_factor,
+			instance['initial_inventory_level'])
 
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
@@ -203,17 +206,23 @@ class TestFiniteHorizon(unittest.TestCase):
 		"""
 		print_status('TestFiniteHorizon', 'test_problem_4_30()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_30")
+		instance = load_instance("problem_4_30")
 
 		# Solve problem.
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-			initial_inventory_level)
+			x_range = finite_horizon.finite_horizon_dp(
+				instance['num_periods'], 
+				instance['holding_cost'], 
+				instance['stockout_cost'], 
+				instance['terminal_holding_cost'], 
+				instance['terminal_stockout_cost'], 
+				instance['purchase_cost'], 
+				instance['fixed_cost'], 
+				instance['demand_mean'], 
+				instance['demand_sd'], 
+				instance['discount_factor'], 
+				instance['initial_inventory_level']
+			)
 
 		# Test against MATLAB solution.
 		self.compare_solution_vs_matlab(reorder_points, order_up_to_levels,
@@ -225,55 +234,91 @@ class TestFiniteHorizon(unittest.TestCase):
 		"""
 		print_status('TestFiniteHorizon', 'test_bad_parameters()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_30")
+		instance = load_instance("problem_4_30")
 
-		num_periods = -3
 		with self.assertRaises(ValueError):
 			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-				initial_inventory_level)
+				x_range = finite_horizon.finite_horizon_dp(
+					-3, 
+					instance['holding_cost'], 
+					instance['stockout_cost'], 
+					instance['terminal_holding_cost'], 
+					instance['terminal_stockout_cost'], 
+					instance['purchase_cost'], 
+					instance['fixed_cost'], 
+					instance['demand_mean'], 
+					instance['demand_sd'], 
+					instance['discount_factor'], 
+					instance['initial_inventory_level']
+				)
 
-		num_periods = 5.7
 		with self.assertRaises(ValueError):
 			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-				initial_inventory_level)
+				x_range = finite_horizon.finite_horizon_dp(
+					5.7, 
+					instance['holding_cost'], 
+					instance['stockout_cost'], 
+					instance['terminal_holding_cost'], 
+					instance['terminal_stockout_cost'], 
+					instance['purchase_cost'], 
+					instance['fixed_cost'], 
+					instance['demand_mean'], 
+					instance['demand_sd'], 
+					instance['discount_factor'], 
+					instance['initial_inventory_level']
+				)
 
-		num_periods = 10
-		terminal_holding_cost = -5
 		with self.assertRaises(ValueError):
 			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-				initial_inventory_level)
+				x_range = finite_horizon.finite_horizon_dp(
+					instance['num_periods'], 
+					instance['holding_cost'], 
+					instance['stockout_cost'], 
+					-5, 
+					instance['terminal_stockout_cost'], 
+					instance['purchase_cost'], 
+					instance['fixed_cost'], 
+					instance['demand_mean'], 
+					instance['demand_sd'], 
+					instance['discount_factor'], 
+					instance['initial_inventory_level']
+				)
 
-		terminal_holding_cost = holding_cost
 		holding_cost = [1] * 10
 		holding_cost[3] = -5
 		with self.assertRaises(ValueError):
 			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-				initial_inventory_level)
+				x_range = finite_horizon.finite_horizon_dp(
+					instance['num_periods'], 
+					holding_cost, 
+					instance['stockout_cost'], 
+					instance['terminal_holding_cost'], 
+					instance['terminal_stockout_cost'], 
+					instance['purchase_cost'], 
+					instance['fixed_cost'], 
+					instance['demand_mean'], 
+					instance['demand_sd'], 
+					instance['discount_factor'], 
+					instance['initial_inventory_level']
+				)
 
-		holding_cost[3] = 1
-		discount_factor = [discount_factor] * 10
+		discount_factor = [0.98] * 10
 		discount_factor[2] = 1.5
 		with self.assertRaises(ValueError):
 			reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-				x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
-				stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-				purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
-				initial_inventory_level)
+				x_range = finite_horizon.finite_horizon_dp(
+					instance['num_periods'], 
+					instance['holding_cost'], 
+					instance['stockout_cost'], 
+					instance['terminal_holding_cost'], 
+					instance['terminal_stockout_cost'], 
+					instance['purchase_cost'], 
+					instance['fixed_cost'], 
+					instance['demand_mean'], 
+					instance['demand_sd'], 
+					discount_factor, 
+					instance['initial_inventory_level']
+				)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestFiniteHorizon.test_instance_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_instance_1(self):
@@ -288,7 +333,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		terminal_holding_cost = 4
 		terminal_stockout_cost = 50
 		purchase_cost = [0.5, 0.5, 0.5, 0.5, 0.2, 0.8, 0.2, 0.8, 0.5, 0.5, 0.5, 0.5]
-		fixed_cost = 0
+		fixed_cost = 0,
 		demand_mean = [20, 60, 110, 200, 200, 40, 200, 200, 100, 170, 30, 90]
 		demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000, 46.7000, 33.9000, 18.9000, 31.6000, 2.9000,
 					 14.8000]
@@ -336,14 +381,20 @@ class TestMyopicBounds(unittest.TestCase):
 		"""
 		print_status('TestMyopicBounds', 'test_problem_4_29()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_29")
+		instance = load_instance("problem_4_29")
 
-		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
+		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(
+				instance['num_periods'], 
+				instance['holding_cost'], 
+				instance['stockout_cost'], 
+				instance['terminal_holding_cost'], 
+				instance['terminal_stockout_cost'], 
+				instance['purchase_cost'], 
+				instance['fixed_cost'], 
+				instance['demand_mean'], 
+				instance['demand_sd'], 
+				instance['discount_factor']
+			)
 
 		np.testing.assert_allclose(S_underbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
 		np.testing.assert_allclose(S_overbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
@@ -355,16 +406,21 @@ class TestMyopicBounds(unittest.TestCase):
 		"""
 		print_status('TestMyopicBounds', 'test_problem_4_29_with_K()')
 
-		num_periods, holding_cost, stockout_cost, terminal_holding_cost, \
-			terminal_stockout_cost, purchase_cost, fixed_cost, demand_mean, \
-			demand_sd, discount_factor, initial_inventory_level = \
-			get_named_instance("problem_4_29")
+		instance = load_instance("problem_4_29")
 		fixed_cost = 100
 
-		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(num_periods, holding_cost,
-			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor)
-
+		S_underbar, S_overbar, s_underbar, s_overbar = finite_horizon.myopic_bounds(
+				instance['num_periods'], 
+				instance['holding_cost'], 
+				instance['stockout_cost'], 
+				instance['terminal_holding_cost'], 
+				instance['terminal_stockout_cost'], 
+				instance['purchase_cost'], 
+				fixed_cost, 
+				instance['demand_mean'], 
+				instance['demand_sd'], 
+				instance['discount_factor']
+			)
 		np.testing.assert_allclose(S_underbar, [0., 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 23.27904955, 22.7233349])
 		np.testing.assert_allclose(S_overbar, [0., 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 120.5649451, 22.7233349])
 		np.testing.assert_allclose(s_underbar, [0., 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 13.85076661, 16.09987465])

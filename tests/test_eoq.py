@@ -41,9 +41,9 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_example_3_1()')
 
-		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		instance = load_instance("example_3_1")
 
-		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		order_quantity, cost = economic_order_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'])
 		self.assertAlmostEqual(order_quantity, 304.0467800264368)
 		self.assertAlmostEqual(cost, 68.410525505948272)
 
@@ -53,12 +53,12 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_order_quantity()')
 
-		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		instance = load_instance("example_3_1")
 
-		_, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate, 304.0467800264368)
+		_, cost = economic_order_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], 304.0467800264368)
 		self.assertAlmostEqual(cost, 68.410525505948272)
 
-		_,  cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate, 250)
+		_,  cost = economic_order_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], 250)
 		self.assertAlmostEqual(cost, 69.724999999999994)
 
 	def test_problem_3_1(self):
@@ -66,9 +66,9 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantity', 'test_problem_3_1()')
 
-		fixed_cost, holding_cost, demand_rate = get_named_instance("problem_3_1")
+		instance = load_instance("problem_3_1")
 
-		order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
+		order_quantity, cost = economic_order_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'])
 		self.assertAlmostEqual(order_quantity, 1728.109844993551)
 		self.assertAlmostEqual(cost, 475230.2073732266)
 
@@ -111,11 +111,10 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantityWithBackorders', 'test_example_3_8()')
 
-		fixed_cost, holding_cost, stockout_cost, demand_rate = \
-			get_named_instance("example_3_8")
+		instance = load_instance("example_3_8")
 
 		order_quantity, stockout_fraction, cost = \
-			economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+			economic_order_quantity_with_backorders(instance['fixed_cost'], instance['holding_cost'], instance['stockout_cost'], instance['demand_rate'])
 		self.assertAlmostEqual(order_quantity, 310.8125551589646)
 		self.assertAlmostEqual(stockout_fraction, 0.043062200956938)
 		self.assertAlmostEqual(cost, 66.921363550973254)
@@ -125,11 +124,10 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantityWithBackorders', 'test_problem_3_2b()')
 
-		fixed_cost, holding_cost, stockout_cost, demand_rate = \
-			get_named_instance("problem_3_2b")
+		instance = load_instance("problem_3_2b")
 
 		order_quantity, stockout_fraction, cost = \
-			economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate)
+			economic_order_quantity_with_backorders(instance['fixed_cost'], instance['holding_cost'], instance['stockout_cost'], instance['demand_rate'])
 		self.assertAlmostEqual(order_quantity, 83.235448128898042)
 		self.assertAlmostEqual(stockout_fraction, 0.400299850074962)
 		self.assertAlmostEqual(cost, 1999.148244415212)
@@ -140,13 +138,12 @@ class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 		"""
 		print_status('TestEconomicOrderQuantityWithBackorders', 'test_order_quantity()')
 
-		fixed_cost, holding_cost, stockout_cost, demand_rate = \
-			get_named_instance("problem_3_2b")
+		instance = load_instance("problem_3_2b")
 
-		_, _, cost = economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate, 83.235448128898042, 0.400299850074962)
+		_, _, cost = economic_order_quantity_with_backorders(instance['fixed_cost'], instance['holding_cost'], instance['stockout_cost'], instance['demand_rate'], 83.235448128898042, 0.400299850074962)
 		self.assertAlmostEqual(cost, 1999.148244415212)
 
-		_, _, cost = economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate, 100, 0.3)
+		_, _, cost = economic_order_quantity_with_backorders(instance['fixed_cost'], instance['holding_cost'], instance['stockout_cost'], instance['demand_rate'], 100, 0.3)
 		self.assertAlmostEqual(cost, 2083.225000000000)
 
 	def test_bad_type(self):
@@ -212,10 +209,10 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicProductionQuantity', 'test_example_3_1()')
 
-		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		instance = load_instance("example_3_1")
 		production_rate = 2000
 
-		order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+		order_quantity, cost = economic_production_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], production_rate)
 		self.assertAlmostEqual(order_quantity, 513.9328595516969)
 		self.assertAlmostEqual(cost, 40.472212689696120)
 
@@ -225,13 +222,13 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicProductionQuantity', 'test_order_quantity()')
 
-		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		instance = load_instance("example_3_1")
 		production_rate = 2000
 
-		_, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate, 513.9328595516969)
+		_, cost = economic_production_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], production_rate, 513.9328595516969)
 		self.assertAlmostEqual(cost, 40.472212689696120)
 
-		_,  cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate, 350)
+		_,  cost = economic_production_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], production_rate, 350)
 		self.assertAlmostEqual(cost, 43.495535714285715)
 
 	def test_problem_3_22(self):
@@ -239,10 +236,9 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicProductionQuantity', 'test_problem_3_22()')
 
-		fixed_cost, holding_cost, demand_rate, production_rate = \
-			get_named_instance("problem_3_22")
+		instance = load_instance("problem_3_22")
 
-		order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+		order_quantity, cost = economic_production_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], instance['production_rate'])
 		self.assertAlmostEqual(order_quantity, 171.2697677155351)
 		self.assertAlmostEqual(cost, 3.736794931975310)
 
@@ -275,16 +271,11 @@ class TestEconomicProductionQuantity(unittest.TestCase):
 		"""
 		print_status('TestEconomicProductionQuantity', 'test_bad_producition_rate()')
 
-		fixed_cost, holding_cost, demand_rate = get_named_instance("example_3_1")
+		instance = load_instance("example_3_1")
 		production_rate = 1000
 
-		fixed_cost = fixed_cost
-		holding_cost = holding_cost
-		demand_rate = demand_rate
-		production_rate = production_rate
-
 		with self.assertRaises(ValueError):
-			order_quantity, cost = economic_production_quantity(fixed_cost, holding_cost, demand_rate, production_rate)
+			order_quantity, cost = economic_production_quantity(instance['fixed_cost'], instance['holding_cost'], instance['demand_rate'], production_rate)
 
 class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 	@classmethod
@@ -303,10 +294,10 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_example_scmo()')
 
-		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_ex")
+		instance = load_instance("jrp_ex")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic(instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates'])
 
 		self.assertListEqual(order_quantities, [3.103164454170876, 9.309493362512628, 3.103164454170876])
 		self.assertEqual(base_cycle_time, 3.103164454170876)
@@ -319,10 +310,10 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_hw_1_scmo()')
 
-		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_hw_1")
+		instance = load_instance("jrp_hw_1")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic(instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates'])
 
 		self.assertListEqual(order_quantities, [434.91461289169166, 217.45730644584583, 224.78732801143613, 128.2753773978304])
 		self.assertEqual(base_cycle_time, 0.24433405218634363)
@@ -335,10 +326,10 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_silver()')
 
-		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_silver")
+		instance = load_instance("jrp_silver")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic((instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates']))
 
 		self.assertListEqual(order_quantities, [488.4707307805676, 184.58340978804858, 157.00844917946816, 143.50234602424507, 119.8666655026047])
 		self.assertEqual(base_cycle_time, 0.2813771490671472)
@@ -351,10 +342,10 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_spp()')
 
-		shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates = get_named_instance("jrp_spp")
+		instance = load_instance("jrp_spp")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+			joint_replenishment_problem_silver_heuristic((instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates']))
 
 		self.assertListEqual(order_quantities, [6550.912625995079, 952.1675328481219, 426.57105471595867, 685.5606236506478])
 		self.assertEqual(base_cycle_time, 0.07617340262784976)

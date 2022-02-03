@@ -42,8 +42,11 @@ class TestNewsvendorNormal(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_example_4_3()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_3")
+		instance = load_instance("example_4_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
@@ -58,8 +61,11 @@ class TestNewsvendorNormal(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_problem_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("problem_4_1")
+		instance = load_instance("problem_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(base_stock_level, 9.227214038234755e+02)
@@ -75,8 +81,12 @@ class TestNewsvendorNormal(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_example_4_4()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_4_4")
+		instance = load_instance("example_4_4")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=lead_time)
 		self.assertAlmostEqual(base_stock_level, 2.647668943741548e+02)
@@ -128,8 +138,11 @@ class TestNewsvendorNormalCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalCost', 'test_example_4_3()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_3")
+		instance = load_instance("example_4_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		cost = newsvendor.newsvendor_normal_cost(40, holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(cost, 7.356131552870388)
@@ -145,8 +158,11 @@ class TestNewsvendorNormalCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalCost', 'test_problem_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("problem_4_1")
+		instance = load_instance("problem_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		cost = newsvendor.newsvendor_normal_cost(1100, holding_cost, stockout_cost, demand_mean, demand_sd)
 		self.assertAlmostEqual(cost, 8.600820410122849e+03)
@@ -175,8 +191,10 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoisson', 'test_example_4_7()')
 
-		holding_cost, stockout_cost, _, demand_mean = \
-			get_named_instance("example_4_7")
+		instance = load_instance("example_4_7")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
 
 		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
 		self.assertEqual(base_stock_level, 8)
@@ -191,8 +209,10 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoisson', 'test_problem_4_8a()')
 
-		holding_cost, stockout_cost, demand_mean = \
-			get_named_instance("problem_4_8a")
+		instance = load_instance("problem_4_8a")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
 
 		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
 		self.assertEqual(base_stock_level, 19)
@@ -243,8 +263,10 @@ class TestNewsvendorPoissonCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoissonCost', 'test_example_4_7()')
 
-		holding_cost, stockout_cost, _, demand_mean = \
-			get_named_instance("example_4_7")
+		instance = load_instance("example_4_7")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
 
 		cost = newsvendor.newsvendor_poisson_cost(8, holding_cost, stockout_cost, demand_mean)
 		self.assertAlmostEqual(cost, 3.570106945770946)
@@ -258,8 +280,10 @@ class TestNewsvendorPoissonCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorPoissonCost', 'test_problem_4_8a()')
 
-		holding_cost, stockout_cost, demand_mean = \
-			get_named_instance("problem_4_8a")
+		instance = load_instance("problem_4_8a")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
 
 		cost = newsvendor.newsvendor_poisson_cost(19, holding_cost, stockout_cost, demand_mean)
 		self.assertAlmostEqual(cost, 7.860884409351115e+02)
@@ -285,8 +309,11 @@ class TestNewsvendorContinuous(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorContinuous', 'test_example_4_1_with_distrib()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_1")
+		instance = load_instance("example_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		demand_distrib = norm(demand_mean, demand_sd)
 
@@ -312,8 +339,11 @@ class TestNewsvendorContinuous(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorContinuous', 'test_problem_4_8b()')
 
-		holding_cost, stockout_cost, mu, sigma = \
-			get_named_instance("problem_4_8b")
+		instance = load_instance("problem_4_8b")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		mu = instance['mu']
+		sigma = instance['sigma']
 
 		demand_distrib = lognorm(sigma, 0, np.exp(mu))
 
@@ -373,8 +403,10 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_example_4_7_with_distrib()')
 
-		holding_cost, stockout_cost, _, demand_mean = \
-			get_named_instance("example_4_7")
+		instance = load_instance("example_4_7")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
 
 		demand_distrib = poisson(demand_mean)
 
@@ -392,8 +424,10 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_example_4_7_with_pmf()')
 
-		holding_cost, stockout_cost, _, demand_mean = \
-			get_named_instance("example_4_7")
+		instance = load_instance("example_4_7")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
 
 		d = range(0, 41)
 		f = [poisson.pmf(d_val, demand_mean) for d_val in d]
@@ -412,8 +446,10 @@ class TestNewsvendorDiscrete(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorDiscrete', 'test_problem_4_7b()')
 
-		holding_cost, stockout_cost, demand_pmf = \
-			get_named_instance("problem_4_7b")
+		instance = load_instance("problem_4_7b")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_pmf = instance['demand_pmf']
 
 		base_stock_level, cost = newsvendor.newsvendor_discrete(holding_cost, stockout_cost, demand_pmf=demand_pmf)
 		self.assertEqual(base_stock_level, 5)
@@ -469,8 +505,11 @@ class TestMyopic(unittest.TestCase):
 		"""
 		print_status('TestMyopic', 'test_example_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_1")
+		instance = load_instance("example_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 0.3
 		purchase_cost_next_per = 0.35
 		discount_factor = 0.98
@@ -493,8 +532,11 @@ class TestMyopic(unittest.TestCase):
 		"""
 		print_status('TestMyopicCost', 'test_problem_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("problem_4_1")
+		instance = load_instance("problem_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 65
 		purchase_cost_next_per = 55
 		discount_factor = 0.9
@@ -529,8 +571,11 @@ class TestMyopicCost(unittest.TestCase):
 		"""
 		print_status('TestMyopicCost', 'test_example_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_1")
+		instance = load_instance("example_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 0.3
 		purchase_cost_next_per = 0.4
 		discount_factor = 0.98
@@ -561,8 +606,11 @@ class TestMyopicCost(unittest.TestCase):
 		"""
 		print_status('TestMyopicCost', 'test_problem_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("problem_4_1")
+		instance = load_instance("problem_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 65
 		purchase_cost_next_per = 55
 		discount_factor = 0.9
@@ -605,8 +653,11 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		"""
 		print_status('TestSetMyopicCostTo', 'test_example_4_3()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_1")
+		instance = load_instance("example_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 0.3
 		purchase_cost_next_per = 0.4
 		discount_factor = 0.98
@@ -694,8 +745,11 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		"""
 		print_status('TestSetMyopicCostTo', 'test_problem_4_1()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("problem_4_1")
+		instance = load_instance("problem_4_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 65
 		purchase_cost_next_per = 55
 		discount_factor = 0.9
@@ -783,8 +837,11 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		"""
 		print_status('TestSetMyopicCostTo', 'test_cost_too_small()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_3")
+		instance = load_instance("example_4_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 0.3
 		purchase_cost_next_per = 0.4
 		discount_factor = 0.98
@@ -814,8 +871,11 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		"""
 		print_status('TestSetMyopicCostTo', 'test_bad_c_plus()')
 
-		holding_cost, stockout_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_3")
+		instance = load_instance("example_4_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 		purchase_cost = 0.3
 		purchase_cost_next_per = 0.8
 		discount_factor = 0.95
@@ -862,8 +922,12 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalExplicit', 'test_example_4_2()')
 
-		selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd \
-			= get_named_instance("example_4_2")
+		instance = load_instance("example_4_2")
+		selling_revenue = instance['selling_revenue']
+		purchase_cost = instance['purchase_cost']
+		salvage_value = instance['salvage_value']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
 									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd)
@@ -881,8 +945,12 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalExplicit', 'test_problem_4_3b()')
 
-		selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd \
-			= get_named_instance("problem_4_3b")
+		instance = load_instance("problem_4_3b")
+		selling_revenue = instance['selling_revenue']
+		purchase_cost = instance['purchase_cost']
+		salvage_value = instance['salvage_value']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
 									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd)

@@ -43,7 +43,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_dict()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		values = {0: [0, 5, 10], 1: list(range(10)), 2: list(range(0, 30, 5))}
 
 		td_dict = meio.truncate_and_discretize(network.node_indices, values)
@@ -56,7 +56,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_lo_hi_as_dict()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		lo = {0: 0, 1: 10, 2: 100}
 		hi = {0: 10, 1: 12, 2: 200}
 
@@ -70,7 +70,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_lo_hi_as_float()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		lo = 0
 		hi = 10
 
@@ -84,7 +84,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_lo_hi_as_float()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		step = {0: 1, 1: 5, 2: 10}
 
 		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_step=step)
@@ -97,7 +97,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_num_as_dict()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		num = {0: 11, 1: 51, 2: 101}
 
 		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_num=num)
@@ -110,7 +110,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_num_as_int()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		num = 26
 
 		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_num=num)
@@ -124,7 +124,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		"""
 		print_status('TestTruncateAndDiscretize', 'test_dict_of_nones()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 		num = 26
 		values = {i: None for i in network.node_indices}
 
@@ -184,7 +184,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		"""
 		print_status('TestMEIOByEnumeration', 'test_example_4_1()')
 
-		network = get_named_instance("example_4_1_network")
+		network = load_instance("example_4_1_network")
 
 		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
 												sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762,
@@ -199,7 +199,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		"""
 		print_status('TestMEIOByEnumeration', 'test_example_6_1()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={0: 5, 1: 4, 2: 10},
 													 truncation_hi={0: 7, 1: 7, 2: 12}, sim_num_trials=5,
@@ -215,7 +215,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		"""
 		print_status('TestMEIOByEnumeration', 'test_example_6_1_obj_fcn()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
 		network.reindex_nodes({0: 1, 1: 2, 2: 3})
@@ -235,7 +235,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		"""
 		print_status('TestMEIOByEnumeration', 'test_rong_atan_snyder_figure_1a()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1a")
+		network = load_instance("rong_atan_snyder_figure_1a")
 
 		best_S, best_cost = meio.meio_by_enumeration(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 												truncation_lo={0: 35, 1: 22, 3: 10},
@@ -266,7 +266,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		"""
 		print_status('TestMEIOByCoordinateDescent', 'test_example_4_1()')
 
-		network = get_named_instance("example_4_1_network")
+		network = load_instance("example_4_1_network")
 
 		best_S, best_cost = meio.meio_by_coordinate_descent(network, initial_solution={0: 50},
 															search_lo=40, search_hi=60,
@@ -281,7 +281,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		"""
 		print_status('TestMEIOByCoordinateDescent', 'test_example_4_1_obj_fcn()')
 
-		network = get_named_instance("example_4_1_network")
+		network = load_instance("example_4_1_network")
 		n0 = network.nodes[0]
 
 		f = lambda S: newsvendor_normal_cost(S[0], n0.holding_cost, n0.stockout_cost, n0.demand_source.mean, n0.demand_source.standard_deviation)
@@ -299,7 +299,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		"""
 		print_status('TestMEIOByCoordinateDescent', 'test_example_6_1()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={0: 5, 1: 4, 2: 10},
 													 truncation_hi={0: 7, 1: 7, 2: 12}, sim_num_trials=5,
@@ -315,7 +315,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		"""
 		print_status('TestMEIOByCoordinateDescent', 'test_example_6_1_obj_fcn()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
 		network.reindex_nodes({0: 1, 1: 2, 2: 3})
@@ -335,7 +335,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		"""
 		print_status('TestMEIOByCoordinateDescent', 'test_rong_atan_snyder_figure_1a()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1a")
+		network = load_instance("rong_atan_snyder_figure_1a")
 
 		best_S, best_cost = meio.meio_by_coordinate_descent(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 												search_lo={0: 35, 1: 22, 3: 10},

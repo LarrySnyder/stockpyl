@@ -686,6 +686,7 @@ def myopic_bounds(
 	return S_underbar, S_overbar, s_underbar, s_overbar
 
 
+# TODO: delete or move this
 
 if __name__ == "__main__":
 

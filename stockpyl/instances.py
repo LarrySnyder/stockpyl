@@ -51,7 +51,7 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
 	instance_index = next((i for i, item in enumerate(json_contents["instances"]) \
 		if item["name"] == instance_name), None)
 	# Was instance found?
-	if not instance_index:
+	if instance_index is None:
 		raise KeyError("The speficied instance name was not found")
 
 	# Get instance (in case it was jsonpickled).
@@ -62,6 +62,12 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
 	try:
 		return jsonpickle.decode(instance)
 	except:
+		# If the instance contains any dicts with integer keys, they will have
+		# been saved as strings when the JSON was saved. Convert them back to integers here.
+		# Currently, only demand_pmf has this issue.
+		if 'demand_pmf' in instance.keys():
+			instance['demand_pmf'] = {int(k): v for k, v in instance['demand_pmf'].items()}
+
 		return instance
 
 
@@ -114,7 +120,7 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	instance_index = next((i for i, item in enumerate(json_contents["instances"]) \
 		if item["name"] == instance_name), None)
 	# Was instance found?
-	if instance_index:
+	if instance_index is not None:
 		if not replace:
 			return
 
@@ -140,66 +146,9 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 		json_contents["instances"].append(instance_dict)
 	json_contents["last_updated"] = f"{datetime.datetime.now()}"
 
-	# Write all instances to JSON.
-	with open(filepath, 'w') as f:
-		json.dump(json_contents, f)
-
-	# Close file.
-	f.close()
-
-
-def update_instance(instance_name, instance_data, instance_description=None, filepath=DEFAULT_JSON_FILEPATH):
-	"""Modify an instance in a JSON file.
-
-	Parameters
-	----------
-	instance_name : str
-		The name of the instance, for retreival. (The instance name cannot be changed by this function.)
-	instance_data : dict
-		The new instance data as a dictionary, with keys equal to variable names (e.g., ``holding_cost``)
-		and values equal to variable values (e.g., 0.5).
-	instance_description : str, optional
-		The new description. Set to ``None`` to leave the old description in place.
-	filepath : str, optional
-		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
-
-	Raises
-	------
-	ValueError 
-		If ``instance_name`` does not exist in the JSON file.
-	"""
-
-	# TODO: unit tests
-
-	# Load data from JSON.
-	with open(filepath) as f:
-		json_contents = json.load(f)
-
-	# Find instance. (https://stackoverflow.com/a/8653568/3453768)
-	instance_index = next((i for i, item in enumerate(json_contents["instances"]) \
-		if item["name"] == instance_name), None)
-	
-	# Was instance found?
-	if not instance_index:
-		raise KeyError('Instance was not found in JSON file.')
-
-	# Get old instance.
-	old_instance = json_contents["instances"][instance_index]
-	
-	# Build new instance.
-	if instance_description is None:
-		new_description = old_instance["description"]
-	else:
-		new_description = instance_description
-	new_instance = {
-		"name": instance_name,
-		"description": new_description,
-		"data": instance_data
-	}
-
-	# Replace instance in list.
-	json_contents["instances"][instance_index] = new_instance
-	json_contents["last_updated"] = f"{datetime.datetime.now()}"
+	# If the instance contains any dicts with integer keys, they will be
+	# saved as strings when the JSON is saved. load_instance() converts them back to integers.
+	# Currently, only demand_pmf has this issue.
 
 	# Write all instances to JSON.
 	with open(filepath, 'w') as f:
@@ -207,6 +156,67 @@ def update_instance(instance_name, instance_data, instance_description=None, fil
 
 	# Close file.
 	f.close()
+
+
+# def update_instance(instance_name, instance_data, instance_description=None, filepath=DEFAULT_JSON_FILEPATH):
+# 	"""Modify an instance in a JSON file.
+
+# 	Parameters
+# 	----------
+# 	instance_name : str
+# 		The name of the instance, for retreival. (The instance name cannot be changed by this function.)
+# 	instance_data : dict
+# 		The new instance data as a dictionary, with keys equal to variable names (e.g., ``holding_cost``)
+# 		and values equal to variable values (e.g., 0.5).
+# 	instance_description : str, optional
+# 		The new description. Set to ``None`` to leave the old description in place.
+# 	filepath : str, optional
+# 		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
+
+# 	Raises
+# 	------
+# 	ValueError 
+# 		If ``instance_name`` does not exist in the JSON file.
+# 	"""
+
+# 	# TODO: unit tests
+
+# 	# Load data from JSON.
+# 	with open(filepath) as f:
+# 		json_contents = json.load(f)
+
+# 	# Find instance. (https://stackoverflow.com/a/8653568/3453768)
+# 	instance_index = next((i for i, item in enumerate(json_contents["instances"]) \
+# 		if item["name"] == instance_name), None)
+	
+# 	# Was instance found?
+# 	if not instance_index:
+# 		raise KeyError('Instance was not found in JSON file.')
+
+# 	# Get old instance.
+# 	old_instance = json_contents["instances"][instance_index]
+	
+# 	# Build new instance.
+# 	if instance_description is None:
+# 		new_description = old_instance["description"]
+# 	else:
+# 		new_description = instance_description
+# 	new_instance = {
+# 		"name": instance_name,
+# 		"description": new_description,
+# 		"data": instance_data
+# 	}
+
+# 	# Replace instance in list.
+# 	json_contents["instances"][instance_index] = new_instance
+# 	json_contents["last_updated"] = f"{datetime.datetime.now()}"
+
+# 	# Write all instances to JSON.
+# 	with open(filepath, 'w') as f:
+# 		json.dump(json_contents, f)
+
+# 	# Close file.
+# 	f.close()
 
 
 def get_named_instance(instance_name):
@@ -831,7 +841,6 @@ def get_named_instance(instance_name):
 		return michelle_sean_3_stage
 	elif instance_name == "rong_atan_snyder_figure_1a":
 		# Uses normal demand instead of Poisson.
-		# TODO: add costs and lead times
 		rong_atan_snyder_figure_1a = network_from_edges(
 			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (2, 6)],
 			demand_type={0: None, 1: None, 2: None, 3: 'N', 4: 'N', 5: 'N', 6: 'N'},

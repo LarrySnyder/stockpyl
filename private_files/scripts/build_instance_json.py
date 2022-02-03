@@ -58,11 +58,14 @@ from stockpyl.instances import *
 # h, p, K, mu = get_named_instance("example_4_7")
 # save_instance("example_4_7", {"holding_cost": h, "stockout_cost": p, "fixed_cost": K, "demand_mean": mu}, "Example 4.7 ((s,S) with Poisson demand)")
 
-# h, p, pmf = get_named_instance("problem_4_7b")
-# save_instance("problem_4_7b", {"holding_cost": h, "stockout_cost": p, "demand_pmf": pmf}, "Problem 4.7(b) (newsvendor with discrete demand)")
+h, p, pmf = get_named_instance("problem_4_7b")
+save_instance("problem_4_7b", {"holding_cost": h, "stockout_cost": p, "demand_pmf": pmf}, "Problem 4.7(b) (newsvendor with discrete demand)")
 
 # h, p, mu = get_named_instance("problem_4_8a")
 # save_instance("problem_4_8a", {"holding_cost": h, "stockout_cost": p, "demand_mean": mu}, "Problem 4.8(a) (newsvendor with Poisson demand)")
+
+# h, p, mu, sigma = get_named_instance("problem_4_8b")
+# save_instance("problem_4_8b", {"holding_cost": h, "stockout_cost": p, "mu": mu, "sigma": sigma}, "Problem 4.8(b) (newsvendor with lognormal demand)")
 
 # h, p, K, mu = get_named_instance("problem_4_31")
 # save_instance("problem_4_31", {"holding_cost": h, "stockout_cost": p, "fixed_cost": K, "demand_mean": mu}, "Problem 4.31 ((s,S) with Poisson demand)")
@@ -144,9 +147,12 @@ from stockpyl.instances import *
 
 # OTHER INSTANCES
 
-network = get_named_instance("assembly_3_stage")
-save_instance("assembly_3_stage", network, "3-stage assembly system (2 warehouses, 1 retailer)")
+# network = get_named_instance("assembly_3_stage")
+# save_instance("assembly_3_stage", network, "3-stage assembly system (2 warehouses, 1 retailer)")
 
-network = get_named_instance("rosling_figure_1")
-save_instance("rosling_figure_1", network, "assembly system from Figure 1 in Rosling (1989) (structure and lead times are from Rosling; all other parameters are made up)")
+# network = get_named_instance("rosling_figure_1")
+# save_instance("rosling_figure_1", network, "assembly system from Figure 1 in Rosling (1989) (structure and lead times are from Rosling; all other parameters are made up)")
+
+# network = get_named_instance("rong_atan_snyder_figure_1a")
+# save_instance("rong_atan_snyder_figure_1a", network, "distribution system from Figure 1 in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson)")
 
