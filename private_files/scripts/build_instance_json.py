@@ -697,13 +697,13 @@ def get_named_instance(instance_name):
 # save_instance("example_4_1", {"holding_cost": h, "stockout_cost": p, "demand_mean": mu, "demand_sd": sigma}, "Example 4.1 (newsvendor)")
 
 # network = get_named_instance("example_4_1_network")
-# save_instance("example_4_1_network", network, "Example 4.1 (newsvendor) (as SupplyChainNetwork)")
+# save_instance("example_4_1_network", network, "Example 4.1 (newsvendor) (as ``SupplyChainNetwork``)")
 
 # r, c, v, mu, sigma = get_named_instance("example_4_2")
 # save_instance("example_4_2", {"selling_revenue": r, "purchase_cost": c, "salvage_value": v, "demand_mean": mu, "demand_sd": sigma}, "Example 4.2 (newsvendor explicit)")
 
 # network = get_named_instance("example_4_2_network")
-# save_instance("example_4_2_network", network, "Example 4.2 (newsvendor explicit) (as SupplyChainNetwork)")
+# save_instance("example_4_2_network", network, "Example 4.2 (newsvendor explicit) (as ``SupplyChainNetwork``)")
 
 # h, p, mu, sigma = get_named_instance("example_4_3")
 # save_instance("example_4_3", {"holding_cost": h, "stockout_cost": p, "demand_mean": mu, "demand_sd": sigma}, "Example 4.3 (newsvendor) (= Example 4.1)")

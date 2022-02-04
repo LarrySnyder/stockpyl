@@ -2,28 +2,19 @@
 # stockpyl - instances Module
 # -------------------------------------------------------------------------------
 # Version: 0.0.0
-# Updated: 01-30-2022
+# Updated: 02-03-2022
 # Author: Larry Snyder
 # License: GPLv3
 # ===============================================================================
 
 """The :mod:`instances` module contains code for loading and saving problem instances.
-Most instances are taken from Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019) and are labeled accordingly.
+Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+(2019).
 
-.. list-table:: Title
-   :widths: 25 25 50
+.. csv-table:: Named Instances
+   :file: ../docs/aux_files/temp.csv
+   :widths: 30, 70
    :header-rows: 1
-
-   * - Heading row 1, column 1
-     - Heading row 1, column 2
-     - Heading row 1, column 3
-   * - Row 1, column 1
-     -
-     - Row 1, column 3
-   * - Row 2, column 1
-     - Row 2, column 2
-     - Row 2, column 3
 """
 
 #import copy
@@ -32,6 +23,7 @@ import json
 import warnings
 import datetime
 import jsonpickle
+import csv
 
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
@@ -185,4 +177,33 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	# Close file.
 	f.close()
 
+
+def save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
+	"""Save a CSV file with a summary of the instances in a JSON file.
+
+	Main purpose of this method is to build the CSV file that populates the table
+	at the top of this page.
+
+	Parameters
+	----------
+	save_filepath : str
+		Path to the CSV file to create.
+	json_filepath : str, optional
+		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
+	"""
+
+	# Load JSON file.
+	with open(json_filepath) as f:
+		json_contents = json.load(f)
+
+	# Write to CSV.
+	with open(save_filepath, 'w', newline='') as csvfile:
+		instance_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+		instance_writer.writerow(['Name', 'Description'])
+		for instance in json_contents['instances']:
+			instance_writer.writerow([instance['name'], instance['description']])
+
+	f.close()
+	csvfile.close()
 

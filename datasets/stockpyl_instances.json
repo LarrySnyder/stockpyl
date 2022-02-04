@@ -270,7 +270,7 @@
 		},
 		{
 			"name": "example_4_1_network",
-			"description": "Example 4.1 (newsvendor) (as SupplyChainNetwork)",
+			"description": "Example 4.1 (newsvendor) (as ``SupplyChainNetwork``)",
 			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [], \"local_holding_cost\": 0.18, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0.7, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 50, \"_standard_deviation\": 8, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 56.6, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_period\": 0}"
 		},
 		{
@@ -296,7 +296,7 @@
 		},
 		{
 			"name": "example_4_2_network",
-			"description": "Example 4.2 (newsvendor explicit) (as SupplyChainNetwork)",
+			"description": "Example 4.2 (newsvendor explicit) (as ``SupplyChainNetwork``)",
 			"data": "{\"py/object\": \"stockpyl.supply_chain_network.SupplyChainNetwork\", \"_nodes\": [{\"py/object\": \"stockpyl.supply_chain_node.SupplyChainNode\", \"index\": 0, \"name\": null, \"network\": {\"py/id\": 0}, \"_predecessors\": [], \"_successors\": [], \"local_holding_cost\": 0.18, \"echelon_holding_cost\": null, \"local_holding_cost_function\": null, \"in_transit_holding_cost\": null, \"stockout_cost\": 0.7, \"stockout_cost_function\": null, \"revenue\": null, \"shipment_lead_time\": 1, \"order_lead_time\": null, \"demand_source\": {\"py/object\": \"stockpyl.demand_source.DemandSource\", \"_type\": \"N\", \"_mean\": 50, \"_standard_deviation\": 8, \"_demand_list\": null, \"_probabilities\": null, \"_lo\": null, \"_hi\": null, \"_round_to_int\": false}, \"initial_inventory_level\": null, \"initial_orders\": null, \"initial_shipments\": null, \"inventory_policy\": {\"py/object\": \"stockpyl.policy.Policy\", \"_type\": \"BS\", \"_node\": {\"py/id\": 2}, \"_base_stock_level\": 56.6, \"_order_quantity\": null, \"_reorder_point\": null, \"_order_up_to_level\": null}, \"supply_type\": \"U\", \"state_vars\": []}], \"_period\": 0}"
 		},
 		{
