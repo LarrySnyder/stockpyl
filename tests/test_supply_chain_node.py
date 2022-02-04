@@ -142,7 +142,7 @@ class TestDescendants(unittest.TestCase):
 		"""
 		print_status('TestDescendants', 'test_example_6_1()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		nodes = network.nodes
 
@@ -196,7 +196,7 @@ class TestAncestors(unittest.TestCase):
 		"""
 		print_status('TestAncestors', 'test_example_6_1()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		nodes = network.nodes
 
@@ -251,7 +251,7 @@ class TestForwardEchelonLeadTime(unittest.TestCase):
 		"""
 		print_status('TestForwardEchelonLeadTime', 'test_rosling_figure_1()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 
 		self.assertEqual(network.get_node_from_index(1).forward_echelon_lead_time, 1)
 		self.assertEqual(network.get_node_from_index(2).forward_echelon_lead_time, 2)
@@ -279,7 +279,7 @@ class TestEquivalentLeadTime(unittest.TestCase):
 		"""
 		print_status('TestEquivalentLeadTime', 'test_rosling_figure_1()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 
 		self.assertEqual(network.get_node_from_index(1).equivalent_lead_time, 1)
 		self.assertEqual(network.get_node_from_index(2).equivalent_lead_time, 1)
@@ -306,7 +306,7 @@ class TestDerivedDemandMean(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandMean', 'test_serial()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 5)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 5)
@@ -318,7 +318,7 @@ class TestDerivedDemandMean(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandMean', 'test_assembly()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 		demand_source = DemandSource()
 		demand_source.type = 'N'
 		demand_source.mean = 15
@@ -339,7 +339,7 @@ class TestDerivedDemandMean(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandMean', 'test_rong_atan_snyder_figure_1a()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1a")
+		network = load_instance("rong_atan_snyder_figure_1a")
 
 		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 32)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 16)
@@ -355,7 +355,7 @@ class TestDerivedDemandMean(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandMean', 'test_rong_atan_snyder_figure_1b()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1b")
+		network = load_instance("rong_atan_snyder_figure_1b")
 
 		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 64)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 40)
@@ -375,7 +375,7 @@ class TestDerivedDemandMean(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandMean', 'test_rong_atan_snyder_figure_1c()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1c")
+		network = load_instance("rong_atan_snyder_figure_1c")
 
 		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 32)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 8)
@@ -401,7 +401,7 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandStandardDeviation', 'test_serial()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		self.assertEqual(network.get_node_from_index(0).derived_demand_standard_deviation, 1)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_standard_deviation, 1)
@@ -413,7 +413,7 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandStandardDeviation', 'test_assembly()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 		demand_source = DemandSource()
 		demand_source.type = 'N'
 		demand_source.mean = 15
@@ -434,7 +434,7 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandStandardDeviation', 'test_rong_atan_snyder_figure_1a()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1a")
+		network = load_instance("rong_atan_snyder_figure_1a")
 
 		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(32))
 		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(16))
@@ -450,7 +450,7 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandStandardDeviation', 'test_rong_atan_snyder_figure_1b()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1b")
+		network = load_instance("rong_atan_snyder_figure_1b")
 
 		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(64))
 		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(40))
@@ -470,7 +470,7 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		"""
 		print_status('TestDerivedDemandStandardDeviation', 'test_rong_atan_snyder_figure_1c()')
 
-		network = get_named_instance("rong_atan_snyder_figure_1c")
+		network = load_instance("rong_atan_snyder_figure_1c")
 
 		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(32))
 		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(8))
@@ -497,7 +497,7 @@ class TestStateVariables(unittest.TestCase):
 		"""
 		print_status('TestStateVariables', 'test_example_6_1_per_22()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
@@ -549,7 +549,7 @@ class TestStateVariables(unittest.TestCase):
 		"""
 		print_status('TestStateVariables', 'test_example_6_1_per_37()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
@@ -607,7 +607,7 @@ class TestStateVariables(unittest.TestCase):
 		"""
 		print_status('TestStateVariables', 'test_assembly_3_stage_per_22()')
 
-		network = get_named_instance("assembly_3_stage")
+		network = load_instance("assembly_3_stage")
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
@@ -675,7 +675,7 @@ class TestStateVariables(unittest.TestCase):
 		"""
 		print_status('TestStateVariables', 'test_assembly_3_stage_per_43()')
 
-		network = get_named_instance("assembly_3_stage")
+		network = load_instance("assembly_3_stage")
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
@@ -746,7 +746,7 @@ class TestStateVariables(unittest.TestCase):
 	# 	"""
 	# 	print_status('TestStateVariables', 'test_rosling_figure_1_per_22()')
 	#
-	# 	network = get_named_instance("rosling_figure_1")
+	# 	network = load_instance("rosling_figure_1")
 	#
 	# 	# Strategy for these tests: run sim for a few periods, test state
 	# 	# variables.

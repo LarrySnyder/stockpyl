@@ -43,8 +43,11 @@ class TestsSCost(unittest.TestCase):
 		"""
 		print_status('TestsSCost', 'test_example_4_7()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean = \
-			get_named_instance("example_4_7")
+		instance = load_instance("example_4_7")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
 
 		cost = s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -59,8 +62,11 @@ class TestsSCost(unittest.TestCase):
 		"""
 		print_status('TestsSCost', 'test_problem_4_31()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean = \
-			get_named_instance("problem_4_31")
+		instance = load_instance("problem_4_31")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
 
 		cost = s_s_cost_discrete(4, 10, holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -111,8 +117,11 @@ class TestsSOptimalsS(unittest.TestCase):
 		"""
 		print_status('TestsSOptimalsS', 'test_example_4_7()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean = \
-			get_named_instance("example_4_7")
+		instance = load_instance("example_4_7")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
 
 		s, S, g = s_s_discrete_exact(holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -125,8 +134,11 @@ class TestsSOptimalsS(unittest.TestCase):
 		"""
 		print_status('TestsSOptimalsS', 'test_problem_4_31()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean = \
-			get_named_instance("problem_4_31")
+		instance = load_instance("problem_4_31")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
 
 		s, S, g = s_s_discrete_exact(holding_cost, stockout_cost,
 									fixed_cost, True, demand_mean)
@@ -178,8 +190,12 @@ class TestsSPowerApproximation(unittest.TestCase):
 		"""
 		print_status('TestsSPowerApproximation', 'test_example_4_8()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd = \
-			get_named_instance("example_4_8")
+		instance = load_instance("example_4_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		s, S = s_s_power_approximation(holding_cost, stockout_cost,
 									fixed_cost, demand_mean, demand_sd)
@@ -191,8 +207,12 @@ class TestsSPowerApproximation(unittest.TestCase):
 		"""
 		print_status('TestsSPowerApproximation', 'test_problem_4_32()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd = \
-			get_named_instance("problem_4_32")
+		instance = load_instance("problem_4_32")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
 
 		s, S = s_s_power_approximation(holding_cost, stockout_cost,
 									fixed_cost, demand_mean, demand_sd)

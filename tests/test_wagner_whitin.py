@@ -37,8 +37,11 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_example_3_9()')
 
-		num_periods, holding_cost, fixed_cost, demand = \
-			get_named_instance("example_3_9")
+		instance = load_instance("example_3_9")
+		num_periods = instance['num_periods']
+		holding_cost = instance['holding_cost']
+		fixed_cost = instance['fixed_cost']
+		demand = instance['demand']
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
@@ -51,8 +54,11 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_problem_3_27()')
 
-		num_periods, holding_cost, fixed_cost, demand = \
-			get_named_instance("problem_3_27")
+		instance = load_instance("problem_3_27")
+		num_periods = instance['num_periods']
+		holding_cost = instance['holding_cost']
+		fixed_cost = instance['fixed_cost']
+		demand = instance['demand']
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
@@ -65,8 +71,11 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_problem_3_29()')
 
-		num_periods, holding_cost, fixed_cost, demand = \
-			get_named_instance("problem_3_29")
+		instance = load_instance("problem_3_29")
+		num_periods = instance['num_periods']
+		holding_cost = instance['holding_cost']
+		fixed_cost = instance['fixed_cost']
+		demand = instance['demand']
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
@@ -80,8 +89,12 @@ class TestWagnerWhitin(unittest.TestCase):
 		"""
 		print_status('TestWagnerWhitin', 'test_purchase_cost()')
 
-		num_periods, holding_cost, fixed_cost, demand, purchase_cost = \
-			get_named_instance("ww_hw_c")
+		instance = load_instance("scmo_ww_hw_c")
+		num_periods = instance['num_periods']
+		holding_cost = instance['holding_cost']
+		fixed_cost = instance['fixed_cost']
+		demand = instance['demand']
+		purchase_cost = instance['purchase_cost']
 
 		order_quantities, cost, costs_to_go, next_order_periods = \
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost)

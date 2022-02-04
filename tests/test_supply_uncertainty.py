@@ -40,8 +40,13 @@ class TestEOQWithDisruptions(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptions', 'test_example_9_1_exact()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("example_9_1")
+		instance = load_instance("example_9_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		order_quantity, cost = eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 																	   disruption_rate, recovery_rate)
@@ -59,8 +64,13 @@ class TestEOQWithDisruptions(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptions', 'test_problem_9_8_exact()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("problem_9_8")
+		instance = load_instance("problem_9_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		order_quantity, cost = eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 																	   disruption_rate, recovery_rate)
@@ -78,8 +88,13 @@ class TestEOQWithDisruptions(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptions', 'test_example_9_1_approx()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("example_9_1")
+		instance = load_instance("example_9_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		order_quantity, cost = eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 																	   disruption_rate, recovery_rate, approximate=True)
@@ -98,8 +113,13 @@ class TestEOQWithDisruptions(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptions', 'test_problem_9_8_approx()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("problem_9_8")
+		instance = load_instance("problem_9_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		order_quantity, cost = eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 																	   disruption_rate, recovery_rate, approximate=True)
@@ -130,8 +150,13 @@ class TestEOQWithDisruptionsCost(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptionsCost', 'test_example_9_1_exact()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("example_9_1")
+		instance = load_instance("example_9_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		cost = eoq_with_disruptions_cost(800, fixed_cost, holding_cost, stockout_cost, demand_rate,
 															disruption_rate, recovery_rate)
@@ -151,8 +176,13 @@ class TestEOQWithDisruptionsCost(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptionsCost', 'test_problem_9_8_exact()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("problem_9_8")
+		instance = load_instance("problem_9_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		cost = eoq_with_disruptions_cost(20, fixed_cost, holding_cost, stockout_cost, demand_rate,
 															disruption_rate, recovery_rate)
@@ -172,8 +202,13 @@ class TestEOQWithDisruptionsCost(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptionsCost', 'test_example_9_1_approx()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("example_9_1")
+		instance = load_instance("example_9_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		cost = eoq_with_disruptions_cost(800, fixed_cost, holding_cost, stockout_cost, demand_rate,
 															disruption_rate, recovery_rate, approximate=True)
@@ -193,8 +228,13 @@ class TestEOQWithDisruptionsCost(unittest.TestCase):
 		"""
 		print_status('TestEOQWithDisruptionsCost', 'test_problem_9_8_approx()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_rate, disruption_rate, recovery_rate = \
-			get_named_instance("problem_9_8")
+		instance = load_instance("problem_9_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_rate = instance['demand_rate']
+		disruption_rate = instance['disruption_rate']
+		recovery_rate = instance['recovery_rate']
 
 		cost = eoq_with_disruptions_cost(20, fixed_cost, holding_cost, stockout_cost, demand_rate,
 															disruption_rate, recovery_rate, approximate=True)
@@ -225,8 +265,12 @@ class TestNewsvendorWithDisruptions(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorWithDisruptions', 'test_example_9_3()')
 
-		holding_cost, stockout_cost, demand, disruption_prob, recovery_prob = \
-			get_named_instance("example_9_3")
+		instance = load_instance("example_9_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand = instance['demand']
+		disruption_prob = instance['disruption_prob']
+		recovery_prob = instance['recovery_prob']
 
 		base_stock_level, cost = newsvendor_with_disruptions(holding_cost, stockout_cost,
 																				demand, disruption_prob, recovery_prob)
@@ -262,8 +306,12 @@ class TestEOQWithAdditiveYieldUncertainty(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorWithDisruptions', 'test_example_9_4()')
 
-		fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd = \
-			get_named_instance("example_9_4")
+		instance = load_instance("example_9_4")
+		fixed_cost = instance['fixed_cost']
+		holding_cost = instance['holding_cost']
+		demand_rate = instance['demand_rate']
+		yield_mean = instance['yield_mean']
+		yield_sd = instance['yield_sd']
 
 		order_quantity, cost = eoq_with_additive_yield_uncertainty(fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd)
 		self.assertAlmostEqual(order_quantity, 2.302463704688188e+05)
@@ -284,8 +332,12 @@ class TestEOQWithAdditiveYieldUncertainty(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorWithDisruptions', 'test_problem_9_4a()')
 
-		fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd = \
-			get_named_instance("problem_9_4a")
+		instance = load_instance("problem_9_4a")
+		fixed_cost = instance['fixed_cost']
+		holding_cost = instance['holding_cost']
+		demand_rate = instance['demand_rate']
+		yield_mean = instance['yield_mean']
+		yield_sd = instance['yield_sd']
 
 		order_quantity, cost = eoq_with_additive_yield_uncertainty(fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd)
 		self.assertAlmostEqual(order_quantity, 1.778109845109285e+03)
@@ -308,8 +360,12 @@ class TestEOQWithMultiplicativeYieldUncertainty(unittest.TestCase):
 		"""
 		print_status('TestEOQWithMultiplicativeYieldUncertainty', 'test_example_9_5()')
 
-		fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd = \
-			get_named_instance("example_9_5")
+		instance = load_instance("example_9_5")
+		fixed_cost = instance['fixed_cost']
+		holding_cost = instance['holding_cost']
+		demand_rate = instance['demand_rate']
+		yield_mean = instance['yield_mean']
+		yield_sd = instance['yield_sd']
 
 		order_quantity, cost = eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd)
 		self.assertAlmostEqual(order_quantity, 2.544602129999894e+05)
@@ -330,8 +386,12 @@ class TestEOQWithMultiplicativeYieldUncertainty(unittest.TestCase):
 		"""
 		print_status('TestEOQWithMultiplicativeYieldUncertainty', 'test_problem_9_4b()')
 
-		fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd = \
-			get_named_instance("problem_9_4b")
+		instance = load_instance("problem_9_4b")
+		fixed_cost = instance['fixed_cost']
+		holding_cost = instance['holding_cost']
+		demand_rate = instance['demand_rate']
+		yield_mean = instance['yield_mean']
+		yield_sd = instance['yield_sd']
 
 		order_quantity, cost = eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_rate, yield_mean, yield_sd)
 		self.assertAlmostEqual(order_quantity, 1.916183333947864e+03)
@@ -354,8 +414,12 @@ class TestNewsvendorWithAdditiveYieldUncertainty(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorWithAdditiveYieldUncertainty', 'test_example_9_6()')
 
-		holding_cost, stockout_cost, demand, yield_lo, yield_hi = \
-			get_named_instance("example_9_6")
+		instance = load_instance("example_9_6")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand = instance['demand']
+		yield_lo = instance['yield_lo']
+		yield_hi = instance['yield_hi']
 
 		yield_distribution = uniform(yield_lo, yield_hi-yield_lo)
 
@@ -377,8 +441,12 @@ class TestNewsvendorWithAdditiveYieldUncertainty(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorWithAdditiveYieldUncertainty', 'test_problem_9_5()')
 
-		holding_cost, stockout_cost, demand, yield_lo, yield_hi = \
-			get_named_instance("problem_9_5")
+		instance = load_instance("problem_9_5")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand = instance['demand']
+		yield_lo = instance['yield_lo']
+		yield_hi = instance['yield_hi']
 
 		yield_distribution = uniform(yield_lo, yield_hi-yield_lo)
 

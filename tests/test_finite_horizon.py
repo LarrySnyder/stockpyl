@@ -333,7 +333,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		terminal_holding_cost = 4
 		terminal_stockout_cost = 50
 		purchase_cost = [0.5, 0.5, 0.5, 0.5, 0.2, 0.8, 0.2, 0.8, 0.5, 0.5, 0.5, 0.5]
-		fixed_cost = 0,
+		fixed_cost = 0
 		demand_mean = [20, 60, 110, 200, 200, 40, 200, 200, 100, 170, 30, 90]
 		demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000, 46.7000, 33.9000, 18.9000, 31.6000, 2.9000,
 					 14.8000]

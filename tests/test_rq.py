@@ -42,8 +42,13 @@ class TestrQCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_example_5_1()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_5_1")
+		instance = load_instance("example_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		cost = rq.r_q_cost(126.8, 328.5, holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -58,8 +63,13 @@ class TestrQCost(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormal', 'test_problem_5_1()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_1")
+		instance = load_instance("problem_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		cost = rq.r_q_cost(-1.9859, 166.95, holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -81,14 +91,18 @@ class TestrQOptimalrForQ(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestrQOptimalrForQ', 'tear_down_class()')
 
-	def test_example_5_2(self):
+	def test_example_5_1(self):
 		"""Test that r_q_optimal_r_for_q() function correctly finds r(Q) for
-		Example 5.2.
+		Example 5.1.
 		"""
-		print_status('TestrQOptimalrForQ', 'test_example_5_2()')
+		print_status('TestrQOptimalrForQ', 'test_example_5_1()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_5_1")
+		instance = load_instance("example_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r = rq.r_q_optimal_r_for_q(318, holding_cost,
 											stockout_cost,
@@ -117,8 +131,12 @@ class TestrQOptimalrForQ(unittest.TestCase):
 		"""
 		print_status('TestrQEILApproximation', 'test_problem_5_1()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_1")
+		instance = load_instance("problem_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r = rq.r_q_optimal_r_for_q(318, holding_cost,
 											stockout_cost,
@@ -147,8 +165,12 @@ class TestrQOptimalrForQ(unittest.TestCase):
 		"""
 		print_status('TestrQEILApproximation', 'test_problem_5_3()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_3")
+		instance = load_instance("problem_5_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r = rq.r_q_optimal_r_for_q(318, holding_cost,
 											stockout_cost,
@@ -188,8 +210,13 @@ class TestrQEILApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEILApproximation', 'test_example_5_2()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_5_1")
+		instance = load_instance("example_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q, cost = rq.r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time, tol=1e-6)
@@ -202,8 +229,13 @@ class TestrQEILApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEILApproximation', 'test_problem_5_1a()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_1")
+		instance = load_instance("problem_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q, cost = rq.r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time, tol=1e-6)
@@ -216,8 +248,13 @@ class TestrQEILApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEILApproximation', 'test_problem_5_3a()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_3")
+		instance = load_instance("problem_5_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q, cost = rq.r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time, tol=1e-6)
@@ -242,8 +279,13 @@ class TestrQEOQBApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEOQBApproximation', 'test_example_5_4()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_5_1")
+		instance = load_instance("example_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -255,8 +297,13 @@ class TestrQEOQBApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEOQBApproximation', 'test_problem_5_1b()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_1")
+		instance = load_instance("problem_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -268,8 +315,13 @@ class TestrQEOQBApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEOQBApproximation', 'test_problem_5_3b()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_3")
+		instance = load_instance("problem_5_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -293,8 +345,13 @@ class TestrQEOQSSApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEOQSSApproximation', 'test_example_5_5()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_5_1")
+		instance = load_instance("example_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -306,8 +363,13 @@ class TestrQEOQSSApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEOQSSApproximation', 'test_problem_5_1c()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_1")
+		instance = load_instance("problem_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -319,8 +381,13 @@ class TestrQEOQSSApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQEOQSSApproximation', 'test_problem_5_3c()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_3")
+		instance = load_instance("problem_5_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -344,8 +411,13 @@ class TestrQLossFunctionApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQLossFunctionApproximation', 'test_example_5_6()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("example_5_1")
+		instance = load_instance("example_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -357,8 +429,13 @@ class TestrQLossFunctionApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQLossFunctionApproximation', 'test_problem_5_1d()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_1")
+		instance = load_instance("problem_5_1")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -370,8 +447,13 @@ class TestrQLossFunctionApproximation(unittest.TestCase):
 		"""
 		print_status('TestrQLossFunctionApproximation', 'test_problem_5_3d()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, demand_sd, lead_time = \
-			get_named_instance("problem_5_3")
+		instance = load_instance("problem_5_3")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+		lead_time = instance['lead_time']
 
 		r, Q = rq.r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, demand_sd, lead_time)
@@ -396,8 +478,12 @@ class TestrQCostPoisson(unittest.TestCase):
 		"""
 		print_status('TestrQCostPoisson', 'test_example_5_8()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, lead_time = \
-			get_named_instance("example_5_8")
+		instance = load_instance("example_5_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		lead_time = instance['lead_time']
 
 		cost = rq.r_q_cost_poisson(3, 5, holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, lead_time)
@@ -412,8 +498,12 @@ class TestrQCostPoisson(unittest.TestCase):
 		"""
 		print_status('TestrQCostPoisson', 'test_problem_5_2()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, lead_time = \
-			get_named_instance("problem_5_2")
+		instance = load_instance("problem_5_2")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		lead_time = instance['lead_time']
 
 		cost = rq.r_q_cost_poisson(6, 7, holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, lead_time)
@@ -440,8 +530,12 @@ class TestrQPoissonExact(unittest.TestCase):
 		"""
 		print_status('TestrQPoissonExact', 'test_example_5_8()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, lead_time = \
-			get_named_instance("example_5_8")
+		instance = load_instance("example_5_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		lead_time = instance['lead_time']
 
 		r, Q, cost = rq.r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, lead_time)
@@ -454,8 +548,12 @@ class TestrQPoissonExact(unittest.TestCase):
 		"""
 		print_status('TestrQCostPoisson', 'test_problem_5_2()')
 
-		holding_cost, stockout_cost, fixed_cost, demand_mean, lead_time = \
-			get_named_instance("problem_5_2")
+		instance = load_instance("problem_5_2")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		lead_time = instance['lead_time']
 
 		r, Q, cost = rq.r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 						   demand_mean, lead_time)

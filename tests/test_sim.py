@@ -42,7 +42,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_example_6_1()')
 
-		network = get_named_instance("example_6_1")
+		network = load_instance("example_6_1")
 
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
@@ -63,7 +63,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_1()')
 
-		network = get_named_instance("problem_6_1")
+		network = load_instance("problem_6_1")
 
 		total_cost = simulation(network, 100, rand_seed=531, progress_bar=False)
 
@@ -84,7 +84,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_2a()')
 
-		network = get_named_instance("problem_6_2a_adj")
+		network = load_instance("problem_6_2a_adj")
 
 		total_cost = simulation(network, 100, rand_seed=1340, progress_bar=False)
 
@@ -109,7 +109,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_problem_6_16()')
 
-		network = get_named_instance("problem_6_16")
+		network = load_instance("problem_6_16")
 
 		total_cost = simulation(network, 100, rand_seed=762, progress_bar=False)
 
@@ -130,7 +130,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_single_stage()')
 
-		network = get_named_instance("example_4_1_network")
+		network = load_instance("example_4_1_network")
 
 		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False)
 
@@ -150,7 +150,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_assembly_3_stage()')
 
-		network = get_named_instance("assembly_3_stage")
+		network = load_instance("assembly_3_stage")
 
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
@@ -180,7 +180,7 @@ class TestSimulation(unittest.TestCase):
 		"""
 		print_status('TestSimulation', 'test_rosling_figure_1()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 		# Make the BS levels a little smaller so there are some stockouts.
 		network.get_node_from_index(1).inventory_policy.base_stock_level = 6
 		network.get_node_from_index(2).inventory_policy.base_stock_level = 20
@@ -251,7 +251,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 		"""
 		print_status('TestSerialEchelonVsLocal', 'test_example_6_1()')
 
-		network_local = get_named_instance("example_6_1")
+		network_local = load_instance("example_6_1")
 
 		# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 		# will differ in the first few periods).
@@ -262,7 +262,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 		total_cost_local = simulation(network_local, 100, rand_seed=41, progress_bar=False)
 
 		# Create the network for echelon policy test.
-		network_ech = get_named_instance("example_6_1")
+		network_ech = load_instance("example_6_1")
 
 		# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 		# will differ in the first few periods).
@@ -308,7 +308,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 		print_status('TestSerialEchelonVsLocal', 'test_problem_6_2a()')
 
 		# Create the network for local policy test.
-		network_local = get_named_instance("problem_6_2a_adj")
+		network_local = load_instance("problem_6_2a_adj")
 
 		# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 		# will differ in the first few periods).
@@ -319,7 +319,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 		total_cost_local = simulation(network_local, 100, rand_seed=41, progress_bar=False)
 
 		# Create the network for echelon policy test.
-		network_ech = get_named_instance("problem_6_2a_adj")
+		network_ech = load_instance("problem_6_2a_adj")
 
 		# Set initial inventory levels to local BS levels (otherwise local and echelon policies
 		# will differ in the first few periods).

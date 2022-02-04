@@ -294,7 +294,7 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_example_scmo()')
 
-		instance = load_instance("jrp_ex")
+		instance = load_instance("scmo_jrp_ex")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
 			joint_replenishment_problem_silver_heuristic(instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates'])
@@ -310,7 +310,7 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_hw_1_scmo()')
 
-		instance = load_instance("jrp_hw_1")
+		instance = load_instance("scmo_jrp_hw_1")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
 			joint_replenishment_problem_silver_heuristic(instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates'])
@@ -326,10 +326,10 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_silver()')
 
-		instance = load_instance("jrp_silver")
+		instance = load_instance("silver_jrp")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			joint_replenishment_problem_silver_heuristic((instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates']))
+			joint_replenishment_problem_silver_heuristic(instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates'])
 
 		self.assertListEqual(order_quantities, [488.4707307805676, 184.58340978804858, 157.00844917946816, 143.50234602424507, 119.8666655026047])
 		self.assertEqual(base_cycle_time, 0.2813771490671472)
@@ -342,10 +342,10 @@ class TestJointReplenishmentProblemSilverHeuristic(unittest.TestCase):
 		"""
 		print_status('TestJointReplenishmentProblemSilverHeuristic', 'test_spp()')
 
-		instance = load_instance("jrp_spp")
+		instance = load_instance("spp_jrp")
 
 		order_quantities, base_cycle_time, order_multiples, cost = \
-			joint_replenishment_problem_silver_heuristic((instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates']))
+			joint_replenishment_problem_silver_heuristic(instance['shared_fixed_cost'], instance['individual_fixed_costs'], instance['holding_costs'], instance['demand_rates'])
 
 		self.assertListEqual(order_quantities, [6550.912625995079, 952.1675328481219, 426.57105471595867, 685.5606236506478])
 		self.assertEqual(base_cycle_time, 0.07617340262784976)

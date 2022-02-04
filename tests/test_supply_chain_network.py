@@ -4,6 +4,7 @@ import unittest
 # from scipy.stats import norm
 # from scipy.stats import poisson
 # from scipy.stats import lognorm
+import copy
 
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
@@ -133,7 +134,7 @@ class TestReindexNodes(unittest.TestCase):
 		"""
 		print_status('TestAddSuccessor', 'test_rosling_figure_1()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 
 		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
 
@@ -145,7 +146,7 @@ class TestReindexNodes(unittest.TestCase):
 		"""
 		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_names()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 		# Name the nodes "a"-"g".
 		for i in range(1, 8):
 			network.get_node_from_index(i).name = chr(97)
@@ -163,7 +164,7 @@ class TestReindexNodes(unittest.TestCase):
 		"""
 		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_state_vars()')
 
-		network = get_named_instance("rosling_figure_1")
+		network = load_instance("rosling_figure_1")
 		# Make the BS levels a little smaller so there are some stockouts.
 		network.get_node_from_index(1).inventory_policy.base_stock_level = 6
 		network.get_node_from_index(2).inventory_policy.base_stock_level = 20
@@ -219,7 +220,7 @@ def test_rosling_figure_1_with_state_vars_post(self):
 	"""
 	print_status('TestAddSuccessor', 'test_rosling_figure_1_with_state_vars()')
 
-	network = get_named_instance("rosling_figure_1")
+	network = load_instance("rosling_figure_1")
 	# Make the BS levels a little smaller so there are some stockouts.
 	network.get_node_from_index(1).inventory_policy.base_stock_level = 6
 	network.get_node_from_index(2).inventory_policy.base_stock_level = 20
@@ -745,7 +746,7 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 
 		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1()')
 
-		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance = copy.deepcopy(load_instance("example_6_1"))
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_local = {1: 4, 2: 5, 3: 1}
@@ -780,7 +781,7 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 
 		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
 
-		instance = copy.deepcopy(get_named_instance("example_6_1"))
+		instance = copy.deepcopy(load_instance("example_6_1"))
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
