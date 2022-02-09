@@ -1,7 +1,16 @@
+# ===============================================================================
+# stockpyl - gsm_tree_helpers Module
+# -------------------------------------------------------------------------------
+# Version: 0.0.0
+# Updated: 01-30-2022
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
 """Helper code for dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
 
-'node' and 'stage' are used interchangeably in the documentation.
+"node" and "stage" are used interchangeably in the documentation.
 
 (c) Lawrence V. Snyder
 Lehigh University
@@ -21,9 +30,8 @@ def solution_cost_from_cst(tree, cst):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Network need not have been relabeled.
 	cst : dict
 		Dict of CSTs for each node, using the same node labeling as tree.
 
@@ -91,9 +99,8 @@ def inbound_cst(tree, n, cst):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Network need not have been relabeled.
 	n : node OR iterable container
 		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict
@@ -120,9 +127,10 @@ def inbound_cst(tree, n, cst):
 	for k in n:
 		# Determine inbound CST (= max of CST for all _predecessors, and external
 		# inbound CST).
-		SI[k] = tree.nodes[k]['external_inbound_cst']
-		if tree.in_degree[k] > 0:
-			SI[k] = max(SI[k], np.max([cst[i] for i in tree.predecessors(k)]))
+		k_node = tree.get_node_from_index(k)
+		SI[k] = k_node.external_inbound_cst
+		if len(k_node.predecessors()) > 0:
+			SI[k] = max(SI[k], np.max([cst[i] for i in k_node.predecessor_indices()]))
 
 	if n_is_iterable:
 		return SI
@@ -136,9 +144,8 @@ def net_lead_time(tree, n, cst):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Network need not have been relabeled.
 	n : node OR iterable container
 		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict

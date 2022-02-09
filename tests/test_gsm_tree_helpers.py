@@ -3,6 +3,7 @@ import numpy as np
 
 import stockpyl.gsm_tree as gsm_tree
 import stockpyl.gsm_tree_helpers as gsm_tree_helpers
+from stockpyl.instances import *
 from tests.instances_gsm_tree import *
 
 
@@ -72,12 +73,12 @@ class TestInboundCST(unittest.TestCase):
 
 		print_status('TestInboundCST', 'test_example_6_5()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.preprocess_tree(load_instance("example_6_5"))
 
 		# Optimal solution: S = (0,0,0,1).
 		cst = {1: 0, 2: 0, 3: 0, 4: 1}
 		correct_SI = {1: 1, 2: 0, 3: 0, 4: 0}
-		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.node_indices, cst)
 		self.assertDictEqual(SI, correct_SI)
 
 		# Test a few singletons.
@@ -89,7 +90,7 @@ class TestInboundCST(unittest.TestCase):
 		# Sub-optimal solution: S = (2,0,2,1).
 		cst = {1: 2, 2: 0, 3: 2, 4: 1}
 		correct_SI = {1: 1, 2: 2, 3: 2, 4: 2}
-		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.node_indices, cst)
 		self.assertDictEqual(SI, correct_SI)
 
 		# Test a few singletons.
@@ -105,64 +106,64 @@ class TestInboundCST(unittest.TestCase):
 
 		print_status('TestInboundCST', 'test_figure_6_14()')
 
-		tree = gsm_tree.preprocess_tree(instance_figure_6_14)
+		tree = gsm_tree.preprocess_tree(load_instance("figure_6_14"))
 
 		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
-		cst = {'Raw_Material': 0,
-				'Process_Wafers': 3,
-				'Package_Test_Wafers': 5,
-				'Imager_Base': 4,
-				'Imager_Assembly': 7,
-				'Camera': 0,
-				'Ship_to_Final_Assembly': 0,
-				'Circuit_Board': 0,
-				'Other_Parts': 0,
-				'Build_Test_Pack': 2}
-		correct_SI = {'Raw_Material': 0,
-						'Process_Wafers': 0,
-						'Package_Test_Wafers': 3,
-						'Imager_Base': 0,
-						'Imager_Assembly': 5,
-						'Camera': 0,
-						'Ship_to_Final_Assembly': 7,
-						'Circuit_Board': 0,
-						'Other_Parts': 0,
-						'Build_Test_Pack': 0}
-		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		cst = {1: 0,
+				2: 3,
+				3: 5,
+				4: 4,
+				5: 7,
+				6: 0,
+				7: 0,
+				8: 0,
+				9: 0,
+				10: 2}
+		correct_SI = {1: 0,
+						2: 0,
+						3: 3,
+						4: 0,
+						5: 5,
+						7: 0,
+						6: 7,
+						8: 0,
+						9: 0,
+						10: 0}
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.node_indices, cst)
 		self.assertDictEqual(SI, correct_SI)
 
 		# Test a few singletons.
-		SI = gsm_tree_helpers.inbound_cst(tree, 'Imager_Base', cst)
+		SI = gsm_tree_helpers.inbound_cst(tree, 4, cst)
 		self.assertEqual(SI, 0)
-		SI = gsm_tree_helpers.inbound_cst(tree, 'Ship_to_Final_Assembly', cst)
+		SI = gsm_tree_helpers.inbound_cst(tree, 6, cst)
 		self.assertEqual(SI, 7)
 
 		# Test a list.
-		SI = gsm_tree_helpers.inbound_cst(tree, ['Process_Wafers', 'Package_Test_Wafers', 'Imager_Assembly'], cst)
-		self.assertDictEqual(SI, {'Process_Wafers': 0, 'Package_Test_Wafers': 3, 'Imager_Assembly': 5})
+		SI = gsm_tree_helpers.inbound_cst(tree, [2, 3, 5], cst)
+		self.assertDictEqual(SI, {2: 0, 3: 3, 5: 5})
 
 		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
-		cst = {'Raw_Material': 2,
-				'Process_Wafers': 3,
-				'Package_Test_Wafers': 3,
-				'Imager_Base': 0,
-				'Imager_Assembly': 3,
-				'Camera': 1,
-				'Ship_to_Final_Assembly': 5,
-				'Circuit_Board': 1,
-				'Other_Parts': 0,
-				'Build_Test_Pack': 2}
-		correct_SI = {'Raw_Material': 0,
-						'Process_Wafers': 2,
-						'Package_Test_Wafers': 3,
-						'Imager_Base': 0,
-						'Imager_Assembly': 3,
-						'Camera': 0,
-						'Ship_to_Final_Assembly': 3,
-						'Circuit_Board': 0,
-						'Other_Parts': 0,
-						'Build_Test_Pack': 5}
-		SI = gsm_tree_helpers.inbound_cst(tree, tree.nodes, cst)
+		cst = {1: 2,
+				2: 3,
+				3: 3,
+				4: 0,
+				5: 3,
+				6: 5,
+				7: 1,
+				8: 1,
+				9: 0,
+				10: 2}
+		correct_SI = {1: 0,
+						2: 2,
+						3: 3,
+						4: 0,
+						5: 3,
+						6: 3,
+						7: 0,
+						8: 0,
+						9: 0,
+						10: 5}
+		SI = gsm_tree_helpers.inbound_cst(tree, tree.node_indices, cst)
 		self.assertDictEqual(SI, correct_SI)
 
 
