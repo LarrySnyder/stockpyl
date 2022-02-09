@@ -68,8 +68,18 @@ class DemandSource(object):
 		``type`` = 'UD' or 'UC'.
 	"""
 
-	def __init__(self):
+	def __init__(self, **kwargs):
 		"""DemandSource constructor method.
+
+		Parameters
+		----------
+		kwargs : optional
+			Optional keyword arguments to specify demand source attributes.
+
+		Raises
+		------
+		AttributeError
+			If an optional keyword argument does not match a ``DemandSource`` attribute.
 		"""
 		# Initialize parameters to None. (Relevant parameters will be filled
 		# later.)
@@ -81,6 +91,64 @@ class DemandSource(object):
 		self._lo = None
 		self._hi = None
 		self._round_to_int = False
+
+		# Set attributes specified by kwargs.
+		for key, value in kwargs.items():
+			if key in vars(self):
+				vars(self)[key] = value
+			elif f"_{key}" in vars(self):
+				vars(self)[f"_{key}"] = value
+			else:
+				raise AttributeError(f"{key} is not an attribute of DemandSource")
+
+			vars(self)[key] = value
+
+	# SPECIAL METHODS
+
+	def __eq__(self, other):
+		"""Determine whether ``other`` is equal to this demand source object. 
+		Two demand source objects are considered equal if all of their attributes 
+		are equal.
+
+		Parameters
+		----------
+		other : DemandSource
+			The demand source object to compare to.
+
+		Returns
+		-------
+		bool
+			True if the demand source objects are equal, False otherwise.
+
+		"""
+
+		# TODO: unit tests
+		
+		return self._type == other._type and \
+			self._mean == other._mean and \
+			self._standard_deviation == other._standard_deviation and \
+			self._demand_list == other._demand_list and \
+			self._probabilities == other._probabilities and \
+			self._lo == other._lo and \
+			self._hi == other._hi and \
+			self._round_to_int == other._round_to_int
+
+	def __ne__(self, other):
+		"""Determine whether ``other`` is not equal to this demand source object. 
+		Two demand source objects are considered equal if all of their attributes 
+		are equal.
+
+		Parameters
+		----------
+		other : DemandSource
+			The demand source object to compare to.
+
+		Returns
+		-------
+		bool
+			True if the demand source objects are not equal, False otherwise.
+		"""
+		return not self.__eq__(other)
 
 	# PROPERTY GETTERS AND SETTERS
 

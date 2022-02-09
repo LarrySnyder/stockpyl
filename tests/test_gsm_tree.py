@@ -1,9 +1,14 @@
 import unittest
 import numpy as np
+import copy
 
+from stockpyl.demand_source import DemandSource
 import stockpyl.helpers as helpers
 import stockpyl.gsm_tree as gsm_tree
 import stockpyl.gsm_tree_helpers as gsm_tree_helpers
+from stockpyl.instances import load_instance
+from stockpyl.supply_chain_network import SupplyChainNetwork
+from stockpyl.supply_chain_node import SupplyChainNode
 from tests.instances_gsm_tree import *
 
 
@@ -37,28 +42,30 @@ class TestRelabelNodes(unittest.TestCase):
 		print_status('TestRelabelNodes', 'tear_down_class()')
 
 	def test_figure_6_12(self):
-		"""Test that relabel_nodes() correctly relabels network
-		in Figure 6.12.
+		"""Test that relabel_nodes() correctly relabels network in Figure 6.12.
 		"""
 
 		print_status('TestRelabelNodes', 'test_figure_6_12()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
 
 		# Build correct relabeled network, and list of correct labels.
-		correct_G = nx.DiGraph()
-		correct_G.add_nodes_from(range(1, 8))
-		correct_original_labels = {2: 1, 1: 2, 3: 3, 4: 4, 6: 5, 5: 6, 7: 7}
-		nx.set_node_attributes(correct_G, correct_original_labels,
-							   'original_label')
-		correct_G.add_edge(2, 1)
-		correct_G.add_edge(2, 3)
-		correct_G.add_edge(3, 6)
-		correct_G.add_edge(4, 6)
-		correct_G.add_edge(6, 5)
-		correct_G.add_edge(6, 7)
+		correct_G = SupplyChainNetwork()
+		correct_G.add_node(SupplyChainNode(2, name=None, network=correct_G, original_label=1, larger_adjacent_node=3, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(1, name=None, network=correct_G, original_label=2, larger_adjacent_node=2, larger_adjacent_node_is_downstream=False))
+		correct_G.add_node(SupplyChainNode(3, name=None, network=correct_G, original_label=3, larger_adjacent_node=6, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(4, name=None, network=correct_G, original_label=4, larger_adjacent_node=6, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(6, name=None, network=correct_G, original_label=5, larger_adjacent_node=7, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(5, name=None, network=correct_G, original_label=6, larger_adjacent_node=6, larger_adjacent_node_is_downstream=False))
+		correct_G.add_node(SupplyChainNode(7, name=None, network=correct_G, original_label=7, larger_adjacent_node=None, larger_adjacent_node_is_downstream=None))
+		correct_G.add_edges_from_list([(2, 1), (2, 3), (3, 6), (4, 6), (6, 5), (6, 7)])
 
-		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
+		for n in new_G.nodes:
+			self.assertSetEqual(set(n.predecessor_indices()), set(correct_G.get_node_from_index(n.index).predecessor_indices()))
+			self.assertSetEqual(set(n.successor_indices()), set(correct_G.get_node_from_index(n.index).successor_indices()))
+			self.assertEqual(n.original_label, correct_G.get_node_from_index(n.index).original_label)
+			self.assertEqual(n.larger_adjacent_node, correct_G.get_node_from_index(n.index).larger_adjacent_node)
+			self.assertEqual(n.larger_adjacent_node_is_downstream, correct_G.get_node_from_index(n.index).larger_adjacent_node_is_downstream)
 
 	def test_figure_6_12_already_correct(self):
 		"""Test that relabel_nodes() correctly relabels network
@@ -68,23 +75,28 @@ class TestRelabelNodes(unittest.TestCase):
 
 		print_status('TestRelabelNodes', 'test_figure_6_12_already_correct()')
 
-		new_G = nx.relabel_nodes(instance_figure_6_12, {1: 3, 2: 2, 3: 4, 4: 5, 5: 7, 6: 6, 7: 8})
-		new_G = gsm_tree.relabel_nodes(new_G, force_relabel=True)
+		orig_G = load_instance("figure_6_12")
+		orig_G.reindex_nodes({1: 3, 2: 2, 3: 4, 4: 5, 5: 7, 6: 6, 7: 8})
+
+		new_G = gsm_tree.relabel_nodes(orig_G, force_relabel=True, start_index=1)
 
 		# Build correct relabeled network, and list of correct labels.
-		correct_G = nx.DiGraph()
-		correct_G.add_nodes_from(range(1, 8))
-		correct_original_labels = {2: 0, 1: 1, 3: 2, 4: 3, 6: 4, 5: 5, 7: 6}
-		nx.set_node_attributes(correct_G, correct_original_labels,
-							   'original_label')
-		correct_G.add_edge(1, 0)
-		correct_G.add_edge(1, 2)
-		correct_G.add_edge(2, 5)
-		correct_G.add_edge(3, 5)
-		correct_G.add_edge(5, 4)
-		correct_G.add_edge(5, 6)
+		correct_G = SupplyChainNetwork()
+		correct_G.add_node(SupplyChainNode(2, name=None, network=correct_G, original_label=3, larger_adjacent_node=3, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(1, name=None, network=correct_G, original_label=2, larger_adjacent_node=2, larger_adjacent_node_is_downstream=False))
+		correct_G.add_node(SupplyChainNode(3, name=None, network=correct_G, original_label=4, larger_adjacent_node=6, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(4, name=None, network=correct_G, original_label=5, larger_adjacent_node=6, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(6, name=None, network=correct_G, original_label=7, larger_adjacent_node=7, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(5, name=None, network=correct_G, original_label=6, larger_adjacent_node=6, larger_adjacent_node_is_downstream=False))
+		correct_G.add_node(SupplyChainNode(7, name=None, network=correct_G, original_label=8, larger_adjacent_node=None, larger_adjacent_node_is_downstream=None))
+		correct_G.add_edges_from_list([(2, 1), (2, 3), (3, 6), (4, 6), (6, 5), (6, 7)])
 
-		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
+		for n in new_G.nodes:
+			self.assertSetEqual(set(n.predecessor_indices()), set(correct_G.get_node_from_index(n.index).predecessor_indices()))
+			self.assertSetEqual(set(n.successor_indices()), set(correct_G.get_node_from_index(n.index).successor_indices()))
+			self.assertEqual(n.original_label, correct_G.get_node_from_index(n.index).original_label)
+			self.assertEqual(n.larger_adjacent_node, correct_G.get_node_from_index(n.index).larger_adjacent_node)
+			self.assertEqual(n.larger_adjacent_node_is_downstream, correct_G.get_node_from_index(n.index).larger_adjacent_node_is_downstream)
 
 	def test_example_6_5(self):
 		"""Test that relabel_nodes() correctly relabels network in Example 6.13.
@@ -92,19 +104,22 @@ class TestRelabelNodes(unittest.TestCase):
 
 		print_status('TestRelabelNodes', 'test_example_6_5()')
 
-		new_G = gsm_tree.relabel_nodes(instance_example_6_5, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("example_6_5"), start_index=1)
 
 		# Build correct relabeled network, and list of correct labels.
-		correct_G = nx.DiGraph()
-		correct_G.add_nodes_from(range(1, 5))
-		correct_original_labels = {1: 1, 2: 2, 3: 3, 4: 4}
-		nx.set_node_attributes(correct_G, correct_original_labels,
-							   'original_label')
-		correct_G.add_edge(1, 3)
-		correct_G.add_edge(3, 2)
-		correct_G.add_edge(3, 4)
+		correct_G = SupplyChainNetwork()
+		correct_G.add_node(SupplyChainNode(1, name=None, network=correct_G, original_label=1, larger_adjacent_node=3, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(2, name=None, network=correct_G, original_label=2, larger_adjacent_node=3, larger_adjacent_node_is_downstream=False))
+		correct_G.add_node(SupplyChainNode(3, name=None, network=correct_G, original_label=3, larger_adjacent_node=4, larger_adjacent_node_is_downstream=True))
+		correct_G.add_node(SupplyChainNode(4, name=None, network=correct_G, original_label=4, larger_adjacent_node=None, larger_adjacent_node_is_downstream=None))
+		correct_G.add_edges_from_list([(1, 3), (3, 2), (3, 4)])
 
-		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
+		for n in new_G.nodes:
+			self.assertSetEqual(set(n.predecessor_indices()), set(correct_G.get_node_from_index(n.index).predecessor_indices()))
+			self.assertSetEqual(set(n.successor_indices()), set(correct_G.get_node_from_index(n.index).successor_indices()))
+			self.assertEqual(n.original_label, correct_G.get_node_from_index(n.index).original_label)
+			self.assertEqual(n.larger_adjacent_node, correct_G.get_node_from_index(n.index).larger_adjacent_node)
+			self.assertEqual(n.larger_adjacent_node_is_downstream, correct_G.get_node_from_index(n.index).larger_adjacent_node_is_downstream)
 
 	def test_figure_6_14(self):
 		"""Test that relabel_nodes() correctly relabels network in Figure 6.14.
@@ -112,21 +127,61 @@ class TestRelabelNodes(unittest.TestCase):
 
 		print_status('TestRelabelNodes', 'test_figure_6_14()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
+		orig_G = load_instance("figure_6_14")
+		new_G = gsm_tree.relabel_nodes(orig_G, start_index=1)
 
 		# Build correct relabeled network, and list of correct labels.
-		correct_G = instance_figure_6_14.copy()
-		correct_labels = {'Raw_Material': 1, 'Process_Wafers': 2, 'Package_Test_Wafers': 3,
-						  'Imager_Base': 4, 'Imager_Assembly': 5, 'Ship_to_Final_Assembly': 6,
-						  'Camera': 7, 'Circuit_Board': 8, 'Other_Parts': 9,
-						  'Build_Test_Pack': 10}
-		correct_G = nx.relabel_nodes(correct_G, correct_labels)
-		correct_original_labels = {correct_labels[k]: k for k in
-								   instance_figure_6_14.nodes}
-		nx.set_node_attributes(correct_G, correct_original_labels,
-							   'original_label')
+		correct_G = copy.deepcopy(new_G)
+		correct_labels = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10}
+		correct_larger_adjacent = {1: 2, 2: 3, 3: 5, 4: 5, 5: 6, 6: 10, 7: 10, 8: 10, 9: 10, 10: None}
+		correct_downstream = {k: True for k in correct_G.node_indices}
+		correct_downstream[10] = None
+		correct_G.reindex_nodes(correct_labels)
+		for n in orig_G.nodes:
+			correct_node = correct_G.get_node_from_index(correct_labels[n.index])
+			correct_node.original_label = n.index
+			correct_node.larger_adjacent_node = correct_larger_adjacent[correct_node.index]
+			correct_node.larger_adjacent_node_is_downstream = correct_downstream[correct_node.index]
 
-		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
+		for n in new_G.nodes:
+			self.assertSetEqual(set(n.predecessor_indices()), set(correct_G.get_node_from_index(n.index).predecessor_indices()))
+			self.assertSetEqual(set(n.successor_indices()), set(correct_G.get_node_from_index(n.index).successor_indices()))
+			self.assertEqual(n.original_label, correct_G.get_node_from_index(n.index).original_label)
+			self.assertEqual(n.larger_adjacent_node, correct_G.get_node_from_index(n.index).larger_adjacent_node)
+			self.assertEqual(n.larger_adjacent_node_is_downstream, correct_G.get_node_from_index(n.index).larger_adjacent_node_is_downstream)
+
+	def test_figure_6_14_alt_indices(self):
+		"""Test that relabel_nodes() correctly relabels network in Figure 6.14 when
+		the indices are different so that the network requires reindexing. (The original
+		network does not.)
+		"""
+
+		print_status('TestRelabelNodes', 'test_figure_6_14()')
+
+		orig_G = load_instance("figure_6_14")
+		orig_G.reindex_nodes({1: 4, 2: 3, 3: 9, 4: 1, 5: 10, 6: 8, 7: 7, 8: 2, 9: 5, 10: 6})
+
+		new_G = gsm_tree.relabel_nodes(orig_G, start_index=1)
+
+		# Build correct relabeled network, and list of correct labels.
+		correct_G = copy.deepcopy(orig_G)
+		correct_labels = {4: 1, 3: 2, 9: 3, 1: 4, 10: 5, 8: 6, 7: 7, 2: 8, 5: 9, 6: 10}
+		correct_larger_adjacent = {1: 2, 2: 3, 3: 5, 4: 5, 5: 6, 6: 10, 7: 10, 8: 10, 9: 10, 10: None}
+		correct_downstream = {k: True for k in correct_G.node_indices}
+		correct_downstream[10] = None
+		correct_G.reindex_nodes(correct_labels)
+		for n in orig_G.nodes:
+			correct_node = correct_G.get_node_from_index(correct_labels[n.index])
+			correct_node.original_label = n.index
+			correct_node.larger_adjacent_node = correct_larger_adjacent[correct_node.index]
+			correct_node.larger_adjacent_node_is_downstream = correct_downstream[correct_node.index]
+
+		for n in new_G.nodes:
+			self.assertSetEqual(set(n.predecessor_indices()), set(correct_G.get_node_from_index(n.index).predecessor_indices()))
+			self.assertSetEqual(set(n.successor_indices()), set(correct_G.get_node_from_index(n.index).successor_indices()))
+			self.assertEqual(n.original_label, correct_G.get_node_from_index(n.index).original_label)
+			self.assertEqual(n.larger_adjacent_node, correct_G.get_node_from_index(n.index).larger_adjacent_node)
+			self.assertEqual(n.larger_adjacent_node_is_downstream, correct_G.get_node_from_index(n.index).larger_adjacent_node_is_downstream)
 
 	def test_problem_6_9(self):
 		"""Test that relabel_nodes() correctly relabels network in Problem 6.9.
@@ -134,18 +189,20 @@ class TestRelabelNodes(unittest.TestCase):
 
 		print_status('TestRelabelNodes', 'test_problem_6_9()')
 
-		new_G = gsm_tree.relabel_nodes(instance_problem_6_9, start_index=0)
+		orig_G = load_instance("problem_6_9")
+		new_G = gsm_tree.relabel_nodes(orig_G, start_index=0)
 
 		# Build correct relabeled network, and list of correct labels.
-		correct_G = instance_problem_6_9.copy()
+		correct_G = copy.deepcopy(orig_G)
 		correct_labels = {1: 0, 2: 1, 3: 3, 4: 2, 5: 4, 6: 5}
-		correct_G = nx.relabel_nodes(correct_G, correct_labels)
-		correct_original_labels = {correct_labels[k]: k for k in
-								   instance_problem_6_9.nodes}
-		nx.set_node_attributes(correct_G, correct_original_labels,
-							   'original_label')
-
-		self.assertSetEqual(set(new_G.edges), set(correct_G.edges))
+		correct_larger_adjacent = {0: 3, 1: 3, 3: 4, 4: 5, 2: 3, 5: None}
+		correct_downstream = {0: False, 1: False, 2: True, 3: True, 4: False, 5: None}
+		correct_G.reindex_nodes(correct_labels)
+		for n in orig_G.nodes:
+			correct_node = correct_G.get_node_from_index(correct_labels[n.index])
+			correct_node.original_label = n.index
+			correct_node.larger_adjacent_node = correct_larger_adjacent[correct_node.index]
+			correct_node.larger_adjacent_node_is_downstream = correct_downstream[correct_node.index]
 
 
 class TestIsCorrectlyLabeled(unittest.TestCase):
@@ -166,26 +223,11 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_correct()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
 
 		is_correct = gsm_tree.is_correctly_labeled(new_G)
 
 		self.assertEqual(is_correct, True)
-
-	def test_nonnumeric(self):
-		"""Test that is_correctly_labeled() works for if network has a
-		nonnumeric label.
-		"""
-
-		print_status('TestFindLargerAdjacentNodes', 'test_nonnumeric()')
-
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
-		nx.relabel_nodes(new_G, {1: 'asdf', 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
-						 copy=False)
-
-		is_correct = gsm_tree.is_correctly_labeled(new_G)
-
-		self.assertEqual(is_correct, False)
 
 	def test_noninteger(self):
 		"""Test that is_correctly_labeled() works for if network has a
@@ -194,9 +236,8 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_noninteger()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
-		nx.relabel_nodes(new_G, {1: 1.3, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
-						 copy=False)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
+		new_G.reindex_nodes({1: 1.3, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7})
 
 		is_correct = gsm_tree.is_correctly_labeled(new_G)
 
@@ -209,9 +250,8 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_nonconsecutive()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
-		nx.relabel_nodes(new_G, {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7, 7: 8},
-						 copy=False)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
+		new_G.reindex_nodes({1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7, 7: 8})
 
 		is_correct = gsm_tree.is_correctly_labeled(new_G)
 
@@ -224,9 +264,8 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_more_than_1_adj()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
-		nx.relabel_nodes(new_G, {1: 0, 2: 1, 3: 2, 4: 3, 5: 5, 6: 4, 7: 6},
-						 copy=False)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
+		new_G.reindex_nodes({1: 0, 2: 1, 3: 2, 4: 3, 5: 5, 6: 4, 7: 6})
 
 		is_correct = gsm_tree.is_correctly_labeled(new_G)
 
@@ -239,9 +278,8 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_no_adj()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
-		nx.relabel_nodes(new_G, {1: 1, 2: 0, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6},
-						 copy=False)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
+		new_G.reindex_nodes({1: 1, 2: 0, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6})
 
 		is_correct = gsm_tree.is_correctly_labeled(new_G)
 
@@ -266,7 +304,7 @@ class TestFindLargerAdjacentNodes(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_figure_6_12()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_12, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
 		larger_adjacent, downstream = gsm_tree.find_larger_adjacent_nodes(new_G)
 
 		# Build correct dictionaries.
@@ -282,7 +320,7 @@ class TestFindLargerAdjacentNodes(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_example_6_5()')
 
-		larger_adjacent, downstream = gsm_tree.find_larger_adjacent_nodes(instance_example_6_5)
+		larger_adjacent, downstream = gsm_tree.find_larger_adjacent_nodes(load_instance("example_6_5"))
 
 		# Build correct dictionaries.
 		correct_larger_adjacent = {1: 3, 2: 3, 3: 4}
@@ -297,7 +335,7 @@ class TestFindLargerAdjacentNodes(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_figure_6_14()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_14"), start_index=1)
 		larger_adjacent, downstream = gsm_tree.find_larger_adjacent_nodes(new_G)
 
 		# Build correct dictionaries.
@@ -313,7 +351,7 @@ class TestFindLargerAdjacentNodes(unittest.TestCase):
 
 		print_status('TestFindLargerAdjacentNodes', 'test_problem_6_9()')
 
-		new_G = gsm_tree.relabel_nodes(instance_problem_6_9)
+		new_G = gsm_tree.relabel_nodes(load_instance("problem_6_9"))
 		larger_adjacent, downstream = gsm_tree.find_larger_adjacent_nodes(new_G)
 
 		# Build correct dictionaries.
@@ -324,25 +362,26 @@ class TestFindLargerAdjacentNodes(unittest.TestCase):
 		self.assertDictEqual(downstream, correct_downstream)
 
 
-class TestLongestPath(unittest.TestCase):
+class TestLongestPaths(unittest.TestCase):
 
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestLongestPath', 'set_up_class()')
+		print_status('TestLongestPaths', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestLongestPath', 'tear_down_class()')
+		print_status('TestLongestPaths', 'tear_down_class()')
 
 	def test_example_6_5(self):
-		"""Test that find_larger_adjacent_nodes() works for network in Example 6.5.
+		"""Test that test_largest_paths() works for network in Example 6.5.
 		"""
 
-		print_status('TestLongestPath', 'test_example_6_5()')
+		print_status('TestLongestPaths', 'test_example_6_5()')
 
-		longest_lengths = gsm_tree.longest_paths(instance_example_6_5)
+		tree = load_instance("example_6_5")
+		longest_lengths = gsm_tree.longest_paths(tree)
 
 		# Build correct dictionary.
 		correct_longest_lengths = {1: 3, 2: 5, 3: 4, 4: 5}
@@ -350,12 +389,12 @@ class TestLongestPath(unittest.TestCase):
 		self.assertDictEqual(longest_lengths, correct_longest_lengths)
 
 	def test_figure_6_14(self):
-		"""Test that find_larger_adjacent_nodes() works for network in Figure 6.14.
+		"""Test that test_largest_paths() works for network in Figure 6.14.
 		"""
 
-		print_status('TestLongestPath', 'test_figure_6_14()')
+		print_status('TestLongestPaths', 'test_figure_6_14()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_14"), start_index=1)
 		longest_lengths = gsm_tree.longest_paths(new_G)
 
 		# Build correct dictionary.
@@ -364,12 +403,12 @@ class TestLongestPath(unittest.TestCase):
 		self.assertDictEqual(longest_lengths, correct_longest_lengths)
 
 	def test_problem_6_9(self):
-		"""Test that find_larger_adjacent_nodes() works for network in Problem 6.9.
+		"""Test that test_largest_paths() works for network in Problem 6.9.
 		"""
 
-		print_status('TestLongestPath', 'test_problem_6_9()')
+		print_status('TestLongestPaths', 'test_problem_6_9()')
 
-		new_G = gsm_tree.relabel_nodes(instance_problem_6_9)
+		new_G = gsm_tree.relabel_nodes(load_instance("problem_6_9"))
 		longest_lengths = gsm_tree.longest_paths(new_G)
 
 		# Build correct dictionary.
@@ -396,10 +435,11 @@ class TestNetDemand(unittest.TestCase):
 
 		print_status('TestNetDemand', 'test_example_6_5()')
 
-		net_means, net_standard_deviations = gsm_tree.net_demand(instance_example_6_5)
+		instance = load_instance("example_6_5")
+		net_means, net_standard_deviations = gsm_tree.net_demand(instance)
 
 		# Build correct dictionaries.
-		correct_net_means = {k: 0 for k in instance_example_6_5.nodes}
+		correct_net_means = {k.index: 0 for k in instance.nodes}
 		correct_net_standard_deviations = {1: np.sqrt(2), 2: 1, 3: np.sqrt(2),
 										   4: 1}
 
@@ -413,12 +453,12 @@ class TestNetDemand(unittest.TestCase):
 
 		print_status('TestNetDemand', 'test_figure_6_14()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_14"), start_index=1)
 		net_means, net_standard_deviations = gsm_tree.net_demand(new_G)
 
 		# Build correct dictionaries.
-		correct_net_means = {k: 0 for k in new_G.nodes}
-		correct_net_standard_deviations = {k: 10 for k in new_G.nodes}
+		correct_net_means = {k.index: 0 for k in new_G.nodes}
+		correct_net_standard_deviations = {k.index: 10 for k in new_G.nodes}
 
 		self.assertDictEqual(net_means, correct_net_means)
 		self.assertDictEqual(net_standard_deviations,
@@ -430,7 +470,8 @@ class TestNetDemand(unittest.TestCase):
 
 		print_status('TestNetDemand', 'test_problem_6_9()')
 
-		new_G = gsm_tree.relabel_nodes(instance_problem_6_9)
+		instance = load_instance("problem_6_9")
+		new_G = gsm_tree.relabel_nodes(instance)
 		net_means, net_standard_deviations = gsm_tree.net_demand(new_G)
 
 		# Build correct dictionaries.
@@ -463,7 +504,7 @@ class TestConnectedSubgraphNodes(unittest.TestCase):
 
 		print_status('TestConnectedSubgraphNodes', 'test_example_6_5()')
 
-		connected_nodes = gsm_tree.connected_subgraph_nodes(instance_example_6_5)
+		connected_nodes = gsm_tree.connected_subgraph_nodes(load_instance("example_6_5"))
 
 		# Build correct dictionaries.
 		correct_connected_nodes = {1: {1}, 2: {2}, 3: {1, 2, 3}, 4: {1, 2, 3, 4}}
@@ -476,7 +517,7 @@ class TestConnectedSubgraphNodes(unittest.TestCase):
 
 		print_status('TestConnectedSubgraphNodes', 'test_figure_6_14()')
 
-		new_G = gsm_tree.relabel_nodes(instance_figure_6_14, start_index=1)
+		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_14"), start_index=1)
 		connected_nodes = gsm_tree.connected_subgraph_nodes(new_G)
 
 		# Build correct dictionaries.
@@ -492,7 +533,7 @@ class TestConnectedSubgraphNodes(unittest.TestCase):
 
 		print_status('TestConnectedSubgraphNodes', 'test_problem_6_9()')
 
-		new_G = gsm_tree.relabel_nodes(instance_problem_6_9)
+		new_G = gsm_tree.relabel_nodes(load_instance("problem_6_9"))
 		connected_nodes = gsm_tree.connected_subgraph_nodes(new_G)
 
 		# Build correct dictionaries.
@@ -520,26 +561,21 @@ class TestGSMToSSM(unittest.TestCase):
 
 		print_status('TestGSMToSSM', 'test_example_6_5()')
 
-		tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = gsm_tree.preprocess_tree(load_instance("example_6_5"))
 
 		SSM_tree = gsm_tree.GSM_to_SSM(tree)
 
-		correct_SSM_tree = nx.DiGraph()
-		correct_SSM_tree.add_node(1, lead_time=3, echelon_holding_cost=1)
-		correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
-		correct_SSM_tree.add_node(3, lead_time=1, echelon_holding_cost=1)
-		correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
+		correct_SSM_tree = SupplyChainNetwork()
+		correct_SSM_tree.add_node(SupplyChainNode(1, shipment_lead_time=3, echelon_holding_cost=1))
+		correct_SSM_tree.add_node(SupplyChainNode(2, shipment_lead_time=1, echelon_holding_cost=1, demand_source=DemandSource(type='N', mean=0, standard_deviation=1)))
+		correct_SSM_tree.add_node(SupplyChainNode(3, shipment_lead_time=1, echelon_holding_cost=1))
+		correct_SSM_tree.add_node(SupplyChainNode(4, shipment_lead_time=1, echelon_holding_cost=1, demand_source=DemandSource(type='N', mean=0, standard_deviation=1)))
 		correct_SSM_tree.add_edge(1, 3)
 		correct_SSM_tree.add_edge(3, 2)
 		correct_SSM_tree.add_edge(3, 4)
 
-		trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
-									   helpers.dict_match,
-									   helpers.dict_match)
-
+		trees_equal = SSM_tree.deep_equal_to(correct_SSM_tree)
 		self.assertEqual(trees_equal, True)
-		# Check graph attributes.
-		self.assertDictEqual(SSM_tree.graph, correct_SSM_tree.graph)
 
 	def test_figure_6_14(self):
 		"""Test that GSM_to_SSM() works for network in Figure 6.14.
@@ -547,28 +583,28 @@ class TestGSMToSSM(unittest.TestCase):
 
 		print_status('TestGSMToSSM', 'test_figure_6_14()')
 
-		tree = gsm_tree.preprocess_tree(instance_figure_6_14)
+		tree = gsm_tree.preprocess_tree(load_instance("figure_6_14"))
 
 		SSM_tree = gsm_tree.GSM_to_SSM(tree)
 
-		# TODO: this
+# TODO: node 2 EHC = 0.02 need almostequal
 
-		# correct_SSM_tree = nx.DiGraph()
-		# correct_SSM_tree.add_node(1, lead_time=3, echelon_holding_cost=1)
-		# correct_SSM_tree.add_node(2, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
-		# correct_SSM_tree.add_node(3, lead_time=1, echelon_holding_cost=1)
-		# correct_SSM_tree.add_node(4, lead_time=1, echelon_holding_cost=1, standard_deviation=1)
-		# correct_SSM_tree.add_edge(1, 3)
-		# correct_SSM_tree.add_edge(3, 2)
-		# correct_SSM_tree.add_edge(3, 4)
-		#
-		# trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
-		# 							   helpers.dict_match,
-		# 							   helpers.dict_match)
-		#
-		# self.assertEqual(trees_equal, True)
-		# # Check graph attributes.
-		# self.assertDictEqual(SSM_tree.graph, correct_SSM_tree.graph)
+		correct_SSM_tree = SupplyChainNetwork()
+		correct_SSM_tree.add_node(SupplyChainNode(1, 'Raw_Material', correct_SSM_tree, shipment_lead_time=2, echelon_holding_cost=0.01))
+		correct_SSM_tree.add_node(SupplyChainNode(2, 'Process_Wafers', correct_SSM_tree, shipment_lead_time=3, echelon_holding_cost=0.02))
+		correct_SSM_tree.add_node(SupplyChainNode(3, 'Package_Test_Wafers', correct_SSM_tree, shipment_lead_time=2, echelon_holding_cost=0.01))
+		correct_SSM_tree.add_node(SupplyChainNode(4, 'Imager_Base', correct_SSM_tree, shipment_lead_time=4, echelon_holding_cost=0.06))
+		correct_SSM_tree.add_node(SupplyChainNode(5, 'Imager_Assembly', correct_SSM_tree, shipment_lead_time=2, echelon_holding_cost=0.02))
+		correct_SSM_tree.add_node(SupplyChainNode(6, 'Ship_to_Final_Assembly', correct_SSM_tree, shipment_lead_time=3, echelon_holding_cost=0.01))
+		correct_SSM_tree.add_node(SupplyChainNode(7, 'Camera', correct_SSM_tree, shipment_lead_time=6, echelon_holding_cost=0.20))
+		correct_SSM_tree.add_node(SupplyChainNode(8, 'Circuit_Board', correct_SSM_tree, shipment_lead_time=4, echelon_holding_cost=0.08))
+		correct_SSM_tree.add_node(SupplyChainNode(9, 'Other_Parts', correct_SSM_tree, shipment_lead_time=3, echelon_holding_cost=0.04))
+		correct_SSM_tree.add_node(SupplyChainNode(10, 'Build_Test_Pack', correct_SSM_tree, shipment_lead_time=2, echelon_holding_cost=0.05, \
+			demand_source=DemandSource(type='N', mean=0, standard_deviation=10)))
+		correct_SSM_tree.add_edges_from_list([(1, 2), (2, 3), (3, 5), (4, 5), (5, 6), (7, 10), (6, 10), (8, 10), (9, 10)])
+
+		trees_equal = SSM_tree.deep_equal_to(correct_SSM_tree)
+		self.assertEqual(trees_equal, True)
 
 	def test_problem_6_9(self):
 		"""Test that GSM_to_SSM() works for network in Problem 6.9.
@@ -576,30 +612,21 @@ class TestGSMToSSM(unittest.TestCase):
 
 		print_status('TestGSMToSSM', 'test_problem_6_9()')
 
-		tree = gsm_tree.preprocess_tree(instance_problem_6_9)
+		tree = gsm_tree.preprocess_tree(load_instance("problem_6_9"))
 
 		SSM_tree = gsm_tree.GSM_to_SSM(tree)
 
-		correct_SSM_tree = nx.DiGraph()
-		correct_SSM_tree.add_node(1, lead_time=7, echelon_holding_cost=130 * 0.2 / 365, mean=22.0, standard_deviation=4.1)
-		correct_SSM_tree.add_node(2, lead_time=7, echelon_holding_cost=50 * 0.2 / 365, mean=15.3, standard_deviation=6.2)
-		correct_SSM_tree.add_node(3, lead_time=21, echelon_holding_cost=65 * 0.2 / 365)
-		correct_SSM_tree.add_node(4, lead_time=3, echelon_holding_cost=5 * 0.2 / 365)
-		correct_SSM_tree.add_node(5, lead_time=8, echelon_holding_cost=12.5 * 0.2 / 365)
-		correct_SSM_tree.add_node(6, lead_time=2, echelon_holding_cost=7.5 * 0.2 / 365)
-		correct_SSM_tree.add_edge(6, 5)
-		correct_SSM_tree.add_edge(5, 3)
-		correct_SSM_tree.add_edge(4, 3)
-		correct_SSM_tree.add_edge(3, 1)
-		correct_SSM_tree.add_edge(3, 2)
+		correct_SSM_tree = SupplyChainNetwork()
+		correct_SSM_tree.add_node(SupplyChainNode(1, shipment_lead_time=7, echelon_holding_cost=130 * 0.2 / 365, demand_source=DemandSource(type='N', mean=22.0, standard_deviation=4.1)))
+		correct_SSM_tree.add_node(SupplyChainNode(2, shipment_lead_time=7, echelon_holding_cost=50 * 0.2 / 365, demand_source=DemandSource(type='N', mean=15.3, standard_deviation=6.2)))
+		correct_SSM_tree.add_node(SupplyChainNode(3, shipment_lead_time=21, echelon_holding_cost=65 * 0.2 / 365))
+		correct_SSM_tree.add_node(SupplyChainNode(4, shipment_lead_time=3, echelon_holding_cost=5 * 0.2 / 365))
+		correct_SSM_tree.add_node(SupplyChainNode(5, shipment_lead_time=8, echelon_holding_cost=12.5 * 0.2 / 365))
+		correct_SSM_tree.add_node(SupplyChainNode(6, shipment_lead_time=2, echelon_holding_cost=7.5 * 0.2 / 365))
+		correct_SSM_tree.add_edges_from_list([(6, 5), (5, 3), (4, 3), (3, 1), (3, 2)])
 
-		trees_equal = nx.is_isomorphic(SSM_tree, correct_SSM_tree,
-									   helpers.dict_match,
-									   helpers.dict_match)
-
+		trees_equal = SSM_tree.deep_equal_to(correct_SSM_tree)
 		self.assertEqual(trees_equal, True)
-		# Check graph attributes.
-		self.assertDictEqual(SSM_tree.graph, correct_SSM_tree.graph)
 
 
 class TestPreprocessTree(unittest.TestCase):
@@ -620,61 +647,74 @@ class TestPreprocessTree(unittest.TestCase):
 
 		print_status('TestPreprocessTree', 'test_example_6_5()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_example_6_5)
+		tree = load_instance("example_6_5")
+		new_tree = gsm_tree.preprocess_tree(tree)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph(max_max_replenishment_time=5)
-		correct_tree.add_node(1, processing_time=2,
-							external_inbound_cst=1,
-							external_outbound_cst=gsm_tree.BIG_INT,
-							holding_cost=1,
-							demand_bound_constant=1,
-							original_label=1,
-						  	net_demand_standard_deviation=np.sqrt(2),
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=3)
-		correct_tree.add_node(2, processing_time=1,
-							external_inbound_cst=0,
-							external_outbound_cst=0,
-							holding_cost=3,
-							demand_bound_constant=1,
-							original_label=2,
-							external_demand_standard_deviation=1,
-							net_demand_standard_deviation=1,
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=5)
-		correct_tree.add_node(3, processing_time=1,
-							holding_cost=2,
-							external_inbound_cst=0,
-							external_outbound_cst=gsm_tree.BIG_INT,
-							demand_bound_constant=1,
-							original_label=3,
-							net_demand_standard_deviation=np.sqrt(2),
-							larger_adjacent_node=4,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=4)
-		correct_tree.add_node(4, processing_time=1,
-							external_inbound_cst=0,
-							external_outbound_cst=1,
-							holding_cost=3,
-							demand_bound_constant=1,
-							original_label=4,
-							external_demand_standard_deviation=1,
-							net_demand_standard_deviation=1,
-							max_replenishment_time=5)
-		correct_tree.add_edge(1, 3)
-		correct_tree.add_edge(3, 2)
-		correct_tree.add_edge(3, 4)
+		correct_tree = SupplyChainNetwork()
+		correct_tree.max_max_replenishment_time = 5
+		node1 = SupplyChainNode(1, network=correct_tree, 
+			processing_time=2,
+			external_inbound_cst=1,
+			external_outbound_cst=gsm_tree.BIG_INT,
+			local_holding_cost=1,
+			supply_type='U',
+			demand_bound_constant=1,
+#			original_label=1,
+			net_demand_mean=0,
+			net_demand_standard_deviation=np.sqrt(2),
+#			larger_adjacent_node=3,
+#			larger_adjacent_node_is_downstream=True,
+			max_replenishment_time=3
+		)
+		correct_tree.add_node(node1)
+		node3 = SupplyChainNode(3, network=correct_tree,
+			processing_time=1,
+			external_inbound_cst=0,
+			external_outbound_cst=gsm_tree.BIG_INT,
+			local_holding_cost=2,
+			demand_bound_constant=1,
+#			original_label=3,
+			net_demand_mean=0,
+			net_demand_standard_deviation=np.sqrt(2),
+#			larger_adjacent_node=4,
+#			larger_adjacent_node_is_downstream=True,
+			max_replenishment_time=4
+		)
+		correct_tree.add_successor(node1, node3)
+		node2 = SupplyChainNode(2, network=correct_tree,
+			processing_time=1,
+			external_inbound_cst=0,
+			external_outbound_cst=0,
+			local_holding_cost=3,
+			demand_source=DemandSource(type='N', mean=0, standard_deviation=1),
+			demand_bound_constant=1,
+#			original_label=2,
+			net_demand_mean=0,
+			net_demand_standard_deviation=1,
+#			larger_adjacent_node=3,
+#			larger_adjacent_node_is_downstream=False,
+			max_replenishment_time=5
+		)
+		correct_tree.add_successor(node3, node2)
+		node4 = SupplyChainNode(4, network=correct_tree, 
+			processing_time=1,
+			external_inbound_cst=0,
+			external_outbound_cst=1,
+			local_holding_cost=3,
+			demand_source=DemandSource(type='N', mean=0, standard_deviation=1),
+			demand_bound_constant=1,
+#			original_label=4,
+			net_demand_mean=0,
+			net_demand_standard_deviation=1,
+#			larger_adjacent_node=4,
+#			larger_adjacent_node_is_downstream=True,
+			max_replenishment_time=5
+		)
+		correct_tree.add_successor(node3, node4)
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   helpers.dict_match,
-									   helpers.dict_match)
-
-		self.assertEqual(trees_equal, True)
-		# Check graph attributes.
-		self.assertDictEqual(new_tree.graph, correct_tree.graph)
+		trees_equal = new_tree.deep_equal_to(correct_tree)
+		self.assertTrue(trees_equal)
 
 	def test_figure_6_14(self):
 		"""Test that preprocess_tree() works for network in Figure 6.14.
@@ -682,170 +722,178 @@ class TestPreprocessTree(unittest.TestCase):
 
 		print_status('TestPreprocessTree', 'test_figure_6_14()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_figure_6_14)
+		tree = load_instance("figure_6_14")
+		new_tree = gsm_tree.preprocess_tree(tree)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph(max_max_replenishment_time=14)
-		correct_tree.add_node('Raw_Material', processing_time=2,
-							  holding_cost=0.01,
+		correct_tree = SupplyChainNetwork()
+		correct_tree.max_max_replenishment_time = 14
+		correct_tree.add_node(SupplyChainNode(1, 'Raw_Material', network=correct_tree,
+							  processing_time=2,
+							  local_holding_cost=0.01,
+#							  supply_type='U',
 							  external_inbound_cst=0,
 							  external_outbound_cst=gsm_tree.BIG_INT,
 							  demand_bound_constant=1.6448536269514722,
+							  net_demand_mean=0,
 							  net_demand_standard_deviation=10,
-							  larger_adjacent_node=2,
-							  larger_adjacent_node_is_downstream=True,
-							  max_replenishment_time=2)
-		correct_tree.add_node('Process_Wafers', processing_time=3,
-							holding_cost=0.03,
+#							  larger_adjacent_node=2,
+#							  larger_adjacent_node_is_downstream=True,
+							  max_replenishment_time=2))
+		correct_tree.add_node(SupplyChainNode(2, 'Process_Wafers', network=correct_tree,
+							  processing_time=3,
+							local_holding_cost=0.03,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=5)
-		correct_tree.add_node('Package_Test_Wafers', processing_time=2,
-							holding_cost=0.04,
+#							larger_adjacent_node=3,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=5))
+		correct_tree.add_node(SupplyChainNode(3, 'Package_Test_Wafers', network=correct_tree,
+							  processing_time=2,
+							local_holding_cost=0.04,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=5,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=7)
-		correct_tree.add_node('Imager_Base', processing_time=4,
-							holding_cost=0.06,
+#							larger_adjacent_node=5,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=7))
+		correct_tree.add_node(SupplyChainNode(4, 'Imager_Base', network=correct_tree,
+							  processing_time=4,
+							local_holding_cost=0.06,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=5,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=4)
-		correct_tree.add_node('Imager_Assembly', processing_time=2,
-							holding_cost=0.12,
+#							larger_adjacent_node=5,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=4))
+		correct_tree.add_node(SupplyChainNode(5, 'Imager_Assembly', network=correct_tree,
+							  processing_time=2,
+							local_holding_cost=0.12,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=6,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=9)
-		correct_tree.add_node('Ship_to_Final_Assembly', processing_time=3,
-							holding_cost=0.13,
+#							larger_adjacent_node=6,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=9))
+		correct_tree.add_node(SupplyChainNode(6, 'Ship_to_Final_Assembly', network=correct_tree,
+							  processing_time=3,
+							local_holding_cost=0.13,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=10,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=12)
-		correct_tree.add_node('Camera', processing_time=6,
-							holding_cost=0.20,
+#							larger_adjacent_node=10,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=12))
+		correct_tree.add_node(SupplyChainNode(7, 'Camera', network=correct_tree,
+							  processing_time=6,
+							local_holding_cost=0.20,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=10,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=6)
-		correct_tree.add_node('Circuit_Board', processing_time=4,
-							holding_cost=0.08,
+#							larger_adjacent_node=10,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=6))
+		correct_tree.add_node(SupplyChainNode(8, 'Circuit_Board', network=correct_tree,
+							  processing_time=4,
+							local_holding_cost=0.08,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=10,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=4)
-		correct_tree.add_node('Other_Parts', processing_time=3,
-							holding_cost=0.04,
+#							larger_adjacent_node=10,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=4))
+		correct_tree.add_node(SupplyChainNode(9, 'Other_Parts', network=correct_tree,
+							  processing_time=3,
+							local_holding_cost=0.04,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
 							demand_bound_constant=1.6448536269514722,
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							larger_adjacent_node=10,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=3)
-		correct_tree.add_node('Build_Test_Pack', processing_time=2,
-							holding_cost=0.50,
+#							larger_adjacent_node=10,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=3))
+		correct_tree.add_node(SupplyChainNode(10, 'Build_Test_Pack', network=correct_tree,
+							  processing_time=2,
+							local_holding_cost=0.50,
 							external_inbound_cst=0,
 							external_outbound_cst=2,
 							demand_bound_constant=1.6448536269514722,
-							external_demand_standard_deviation=10,
+							demand_source=DemandSource(type='N', mean=0, standard_deviation=10),
+							net_demand_mean=0,
 							net_demand_standard_deviation=10,
-							max_replenishment_time=14)
-		correct_tree.add_edge('Raw_Material', 'Process_Wafers')
-		correct_tree.add_edge('Process_Wafers', 'Package_Test_Wafers')
-		correct_tree.add_edge('Package_Test_Wafers', 'Imager_Assembly')
-		correct_tree.add_edge('Imager_Base', 'Imager_Assembly')
-		correct_tree.add_edge('Imager_Assembly', 'Ship_to_Final_Assembly')
-		correct_tree.add_edge('Camera', 'Build_Test_Pack')
-		correct_tree.add_edge('Ship_to_Final_Assembly', 'Build_Test_Pack')
-		correct_tree.add_edge('Circuit_Board', 'Build_Test_Pack')
-		correct_tree.add_edge('Other_Parts', 'Build_Test_Pack')
+							max_replenishment_time=14))
+		correct_tree.add_edges_from_list([(1, 2), (2, 3), (3, 5), (4, 5), (5, 6), (6, 10), (7, 10), (8, 10), (9, 10)])
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   helpers.dict_match,
-									   helpers.dict_match)
-
+		trees_equal = new_tree.deep_equal_to(correct_tree)
 		self.assertEqual(trees_equal, True)
-		# Check graph attributes.
-		self.assertDictEqual(new_tree.graph, correct_tree.graph)
 
 	def test_problem_6_7(self):
 		"""Test that preprocess_tree() works for network in Problem 6.7.
 		"""
 
-		print_status('TestPreprocessTree', 'test_problem_6_9()')
+		print_status('TestPreprocessTree', 'test_problem_6_7()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_problem_6_7)
+		tree = load_instance("problem_6_7")
+		new_tree = gsm_tree.preprocess_tree(tree)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph(max_max_replenishment_time=5)
-		correct_tree.add_node(3, processing_time=1,
-							holding_cost=2,
+		correct_tree = SupplyChainNetwork()
+		correct_tree.max_max_replenishment_time = 5
+		correct_tree.add_node(SupplyChainNode(3, 'Forming', network=correct_tree,
+							processing_time=1,
+							local_holding_cost=2,
 							demand_bound_constant=4,
 							external_inbound_cst=1,
 							external_outbound_cst=gsm_tree.BIG_INT,
-							original_label=3,
+#							original_label=3,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
-							max_replenishment_time=2)
-		correct_tree.add_node(2, processing_time=1,
-							holding_cost=3,
+							max_replenishment_time=2))
+		correct_tree.add_node(SupplyChainNode(2, 'Firing', network=correct_tree,
+							processing_time=1,
+							local_holding_cost=3,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
-							original_label=2,
+#							original_label=2,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=3)
-		correct_tree.add_node(1, processing_time=2,
-							holding_cost=4,
+#							larger_adjacent_node=3,
+#							larger_adjacent_node_is_downstream=False,
+							max_replenishment_time=3))
+		correct_tree.add_node(SupplyChainNode(1, 'Glazing', network=correct_tree,
+							processing_time=2,
+							local_holding_cost=4,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=0,
-							external_demand_mean=45,
-							external_demand_standard_deviation=10,
-							original_label=1,
+							demand_source=DemandSource(type='N', mean=45, standard_deviation=10),
+#							original_label=1,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
-							larger_adjacent_node=2,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=5)
-		correct_tree.add_edge(2, 1)
-		correct_tree.add_edge(3, 2)
+#							larger_adjacent_node=2,
+#							larger_adjacent_node_is_downstream=False,
+							max_replenishment_time=5))
+		correct_tree.add_edges_from_list([(2, 1), (3, 2)])
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   helpers.dict_match,
-									   helpers.dict_match)
-
-		self.assertEqual(trees_equal, True)
-		# Check graph attributes.
-		self.assertDictEqual(new_tree.graph, correct_tree.graph)
+		trees_equal = new_tree.deep_equal_to(correct_tree)
+		self.assertTrue(trees_equal)
 
 	def test_problem_6_9(self):
 		"""Test that preprocess_tree() works for network in Problem 6.9.
@@ -853,91 +901,88 @@ class TestPreprocessTree(unittest.TestCase):
 
 		print_status('TestPreprocessTree', 'test_problem_6_9()')
 
-		new_tree = gsm_tree.preprocess_tree(instance_problem_6_9)
+		tree = load_instance("problem_6_9")
+		new_tree = gsm_tree.preprocess_tree(tree)
 
 		# Build correct tree.
-		correct_tree = nx.DiGraph(max_max_replenishment_time=38)
-		correct_tree.add_node(1, processing_time=7,
-							holding_cost=220*0.2/365,
+		correct_tree = SupplyChainNetwork()
+		correct_tree.max_max_replenishment_time = 38
+		correct_tree.add_node(SupplyChainNode(1, network=correct_tree, 
+							processing_time=7,
+							local_holding_cost=220*0.2/365,
 							demand_bound_constant=4,
-							original_label=1,
-							external_demand_mean=22.0,
-							external_demand_standard_deviation=4.1,
+#							original_label=1,
+							demand_source=DemandSource(type='N', mean=22.0, standard_deviation=4.1),
 							external_inbound_cst=0,
 							external_outbound_cst=3,
 							net_demand_mean=22.0,
 						  	net_demand_standard_deviation=4.1,
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=38)
-		correct_tree.add_node(2, processing_time=7,
-							holding_cost=140*0.2/365,
+#							larger_adjacent_node=3,
+#							larger_adjacent_node_is_downstream=False,
+							max_replenishment_time=38))
+		correct_tree.add_node(SupplyChainNode(2, network=correct_tree, 
+							processing_time=7,
+							local_holding_cost=140*0.2/365,
 							demand_bound_constant=4,
-							original_label=2,
-							external_demand_mean=15.3,
-							external_demand_standard_deviation=6.2,
+#							original_label=2,
+							demand_source=DemandSource(type='N', mean=15.3, standard_deviation=6.2),
 							external_inbound_cst=0,
 							external_outbound_cst=3,
 							net_demand_mean=15.3,
-							net_demand_standard_deviation=6.2,
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=38)
-		correct_tree.add_node(4, processing_time=3,
-							holding_cost=5*0.2/365,
+						  	net_demand_standard_deviation=6.2,
+#							larger_adjacent_node=3,
+#							larger_adjacent_node_is_downstream=False,
+							max_replenishment_time=38))
+		correct_tree.add_node(SupplyChainNode(4, network=correct_tree, 
+							processing_time=3,
+							local_holding_cost=5*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
-							original_label=4,
+#							original_label=4,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
-							larger_adjacent_node=3,
-							larger_adjacent_node_is_downstream=True,
-							max_replenishment_time=3)
-		correct_tree.add_node(3, processing_time=21,
-							holding_cost=90*0.2/365,
+#							larger_adjacent_node=3,
+#							larger_adjacent_node_is_downstream=True,
+							max_replenishment_time=3))
+		correct_tree.add_node(SupplyChainNode(3, network=correct_tree, 
+							processing_time=21,
+							local_holding_cost=90*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
-							original_label=3,
+#							original_label=3,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
-							larger_adjacent_node=4,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=31)
-		correct_tree.add_node(5, processing_time=8,
-							holding_cost=20*0.2/365,
+#							larger_adjacent_node=4,
+#							larger_adjacent_node_is_downstream=False,
+							max_replenishment_time=31))
+		correct_tree.add_node(SupplyChainNode(5, network=correct_tree, 
+							processing_time=8,
+							local_holding_cost=20*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
-							original_label=5,
+#							original_label=5,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
-							larger_adjacent_node=5,
-							larger_adjacent_node_is_downstream=False,
-							max_replenishment_time=10)
-		correct_tree.add_node(6, processing_time=2,
-							holding_cost=7.5*0.2/365,
+#							larger_adjacent_node=5,
+#							larger_adjacent_node_is_downstream=False,
+							max_replenishment_time=10))
+		correct_tree.add_node(SupplyChainNode(6, network=correct_tree, 
+							processing_time=2,
+							local_holding_cost=7.5*0.2/365,
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
-							original_label=6,
+#							original_label=6,
 							net_demand_mean=22.0+15.3,
 							net_demand_standard_deviation=np.sqrt(4.1**2+6.2**2),
-							max_replenishment_time=2)
-		correct_tree.add_edge(6, 5)
-		correct_tree.add_edge(4, 3)
-		correct_tree.add_edge(5, 3)
-		correct_tree.add_edge(3, 1)
-		correct_tree.add_edge(3, 2)
+							max_replenishment_time=2))
+		correct_tree.add_edges_from_list([(6, 5), (4, 3), (5, 3), (3, 1), (3, 2)])
 
-		trees_equal = nx.is_isomorphic(new_tree, correct_tree,
-									   helpers.dict_match,
-									   helpers.dict_match)
-
-		self.assertEqual(trees_equal, True)
-		# Check graph attributes.
-		self.assertDictEqual(new_tree.graph, correct_tree.graph)
+		trees_equal = new_tree.deep_equal_to(correct_tree)
+		self.assertTrue(trees_equal)
 
 
 class TestCalculateC(unittest.TestCase):

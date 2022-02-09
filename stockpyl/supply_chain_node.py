@@ -19,6 +19,7 @@ in a supply chain network.
 
 import numpy as np
 import networkx as nx
+from math import isclose
 
 #from stockpyl.datatypes import *
 from stockpyl.policy import *
@@ -38,7 +39,7 @@ class SupplyChainNode(object):
 
 	Attributes
 	----------
-	# Attributes related to parent network.
+	# --- Attributes Related to Parent Network --- #
 
 	network : SupplyChainNetwork
 		The network that contains the node.
@@ -47,7 +48,7 @@ class SupplyChainNode(object):
 	_successors : list
 		List of immediate successor ``SupplyChainNode``s.
 
-	# Data/inputs.
+	# --- Data/Inputs --- #
 
 	local_holding_cost : float
 		Local holding cost, per unit per period. [h']
@@ -97,9 +98,14 @@ class SupplyChainNode(object):
 	state_vars_current : NodeStateVars
 		Shortcut to most recent set of state variables. (Period is determined
 		from ``self.network.period``.
+
+	# --- Problem-Specific Data --- #
+	problem_specific_data : object
+		Placeholder for object that is used to provide data for specific
+		problem types.
 	"""
 
-	def __init__(self, index, name=None, network=None):
+	def __init__(self, index, name=None, network=None, **kwargs):
 		"""SupplyChainNode constructor method.
 
 		Parameters
@@ -111,10 +117,18 @@ class SupplyChainNode(object):
 			String to identify node.
 		network : SupplyChainNetwork
 			The network that contains the node.
+		kwargs : optional
+			Optional keyword arguments to specify node attributes.
+
+		Raises
+		------
+		AttributeError
+			If an optional keyword argument does not match a ``SupplyChainNode`` attribute.
 		"""
 		# Initialize attributes.
 
-		# NOTE: If attributes change, must also change to_dict() and from_dict().
+		# NOTE: If the attribute list changes, equal_to() must
+		# be updated accordingly.
 
 		# --- Index and Name --- #
 		self.index = index
@@ -144,8 +158,29 @@ class SupplyChainNode(object):
 		self.inventory_policy.node = self # TODO: do this in constructor?
 		self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
 
+		# --- Data/Inputs for GSM Problems --- #
+		self.processing_time = None
+		self.external_inbound_cst = None
+		self.external_outbound_cst = None
+		self.demand_bound_constant = None
+		self.units_required = None
+
+		# --- Intermediate Calculations for GSM Problems --- #
+		self.original_label = None
+		self.net_demand_mean = None
+		self.net_demand_standard_deviation = None
+		self.larger_adjacent_node = None
+		self.larger_adjacent_node_is_downstream = None
+		self.max_replenishment_time = None
+
 		# --- State Variables --- #
 		self.state_vars = []
+
+		# Set attributes specified by kwargs.
+		for key, value in kwargs.items():
+			if key not in vars(self):
+				raise AttributeError(f"{key} is not an attribute of SupplyChainNode")
+			vars(self)[key] = value
 
 	# Properties and functions related to network structure.
 
@@ -180,6 +215,14 @@ class SupplyChainNode(object):
 		G = self.network.networkx_digraph()
 		anc = nx.ancestors(G, self.index)
 		return [self.network.get_node_from_index(a) for a in anc]
+
+	@property
+	def neighbors(self):
+		return list(set(self.successors()).union(set(self.predecessors())))
+
+	@property
+	def neighbor_indices(self):
+		return [n.index for n in self.neighbors]
 
 	# Properties related to input parameters and state variables.
 
@@ -331,7 +374,7 @@ class SupplyChainNode(object):
 		-----
 		This method simply updates the node's list of predecessors. It does not
 		add ``predecessor`` to the network or add ``self`` as a successor of
-		``predecessor. Typically, this method is called by the network rather
+		``predecessor``. Typically, this method is called by the network rather
 		than directly. Use ``SupplyChainNetwork.add_predecessor()`` instead.
 
 		Parameters
@@ -341,6 +384,42 @@ class SupplyChainNode(object):
 
 		"""
 		self._predecessors.append(predecessor)
+
+	def remove_successor(self, successor):
+		"""Remove ``successor`` from the node's list of successors.
+
+		Notes
+		-----
+		This method simply updates the node's list of successors. It does not
+		remove ``successor`` from the network or remove ``self`` as a predecessor of
+		``successor``. Typically, this method is called by 
+		``SupplyChainNetwork.remove_node()`` rather than directly.
+
+		Parameters
+		----------
+		successor : SupplyChainNode
+			The node to remove as a successor.
+
+		"""
+		self._successors.remove(successor)
+
+	def remove_predecessor(self, predecessor):
+		"""Remove ``predecessor`` from the node's list of predecessors.
+
+		Notes
+		-----
+		This method simply updates the node's list of predecessors. It does not
+		remove ``predecessor`` from the network or remove ``self`` as a successor of
+		``predecessor``. Typically, this method is called by 
+		``SupplyChainNetwork.remove_node()`` rather than directly.
+
+		Parameters
+		----------
+		predecessor : SupplyChainNode
+			The node to remove as a predecessor.
+
+		"""
+		self._predecessors.remove(predecessor)
 
 	def get_one_successor(self):
 		"""Get one successor of the node. If the node has more than one
@@ -440,8 +519,62 @@ class SupplyChainNode(object):
 		"""
 		for i in range(len(self.state_vars)):
 			self.state_vars[i].reindex_state_variabels(old_to_new_dict)
-			
 
+	def deep_equal_to(self, other, rel_tol=1e-8):
+		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are
+		equal, including attributes that are themselves objects.
+		
+		Note the following caveats:
+
+		* Does not check equality of ``network``. 
+		* Checks predecessor and successor equality by index only. 
+		* Does not check equality of ``local_holding_cost_function`` or ``stockout_cost_function``.
+		* Does not check equality of ``state_vars``.
+
+		Parameters
+		----------
+		other : SupplyChainNode
+			The node to compare this one to.
+		rel_tol : float, optional
+			Relative tolerance to use when comparing equality of float attributes.
+
+		Returns
+		-------
+		bool
+			``True`` if the two nodes are equal, ``False`` otherwise.
+		"""
+
+		# TODO: unit tests
+
+		return self.index == other.index and \
+			self.name == other.name and \
+			sorted(self.predecessor_indices()) == sorted(other.predecessor_indices()) and \
+			sorted(self.successor_indices()) == sorted(other.successor_indices()) and \
+			isclose(self.local_holding_cost or 0, other.local_holding_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.echelon_holding_cost or 0, other.echelon_holding_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.in_transit_holding_cost or 0, other.in_transit_holding_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.stockout_cost or 0, other.stockout_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.revenue or 0, other.revenue or 0, rel_tol=rel_tol) and \
+			self.shipment_lead_time == other.shipment_lead_time and \
+			self.order_lead_time == other.order_lead_time and \
+			self.demand_source == other.demand_source and \
+			isclose(self.initial_inventory_level or 0, other.initial_inventory_level or 0, rel_tol=rel_tol) and \
+			isclose(self.initial_orders or 0, other.initial_orders or 0, rel_tol=rel_tol) and \
+			isclose(self.initial_shipments or 0, other.initial_shipments or 0, rel_tol=rel_tol) and \
+			self.inventory_policy == other.inventory_policy and \
+			self.supply_type == other.supply_type and \
+			self.processing_time == other.processing_time and \
+			self.external_inbound_cst == other.external_inbound_cst and \
+			isclose(self.demand_bound_constant or 0, other.demand_bound_constant or 0, rel_tol=rel_tol) and \
+			isclose(self.units_required or 0, other.units_required or 0, rel_tol=rel_tol) and \
+			self.original_label == other.original_label and \
+			isclose(self.net_demand_mean or 0, other.net_demand_mean or 0, rel_tol=rel_tol) and \
+			isclose(self.net_demand_standard_deviation or 0, other.net_demand_standard_deviation or 0, rel_tol=rel_tol) and \
+			self.larger_adjacent_node == other.larger_adjacent_node and \
+			self.larger_adjacent_node_is_downstream == other.larger_adjacent_node_is_downstream and \
+			self.max_replenishment_time == other.max_replenishment_time
+			
+		
 # ===============================================================================
 # NodeStateVars Class
 # ===============================================================================

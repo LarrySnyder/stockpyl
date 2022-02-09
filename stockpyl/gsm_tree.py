@@ -10,9 +10,9 @@
 """Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
 
-'node' and 'stage' are used interchangeably in the documentation.
+"node" and "stage" are used interchangeably in the documentation.
 
-The primary data object is the NetworkX DiGraph, which contains all of the data
+The primary data object is the ``SupplyChainNetwork``, which contains all of the data
 for the GSM instance.
 
 The following attributes are used to specify input data:
@@ -26,7 +26,7 @@ The following attributes are used to specify input data:
 		- external_demand_standard_deviation [sigma]
 	* Edge-level attributes
 		- units_required (e.g., on edge i->j, units_required units of item i are
-	required to make 1 unit of item j)
+	required to make 1 unit of item j) 
 
 The following attributes are used to store outputs and intermediate values:
 	* Graph-level attributes
@@ -45,11 +45,17 @@ Lehigh University
 """
 
 import networkx as nx
+import copy
 
+from stockpyl.demand_source import DemandSource
 from stockpyl.gsm_tree_helpers import *
 from stockpyl.helpers import *
+from stockpyl.supply_chain_network import SupplyChainNetwork
+from stockpyl.supply_chain_node import SupplyChainNode
 
 # TODO: add instances to instance JSON
+# TODO: implement units_required
+
 
 ### GRAPH MANIPULATION ###
 
@@ -58,17 +64,18 @@ def preprocess_tree(tree):
 
 	If tree is already correctly labeled, does not relabel it.
 
-	Fill node-level attributes: original_label, net_demand_mean,
-	net_demand_standard_deviation, larger_adjacent_node,
-	max_replenishment_time.
-	Fill missing data for demand_bound_constant, external_inbound_cst, and
-	external_outbound_cst attributes.
+	Fill node-level attributes: ``net_demand_mean``,
+	``net_demand_standard_deviation``, ``larger_adjacent_node``,
+	``max_replenishment_time``.
 
-	Fill max_max_replenishment_time graph-level attribute.
+	Fill missing data for ``demand_bound_constant``, ``external_inbound_cst``, and
+	``external_outbound_cst attributes``.
+
+	Fill ``max_max_replenishment_time`` network-level attribute.
 
 	Parameters
 	----------
-	tree : graph
+	tree : SupplyChainNetwork
 		NetworkX directed graph representing the multi-echelon tree network.
 		Current node labels are ignored and may be anything.
 	start_index : int, optional
@@ -81,46 +88,45 @@ def preprocess_tree(tree):
 
 	"""
 
-	new_tree = tree.copy()
+	new_tree = copy.deepcopy(tree)
 
 	# Fill external inbound and outbound CST parameters, if not provided.
 	# Default value of external outbound CST = BIG_INT.
 	# Default value of external inbound CST = 0. (Not strictly necessary,
 	# but cleaner.)
 	for k in new_tree.nodes:
-		if 'external_inbound_cst' not in new_tree.nodes[k]:
-			new_tree.nodes[k]['external_inbound_cst'] = 0
-		if 'external_outbound_cst' not in new_tree.nodes[k]:
-			new_tree.nodes[k]['external_outbound_cst'] = BIG_INT
+		if k.external_inbound_cst is None:
+			k.external_inbound_cst = 0
+		if k.external_outbound_cst is None:
+			k.external_outbound_cst = BIG_INT
 
 	# Fill demand bound constant parameters, if not provided.
 	# Set equal to demand bound constant of sink node. If more than one sink node,
 	# one is chosen arbitrarily. If no sink nodes have demand bound constant,
 	# constant is set to 1.
-	sinks_with_dbc = [k for k in new_tree.nodes if new_tree.out_degree(k) == 0
-					  and 'demand_bound_constant' in new_tree.nodes[k]]
+	sinks_with_dbc = [k for k in new_tree.sink_nodes if k.demand_bound_constant is not None]
 	for k in new_tree.nodes:
-		if 'demand_bound_constant' not in new_tree.nodes[k]:
+		if k.demand_bound_constant is None:
 			if sinks_with_dbc == []:
-				new_tree.nodes[k]['demand_bound_constant'] = 1
+				k.demand_bound_constant = 1
 			else:
-				new_tree.nodes[k]['demand_bound_constant'] = \
-					new_tree.nodes[sinks_with_dbc[0]]['demand_bound_constant']
+				k.demand_bound_constant = \
+					sinks_with_dbc[0].demand_bound_constant
 
 	# Calculate net demand parameters.
 	net_demand_means, net_demand_standard_deviations = net_demand(new_tree)
-	nx.set_node_attributes(new_tree, net_demand_means, 'net_demand_mean')
-	nx.set_node_attributes(new_tree, net_demand_standard_deviations,
-						   'net_demand_standard_deviation')
+	for k in new_tree.nodes:
+		k.net_demand_mean = net_demand_means[k.index]
+		k.net_demand_standard_deviation = net_demand_standard_deviations[k.index]
 
 	# Calculate max replenishment times.
 	max_replenishment_times = longest_paths(new_tree)
-	nx.set_node_attributes(new_tree, max_replenishment_times, 'max_replenishment_time')
+	for k in new_tree.nodes:
+		k.max_replenishment_time = max_replenishment_times[k.index]
 
 	# Calculate maximum value of max_replenishment_time.
-	new_tree.graph['max_max_replenishment_time'] = \
-		np.max(list(nx.get_node_attributes(new_tree,
-										   'max_replenishment_time').values()))
+	new_tree.max_max_replenishment_time = \
+		np.max([k.max_replenishment_time for k in new_tree.nodes])
 
 	return new_tree
 
@@ -132,15 +138,15 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 	If tree is already correctly labeled, returns the original tree,
 	unless force_relabel is True, in which case performs the relabeling.
 
-	Does not modify the input tree. Fills 'original_label',
-	'larger_adjacent_node', and 'larger_adjacent_node_is_downstream' attributes
+	Does not modify the input tree. Fills ``original_label``,
+	``larger_adjacent_node``, and ``larger_adjacent_node_is_downstream`` attributes
 	of nodes in new tree, whether or not original tree was already
 	correctly labeled.
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
 		Current node labels are ignored (unless the tree is already correctly
 		labeled) and may be anything.
 	start_index : int, optional
@@ -151,8 +157,8 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 
 	Returns
 	-------
-	relabeled_tree : graph
-		NetworkX directed graph representing the relabeled tree network.
+	relabeled_tree : SupplyChainNetwork
+		The relabeled tree network.
 
 	"""
 
@@ -161,45 +167,50 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 
 	# Do relabel?
 	if is_correct and not force_relabel:
-		relabeled_tree = tree.copy()
-		new_labels = {k: k for k in tree.nodes}
+		relabeled_tree = copy.deepcopy(tree)
+		new_labels = {k.index: k.index for k in tree.nodes}
 	else:
 
 		# Initialize all nodes to "unlabeled", and initialize list of new labels.
-		labeled = {i: False for i in tree.nodes()}
+		labeled = {i.index: False for i in tree.nodes}
 		new_labels = {}
 
 		# Find nodes that are adjacent to at most 1 unlabeled node and label them.
-		for k in range(start_index, start_index+nx.number_of_nodes(tree)):
+		for k in range(start_index, start_index+len(tree.nodes)):
 
 			# Find a node for labeling.
-			for i in tree.nodes():
+			for i in tree.nodes:
 
 				# Make sure i is unlabeled.
-				if not labeled[i]:
+				if not labeled[i.index]:
 					# Count unlabeled nodes that are adjacent to node i.
-					num_adj = len([j for j in nx.all_neighbors(tree, i) if not labeled[j]])
+					num_adj = len([j for j in i.neighbor_indices if not labeled[j]])
 
 					# If i is adjacent to at most 1 unlabeled node, label it.
 					if num_adj <= 1:
 						# Change i's label to k.
-						new_labels[i] = k
+						new_labels[i.index] = k
 						# Mark i as labeled.
-						labeled[i] = True
+						labeled[i.index] = True
 						# Break out of 'for i' loop
 						break
 
 		# Relabel the nodes
-		relabeled_tree = nx.relabel_nodes(tree, new_labels)
+		relabeled_tree = copy.deepcopy(tree)
+		relabeled_tree.reindex_nodes(new_labels)
 
-	# Fill original_label attribute of relabeled tree.
-	original_labels = {new_labels[k]: k for k in tree.nodes}
-	nx.set_node_attributes(relabeled_tree, original_labels, 'original_label')
-
-	# Fill larger-adjacent-node attributes.
+	# Fill attributes of relabeled tree.
 	larger_adjacent, downstream = find_larger_adjacent_nodes(relabeled_tree)
-	nx.set_node_attributes(relabeled_tree, larger_adjacent, 'larger_adjacent_node')
-	nx.set_node_attributes(relabeled_tree, downstream, 'larger_adjacent_node_is_downstream')
+	for k in tree.nodes:
+		relabeled_node = relabeled_tree.get_node_from_index(new_labels[k.index])
+		relabeled_node.original_label = k.index
+		if new_labels[k.index] < np.max(list(new_labels.values())):
+			relabeled_node.larger_adjacent_node = larger_adjacent[relabeled_node.index]
+			relabeled_node.larger_adjacent_node_is_downstream = downstream[relabeled_node.index]
+		else:
+			# Largest-indexed node has no larger adjacent node.
+			relabeled_node.larger_adjacent_node = None
+			relabeled_node.larger_adjacent_node_is_downstream = None
 
 	return relabeled_tree
 
@@ -207,14 +218,14 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 def is_correctly_labeled(tree):
 	"""Determine whether tree is already correctly labeled.
 
-	Tree is correctly labeled if all labels are integers, the integers are
-	consecutive, and every stage (other than the highest-indexed one) has
+	Tree is correctly labeled if all labels are consecutive integers and
+	every stage (other than the highest-indexed one) has
 	exactly one adjacent stage with a greater index.
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
 
 	Returns
 	-------
@@ -222,28 +233,27 @@ def is_correctly_labeled(tree):
 	"""
 
 	# Get indices.
-	ind = list(tree.nodes)
+	ind = tree.node_indices
 
-	# Check whether every label is a non-negative integer.
-	if not np.all([str(k).isdigit() for k in ind]):
-		is_correct = False
-	else:
-		# Check whether labels are consecutive integers starting at min_index.
-		min_index = np.min(ind)
+	# Check whether labels are consecutive integers starting at min_index.
+	min_index = np.min(ind)
+	try:
 		if set(ind) != set(range(min_index, min_index + len(ind))):
 			is_correct = False
 		else:
-			# Check whether every node as exactly one adjacent stage with
+			# Check whether every node has exactly one adjacent node with
 			# greater index.
 			is_correct = True
 			for k in tree.nodes:
-				if k < np.max(ind):
+				if k.index < np.max(ind):
 					greater_indexed_neighbors = \
-						{i for i in tree.predecessors(k) if i > k}.union(
-							{i for i in tree.successors(k) if i > k}
+						{i for i in k.predecessors() if i.index > k.index}.union(
+							{i for i in k.successors() if i.index > k.index}
 						)
 					if len(greater_indexed_neighbors) != 1:
 						is_correct = False
+	except:
+		is_correct = False
 
 	return is_correct
 
@@ -253,25 +263,25 @@ def find_larger_adjacent_nodes(tree):
 
 	After the nodes are relabeled by relabel_nodes(), each node (except the
 	node with the largest index) is adjacent to exactly one node with a
-	larger index. Node k's neighbor with larger index is denoted p(k) in
-	Graves and Willems (2000). This function finds p(k) for all k and also
-	indicates whether p(k) is upstream or downstream from k.
+	larger index. Node k's neighbor with larger index is denoted [:math:`p(k)`] in
+	Graves and Willems (2000). This function finds [:math:`p(k)`] for all :math:`k` and also
+	indicates whether [:math:`p(k)`] is upstream or downstream from [:math:`k`].
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
 		Nodes are assumed to have been relabeled using relabel_nodes().
 
 	Returns
 	-------
 	larger_adjacent: dict
 		Dict containing index of each node's larger-indexed adjacent node,
-		for all nodes except the largest-indexed node.
+		for all nodes except the largest-indexed node. Keys are node indices.
 	downstream: dict
-		Dict containing, for each node, True if the larger-indexed adjacent
-		node is downstream from the node, False if it is upstream, for all
-		nodes except the largest-indexed node.
+		Dict containing, for each node, ``True`` if the larger-indexed adjacent
+		node is downstream from the node, ``False`` if it is upstream, for all
+		nodes except the largest-indexed node. Keys are node indices.
 	"""
 
 	# Initialize dicts.
@@ -280,17 +290,17 @@ def find_larger_adjacent_nodes(tree):
 
 	# Loop through nodes.
 	for k in tree.nodes:
-		if k < np.max(list(tree.nodes)):
+		if k.index < np.max(tree.node_indices):
 			# Get list of nodes that are adjacent to k and have a larger index,
 			# but the list will only contain a single item; set larger_adjacent[k] to it.
-			larger_adjacent_list = [i for i in nx.all_neighbors(tree, k) if i > k]
-			larger_adjacent[k] = larger_adjacent_list[0]
+			larger_adjacent_list = [i.index for i in k.neighbors if i.index > k.index]
+			larger_adjacent[k.index] = larger_adjacent_list[0]
 
 			# Set downstream flag.
-			if larger_adjacent[k] in tree.successors(k):
-				downstream[k] = True
+			if larger_adjacent[k.index] in k.successor_indices():
+				downstream[k.index] = True
 			else:
-				downstream[k] = False
+				downstream[k.index] = False
 
 	return larger_adjacent, downstream
 
@@ -305,31 +315,31 @@ def longest_paths(tree):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
 		Nodes are assumed to have been relabeled using relabel_nodes().
 
 	Returns
 	-------
 	longest_lengths : dict
-		Dict of longest paths to each node (M_k).
+		Dict of longest paths to each node, with keys equal to node indices. [:math:`M_k`].
 
 	"""
 
 	# Get dict of external inbound CSTs. (Some nodes may have no entry.)
-	external_inbound_cst = nx.get_node_attributes(tree, 'external_inbound_cst')
+#	external_inbound_cst = nx.get_node_attributes(tree, 'external_inbound_cst')
 
-	# Copy the tree. Set the weight of each edge into a given node k to the processing
+	# Build the tree as networkx DiGraph. Set the weight of each edge into a given node k to the processing
 	# time of node k. If node k is a source node and/or it has an external inbound CST,
 	# add a dummy node before node k and set weight of edge from dummy node to node k
 	# equal to processing time of node k + external inbound CST for node k.
-	temp_tree = tree.copy()
+	temp_tree = tree.networkx_digraph()
 	for k in tree.nodes:
-		for p in tree.predecessors(k):
-			temp_tree[p][k]['weight'] = tree.nodes[k]['processing_time']
-		if tree.in_degree(k) == 0 or external_inbound_cst.get(k, 0) > 0:
-			temp_tree.add_edge('dummy_' + str(k), k,
-							   weight=tree.nodes[k]['processing_time'] + external_inbound_cst.get(k, 0))
+		for p in k.predecessors():
+			temp_tree[p.index][k.index]['weight'] = k.processing_time
+		if temp_tree.in_degree(k.index) == 0 or (k.external_inbound_cst or 0) > 0:
+			temp_tree.add_edge('dummy_' + str(k.index), k.index,
+				weight=k.processing_time + (k.external_inbound_cst or 0))
 
 	# Determine shortest path between every pair of nodes.
 	# (Really there's only one path, but shortest path is the
@@ -340,8 +350,8 @@ def longest_paths(tree):
 	# source nodes that are ancestors to k.
 	longest_lengths = {}
 	for k in tree.nodes:
-		longest_lengths[k] = max([path_lengths[i][k] for i in
-								  nx.ancestors(temp_tree, k)], default=0)
+		longest_lengths[k.index] = max([path_lengths[i][k.index] for i in
+								  nx.ancestors(temp_tree, k.index)], default=0)
 
 	return longest_lengths
 
@@ -354,8 +364,8 @@ def net_demand(tree):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
 
 	Returns
 	-------
@@ -368,26 +378,24 @@ def net_demand(tree):
 	"""
 
 	# Initialize net_mean and net_variances using each node's external demand.
-	net_means = {k: tree.nodes[k].get('external_demand_mean', 0) for k in
-				tree.nodes}
-	net_variances = {k: tree.nodes[k].get('external_demand_standard_deviation', 0)**2
-				for k in tree.nodes}
+	net_means = {k.index: k.demand_source.mean or 0 for k in tree.nodes}
+	net_variances = {k.index: (k.demand_source.standard_deviation or 0)**2 for k in tree.nodes}
 
 	# Make temp copy of tree.
-	temp_tree = tree.copy()
+	temp_tree = copy.deepcopy(tree)
 
 	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
 	# no _successors), adding their net_means and net_variances to those of their
 	# _predecessors. Then remove the leaf nodes and iterate.
-	while temp_tree.number_of_nodes() > 0:
-		leaf_nodes = [k for k in temp_tree.nodes if temp_tree.out_degree(k) == 0]
+	while len(temp_tree.nodes) > 0:
+		leaf_nodes = temp_tree.sink_nodes
 		for k in leaf_nodes:
-			for i in temp_tree.predecessors(k):
-				net_means[i] += net_means[k]
-				net_variances[i] += net_variances[k]
-			temp_tree.remove_node(k)
+			for i in k.predecessor_indices():
+				net_means[i] += net_means[k.index]
+				net_variances[i] += net_variances[k.index]
+			temp_tree.remove_node(k) 
 
-	net_standard_deviations = {k: np.sqrt(net_variances[k]) for k in tree.nodes}
+	net_standard_deviations = {k.index: np.sqrt(net_variances[k.index]) for k in tree.nodes}
 	return net_means, net_standard_deviations
 
 
@@ -412,10 +420,13 @@ def connected_subgraph_nodes(tree):
 	# Intiailize output dict.
 	connected_nodes = {}
 
+	# Convert to networkx DiGraph so we can use subgraph().
+	networkx_tree = tree.networkx_digraph()
+
 	# Loop through nodes.
-	for k in tree.nodes:
+	for k in networkx_tree:
 		# Build subgraph on {min_k,...,k}.
-		subgraph = tree.to_undirected().subgraph(range(np.min(tree.nodes), k+1))
+		subgraph = networkx_tree.to_undirected().subgraph(range(np.min(networkx_tree.nodes), k+1))
 		# Build set of connected nodes.
 		connected_nodes[k] = set(i for i in subgraph.nodes if
 							  nx.has_path(subgraph, i, k))
@@ -433,13 +444,12 @@ def GSM_to_SSM(tree, p=None):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
 	p : float, optional
-		Stockout cost to use at demand nodes. If None, copies stockout_cost
-		field from tree for nodes that have it, and does not fill stockout_cost
+		Stockout cost to use at demand nodes. If ``None``, copies ``stockout_cost``
+		field from tree for nodes that have it, and does not fill ``stockout_cost``
 		for nodes that do not.
-		# TODO: allow different p values at different demand nodes
 
 	Returns
 	-------
@@ -447,32 +457,48 @@ def GSM_to_SSM(tree, p=None):
 		SSM representation of tree.
 	"""
 
+	# TODO: allow different p values at different demand nodes
+
 	# Build new graph.
-	SSM_tree = nx.DiGraph()
+	SSM_tree = SupplyChainNetwork()
 
 	# Add nodes.
 	for n in tree.nodes:
-		upstream_h = np.sum([tree.nodes[k]['holding_cost'] for k in
-							 tree.predecessors(n)])
-		SSM_tree.add_node(n,
-			lead_time=tree.nodes[n]['processing_time']+tree.nodes[n]['external_inbound_cst'],
-			echelon_holding_cost=tree.nodes[n]['holding_cost'] - upstream_h)
-		if 'external_demand_mean' in tree.nodes[n]:
-			SSM_tree.nodes[n]['mean'] = \
-				tree.nodes[n]['external_demand_mean']
-		if 'external_demand_standard_deviation' in tree.nodes[n]:
-			SSM_tree.nodes[n]['standard_deviation'] = \
-				tree.nodes[n]['external_demand_standard_deviation']
+		upstream_h = np.sum([k.local_holding_cost for k in n.predecessors()])
+		SSM_tree.add_node(SupplyChainNode(n.index, name=n.name, network=SSM_tree,
+			shipment_lead_time=n.processing_time+n.external_inbound_cst,
+			echelon_holding_cost=n.local_holding_cost-upstream_h))
+		SSM_node = SSM_tree.get_node_from_index(n.index)
+		SSM_node.demand_source = copy.deepcopy(n.demand_source)
 		if p is not None:
-			if tree.nodes[n]['external_demand_mean'] > 0 or \
-				tree.nodes[n]['external_demand_standard_deviation'] > 0:
-				SSM_tree.nodes[n]['stockout_cost'] = p
+			if n.demand_source is not None:
+				SSM_node.stockout_cost = p
 		else:
-			if 'stockout_cost' in tree.nodes[n]:
-				SSM_tree.nodes[n]['stockout_cost'] = tree.nodes[n]['stockout_cost']
+			if n.stockout_cost is not None:
+				SSM_node.stockout_cost = n.stockout_cost
+
+		# upstream_h = np.sum([tree.nodes[k]['holding_cost'] for k in
+		# 					 tree.predecessors(n)])
+		# SSM_tree.add_node(n,
+		# 	lead_time=tree.nodes[n]['processing_time']+tree.nodes[n]['external_inbound_cst'],
+		# 	echelon_holding_cost=tree.nodes[n]['holding_cost'] - upstream_h)
+		# if 'external_demand_mean' in tree.nodes[n]:
+		# 	SSM_tree.nodes[n]['mean'] = \
+		# 		tree.nodes[n]['external_demand_mean']
+		# if 'external_demand_standard_deviation' in tree.nodes[n]:
+		# 	SSM_tree.nodes[n]['standard_deviation'] = \
+		# 		tree.nodes[n]['external_demand_standard_deviation']
+		# if p is not None:
+		# 	if tree.nodes[n]['external_demand_mean'] > 0 or \
+		# 		tree.nodes[n]['external_demand_standard_deviation'] > 0:
+		# 		SSM_tree.nodes[n]['stockout_cost'] = p
+		# else:
+		# 	if 'stockout_cost' in tree.nodes[n]:
+		# 		SSM_tree.nodes[n]['stockout_cost'] = tree.nodes[n]['stockout_cost']
 
 	# Add edges.
-	SSM_tree.add_edges_from(tree.edges)
+	edge_list = tree.edges
+	SSM_tree.add_edges_from_list(edge_list)
 
 	return SSM_tree
 
