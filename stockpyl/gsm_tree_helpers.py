@@ -46,13 +46,13 @@ def solution_cost_from_cst(tree, cst):
 	for k in tree.nodes:
 
 		# Calculate net lead time.
-		nlt = net_lead_time(tree, tree.nodes, cst)
+		nlt = net_lead_time(tree, tree.node_indices, cst)
 
 		# Calculate safety stock and holding cost.
-		safety_stock = tree.nodes[k]['demand_bound_constant'] * \
-					   tree.nodes[k]['net_demand_standard_deviation'] * \
-					   np.sqrt(nlt[k])
-		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
+		safety_stock = k.demand_bound_constant * \
+					   k.net_demand_standard_deviation * \
+					   np.sqrt(nlt[k.index])
+		holding_cost = k.holding_cost * safety_stock
 
 		# Set stage_cost equal to holding cost at node_k k.
 		cost += holding_cost
@@ -67,9 +67,8 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Graph need not have been relabeled.
 	local_bsl : dict
 		Dict of local base-stock levels for each node, using the same node
 		labeling as tree.
@@ -81,11 +80,13 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 
 	"""
 
+	# TODO: unit tests
+
 	cost = 0
 	for k in tree.nodes:
 		# Calculate safety stock and holding cost.
-		safety_stock = local_bsl[k] - tree.nodes[k]['net_demand_mean']
-		holding_cost = tree.nodes[k]['holding_cost'] * safety_stock
+		safety_stock = local_bsl[k.index] - k.net_demand_mean
+		holding_cost = k.holding_cost * safety_stock
 
 		# Set stage_cost equal to holding cost at node_k.
 		cost += holding_cost
@@ -174,7 +175,7 @@ def net_lead_time(tree, n, cst):
 	nlt = {}
 	for k in n:
 		# Determine NLT.
-		nlt[k] = SI[k] + tree.nodes[k]['processing_time'] - cst[k]
+		nlt[k] = SI[k] + tree.get_node_from_index(k).processing_time - cst[k]
 
 	if n_is_iterable:
 		return nlt
@@ -188,9 +189,8 @@ def cst_to_base_stock_levels(tree, n, cst):
 
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Graph need not have been relabeled.
 	n : node OR iterable container
 		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict
@@ -218,7 +218,7 @@ def cst_to_base_stock_levels(tree, n, cst):
 
 	base_stock = {}
 	for k in n:
-		base_stock[k] = tree.nodes[k]['net_demand_mean'] * nlt[k] + ss[k]
+		base_stock[k] = tree.get_node_from_index(k).net_demand_mean * nlt[k] + ss[k]
 
 	if n_is_iterable:
 		return base_stock
@@ -232,9 +232,8 @@ def safety_stock_levels(tree, n, cst):
 	
 	Parameters
 	----------
-	tree : graph
-		NetworkX directed graph representing the multi-echelon tree network.
-		Graph need not have been relabeled.
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Graph need not have been relabeled.
 	n : node OR iterable container
 		A single node index OR a container of node indices (dict, list, set, etc.).
 	cst : dict
@@ -261,8 +260,9 @@ def safety_stock_levels(tree, n, cst):
 
 	safety_stock = {}
 	for k in n:
-		safety_stock[k] = tree.nodes[k]['demand_bound_constant'] * \
-						  tree.nodes[k]['net_demand_standard_deviation'] * \
+		node_k = tree.get_node_from_index(k)
+		safety_stock[k] = node_k.demand_bound_constant * \
+						  node_k.net_demand_standard_deviation * \
 						  np.sqrt(nlt[k])
 
 	if n_is_iterable:
