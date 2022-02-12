@@ -1,3 +1,4 @@
+from base64 import standard_b64decode
 import unittest
 
 # import numpy as np
@@ -24,6 +25,77 @@ def tear_down_module():
 	"""Called once, after everything else in this module."""
 	print_status('---', 'tear_down_module()')
 
+
+class TestDemandSourceEq(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDemandSourceEq', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDemandSourceEq', 'tear_down_class()')
+
+	def test_true(self):
+		"""Test that DemandSource.__eq__() correctly returns True when objects are equal.
+		"""
+		print_status('TestDemandSourceEq', 'test_true()')
+
+		ds1 = DemandSource(type='N', mean=10, standard_deviation=2)
+		ds2 = DemandSource(type='N', mean=10, standard_deviation=2)
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
+		ds1 = DemandSource(type='N', mean=10, standard_deviation=2, round_to_int=True)
+		ds2 = DemandSource(type='N', mean=10, standard_deviation=2, round_to_int=True)
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
+		ds1 = DemandSource(type='CD', demand_list=[0, 5, 10], probabilities=[0.2, 0.5, 0.3])
+		ds2 = DemandSource(type='CD', demand_list=[0, 5, 10], probabilities=[0.2, 0.5, 0.3])
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
+		ds1 = DemandSource(type='P', mean=50)
+		ds2 = DemandSource(type='P', mean=50)
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
+		ds1 = DemandSource(type='UC', lo=50, hi=75)
+		ds2 = DemandSource(type='UC', lo=50, hi=75)
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
+	def test_false(self):
+		"""Test that DemandSource.__eq__() correctly returns False when objects are not equal.
+		"""
+		print_status('TestDemandSourceEq', 'test_true()')
+
+		ds1 = DemandSource(type='N', mean=10, standard_deviation=2)
+		ds2 = DemandSource(type='N', mean=10, standard_deviation=1)
+		eq = ds1 == ds2
+		self.assertFalse(eq)
+
+		ds1 = DemandSource(type='N', mean=10, standard_deviation=2)
+		ds2 = DemandSource(type='N', mean=10, standard_deviation=2, round_to_int=True)
+		eq = ds1 == ds2
+		self.assertFalse(eq)
+
+		ds1 = DemandSource(type='CD', demand_list=[0, 5, 10], probabilities=[0.1, 0.5, 0.4])
+		ds2 = DemandSource(type='CD', demand_list=[0, 5, 10], probabilities=[0.2, 0.5, 0.3])
+		eq = ds1 == ds2
+		self.assertFalse(eq)
+
+		ds1 = DemandSource(type='P', mean=40)
+		ds2 = DemandSource(type='P', mean=50)
+		eq = ds1 == ds2
+		self.assertFalse(eq)
+
+		ds1 = DemandSource(type='UC', lo=50, hi=75)
+		ds2 = DemandSource(type='UC', lo=50, hi=100)
+		eq = ds1 == ds2
+		self.assertFalse(eq)
 
 class TestValidateParameters(unittest.TestCase):
 	@classmethod

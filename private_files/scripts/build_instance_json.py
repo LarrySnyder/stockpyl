@@ -821,15 +821,15 @@ def get_named_instance(instance_name):
 # network.add_edges_from_list([(3, 2), (2, 1)])
 # save_instance("problem_6_7", network, 'Problem 6.7 (tree GSM)')
 
-network = SupplyChainNetwork()
-network.add_node(SupplyChainNode(1, network=network, processing_time=7, local_holding_cost=220*0.2/365, external_outbound_cst=3, demand_source=DemandSource(type='N', mean=22.0, standard_deviation=4.1), demand_bound_constant=4))
-network.add_node(SupplyChainNode(2, network=network, processing_time=7, local_holding_cost=140*0.2/365, external_outbound_cst=3, demand_source=DemandSource(type='N', mean=15.3, standard_deviation=6.2), demand_bound_constant=4))
-network.add_node(SupplyChainNode(3, network=network, processing_time=21, local_holding_cost=90*0.2/365))
-network.add_node(SupplyChainNode(4, network=network, processing_time=3, local_holding_cost=5*0.2/365))
-network.add_node(SupplyChainNode(5, network=network, processing_time=8, local_holding_cost=20*0.2/365))
-network.add_node(SupplyChainNode(6, network=network, processing_time=2, local_holding_cost=7.5*0.2/365))
-network.add_edges_from_list([(6, 5), (4, 3), (5, 3), (3, 1), (3, 2)])
-save_instance("problem_6_9", network, 'Problem 6.9 (tree GSM)')
+# network = SupplyChainNetwork()
+# network.add_node(SupplyChainNode(1, network=network, processing_time=7, local_holding_cost=220*0.2/365, external_outbound_cst=3, demand_source=DemandSource(type='N', mean=22.0, standard_deviation=4.1), demand_bound_constant=4))
+# network.add_node(SupplyChainNode(2, network=network, processing_time=7, local_holding_cost=140*0.2/365, external_outbound_cst=3, demand_source=DemandSource(type='N', mean=15.3, standard_deviation=6.2), demand_bound_constant=4))
+# network.add_node(SupplyChainNode(3, network=network, processing_time=21, local_holding_cost=90*0.2/365))
+# network.add_node(SupplyChainNode(4, network=network, processing_time=3, local_holding_cost=5*0.2/365))
+# network.add_node(SupplyChainNode(5, network=network, processing_time=8, local_holding_cost=20*0.2/365))
+# network.add_node(SupplyChainNode(6, network=network, processing_time=2, local_holding_cost=7.5*0.2/365))
+# network.add_edges_from_list([(6, 5), (4, 3), (5, 3), (3, 1), (3, 2)])
+# save_instance("problem_6_9", network, 'Problem 6.9 (tree GSM)')
 
 # CHAPTER 9
 

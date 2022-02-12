@@ -26,10 +26,11 @@ from stockpyl.policy import *
 from stockpyl.demand_source import *
 from stockpyl.helpers import *
 
-
 # ===============================================================================
 # SupplyChainNode Class
 # ===============================================================================
+
+# TODO: add mean and SD attributes and allow those OR DemandSource
 
 class SupplyChainNode(object):
 	"""The ``SupplyChainNode`` class contains the data, state variables, and
