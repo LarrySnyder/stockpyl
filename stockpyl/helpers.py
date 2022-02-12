@@ -8,10 +8,11 @@ Lehigh University
 import math
 from scipy import stats
 from scipy.special import comb
-from scipy.stats import uniform
 from scipy.stats import rv_discrete, rv_continuous
 from math import factorial
 import numpy as np
+from itertools import product
+from collections import defaultdict
 
 #from datatypes import *
 
@@ -618,12 +619,11 @@ def irwin_hall_cdf(x, n):
 	return F
 
 
-def sum_of_uniforms_distribution(n, lo=0, hi=1):
-	"""Return distribution of sum of ``n`` identical uniform random variables as
+def sum_of_continuous_uniforms_distribution(n, lo=0, hi=1):
+	"""Return distribution of sum of ``n`` identical continuous uniform random variables as
 	``rv_continuous`` object.
 
-	If ``lo`` = 0 and ``hi`` = 1, this distribution is the Irwin-Hall
-	distribution.
+	If ``lo`` = 0 and ``hi`` = 1, this distribution is the Irwin-Hall distribution.
 
 	Parameters
 	----------
@@ -639,9 +639,16 @@ def sum_of_uniforms_distribution(n, lo=0, hi=1):
 	distribution : rv_continuous
 		The rv_continuous object.
 
+	Raises
+	------
+	ValueError
+		If ``n`` is not an integer.
+
 	"""
 
-	class sum_of_uniforms_rv(stats.rv_continuous):
+	class sum_of_continuous_uniforms_rv(stats.rv_continuous):
+		# TODO: this is a different pattern than is used here https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_continuous.html
+
 		def _cdf(self, x):
 			# P(X <= x) = P(Y <= (y - n * lo) / (hi - lo)), where Y is the sum of
 			# n U[0,1] r.v.s and therefore has an Irwin-Hall distribution.
@@ -652,11 +659,93 @@ def sum_of_uniforms_distribution(n, lo=0, hi=1):
 			else:
 				return irwin_hall_cdf((x - n * lo) / (hi - lo), n)
 
-	distribution = sum_of_uniforms_rv()
+	# Check whether n is an integer.
+	if not is_integer(n):
+		raise ValueError("n must be an integer")
+
+	distribution = sum_of_continuous_uniforms_rv()
 
 	return distribution
 
 
+def sum_of_discrete_uniforms_pmf(n, lo, hi):
+	"""Calculate pmf of sum of ``n`` identical discrete uniform random variables. 
+	Return values as dict.
+
+	Adapted from https://stackoverflow.com/a/69842911/3453768.
+
+	Parameters
+	----------
+	n : int
+		Number of uniform random variables in the sum.
+	lo : int
+		Lower bound of uniform distribution.
+	hi : int
+		Upper bound of uniform distribution.
+
+	Returns
+	-------
+	dict
+		Dictionary of pmf values.
+
+	Raises
+	------
+	ValueError
+		If ``n`` is not an integer.
+	"""
+	# Check whether n is an integer.
+	if not is_integer(n):
+		raise ValueError("n must be an integer")
+
+	du_pmf = {i: 1/(hi-lo+1) for i in range(lo, hi+1)}
+	du_sum_pmf = {0: 1}
+
+	for i in range(n):
+		new_sum_pmf = defaultdict(float)
+		for prev_sum, dice in product(du_sum_pmf, du_pmf):
+			new_sum_pmf[prev_sum + dice] += du_sum_pmf[prev_sum] * du_pmf[dice]
+		du_sum_pmf = new_sum_pmf
+
+	return du_sum_pmf
+				
+
+def sum_of_discrete_uniforms_distribution(n, lo, hi):
+	"""Return distribution of sum of ``n`` identical discrete uniform random variables as
+	``rv_continuous`` object.
+
+	Parameters
+	----------
+	n : int
+		Number of uniform random variables in the sum.
+	lo : int
+		Lower bound of uniform distribution.
+	hi : int
+		Upper bound of uniform distribution.
+
+	Returns
+	-------
+	distribution : rv_discrete
+		The rv_discrete object.
+
+	Raises
+	------
+	ValueError
+		If ``n`` is not an integer.
+
+	"""
+	# TODO: unit tests
+	
+	# Check whether n is an integer.
+	if not is_integer(n):
+		raise ValueError("n must be an integer")
+
+	pmf = sum_of_discrete_uniforms_pmf(n, lo, hi)
+
+	distribution = stats.rv_discrete(name='sum_of_discrete_uniforms', values=(list(pmf.keys()), list(pmf.values())))
+
+	return distribution
+	
+	
 def sum_of_discretes_distribution(n, lo, hi, p):
 	"""Return distribution of convolution of ``n`` identical discrete random variables as
 	``rv_discrete`` object.
@@ -681,7 +770,30 @@ def sum_of_discretes_distribution(n, lo, hi, p):
 	distribution : rv_discrete
 		The rv_discrete object.
 
+	Raises
+	------
+	ValueError
+		If ``n``, ``lo``, or ``hi`` are not integers.
+	ValueError
+		If ``p`` does not have length ``hi - lo + 1``.
+
 	"""
+
+	# TODO: handle non-integer support values
+
+	# Check whether n, lo, and hi are integers.
+	if not is_integer(n):
+		raise ValueError("n must be an integer")
+	if not is_integer(lo):
+		raise ValueError("lo must be an integer")
+	if not is_integer(hi):
+		raise ValueError("hi must be an integer")
+
+	# Check that p has length hi - lo + 1. (If not, it probably means the calling
+	# function did not add 0s for values that are not part of the support.)
+	if len(p) != hi - lo + 1:
+		raise ValueError("p must have length hi - lo + 1. (If the support of the discrete distribution \
+			is not consecutive integers, you must add zeroes to p for the integers that are not part of the support)")
 
 	xk = np.arange(n * lo, n * hi + 1)
 	pk = convolve_many([p for _ in range(n)])
@@ -689,71 +801,4 @@ def sum_of_discretes_distribution(n, lo, hi, p):
 	distribution = stats.rv_discrete(name='sum_of_discretes', values=(xk, pk))
 
 	return distribution
-
-
-def run_irwin_hall_cdf_test():
-	"""Test ``helpers.irwin_hall_cdf()``. This is not a unit test; it must be
-	run manually. It simulates many sums of uniform distributions and plots
-	their empirical cdf against the calculated cdf.
-
-	"""
-
-	n = 4
-	T = 100000
-	nbins = 100
-
-	sums = []
-	for t in range(T):
-		sums.append(np.sum(uniform.rvs(size=n)))
-
-	x = np.arange(0, n, n * 1.0/nbins)
-	F_empirical = np.zeros(np.size(x))
-	F_calc = np.zeros(np.size(x))
-	for b in range(nbins):
-		F_empirical[b] = np.sum(1 if sums[t] < x[b] else 0 for t in range(T)) / T
-		F_calc[b] = irwin_hall_cdf(x[b], n)
-
-	import matplotlib.pyplot as plt
-
-	plt.plot(x, F_empirical, 'r')
-	plt.plot(x, F_calc, 'b')
-	plt.show()
-
-
-def run_sum_of_uniforms_distribution_test():
-	"""Test ``helpers.sum_of_uniforms_distribution()``. This is not a unit test;
-	it must be run manually. It simulates many sums of uniform distributions and
-	plots their empirical cdf against the calculated cdf.
-
-	"""
-
-	n = 4
-	lo = 20
-	hi = 60
-	T = 10000
-	nbins = 100
-
-	sums = []
-	for t in range(T):
-		sums.append(np.sum(uniform.rvs(lo, hi-lo, size=n)))
-
-	dist = sum_of_uniforms_distribution(n, lo, hi)
-
-	x = np.arange(n*lo, n*hi, n * (hi-lo)/nbins)
-	F_empirical = np.zeros(np.size(x))
-	F_calc = np.zeros(np.size(x))
-	for b in range(nbins):
-		F_empirical[b] = np.sum(1 if sums[t] < x[b] else 0 for t in range(T)) / T
-		F_calc[b] = dist.cdf(x[b])
-
-	import matplotlib.pyplot as plt
-
-	plt.plot(x, F_empirical, 'r')
-	plt.plot(x, F_calc, 'b')
-	plt.show()
-
-
-
-#test_irwin_hall_cdf()
-#test_sum_of_uniforms_distribution()
 

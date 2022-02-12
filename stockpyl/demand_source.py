@@ -30,7 +30,8 @@ from stockpyl.helpers import *
 # DemandSource Class
 # ===============================================================================
 
-# TODO: handle Poisson and custom continuous
+# TODO: handle Poisson 
+# TODO: handle custom continuous
 
 class DemandSource(object):
 	"""
@@ -122,8 +123,6 @@ class DemandSource(object):
 
 		"""
 
-		# TODO: unit tests
-		
 		return self._type == other._type and \
 			self._mean == other._mean and \
 			self._standard_deviation == other._standard_deviation and \
@@ -483,14 +482,23 @@ class DemandSource(object):
 		# Get distribution object.
 		if self.type == 'N':
 			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * np.sqrt(lead_time))
-		elif self.type in ('UC', 'UD'):
-			distribution = sum_of_uniforms_distribution(lead_time, self.lo, self.hi)
+		elif self.type == 'UC':
+			distribution = sum_of_continuous_uniforms_distribution(lead_time, self.lo, self.hi)
+		elif self.type == 'UD':
+			distribution = sum_of_discrete_uniforms_distribution(lead_time, self.lo, self.hi)
 		elif self.type == 'CD':
 			# TODO: handle what happens if demand list is not in the form lo, ..., hi
-			distribution = sum_of_discretes_distribution(lead_time, min(self.demand_list), max(self.demand_list), self.probabilities)
+			# Convert probability list to a list with 0 values for x values not in support.
+			min_demand = min(self.demand_list)
+			max_demand = max(self.demand_list)
+			p = []
+			for x in range(min_demand, max_demand + 1):
+				if x in self.demand_list:
+					p.append(self.probabilities[self.demand_list.index(x)])
+				else:
+					p.append(0)
+			distribution = sum_of_discretes_distribution(lead_time, min_demand, max_demand, p)
 		else:
-			# TODO: handle 'CD' demands
-			# use this: https://stackoverflow.com/a/29236193/3453768
 			return None
 
 		return distribution
