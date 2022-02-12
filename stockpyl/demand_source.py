@@ -41,6 +41,7 @@ class DemandSource(object):
 		The demand type, as a string. Currently supported strings are:
 			* None
 			* 'N' (normal)
+			* 'P' (Poisson)
 			* 'UD' (uniform discrete)
 			* 'UC' (uniform continuous)
 			* 'D' (deterministic)
@@ -48,7 +49,7 @@ class DemandSource(object):
 	_round_to_int : bool
 		Round demand to nearest integer?
 	_mean : float, optional
-		Mean of demand per period. Required if ``type`` = 'N'. [:math:`\mu`]
+		Mean of demand per period. Required if ``type`` = 'N' or 'P'. [:math:`\mu`]
 	_standard_deviation : float, optional
 		Standard deviation of demand per period. Required if ``type`` =='N'. [:math:`\sigma`]
 	_demand_list : list, optional
@@ -225,6 +226,8 @@ class DemandSource(object):
 			distribution = None
 		elif self.type == 'N':
 			distribution = scipy.stats.norm(self.mean, self.standard_deviation)
+		elif self.type == 'P':
+			distribution = scipy.stats.poisson(self.mean)
 		elif self.type == 'UD':
 			distribution = scipy.stats.randint(self.lo, self.hi+1)
 		elif self.type == 'UC':
@@ -254,6 +257,8 @@ class DemandSource(object):
 		elif self.type == 'N':
 			param_str = "mean={:.2f}, standard_deviation={:.2f}".format(
 				self.mean, self.standard_deviation)
+		elif self.type == 'P':
+			param_str = "mean={:.2f}".format(self.mean)
 		elif self.type in ('UD', 'UC'):
 			param_str = "lo={:.2f}, hi={:.2f}".format(
 				self.lo, self.hi)
@@ -309,6 +314,8 @@ class DemandSource(object):
 			return None
 		if self.type == 'N':
 			demand = self.generate_demand_normal()
+		elif self.type == 'P':
+			demand = self.generate_demand_poisson()
 		elif self.type == 'UD':
 			demand = self.generate_demand_uniform_discrete()
 		elif self.type == 'UC':
@@ -335,6 +342,17 @@ class DemandSource(object):
 
 		"""
 		return max(0, np.random.normal(self.mean, self.standard_deviation))
+
+	def generate_demand_poisson(self):
+		"""Generate demand from Poisson distribution.
+
+		Returns
+		-------
+		demand : int
+			The demand value.
+
+		"""
+		return np.random.poisson(self.mean)
 
 	def generate_demand_uniform_discrete(self):
 		"""Generate demand from discrete uniform distribution.
@@ -403,6 +421,9 @@ class DemandSource(object):
 			if self.mean < 0: raise ValueError("For 'N' (normal) demand, mean must be non-negative")
 			if self.standard_deviation is None: raise ValueError("For 'N' (normal) demand, standard_deviation must be provided")
 			if self.standard_deviation < 0: raise ValueError("For 'N' (normal) demand, standard_deviation must be non-negative")
+		elif self.type == 'P':
+			if self.mean is None: raise ValueError("For 'P' (Poisson) demand, mean must be provided")
+			if self.mean < 0: raise ValueError("For 'P' (Poisson) demand, mean must be non-negative")
 		elif self.type == 'UD':
 			if self.lo is None: raise ValueError("For 'UD' (uniform discrete) demand, lo must be provided")
 			if self.lo < 0 or not is_integer(self.lo): raise ValueError("For 'UD' (uniform discrete) demand, lo must be a non-negative integer")
@@ -452,14 +473,14 @@ class DemandSource(object):
 		"""Return lead-time demand distribution, as a
 		``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
 
-		NOTE: For 'UC' and 'UD' demands, this method calculates the lead-time
-		demand distribution as the sum of ``lead_time`` uniform random variables.
+		NOTE: For 'P', 'UC', 'UD', and 'CD' demands, this method calculates the lead-time
+		demand distribution as the sum of ``lead_time`` independent random variables.
 		Therefore, the method requires ``lead_time`` to be an integer for these
 		distributions. If it is not, it raises a ``ValueError``.
 
 		Parameters
 		----------
-		lead_time : float
+		lead_time : float or int
 			The lead time. [:math:`L`]
 
 		Returns
@@ -470,24 +491,23 @@ class DemandSource(object):
 		Raises
 		------
 		ValueError
-			If ``type`` is 'UC', 'UD', or 'CD' and ``lead_time`` is not an integer.
+			If ``type`` is 'P', 'UC', 'UD', or 'CD' and ``lead_time`` is not an integer.
 		"""
 
-		# TODO: unit tests
-
 		# Check whether lead_time is an integer.
-		if self.type in ('UC', 'UD') and not is_integer(lead_time):
-			raise ValueError("lead_time must be an integer for 'UC' and 'UD' demand")
+		if self.type in ('P', 'UC', 'UD', 'CD') and not is_integer(lead_time):
+			raise ValueError("lead_time must be an integer for 'P', 'UC', 'UD', or 'CD' demand")
 
 		# Get distribution object.
 		if self.type == 'N':
 			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * np.sqrt(lead_time))
+		elif self.type == 'P':
+			return scipy.stats.poisson(self.mean * lead_time)
 		elif self.type == 'UC':
 			distribution = sum_of_continuous_uniforms_distribution(lead_time, self.lo, self.hi)
 		elif self.type == 'UD':
 			distribution = sum_of_discrete_uniforms_distribution(lead_time, self.lo, self.hi)
 		elif self.type == 'CD':
-			# TODO: handle what happens if demand list is not in the form lo, ..., hi
 			# Convert probability list to a list with 0 values for x values not in support.
 			min_demand = min(self.demand_list)
 			max_demand = max(self.demand_list)

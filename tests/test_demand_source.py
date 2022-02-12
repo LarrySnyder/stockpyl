@@ -52,6 +52,11 @@ class TestDemandSourceEq(unittest.TestCase):
 		eq = ds1 == ds2
 		self.assertTrue(eq)
 
+		ds1 = DemandSource(type='P', mean=10)
+		ds2 = DemandSource(type='P', mean=10)
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
 		ds1 = DemandSource(type='CD', demand_list=[0, 5, 10], probabilities=[0.2, 0.5, 0.3])
 		ds2 = DemandSource(type='CD', demand_list=[0, 5, 10], probabilities=[0.2, 0.5, 0.3])
 		eq = ds1 == ds2
@@ -79,6 +84,11 @@ class TestDemandSourceEq(unittest.TestCase):
 
 		ds1 = DemandSource(type='N', mean=10, standard_deviation=2)
 		ds2 = DemandSource(type='N', mean=10, standard_deviation=2, round_to_int=True)
+		eq = ds1 == ds2
+		self.assertFalse(eq)
+
+		ds1 = DemandSource(type='P', mean=10)
+		ds2 = DemandSource(type='P', mean=8)
 		eq = ds1 == ds2
 		self.assertFalse(eq)
 
@@ -123,6 +133,18 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source = DemandSource()
 		demand_source.type = 'N'
 		demand_source.standard_deviation = -100
+		with self.assertRaises(ValueError):
+			demand_source.validate_parameters()
+
+	def test_poisson(self):
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for Poisson distribution.
+		"""
+		print_status('TestValidateParameters', 'test_poisson()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'P'
+		demand_source.mean = -100
 		with self.assertRaises(ValueError):
 			demand_source.validate_parameters()
 
@@ -278,6 +300,19 @@ class TestDemandSourceRepr(unittest.TestCase):
 		demand_source_str = demand_source.__repr__()
 		self.assertEqual(demand_source_str, "DemandSource(N: mean=50.00, standard_deviation=8.00)")
 
+	def test_poisson(self):
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'P'.
+		"""
+		print_status('TestDemandSourceRepr', 'test_poisson()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'P'
+		demand_source.mean = 50
+
+		demand_source_str = demand_source.__repr__()
+		self.assertEqual(demand_source_str, "DemandSource(P: mean=50.00)")
+
 	def test_uniform_discrete(self):
 		"""Test that DemandSource.__repr__() correctly returns demand source string
 		when type is 'UD'.
@@ -426,6 +461,24 @@ class TestDemandDistribution(unittest.TestCase):
 		self.assertEqual(sigma, 8)
 		self.assertAlmostEqual(z, 58.291467115950319)
 
+	def test_poisson(self):
+		"""Test demand_distribution() for Poisson demands.
+		"""
+		print_status('TestDemandDistribution', 'test_poisson()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'P'
+		demand_source.mean = 50
+
+		distribution = demand_source.demand_distribution
+		mu = distribution.mean()
+		sigma = distribution.std()
+		z = distribution.ppf(0.85)
+
+		self.assertEqual(mu, 50)
+		self.assertAlmostEqual(sigma, np.sqrt(50))
+		self.assertEqual(z, 57)
+
 	def test_uniform_discrete(self):
 		"""Test demand_distribution() for discrete uniform demands.
 		"""
@@ -514,6 +567,21 @@ class TestCDF(unittest.TestCase):
 		F = demand_source.cdf(40)
 		self.assertAlmostEqual(F, 0.105649773666855)
 
+	def test_poisson(self):
+		"""Test that cdf() returns correct values for Poisson demands.
+		"""
+		print_status('TestCDF', 'test_poisson()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'P'
+		demand_source.mean = 50
+
+		F = demand_source.cdf(55)
+		self.assertAlmostEqual(F, 0.784470400693950)
+
+		F = demand_source.cdf(40)
+		self.assertAlmostEqual(F, 0.086070000117961)
+
 	def test_uniform_continuous(self):
 		"""Test that cdf() returns correct values for continuous
 		uniform demands.
@@ -601,6 +669,24 @@ class TestLeadTimeDemandDistribution(unittest.TestCase):
 		self.assertEqual(ltd_dist.std(), 8 * np.sqrt(5.5))
 		self.assertAlmostEqual(ltd_dist.ppf(0.85), 294.44521401635552)
 		self.assertIsInstance(ltd_dist.dist, scipy.stats._continuous_distns.norm_gen)
+
+	def test_poisson(self):
+		"""Test lead_time_demand_distribution() for Poisson demands.
+		"""
+		print_status('TestLeadTimeDemandDistribution', 'test_poisson()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'P'
+		demand_source.mean = 50
+
+		ltd_dist = demand_source.lead_time_demand_distribution(4)
+		self.assertEqual(ltd_dist.mean(), 200)
+		self.assertAlmostEqual(ltd_dist.std(), np.sqrt(200))
+		self.assertEqual(ltd_dist.ppf(0.85), 215)
+		self.assertIsInstance(ltd_dist.dist, scipy.stats._discrete_distns.poisson_gen)
+
+		with self.assertRaises(ValueError):
+			ltd_dist = demand_source.lead_time_demand_distribution(5.5)
 
 	def test_uniform_discrete(self):
 		"""Test lead_time_demand_distribution() for discrete uniform demands.
