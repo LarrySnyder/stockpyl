@@ -30,7 +30,6 @@ from stockpyl.helpers import *
 # DemandSource Class
 # ===============================================================================
 
-# TODO: handle Poisson 
 # TODO: handle custom continuous
 
 class DemandSource(object):

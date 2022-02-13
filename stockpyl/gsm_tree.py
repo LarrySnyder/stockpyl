@@ -27,13 +27,11 @@ Lehigh University
 import networkx as nx
 import copy
 
-from stockpyl.demand_source import DemandSource
-from stockpyl.gsm_tree_helpers import *
+from stockpyl.gsm_helpers import *
 from stockpyl.helpers import *
 from stockpyl.supply_chain_network import SupplyChainNetwork
 from stockpyl.supply_chain_node import SupplyChainNode
 
-# TODO: add instances to instance JSON
 # TODO: implement units_required
 
 
@@ -495,7 +493,7 @@ def optimize_committed_service_times(tree):
 	tree = relabel_nodes(tree)
 
 	# Solve.
-	opt_cost, opt_cst_relabeled = cst_dp(tree)
+	opt_cost, opt_cst_relabeled = cst_dp_tree(tree)
 
 	# Prepare optimal solution in terms of original labels.
 	opt_cst = {k.original_label: opt_cst_relabeled[k.index] for k in tree.nodes}
@@ -503,7 +501,7 @@ def optimize_committed_service_times(tree):
 	return opt_cost, opt_cst
 
 
-def cst_dp(tree):
+def cst_dp_tree(tree):
 	"""Optimize committed service times on pre-processed tree.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
@@ -541,7 +539,7 @@ def cst_dp(tree):
 
 	# Initialize best_cst_adjacent.
 	# best_cst_adjacent[k_index][S][i] = CST chosen for stage i when calculating
-	# theta_out(S) or theta_in(SI) for stage k_index.
+	# theta_out(S) or theta_in(SI) for stage k.
 	best_cst_adjacent = {k.index: {S: {} for S in
 		range(k.max_replenishment_time+1)} for k in tree.nodes}
 

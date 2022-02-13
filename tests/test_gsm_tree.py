@@ -5,7 +5,7 @@ import copy
 from stockpyl.demand_source import DemandSource
 import stockpyl.helpers as helpers
 import stockpyl.gsm_tree as gsm_tree
-import stockpyl.gsm_tree_helpers as gsm_tree_helpers
+import stockpyl.gsm_helpers as gsm_helpers
 from stockpyl.instances import load_instance
 from stockpyl.supply_chain_network import SupplyChainNetwork
 from stockpyl.supply_chain_node import SupplyChainNode
