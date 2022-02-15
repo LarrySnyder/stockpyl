@@ -1,3 +1,4 @@
+from random import randint
 import unittest
 import numpy as np
 import copy
@@ -84,4 +85,47 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		self.assertAlmostEqual(opt_cost, 1378.31, 1)
 		self.assertDictEqual(opt_cst, {1: 3, 2: 10, 3: 0, 4: 28, 5: 13, 6: 5, 7: 0, 8: 18, 9: 13, 10: 12})
 
-# TODO: some random instances, solve with tree algorithm and compare
+	def test_random_instances(self):
+		"""Test that optimize_committed_service_times() works for randomly
+		generated networks, when compared to tree DP.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_random_instances')
+
+		NUM_TRIALS = 10
+
+		for _ in range(NUM_TRIALS):
+
+			# Build network.
+			network = SupplyChainNetwork()
+			num_nodes = np.random.randint(3, 20)
+			z_alpha = np.random.rand() * 4
+			for n in range(1, num_nodes + 1):
+				node = SupplyChainNode(
+					index=n,
+					network=network,
+					processing_time=np.random.randint(0, 10),
+					local_holding_cost=n + n * np.random.rand(),
+					demand_bound_constant = z_alpha
+				)
+				if n == 1:
+					node.external_outbound_cst = np.random.randint(0, 5)
+					node.demand_source = DemandSource(type='N', mean=0, standard_deviation=np.random.rand() * 100)
+				elif n == num_nodes:
+					node.external_inbound_cst = np.random.randint(10)	
+				network.add_node(node)
+				if n > 1:
+					network.add_edge(n, n - 1)
+			
+			# Solve using serial DP.
+			opt_cost, opt_cst = \
+				gsm_serial.optimize_committed_service_times(network=network)
+
+			# Solve using tree DP.
+			tree = gsm_tree.preprocess_tree(network)
+			opt_cost_tree, opt_cst_tree = \
+				gsm_tree.optimize_committed_service_times(tree=tree)
+
+			self.assertAlmostEqual(opt_cost, opt_cost_tree)
+			self.assertDictEqual(opt_cst, opt_cst_tree)
+
