@@ -32,433 +32,8 @@ from stockpyl.helpers import *
 from stockpyl.supply_chain_network import SupplyChainNetwork
 from stockpyl.supply_chain_node import SupplyChainNode
 
+
 # TODO: implement units_required
-
-
-### GRAPH MANIPULATION ###
-
-def preprocess_tree(tree):
-	"""Preprocess the GSM tree. Returns an independent copy.
-
-	If tree is already correctly labeled, does not relabel it.
-
-	Fill node-level attributes: ``net_demand_mean``,
-	``net_demand_standard_deviation``, ``larger_adjacent_node``,
-	``max_replenishment_time``.
-
-	Fill missing data for ``demand_bound_constant``, ``external_inbound_cst``, and
-	``external_outbound_cst attributes``.
-
-	Fill ``max_max_replenishment_time`` network-level attribute.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network. Current node labels are ignored and may be anything.
-	start_index : int, optional
-		Integer to use as starting (smallest) node label.
-
-	Returns
-	-------
-	new_tree : SupplyChainNetwork
-		Pre-processed multi-echelon tree network.
-
-	"""
-
-	new_tree = copy.deepcopy(tree)
-
-	# Fill external inbound and outbound CST parameters, if not provided.
-	# Default value of external outbound CST = BIG_INT.
-	# Default value of external inbound CST = 0. (Not strictly necessary,
-	# but cleaner.)
-	for k in new_tree.nodes:
-		if k.external_inbound_cst is None:
-			k.external_inbound_cst = 0
-		if k.external_outbound_cst is None:
-			k.external_outbound_cst = BIG_INT
-
-	# Fill demand bound constant parameters, if not provided.
-	# Set equal to demand bound constant of sink node. If more than one sink node,
-	# one is chosen arbitrarily. If no sink nodes have demand bound constant,
-	# constant is set to 1.
-	sinks_with_dbc = [k for k in new_tree.sink_nodes if k.demand_bound_constant is not None]
-	for k in new_tree.nodes:
-		if k.demand_bound_constant is None:
-			if sinks_with_dbc == []:
-				k.demand_bound_constant = 1
-			else:
-				k.demand_bound_constant = \
-					sinks_with_dbc[0].demand_bound_constant
-
-	# Calculate net demand parameters.
-	net_demand_means, net_demand_standard_deviations = net_demand(new_tree)
-	for k in new_tree.nodes:
-		k.net_demand_mean = net_demand_means[k.index]
-		k.net_demand_standard_deviation = net_demand_standard_deviations[k.index]
-
-	# Calculate max replenishment times.
-	max_replenishment_times = longest_paths(new_tree)
-	for k in new_tree.nodes:
-		k.max_replenishment_time = max_replenishment_times[k.index]
-
-	# Calculate maximum value of max_replenishment_time.
-	new_tree.max_max_replenishment_time = \
-		np.max([k.max_replenishment_time for k in new_tree.nodes])
-
-	return new_tree
-
-
-def relabel_nodes(tree, start_index=0, force_relabel=False):
-	"""Perform the node-labeling algorithm described in Section 5 of Graves and
-	Willems (2000).
-
-	If tree is already correctly labeled, returns the original tree,
-	unless force_relabel is True, in which case performs the relabeling.
-
-	Does not modify the input tree. Fills ``original_label``,
-	``larger_adjacent_node``, and ``larger_adjacent_node_is_downstream`` attributes
-	of nodes in new tree, whether or not original tree was already
-	correctly labeled.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-		Current node labels are ignored (unless the tree is already correctly
-		labeled) and may be anything.
-	start_index : int, optional
-		Integer to use as starting (smallest) node label.
-	force_relabel : bool, optional
-		If True, function will relabel nodes even if original tree is correctly
-		labeled.
-
-	Returns
-	-------
-	relabeled_tree : SupplyChainNetwork
-		The relabeled tree network.
-
-	"""
-
-	# Check whether tree is already correctly labeled.
-	is_correct = is_correctly_labeled(tree)
-
-	# Do relabel?
-	if is_correct and not force_relabel:
-		relabeled_tree = copy.deepcopy(tree)
-		new_labels = {k.index: k.index for k in tree.nodes}
-	else:
-
-		# Initialize all nodes to "unlabeled", and initialize list of new labels.
-		labeled = {i.index: False for i in tree.nodes}
-		new_labels = {}
-
-		# Find nodes that are adjacent to at most 1 unlabeled node and label them.
-		for k_index in range(start_index, start_index+len(tree.nodes)):
-
-			# Find a node for labeling.
-			for i in tree.nodes:
-
-				# Make sure i is unlabeled.
-				if not labeled[i.index]:
-					# Count unlabeled nodes that are adjacent to node i.
-					num_adj = len([j for j in i.neighbor_indices if not labeled[j]])
-
-					# If i is adjacent to at most 1 unlabeled node, label it.
-					if num_adj <= 1:
-						# Change i's label to k_index.
-						new_labels[i.index] = k_index
-						# Mark i as labeled.
-						labeled[i.index] = True
-						# Break out of 'for i' loop
-						break
-
-		# Relabel the nodes
-		relabeled_tree = copy.deepcopy(tree)
-		relabeled_tree.reindex_nodes(new_labels)
-
-	# Fill attributes of relabeled tree.
-	larger_adjacent, downstream = find_larger_adjacent_nodes(relabeled_tree)
-	for k in tree.nodes:
-		relabeled_node = relabeled_tree.get_node_from_index(new_labels[k.index])
-		relabeled_node.original_label = k.index
-		if new_labels[k.index] < np.max(list(new_labels.values())):
-			relabeled_node.larger_adjacent_node = larger_adjacent[relabeled_node.index]
-			relabeled_node.larger_adjacent_node_is_downstream = downstream[relabeled_node.index]
-		else:
-			# Largest-indexed node has no larger adjacent node.
-			relabeled_node.larger_adjacent_node = None
-			relabeled_node.larger_adjacent_node_is_downstream = None
-
-	return relabeled_tree
-
-
-def is_correctly_labeled(tree):
-	"""Determine whether tree is already correctly labeled.
-
-	Tree is correctly labeled if all labels are consecutive integers and
-	every stage (other than the highest-indexed one) has
-	exactly one adjacent stage with a greater index.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-
-	Returns
-	-------
-	True if tree is already correctly labeled.
-	"""
-
-	# Get indices.
-	ind = tree.node_indices
-
-	# Check whether labels are consecutive integers starting at min_index.
-	min_index = np.min(ind)
-	try:
-		if set(ind) != set(range(min_index, min_index + len(ind))):
-			is_correct = False
-		else:
-			# Check whether every node has exactly one adjacent node with
-			# greater index.
-			is_correct = True
-			for k in tree.nodes:
-				if k.index < np.max(ind):
-					greater_indexed_neighbors = \
-						{i for i in k.predecessors() if i.index > k.index}.union(
-							{i for i in k.successors() if i.index > k.index}
-						)
-					if len(greater_indexed_neighbors) != 1:
-						is_correct = False
-	except:
-		is_correct = False
-
-	return is_correct
-
-
-def find_larger_adjacent_nodes(tree):
-	"""Find larger-indexed adjacent node, for each node in tree.
-
-	After the nodes are relabeled by relabel_nodes(), each node (except the
-	node with the largest index) is adjacent to exactly one node with a
-	larger index. Node k's neighbor with larger index is denoted [:math:`p(k)`] in
-	Graves and Willems (2000). This function finds [:math:`p(k)`] for all :math:`k` and also
-	indicates whether [:math:`p(k)`] is upstream or downstream from [:math:`k`].
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-		Nodes are assumed to have been relabeled using relabel_nodes().
-
-	Returns
-	-------
-	larger_adjacent: dict
-		Dict containing index of each node's larger-indexed adjacent node,
-		for all nodes except the largest-indexed node. Keys are node indices.
-	downstream: dict
-		Dict containing, for each node, ``True`` if the larger-indexed adjacent
-		node is downstream from the node, ``False`` if it is upstream, for all
-		nodes except the largest-indexed node. Keys are node indices.
-	"""
-
-	# Initialize dicts.
-	larger_adjacent = {}
-	downstream = {}
-
-	# Loop through nodes.
-	for k in tree.nodes:
-		if k.index < np.max(tree.node_indices):
-			# Get list of nodes that are adjacent to k and have a larger index,
-			# but the list will only contain a single item; set larger_adjacent[k_index] to it.
-			larger_adjacent_list = [i.index for i in k.neighbors if i.index > k.index]
-			larger_adjacent[k.index] = larger_adjacent_list[0]
-
-			# Set downstream flag.
-			if larger_adjacent[k.index] in k.successor_indices():
-				downstream[k.index] = True
-			else:
-				downstream[k.index] = False
-
-	return larger_adjacent, downstream
-
-
-def longest_paths(tree):
-	"""Determine the length of the longest path from any source node to to each
-	node k.
-
-	Arc lengths are determined by processing times. External inbound CSTs are
-	considered source nodes, so having an external inbound CST at node i of 5 is
-	like having another node that serves node i with a processing time of 5.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-		Nodes are assumed to have been relabeled using relabel_nodes().
-
-	Returns
-	-------
-	longest_lengths : dict
-		Dict of longest paths to each node, with keys equal to node indices. [:math:`M_k`].
-
-	"""
-
-	# Get dict of external inbound CSTs. (Some nodes may have no entry.)
-#	external_inbound_cst = nx.get_node_attributes(tree, 'external_inbound_cst')
-
-	# Build the tree as networkx DiGraph. Set the weight of each edge into a given node k to the processing
-	# time of node k. If node k is a source node and/or it has an external inbound CST,
-	# add a dummy node before node k and set weight of edge from dummy node to node k
-	# equal to processing time of node k + external inbound CST for node k.
-	temp_tree = tree.networkx_digraph()
-	for k in tree.nodes:
-		for p in k.predecessors():
-			temp_tree[p.index][k.index]['weight'] = k.processing_time
-		if temp_tree.in_degree(k.index) == 0 or (k.external_inbound_cst or 0) > 0:
-			temp_tree.add_edge('dummy_' + str(k.index), k.index,
-				weight=k.processing_time + (k.external_inbound_cst or 0))
-
-	# Determine shortest path between every pair of nodes.
-	# (Really there's only one path, but shortest path is the
-	# most straightforward algorithm to use here.)
-	path_lengths = dict(nx.shortest_path_length(temp_tree, weight='weight'))
-
-	# Determine longest shortest path to each node k, among all
-	# source nodes that are ancestors to k.
-	longest_lengths = {}
-	for k in tree.nodes:
-		longest_lengths[k.index] = max([path_lengths[i][k.index] for i in
-								  nx.ancestors(temp_tree, k.index)], default=0)
-
-	return longest_lengths
-
-
-def net_demand(tree):
-	"""Calculate net demand mean and standard deviation for all nodes in tree.
-
-	Net demand is the demand stream consisting of the external demand for the
-	node plus all downstream demand.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-
-	Returns
-	-------
-	net_means : dict
-		Dict of net mean for each node.
-
-	net_standard_deviations : dict
-		Dict of net standard deviation for each node.
-
-	"""
-
-	# Initialize net_mean and net_variances using each node's external demand.
-	net_means = {k.index: k.demand_source.mean or 0 for k in tree.nodes}
-	net_variances = {k.index: (k.demand_source.standard_deviation or 0)**2 for k in tree.nodes}
-
-	# Make temp copy of tree.
-	temp_tree = copy.deepcopy(tree)
-
-	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
-	# no _successors), adding their net_means and net_variances to those of their
-	# _predecessors. Then remove the leaf nodes and iterate.
-	while len(temp_tree.nodes) > 0:
-		leaf_nodes = temp_tree.sink_nodes
-		for k in leaf_nodes:
-			for i in k.predecessor_indices():
-				net_means[i] += net_means[k.index]
-				net_variances[i] += net_variances[k.index]
-			temp_tree.remove_node(k) 
-
-	net_standard_deviations = {k.index: np.sqrt(net_variances[k.index]) for k in tree.nodes}
-	return net_means, net_standard_deviations
-
-
-def connected_subgraph_nodes(tree):
-	"""Determine nodes connected to k in subgraph on {min_k,...,k}, for each k,
-	where min_k is smallest index in graph. [N_k]
-
-	Connected does not necessarily mean adjacent.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-
-	Returns
-	-------
-	connected_nodes : dict
-		Dict of set of connected subgraph nodes for each node.
-
-	"""
-
-	# Intiailize output dict.
-	connected_nodes = {}
-
-	# Convert to networkx DiGraph so we can use subgraph().
-	networkx_tree = tree.networkx_digraph()
-
-	# Loop through nodes.
-	for k in networkx_tree:
-		# Build subgraph on {min_k,...,k}.
-		subgraph = networkx_tree.to_undirected().subgraph(range(np.min(networkx_tree.nodes), k+1))
-		# Build set of connected nodes.
-		connected_nodes[k] = set(i for i in subgraph.nodes if
-							  nx.has_path(subgraph, i, k))
-
-	return connected_nodes
-
-
-def GSM_to_SSM(tree, p=None):
-	"""Convert GSM tree to SSM tree:
-		- Convert local to echelon holding costs.
-		- Convert processing times to lead times.
-		- Include stockout cost at demand nodes (if provided).
-
-	Tree must be pre-processed before calling.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-	p : float, optional
-		Stockout cost to use at demand nodes. If ``None``, copies ``stockout_cost``
-		field from tree for nodes that have it, and does not fill ``stockout_cost``
-		for nodes that do not.
-
-	Returns
-	-------
-	SSM_tree : SupplyChainNetwork
-		SSM representation of tree.
-	"""
-
-	# TODO: allow different p values at different demand nodes
-
-	# Build new graph.
-	SSM_tree = SupplyChainNetwork()
-
-	# Add nodes.
-	for n in tree.nodes:
-		upstream_h = np.sum([k.local_holding_cost for k in n.predecessors()])
-		SSM_tree.add_node(SupplyChainNode(n.index, name=n.name, network=SSM_tree,
-			shipment_lead_time=n.processing_time+n.external_inbound_cst,
-			echelon_holding_cost=n.local_holding_cost-upstream_h))
-		SSM_node = SSM_tree.get_node_from_index(n.index)
-		SSM_node.demand_source = copy.deepcopy(n.demand_source)
-		if p is not None:
-			if n.demand_source is not None:
-				SSM_node.stockout_cost = p
-		else:
-			if n.stockout_cost is not None:
-				SSM_node.stockout_cost = n.stockout_cost
-
-	# Add edges.
-	edge_list = tree.edges
-	SSM_tree.add_edges_from_list(edge_list)
-
-	return SSM_tree
 
 
 ### OPTIMIZATION ###
@@ -469,11 +44,11 @@ def optimize_committed_service_times(tree):
 	Optimization is performed using the dynamic programming (DP) algorithm of
 	Graves and Willems (2000).
 
-	``tree`` is the ``SupplyChainNetwork`` containing the instance. The tree must already have been
-	pre-processed using :func:`preprocess_tree`, but it need not have had its nodes
-	relabeled using :func:`relabel_nodes`.
+	``tree`` is the ``SupplyChainNetwork`` containing the instance. The tree need not already have been
+	pre-processed using :func:`preprocess_tree` or :func:`relabel_nodes`; this function will do so. 
 
-	Output parameters are expressed using the original labeling of tree.
+	Output parameters are expressed using the original labeling of tree, even if the nodes
+	are relabeled internally.
 
 	Parameters
 	----------
@@ -487,13 +62,35 @@ def optimize_committed_service_times(tree):
 	opt_cst : dict
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
 
+
+	**Example** (Example 6.5):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+		import os
+		os.chdir('..')
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = load_instance("example_6_5")
+		>>> opt_cost, opt_cst = optimize_committed_service_times(tree)
+		>>> opt_cost
+		8.277916867529369
+		>>> opt_cst
+		{1: 0, 3: 0, 2: 0, 4: 1}
+
 	"""
+
+	# Preprocess tree.
+	tree = preprocess_tree(tree)
 
 	# Relabel nodes.
 	tree = relabel_nodes(tree)
 
 	# Solve.
-	opt_cost, opt_cst_relabeled = cst_dp_tree(tree)
+	opt_cost, opt_cst_relabeled = _cst_dp_tree(tree)
 
 	# Prepare optimal solution in terms of original labels.
 	opt_cst = {k.original_label: opt_cst_relabeled[k.index] for k in tree.nodes}
@@ -501,7 +98,7 @@ def optimize_committed_service_times(tree):
 	return opt_cost, opt_cst
 
 
-def cst_dp_tree(tree):
+def _cst_dp_tree(tree):
 	"""Optimize committed service times on pre-processed tree.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
@@ -511,8 +108,7 @@ def cst_dp_tree(tree):
 	before calling this function.
 
 	Assumes demand bound over tau periods is of the form
-	z_alpha * sigma * sqrt(tau).
-
+	:math:`z_\\alpha\\sigma\\sqrt{\\tau}`.
 
 	Parameters
 	----------
@@ -559,7 +155,7 @@ def cst_dp_tree(tree):
 			for S in range(max_replen_time+1):
 				# Calculate theta_out.
 				theta_out[k_index][S], temp_best_cst_adjacent = \
-					calculate_theta_out(tree, k_index, S, theta_in, theta_out)
+					_calculate_theta_out(tree, k_index, S, theta_in, theta_out)
 				# Copy temp_best_cst_adjacent to best_cst_adjacent.
 				best_cst_adjacent[k_index][S] = {i: temp_best_cst_adjacent[i]
 										   for i in temp_best_cst_adjacent}
@@ -580,7 +176,7 @@ def cst_dp_tree(tree):
 			for SI in range(max_replen_time - proc_time + 1):
 				# Calculate theta_in.
 				theta_in[k_index][SI], temp_best_cst_adjacent = \
-					calculate_theta_in(tree, k_index, SI, theta_in, theta_out)
+					_calculate_theta_in(tree, k_index, SI, theta_in, theta_out)
 				# Copy temp_best_cst_adjacent to best_cst_adjacent.
 				best_cst_adjacent[k_index][SI] = {i: temp_best_cst_adjacent[i]
 											for i in temp_best_cst_adjacent}
@@ -669,27 +265,24 @@ def cst_dp_tree(tree):
 	return opt_cost, opt_cst
 
 
-def calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
-	"""Calculate the function theta_out(k_index, S) as described in Section 6.3.6.2 of
-	Snyder and Shen (2019) [function f_i(S) in Section 5 of Graves and Willems
+def _calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
+	"""Calculate the function :math:`\\theta^o_k(S)` as described in Section 6.3.6.2 of
+	Snyder and Shen (2019) [function :math:`f_i(S)` in Section 5 of Graves and Willems
 	(2003)].
 
-	# TODO: mathify docstrings
-	# TODO: make private
-
 	Original function is modified in the following ways:
-	1. If S is greater than the external outbound CST for stage k_index,
-	theta_out(k_index, S) is calculated as though S = external outbound CST. (If k_index is a sink
-	stage, theta_out(k_index,.) will never be calculated [theta_in(k_index,.) will be], but
-	k_index might have non-zero external outbound CST even if it is not a sink stage.)
-	2. The range of values of SI for which c_k(S,SI) is evaluated begins at
-	max(external_inbound_cst, S - T_k), not max(0, S - T_k).
-	3. The demand bound demand bound over tau periods is assumed to be of the form
-	z_alpha * sigma * sqrt(tau).
-	4. When calculating c_k(S, SI), upstream nodes are allowed to use outbound
-	CSTs greater than SI, and downstream nodes are allowed to use inbound
-	CSTs greater than S. In effect, this allows multiple inbound/outbound
-	CSTs for a single nodes.
+	1. If :math:`S` is greater than the external outbound CST for stage :math:`k`,
+	:math:`\\theta^o_k(S)` is calculated as though :math:`S` = external outbound CST. (If :math:`k` is a sink
+	stage, :math:`\\theta^o_k(\\cdot)` will never be calculated [:math:`\\theta^i_k(\\cdot)` will be], but
+	:math:`k` might have non-zero external outbound CST even if it is not a sink stage.)
+	2. The range of values of :math:`SI` for which :math:`c_k(S,SI)` is evaluated begins at
+	:math:`\\max\\{\\text{external_inbound_cst}, S - T_k\\}`, not :math:`\\max\\{0, S - T_k\\}`.
+	3. The demand bound demand bound over :math:`\\tau` periods is assumed to be of the form
+	:math:`z_\\alpha\\sigma\\sqrt{\\tau}`.
+	4. When calculating :math:`c_k(S, SI)`, upstream nodes are allowed to use outbound
+	CSTs greater than :math:`SI`, and downstream nodes are allowed to use inbound
+	CSTs greater than :math:`S`. In effect, this allows multiple inbound/outbound
+	CSTs for a single node.
 
 	Parameters
 	----------
@@ -701,24 +294,24 @@ def calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
 		Outbound committed service time.
 	theta_in_partial : dict
 		Dict of values of theta_in function that have been calculated so far
-		(i.e., for i < k_index).
+		(i.e., for ``i`` < ``k_index``).
 	theta_out_partial : dict
 		Dict of values of theta_out function that have been calculated so far
-		(i.e., for i < k_index).
+		(i.e., for ``i`` < ``k_index``).
 
 	Returns
 	-------
 	theta_out_k_S : float
-		The value of theta_out(k_index, S).
+		The value of :math:`\\theta^o_k(S)`.
 	best_cst_adjacent : dict
-		Dict indicating, for each adjacent stage i with i <= k_index, the CST value
-		that minimized theta_out(.) for the optimal value of SI.
-		* If i serves k_index, then best_CST_adjacent[i] = the value of S_i that
-		minimizes theta_out(i, S_i).
-		* If i is served by k_index, then best_CST_adjacent[i] = the value of SI_i
-		that minimizes theta_in(i, SI_i).
-		* If i = k_index, then best_CST_adjacent[i] = the best value of SI chosen in
-		minimization of theta_out(.).
+		Dict indicating, for each adjacent stage :math:`i` with :math:`i \\le k`, the CST value
+		that minimized :math:`\\theta^o_i(\\cdot)` for the optimal value of :math:`SI`.
+		* If :math:`i` serves :math:`k`, then ``best_CST_adjacent[i]`` = the value of :math:`S_i` that
+		minimizes :math:`\\theta^o_i(S_i)`.
+		* If :math:`i` is served by :math:`k`, then ``best_CST_adjacent[i]`` = the value of :math:`SI_i`
+		that minimizes :math:`\\theta^i_i(SI_i)`.
+		* If :math:`i = k`, then ``best_CST_adjacent[i]`` = the best value of :math:`SI` chosen in
+		minimization of :math:`\\theta^o_k(\\cdot)`.
 	"""
 
 	# Get node k_index, for convenience.
@@ -752,7 +345,7 @@ def calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
 
 			# Calculate c_k(S, SI).
 			c_SI[SI], stage_cost, best_upstream_S, best_downstream_SI = \
-				calculate_c(tree, k_index, local_S, SI, theta_in_partial, theta_out_partial)
+				_calculate_c(tree, k_index, local_S, SI, theta_in_partial, theta_out_partial)
 
 			# Compare to min.
 			if c_SI[SI] < min_c:
@@ -772,22 +365,22 @@ def calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
 	return theta_out_k_S, best_cst_adjacent
 
 
-def calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
-	"""Calculate the function theta_in(k_index, SI) as described in Section 6.3.6.2 of
-	Snyder and Shen (2019) [function g_i(SI) in Section 5 of Graves and Willems
+def _calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
+	"""Calculate the function :math:`\\theta^i_k(SI)` as described in Section 6.3.6.2 of
+	Snyder and Shen (2019) [function :math:`g_i(SI)` in Section 5 of Graves and Willems
 	(2003)].
 
 	Original function is modified in the following ways:
-	1. If SI is less than the external inbound CST for stage k_index,
-	theta_in(k_index, SI) is calculated as though SI = external inbound CST. (If k_index is a
-	source stage, theta_in(k_index,.) will never be calculated [theta_out(k_index,.) will be], but
-	k_index might have non-zero external inbound CST even if it is not a source stage.)
-	2. The demand bound demand bound over tau periods is assumed to be of the form
-	z_alpha * sigma * sqrt(tau).
-	3. When calculating c_k(S, SI), upstream nodes are allowed to use outbound
-	CSTs greater than SI, and downstream nodes are allowed to use inbound
-	CSTs greater than S. In effect, this allows multiple inbound/outbound
-	CSTs for a single nodes.
+	1. If :math:`SI` is less than the external inbound CST for stage :math:`k`,
+	:math:`\\theta^i_k(SI)` is calculated as though :math:`SI` = external inbound CST. (If :math:`k` is a
+	source stage, :math:`\\theta^i_k(\\cdot)` will never be calculated [:math:`\\theta^o_k(\\cdot)` will be], but
+	:math:`k` might have non-zero external inbound CST even if it is not a source stage.)
+	2. The demand bound demand bound over :math:`\\tau` periods is assumed to be of the form
+	:math:`z_\\alpha\\sigma\\sqrt{\\tau}`.
+	3. When calculating :math:`c_k(S, SI)`, upstream nodes are allowed to use outbound
+	CSTs greater than :math:`SI`, and downstream nodes are allowed to use inbound
+	CSTs greater than :math:`S`. In effect, this allows multiple inbound/outbound
+	CSTs for a single node.
 
 	Parameters
 	----------
@@ -799,24 +392,24 @@ def calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
 		Inbound committed service time.
 	theta_in_partial : dict
 		Dict of values of theta_in function that have been calculated so far
-		(i.e., for i < k_index).
+		(i.e., for :math:`i < k`).
 	theta_out_partial : dict
 		Dict of values of theta_out function that have been calculated so far
-		(i.e., for i < k_index).
+		(i.e., for :math:`i < k`).
 
 	Returns
 	-------
 	theta_in_k_SI : float
-		The value of theta_in(k_index, SI).
+		The value of :math:`\\theta^i_k(SI)`.
 	best_cst_adjacent : dict
-		Dict indicating, for each adjacent stage i with i <= k_index, the CST value
-		that minimized theta_in(.) for the optimal value of S.
-		* If i serves k_index, then best_CST_adjacent[i] = the value of S_i that
-		minimizes theta_out(i, S_i).
-		* If i is served by k_index, then best_CST_adjacent[i] = the value of SI_i
-		that minimizes theta_in(i, SI_i).
-		* If i = k_index, then best_CST_adjacent[i] = the best value of S chosen in
-		minimization of theta_in(.).
+		Dict indicating, for each adjacent stage :math:`i` with :math:`i \\le k`, the CST value
+		that minimized :math:`\\theta^i_i(\\cdot)` for the optimal value of S.
+		* If :math:`i` serves :math:`k`, then ``best_CST_adjacent[i]`` = the value of :math:`S_i` that
+		minimizes :math:`\\theta^o_i(S_i)`.
+		* If :math:`i` is served by :math:`k`, then ``best_CST_adjacent[i]`` = the value of :math:`SI_i`
+		that minimizes :math:`\\theta^i_i(SI_i)`.
+		* If :math:`i = k`, then ``best_CST_adjacent[i]`` = the best value of :math:`S` chosen in
+		minimization of :math:`theta^i(\\cdot)`.
 	"""
 
 	# Get node k_index, for convenience.
@@ -845,7 +438,7 @@ def calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
 
 		# Calculate c_k(S, SI).
 		c_S[S], stage_cost, best_upstream_S, best_downstream_SI = \
-			calculate_c(tree, k_index, S, local_SI, theta_in_partial, theta_out_partial)
+			_calculate_c(tree, k_index, S, local_SI, theta_in_partial, theta_out_partial)
 
 		# Compare to min.
 		if c_S[S] < min_c:
@@ -865,17 +458,18 @@ def calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
 	return theta_in_k_SI, best_cst_adjacent
 
 
-def calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
-	"""Calculate c_k(S,SI), the expected holding cost for N_k as function of
-	inbound and outbound CSTs at node k.
+def _calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
+	"""Calculate :math:`c_k(S,SI)`, the expected holding cost for :math:`N_k` as function of
+	inbound and outbound CSTs at node :math:`k`.
 
-	Assumes demand bound over tau periods is of the form
-	z_alpha * sigma * sqrt(tau).
+	Assumes demand bound over :math:`\\tau` periods is of the form
+	:math:`z_\\alpha\\sigma\\sqrt{\\tau}`.
+
 	# TODO: allow more general demand bound.
 
-	Upstream nodes are allowed to use outbound CSTs greater than SI and
-	downstream nodes are allowed to use inbound CSTs greater than S.
-	In effect, this allows multiple inbound/outbound CSTs for a single k.
+	Upstream nodes are allowed to use outbound CSTs greater than :math:`SI` and
+	downstream nodes are allowed to use inbound CSTs greater than :math:`S`.
+	In effect, this allows multiple inbound/outbound CSTs for a single :math:`k`.
 
 	Parameters
 	----------
@@ -888,24 +482,24 @@ def calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
 	SI : int
 		Inbound committed service time.
 	theta_in_partial : dict
-		Dict of values of theta_in function that have been calculated so far
-		(i.e., for i < k_index).
+		Dict of values of :math:`\\theta^i` function that have been calculated so far
+		(i.e., for :math:`i < k`).
 	theta_out_partial : dict
-		Dict of values of theta_out function that have been calculated so far
-		(i.e., for i < k_index).
+		Dict of values of :math:`\\theta^o` function that have been calculated so far
+		(i.e., for :math:`i < k`).
 
 	Returns
 	-------
 	cost : float
-		Value of c_k(S,SI).
+		Value of :math:`c_k(S,SI)`.
 	stage_cost : float
-		Cost to hold inventory at stage k_index (only) given CSTs of SI and S.
+		Cost to hold inventory at stage :math:`k` (only) given CSTs of :math:`SI` and :math:`S`.
 	best_upstream_S : dict
-		Dict indicating, for each i that is immediately upstream from k_index,
-		the best outbound CST for i given k_index's CSTs of SI and S.
+		Dict indicating, for each :math:`i` that is immediately upstream from :math:`k`,
+		the best outbound CST for :math:`i` given :math:`k`'s CSTs of :math:`SI` and :math:`S`.
 	best_downstream_SI : dict
-		Dict indicating, for each i that is immediately downstream from k_index,
-		the best inbound CST for i given k_index's CSTs of SI and S.
+		Dict indicating, for each :math:`i` that is immediately downstream from :math:`k`,
+		the best inbound CST for :math:`i` given :math:`k`'s CSTs of :math:`SI` and :math:`S`.
 	"""
 
 	# Get node k, for convenience.
@@ -952,3 +546,430 @@ def calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
 			cost += min_theta_in
 
 	return cost, stage_cost, best_upstream_S, best_downstream_SI
+
+
+### GRAPH MANIPULATION ###
+
+def preprocess_tree(tree):
+	"""Preprocess the GSM tree. Returns an independent copy.
+
+	If tree is already correctly labeled, does not relabel it.
+
+	Fill node-level attributes: ``net_demand_mean``,
+	``net_demand_standard_deviation``, ``larger_adjacent_node``,
+	``max_replenishment_time``.
+
+	Fill missing data for ``demand_bound_constant``, ``external_inbound_cst``, and
+	``external_outbound_cst attributes``.
+
+	Fill ``max_max_replenishment_time`` network-level attribute.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network. Current node labels are ignored and may be anything.
+	start_index : int, optional
+		Integer to use as starting (smallest) node label.
+
+	Returns
+	-------
+	new_tree : SupplyChainNetwork
+		Pre-processed multi-echelon tree network.
+
+	"""
+
+	new_tree = copy.deepcopy(tree)
+
+	# Fill external inbound and outbound CST parameters, if not provided.
+	# Default value of external outbound CST = BIG_INT.
+	# Default value of external inbound CST = 0. (Not strictly necessary,
+	# but cleaner.)
+	for k in new_tree.nodes:
+		if k.external_inbound_cst is None:
+			k.external_inbound_cst = 0
+		if k.external_outbound_cst is None:
+			k.external_outbound_cst = BIG_INT
+
+	# Fill demand bound constant parameters, if not provided.
+	# Set equal to demand bound constant of sink node. If more than one sink node,
+	# one is chosen arbitrarily. If no sink nodes have demand bound constant,
+	# constant is set to 1.
+	sinks_with_dbc = [k for k in new_tree.sink_nodes if k.demand_bound_constant is not None]
+	for k in new_tree.nodes:
+		if k.demand_bound_constant is None:
+			if sinks_with_dbc == []:
+				k.demand_bound_constant = 1
+			else:
+				k.demand_bound_constant = \
+					sinks_with_dbc[0].demand_bound_constant
+
+	# Calculate net demand parameters.
+	net_demand_means, net_demand_standard_deviations = _net_demand(new_tree)
+	for k in new_tree.nodes:
+		k.net_demand_mean = net_demand_means[k.index]
+		k.net_demand_standard_deviation = net_demand_standard_deviations[k.index]
+
+	# Calculate max replenishment times.
+	max_replenishment_times = _longest_paths(new_tree)
+	for k in new_tree.nodes:
+		k.max_replenishment_time = max_replenishment_times[k.index]
+
+	# Calculate maximum value of max_replenishment_time.
+	new_tree.max_max_replenishment_time = \
+		np.max([k.max_replenishment_time for k in new_tree.nodes])
+
+	return new_tree
+
+
+def relabel_nodes(tree, start_index=0, force_relabel=False):
+	"""Perform the node-labeling algorithm described in Section 5 of Graves and
+	Willems (2000).
+
+	If tree is already correctly labeled, returns the original tree,
+	unless ``force_relabel`` is True, in which case performs the relabeling.
+
+	Does not modify the input tree. Fills ``original_label``,
+	``larger_adjacent_node``, and ``larger_adjacent_node_is_downstream`` attributes
+	of nodes in new tree, whether or not original tree was already
+	correctly labeled.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+		Current node labels are ignored (unless the tree is already correctly
+		labeled) and may be anything.
+	start_index : int, optional
+		Integer to use as starting (smallest) node label.
+	force_relabel : bool, optional
+		If True, function will relabel nodes even if original tree is correctly
+		labeled.
+
+	Returns
+	-------
+	relabeled_tree : SupplyChainNetwork
+		The relabeled tree network.
+
+	"""
+
+	# Check whether tree is already correctly labeled.
+	is_correct = is_correctly_labeled(tree)
+
+	# Do relabel?
+	if is_correct and not force_relabel:
+		relabeled_tree = copy.deepcopy(tree)
+		new_labels = {k.index: k.index for k in tree.nodes}
+	else:
+
+		# Initialize all nodes to "unlabeled", and initialize list of new labels.
+		labeled = {i.index: False for i in tree.nodes}
+		new_labels = {}
+
+		# Find nodes that are adjacent to at most 1 unlabeled node and label them.
+		for k_index in range(start_index, start_index+len(tree.nodes)):
+
+			# Find a node for labeling.
+			for i in tree.nodes:
+
+				# Make sure i is unlabeled.
+				if not labeled[i.index]:
+					# Count unlabeled nodes that are adjacent to node i.
+					num_adj = len([j for j in i.neighbor_indices if not labeled[j]])
+
+					# If i is adjacent to at most 1 unlabeled node, label it.
+					if num_adj <= 1:
+						# Change i's label to k_index.
+						new_labels[i.index] = k_index
+						# Mark i as labeled.
+						labeled[i.index] = True
+						# Break out of 'for i' loop
+						break
+
+		# Relabel the nodes
+		relabeled_tree = copy.deepcopy(tree)
+		relabeled_tree.reindex_nodes(new_labels)
+
+	# Fill attributes of relabeled tree.
+	larger_adjacent, downstream = _find_larger_adjacent_nodes(relabeled_tree)
+	for k in tree.nodes:
+		relabeled_node = relabeled_tree.get_node_from_index(new_labels[k.index])
+		relabeled_node.original_label = k.index
+		if new_labels[k.index] < np.max(list(new_labels.values())):
+			relabeled_node.larger_adjacent_node = larger_adjacent[relabeled_node.index]
+			relabeled_node.larger_adjacent_node_is_downstream = downstream[relabeled_node.index]
+		else:
+			# Largest-indexed node has no larger adjacent node.
+			relabeled_node.larger_adjacent_node = None
+			relabeled_node.larger_adjacent_node_is_downstream = None
+
+	return relabeled_tree
+
+
+def is_correctly_labeled(tree):
+	"""Determine whether tree is already correctly labeled.
+
+	Tree is correctly labeled if all labels are consecutive integers and
+	every stage (other than the highest-indexed one) has
+	exactly one adjacent stage with a greater index.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+
+	Returns
+	-------
+	``True`` if tree is already correctly labeled.
+	"""
+
+	# Get indices.
+	ind = tree.node_indices
+
+	# Check whether labels are consecutive integers starting at min_index.
+	min_index = np.min(ind)
+	try:
+		if set(ind) != set(range(min_index, min_index + len(ind))):
+			is_correct = False
+		else:
+			# Check whether every node has exactly one adjacent node with
+			# greater index.
+			is_correct = True
+			for k in tree.nodes:
+				if k.index < np.max(ind):
+					greater_indexed_neighbors = \
+						{i for i in k.predecessors() if i.index > k.index}.union(
+							{i for i in k.successors() if i.index > k.index}
+						)
+					if len(greater_indexed_neighbors) != 1:
+						is_correct = False
+	except:
+		is_correct = False
+
+	return is_correct
+
+
+def _find_larger_adjacent_nodes(tree):
+	"""Find larger-indexed adjacent node, for each node in tree.
+
+	After the nodes are relabeled by :func:`relabel_nodes`, each node (except the
+	node with the largest index) is adjacent to exactly one node with a
+	larger index. Node :math:`k`'s neighbor with larger index is denoted :math:`p(k)` in
+	Graves and Willems (2000). This function finds :math:`p(k)` for all :math:`k` and also
+	indicates whether :math:`p(k)` is upstream or downstream from :math:`k`.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+		Nodes are assumed to have been relabeled using :func:`relabel_nodes`.
+
+	Returns
+	-------
+	larger_adjacent: dict
+		Dict containing index of each node's larger-indexed adjacent node,
+		for all nodes except the largest-indexed node. Keys are node indices.
+	downstream: dict
+		Dict containing, for each node, ``True`` if the larger-indexed adjacent
+		node is downstream from the node, ``False`` if it is upstream, for all
+		nodes except the largest-indexed node. Keys are node indices.
+	"""
+
+	# Initialize dicts.
+	larger_adjacent = {}
+	downstream = {}
+
+	# Loop through nodes.
+	for k in tree.nodes:
+		if k.index < np.max(tree.node_indices):
+			# Get list of nodes that are adjacent to k and have a larger index,
+			# but the list will only contain a single item; set larger_adjacent[k_index] to it.
+			larger_adjacent_list = [i.index for i in k.neighbors if i.index > k.index]
+			larger_adjacent[k.index] = larger_adjacent_list[0]
+
+			# Set downstream flag.
+			if larger_adjacent[k.index] in k.successor_indices():
+				downstream[k.index] = True
+			else:
+				downstream[k.index] = False
+
+	return larger_adjacent, downstream
+
+
+def _longest_paths(tree):
+	"""Determine the length of the longest path from any source node to to each
+	node :math:`k`.
+
+	Arc lengths are determined by processing times. External inbound CSTs are
+	considered source nodes, so having an external inbound CST at node :math:`i` of 5 is
+	like having another node that serves node :math:`i` with a processing time of 5.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+		Nodes are assumed to have been relabeled using :func:`relabel_nodes`.
+
+	Returns
+	-------
+	longest_lengths : dict
+		Dict of longest paths to each node, with keys equal to node indices. [:math:`M_k`].
+
+	"""
+
+	# Build the tree as networkx DiGraph. Set the weight of each edge into a given node k to the processing
+	# time of node k. If node k is a source node and/or it has an external inbound CST,
+	# add a dummy node before node k and set weight of edge from dummy node to node k
+	# equal to processing time of node k + external inbound CST for node k.
+	temp_tree = tree.networkx_digraph()
+	for k in tree.nodes:
+		for p in k.predecessors():
+			temp_tree[p.index][k.index]['weight'] = k.processing_time
+		if temp_tree.in_degree(k.index) == 0 or (k.external_inbound_cst or 0) > 0:
+			temp_tree.add_edge('dummy_' + str(k.index), k.index,
+				weight=k.processing_time + (k.external_inbound_cst or 0))
+
+	# Determine shortest path between every pair of nodes.
+	# (Really there's only one path, but shortest path is the
+	# most straightforward algorithm to use here.)
+	path_lengths = dict(nx.shortest_path_length(temp_tree, weight='weight'))
+
+	# Determine longest shortest path to each node k, among all
+	# source nodes that are ancestors to k.
+	longest_lengths = {}
+	for k in tree.nodes:
+		longest_lengths[k.index] = max([path_lengths[i][k.index] for i in
+								  nx.ancestors(temp_tree, k.index)], default=0)
+
+	return longest_lengths
+
+
+def _net_demand(tree):
+	"""Calculate net demand mean and standard deviation for all nodes in tree.
+
+	Net demand is the demand stream consisting of the external demand for the
+	node plus all downstream demand.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+
+	Returns
+	-------
+	net_means : dict
+		Dict of net mean for each node.
+
+	net_standard_deviations : dict
+		Dict of net standard deviation for each node.
+
+	"""
+
+	# Initialize net_mean and net_variances using each node's external demand.
+	net_means = {k.index: k.demand_source.mean or 0 for k in tree.nodes}
+	net_variances = {k.index: (k.demand_source.standard_deviation or 0)**2 for k in tree.nodes}
+
+	# Make temp copy of tree.
+	temp_tree = copy.deepcopy(tree)
+
+	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
+	# no _successors), adding their net_means and net_variances to those of their
+	# _predecessors. Then remove the leaf nodes and iterate.
+	while len(temp_tree.nodes) > 0:
+		leaf_nodes = temp_tree.sink_nodes
+		for k in leaf_nodes:
+			for i in k.predecessor_indices():
+				net_means[i] += net_means[k.index]
+				net_variances[i] += net_variances[k.index]
+			temp_tree.remove_node(k) 
+
+	net_standard_deviations = {k.index: np.sqrt(net_variances[k.index]) for k in tree.nodes}
+	return net_means, net_standard_deviations
+
+
+def _connected_subgraph_nodes(tree):
+	"""Determine nodes connected to :math:`k` in subgraph on :math:`\\{\\min_k,\\ldots,k\\}`, 
+	for each :math:`k`, where :math:`\\min_k` is smallest index in graph. [:math:`N_k`]
+
+	"Connected" does not necessarily mean "adjacent."
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+
+	Returns
+	-------
+	connected_nodes : dict
+		Dict of set of connected subgraph nodes for each node.
+
+	"""
+
+	# Intiailize output dict.
+	connected_nodes = {}
+
+	# Convert to networkx DiGraph so we can use subgraph().
+	networkx_tree = tree.networkx_digraph()
+
+	# Loop through nodes.
+	for k in networkx_tree:
+		# Build subgraph on {min_k,...,k}.
+		subgraph = networkx_tree.to_undirected().subgraph(range(np.min(networkx_tree.nodes), k+1))
+		# Build set of connected nodes.
+		connected_nodes[k] = set(i for i in subgraph.nodes if
+							  nx.has_path(subgraph, i, k))
+
+	return connected_nodes
+
+
+def gsm_to_ssm(tree, p=None):
+	"""Convert GSM tree to SSM tree:
+		- Convert local to echelon holding costs.
+		- Convert processing times to lead times.
+		- Include stockout cost at demand nodes (if provided).
+
+	Tree must be pre-processed before calling.
+
+	Parameters
+	----------
+	tree : SupplyChainNetwork
+		The multi-echelon tree network.
+	p : float or dict, optional
+		Stockout cost to use at demand nodes, or dict indicating stockout cost
+		for each demand node. If ``None``, copies ``stockout_cost``
+		field from tree for nodes that have it, and does not fill ``stockout_cost``
+		for nodes that do not.
+
+	Returns
+	-------
+	SSM_tree : SupplyChainNetwork
+		SSM representation of tree.
+	"""
+
+	# Build new graph.
+	SSM_tree = SupplyChainNetwork()
+
+	# Add nodes.
+	for n in tree.nodes:
+		upstream_h = np.sum([k.local_holding_cost for k in n.predecessors()])
+		SSM_tree.add_node(SupplyChainNode(n.index, name=n.name, network=SSM_tree,
+			shipment_lead_time=n.processing_time+n.external_inbound_cst,
+			echelon_holding_cost=n.local_holding_cost-upstream_h))
+		SSM_node = SSM_tree.get_node_from_index(n.index)
+		SSM_node.demand_source = copy.deepcopy(n.demand_source)
+		if p is not None:
+			if n.demand_source is not None:
+				if isinstance(p, dict):
+					SSM_node.stockout_cost = p[SSM_node.index]
+				else:
+					SSM_node.stockout_cost = p
+		else:
+			if n.stockout_cost is not None:
+				SSM_node.stockout_cost = n.stockout_cost
+
+	# Add edges.
+	edge_list = tree.edges
+	SSM_tree.add_edges_from_list(edge_list)
+
+	return SSM_tree
+
+

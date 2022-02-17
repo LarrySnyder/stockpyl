@@ -14,8 +14,6 @@ import numpy as np
 from itertools import product
 from collections import defaultdict
 
-#from datatypes import *
-
 
 ### CONSTANTS ###
 

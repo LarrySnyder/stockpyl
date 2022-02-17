@@ -122,9 +122,8 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 				gsm_serial.optimize_committed_service_times(network=network)
 
 			# Solve using tree DP.
-			tree = gsm_tree.preprocess_tree(network)
 			opt_cost_tree, opt_cst_tree = \
-				gsm_tree.optimize_committed_service_times(tree=tree)
+				gsm_tree.optimize_committed_service_times(tree=network)
 
 			self.assertAlmostEqual(opt_cost, opt_cost_tree)
 			self.assertDictEqual(opt_cst, opt_cst_tree)

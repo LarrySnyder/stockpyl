@@ -30,6 +30,7 @@ from stockpyl.supply_chain_node import *
 
 DEFAULT_JSON_FILEPATH = 'datasets/stockpyl_instances.json'
 
+# TODO: function to sort instances in JSON by name, or even better, by chapter then name
 
 def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
 	"""Load an instance from a JSON file. 
@@ -58,7 +59,7 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
 		If the JSON file does not exist or the instance cannot be found in the JSON file.
 	"""
 	# TODO: unit tests
-	
+
 	# Does JSON file exist?
 	if os.path.exists(filepath):
 		# Load data from JSON.

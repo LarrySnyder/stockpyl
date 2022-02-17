@@ -17,6 +17,8 @@ Lehigh University
 
 """
 
+# TODO: docs
+
 import numpy as np
 import math
 

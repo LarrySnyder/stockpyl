@@ -35,58 +35,6 @@ from stockpyl.supply_chain_network import SupplyChainNetwork, serial_system
 from stockpyl.supply_chain_node import SupplyChainNode
 
 
-
-# TODO: do we still need this?
-def GSM_to_SSM(tree, p=None):
-	"""Convert GSM tree to SSM tree:
-		- Convert local to echelon holding costs.
-		- Convert processing times to lead times.
-		- Include stockout cost at demand nodes (if provided).
-
-	Tree must be pre-processed before calling.
-
-	Parameters
-	----------
-	tree : SupplyChainNetwork
-		The multi-echelon tree network.
-	p : float, optional
-		Stockout cost to use at demand nodes. If ``None``, copies ``stockout_cost``
-		field from tree for nodes that have it, and does not fill ``stockout_cost``
-		for nodes that do not.
-
-	Returns
-	-------
-	SSM_tree : SupplyChainNetwork
-		SSM representation of tree.
-	"""
-
-	# TODO: allow different p values at different demand nodes
-
-	# Build new graph.
-	SSM_tree = SupplyChainNetwork()
-
-	# Add nodes.
-	for n in tree.nodes:
-		upstream_h = np.sum([k.local_holding_cost for k in n.predecessors()])
-		SSM_tree.add_node(SupplyChainNode(n.index, name=n.name, network=SSM_tree,
-			shipment_lead_time=n.processing_time+n.external_inbound_cst,
-			echelon_holding_cost=n.local_holding_cost-upstream_h))
-		SSM_node = SSM_tree.get_node_from_index(n.index)
-		SSM_node.demand_source = copy.deepcopy(n.demand_source)
-		if p is not None:
-			if n.demand_source is not None:
-				SSM_node.stockout_cost = p
-		else:
-			if n.stockout_cost is not None:
-				SSM_node.stockout_cost = n.stockout_cost
-
-	# Add edges.
-	edge_list = tree.edges
-	SSM_tree.add_edges_from_list(edge_list)
-
-	return SSM_tree
-
-
 ### OPTIMIZATION ###
 
 def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, processing_time=None,
