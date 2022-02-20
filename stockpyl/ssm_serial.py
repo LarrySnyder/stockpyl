@@ -178,6 +178,7 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		from stockpyl.ssm_serial import *
 
 	.. doctest::
+		:skipif: True	# set to False to run the test
 
 		>>> S_star, C_star = optimize_base_stock_levels(
 		... 	num_nodes=3, 

@@ -17,6 +17,7 @@ API Documentation
     ssm_serial
     gsm_tree
     gsm_serial
+    gsm_helpers
     instances
 
 

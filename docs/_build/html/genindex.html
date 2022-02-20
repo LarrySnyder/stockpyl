@@ -174,13 +174,15 @@
 </li>
       <li><a href="sim.html#stockpyl.sim.calculate_period_costs">calculate_period_costs() (in module stockpyl.sim)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="loss_functions.html#stockpyl.loss_functions.continuous_loss">continuous_loss() (in module stockpyl.loss_functions)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="loss_functions.html#stockpyl.loss_functions.continuous_second_loss">continuous_second_loss() (in module stockpyl.loss_functions)</a>
 </li>
       <li><a href="gsm_serial.html#stockpyl.gsm_serial.cst_dp_serial">cst_dp_serial() (in module stockpyl.gsm_serial)</a>
+</li>
+      <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.cst_to_base_stock_levels">cst_to_base_stock_levels() (in module stockpyl.gsm_helpers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -260,6 +262,8 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.inbound_cst">inbound_cst() (in module stockpyl.gsm_helpers)</a>
+</li>
       <li><a href="sim.html#stockpyl.sim.initialize_next_period_state_vars">initialize_next_period_state_vars() (in module stockpyl.sim)</a>
 </li>
   </ul></td>
@@ -302,6 +306,8 @@
 </li>
         <li><a href="finite_horizon.html#module-stockpyl.finite_horizon">stockpyl.finite_horizon</a>
 </li>
+        <li><a href="gsm_helpers.html#module-stockpyl.gsm_helpers">stockpyl.gsm_helpers</a>
+</li>
         <li><a href="gsm_serial.html#module-stockpyl.gsm_serial">stockpyl.gsm_serial</a>
 </li>
         <li><a href="gsm_tree.html#module-stockpyl.gsm_tree">stockpyl.gsm_tree</a>
@@ -343,6 +349,8 @@
 </li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.negative_binomial_second_loss">negative_binomial_second_loss() (in module stockpyl.loss_functions)</a>
 </li>
+      <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.net_lead_time">net_lead_time() (in module stockpyl.gsm_helpers)</a>
+</li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_continuous">newsvendor_continuous() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_discrete">newsvendor_discrete() (in module stockpyl.newsvendor)</a>
@@ -351,10 +359,10 @@
 </li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal">newsvendor_normal() (in module stockpyl.newsvendor)</a>
 </li>
-      <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal_cost">newsvendor_normal_cost() (in module stockpyl.newsvendor)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal_cost">newsvendor_normal_cost() (in module stockpyl.newsvendor)</a>
+</li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal_explicit">newsvendor_normal_explicit() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_poisson">newsvendor_poisson() (in module stockpyl.newsvendor)</a>
@@ -449,6 +457,8 @@
 </li>
       <li><a href="ss.html#stockpyl.ss.s_s_power_approximation">s_s_power_approximation() (in module stockpyl.ss)</a>
 </li>
+      <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.safety_stock_levels">safety_stock_levels() (in module stockpyl.gsm_helpers)</a>
+</li>
       <li><a href="instances.html#stockpyl.instances.save_instance">save_instance() (in module stockpyl.instances)</a>
 </li>
       <li><a href="instances.html#stockpyl.instances.save_summary_to_csv">save_summary_to_csv() (in module stockpyl.instances)</a>
@@ -456,6 +466,10 @@
       <li><a href="newsvendor.html#stockpyl.newsvendor.set_myopic_cost_to">set_myopic_cost_to() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="sim.html#stockpyl.sim.simulation">simulation() (in module stockpyl.sim)</a>
+</li>
+      <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.solution_cost_from_base_stock_levels">solution_cost_from_base_stock_levels() (in module stockpyl.gsm_helpers)</a>
+</li>
+      <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.solution_cost_from_cst">solution_cost_from_cst() (in module stockpyl.gsm_helpers)</a>
 </li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.standard_normal_loss">standard_normal_loss() (in module stockpyl.loss_functions)</a>
 </li>
@@ -476,12 +490,21 @@
 </li>
       </ul></li>
       <li>
+    stockpyl.gsm_helpers
+
+      <ul>
+        <li><a href="gsm_helpers.html#module-stockpyl.gsm_helpers">module</a>
+</li>
+      </ul></li>
+      <li>
     stockpyl.gsm_serial
 
       <ul>
         <li><a href="gsm_serial.html#module-stockpyl.gsm_serial">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     stockpyl.gsm_tree
 
@@ -489,8 +512,6 @@
         <li><a href="gsm_tree.html#module-stockpyl.gsm_tree">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     stockpyl.instances
 
@@ -593,7 +614,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Larry Snyder
+        &copy; Copyright 2022, Larry Snyder
 
     </p>
   </div>

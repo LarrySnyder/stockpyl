@@ -782,34 +782,34 @@ def get_named_instance(instance_name):
 # network = get_named_instance("problem_6_16")
 # save_instance("problem_6_16", network, "Problem 6.16 (serial SSM)")
 
-# network = network_from_edges(
-# 	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
-# 	processing_times=[1, 0, 1],
-# 	external_inbound_csts=[None, None, 1],
-# 	local_holding_cost=[7, 4, 2],
-# 	demand_bound_constants=1,
-# 	external_outbound_csts=[1, None, None],
-# 	demand_type=['N', None, None],
-# 	demand_mean=0,
-# 	demand_standard_deviation=[1, 0, 0]
-# )
-# save_instance("example_6_4", network, 'Example 6.4 (serial GSM)')
-
 network = network_from_edges(
 	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
-	processing_times=[2, 1, 1],
+	processing_times=[1, 0, 1],
 	external_inbound_csts=[None, None, 1],
-	local_holding_cost=[4, 3, 2],
-	demand_bound_constants=4,
-	external_outbound_csts=[0, None, None],
+	local_holding_cost=[7, 4, 2],
+	demand_bound_constants=1,
+	external_outbound_csts=[1, None, None],
 	demand_type=['N', None, None],
-	demand_mean=[45, 0, 0],
-	demand_standard_deviation=[10, 0, 0]
+	demand_mean=0,
+	demand_standard_deviation=[1, 0, 0]
 )
-network.get_node_from_index(1).name = 'Glazing'
-network.get_node_from_index(2).name = 'Firing'
-network.get_node_from_index(3).name = 'Forming'
-save_instance("problem_6_7", network, 'Problem 6.7 (serial GSM)')
+save_instance("example_6_3", network, 'Example 6.3 (serial GSM)')
+
+# network = network_from_edges(
+# 	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
+# 	processing_times=[2, 1, 1],
+# 	external_inbound_csts=[None, None, 1],
+# 	local_holding_cost=[4, 3, 2],
+# 	demand_bound_constants=4,
+# 	external_outbound_csts=[0, None, None],
+# 	demand_type=['N', None, None],
+# 	demand_mean=[45, 0, 0],
+# 	demand_standard_deviation=[10, 0, 0]
+# )
+# network.get_node_from_index(1).name = 'Glazing'
+# network.get_node_from_index(2).name = 'Firing'
+# network.get_node_from_index(3).name = 'Forming'
+# save_instance("problem_6_7", network, 'Problem 6.7 (serial GSM)')
 
 # network = network_from_edges(
 # 	[(n+1, n) for n in range(1, 10)], 

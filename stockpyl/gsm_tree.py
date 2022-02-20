@@ -68,8 +68,6 @@ def optimize_committed_service_times(tree):
 	.. testsetup:: *
 
 		from stockpyl.gsm_tree import *
-		import os
-		os.chdir('..')
 
 	.. doctest::
 

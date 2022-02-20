@@ -96,6 +96,23 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	opt_cst : dict
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
 
+
+	**Example** (Example 6.3):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_serial import *
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> network = load_instance("example_6_3")
+		>>> opt_cost, opt_cst = optimize_committed_service_times(network=network)
+		>>> opt_cost
+		2.8284271247461903
+		>>> opt_cst
+		{3: 0, 2: 0, 1: 1}
+
 	"""
 
 	# TODO: handle other indexing (other than N, ..., 1)
@@ -149,16 +166,16 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 		network.add_edges_from_list([(n + 1, n) for n in range(1, num_nodes)])
 		
 	# Solve.
-	opt_cost, opt_cst = cst_dp_serial(network)
+	opt_cost, opt_cst = _cst_dp_serial(network)
 
 	return opt_cost, opt_cst
 
 
-def cst_dp_serial(network):
+def _cst_dp_serial(network):
 	"""Optimize committed service times for serial system.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
-	Inderfurth (1991)).
+	Inderfurth (1991).
 
 	Assumes demand bound over tau periods is of the form
 	:math:`z_\\alpha\\sigma\\sqrt{\\tau}`.
@@ -245,6 +262,7 @@ def cst_dp_serial(network):
 				# Fill theta and best_cst_adjacent.
 				theta[k_index][SI] = min_cost
 				best_S[k_index][SI] = min_S
+				# TODO: once got an error saying min_S was used here without being defined -- figure out how this can happen
 
 			# Set values of theta_in and best_cst_adjacent for
 			# max_replenishment_time+1 to max_max_replenishment_time to

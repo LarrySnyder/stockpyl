@@ -42,12 +42,12 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 	def test_example_6_4(self):
 		"""Test that optimize_committed_service_times() works for network in
-		Example 6.4.
+		Example 6.3.
 		"""
 
-		print_status('TestOptimizeCommittedServiceTimes', 'test_example_6_4')
+		print_status('TestOptimizeCommittedServiceTimes', 'test_example_6_3')
 
-		network = load_instance("example_6_4")
+		network = load_instance("example_6_3")
 
 		opt_cost, opt_cst = \
 			gsm_serial.optimize_committed_service_times(network=network)
@@ -93,6 +93,8 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		print_status('TestOptimizeCommittedServiceTimes', 'test_random_instances')
 
 		NUM_TRIALS = 10
+
+		np.random.seed(42)
 
 		for _ in range(NUM_TRIALS):
 

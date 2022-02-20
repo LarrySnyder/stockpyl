@@ -12,6 +12,10 @@ for multi-echelon inventory systems with tree structures by Graves and Willems (
 
 "node" and "stage" are used interchangeably in the documentation.
 
+The notation and references (equations, sections, examples, etc.) used below
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+(2019).
+
 (c) Lawrence V. Snyder
 Lehigh University
 
@@ -28,19 +32,35 @@ from stockpyl.helpers import *
 ### SOLUTION HANDLING ###
 
 def solution_cost_from_cst(tree, cst):
-	"""Calculate expected cost of given solution as specified by CST.
+	"""Calculate expected cost per period of given solution as specified by CST.
 
 	Parameters
 	----------
 	tree : SupplyChainNetwork
 		The multi-echelon tree network. Network need not have been relabeled.
 	cst : dict
-		Dict of CSTs for each node, using the same node labeling as tree.
+		Dict of CSTs for each node, using the same node labeling as tree. [:math:`S`]
 
 	Returns
 	-------
 	cost : float
-		Expected cost of the solution.
+		Expected cost of the solution. [:math:`g(S)`]
+
+
+	**Example** (Example 6.5):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+		import os
+		os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = load_instance("example_6_5")
+		>>> solution_cost_from_cst(tree, {1: 0, 3: 0, 2: 0, 4: 1})
+		8.277916867529369
 
 	"""
 
@@ -63,7 +83,7 @@ def solution_cost_from_cst(tree, cst):
 
 
 def solution_cost_from_base_stock_levels(tree, local_bsl):
-	"""Calculate expected cost of given solution as specified by base-stock
+	"""Calculate expected cost per period of given solution as specified by base-stock
 	levels. Cost is based on safety stock, which is calculated as base-stock
 	level minus demand mean.
 
@@ -73,12 +93,12 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 		The multi-echelon tree network. Graph need not have been relabeled.
 	local_bsl : dict
 		Dict of local base-stock levels for each node, using the same node
-		labeling as tree.
+		labeling as tree. [:math:`y`]
 
 	Returns
 	-------
 	cost : float
-		Expected cost of the solution.
+		Expected cost of the solution. [:math:`g(S)`]
 
 	"""
 
@@ -96,38 +116,38 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 	return cost
 
 
-def inbound_cst(tree, n, cst):
-	"""Determine the inbound CST (SI) for one or more stages, given the
+def inbound_cst(tree, node_index, cst):
+	"""Determine the inbound CST (:math:`SI`) for one or more stages, given the
 	outbound CSTs.
 
 	Parameters
 	----------
 	tree : SupplyChainNetwork
 		The multi-echelon tree network. Network need not have been relabeled.
-	n : node OR iterable container
-		A single node index OR a container of node indices (dict, list, set, etc.).
+	node_index : node *or* iterable container
+		A single node index *or* a container of node indices (dict, list, set, etc.).
 	cst : dict
-		Dict of CSTs for each node, using the same node labeling as tree.
+		Dict of CSTs for each node, using the same node labeling as ``tree``. [:math:`S`]
 
 	Returns
 	-------
-	SI : int OR dict
-		Inbound CST (SI) of node n (if n is a single node); OR a dictionary of
-		inbound CST (SI) values keyed by node (if n is an iterable container).
+	SI : int *or* dict
+		Inbound CST of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
+		inbound CST values keyed by node (if ``node_index`` is an iterable container) [:math:`SI`].
 
 	"""
 
 	# Determine whether n is singleton or iterable.
-	if is_iterable(n):
+	if is_iterable(node_index):
 		n_is_iterable = True
 	else:
 		# n is a singleton; replace it with a list.
-		n = [n]
+		node_index = [node_index]
 		n_is_iterable = False
 
 	# Build dict of SI values.
 	SI = {}
-	for k in n:
+	for k in node_index:
 		# Determine inbound CST (= max of CST for all _predecessors, and external
 		# inbound CST).
 		k_node = tree.get_node_from_index(k)
@@ -138,10 +158,10 @@ def inbound_cst(tree, n, cst):
 	if n_is_iterable:
 		return SI
 	else:
-		return SI[n[0]]
+		return SI[node_index[0]]
 
 
-def net_lead_time(tree, n, cst):
+def net_lead_time(tree, node_index, cst):
 	"""Determine the net lead time (NLT) for one or more stages, given the
 	outbound CSTs.
 
@@ -149,43 +169,43 @@ def net_lead_time(tree, n, cst):
 	----------
 	tree : SupplyChainNetwork
 		The multi-echelon tree network. Network need not have been relabeled.
-	n : node OR iterable container
-		A single node index OR a container of node indices (dict, list, set, etc.).
+	node_index : node *or* iterable container
+		A single node index *or* a container of node indices (dict, list, set, etc.).
 	cst : dict
-		Dict of CSTs for each node, using the same node labeling as tree.
+		Dict of CSTs for each node, using the same node labeling as tree. [:math:`S`]
 
 	Returns
 	-------
-	nlt : int OR dict
-		NLT of node n (if n is a single node); OR a dictionary of NLT values
-		keyed by node (if n is an iterable container).
+	nlt : int *or* dict
+		NLT of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of NLT values
+		keyed by node (if ``node_index`` is an iterable container).
 
 	"""
 
 	# Determine whether n is singleton or iterable.
-	if is_iterable(n):
+	if is_iterable(node_index):
 		n_is_iterable = True
 	else:
 		# n is a singleton; replace it with a list.
-		n = [n]
+		node_index = [node_index]
 		n_is_iterable = False
 
 	# Get inbound CSTs.
-	SI = inbound_cst(tree, n, cst)
+	SI = inbound_cst(tree, node_index, cst)
 
 	# Determine NLTs.
 	nlt = {}
-	for k in n:
+	for k in node_index:
 		# Determine NLT.
 		nlt[k] = SI[k] + tree.get_node_from_index(k).processing_time - cst[k]
 
 	if n_is_iterable:
 		return nlt
 	else:
-		return nlt[n[0]]
+		return nlt[node_index[0]]
 
 
-def cst_to_base_stock_levels(tree, n, cst):
+def cst_to_base_stock_levels(tree, node_index, cst):
 	"""Determine base-stock levels for one or more stages, for given committed
 	service times (CST).
 
@@ -193,42 +213,42 @@ def cst_to_base_stock_levels(tree, n, cst):
 	----------
 	tree : SupplyChainNetwork
 		The multi-echelon tree network. Graph need not have been relabeled.
-	n : node OR iterable container
-		A single node index OR a container of node indices (dict, list, set, etc.).
+	node_index : node *or* iterable container
+		A single node index *or* a container of node indices (dict, list, set, etc.).
 	cst : dict
-		Dict of CSTs for each node, using the same node labeling as tree.
+		Dict of CSTs for each node, using the same node labeling as tree. [:math:`S`]
 
 	Returns
 	-------
-	base_stock : float OR dict
-		Base-stock level of node n (if n is a single node); OR a dictionary of
-		base-stock levels keyed by node (if n is an iterable container).
+	base_stock : float *or* dict
+		Base-stock level of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
+		base-stock levels keyed by node (if ``node_index`` is an iterable container). [:math:`y`]
 
 	"""
 
 	# Determine whether n is singleton or iterable.
-	if is_iterable(n):
+	if is_iterable(node_index):
 		n_is_iterable = True
 	else:
 		# n is a singleton; replace it with a list.
-		n = [n]
+		node_index = [node_index]
 		n_is_iterable = False
 
 	# Calculate net lead times and safety stock levels.
-	nlt = net_lead_time(tree, n, cst)
-	ss = safety_stock_levels(tree, n, cst)
+	nlt = net_lead_time(tree, node_index, cst)
+	ss = safety_stock_levels(tree, node_index, cst)
 
 	base_stock = {}
-	for k in n:
+	for k in node_index:
 		base_stock[k] = tree.get_node_from_index(k).net_demand_mean * nlt[k] + ss[k]
 
 	if n_is_iterable:
 		return base_stock
 	else:
-		return base_stock[n[0]]
+		return base_stock[node_index[0]]
 
 
-def safety_stock_levels(tree, n, cst):
+def safety_stock_levels(tree, node_index, cst):
 	"""Determine safety stock levels for one or more nodes, for given committed
 	service times (CST).
 	
@@ -236,32 +256,32 @@ def safety_stock_levels(tree, n, cst):
 	----------
 	tree : SupplyChainNetwork
 		The multi-echelon tree network. Graph need not have been relabeled.
-	n : node OR iterable container
-		A single node index OR a container of node indices (dict, list, set, etc.).
+	node_index : node *or* iterable container
+		A single node index *or* a container of node indices (dict, list, set, etc.).
 	cst : dict
-		Dict of CSTs for each node, using the same node labeling as tree.
+		Dict of CSTs for each node, using the same node labeling as tree. [:math:`S`]
 
 	Returns
 	-------
-	safety_stock : float OR dict
-		Safety stock of node n (if n is a single node); OR a dictionary of
-		safety stock values keyed by node (if n is an iterable container).
+	safety_stock : float *or* dict
+		Safety stock of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
+		safety stock values keyed by node (if ``node_index`` is an iterable container).
 
 	"""
 
 	# Determine whether n is singleton or iterable.
-	if is_iterable(n):
+	if is_iterable(node_index):
 		n_is_iterable = True
 	else:
 		# n is a singleton; replace it with a list.
-		n = [n]
+		node_index = [node_index]
 		n_is_iterable = False
 
 	# Calculate net lead times.
-	nlt = net_lead_time(tree, n, cst)
+	nlt = net_lead_time(tree, node_index, cst)
 
 	safety_stock = {}
-	for k in n:
+	for k in node_index:
 		node_k = tree.get_node_from_index(k)
 		safety_stock[k] = node_k.demand_bound_constant * \
 						  node_k.net_demand_standard_deviation * \
@@ -270,4 +290,4 @@ def safety_stock_levels(tree, n, cst):
 	if n_is_iterable:
 		return safety_stock
 	else:
-		return safety_stock[n[0]]
+		return safety_stock[node_index[0]]
