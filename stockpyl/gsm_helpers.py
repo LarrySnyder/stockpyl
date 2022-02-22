@@ -21,7 +21,6 @@ Lehigh University
 
 """
 
-# TODO: docs
 
 import numpy as np
 import math
@@ -52,14 +51,12 @@ def solution_cost_from_cst(tree, cst):
 	.. testsetup:: *
 
 		from stockpyl.gsm_tree import *
-		import os
-		os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 	.. doctest::
 
 		>>> from stockpyl.instances import load_instance
-		>>> tree = load_instance("example_6_5")
-		>>> solution_cost_from_cst(tree, {1: 0, 3: 0, 2: 0, 4: 1})
+		>>> tree = preprocess_tree(load_instance("example_6_5"))
+		>>> solution_cost_from_cst(tree, {1: 0, 2: 0, 3: 0, 4: 1})
 		8.277916867529369
 
 	"""
@@ -100,9 +97,21 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 	cost : float
 		Expected cost of the solution. [:math:`g(S)`]
 
-	"""
 
-	# TODO: unit tests
+	**Example** (Example 6.5):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = preprocess_tree(load_instance("example_6_5"))
+		>>> solution_cost_from_base_stock_levels(tree, {1: 2.45, 2: 1.00, 3: 1.41, 4: 0.00})
+		8.27
+
+	"""
 
 	cost = 0
 	for k in tree.nodes:
@@ -117,8 +126,9 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 
 
 def inbound_cst(tree, node_index, cst):
-	"""Determine the inbound CST (:math:`SI`) for one or more stages, given the
-	outbound CSTs.
+	"""Determine the inbound CST (:math:`SI`) for one or more stages, given all of the
+	outbound CSTs. The inbound CST is calculated as the maximum of the outbound CST for 
+	all predecessors, and the external inbound CST (if any).
 
 	Parameters
 	----------
@@ -135,6 +145,20 @@ def inbound_cst(tree, node_index, cst):
 		Inbound CST of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
 		inbound CST values keyed by node (if ``node_index`` is an iterable container) [:math:`SI`].
 
+
+	**Example** (Problem 6.9):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = preprocess_tree(load_instance("problem_6_9"))
+		>>> inbound_cst(tree, 3, {1: 3, 2: 3, 3: 31, 4: 3, 5: 10, 6: 2})
+		10
+
 	"""
 
 	# Determine whether n is singleton or iterable.
@@ -148,7 +172,7 @@ def inbound_cst(tree, node_index, cst):
 	# Build dict of SI values.
 	SI = {}
 	for k in node_index:
-		# Determine inbound CST (= max of CST for all _predecessors, and external
+		# Determine inbound CST (= max of CST for all predecessors, and external
 		# inbound CST).
 		k_node = tree.get_node_from_index(k)
 		SI[k] = k_node.external_inbound_cst
@@ -179,6 +203,20 @@ def net_lead_time(tree, node_index, cst):
 	nlt : int *or* dict
 		NLT of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of NLT values
 		keyed by node (if ``node_index`` is an iterable container).
+
+
+	**Example** (Problem 6.9):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = preprocess_tree(load_instance("problem_6_9"))
+		>>> net_lead_time(tree, tree.node_indices, {1: 3, 2: 3, 3: 31, 4: 3, 5: 10, 6: 2})
+		{1: 35, 2: 35, 3: 0, 4: 0, 5: 0, 6: 0}
 
 	"""
 
@@ -224,6 +262,20 @@ def cst_to_base_stock_levels(tree, node_index, cst):
 		Base-stock level of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
 		base-stock levels keyed by node (if ``node_index`` is an iterable container). [:math:`y`]
 
+
+	**Example** (Problem 6.9):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = preprocess_tree(load_instance("example_6_5"))
+		>>> cst_to_base_stock_levels(tree, tree.node_indices, {1: 0, 2: 0, 3: 0, 4: 1})
+		{1: 2.4494897427831783, 3: 1.4142135623730951, 2: 1.0, 4: 0.0}
+
 	"""
 
 	# Determine whether n is singleton or iterable.
@@ -266,6 +318,20 @@ def safety_stock_levels(tree, node_index, cst):
 	safety_stock : float *or* dict
 		Safety stock of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
 		safety stock values keyed by node (if ``node_index`` is an iterable container).
+
+
+	**Example** (Problem 6.9):
+
+	.. testsetup:: *
+
+		from stockpyl.gsm_tree import *
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> tree = preprocess_tree(load_instance("example_6_5"))
+		>>> safety_stock_levels(tree, tree.node_indices, {1: 0, 2: 0, 3: 0, 4: 1})
+		{1: 2.4494897427831783, 3: 1.4142135623730951, 2: 1.0, 4: 0.0}
 
 	"""
 

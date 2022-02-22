@@ -11,7 +11,7 @@ from tests.instances_gsm_tree import *
 
 def print_status(class_name, function_name):
 	"""Print status message."""
-	print("module : test_gsm_tree   class : {:30s} function : {:30s}".format(class_name, function_name))
+	print("module : test_gsm_helpers   class : {:30s} function : {:30s}".format(class_name, function_name))
 
 def set_up_module():
 	"""Called once, before anything else in this module."""
@@ -24,7 +24,7 @@ def tear_down_module():
 
 
 
-class TestSolutionCost(unittest.TestCase):
+class TestSolutionCostFromCST(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
@@ -85,7 +85,87 @@ class TestSolutionCost(unittest.TestCase):
 		)
 		self.assertAlmostEqual(cost, correct_cost)
 
-		
+
+class TestSolutionCostFromBaseStockLevels(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSolutionCostFromBaseStockLevels', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSolutionCostFromBaseStockLevels', 'tear_down_class()')
+
+	def test_example_6_5(self):
+		"""Test that solution_cost_from_base_stock_levels() correctly reports cost for solutions
+		for Example_6_5.
+		"""
+
+		print_status('TestSolutionCostFromBaseStockLevels', 'test_example_6_5()')
+
+		tree = gsm_tree.preprocess_tree(load_instance("example_6_5"))
+
+		# Optimal solution.
+		bsl = {1: np.sqrt(2) * np.sqrt(3), 2: 1.00, 3: np.sqrt(2), 4: 0.00}
+		cost = gsm_tree.solution_cost_from_base_stock_levels(tree, bsl)
+		self.assertAlmostEqual(cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
+
+		# Sub-optimal solution.
+		bsl = {1: 3, 2: 0, 3: 2, 4: 0}
+		cost = gsm_tree.solution_cost_from_base_stock_levels(tree, bsl)
+		self.assertAlmostEqual(cost, 3 + 2 * 2)
+
+	def test_figure_6_14(self):
+		"""Test that solution_cost_from_base_stock_levels() correctly reports cost for solutions
+		for Figure 6.14.
+		"""
+
+		print_status('TestSolutionCostFromBaseStockLevels', 'test_figure_6_14()')
+
+		tree = gsm_tree.preprocess_tree(load_instance("figure_6_14"))
+
+		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
+		bsl = {1: 23.2617430735335,
+			2: 0,
+			3: 0,
+			4: 0,
+			5: 0,
+			6: 52.0148387875557,
+			7: 40.2905208759734,
+			8: 32.8970725390294,
+			9: 28.4897005289389,
+			10: 0}
+		cost = gsm_helpers.solution_cost_from_base_stock_levels(tree, bsl)
+		correct_cost = 0.01 * 23.2617430735335 + 0.13 * 52.0148387875557 + 0.20 * 40.2905208759734 + 0.08 * 32.8970725390294 + 0.04 * 28.4897005289389
+		self.assertAlmostEqual(cost, correct_cost)
+
+		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
+		bsl = {1: 0,
+			2: 23.2617430735335,
+			3: 23.2617430735335,
+			4: 32.8970725390294,
+			5: 23.2617430735335,
+			6: 16.4485362695147,
+			7: 36.7800452290057,
+			8: 28.4897005289389,
+			9: 28.4897005289389,
+			10: 36.7800452290057}
+		cost = gsm_helpers.solution_cost_from_base_stock_levels(tree, bsl)
+		correct_cost = 1.6448536269514722 * 10 * (
+			0.03 * np.sqrt(2) + # 2
+			0.04 * np.sqrt(2) + # 3
+			0.06 * np.sqrt(4) + # 4
+			0.12 * np.sqrt(2) + # 5
+			0.13 * np.sqrt(1) + # 6
+			0.20 * np.sqrt(5) + # 7
+			0.08 * np.sqrt(3) + # 8
+			0.04 * np.sqrt(3) + # 9
+			0.50 * np.sqrt(5)	# 10
+		)
+		self.assertAlmostEqual(cost, correct_cost)
+
+
 class TestInboundCST(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
