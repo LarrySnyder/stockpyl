@@ -1,4 +1,5 @@
 import unittest
+import copy
 
 import stockpyl.optimization as optimization
 from stockpyl.instances import *

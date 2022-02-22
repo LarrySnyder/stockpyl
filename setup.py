@@ -14,6 +14,7 @@ setup(
 	author_email='larry.snyder@lehigh.edu',
 	license='GPLv3',
 	packages=['stockpyl'],
+	include_package_data=True,
 	install_requires=[
 		'networkx',
 		'numpy',
@@ -29,6 +30,15 @@ setup(
 		'itertools',
 		'tqdm',
 		'csv'
+	],
+	classifiers=[
+		'Development Status :: 3 - Alpha',
+		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+		'Natural Language :: English',
+		'Programming Language :: Python :: 3',
+		'Topic :: Education',
+		'Topic :: Office/Business',
+		'Topic :: Scientific/Engineering'
 	],
 	zip_safe=False,
 	test_suite='nose.collector',

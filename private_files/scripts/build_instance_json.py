@@ -1,4 +1,5 @@
 import sys
+import copy
 
 sys.path.append('/Users/larry/Documents/GitHub/stockpyl')
 # print(sys.path)
@@ -781,6 +782,98 @@ def get_named_instance(instance_name):
 # network = get_named_instance("problem_6_16")
 # save_instance("problem_6_16", network, "Problem 6.16 (serial SSM)")
 
+network = network_from_edges(
+	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
+	processing_times=[1, 0, 1],
+	external_inbound_csts=[None, None, 1],
+	local_holding_cost=[7, 4, 2],
+	demand_bound_constants=1,
+	external_outbound_csts=[1, None, None],
+	demand_type=['N', None, None],
+	demand_mean=0,
+	demand_standard_deviation=[1, 0, 0]
+)
+save_instance("example_6_3", network, 'Example 6.3 (serial GSM)')
+
+# network = network_from_edges(
+# 	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
+# 	processing_times=[2, 1, 1],
+# 	external_inbound_csts=[None, None, 1],
+# 	local_holding_cost=[4, 3, 2],
+# 	demand_bound_constants=4,
+# 	external_outbound_csts=[0, None, None],
+# 	demand_type=['N', None, None],
+# 	demand_mean=[45, 0, 0],
+# 	demand_standard_deviation=[10, 0, 0]
+# )
+# network.get_node_from_index(1).name = 'Glazing'
+# network.get_node_from_index(2).name = 'Firing'
+# network.get_node_from_index(3).name = 'Forming'
+# save_instance("problem_6_7", network, 'Problem 6.7 (serial GSM)')
+
+# network = network_from_edges(
+# 	[(n+1, n) for n in range(1, 10)], 
+# 	node_indices=list(range(1, 11)),
+# 	processing_times=[5, 10, 2, 15, 8, 5, 9, 5, 1, 5],
+# 	external_inbound_csts=[None] * 9 + [7],
+# 	local_holding_cost=[5.73, 4.56, 3.04, 2.93, 2.47, 2.37, 1.15, 1.1, 0.98, 0.87],
+# 	demand_bound_constants=stats.norm.ppf(0.98),
+# 	external_outbound_csts=[3] + [None] * 9,
+# 	demand_type=['N'] + [None] * 9,
+# 	demand_mean=0,
+# 	demand_standard_deviation=[15.8] + [None] * 9
+# )
+# save_instance("problem_6_8", network, 'Problem 6.8 (serial GSM)')
+
+# network = network_from_edges(
+# 	[(1, 3), (3, 2), (3, 4)], node_indices=[1, 2, 3, 4],
+# 	processing_times=[2, 1, 1, 1],
+# 	external_inbound_csts=[1, None, None, None],
+# 	local_holding_cost=[1, 3, 2, 3],
+# 	demand_bound_constants=[1, 1, 1, 1],
+# 	external_outbound_csts=[None, 0, None, 1],
+# 	demand_type=[None, 'N', None, 'N'],
+# 	demand_mean=0,
+# 	demand_standard_deviation=[None, 1, None, 1]
+# )
+# save_instance("example_6_5", network, 'Example 6.5 (tree GSM)')
+
+# network = SupplyChainNetwork()
+# network.add_node(SupplyChainNode(1, 'Raw_Material', network, processing_time=2, local_holding_cost=0.01))
+# network.add_node(SupplyChainNode(2, 'Process_Wafers', network, processing_time=3, local_holding_cost=0.03))
+# network.add_node(SupplyChainNode(3, 'Package_Test_Wafers', network, processing_time=2, local_holding_cost=0.04))
+# network.add_node(SupplyChainNode(4, 'Imager_Base', network, processing_time=4, local_holding_cost=0.06))
+# network.add_node(SupplyChainNode(5, 'Imager_Assembly', network, processing_time=2, local_holding_cost=0.12))
+# network.add_node(SupplyChainNode(6, 'Ship_to_Final_Assembly', network, processing_time=3, local_holding_cost=0.13))
+# network.add_node(SupplyChainNode(7, 'Camera', network, processing_time=6, local_holding_cost=0.20))
+# network.add_node(SupplyChainNode(8, 'Circuit_Board', network, processing_time=4, local_holding_cost=0.08))
+# network.add_node(SupplyChainNode(9, 'Other_Parts', network, processing_time=3, local_holding_cost=0.04))
+# network.add_node(SupplyChainNode(10, 'Build_Test_Pack', network, processing_time=2, local_holding_cost=0.50, \
+# 	external_outbound_cst=2, demand_source=DemandSource(type='N', mean=0, standard_deviation=10),
+# 	demand_bound_constant=stats.norm.ppf(0.95)))
+# network.add_edges_from_list([(1, 2), (2, 3), (3, 5), (4, 5), (5, 6), (7, 10), (6, 10), (8, 10), (9, 10)])
+# save_instance("figure_6_14", network, 'Figure 6.14 (tree GSM)')
+
+# network = network_from_edges([(1, 2), (1, 3), (3, 5), (4, 5), (5, 6), (5, 7)])
+# save_instance("figure_6_12", network, 'Figure 6.12 (tree GSM')
+
+# network = SupplyChainNetwork()
+# network.add_node(SupplyChainNode(3, name='Forming', network=network, processing_time=1, local_holding_cost=2, external_inbound_cst=1))
+# network.add_node(SupplyChainNode(2, name='Firing', network=network, processing_time=1, local_holding_cost=3))
+# network.add_node(SupplyChainNode(1, name='Glazing', network=network, processing_time=2, local_holding_cost=4, external_outbound_cst=0, demand_source=DemandSource(type='N', mean=45, standard_deviation=10), demand_bound_constant=4))
+# network.add_edges_from_list([(3, 2), (2, 1)])
+# save_instance("problem_6_7", network, 'Problem 6.7 (tree GSM)')
+
+# network = SupplyChainNetwork()
+# network.add_node(SupplyChainNode(1, network=network, processing_time=7, local_holding_cost=220*0.2/365, external_outbound_cst=3, demand_source=DemandSource(type='N', mean=22.0, standard_deviation=4.1), demand_bound_constant=4))
+# network.add_node(SupplyChainNode(2, network=network, processing_time=7, local_holding_cost=140*0.2/365, external_outbound_cst=3, demand_source=DemandSource(type='N', mean=15.3, standard_deviation=6.2), demand_bound_constant=4))
+# network.add_node(SupplyChainNode(3, network=network, processing_time=21, local_holding_cost=90*0.2/365))
+# network.add_node(SupplyChainNode(4, network=network, processing_time=3, local_holding_cost=5*0.2/365))
+# network.add_node(SupplyChainNode(5, network=network, processing_time=8, local_holding_cost=20*0.2/365))
+# network.add_node(SupplyChainNode(6, network=network, processing_time=2, local_holding_cost=7.5*0.2/365))
+# network.add_edges_from_list([(6, 5), (4, 3), (5, 3), (3, 1), (3, 2)])
+# save_instance("problem_6_9", network, 'Problem 6.9 (tree GSM)')
+
 # CHAPTER 9
 
 # h, p, K, d, lambdaa, mu = get_named_instance("example_9_1")
@@ -818,11 +911,11 @@ def get_named_instance(instance_name):
 # network = get_named_instance("rosling_figure_1")
 # save_instance("rosling_figure_1", network, "assembly system from Figure 1 in Rosling (1989) (structure and lead times are from Rosling; all other parameters are made up)")
 
-network = get_named_instance("rong_atan_snyder_figure_1a")
-save_instance("rong_atan_snyder_figure_1a", network, "distribution system from Figure 1(a) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson)")
+# network = get_named_instance("rong_atan_snyder_figure_1a")
+# save_instance("rong_atan_snyder_figure_1a", network, "distribution system from Figure 1(a) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson)")
 
-network = get_named_instance("rong_atan_snyder_figure_1b")
-save_instance("rong_atan_snyder_figure_1b", network, "distribution system from Figure 1(b) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)")
+# network = get_named_instance("rong_atan_snyder_figure_1b")
+# save_instance("rong_atan_snyder_figure_1b", network, "distribution system from Figure 1(b) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)")
 
-network = get_named_instance("rong_atan_snyder_figure_1c")
-save_instance("rong_atan_snyder_figure_1c", network, "distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)")
+# network = get_named_instance("rong_atan_snyder_figure_1c")
+# save_instance("rong_atan_snyder_figure_1c", network, "distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)")

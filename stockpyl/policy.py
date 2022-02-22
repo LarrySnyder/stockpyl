@@ -83,6 +83,54 @@ class Policy(object):
 		self._reorder_point = None
 		self._order_up_to_level = None
 
+	# SPECIAL METHODS
+
+	def __eq__(self, other):
+		"""Determine whether ``other`` is equal to this policy object. 
+		Two policy objects are considered equal if all of their attributes 
+		are equal. ``node`` attribute is compared using memory address.
+
+		Note the following caveat:
+
+		* Does not check equality of ``_node``. 
+
+		Parameters
+		----------
+		other : Policy
+			The policy object to compare to.
+
+		Returns
+		-------
+		bool
+			True if the policy objects are equal, False otherwise.
+
+		"""
+
+		# TODO: unit tests
+		
+		return self._type == other._type and \
+			self._base_stock_level == other._base_stock_level and \
+			self._order_quantity == other._order_quantity and \
+			self._reorder_point == other._reorder_point and \
+			self._order_up_to_level == other._order_up_to_level
+
+	def __ne__(self, other):
+		"""Determine whether ``other`` is not equal to this policy object. 
+		Two policy objects are considered equal if all of their attributes 
+		are equal.
+
+		Parameters
+		----------
+		other : DemandSource
+			The policy object to compare to.
+
+		Returns
+		-------
+		bool
+			True if the policy objects are not equal, False otherwise.
+		"""
+		return not self.__eq__(other)
+
 	# PROPERTY GETTERS AND SETTERS
 	@property
 	def type(self):

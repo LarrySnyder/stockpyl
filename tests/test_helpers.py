@@ -716,3 +716,10 @@ class TestSumOfDiscretesDistribution(unittest.TestCase):
 		for i in range(len(a2_pk)):
 			self.assertAlmostEqual(dist2.pmf(a2_xk[i]), a2_pk[i])
 
+		with self.assertRaises(ValueError):
+			helpers.sum_of_discretes_distribution(3.5, 0, 2, [0.1, 0.7, 0.2])
+		with self.assertRaises(ValueError):
+			helpers.sum_of_discretes_distribution(3, 0.5, 2.5, [0.1, 0.7, 0.2])
+		with self.assertRaises(ValueError):
+			helpers.sum_of_discretes_distribution(3, 0, 5, [0.1, 0.7, 0.2])
+

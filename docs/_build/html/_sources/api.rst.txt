@@ -15,6 +15,9 @@ API Documentation
     loss_functions
     supply_uncertainty
     ssm_serial
+    gsm_tree
+    gsm_serial
+    gsm_helpers
     instances
 
 

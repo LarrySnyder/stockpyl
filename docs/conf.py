@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'stockpyl'
-copyright = '2020, Larry Snyder'
+copyright = '2022, Larry Snyder'
 author = 'Larry Snyder'
 
 # The short X.Y version
