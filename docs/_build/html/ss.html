@@ -21,11 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,8 +33,6 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="finite_horizon Module" href="finite_horizon.html" />
@@ -83,7 +80,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -175,8 +172,8 @@
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="stockpyl.ss.s_s_cost_discrete">
-<span class="sig-prename descclassname"><span class="pre">stockpyl.ss.</span></span><span class="sig-name descname"><span class="pre">s_s_cost_discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_up_to_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_poisson</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.ss.s_s_cost_discrete" title="Permalink to this definition">¶</a></dt>
+<dt id="stockpyl.ss.s_s_cost_discrete">
+<code class="sig-prename descclassname"><span class="pre">stockpyl.ss.</span></code><code class="sig-name descname"><span class="pre">s_s_cost_discrete</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_up_to_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_poisson</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.ss.s_s_cost_discrete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the exact cost of the given solution for an <span class="math notranslate nohighlight">\((s,S)\)</span>
 policy with given parameters under a discrete (Poisson or custom) demand
 distribution.</p>
@@ -229,8 +226,8 @@ and <span class="math notranslate nohighlight">\(m(\cdot)\)</span> are as descri
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="stockpyl.ss.s_s_discrete_exact">
-<span class="sig-prename descclassname"><span class="pre">stockpyl.ss.</span></span><span class="sig-name descname"><span class="pre">s_s_discrete_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_poisson</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.ss.s_s_discrete_exact" title="Permalink to this definition">¶</a></dt>
+<dt id="stockpyl.ss.s_s_discrete_exact">
+<code class="sig-prename descclassname"><span class="pre">stockpyl.ss.</span></code><code class="sig-name descname"><span class="pre">s_s_discrete_exact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_poisson</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.ss.s_s_discrete_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine optimal <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(S\)</span> for an <span class="math notranslate nohighlight">\((s,S)\)</span>
 policy under a discrete (Poisson or custom) demand distribution.</p>
 <p>Uses method described in Zheng and Federgruen (1991).</p>
@@ -278,8 +275,8 @@ policies with discrete demand distribution (Algorithm 4.2)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="stockpyl.ss.s_s_power_approximation">
-<span class="sig-prename descclassname"><span class="pre">stockpyl.ss.</span></span><span class="sig-name descname"><span class="pre">s_s_power_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.ss.s_s_power_approximation" title="Permalink to this definition">¶</a></dt>
+<dt id="stockpyl.ss.s_s_power_approximation">
+<code class="sig-prename descclassname"><span class="pre">stockpyl.ss.</span></code><code class="sig-name descname"><span class="pre">s_s_power_approximation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.ss.s_s_power_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine heuristic <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(S\)</span> for an <span class="math notranslate nohighlight">\((s,S)\)</span>
 policy under a normal demand distribution.</p>
 <dl class="field-list simple">

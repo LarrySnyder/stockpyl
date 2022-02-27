@@ -21,11 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,8 +33,6 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="newsvendor Module" href="newsvendor.html" />
@@ -83,7 +80,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -176,8 +173,8 @@ model.</p>
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="stockpyl.wagner_whitin.wagner_whitin">
-<span class="sig-prename descclassname"><span class="pre">stockpyl.wagner_whitin.</span></span><span class="sig-name descname"><span class="pre">wagner_whitin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.wagner_whitin.wagner_whitin" title="Permalink to this definition">¶</a></dt>
+<dt id="stockpyl.wagner_whitin.wagner_whitin">
+<code class="sig-prename descclassname"><span class="pre">stockpyl.wagner_whitin.</span></code><code class="sig-name descname"><span class="pre">wagner_whitin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.wagner_whitin.wagner_whitin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the Wagner-Whitin problem using dynamic programming (DP).</p>
 <p>The time periods are indexed 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>. Lists given in
 outputs use the same indexing, which means that element 0
@@ -237,8 +234,8 @@ period. If given as a list, the list must be of length <code class="docutils lit
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="stockpyl.wagner_whitin.wagner_whitin_capac">
-<span class="sig-prename descclassname"><span class="pre">stockpyl.wagner_whitin.</span></span><span class="sig-name descname"><span class="pre">wagner_whitin_capac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.wagner_whitin.wagner_whitin_capac" title="Permalink to this definition">¶</a></dt>
+<dt id="stockpyl.wagner_whitin.wagner_whitin_capac">
+<code class="sig-prename descclassname"><span class="pre">stockpyl.wagner_whitin.</span></code><code class="sig-name descname"><span class="pre">wagner_whitin_capac</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.wagner_whitin.wagner_whitin_capac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the Wagner-Whitin problem using dynamic programming (DP).</p>
 <p>The time periods are indexed 1, …, <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>. Lists given in
 outputs use the same indexing, which means that element 0
