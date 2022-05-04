@@ -17,7 +17,7 @@ import csv
 from stockpyl.sim import *
 
 
-def write_results(network, num_periods, total_cost, num_periods_to_print=None,
+def write_results(network, num_periods, num_periods_to_print=None,
 				  write_csv=False, csv_filename=None):
 	"""
 
@@ -27,8 +27,6 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 		The multi-echelon inventory network.
 	num_periods : int
 		Number of periods in simulation.
-	total_cost : float
-		Total cost in the simulation.
 	num_periods_to_print : int, optional
 		Number of periods to print. The middle ``num_periods`` -
 		``num_periods_to_print`` periods will be skipped. If omitted, will
@@ -121,6 +119,8 @@ def write_results(network, num_periods, total_cost, num_periods_to_print=None,
 	print(tabulate(results, headers=headers))
 
 	# Average and total cost
+	total_cost = np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
+			for t in range(num_periods)])
 	print("\nTotal avg. cost per period = {:f}".format(1.0 * np.sum(total_cost) / num_periods))
 	print("Total horizon cost = {:f}".format(1.0 * np.sum(total_cost)))
 

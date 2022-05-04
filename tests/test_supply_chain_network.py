@@ -29,6 +29,141 @@ def tear_down_module():
 	print_status('---', 'tear_down_module()')
 
 
+class TestDeepEqualTo(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDeepEqualTo', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDeepEqualTo', 'tear_down_class()')
+
+	def test_3_node_serial(self):
+		"""Test deep_equal_to() on 3-node serial system.
+		"""
+		print_status('TestDeepEqualTo', 'test_3_node_serial()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+
+		network.add_node(node2)
+		network.add_successor(node2, node1)
+		network.add_successor(node1, node0)
+
+		# Equal networks.
+		network2 = copy.deepcopy(network)
+		self.assertTrue(network.deep_equal_to(network2))
+		self.assertTrue(network2.deep_equal_to(network))
+		
+		# Unequal networks due to parameter.
+		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+		network2 = copy.deepcopy(network)
+		network2.max_max_replenishment_time = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing node.
+		network2 = copy.deepcopy(network)
+		network2.remove_node(network2.nodes[0])
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+	def test_4_node_owmr(self):
+		"""Test deep_equal_to() on 4-node OWMR system.
+		"""
+		print_status('TestDeepEqualTo', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+		node3 = SupplyChainNode(3)
+
+		network.add_node(node0)
+		network.add_successor(node0, node1)
+		network.add_successor(node0, node2)
+		network.add_successor(node0, node3)
+
+		# Equal networks.
+		network2 = copy.deepcopy(network)
+		self.assertTrue(network.deep_equal_to(network2))
+		self.assertTrue(network2.deep_equal_to(network))
+		
+		# Unequal networks due to parameter.
+		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+		network2 = copy.deepcopy(network)
+		network2.max_max_replenishment_time = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing node.
+		network2 = copy.deepcopy(network)
+		network2.remove_node(network2.nodes[2])
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+
+class TestEdges(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEdges', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEdges', 'tear_down_class()')
+
+	def test_3_node_serial(self):
+		"""Test edges property for 3-node serial system.
+		"""
+		print_status('TestEdges', 'test_3_node_serial()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+
+		network.add_node(node2)
+		network.add_successor(node2, node1)
+		network.add_successor(node1, node0)
+
+		edges = network.edges
+
+		self.assertListEqual(edges, [(2, 1), (1, 0)])
+
+	def test_4_node_owmr(self):
+		"""Test edges property for 4-node OWMR system.
+		"""
+		print_status('TestEdges', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+		node3 = SupplyChainNode(3)
+
+		network.add_node(node0)
+		network.add_successor(node0, node1)
+		network.add_successor(node0, node2)
+		network.add_successor(node0, node3)
+
+		edges = network.edges
+
+		self.assertListEqual(edges, [(0, 1), (0, 2), (0, 3)])
+
 class TestAddSuccessor(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -110,11 +245,218 @@ class TestAddSuccessor(unittest.TestCase):
 		node0succ = node0.successor_indices()
 		node1succ = node1.successor_indices()
 		node2succ = node2.successor_indices()
-		node3succ = node2.successor_indices()
+		node3succ = node3.successor_indices()
 
 		self.assertEqual(node0succ, [1, 2, 3])
 		self.assertEqual(node1succ, [])
 		self.assertEqual(node2succ, [])
+		self.assertEqual(node3succ, [])
+
+
+class TestAddEdge(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddEdge', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddEdge', 'tear_down_class()')
+
+	def test_3_node_serial(self):
+		"""Test add_edge() on 3-node serial system.
+		"""
+		print_status('TestAddEdge', 'test_3_node_serial()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+
+		network.add_node(node2)
+		network.add_node(node1)
+		network.add_node(node0)
+
+		network.add_edge(2, 1)
+		network.add_edge(1, 0)
+
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
+
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node1succ, [0])
+		self.assertEqual(node2succ, [1])
+
+		with self.assertRaises(ValueError):
+			network.add_edge(5, 1)
+
+	def test_4_node_owmr(self):
+		"""Test add_edge() on 4-node OWMR system.
+		"""
+		print_status('TestAddEdge', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+		node3 = SupplyChainNode(3)
+
+		network.add_node(node0)
+		network.add_node(node1)
+		network.add_node(node2)
+		network.add_node(node3)
+
+		network.add_edge(0, 1)
+		network.add_edge(0, 2)
+		network.add_edge(0, 3)
+
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
+		node3succ = node3.successor_indices()
+
+		self.assertEqual(node0succ, [1, 2, 3])
+		self.assertEqual(node1succ, [])
+		self.assertEqual(node2succ, [])
+		self.assertEqual(node3succ, [])
+
+
+class TestAddEdgesFromList(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddEdgesFromList', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddEdgesFromList', 'tear_down_class()')
+
+	def test_3_node_serial(self):
+		"""Test add_edges_from_list() on 3-node serial system.
+		"""
+		print_status('TestAddEdgesFromList', 'test_3_node_serial()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+
+		network.add_node(node2)
+		network.add_node(node1)
+		network.add_node(node0)
+
+		network.add_edges_from_list([(2, 1), (1, 0)])
+
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
+
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node1succ, [0])
+		self.assertEqual(node2succ, [1])
+
+		with self.assertRaises(ValueError):
+			network.add_edges_from_list([(5, 1)])
+
+	def test_4_node_owmr(self):
+		"""Test add_edges_from_list() on 4-node OWMR system.
+		"""
+		print_status('TestAddEdgesFromList', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+		node3 = SupplyChainNode(3)
+
+		network.add_node(node0)
+		network.add_node(node1)
+		network.add_node(node2)
+		network.add_node(node3)
+
+		network.add_edges_from_list([(0, 1), (0, 2), (0, 3)])
+
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node2succ = node2.successor_indices()
+		node3succ = node3.successor_indices()
+
+		self.assertEqual(node0succ, [1, 2, 3])
+		self.assertEqual(node1succ, [])
+		self.assertEqual(node2succ, [])
+		self.assertEqual(node3succ, [])
+
+
+class TestRemoveNode(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRemoveNode', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRemoveNode', 'tear_down_class()')
+
+	def test_3_node_serial(self):
+		"""Test remove_node() on 3-node serial system.
+		"""
+		print_status('TestRemoveNode', 'test_3_node_serial()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+
+		network.add_node(node2)
+		network.add_node(node1)
+		network.add_node(node0)
+
+		network.add_edges_from_list([(2, 1), (1, 0)])
+
+		network.remove_node(network.get_node_from_index(1))
+
+		node0succ = node0.successor_indices()
+		node2succ = node2.successor_indices()
+
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node2succ, [])
+
+	def test_4_node_owmr(self):
+		"""Test remove_node() on 4-node OWMR system.
+		"""
+		print_status('TestRemoveNode', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		node0 = SupplyChainNode(0)
+		node1 = SupplyChainNode(1)
+		node2 = SupplyChainNode(2)
+		node3 = SupplyChainNode(3)
+
+		network.add_node(node0)
+		network.add_node(node1)
+		network.add_node(node2)
+		network.add_node(node3)
+
+		network.add_edges_from_list([(0, 1), (0, 2), (0, 3)])
+
+		network.remove_node(network.get_node_from_index(2))
+
+		node0succ = node0.successor_indices()
+		node1succ = node1.successor_indices()
+		node3succ = node3.successor_indices()
+
+		self.assertEqual(node0succ, [1, 3])
+		self.assertEqual(node1succ, [])
 		self.assertEqual(node3succ, [])
 
 

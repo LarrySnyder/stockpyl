@@ -75,8 +75,6 @@ class SupplyChainNetwork(object):
 			``True`` if the two networks are equal, ``False`` otherwise.
 		"""
 
-		# TODO: unit tests
-		
 		if sorted(self.node_indices) != sorted(other.node_indices):
 			return False
 
@@ -129,7 +127,6 @@ class SupplyChainNetwork(object):
 		list
 			List of edges.
 		"""
-		# TODO: unit tests
 		edge_list = []
 		for n in self.nodes:
 			for m in n.successors():
@@ -231,8 +228,6 @@ class SupplyChainNetwork(object):
 			If either index is not in the network.
 		"""
 
-		# TODO: unit tests
-
 		# Get nodes.
 		from_node = self.get_node_from_index(from_index)
 		to_node = self.get_node_from_index(to_index)
@@ -259,7 +254,6 @@ class SupplyChainNetwork(object):
 		ValueError
 			If any of the nodes are not in the network.
 		"""
-		# TODO: unit tests
 
 		# Loop through edges in list.
 		for e in edge_list:
@@ -326,8 +320,6 @@ class SupplyChainNetwork(object):
 		node : SupplyChainNode
 			The node to remove.
 		"""
-
-		# TODO: unit tests
 
 		# Check whether node is in network.
 		if node in self.nodes:
