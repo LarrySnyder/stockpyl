@@ -72,8 +72,11 @@ class Policy(object):
 
 	# TODO: handle predecessor-specific order quantities
 
-	def __init__(self, type=None, node=None):
+	def __init__(self, type=None, node=None, **kwargs):
 		"""Policy constructor method.
+
+		kwargs : optional
+			Optional keyword arguments to specify node attributes.
 		"""
 		# Initialize parameters to None. (Relevant parameters will be filled later.)
 		self._type = type
@@ -82,6 +85,13 @@ class Policy(object):
 		self._order_quantity = None
 		self._reorder_point = None
 		self._order_up_to_level = None
+
+		# Set attributes specified by kwargs.
+		for key, value in kwargs.items():
+			if key not in vars(self):
+				raise AttributeError(f"{key} is not an attribute of Policy")
+			vars(self)[key] = value
+
 
 	# SPECIAL METHODS
 

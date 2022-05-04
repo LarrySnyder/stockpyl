@@ -120,6 +120,8 @@ class SupplyChainNode(object):
 			The network that contains the node.
 		kwargs : optional
 			Optional keyword arguments to specify node attributes.
+		# TODO: allow user to specify policy type and parameters insted of policy object
+		# TODO: similar for demand
 
 		Raises
 		------
