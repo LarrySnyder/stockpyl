@@ -156,4 +156,7 @@ dmypy.json
 
 # Support for Project snippet scope
 
+# MacOS stuff
+.DS_Store
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode

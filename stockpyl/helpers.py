@@ -586,7 +586,18 @@ def convolve_many(arrays):
 	convolution = np.fft.ifft(fft_of_convolution)
 
 	# Assuming real inputs, the imaginary part of the output can be ignored.
-	return convolution.real
+	convolution = convolution.real
+
+	# Ensure values in convolution are >= 0. Sometimes ifft will produce slightly
+	# negative values due to rounding error.
+	ROUNDING_TOL = 1.0e-10
+	for i in range(len(convolution)):
+		if convolution[i] < -ROUNDING_TOL:
+			raise ValueError("np.fft.ifft returned negative results in convolve_many()")
+		elif -ROUNDING_TOL <= convolution[i] < 0:
+			convolution[i] = 0
+
+	return convolution
 
 
 def irwin_hall_cdf(x, n):
