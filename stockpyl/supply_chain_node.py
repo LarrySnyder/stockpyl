@@ -24,6 +24,7 @@ from math import isclose
 #from stockpyl.datatypes import *
 from stockpyl.policy import *
 from stockpyl.demand_source import *
+from stockpyl.disruption_process import *
 from stockpyl.helpers import *
 
 # ===============================================================================
@@ -94,11 +95,13 @@ class SupplyChainNode(object):
 		Inventory policy to be used to make inventory decisions.
 	supply_type : str
 		Supply type (unlimited, etc.).
+	disruption_process : DisruptionProcess
+		Disruption process object (if any).
 	state_vars : list of NodeStateVars
 		List of NodeStateVars, one for each period in a simulation.
 	state_vars_current : NodeStateVars
 		Shortcut to most recent set of state variables. (Period is determined
-		from ``self.network.period``.
+		from ``self.network.period``).
 
 	# --- Problem-Specific Data --- #
 	problem_specific_data : object
@@ -160,6 +163,7 @@ class SupplyChainNode(object):
 		self.inventory_policy = Policy()
 		self.inventory_policy.node = self # TODO: do this in constructor?
 		self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
+		self.disruption_process = None
 
 		# --- Data/Inputs for GSM Problems --- #
 		self.processing_time = None
@@ -227,7 +231,7 @@ class SupplyChainNode(object):
 	def neighbor_indices(self):
 		return [n.index for n in self.neighbors]
 
-	# Properties related to input parameters and state variables.
+	# Properties related to input parameters.
 
 	@property
 	def holding_cost(self):
@@ -290,11 +294,20 @@ class SupplyChainNode(object):
 				DDV += d.demand_source.standard_deviation ** 2
 		return np.sqrt(DDV)
 
+	# Properties related to state variables.
 
 	@property
 	def state_vars_current(self):
 		# An alias for the most recent set of state variables. Read only.
 		return self.state_vars[self.network.period]
+
+	@property
+	def disrupted(self):
+		# Is the node currently disrupted? Works even if the node has no DisruptionProcess object.
+		if self.disruption_process is None:
+			return False
+		else:
+			return self.disruption_process.disrupted
 
 	# Special methods.
 
@@ -566,6 +579,7 @@ class SupplyChainNode(object):
 			isclose(self.initial_shipments or 0, other.initial_shipments or 0, rel_tol=rel_tol) and \
 			self.inventory_policy == other.inventory_policy and \
 			self.supply_type == other.supply_type and \
+			self.disruption_process == other.disruption_process and \
 			self.processing_time == other.processing_time and \
 			self.external_inbound_cst == other.external_inbound_cst and \
 			isclose(self.demand_bound_constant or 0, other.demand_bound_constant or 0, rel_tol=rel_tol) and \
@@ -633,6 +647,8 @@ class NodeStateVars(object):
 		``raw_material_inventory[p]`` = number of units of predecessor ``p`'s
 		product in raw-material inventory at node. If ``p`` is ``None``, refers
 		to external supply.
+	disrupted : bool
+		``True`` if the node was disrupted in the period, ``False`` otherwise.
 	holding_cost_incurred : float
 		Holding cost incurred at the node in the period.
 	stockout_cost_incurred : float
@@ -718,6 +734,7 @@ class NodeStateVars(object):
 
 		# Remaining state variables.
 		self.inventory_level = 0
+		self.disrupted = False
 
 		# Costs: each refers to a component of the cost (or the total cost)
 		# incurred at the node in the period.

@@ -43,13 +43,13 @@ class TestDisruptionProcessEq(unittest.TestCase):
 		"""
 		print_status('TestDisruptionProcessEq', 'test_true()')
 
-		dp1 = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.2)
-		dp2 = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp1 = DisruptionProcess(random_process_type='M', disruption_type='OP', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess(random_process_type='M', disruption_type='OP', disruption_probability=0.1, recovery_probability=0.2)
 		eq = dp1 == dp2
 		self.assertTrue(eq)
 
-		dp1 = DisruptionProcess(type='E', disruption_state_list=[True, False, False, True, False])
-		dp2 = DisruptionProcess(type='E', disruption_state_list=[True, False, False, True, False])
+		dp1 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, False, False, True, False])
+		dp2 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, False, False, True, False])
 		eq = dp1 == dp2
 		self.assertTrue(eq)
 
@@ -58,28 +58,38 @@ class TestDisruptionProcessEq(unittest.TestCase):
 		"""
 		print_status('TestDisruptionProcessEq', 'test_false()')
 
-		dp1 = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.2)
-		dp2 = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.3)
+		dp1 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.3)
 		eq = dp1 == dp2
 		self.assertFalse(eq)
 
-		dp1 = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.2)
-		dp2 = DisruptionProcess(type='M', disruption_probability=0.05, recovery_probability=0.2)
+		dp1 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess(random_process_type='M', disruption_probability=0.05, recovery_probability=0.2)
 		eq = dp1 == dp2
 		self.assertFalse(eq)
 
-		dp1 = DisruptionProcess(type='E', disruption_state_list=[True, True, False, True, False])
-		dp2 = DisruptionProcess(type='E', disruption_state_list=[True, False, False, True, False])
+		dp1 = DisruptionProcess(random_process_type='M', disruption_type='RP', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess(random_process_type='M', disruption_type='OP', disruption_probability=0.1, recovery_probability=0.2)
 		eq = dp1 == dp2
 		self.assertFalse(eq)
 
-		dp1 = DisruptionProcess(type='E', disruption_state_list=[True, True, False, True, False])
-		dp2 = DisruptionProcess(type='E', disruption_state_list=[True, True, False, True, False, False])
+		dp1 = DisruptionProcess(random_process_type='M', disruption_type='RP', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
 		eq = dp1 == dp2
 		self.assertFalse(eq)
 
-		dp1 = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.2)
-		dp2 = DisruptionProcess(type='E', disruption_state_list=[True, True, False, True, False, False])
+		dp1 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, True, False, True, False])
+		dp2 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, False, False, True, False])
+		eq = dp1 == dp2
+		self.assertFalse(eq)
+
+		dp1 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, True, False, True, False])
+		dp2 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, True, False, True, False, False])
+		eq = dp1 == dp2
+		self.assertFalse(eq)
+
+		dp1 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, True, False, True, False, False])
 		eq = dp1 == dp2
 		self.assertFalse(eq)
 
@@ -102,41 +112,41 @@ class TestValidateParameters(unittest.TestCase):
 		print_status('TestValidateParameters', 'test_markovian()')
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
 		dp.disruption_probability = -3
 		dp.recovery_probability = 0.5
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
 		dp.disruption_probability = 1.5
 		dp.recovery_probability = 0.5
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
 		dp.disruption_probability = 0.5
 		dp.recovery_probability = -3
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
 		dp.disruption_probability = 0.5
 		dp.recovery_probability = 1.5
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
 		dp.disruption_probability = 0.5
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
 		dp.recovery_probability = 0.5
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
@@ -148,7 +158,7 @@ class TestValidateParameters(unittest.TestCase):
 		print_status('TestValidateParameters', 'test_explicit()')
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
 		dp.disruption_state_list = None
 		with self.assertRaises(AttributeError):
 			dp.validate_parameters()
@@ -167,56 +177,60 @@ class TestDisruptionProcessRepr(unittest.TestCase):
 
 	def test_none(self):
 		"""Test that DisruptionProcess.__repr__() correctly returns disruption process string
-		when type is None.
+		when random_process_type is None.
 		"""
 		print_status('TestDisruptionProcessRepr', 'test_none()')
 
 		dp = DisruptionProcess()
-		dp.type = None
+		dp.random_process_type = None
 
 		dp_str = dp.__repr__()
 		self.assertEqual(dp_str, "DisruptionProcess(None)")
 
 	def test_markovian(self):
 		"""Test that DisruptionProcess.__repr__() correctly returns disruption process string
-		when type is 'M'.
+		when random_process_type is 'M'.
 		"""
 		print_status('TestDisruptionProcessRepr', 'test_markovian()')
 
 		dp = DisruptionProcess()
-		dp.type = 'M'
+		dp.random_process_type = 'M'
+		dp.disruption_type = 'OP'
 		dp.disruption_probability = 0.1
 		dp.recovery_probability = 0.2
 
 		dp_str = dp.__repr__()
-		self.assertEqual(dp_str, "DisruptionProcess(M: disruption_probability=0.100000, recovery_probability=0.200000)")
+		self.assertEqual(dp_str, "DisruptionProcess(OP, M: disruption_probability=0.100000, recovery_probability=0.200000)")
 
 	def test_explicit(self):
 		"""Test that DisruptionProcess.__repr__() correctly returns disruption process string
-		when type is 'E'.
+		when random_process_type is 'E'.
 		"""
 		print_status('TestDisruptionProcessRepr', 'test_explicit()')
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
+		dp.disruption_type = 'SP'
 		dp.disruption_state_list = False
 
 		dp_str = dp.__repr__()
-		self.assertEqual(dp_str, "DisruptionProcess(E: disruption_state_list=False)")
+		self.assertEqual(dp_str, "DisruptionProcess(SP, E: disruption_state_list=False)")
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
+		dp.disruption_type = 'SP'
 		dp.disruption_state_list = [False, True, True, False]
 
 		dp_str = dp.__repr__()
-		self.assertEqual(dp_str, "DisruptionProcess(E: disruption_state_list=[False, True, True, False])")
+		self.assertEqual(dp_str, "DisruptionProcess(SP, E: disruption_state_list=[False, True, True, False])")
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
+		dp.disruption_type = 'SP'
 		dp.disruption_state_list = 5 * [False, True, True, False]
 
 		dp_str = dp.__repr__()
-		self.assertEqual(dp_str, "DisruptionProcess(E: disruption_state_list=[False, True, True, False, False, True, True, False]...)")
+		self.assertEqual(dp_str, "DisruptionProcess(SP, E: disruption_state_list=[False, True, True, False, False, True, True, False]...)")
 
 
 class TestUpdateDisruptionState(unittest.TestCase):
@@ -244,7 +258,7 @@ class TestUpdateDisruptionState(unittest.TestCase):
 		recovery_probability = 0.2
 		z = 1.96
 
-		dp = DisruptionProcess(type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
+		dp = DisruptionProcess(random_process_type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
 		num_disrupted = 0
 		for _ in range(NUM_TRIALS):
 			dp.disrupted = False
@@ -256,7 +270,7 @@ class TestUpdateDisruptionState(unittest.TestCase):
 		ci_hi = p_hat + z * math.sqrt(p_hat * (1 - p_hat) / NUM_TRIALS)
 		self.assertTrue(ci_lo <= dp.disruption_probability <= ci_hi)
 
-		dp = DisruptionProcess(type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
+		dp = DisruptionProcess(random_process_type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
 		num_disrupted = 0
 		for _ in range(NUM_TRIALS):
 			dp.disrupted = True
@@ -272,7 +286,7 @@ class TestUpdateDisruptionState(unittest.TestCase):
 		recovery_probability = 0.4
 		z = 1.96
 
-		dp = DisruptionProcess(type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
+		dp = DisruptionProcess(random_process_type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
 		num_disrupted = 0
 		for _ in range(NUM_TRIALS):
 			dp.disrupted = False
@@ -284,7 +298,7 @@ class TestUpdateDisruptionState(unittest.TestCase):
 		ci_hi = p_hat + z * math.sqrt(p_hat * (1 - p_hat) / NUM_TRIALS)
 		self.assertTrue(ci_lo <= dp.disruption_probability <= ci_hi)
 
-		dp = DisruptionProcess(type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
+		dp = DisruptionProcess(random_process_type='M', disruption_probability=disruption_probability, recovery_probability=recovery_probability)
 		num_disrupted = 0
 		for _ in range(NUM_TRIALS):
 			dp.disrupted = True
@@ -302,19 +316,19 @@ class TestUpdateDisruptionState(unittest.TestCase):
 		print_status('TestUpdateDisruptionState', 'test_explicit()')
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
 		dp.disruption_state_list = False
 		dp.update_disruption_state()
 		self.assertFalse(dp.disrupted)
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
 		dp.disruption_state_list = [False, True, True, False]
 		dp.update_disruption_state(period=5)
 		self.assertTrue(dp.disrupted)
 
 		dp = DisruptionProcess()
-		dp.type = 'E'
+		dp.random_process_type = 'E'
 		dp.disruption_state_list = [False, True, True, False]
 		dp.update_disruption_state(period=3)
 		self.assertFalse(dp.disrupted)
@@ -336,12 +350,12 @@ class TestSteadyStateProbabilities(unittest.TestCase):
 		"""
 		print_status('TestSteadyStateProbabilities', 'test_markovian()')
 
-		dp = DisruptionProcess(type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
 		pi_u, pi_d = dp.steady_state_probabilities()
 		self.assertAlmostEqual(pi_u, 0.2 / 0.3)
 		self.assertAlmostEqual(pi_d, 0.1 / 0.3)
 
-		dp = DisruptionProcess(type='M', disruption_probability=0.005, recovery_probability=0.4)
+		dp = DisruptionProcess(random_process_type='M', disruption_probability=0.005, recovery_probability=0.4)
 		pi_u, pi_d = dp.steady_state_probabilities()
 		self.assertAlmostEqual(pi_u, 0.4 / 0.405)
 		self.assertAlmostEqual(pi_d, 0.005 / 0.405)
@@ -351,12 +365,12 @@ class TestSteadyStateProbabilities(unittest.TestCase):
 		"""
 		print_status('TestSteadyStateProbabilities', 'test_explicit()')
 
-		dp = DisruptionProcess(type='E', disruption_state_list=[False, True, True, False, False, True, False])
+		dp = DisruptionProcess(random_process_type='E', disruption_state_list=[False, True, True, False, False, True, False])
 		pi_u, pi_d = dp.steady_state_probabilities()
 		self.assertAlmostEqual(pi_u, 4/7)
 		self.assertAlmostEqual(pi_d, 3/7)
 
-		dp = DisruptionProcess(type='E', disruption_state_list=[False, True, True, False, False, True, False, False, False, False, True, True, True, False])
+		dp = DisruptionProcess(random_process_type='E', disruption_state_list=[False, True, True, False, False, True, False, False, False, False, True, True, True, False])
 		pi_u, pi_d = dp.steady_state_probabilities()
 		self.assertAlmostEqual(pi_u, 8/14)
 		self.assertAlmostEqual(pi_d, 6/14)

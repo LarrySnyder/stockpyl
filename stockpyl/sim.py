@@ -89,6 +89,10 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		# Update progress bar.
 		pbar.update()
 
+		# UPDATE DISRUPTION STATES
+
+		update_disruption_states(network, t)
+
 		# GENERATE DEMANDS AND ORDERS
 
 		# Initialize visited dict.
@@ -129,9 +133,33 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 # HELPER FUNCTIONS
 
+def update_disruption_states(network, period):
+	"""Update disruption states for all nodes in network.
+	Record disruption states in ``state_vars``.
+
+	Parameters
+	----------
+	network : SupplyChainNetwork
+		The multi-echelon inventory network.
+	period : int
+		Time period.
+	"""
+
+	for n in network.nodes:
+		# Is there a disruption process object at this node?
+		if n.disruption_process is not None:
+			n.disruption_process.update_disruption_state(period)
+
+		# Record disruption state in state_vars.
+		n.state_vars_current.disrupted = n.disrupted
+
+
 def generate_downstream_orders(node_index, network, period, visited):
 	"""Generate demand_list and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
+
+	If node is currently disrupted and disruption type = 'OP' (order-pausing), order quantity
+	is forced to 0.
 
 	Parameters
 	----------
@@ -178,20 +206,28 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Place orders to all predecessors.
 	for p in node.predecessors(include_external=True):
 		if p is not None:
-			# Calculate order quantity.
-			order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=p.index)
+			# Is there an order-pausing disruption?
+			if node.disrupted and node.disruption_process.disruption_type == 'OP':
+				order_quantity = 0
+			else:
+				# Calculate order quantity.
+				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=p.index)
 			# Place order in predecessor's order pipeline.
 			# TODO: handle this in a separate function (at the predecessor node)
 			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
 				order_quantity
 			p_index = p.index
 		else:
-			# Calculate order quantity.
-			order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
+			# Is there an order-pausing disruption?
+			if node.disrupted and node.disruption_process.disruption_type == 'OP':
+				order_quantity = 0
+			else:
+				# Calculate order quantity.
+				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
 			# Place order to external supplier.
 			# (For now, this just means adding to inbound shipment pipeline.)
 			# TODO: Handle other types of supply functions
-			node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time + shipment_lead_time] = \
+			node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time + shipment_lead_time] += \
 				order_quantity
 			p_index = None
 
@@ -204,6 +240,11 @@ def generate_downstream_orders(node_index, network, period, visited):
 def generate_downstream_shipments(node_index, network, period, visited):
 	"""Generate shipments to all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
+
+	If downstream node is currently disrupted and its disruption type = 'SP' (shipment-pausing),
+	no items are shipped to that node; they remain in finished-goods inventory. (They may later be
+	used for other downstream nodes; they are not earmarked for the disrupted node.)
+	# TODO: allow user to specify a mode in which items are earmarked for individual nodes
 
 	Parameters
 	----------
@@ -322,6 +363,10 @@ def initialize_next_period_state_vars(network, period):
 		and adding a 0 in the last element.
 		* Set IL, BO, RM, and OO next period = ending values this period.
 		* Set _cumul attributes = ending values this period.
+		* Do nothing for ``disrupted``; this is set in update_disruption_states().
+
+	If node is currently disrupted and its disruption type = 'TP' (transit-pausing),
+	items in its shipment pipelines are not advanced. 
 
 	Parameters
 	----------
@@ -334,8 +379,15 @@ def initialize_next_period_state_vars(network, period):
 	for n in network.nodes:
 		# Update pipelines.
 		for p in n.predecessor_indices(include_external=True):
-			n.state_vars[period+1].inbound_shipment_pipeline[p] = \
-				n.state_vars[period].inbound_shipment_pipeline[p][1:] + [0]
+			# Is there a transit-pausing disruption?
+			if n.disrupted and n.disruption_process.disruption_type == 'TP':
+				# Yes; items in shipment pipeline stay where they are.
+				n.state_vars[period+1].inbound_shipment_pipeline[p] = \
+					n.state_vars[period].inbound_shipment_pipeline[p]
+			else:
+				# No; items in shipment pipeline advance by 1 slot.
+				n.state_vars[period+1].inbound_shipment_pipeline[p] = \
+					n.state_vars[period].inbound_shipment_pipeline[p][1:] + [0]
 		for s in n.successor_indices(include_external=True):
 			n.state_vars[period+1].inbound_order_pipeline[s] = \
 				n.state_vars[period].inbound_order_pipeline[s][1:] + [0]
@@ -418,6 +470,9 @@ def receive_inbound_shipments(node):
 		* Process as many units as possible.
 		* Update IL and OO.
 
+	If node is currently disrupted and disruption type = 'RP' (receipt-pausing), quantity received
+	is forced to 0.
+
 	Parameters
 	----------
 	node : SupplyChainNode
@@ -425,12 +480,16 @@ def receive_inbound_shipments(node):
 	"""
 	# Loop through predecessors.
 	for p_index in node.predecessor_indices(include_external=True):
-		# Determine inbound shipment amount from p.
-		inbound_shipment = node.state_vars_current.inbound_shipment_pipeline[p_index][0]
+		# Is there a receipt-pausing disruption?
+		if node.disrupted and node.disruption_process.disruption_type == 'RP':
+			inbound_shipment = 0
+		else:
+			# Determine inbound shipment amount from p.
+			inbound_shipment = node.state_vars_current.inbound_shipment_pipeline[p_index][0]
 		# Set inbound_shipment attribute.
 		node.state_vars_current.inbound_shipment[p_index] = inbound_shipment
 		# Remove shipment from pipeline.
-		node.state_vars_current.inbound_shipment_pipeline[p_index][0] = 0
+		node.state_vars_current.inbound_shipment_pipeline[p_index][0] -= inbound_shipment
 		# Add shipment to raw material inventory.
 		node.state_vars_current.raw_material_inventory[p_index] += inbound_shipment
 		# Update on-order inventory.
@@ -475,6 +534,11 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 		* Update inventory level.
 		* Calculate demand met from stock.
 
+	If downstream node is currently disrupted and its disruption type = 'SP' (shipment-pausing),
+	no items are shipped to that node; they remain in finished-goods inventory. (They may later be
+	used for other downstream nodes; they are not earmarked for the disrupted node.)
+	# TODO: allow user to specify a mode in which items are earmarked for individual nodes
+
 	Parameters
 	----------
 	node : SupplyChainNode
@@ -498,10 +562,18 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 	# index.) Also update EIL and BO, and calculate demand met from stock.
 	# TODO: allow different allocation policies
 	node.state_vars_current.demand_met_from_stock = 0.0
-	for s_index in node.successor_indices(include_external=True):
-		# Outbound shipment to s = min{OH, BO for s + new order from s}.
-		OS = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
-				node.state_vars_current.inbound_order[s_index])
+	for s in node.successors(include_external=True):
+#	for s_index in node.successor_indices(include_external=True):
+		# Get successor index (for convenience).
+		s_index = None if s is None else s.index
+
+		# Is there a shipment-pausing disruption at s?
+		if s is not None and s.disrupted and s.disruption_process.disruption_type == 'SP':
+			OS = 0
+		else:
+			# Outbound shipment to s = min{OH, BO for s + new order from s}.
+			OS = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
+					node.state_vars_current.inbound_order[s_index])
 		node.state_vars_current.outbound_shipment[s_index] = OS
 		current_on_hand -= OS
 

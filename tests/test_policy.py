@@ -219,7 +219,7 @@ class TestValidateParameters(unittest.TestCase):
 		policy = Policy()
 		policy.type = 'BS'
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 	def test_s_S(self):
@@ -232,14 +232,14 @@ class TestValidateParameters(unittest.TestCase):
 		policy.type = 'sS'
 		policy.reorder_point = 10
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 		policy = Policy()
 		policy.type = 'sS'
 		policy.order_quantity = 10
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 		policy = Policy()
@@ -247,7 +247,7 @@ class TestValidateParameters(unittest.TestCase):
 		policy.reorder_point = 20
 		policy.order_quantity = 10
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 	def test_r_Q(self):
@@ -260,14 +260,14 @@ class TestValidateParameters(unittest.TestCase):
 		policy.type = 'rQ'
 		policy.reorder_point = 10
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 		policy = Policy()
 		policy.type = 'rQ'
 		policy.order_quantity = 10
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 	def test_echelon_base_stock(self):
@@ -279,7 +279,7 @@ class TestValidateParameters(unittest.TestCase):
 		policy = Policy()
 		policy.type = 'EBS'
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 
 	def test_balanced_echelon_base_stock(self):
@@ -291,6 +291,6 @@ class TestValidateParameters(unittest.TestCase):
 		policy = Policy()
 		policy.type = 'BEBS'
 
-		with self.assertRaises(AssertionError):
+		with self.assertRaises(AttributeError):
 			policy.validate_parameters()
 

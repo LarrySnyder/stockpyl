@@ -81,7 +81,8 @@ def write_results(network, num_periods, num_periods_to_print=None,
 	for t in periods_to_print:
 		temp = [t]
 		for node in network.nodes:
-			temp += ["|"] + sort_dict_by_keys(node.state_vars[t].inbound_order) \
+			temp += ["|"] + [node.state_vars[t].disrupted] \
+					+ sort_dict_by_keys(node.state_vars[t].inbound_order) \
 					+ sort_dict_by_keys(node.state_vars[t].inbound_order_pipeline) \
 					+ sort_dict_by_keys(node.state_vars[t].order_quantity) \
 					+ sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) \
@@ -104,7 +105,7 @@ def write_results(network, num_periods, num_periods_to_print=None,
 	# Header row
 	headers = ["t"]
 	for node in network.nodes:
-		headers = headers + ["|i={:d}".format(node.index)]
+		headers = headers + ["|i={:d}".format(node.index)] + ["DISR"]
 		headers += dict_to_header_list(node.state_vars[0].inbound_order, "IO")
 		headers += dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
 		headers += dict_to_header_list(node.state_vars[0].order_quantity, "OQ")

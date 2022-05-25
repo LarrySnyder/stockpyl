@@ -21,7 +21,6 @@ Notation and equation and section numbers refer to Snyder and Shen,
 # ===============================================================================
 
 import numpy as np
-import scipy.stats 
 
 from stockpyl.helpers import *
 
@@ -34,22 +33,29 @@ class DisruptionProcess(object):
 	"""
 	Attributes
 	----------
-	_type : str
-		The disruption process type, as a string. Currently supported strings are:
+	_random_process_type : str
+		The type of random process governing the disruptions, as a string. Currently supported strings are:
 			* None
 			* 'M' (2-state Markovian)
 			* 'E' (explicit: disruption state for each period is provided explicitly)
+	_disruption_type : str
+		The type of disruption, as a string. Currently supported strings are:
+			* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them)--the default
+			* 'OP' (order-pausing: the stage cannot place orders during disruptions)
+			* 'TP' (transit-pausing: items in transit to the stage are paused during disruptions)
+			* 'RP' (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
+				just before the stage and are received when the disruption ends)
 	_disruption_probability : float
 		The probability that the node is disrupted in period :math:`t+1` given that 
-		it is not disrupted in period `t`. [:math:`\\alpha`]
+		it is not disrupted in period `t`. Required if ``random_process_type`` = 'M'. [:math:`\\alpha`]
 	_recovery_probability : float
 		The probability that the node is not disrupted in period :math:`t+1` given that 
-		it is disrupted in period `t`. [:math:`\\beta`]
+		it is disrupted in period `t`. Required if ``random_process_type`` = 'M'. [:math:`\\beta`]
 	_disruption_state_list : list, optional
-		List of disruption states (``True``/``False``, one per period), if ``_type`` = ``'E'``. If 
+		List of disruption states (``True``/``False``, one per period), if ``random_process_type`` = ``'E'``. If 
 		disruption state is required in a period beyond the length of the list,
 		the list is restarted at the beginning. 
-		Required if ``type`` = 'E'.
+		Required if ``random_process_type`` = 'E'.
 	_disrupted : bool
 		``True`` if the node is currently disrupted, ``False`` otherwise.
 	"""
@@ -68,7 +74,8 @@ class DisruptionProcess(object):
 			If an optional keyword argument does not match a ``DisruptionProcess`` attribute.
 		"""
 		# Initialize parameters to None. (Relevant parameters will be filled later.)
-		self._type = None
+		self._random_process_type = None
+		self._disruption_type = 'SP'
 		self._disruption_probability = None
 		self._recovery_probability = None
 		self._disruption_state_list = None
@@ -105,7 +112,8 @@ class DisruptionProcess(object):
 			``True`` if the ``DisruptionProcess`` objects are equal, ``False`` otherwise.
 		"""
 
-		return self._type == other._type and \
+		return self._random_process_type == other._random_process_type and \
+			self._disruption_type == other._disruption_type and \
 			self._disruption_probability == other._disruption_probability and \
 			self._recovery_probability == other._recovery_probability and \
 			self._disruption_state_list == other._disruption_state_list
@@ -130,12 +138,20 @@ class DisruptionProcess(object):
 	# PROPERTY GETTERS AND SETTERS
 
 	@property
-	def type(self):
-		return self._type
+	def random_process_type(self):
+		return self._random_process_type
 
-	@type.setter
-	def type(self, value):
-		self._type = value
+	@random_process_type.setter
+	def random_process_type(self, value):
+		self._random_process_type = value
+
+	@property
+	def disruption_type(self):
+		return self._disruption_type
+
+	@disruption_type.setter
+	def disruption_type(self, value):
+		self._disruption_type = value
 
 	@property
 	def disruption_probability(self):
@@ -183,12 +199,12 @@ class DisruptionProcess(object):
 
 		"""
 		# Build string of parameters.
-		if self.type is None:
+		if self.random_process_type is None:
 			return "DisruptionProcess(None)"
-		elif self.type == 'M':
+		elif self.random_process_type == 'M':
 			param_str = "disruption_probability={:.6f}, recovery_probability={:.6f}".format(
 				self.disruption_probability, self.recovery_probability)
-		elif self.type == 'E':
+		elif self.random_process_type == 'E':
 			if not is_list(self.disruption_state_list) or len(self.disruption_state_list) <= 8:
 				param_str = "disruption_state_list={}".format(self.disruption_state_list)
 			else:
@@ -196,7 +212,7 @@ class DisruptionProcess(object):
 		else:
 			param_str = ""
 
-		return "DisruptionProcess({:s}: {:s})".format(self.type, param_str)
+		return "DisruptionProcess({:s}, {:s}: {:s})".format(self.disruption_type, self.random_process_type, param_str)
 
 	def __str__(self):
 		"""
@@ -212,24 +228,24 @@ class DisruptionProcess(object):
 	# DISRUPTION STATE MANAGEMENT
 
 	def update_disruption_state(self, period=None):
-		"""Update the disruption state using the disruption type specified in ``type`` and
+		"""Update the disruption state using the type specified in ``random_process_type`` and
 		set the ``disrupted`` attribute accordingly. 
 
-		If ``type`` is ``None``, sets ``disrupted`` to ``False``.
+		If ``random_process_type`` is ``None``, sets ``disrupted`` to ``False``.
 
 		Parameters
 		----------
 		period : int, optional
-			The period to update the disruption state for. If ``type`` = 'E' (explicit), this is required
+			The period to update the disruption state for. If ``random_process_type`` = 'E' (explicit), this is required
 			if ``disruption_state_list`` is a list of disruption states, one per period. If omitted,
 			will return first (or only) disruption state in list.
 		"""
 
-		if self.type is None:
+		if self.random_process_type is None:
 			disrupted = False
-		if self.type == 'M':
+		if self.random_process_type == 'M':
 			disrupted = self.generate_disruption_state_markovian()
-		elif self.type == 'E':
+		elif self.random_process_type == 'E':
 			disrupted = self.generate_disruption_state_explicit(period)
 		else:
 			disrupted = False
@@ -275,16 +291,17 @@ class DisruptionProcess(object):
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
-		disruption type. Raise an exception if not.
+		random process type. Raise an exception if not.
 		"""
-		if self.type not in (None, 'M', 'E'): raise AttributeError("Valid type in (None, 'M', 'E') must be provided")
+		if self.random_process_type not in (None, 'M', 'E'): raise AttributeError("Valid random_process_type in (None, 'M', 'E') must be provided")
+		if self.disruption_type not in (None, 'SP', 'OP', 'TP', 'RP'): raise AttributeError("Valid disruption_type in (None, 'SP', 'OP', 'TP', 'RP') must be provided")
 
-		if self.type == 'M':
+		if self.random_process_type == 'M':
 			if self.disruption_probability is None: raise AttributeError("For 'M' (Markovian) disruptions, disruption_probability must be provided")
 			if self.disruption_probability < 0 or self.disruption_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, disruption_probability must be in [0,1]")
 			if self.recovery_probability is None: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be provided")
 			if self.recovery_probability < 0 or self.recovery_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be in [0,1]")
-		elif self.type == 'E':
+		elif self.random_process_type == 'E':
 			if self.disruption_state_list is None: raise AttributeError("For 'E' (explicit) disruptions, disruption_probability_list must be provided")
 
 	def steady_state_probabilities(self):
@@ -298,10 +315,10 @@ class DisruptionProcess(object):
 			The steady-state probability of disruption.
 		"""
 
-		if self.type == 'M':
+		if self.random_process_type == 'M':
 			pi_up = self.recovery_probability / (self.disruption_probability + self.recovery_probability)
 			pi_down = self.disruption_probability / (self.disruption_probability + self.recovery_probability)
-		elif self.type == 'E':
+		elif self.random_process_type == 'E':
 			pi_down = sum(self.disruption_state_list) / len(self.disruption_state_list)
 			pi_up = 1 - pi_down
 		else:
