@@ -75,7 +75,7 @@ class TestDemandSourceEq(unittest.TestCase):
 	def test_false(self):
 		"""Test that DemandSource.__eq__() correctly returns False when objects are not equal.
 		"""
-		print_status('TestDemandSourceEq', 'test_true()')
+		print_status('TestDemandSourceEq', 'test_false()')
 
 		ds1 = DemandSource(type='N', mean=10, standard_deviation=2)
 		ds2 = DemandSource(type='N', mean=10, standard_deviation=1)
@@ -127,13 +127,13 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source = DemandSource()
 		demand_source.type = 'N'
 		demand_source.mean = -100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'N'
 		demand_source.standard_deviation = -100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 	def test_poisson(self):
@@ -145,7 +145,7 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source = DemandSource()
 		demand_source.type = 'P'
 		demand_source.mean = -100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 	def test_uniform_discrete(self):
@@ -158,35 +158,35 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source.type = 'UD'
 		demand_source.lo = -100
 		demand_source.hi = 100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'UD'
 		demand_source.lo = 10
 		demand_source.hi = -100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'UD'
 		demand_source.lo = 3.8
 		demand_source.hi = 100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'UD'
 		demand_source.hi = 72.3
 		demand_source.lo = 50
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'UD'
 		demand_source.lo = 50
 		demand_source.hi = 20
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 	def test_uniform_continuous(self):
@@ -199,21 +199,21 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source.type = 'UC'
 		demand_source.lo = -100
 		demand_source.hi = 100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'UC'
 		demand_source.lo = 10
 		demand_source.hi = -100
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'UC'
 		demand_source.lo = 50
 		demand_source.hi = 20
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 	def test_deterministic(self):
@@ -225,7 +225,7 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source = DemandSource()
 		demand_source.type = 'D'
 		demand_source.demand_list = None
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 	def test_custom_discrete(self):
@@ -238,28 +238,28 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source.type = 'CD'
 		demand_source.demand_list = None
 		demand_source.probabilities = 4 * [0.25]
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'CD'
 		demand_source.demand_list = [1, 2, 3, 4]
 		demand_source.probabilities = None
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'CD'
 		demand_source.demand_list = [1, 2, 3, 4, 5]
 		demand_source.probabilities = 4 * [0.25]
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 		demand_source = DemandSource()
 		demand_source.type = 'CD'
 		demand_source.demand_list = [1, 2, 3, 4]
 		demand_source.probabilities = 4 * [0.2]
-		with self.assertRaises(ValueError):
+		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
 

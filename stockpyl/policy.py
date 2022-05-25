@@ -441,21 +441,21 @@ class Policy(object):
 		"""Check that appropriate parameters have been provided for the given
 		policy type. Raise an exception if not.
 		"""
-		assert self.type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS'), "Valid type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS') must be provided"
+		if self.type not in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS'): raise AttributeError("Valid type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS') must be provided")
 
 		if self.type == 'BS':
-			assert self.base_stock_level is not None, "For 'BS' (base-stock) policy, base_stock_level must be provided"
+			if self.base_stock_level is None: raise AttributeError("For 'BS' (base-stock) policy, base_stock_level must be provided")
 		elif self.type == 'sS':
-			assert self.reorder_point is not None, "For 'sS' (s,S) policy, reorder_point must be provided"
-			assert self.order_up_to_level is not None, "For 'sS' (s,S) policy, order_up_to_level must be provided"
-			assert self.reorder_point <= self.order_up_to_level, "For 'sS' (s,S) policy, reorder_point must be <= order_up_to_level"
+			if self.reorder_point is None: raise AttributeError("For 'sS' (s,S) policy, reorder_point must be provided")
+			if self.order_up_to_level is None: raise AttributeError("For 'sS' (s,S) policy, order_up_to_level must be provided")
+			if self.reorder_point <= self.order_up_to_level: raise AttributeError("For 'sS' (s,S) policy, reorder_point must be <= order_up_to_level")
 		elif self.type == 'rQ':
-			assert self.reorder_point is not None, "For 'rQ' (r,Q) policy, reorder_point must be provided"
-			assert self.order_quantity is not None, "For 'rQ' (r,Q) policy, order_quantity must be provided"
+			if self.reorder_point is None: raise AttributeError("For 'rQ' (r,Q) policy, reorder_point must be provided")
+			if self.order_quantity is None: raise AttributeError("For 'rQ' (r,Q) policy, order_quantity must be provided")
 		if self.type == 'EBS':
-			assert self.base_stock_level is not None, "For 'EBS' (echelon base-stock) policy, base_stock_level must be provided"
+			if self.base_stock_level is None: raise AttributeError("For 'EBS' (echelon base-stock) policy, base_stock_level must be provided")
 		if self.type == 'BEBS':
-			assert self.base_stock_level is not None, "For 'BEBS' (balanced echelon base-stock) policy, base_stock_level must be provided"
+			if self.base_stock_level is None: raise AttributeError("For 'BEBS' (balanced echelon base-stock) policy, base_stock_level must be provided")
 
 
 
