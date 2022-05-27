@@ -58,36 +58,6 @@ class SupplyChainNetwork(object):
 		# --- Intermediate Calculations for GSM Problems --- #
 		self.max_max_replenishment_time = None
 
-	def deep_equal_to(self, other, rel_tol=1e-8):
-		"""Check whether network "deeply equals" ``other``, i.e., if all attributes are
-		equal, including attributes that are themselves objects.
-		
-		Parameters
-		----------
-		other : SupplyChainNetwork
-			The network to compare this one to.
-		rel_tol : float, optional
-			Relative tolerance to use when comparing equality of float attributes.
-
-		Returns
-		-------
-		bool
-			``True`` if the two networks are equal, ``False`` otherwise.
-		"""
-
-		if sorted(self.node_indices) != sorted(other.node_indices):
-			return False
-
-		for n_ind in sorted(self.node_indices):
-			other_node = other.get_node_from_index(n_ind)
-			if other_node is None:
-				return False
-			if not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
-				return False
-
-		return self._period == other._period and \
-			self.max_max_replenishment_time == other.max_max_replenishment_time
-			
 	@property
 	def nodes(self):
 		return self._nodes
@@ -147,6 +117,78 @@ class SupplyChainNetwork(object):
 		"""
 		return "SupplyChainNetwork({:s})".format(str(vars(self)))
 
+	# Helper functions.
+
+	def deep_equal_to(self, other, rel_tol=1e-8):
+		"""Check whether network "deeply equals" ``other``, i.e., if all attributes are
+		equal, including attributes that are themselves objects.
+		
+		Parameters
+		----------
+		other : SupplyChainNetwork
+			The network to compare this one to.
+		rel_tol : float, optional
+			Relative tolerance to use when comparing equality of float attributes.
+
+		Returns
+		-------
+		bool
+			``True`` if the two networks are equal, ``False`` otherwise.
+		"""
+
+		if sorted(self.node_indices) != sorted(other.node_indices):
+			return False
+
+		for n_ind in sorted(self.node_indices):
+			other_node = other.get_node_from_index(n_ind)
+			if other_node is None:
+				return False
+			if not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
+				return False
+
+		return self._period == other._period and \
+			self.max_max_replenishment_time == other.max_max_replenishment_time
+
+	def deep_copy(self):
+		"""Return a deep copy of the network. Copies all attributes of the network as well
+		as the nodes in it, and the object in those nodes.
+
+		**Note:** If any attributes are missing in the network object, or in its nodes or their attributes,
+		those attributes will be present in the deep copy and they will have the same initial values as are
+		assigned in the objects' ``__init__()`` members. In other words, the deep copy will have no missing
+		attributes, even if the original network does. This is useful when loading networks from an instance
+		JSON file since, if the file was saved under an earlier version of the package and the attribute
+		was introduced subsequently, it would be missing from the network when it is loaded. 
+
+		TL;DR: When loading a network from an instance JSON file, always make a deep copy and use that instead.
+		
+		Returns
+		-------
+		network : SupplyChainNetwork
+			The new SupplyChainNetwork object.
+		"""
+		# Initialize network.
+		network = SupplyChainNetwork()
+
+		# Add nodes.
+		for n in self.nodes:
+			node = n.deep_copy()
+			network.add_node(node)
+
+		# Add edges.
+		network.add_edges_from_list(self.edges)
+		
+		# Copy values of all attributes except _nodes.
+		for attribute, value in vars(self).items():
+			if attribute not in ('_nodes'):	
+				setattr(node, attribute, value)
+
+		# Copy other attributes.
+		# network.period = self.period
+		# network.max_max_replenishment_time = self.max_max_replenishment_time
+
+		return network
+			
 	# Methods for node handling.
 
 	def get_node_from_index(self, index):

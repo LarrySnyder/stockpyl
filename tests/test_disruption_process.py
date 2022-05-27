@@ -8,6 +8,8 @@ import random
 # from scipy.stats import lognorm
 
 from stockpyl.disruption_process import *
+from stockpyl.policy import Policy
+from stockpyl.instances import load_instance
 
 
 # Module-level functions.
@@ -92,6 +94,114 @@ class TestDisruptionProcessEq(unittest.TestCase):
 		dp2 = DisruptionProcess(random_process_type='E', disruption_state_list=[True, True, False, True, False, False])
 		eq = dp1 == dp2
 		self.assertFalse(eq)
+
+
+class TestInitialize(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestInitialize', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestInitialize', 'tear_down_class()')
+
+	def test_initialize(self):
+		"""Test that initialize() correctly initializes.
+		"""
+		print_status('TestInitialize', 'test_copy()')
+
+		dp1 = DisruptionProcess()
+		dp2 = DisruptionProcess()
+		dp2.initialize()
+		self.assertEqual(dp1, dp2)
+
+		dp1 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess()
+		dp1.initialize()
+		self.assertEqual(dp1, dp2)
+
+		dp1 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.2)
+		dp2 = DisruptionProcess()
+		dp1.initialize(overwrite=False)
+		self.assertNotEqual(dp1, dp2)
+
+	def test_missing_values(self):
+		"""Test that initialize() correctly leaves attributes in place if object already contains
+		those attributes.
+		"""
+		print_status('TestInitialize', 'test_missing_values()')
+
+		# In this instance, disruption process at node 3 is missing the ``disruption_probability`` attribute.
+		# TODO: rename file to test_disruption_process_TestInitialize_data
+		network = load_instance("missing_disruption_probability", "tests/additional_files/test_disruption_process_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		dp1 = network.get_node_from_index(3).disruption_process
+		dp1.initialize(overwrite=False)
+		dp2 = DisruptionProcess(random_process_type='M', disruption_type='SP', disruption_probability=None, recovery_probability=0.4)
+		self.assertEqual(dp1, dp2)
+
+		network = load_instance("missing_disruption_probability", "tests/additional_files/test_disruption_process_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		dp1 = network.get_node_from_index(3).disruption_process
+		dp1.initialize(overwrite=True)
+		dp2 = DisruptionProcess()
+		self.assertEqual(dp1, dp2)
+
+		# In this instance, disruption process at node 1 is missing the ``random_process_type`` attribute.
+		network = load_instance("missing_type", "tests/additional_files/test_disruption_process_TestCopyFrom_data.json")
+		dp1 = network.get_node_from_index(1).disruption_process
+		dp1.initialize(overwrite=False)
+		dp2 = DisruptionProcess(random_process_type=None, disruption_type='SP', disruption_probability=0.1, recovery_probability=0.4)
+		self.assertEqual(dp1, dp2)
+
+
+class TestCopyFrom(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCopyFrom', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCopyFrom', 'tear_down_class()')
+
+	def test_copy(self):
+		"""Test that copy_from correctly copies from a few different objects.
+		"""
+		print_status('TestCopyFrom', 'test_copy()')
+
+		dp1 = DisruptionProcess(random_process_type='M', disruption_probability=0.1, recovery_probability=0.6)
+		dp2 = DisruptionProcess()
+		dp2.copy_from(dp1)
+		self.assertEqual(dp1, dp2)
+
+		dp1 = DisruptionProcess(random_process_type='E', disruption_type='OP', disruption_state_list=[False, True, True, False])
+		dp2 = DisruptionProcess()
+		dp2.copy_from(dp1)
+		self.assertEqual(dp1, dp2)
+
+	def test_missing_values(self):
+		"""Test that TestCopyFrom correctly leaves attributes in place if source does
+		not contain those attributes.
+		"""
+		print_status('TestCopyFrom', 'test()')
+
+		# In this instance, disruption process at node 1 is missing the ``disruption_probability`` attribute.
+		network = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestCopyFrom_data.json")
+		dp1 = network.get_node_from_index(1).disruption_process
+		dp2 = DisruptionProcess()
+		dp2.copy_from(dp1)
+		dp1.disruption_probability = None # add attribute back, at default value
+		self.assertEqual(dp1, dp2)
+
+		# In this instance, disruption process at node 3 is missing the ``random_process_type`` attribute.
+		network = load_instance("missing_type", "tests/additional_files/test_policy_TestCopyFrom_data.json")
+		dp1 = network.get_node_from_index(3).disruption_process
+		dp2 = DisruptionProcess()
+		dp2.copy_from(dp1)
+		dp1.random_process_type = None # add attribute back, at default value
+		self.assertEqual(dp1, dp2)
 
 
 class TestValidateParameters(unittest.TestCase):

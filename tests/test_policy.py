@@ -6,6 +6,7 @@ import unittest
 # from scipy.stats import lognorm
 
 from stockpyl.policy import *
+from stockpyl.instances import load_instance
 
 
 # Module-level functions.
@@ -197,6 +198,114 @@ class TestGetOrderQuantity(unittest.TestCase):
 		self.assertEqual(q2, 120)
 		q3 = policy.get_order_quantity(inventory_position=140)
 		self.assertEqual(q3, 0)
+
+
+class TestInitialize(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestInitialize', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestInitialize', 'tear_down_class()')
+
+	def test_initialize(self):
+		"""Test that initialize() correctly initializes.
+		"""
+		print_status('TestInitialize', 'test_copy()')
+
+		pol1 = Policy()
+		pol2 = Policy()
+		pol1.initialize()
+		self.assertEqual(pol1, pol2)
+
+		pol1 = Policy(type='BS', base_stock_level=25)
+		pol2 = Policy()
+		pol1.initialize()
+		self.assertEqual(pol1, pol2)
+
+		pol1 = Policy(type='sS', reorder_point=20, order_up_to_level=70)
+		pol2 = Policy()
+		pol1.initialize(overwrite=False)
+		self.assertNotEqual(pol1, pol2)
+
+	def test_missing_values(self):
+		"""Test that initialize() correctly leaves attributes in place if object already contains
+		those attributes.
+		"""
+		print_status('TestInitialize', 'test_missing_values()')
+
+		# In this instance, disruption process at node 3 is missing the ``base_stock_level`` attribute.
+		# TODO: rename file to test_policy_TestInitialize_data.json
+		network = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		pol1 = network.get_node_from_index(3).inventory_policy
+		pol1.initialize(overwrite=False)
+		pol2 = Policy(type='BS', base_stock_level=None)
+		self.assertEqual(pol1, pol2)
+
+		network = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		pol1 = network.get_node_from_index(3).inventory_policy
+		pol1.initialize(overwrite=True)
+		pol2 = Policy()
+		self.assertEqual(pol1, pol2)
+
+		# In this instance, disruption process at node 1 is missing the ``type`` attribute.
+		network = load_instance("missing_type", "tests/additional_files/test_policy_TestCopyFrom_data.json")
+		pol1 = network.get_node_from_index(1).inventory_policy
+		pol1.initialize(overwrite=False)
+		pol2 = Policy(type=None, base_stock_level=70)
+		self.assertEqual(pol1, pol2)
+
+
+class TestCopyFrom(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCopyFrom', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCopyFrom', 'tear_down_class()')
+
+	def test_copy(self):
+		"""Test that copy_from correctly copies from a few different objects.
+		"""
+		print_status('TestCopyFrom', 'test_copy()')
+
+		pol1 = Policy(type='BS', base_stock_level=50)
+		pol2 = Policy()
+		pol2.copy_from(pol1)
+		self.assertEqual(pol1, pol2)
+
+		pol1 = Policy(type='sS', reorder_point=10, order_up_to_level=70)
+		pol2 = Policy()
+		pol2.copy_from(pol1)
+		self.assertEqual(pol1, pol2)
+
+	def test_missing_values(self):
+		"""Test that TestCopyFrom correctly leaves attributes in place if source does
+		not contain those attributes.
+		"""
+		print_status('TestCopyFrom', 'test()')
+
+		# In this instance, policy at node 1 is missing the ``base_stock_level`` attribute.
+		network = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestCopyFrom_data.json")
+		pol1 = network.get_node_from_index(1).inventory_policy
+		pol2 = Policy()
+		pol2.copy_from(pol1)
+		pol1.base_stock_level = None # add attribute back, at default value
+		self.assertEqual(pol1, pol2)
+
+		# In this instance, policy at node 3 is missing the ``type`` attribute.
+		network = load_instance("missing_type", "tests/additional_files/test_policy_TestCopyFrom_data.json")
+		pol1 = network.get_node_from_index(1).inventory_policy
+		pol2 = Policy()
+		pol2.copy_from(pol1)
+		pol1.type = None # add attribute back, at default value
+		self.assertEqual(pol1, pol2)
 
 
 class TestValidateParameters(unittest.TestCase):

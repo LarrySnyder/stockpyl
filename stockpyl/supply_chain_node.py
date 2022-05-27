@@ -20,6 +20,7 @@ in a supply chain network.
 import numpy as np
 import networkx as nx
 from math import isclose
+from copy import deepcopy
 
 #from stockpyl.datatypes import *
 from stockpyl.policy import *
@@ -163,7 +164,7 @@ class SupplyChainNode(object):
 		self.inventory_policy = Policy()
 		self.inventory_policy.node = self # TODO: do this in constructor?
 		self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
-		self.disruption_process = None
+		self.disruption_process = DisruptionProcess()
 
 		# --- Data/Inputs for GSM Problems --- #
 		self.processing_time = None
@@ -363,6 +364,99 @@ class SupplyChainNode(object):
 		"""
 		return "SupplyChainNode({:s})".format(str(vars(self)))
 
+	# Helper functions.
+
+	def deep_copy(self):
+		"""Return a deep copy of the node. Copies all attributes of the node as well as
+		the objects in it. (Exception: does not copy ``_successors`` or ``_predecessors`` attributes.)
+
+		**Note:** If any attributes are missing in the node, or in the attributes in it,
+		those attributes will be present in the deep copy and they will have the same initial
+		values as are assigned in the objects' ``__init__()`` members. In other words, the deep copy
+		will have no missing attributes, even if the original node does. 
+
+		Returns
+		-------
+		node : SupplyChainNode
+			The new SupplyChainNode object.
+		"""
+		# Initialize node. (This will also initialize demand_source and other attribute objects
+		# with all of their attributes.)
+		node = SupplyChainNode(self.index)
+
+		# Copy values of all attributes. (Attributes that require special handling are still copied
+		# here even though they are copy_from'ed below; this way, if the attribute is None in self,
+		# it will be set to None in node.) Skip _successors and _predecessors.
+		for attribute, value in vars(self).items():
+			if attribute not in ('_successors', '_predecessors'):
+				setattr(node, attribute, value)
+
+		# Copy object attributes. (Note: This is different from using copy.deepcopy because
+		# it preserves attributes that are in the target object but missing from the source.)
+		if hasattr(self, 'demand_source') and self.demand_source is not None:
+			node.demand_source.copy_from(self.demand_source)
+		if hasattr(self, 'inventory_policy') and self.inventory_policy is not None:
+			node.inventory_policy.copy_from(self.inventory_policy)
+		if hasattr(self, 'disruption_process') and self.disruption_process is not None:
+			node.disruption_process.copy_from(self.disruption_process)
+
+		return node
+
+	def deep_equal_to(self, other, rel_tol=1e-8):
+		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are
+		equal, including attributes that are themselves objects.
+		
+		Note the following caveats:
+
+		* Does not check equality of ``network``. 
+		* Checks predecessor and successor equality by index only. 
+		* Does not check equality of ``local_holding_cost_function`` or ``stockout_cost_function``.
+		* Does not check equality of ``state_vars``.
+
+		Parameters
+		----------
+		other : SupplyChainNode
+			The node to compare this one to.
+		rel_tol : float, optional
+			Relative tolerance to use when comparing equality of float attributes.
+
+		Returns
+		-------
+		bool
+			``True`` if the two nodes are equal, ``False`` otherwise.
+		"""
+
+		# TODO: unit tests
+
+		return self.index == other.index and \
+			self.name == other.name and \
+			sorted(self.predecessor_indices()) == sorted(other.predecessor_indices()) and \
+			sorted(self.successor_indices()) == sorted(other.successor_indices()) and \
+			isclose(self.local_holding_cost or 0, other.local_holding_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.echelon_holding_cost or 0, other.echelon_holding_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.in_transit_holding_cost or 0, other.in_transit_holding_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.stockout_cost or 0, other.stockout_cost or 0, rel_tol=rel_tol) and \
+			isclose(self.revenue or 0, other.revenue or 0, rel_tol=rel_tol) and \
+			self.shipment_lead_time == other.shipment_lead_time and \
+			self.order_lead_time == other.order_lead_time and \
+			self.demand_source == other.demand_source and \
+			isclose(self.initial_inventory_level or 0, other.initial_inventory_level or 0, rel_tol=rel_tol) and \
+			isclose(self.initial_orders or 0, other.initial_orders or 0, rel_tol=rel_tol) and \
+			isclose(self.initial_shipments or 0, other.initial_shipments or 0, rel_tol=rel_tol) and \
+			self.inventory_policy == other.inventory_policy and \
+			self.supply_type == other.supply_type and \
+			self.disruption_process == other.disruption_process and \
+			self.processing_time == other.processing_time and \
+			self.external_inbound_cst == other.external_inbound_cst and \
+			isclose(self.demand_bound_constant or 0, other.demand_bound_constant or 0, rel_tol=rel_tol) and \
+			isclose(self.units_required or 0, other.units_required or 0, rel_tol=rel_tol) and \
+			self.original_label == other.original_label and \
+			isclose(self.net_demand_mean or 0, other.net_demand_mean or 0, rel_tol=rel_tol) and \
+			isclose(self.net_demand_standard_deviation or 0, other.net_demand_standard_deviation or 0, rel_tol=rel_tol) and \
+			self.larger_adjacent_node == other.larger_adjacent_node and \
+			self.larger_adjacent_node_is_downstream == other.larger_adjacent_node_is_downstream and \
+			self.max_replenishment_time == other.max_replenishment_time
+			
 	# Neighbor management.
 
 	def add_successor(self, successor):
@@ -536,62 +630,7 @@ class SupplyChainNode(object):
 		for i in range(len(self.state_vars)):
 			self.state_vars[i].reindex_state_variabels(old_to_new_dict)
 
-	def deep_equal_to(self, other, rel_tol=1e-8):
-		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are
-		equal, including attributes that are themselves objects.
-		
-		Note the following caveats:
 
-		* Does not check equality of ``network``. 
-		* Checks predecessor and successor equality by index only. 
-		* Does not check equality of ``local_holding_cost_function`` or ``stockout_cost_function``.
-		* Does not check equality of ``state_vars``.
-
-		Parameters
-		----------
-		other : SupplyChainNode
-			The node to compare this one to.
-		rel_tol : float, optional
-			Relative tolerance to use when comparing equality of float attributes.
-
-		Returns
-		-------
-		bool
-			``True`` if the two nodes are equal, ``False`` otherwise.
-		"""
-
-		# TODO: unit tests
-
-		return self.index == other.index and \
-			self.name == other.name and \
-			sorted(self.predecessor_indices()) == sorted(other.predecessor_indices()) and \
-			sorted(self.successor_indices()) == sorted(other.successor_indices()) and \
-			isclose(self.local_holding_cost or 0, other.local_holding_cost or 0, rel_tol=rel_tol) and \
-			isclose(self.echelon_holding_cost or 0, other.echelon_holding_cost or 0, rel_tol=rel_tol) and \
-			isclose(self.in_transit_holding_cost or 0, other.in_transit_holding_cost or 0, rel_tol=rel_tol) and \
-			isclose(self.stockout_cost or 0, other.stockout_cost or 0, rel_tol=rel_tol) and \
-			isclose(self.revenue or 0, other.revenue or 0, rel_tol=rel_tol) and \
-			self.shipment_lead_time == other.shipment_lead_time and \
-			self.order_lead_time == other.order_lead_time and \
-			self.demand_source == other.demand_source and \
-			isclose(self.initial_inventory_level or 0, other.initial_inventory_level or 0, rel_tol=rel_tol) and \
-			isclose(self.initial_orders or 0, other.initial_orders or 0, rel_tol=rel_tol) and \
-			isclose(self.initial_shipments or 0, other.initial_shipments or 0, rel_tol=rel_tol) and \
-			self.inventory_policy == other.inventory_policy and \
-			self.supply_type == other.supply_type and \
-			self.disruption_process == other.disruption_process and \
-			self.processing_time == other.processing_time and \
-			self.external_inbound_cst == other.external_inbound_cst and \
-			isclose(self.demand_bound_constant or 0, other.demand_bound_constant or 0, rel_tol=rel_tol) and \
-			isclose(self.units_required or 0, other.units_required or 0, rel_tol=rel_tol) and \
-			self.original_label == other.original_label and \
-			isclose(self.net_demand_mean or 0, other.net_demand_mean or 0, rel_tol=rel_tol) and \
-			isclose(self.net_demand_standard_deviation or 0, other.net_demand_standard_deviation or 0, rel_tol=rel_tol) and \
-			self.larger_adjacent_node == other.larger_adjacent_node and \
-			self.larger_adjacent_node_is_downstream == other.larger_adjacent_node_is_downstream and \
-			self.max_replenishment_time == other.max_replenishment_time
-			
-		
 # ===============================================================================
 # NodeStateVars Class
 # ===============================================================================

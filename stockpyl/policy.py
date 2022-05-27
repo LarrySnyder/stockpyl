@@ -72,26 +72,23 @@ class Policy(object):
 
 	# TODO: handle predecessor-specific order quantities
 
-	def __init__(self, type=None, node=None, **kwargs):
+	def __init__(self, **kwargs):
 		"""Policy constructor method.
 
 		kwargs : optional
 			Optional keyword arguments to specify node attributes.
 		"""
-		# Initialize parameters to None. (Relevant parameters will be filled later.)
-		self._type = type
-		self._node = node
-		self._base_stock_level = None
-		self._order_quantity = None
-		self._reorder_point = None
-		self._order_up_to_level = None
+		# Initialize parameters.
+		self.initialize()
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
-			if key not in vars(self):
+			if key in vars(self):
+				vars(self)[key] = value
+			elif f"_{key}" in vars(self):
+				vars(self)[f"_{key}"] = value
+			else:
 				raise AttributeError(f"{key} is not an attribute of Policy")
-			vars(self)[key] = value
-
 
 	# SPECIAL METHODS
 
@@ -229,7 +226,66 @@ class Policy(object):
 		"""
 		return self.__repr__()
 
-	# METHODS
+	# ATTRIBUTE HANDLING
+
+	def initialize(self, overwrite=True):
+		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
+		all attributes are reset to their default values, even if they already exist. (This is how the
+		method should be called from the object's ``__init()__`` method.) If it is ``False``,
+		then missing attributes are added to the object but existing attributes are not overwritten. (This
+		is how the method should be called when loading an instance from a file, to make sure that all
+		attributes are present.)
+
+		Parameters
+		----------
+		overwrite : bool, optional
+			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
+			only those attributes that are missing from the object. Default = ``True``.
+		"""
+		if overwrite or not hasattr(self, '_type'):
+			self._type = None
+		if overwrite or not hasattr(self, '_node'):
+			self._node = None
+		if overwrite or not hasattr(self, '_base_stock_level'):
+			self._base_stock_level = None
+		if overwrite or not hasattr(self, '_order_quantity'):
+			self._order_quantity = None
+		if overwrite or not hasattr(self, '_reorder_point'):
+			self._reorder_point = None
+		if overwrite or not hasattr(self, '_order_up_to_level'):
+			self._order_up_to_level = None
+
+
+	def copy_from(self, source):
+		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
+		not in ``source``, they will remain at their current values in ``self``. If attributes are present
+		in ``source`` but not in ``self``, they will be added to ``self``.
+		"""
+		# Loop through attributes in source object.
+		for attribute, value in vars(source).items():
+			setattr(self, attribute, value)
+
+	def validate_parameters(self):
+		"""Check that appropriate parameters have been provided for the given
+		policy type. Raise an exception if not.
+		"""
+		if self.type not in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS'): raise AttributeError("Valid type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS') must be provided")
+
+		if self.type == 'BS':
+			if self.base_stock_level is None: raise AttributeError("For 'BS' (base-stock) policy, base_stock_level must be provided")
+		elif self.type == 'sS':
+			if self.reorder_point is None: raise AttributeError("For 'sS' (s,S) policy, reorder_point must be provided")
+			if self.order_up_to_level is None: raise AttributeError("For 'sS' (s,S) policy, order_up_to_level must be provided")
+			if self.reorder_point <= self.order_up_to_level: raise AttributeError("For 'sS' (s,S) policy, reorder_point must be <= order_up_to_level")
+		elif self.type == 'rQ':
+			if self.reorder_point is None: raise AttributeError("For 'rQ' (r,Q) policy, reorder_point must be provided")
+			if self.order_quantity is None: raise AttributeError("For 'rQ' (r,Q) policy, order_quantity must be provided")
+		if self.type == 'EBS':
+			if self.base_stock_level is None: raise AttributeError("For 'EBS' (echelon base-stock) policy, base_stock_level must be provided")
+		if self.type == 'BEBS':
+			if self.base_stock_level is None: raise AttributeError("For 'BEBS' (balanced echelon base-stock) policy, base_stock_level must be provided")
+
+	# ORDER QUANTITY METHODS
 
 	def get_order_quantity(self, predecessor_index=None, inventory_position=None,
 						   echelon_inventory_position_adjusted=None):
@@ -434,28 +490,4 @@ class Policy(object):
 		order_quantity = max(0.0, target_IP - echelon_inventory_position)
 
 		return max(0.0, order_quantity)
-
-	# OTHER METHODS
-
-	def validate_parameters(self):
-		"""Check that appropriate parameters have been provided for the given
-		policy type. Raise an exception if not.
-		"""
-		if self.type not in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS'): raise AttributeError("Valid type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS') must be provided")
-
-		if self.type == 'BS':
-			if self.base_stock_level is None: raise AttributeError("For 'BS' (base-stock) policy, base_stock_level must be provided")
-		elif self.type == 'sS':
-			if self.reorder_point is None: raise AttributeError("For 'sS' (s,S) policy, reorder_point must be provided")
-			if self.order_up_to_level is None: raise AttributeError("For 'sS' (s,S) policy, order_up_to_level must be provided")
-			if self.reorder_point <= self.order_up_to_level: raise AttributeError("For 'sS' (s,S) policy, reorder_point must be <= order_up_to_level")
-		elif self.type == 'rQ':
-			if self.reorder_point is None: raise AttributeError("For 'rQ' (r,Q) policy, reorder_point must be provided")
-			if self.order_quantity is None: raise AttributeError("For 'rQ' (r,Q) policy, order_quantity must be provided")
-		if self.type == 'EBS':
-			if self.base_stock_level is None: raise AttributeError("For 'EBS' (echelon base-stock) policy, base_stock_level must be provided")
-		if self.type == 'BEBS':
-			if self.base_stock_level is None: raise AttributeError("For 'BEBS' (balanced echelon base-stock) policy, base_stock_level must be provided")
-
-
 

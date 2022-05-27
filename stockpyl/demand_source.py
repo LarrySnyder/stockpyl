@@ -82,16 +82,8 @@ class DemandSource(object):
 		AttributeError
 			If an optional keyword argument does not match a ``DemandSource`` attribute.
 		"""
-		# Initialize parameters to None. (Relevant parameters will be filled
-		# later.)
-		self._type = None
-		self._mean = None
-		self._standard_deviation = None
-		self._demand_list = None
-		self._probabilities = None
-		self._lo = None
-		self._hi = None
-		self._round_to_int = False
+		# Initialize parameters.
+		self.initialize()
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
@@ -102,7 +94,7 @@ class DemandSource(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of DemandSource")
 
-			vars(self)[key] = value
+#			vars(self)[key] = value
 
 	# SPECIAL METHODS
 
@@ -289,6 +281,83 @@ class DemandSource(object):
 		"""
 		return self.__repr__()
 
+	# ATTRIBUTE HANDLING
+
+	def copy_from(self, source):
+		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
+		not in ``source``, they will remain at their current values in ``self``. If attributes are present
+		in ``source`` but not in ``self``, they will be added to ``self``.
+		# TODO: this is preliminary; probably delete it
+		"""
+		# Loop through attributes in source object.
+		for attribute, value in vars(source).items():
+			setattr(self, attribute, value)
+
+	def initialize(self, overwrite=True):
+		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
+		all attributes are reset to their default values, even if they already exist. (This is how the
+		method should be called from the object's ``__init()__`` method.) If it is ``False``,
+		then missing attributes are added to the object but existing attributes are not overwritten. (This
+		is how the method should be called when loading an instance from a file, to make sure that all
+		attributes are present.)
+
+		Parameters
+		----------
+		overwrite : bool, optional
+			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
+			only those attributes that are missing from the object. Default = ``True``.
+		"""
+		if overwrite or not hasattr(self, '_type'):
+			self._type = None
+		if overwrite or not hasattr(self, '_mean'):
+			self._mean = None
+		if overwrite or not hasattr(self, '_standard_deviation'):
+			self._standard_deviation = None
+		if overwrite or not hasattr(self, '_demand_list'):
+			self._demand_list = None
+		if overwrite or not hasattr(self, '_probabilities'):
+			self._probabilities = None
+		if overwrite or not hasattr(self, '_lo'):
+			self._lo = None
+		if overwrite or not hasattr(self, '_hi'):
+			self._hi = None
+		if overwrite or not hasattr(self, '_round_to_int'):
+			self._round_to_int = False
+
+	def validate_parameters(self):
+		"""Check that appropriate parameters have been provided for the given
+		demand type. Raise an exception if not.
+		"""
+		if self.type not in (None, 'N', 'UD', 'UC', 'D', 'CD'): raise AttributeError("Valid type in (None, 'N', 'UD', 'UC', 'D', 'CD') must be provided")
+
+		if self.type == 'N':
+			if self.mean is None: raise AttributeError("For 'N' (normal) demand, mean must be provided")
+			if self.mean < 0: raise AttributeError("For 'N' (normal) demand, mean must be non-negative")
+			if self.standard_deviation is None: raise AttributeError("For 'N' (normal) demand, standard_deviation must be provided")
+			if self.standard_deviation < 0: raise AttributeError("For 'N' (normal) demand, standard_deviation must be non-negative")
+		elif self.type == 'P':
+			if self.mean is None: raise AttributeError("For 'P' (Poisson) demand, mean must be provided")
+			if self.mean < 0: raise AttributeError("For 'P' (Poisson) demand, mean must be non-negative")
+		elif self.type == 'UD':
+			if self.lo is None: raise AttributeError("For 'UD' (uniform discrete) demand, lo must be provided")
+			if self.lo < 0 or not is_integer(self.lo): raise AttributeError("For 'UD' (uniform discrete) demand, lo must be a non-negative integer")
+			if self.hi is  None: raise AttributeError("For 'UD' (uniform discrete) demand, hi must be provided")
+			if self.hi < 0 or not is_integer(self.hi): raise AttributeError("For 'UD' (uniform discrete) demand, hi must be a non-negative integer")
+			if self.lo > self.hi: raise AttributeError("For 'UD' (uniform discrete) demand, lo must be <= hi")
+		elif self.type == 'UC':
+			if self.lo is None: raise AttributeError("For 'UC' (uniform continuous) demand, lo must be provided")
+			if self.lo < 0: raise AttributeError("For 'UC' (uniform continuous) demand, lo must be non-negative")
+			if self.hi is None: raise AttributeError("For 'UC' (uniform continuous) demand, hi must be provided")
+			if self.hi < 0: raise AttributeError("For 'UC' (uniform continuous) demand, hi must be non-negative")
+			if self.lo > self.hi: raise AttributeError("For 'UC' (uniform continuous) demand, lo must be <= hi")
+		elif self.type == 'D':
+			if self.demand_list is None: raise AttributeError("For 'D' (deterministic) demand, demand_list must be provided")
+		elif self.type == 'CD':
+			if self.demand_list is None: raise AttributeError("For 'CD' (custom discrete) demand, demand_list must be provided")
+			if self.probabilities is None: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must be provided")
+			if len(self.demand_list) != len(self.probabilities): raise AttributeError("For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths")
+			if np.sum(self.probabilities) != 1: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must sum to 1")
+
 	# DEMAND GENERATION
 
 	def generate_demand(self, period=None):
@@ -408,6 +477,15 @@ class DemandSource(object):
 		return np.random.choice(self.demand_list, p=self.probabilities)
 
 	# OTHER METHODS
+
+	def copy_from(self, source):
+		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
+		not in ``source``, they will remain at their current values in ``self``. If attributes are present
+		in ``source`` but not in ``self``, they will be added to ``self``.
+		"""
+		# Loop through attributes in source object.
+		for attribute, value in vars(source).items():
+			setattr(self, attribute, value)
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given

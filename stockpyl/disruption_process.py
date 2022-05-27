@@ -40,7 +40,7 @@ class DisruptionProcess(object):
 			* 'E' (explicit: disruption state for each period is provided explicitly)
 	_disruption_type : str
 		The type of disruption, as a string. Currently supported strings are:
-			* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them)--the default
+			* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them) (default)
 			* 'OP' (order-pausing: the stage cannot place orders during disruptions)
 			* 'TP' (transit-pausing: items in transit to the stage are paused during disruptions)
 			* 'RP' (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
@@ -73,15 +73,8 @@ class DisruptionProcess(object):
 		AttributeError
 			If an optional keyword argument does not match a ``DisruptionProcess`` attribute.
 		"""
-		# Initialize parameters to None. (Relevant parameters will be filled later.)
-		self._random_process_type = None
-		self._disruption_type = 'SP'
-		self._disruption_probability = None
-		self._recovery_probability = None
-		self._disruption_state_list = None
-
-		# Initialize state variable to False.
-		self._disrupted = False
+		# Initialize parameters.
+		self.initialize()
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
@@ -91,8 +84,6 @@ class DisruptionProcess(object):
 				vars(self)[f"_{key}"] = value
 			else:
 				raise AttributeError(f"{key} is not an attribute of DisruptionProcess")
-
-			vars(self)[key] = value
 
 	# SPECIAL METHODS
 
@@ -225,6 +216,59 @@ class DisruptionProcess(object):
 		"""
 		return self.__repr__()
 
+	# ATTRIBUTE HANDLING
+
+	def initialize(self, overwrite=True):
+		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
+		all attributes are reset to their default values, even if they already exist. (This is how the
+		method should be called from the object's ``__init()__`` method.) If it is ``False``,
+		then missing attributes are added to the object but existing attributes are not overwritten. (This
+		is how the method should be called when loading an instance from a file, to make sure that all
+		attributes are present.)
+
+		Parameters
+		----------
+		overwrite : bool, optional
+			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
+			only those attributes that are missing from the object. Default = ``True``.
+		"""
+		if overwrite or not hasattr(self, '_random_process_type'):
+			self._random_process_type = None
+		if overwrite or not hasattr(self, '_disruption_type'):
+			self._disruption_type = 'SP'
+		if overwrite or not hasattr(self, '_disruption_probability'):
+			self._disruption_probability = None
+		if overwrite or not hasattr(self, '_recovery_probability'):
+			self._recovery_probability = None
+		if overwrite or not hasattr(self, '_disruption_state_list'):
+			self._disruption_state_list = None
+		if overwrite or not hasattr(self, '_disrupted'):
+			self._disrupted = False
+
+	def copy_from(self, source):
+		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
+		not in ``source``, they will remain at their current values in ``self``. If attributes are present
+		in ``source`` but not in ``self``, they will be added to ``self``.
+		"""
+		# Loop through attributes in source object.
+		for attribute, value in vars(source).items():
+			setattr(self, attribute, value)
+
+	def validate_parameters(self):
+		"""Check that appropriate parameters have been provided for the given
+		random process type. Raise an exception if not.
+		"""
+		if self.random_process_type not in (None, 'M', 'E'): raise AttributeError("Valid random_process_type in (None, 'M', 'E') must be provided")
+		if self.disruption_type not in (None, 'SP', 'OP', 'TP', 'RP'): raise AttributeError("Valid disruption_type in (None, 'SP', 'OP', 'TP', 'RP') must be provided")
+
+		if self.random_process_type == 'M':
+			if self.disruption_probability is None: raise AttributeError("For 'M' (Markovian) disruptions, disruption_probability must be provided")
+			if self.disruption_probability < 0 or self.disruption_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, disruption_probability must be in [0,1]")
+			if self.recovery_probability is None: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be provided")
+			if self.recovery_probability < 0 or self.recovery_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be in [0,1]")
+		elif self.random_process_type == 'E':
+			if self.disruption_state_list is None: raise AttributeError("For 'E' (explicit) disruptions, disruption_probability_list must be provided")
+
 	# DISRUPTION STATE MANAGEMENT
 
 	def update_disruption_state(self, period=None):
@@ -288,21 +332,6 @@ class DisruptionProcess(object):
 			return self.disruption_state_list
 
 	# OTHER METHODS
-
-	def validate_parameters(self):
-		"""Check that appropriate parameters have been provided for the given
-		random process type. Raise an exception if not.
-		"""
-		if self.random_process_type not in (None, 'M', 'E'): raise AttributeError("Valid random_process_type in (None, 'M', 'E') must be provided")
-		if self.disruption_type not in (None, 'SP', 'OP', 'TP', 'RP'): raise AttributeError("Valid disruption_type in (None, 'SP', 'OP', 'TP', 'RP') must be provided")
-
-		if self.random_process_type == 'M':
-			if self.disruption_probability is None: raise AttributeError("For 'M' (Markovian) disruptions, disruption_probability must be provided")
-			if self.disruption_probability < 0 or self.disruption_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, disruption_probability must be in [0,1]")
-			if self.recovery_probability is None: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be provided")
-			if self.recovery_probability < 0 or self.recovery_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be in [0,1]")
-		elif self.random_process_type == 'E':
-			if self.disruption_state_list is None: raise AttributeError("For 'E' (explicit) disruptions, disruption_probability_list must be provided")
 
 	def steady_state_probabilities(self):
 		"""Return the steady-state probabilities of the node being up (not disrupted) or down (disrupted).

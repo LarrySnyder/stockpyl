@@ -20,6 +20,7 @@ Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals 
 #import copy
 import os
 import json
+from re import I
 import warnings
 import datetime
 import jsonpickle
@@ -32,7 +33,7 @@ DEFAULT_JSON_FILEPATH = 'datasets/stockpyl_instances.json'
 
 # TODO: function to sort instances in JSON by name, or even better, by chapter then name
 
-def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
+def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True):
 	"""Load an instance from a JSON file. 
 
 	If the instance was originally specified as a ``SupplyChainNetwork`` object, returns the
@@ -44,6 +45,10 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
 		The name of the instance.
 	filepath : str, optional
 		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
+	initialize_missing_attributes : bool, optional
+		If ``True``, method will ensure that all attributes are present in the instance loaded,
+		initializing any missing attributes to their default values. (Typically this is only set
+		to ``False`` for debugging purposes.)
 
 	Returns
 	-------
@@ -89,11 +94,24 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH):
 	# Try to decode instance using jsonpickle. This will fail if the
 	# instance is a regular dict, in which case we'll just return the dict.
 	try:
-		return jsonpickle.decode(instance)
-	except:
+		instance = jsonpickle.decode(instance)
+
+		# Replace the instance with a deep copy of it. This is important because if there are 
+		# missing attributes in the saved instance (which can happen if the instance was 
+		# saved under an earlier version of the code and a new field was introduced subsequently),
+		# the deep copy will contain default values for those attributes.
+#		instance = instance.deep_copy()
+		if initialize_missing_attributes:
+			pass
+		# TODO: change to initialize_all()
+
+		return instance
+	except TypeError as e:
 		# If the instance contains any dicts with integer keys, they will have
 		# been saved as strings when the JSON was saved. Convert them back to integers here.
 		# Currently, only demand_pmf has this issue.
+		# TODO: try to do this without a try...except. try...except makes it too hard to debug
+		# if there is another (unplanned) exception
 		if 'demand_pmf' in instance.keys():
 			instance['demand_pmf'] = {int(k): v for k, v in instance['demand_pmf'].items()}
 

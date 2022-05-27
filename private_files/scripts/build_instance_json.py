@@ -2,6 +2,7 @@ import sys
 import copy
 
 sys.path.append('/Users/larry/Documents/GitHub/stockpyl')
+#sys.path.append('/Users/larry/Documents/GitHub/stockpyl')
 # print(sys.path)
 
 #from ...stockpyl.instances import *
@@ -793,7 +794,8 @@ network = network_from_edges(
 	demand_mean=0,
 	demand_standard_deviation=[1, 0, 0]
 )
-save_instance("example_6_3", network, 'Example 6.3 (serial GSM)')
+#save_instance("example_6_3", network, 'Example 6.3 (serial GSM)')
+save_instance("example_6_3_full", network, '', 'tests/additional_files/test_demand_source_TestCopyFrom_data.json')
 
 # network = network_from_edges(
 # 	[(3, 2), (2, 1)], node_indices=[1, 2, 3],

@@ -113,6 +113,61 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(network2.deep_equal_to(network))
 
 
+class TestDeepCopy(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDeepCopy', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDeepCopy', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test deep_copy() on 3-node serial system (Example 6.1).
+		"""
+		print_status('TestDeepCopy', 'test_example_6_1()')
+
+		network = serial_system(
+			num_nodes=3,
+			local_holding_cost=[7, 4, 2],
+			stockout_cost=[37.12, 0, 0],
+			shipment_lead_time=[1, 1, 2],
+			demand_type='N',
+			demand_mean=5,
+			demand_standard_deviation=1,
+			inventory_policy_type='BS',
+			base_stock_levels=[6.49, 12.02-6.49, 22.71-12.02],
+			downstream_0=True
+		)
+		network_copy = network.deep_copy()
+		self.assertTrue(network.deep_equal_to(network_copy))
+
+	def test_rong_atan_snyder_figure_1a(self):
+		"""Test deep_copy() on 7-node distribution system from Rong, Atan, and Snyder Figure 1a..
+		"""
+		print_status('TestDeepCopy', 'test_rong_atan_snyder_figure_1a()')
+
+		network = network_from_edges(
+			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (2, 6)],
+			demand_type={0: None, 1: None, 2: None, 3: 'N', 4: 'N', 5: 'N', 6: 'N'},	
+			demand_mean=8,
+			demand_standard_deviation=np.sqrt(8),
+			local_holding_cost={0: 1/3, 1: 2/3, 2: 2/3, 3: 1, 4: 1, 5: 1, 6: 1},
+			stockout_cost=20,
+			shipment_lead_time=1,
+			inventory_policy_type='BS',
+			base_stock_levels={i: 0 for i in range(0, 7)}	# need to provide a value here, but will overwrite below
+		)
+		# Replace the base-stock levels with mean + 3 * SD for "derived demand" distribution 
+		# (external demand plus demand from downstream nodes).
+		for n in network.nodes:
+			n.inventory_policy.base_stock_level = n.derived_demand_mean + 3 * n.derived_demand_standard_deviation
+		network_copy = network.deep_copy()
+		self.assertTrue(network.deep_equal_to(network_copy))
+
+
 class TestEdges(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -1088,7 +1143,7 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 
 		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1()')
 
-		instance = copy.deepcopy(load_instance("example_6_1"))
+		instance = load_instance("example_6_1")
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_local = {1: 4, 2: 5, 3: 1}
@@ -1123,7 +1178,7 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 
 		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
 
-		instance = copy.deepcopy(load_instance("example_6_1"))
+		instance = load_instance("example_6_1")
 		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
