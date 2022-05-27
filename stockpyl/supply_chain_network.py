@@ -535,7 +535,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 			(demand_lo_dict[n.index] is None or demand_hi_dict[n.index] is None):
 			raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
 		elif demand_type_dict[n.index] == 'D' and demand_list is None:
-			raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+			raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
 		elif demand_type_dict[n.index] == 'CD' and (demand_list is None or probabilities_dict is None):
 			raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
@@ -679,7 +679,7 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 		(demand_lo is None or demand_hi is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
 	elif demand_type == 'D' and demand_list is None:
-		raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+		raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
 	elif demand_type == 'CD' and (demand_list is None or probabilities is None):
 		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
@@ -875,7 +875,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		(demand_lo_dict[downstream_node] is None or demand_hi_dict[downstream_node] is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
 	elif demand_type_dict[downstream_node] == 'D' and demand_list is None:
-		raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+		raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
 	elif demand_type_dict[downstream_node] == 'CD' and (demand_list is None or probabilities_dict is None):
 		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
@@ -1090,7 +1090,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		(demand_lo_list[0] is None or demand_hi_list[0] is None):
 		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
 	elif demand_type_list[0] == 'D' and demand_list is None:
-		raise ValueError("Demand type was specified as deterministic but demand_list were not provided")
+		raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
 	elif demand_type_list[0] == 'CD' and (demand_list is None or probabilities_list is None):
 		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
