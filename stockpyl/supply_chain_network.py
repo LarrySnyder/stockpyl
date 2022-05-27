@@ -44,7 +44,7 @@ class SupplyChainNetwork(object):
 		Placeholder for object that is used to provide data for specific
 		problem types.
 
-	TODO: allow attribute_dict as input
+	TODO: allow **kwargs as input
 	"""
 
 	def __init__(self):
@@ -52,11 +52,14 @@ class SupplyChainNetwork(object):
 
 		"""
 		# Initialize attributes.
-		self._nodes = []
-		self._period = 0
+		self.initialize()
 
-		# --- Intermediate Calculations for GSM Problems --- #
-		self.max_max_replenishment_time = None
+		# # Initialize attributes.
+		# self._nodes = []
+		# self._period = 0
+
+		# # --- Intermediate Calculations for GSM Problems --- #
+		# self.max_max_replenishment_time = None
 
 	@property
 	def nodes(self):
@@ -117,8 +120,47 @@ class SupplyChainNetwork(object):
 		"""
 		return "SupplyChainNetwork({:s})".format(str(vars(self)))
 
-	# Helper functions.
+	# Attribute management.
 
+	def initialize(self, overwrite=True):
+		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
+		all attributes are reset to their default values, even if they already exist. (This is how the
+		method should be called from the object's ``__init()__`` method.) If it is ``False``,
+		then missing attributes are added to the object but existing attributes are not overwritten. (This
+		is how the method should be called when loading an instance from a file, to make sure that all
+		attributes are present.)
+
+		Handles ``_nodes`` list as follows:
+			* If ``overwrite`` is ``True``, replaces ``_nodes`` with an empty list.
+			* If ``overwrite`` is ``False`` and ``_nodes`` does not exist, creates the ``_nodes`` attribute
+			and fills it with an empty list.
+			* If ``overwrite`` is ``False`` and ``_nodes`` exists but is ``None`` or an empty list, does nothing.
+			* If ``overwrite`` is ``False`` and ``_nodes`` exists and contains at least one ``SupplyChainNode`` 
+			object, calls the ``initialize()`` method for each node with ``overwrite=False`` to ensure all attributes
+			are present (as well as all attributes in its object attributes such as ``demand_source``, etc.).
+
+		Parameters
+		----------
+		overwrite : bool, optional
+			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
+			only those attributes that are missing from the object. Default = ``True``.
+		"""
+
+		# NOTE: If the attribute list changes, deep_equal_to() must be updated accordingly.
+
+		# --- Nodes and Period --- #
+		if overwrite or not hasattr(self, '_nodes'):
+			self._nodes = []
+		elif is_list(self._nodes):
+			for n in self._nodes:
+				n.initialize(overwrite=False)
+		if overwrite or not hasattr(self, '_period'):
+			self._period = 0
+
+		# --- Intermediate Calculations for GSM Problems --- #
+		if overwrite or not hasattr(self, 'max_max_replenishment_time'):
+			self.max_max_replenishment_time = None
+			
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether network "deeply equals" ``other``, i.e., if all attributes are
 		equal, including attributes that are themselves objects.
@@ -148,46 +190,6 @@ class SupplyChainNetwork(object):
 
 		return self._period == other._period and \
 			self.max_max_replenishment_time == other.max_max_replenishment_time
-
-	def deep_copy(self):
-		"""Return a deep copy of the network. Copies all attributes of the network as well
-		as the nodes in it, and the object in those nodes.
-
-		**Note:** If any attributes are missing in the network object, or in its nodes or their attributes,
-		those attributes will be present in the deep copy and they will have the same initial values as are
-		assigned in the objects' ``__init__()`` members. In other words, the deep copy will have no missing
-		attributes, even if the original network does. This is useful when loading networks from an instance
-		JSON file since, if the file was saved under an earlier version of the package and the attribute
-		was introduced subsequently, it would be missing from the network when it is loaded. 
-
-		TL;DR: When loading a network from an instance JSON file, always make a deep copy and use that instead.
-		
-		Returns
-		-------
-		network : SupplyChainNetwork
-			The new SupplyChainNetwork object.
-		"""
-		# Initialize network.
-		network = SupplyChainNetwork()
-
-		# Add nodes.
-		for n in self.nodes:
-			node = n.deep_copy()
-			network.add_node(node)
-
-		# Add edges.
-		network.add_edges_from_list(self.edges)
-		
-		# Copy values of all attributes except _nodes.
-		for attribute, value in vars(self).items():
-			if attribute not in ('_nodes'):	
-				setattr(node, attribute, value)
-
-		# Copy other attributes.
-		# network.period = self.period
-		# network.max_max_replenishment_time = self.max_max_replenishment_time
-
-		return network
 			
 	# Methods for node handling.
 
@@ -1159,7 +1161,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
-		policy = Policy(inventory_policy_type_list[n], node)
+		policy = Policy(type=inventory_policy_type_list[n], node=node)
 		if inventory_policy_type_list[n] in ('BS', 'EBS', 'BEBS'):
 			policy.base_stock_level = base_stock_levels_list[n]
 		elif inventory_policy_type_list[n] == 'rQ':

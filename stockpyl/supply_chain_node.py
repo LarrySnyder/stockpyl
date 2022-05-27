@@ -126,6 +126,7 @@ class SupplyChainNode(object):
 			Optional keyword arguments to specify node attributes.
 		# TODO: allow user to specify policy type and parameters insted of policy object
 		# TODO: similar for demand
+		# TODO: when set local or echelon h.c., update the other
 
 		Raises
 		------
@@ -133,56 +134,13 @@ class SupplyChainNode(object):
 			If an optional keyword argument does not match a ``SupplyChainNode`` attribute.
 		"""
 		# Initialize attributes.
+		self.initialize()
 
-		# NOTE: If the attribute list changes, equal_to() must
-		# be updated accordingly.
-
-		# --- Index and Name --- #
+		# Set named attributes.
+		# TODO: move these to kwargs
 		self.index = index
 		self.name = name
-
-		# --- Attributes Related to Network Structure --- #
 		self.network = network
-		self._predecessors = []
-		self._successors = []
-
-		# --- Data/Inputs --- #
-		# TODO: when set local or echelon h.c., update the other
-		self.local_holding_cost = None
-		self.echelon_holding_cost = None
-		self.local_holding_cost_function = None
-		self.in_transit_holding_cost = None
-		self.stockout_cost = None
-		self.stockout_cost_function = None
-		self.revenue = None
-		self.shipment_lead_time = None
-		self.order_lead_time = None
-		self.demand_source = DemandSource()
-		self.initial_inventory_level = None
-		self.initial_orders = None
-		self.initial_shipments = None
-		self.inventory_policy = Policy()
-		self.inventory_policy.node = self # TODO: do this in constructor?
-		self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
-		self.disruption_process = DisruptionProcess()
-
-		# --- Data/Inputs for GSM Problems --- #
-		self.processing_time = None
-		self.external_inbound_cst = None
-		self.external_outbound_cst = None
-		self.demand_bound_constant = None
-		self.units_required = None
-
-		# --- Intermediate Calculations for GSM Problems --- #
-		self.original_label = None
-		self.net_demand_mean = None
-		self.net_demand_standard_deviation = None
-		self.larger_adjacent_node = None
-		self.larger_adjacent_node_is_downstream = None
-		self.max_replenishment_time = None
-
-		# --- State Variables --- #
-		self.state_vars = []
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
@@ -364,43 +322,117 @@ class SupplyChainNode(object):
 		"""
 		return "SupplyChainNode({:s})".format(str(vars(self)))
 
-	# Helper functions.
+	# Attribute management.
 
-	def deep_copy(self):
-		"""Return a deep copy of the node. Copies all attributes of the node as well as
-		the objects in it. (Exception: does not copy ``_successors`` or ``_predecessors`` attributes.)
+	def initialize(self, overwrite=True):
+		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
+		all attributes are reset to their default values, even if they already exist. (This is how the
+		method should be called from the object's ``__init()__`` method.) If it is ``False``,
+		then missing attributes are added to the object but existing attributes are not overwritten. (This
+		is how the method should be called when loading an instance from a file, to make sure that all
+		attributes are present.)
 
-		**Note:** If any attributes are missing in the node, or in the attributes in it,
-		those attributes will be present in the deep copy and they will have the same initial
-		values as are assigned in the objects' ``__init__()`` members. In other words, the deep copy
-		will have no missing attributes, even if the original node does. 
+		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``inventory_policy``):
+			* If ``overwrite`` is ``True``, replaces the object with a new, fully initialized one.
+			* If ``overwrite`` is ``False`` and the attribute does not exist, creates the attribute and 
+			fills it with a new, fully initialized one.
+			* If ``overwrite`` is ``False`` and the attribute exists but is ``None``, does nothing.
+			* If ``overwrite`` is ``False`` and the attribute exists and contains an object, calls its 
+			``initialize()`` method with ``overwrite=False`` to ensure all attributes are present.
 
-		Returns
-		-------
-		node : SupplyChainNode
-			The new SupplyChainNode object.
+		Parameters
+		----------
+		overwrite : bool, optional
+			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
+			only those attributes that are missing from the object. Default = ``True``.
 		"""
-		# Initialize node. (This will also initialize demand_source and other attribute objects
-		# with all of their attributes.)
-		node = SupplyChainNode(self.index)
 
-		# Copy values of all attributes. (Attributes that require special handling are still copied
-		# here even though they are copy_from'ed below; this way, if the attribute is None in self,
-		# it will be set to None in node.) Skip _successors and _predecessors.
-		for attribute, value in vars(self).items():
-			if attribute not in ('_successors', '_predecessors'):
-				setattr(node, attribute, value)
+		# NOTE: If the attribute list changes, deep_equal_to() must be updated accordingly.
 
-		# Copy object attributes. (Note: This is different from using copy.deepcopy because
-		# it preserves attributes that are in the target object but missing from the source.)
-		if hasattr(self, 'demand_source') and self.demand_source is not None:
-			node.demand_source.copy_from(self.demand_source)
-		if hasattr(self, 'inventory_policy') and self.inventory_policy is not None:
-			node.inventory_policy.copy_from(self.inventory_policy)
-		if hasattr(self, 'disruption_process') and self.disruption_process is not None:
-			node.disruption_process.copy_from(self.disruption_process)
+		# --- Index and Name --- #
+		if overwrite or not hasattr(self, 'index'):
+			self.index = None
+		if overwrite or not hasattr(self, 'name'):
+			self.name = None
 
-		return node
+		# --- Attributes Related to Network Structure --- #
+		if overwrite or not hasattr(self, 'network'):
+			self.network = None
+		if overwrite or not hasattr(self, '_predecessors'): 
+			self._predecessors = []
+		if overwrite or not hasattr(self, '_successors'):
+			self._successors = []
+
+		# --- Data/Inputs --- #
+		if overwrite or not hasattr(self, 'local_holding_cost'):
+			self.local_holding_cost = None
+		if overwrite or not hasattr(self, 'echelon_holding_cost'):
+			self.echelon_holding_cost = None
+		if overwrite or not hasattr(self, 'local_holding_cost_function'):
+			self.local_holding_cost_function = None
+		if overwrite or not hasattr(self, 'in_transit_holding_cost'):
+			self.in_transit_holding_cost = None
+		if overwrite or not hasattr(self, 'stockout_cost'):
+			self.stockout_cost = None
+		if overwrite or not hasattr(self, 'stockout_cost_function'):
+			self.stockout_cost_function = None
+		if overwrite or not hasattr(self, 'revenue'):
+			self.revenue = None
+		if overwrite or not hasattr(self, 'shipment_lead_time'):
+			self.shipment_lead_time = None
+		if overwrite or not hasattr(self, 'order_lead_time'):
+			self.order_lead_time = None
+		if overwrite or not hasattr(self, 'demand_source'):
+			self.demand_source = DemandSource()
+		elif self.demand_source is not None:
+			self.demand_source.initialize(overwrite=False)
+		if overwrite or not hasattr(self, 'initial_inventory_level'):
+			self.initial_inventory_level = None
+		if overwrite or not hasattr(self, 'initial_orders'):
+			self.initial_orders = None
+		if overwrite or not hasattr(self, 'initial_shipments'):
+			self.initial_shipments = None
+		if overwrite or not hasattr(self, 'inventory_policy'):
+			self.inventory_policy = Policy(node=self)
+#			self.inventory_policy.node = self # TODO: should this be here? # TODO: do this in constructor?
+		elif self.inventory_policy is not None:
+			self.inventory_policy.initialize(overwrite=False)
+		if overwrite or not hasattr(self, 'supply_type'):
+			self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
+		if overwrite or not hasattr(self, 'disruption_process'):
+			self.disruption_process = DisruptionProcess()
+		elif self.disruption_process is not None:
+			self.disruption_process.initialize(overwrite=False)
+
+		# --- Data/Inputs for GSM Problems --- #
+		if overwrite or not hasattr(self, 'processing_time'):
+			self.processing_time = None
+		if overwrite or not hasattr(self, 'external_inbound_cst'):
+			self.external_inbound_cst = None
+		if overwrite or not hasattr(self, 'external_outbound_cst'):
+			self.external_outbound_cst = None
+		if overwrite or not hasattr(self, 'demand_bound_constant'):
+			self.demand_bound_constant = None
+		if overwrite or not hasattr(self, 'units_required'):
+			self.units_required = None
+
+		# --- Intermediate Calculations for GSM Problems --- #
+		if overwrite or not hasattr(self, 'original_label'):
+			self.original_label = None
+		if overwrite or not hasattr(self, 'net_demand_mean'):
+			self.net_demand_mean = None
+		if overwrite or not hasattr(self, 'net_demand_standard_deviation'):
+			self.net_demand_standard_deviation = None
+		if overwrite or not hasattr(self, 'larger_adjacent_node'):
+			self.larger_adjacent_node = None
+		if overwrite or not hasattr(self, 'larger_adjacent_node_is_downstream'):
+			self.larger_adjacent_node_is_downstream = None
+		if overwrite or not hasattr(self, 'max_replenishment_time'):
+			self.max_replenishment_time = None
+
+		# --- State Variables --- #
+		if overwrite or not hasattr(self, 'state_vars'):
+			self.state_vars = []			
 
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are

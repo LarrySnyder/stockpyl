@@ -809,3 +809,76 @@ class TestStateVariables(unittest.TestCase):
 	# 		self.assertEqual(node.state_vars[per].echelon_inventory_level, ech_OH[n_ind] - BO[1])
 	# 		self.assertEqual(node.state_vars[per].echelon_inventory_position(), ech_OH[n_ind] - BO[1] + OO_agg[n_ind] + RM_agg[n_ind])
 	#
+
+
+class TestInitialize(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestInitialize', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestInitialize', 'tear_down_class()')
+
+	def test_initialize(self):
+		"""Test that initialize() correctly initializes.
+		"""
+		print_status('TestInitialize', 'test_copy()')
+
+		n1 = SupplyChainNode(index=None)
+		n2 = SupplyChainNode(index=None)
+		n1.initialize()
+		self.assertTrue(n1.deep_equal_to(n2))
+
+		n1 = SupplyChainNode(index=None, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
+		n2 = SupplyChainNode(index=None)
+		n1.initialize()
+		self.assertTrue(n1.deep_equal_to(n2))
+
+		n1 = SupplyChainNode(index=None, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
+		n2 = SupplyChainNode(index=None)
+		n1.initialize(overwrite=False)
+		self.assertFalse(n1.deep_equal_to(n2))
+
+	def test_missing_values(self):
+		"""Test that initialize() correctly leaves attributes in place if object already contains
+		those attributes.
+		"""
+		print_status('TestInitialize', 'test_missing_values()')
+
+		# In this instance, node 3 is missing the ``local_holding_cost`` attribute.
+		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n1 = network1.get_node_from_index(3)
+		n1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n2 = network2.get_node_from_index(3)
+		n2.local_holding_cost = None
+		self.assertTrue(n1.deep_equal_to(n2))
+
+		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n1 = network1.get_node_from_index(3)
+		n1.initialize(overwrite=True)
+		n2 = SupplyChainNode(index=None)
+		self.assertTrue(n1.deep_equal_to(n2))
+
+		# In this instance, node 1 is missing the ``demand_source`` attribute.
+		network1 = load_instance("missing_demand_source_node_1", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n1 = network1.get_node_from_index(1)
+		n1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n2 = network2.get_node_from_index(1)
+		n2.demand_source = DemandSource()
+		self.assertTrue(n1.deep_equal_to(n2))
+
+		# In this instance, the ``disruption_process`` attribute at node 1 is missing the ``recovery_probability`` attribute.
+		network1 = load_instance("missing_recovery_probability_node_1", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n1 = network1.get_node_from_index(1)
+		n1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_node_TestInitialize_data.json", initialize_missing_attributes=False)
+		n2 = network2.get_node_from_index(1)
+		n2.disruption_process.recovery_probability = None
+		self.assertTrue(n1.deep_equal_to(n2))
+
+

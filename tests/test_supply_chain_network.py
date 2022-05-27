@@ -113,59 +113,87 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(network2.deep_equal_to(network))
 
 
-class TestDeepCopy(unittest.TestCase):
+class TestInitialize(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestDeepCopy', 'set_up_class()')
+		print_status('TestInitialize', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestDeepCopy', 'tear_down_class()')
+		print_status('TestInitialize', 'tear_down_class()')
 
-	def test_example_6_1(self):
-		"""Test deep_copy() on 3-node serial system (Example 6.1).
+	def test_initialize(self):
+		"""Test that initialize() correctly initializes.
 		"""
-		print_status('TestDeepCopy', 'test_example_6_1()')
+		print_status('TestInitialize', 'test_copy()')
 
-		network = serial_system(
-			num_nodes=3,
-			local_holding_cost=[7, 4, 2],
-			stockout_cost=[37.12, 0, 0],
-			shipment_lead_time=[1, 1, 2],
-			demand_type='N',
-			demand_mean=5,
-			demand_standard_deviation=1,
-			inventory_policy_type='BS',
-			base_stock_levels=[6.49, 12.02-6.49, 22.71-12.02],
-			downstream_0=True
-		)
-		network_copy = network.deep_copy()
-		self.assertTrue(network.deep_equal_to(network_copy))
+		network1 = SupplyChainNetwork()
+		network2 = SupplyChainNetwork()
+		network1.initialize()
+		self.assertTrue(network1.deep_equal_to(network2))
 
-	def test_rong_atan_snyder_figure_1a(self):
-		"""Test deep_copy() on 7-node distribution system from Rong, Atan, and Snyder Figure 1a..
+		network1 = SupplyChainNetwork()
+		network1.period = 17
+		network1.max_max_replenishment_time = 80
+		network1.initialize()
+		network2 = SupplyChainNetwork()
+		self.assertTrue(network1.deep_equal_to(network2))
+
+		network1 = SupplyChainNetwork()
+		network1.period = 17
+		network1.max_max_replenishment_time = 80
+		network1.initialize(overwrite=False)
+		network2 = SupplyChainNetwork()
+		self.assertFalse(network1.deep_equal_to(network2))
+
+	def test_missing_values(self):
+		"""Test that initialize() correctly leaves attributes in place if object already contains
+		those attributes.
 		"""
-		print_status('TestDeepCopy', 'test_rong_atan_snyder_figure_1a()')
+		print_status('TestInitialize', 'test_missing_values()')
 
-		network = network_from_edges(
-			edges=[(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (2, 6)],
-			demand_type={0: None, 1: None, 2: None, 3: 'N', 4: 'N', 5: 'N', 6: 'N'},	
-			demand_mean=8,
-			demand_standard_deviation=np.sqrt(8),
-			local_holding_cost={0: 1/3, 1: 2/3, 2: 2/3, 3: 1, 4: 1, 5: 1, 6: 1},
-			stockout_cost=20,
-			shipment_lead_time=1,
-			inventory_policy_type='BS',
-			base_stock_levels={i: 0 for i in range(0, 7)}	# need to provide a value here, but will overwrite below
-		)
-		# Replace the base-stock levels with mean + 3 * SD for "derived demand" distribution 
-		# (external demand plus demand from downstream nodes).
-		for n in network.nodes:
-			n.inventory_policy.base_stock_level = n.derived_demand_mean + 3 * n.derived_demand_standard_deviation
-		network_copy = network.deep_copy()
-		self.assertTrue(network.deep_equal_to(network_copy))
+		# This instance is missing the ``_period`` attribute.
+		network1 = load_instance("missing_period", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network2.period = 0
+		self.assertTrue(network1.deep_equal_to(network2))
+
+		network1 = load_instance("missing_period", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network1.initialize(overwrite=True)
+		network2 = SupplyChainNetwork()
+		self.assertTrue(network1.deep_equal_to(network2))
+
+		# This instance is missing the ``_nodes`` attribute.
+		network1 = load_instance("missing_nodes", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		while len(network2.nodes) > 0:
+			network2.remove_node(network2.nodes[0])
+		self.assertTrue(network1.deep_equal_to(network2))
+
+		# In this instance, node 3 is missing the ``local_holding_cost`` attribute.
+		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network2.get_node_from_index(3).local_holding_cost = None
+		self.assertTrue(network1.deep_equal_to(network2))
+
+		# In this instance, node 1 is missing the ``demand_source`` attribute.
+		network1 = load_instance("missing_demand_source_node_1", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network2.get_node_from_index(1).demand_source = DemandSource()
+		self.assertTrue(network1.deep_equal_to(network2))
+
+		# In this instance, the ``disruption_process`` attribute at node 1 is missing the ``recovery_probability`` attribute.
+		network1 = load_instance("missing_recovery_probability_node_1", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network1.initialize(overwrite=False)
+		network2 = load_instance("example_6_3_full", "tests/additional_files/test_supply_chain_network_TestInitialize_data.json", initialize_missing_attributes=False)
+		network2.get_node_from_index(1).disruption_process.recovery_probability = None
+		self.assertTrue(network1.deep_equal_to(network2))
 
 
 class TestEdges(unittest.TestCase):

@@ -283,16 +283,6 @@ class DemandSource(object):
 
 	# ATTRIBUTE HANDLING
 
-	def copy_from(self, source):
-		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
-		not in ``source``, they will remain at their current values in ``self``. If attributes are present
-		in ``source`` but not in ``self``, they will be added to ``self``.
-		# TODO: this is preliminary; probably delete it
-		"""
-		# Loop through attributes in source object.
-		for attribute, value in vars(source).items():
-			setattr(self, attribute, value)
-
 	def initialize(self, overwrite=True):
 		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
 		all attributes are reset to their default values, even if they already exist. (This is how the
@@ -477,15 +467,6 @@ class DemandSource(object):
 		return np.random.choice(self.demand_list, p=self.probabilities)
 
 	# OTHER METHODS
-
-	def copy_from(self, source):
-		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
-		not in ``source``, they will remain at their current values in ``self``. If attributes are present
-		in ``source`` but not in ``self``, they will be added to ``self``.
-		"""
-		# Loop through attributes in source object.
-		for attribute, value in vars(source).items():
-			setattr(self, attribute, value)
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given

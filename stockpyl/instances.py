@@ -100,10 +100,11 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 		# missing attributes in the saved instance (which can happen if the instance was 
 		# saved under an earlier version of the code and a new field was introduced subsequently),
 		# the deep copy will contain default values for those attributes.
-#		instance = instance.deep_copy()
 		if initialize_missing_attributes:
-			pass
-		# TODO: change to initialize_all()
+			instance.initialize(overwrite=False)
+		# TODO: this method of making sure that all attributes are present feels clunky and prone to error.
+		# A better way might be to not use jsonpickle and instead create the relevant objects when loading, 
+		# then fill them from the data in the file.
 
 		return instance
 	except TypeError as e:

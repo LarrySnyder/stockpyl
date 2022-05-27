@@ -146,74 +146,24 @@ class TestInitialize(unittest.TestCase):
 		print_status('TestInitialize', 'test_missing_values()')
 
 		# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
-		# TODO: rename file to test_demand_source_TestInitialize_data
-		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
 		ds1 = network.get_node_from_index(1).demand_source
 		ds1.initialize(overwrite=False)
 		ds2 = DemandSource(type='N', mean=None, standard_deviation=1, round_to_int=False)
 		self.assertEqual(ds1, ds2)
-
-		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		
+		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
 		ds1 = network.get_node_from_index(1).demand_source
 		ds1.initialize(overwrite=True)
 		ds2 = DemandSource()
 		self.assertEqual(ds1, ds2)
 
-		# In this instance, demand_source at node 3 is missing the ``demand_list`` attribute.
-		network = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestCopyFrom_data.json", initialize_missing_attributes=False)
+		network = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
 		ds1 = network.get_node_from_index(3).demand_source
-		ds2 = DemandSource(type=None, round_to_int=False)
-		ds2.copy_from(ds1)
-		ds1.demand_list = None # add attribute back, at default value
+		ds1.initialize(overwrite=False)
+		ds2 = DemandSource() # ds1 is basically blank
 		self.assertEqual(ds1, ds2)
 
-class TestCopyFrom(unittest.TestCase):
-	@classmethod
-	def set_up_class(cls):
-		"""Called once, before any tests."""
-		print_status('TestCopyFrom', 'set_up_class()')
-
-	@classmethod
-	def tear_down_class(cls):
-		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestCopyFrom', 'tear_down_class()')
-
-	def test_copy(self):
-		"""Test that test_from correctly copies from a few different objects.
-		"""
-		print_status('TestCopyFrom', 'test_copy()')
-
-		ds1 = DemandSource(type='N', mean=50, standard_deviation=8, round_to_int=True)
-		ds2 = DemandSource()
-		ds2.copy_from(ds1)
-		self.assertEqual(ds1, ds2)
-
-		ds1 = DemandSource(type='CD', demand_list=[1, 2, 3], probabilities=[0.2, 0.5, 0.3])
-		ds2 = DemandSource()
-		ds2.copy_from(ds1)
-		self.assertEqual(ds1, ds2)
-
-	def test_missing_values(self):
-		"""Test that TestCopyFrom correctly leaves attributes in place if source does
-		not contain those attributes.
-		"""
-		print_status('TestCopyFrom', 'test()')
-
-		# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
-		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestCopyFrom_data.json")
-		ds1 = network.get_node_from_index(1).demand_source
-		ds2 = DemandSource()
-		ds2.copy_from(ds1)
-		ds1.mean = None # add attribute back, at default value
-		self.assertEqual(ds1, ds2)
-
-		# In this instance, demand_source at node 3 is missing the ``demand_list`` attribute.
-		network = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestCopyFrom_data.json")
-		ds1 = network.get_node_from_index(3).demand_source
-		ds2 = DemandSource()
-		ds2.copy_from(ds1)
-		ds1.demand_list = None # add attribute back, at default value
-		self.assertEqual(ds1, ds2)
 
 class TestValidateParameters(unittest.TestCase):
 	@classmethod

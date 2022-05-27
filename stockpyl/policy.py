@@ -255,16 +255,6 @@ class Policy(object):
 		if overwrite or not hasattr(self, '_order_up_to_level'):
 			self._order_up_to_level = None
 
-
-	def copy_from(self, source):
-		"""Copy attributes from ``source'' object into ``self``. If attributes are present in ``self`` but
-		not in ``source``, they will remain at their current values in ``self``. If attributes are present
-		in ``source`` but not in ``self``, they will be added to ``self``.
-		"""
-		# Loop through attributes in source object.
-		for attribute, value in vars(source).items():
-			setattr(self, attribute, value)
-
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
 		policy type. Raise an exception if not.
