@@ -7,13 +7,73 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`rq` module contains code for solving the :math:`(r,Q)` problem.
+"""
+.. include:: globals.inc
+
+The |mod_rq| module contains code for solving the |rq| optimization problem, 
+including a number of approximations.
 
 The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
 
+The :func:`stockpyl.rq.r_q_poisson_exact` function implements Federgruen and Zheng's (1992)
+exact algorithm for the |rq| problem with Poisson demands:
+
+.. doctest::
+    
+	>>> from stockpyl.rq import r_q_poisson_exact
+	>>> r, Q, cost = r_q_poisson_exact(holding_cost=20, stockout_cost=150, fixed_cost=100, demand_mean=1.5, lead_time=2)
+	>>> r
+	3
+	>>> Q
+	5
+	>>> cost
+	107.92358063314975
+
+For normally distributed demands, the module implements the expected-inventory-level (EIL) approximation
+(Whitin (1953), Hadley and Whitin (1963)), the EOQ with backorders (EOQB) approximation (see Zheng (1992)),
+the EOQ plus safety stock (EOQ+SS) approximation, and the loss-function approximation (Hadley and Whitin (1963)):
+
+.. doctest::
+
+	>>> from stockpyl.rq import r_q_eil_approximation, r_q_eoqb_approximation, r_q_eoqss_approximation, r_q_loss_function_approximation
+	>>> h = 0.225
+	>>> p = 7.5
+	>>> K = 8
+	>>> demand_mean = 1300
+	>>> demand_sd = 150
+	>>> L = 1/12
+	>>> r_eil, Q_eil, _ = r_q_eil_approximation(h, p, K, demand_mean, demand_sd, L)
+	>>> r_eil, Q_eil
+	(213.97044213580244, 318.5901810768729)
+	>>> r_eoqb, Q_eoqb = r_q_eoqb_approximation(h, p, K, demand_mean, demand_sd, L)
+	>>> r_eoqb, Q_eoqb
+	(128.63781442427097, 308.5737801203754)
+	>>> r_eoqss, Q_eoqss = r_q_eoqss_approximation(h, p, K, demand_mean, demand_sd, L)
+	>>> r_eoqss, Q_eoqss
+	(190.3369965715624, 304.0467800264368)
+	>>> r_lf, Q_lf = r_q_loss_function_approximation(h, p, K, demand_mean, demand_sd, L)
+	>>> r_lf, Q_lf
+	(126.8670634479628, 328.4491421980451)
+
+We can evaluate these approximate solutions under the exact expected cost function:
+
+.. doctest::
+
+	>>> from stockpyl.rq import r_q_cost
+	>>> r_q_cost(r_eil, Q_eil, h, p, K, demand_mean, demand_sd, L)
+	92.28687665608078
+	>>> r_q_cost(r_eoqb, Q_eoqb, h, p, K, demand_mean, demand_sd, L)
+	78.20243187688158
+	>>> r_q_cost(r_eoqss, Q_eoqss, h, p, K, demand_mean, demand_sd, L)
+	87.04837003438256
+	>>> r_q_cost(r_lf, Q_lf, h, p, K, demand_mean, demand_sd, L)
+	78.07114627035178
+
 """
+
+# TODO: exact optimization for normal demands??
 
 from scipy import integrate
 from scipy.stats import norm
@@ -27,7 +87,7 @@ import stockpyl.loss_functions as lf
 
 def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 			 fixed_cost, demand_mean, demand_sd, lead_time):
-	"""Calculate the exact cost of the given solution for an :math:`(r,Q)`
+	"""Calculate the exact cost of the given solution for an |rq|
 	policy with given parameters. Assumes demand is normally distributed.
 
 	Parameters
@@ -223,6 +283,9 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 	"""Determine :math:`r` and :math:`Q` using the "expected-inventory-level" (EIL)
 	approximation. Assumes demand is normally distributed.
 
+	The EIL approximation is one of the oldest and most widely known approximations for
+	the |rq| optimization problem, dating back to Whitin (1953) and Hadley and Whitin (1963).
+
 	Parameters
 	----------
 	holding_cost : float
@@ -269,7 +332,15 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 
 		g(r,Q) = h\\left(r - \\lambda L + \\frac{Q}{2}\\right) + \\frac{K\\lambda}{Q} + \\frac{p\\lambda n(r)}{Q}
 
-	**Algorithm Used:** Iterative algorithm for EIL approximation for :math:`(r,Q)` policy (Algorithm 5.1)
+	**Algorithm Used:** Iterative algorithm for EIL approximation for |rq| policy (Algorithm 5.1)
+
+
+	References
+	----------
+	T. M. Whitin, *The Theory of Inventory Management*, Princeton University Press, Princeton, NJ, 1953.
+
+	G. Hadley and T. M. Whitin, *Analysis of Inventory Systems*, Prentice-Hall, Englewood Cliffs, NJ, 1963.
+
 
 	**Example** (Example 5.2):
 
@@ -332,6 +403,8 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 	"""Determine :math:`r` and :math:`Q` using the "EOQ with backorders" (EOQB)
 	approximation. Assumes demand is normally distributed.
 
+	See Zheng (1992) for a thorough exploration of the EOQB approximation.
+
 	Parameters
 	----------
 	holding_cost : float
@@ -371,6 +444,13 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 		g(r) = g(r+Q)
 
 	where :math:`g(y)` is the newsvendor cost function.
+
+
+	References
+	----------
+	Y.-S. Zheng, On Properties of Stochastic Inventory Systems, *Management Science*
+	38(1), 87-103 (1992).
+
 
 	**Example** (Example 5.2):
 
@@ -492,6 +572,8 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 	"""Determine :math:`r` and :math:`Q` using the "loss function"
 	approximation. Assumes demand is normally distributed.
 
+	This approximation is due to Hadley and Whitin (1963).
+
 	Parameters
 	----------
 	holding_cost : float
@@ -536,6 +618,12 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	where :math:`n(\\cdot)` and :math:`n^{(2)}(\\cdot)` are the first- and
 	second-order loss functions for the lead-time demand distribution.
+
+
+	References
+	----------
+	G. Hadley and T. M. Whitin, *Analysis of Inventory Systems*, Prentice-Hall, Englewood Cliffs, NJ, 1963.
+
 
 	**Example** (Example 5.6):
 
@@ -592,7 +680,7 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 					 fixed_cost, demand_mean, lead_time):
-	"""Calculate the exact cost of the given solution for an :math:`(r,Q)`
+	"""Calculate the exact cost of the given solution for an |rq|
 	policy with given parameters under Poisson demand.
 
 	Parameters
@@ -676,7 +764,7 @@ def r_q_cost_poisson(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 					  demand_mean, lead_time):
-	"""Determine optimal :math:`r` and :math:`Q` for Poisson demand_list, using
+	"""Determine optimal :math:`r` and :math:`Q` for Poisson demands, using the
 	algorithm by Federgruen and Zheng (1992).
 
 	Parameters
@@ -716,6 +804,14 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 		g(r,Q) = \\frac{K\\lambda + \\sum_{y=r+1}^{r+Q} g(y)}{Q}
 
 	where :math:`g(y)` is the newsvendor cost function for Poisson demand_list.
+
+
+	References
+	----------
+	A. Federgruen and Y.-S. Zheng, An Efficient Algorithm for Computing an Optimal
+	|rq| Policy in Continuous Review Stochastic Inventory Systems, *Operations Research*
+	40(4), 808-813 (1992).
+
 
 	**Example** (Example 5.8):
 
