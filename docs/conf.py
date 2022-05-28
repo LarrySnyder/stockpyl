@@ -45,7 +45,9 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.autosummary'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -80,6 +82,11 @@ pygments_style = None
 autodoc_default_options = {
     'member-order': 'bysource'
 }
+
+# Require document name before section name in autosection references.
+# (added LVS 5/28/22)
+autosectionlabel_prefix_document = True
+
 
 # -- Options for HTML output -------------------------------------------------
 

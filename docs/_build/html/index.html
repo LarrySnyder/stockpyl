@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Instsalling Stockpyl" href="install.html" /> 
+    <link rel="next" title="Installing Stockpyl" href="install.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,7 +39,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Instsalling Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
 
@@ -96,6 +98,8 @@ are much older, and <em>FoSCT</em> provides references to original sources.</p>
 <span class="go">1.9976051931766445</span>
 </pre></div>
 </div>
+<p>Note that most functions in Stockpyl use longer, more descriptive parameter names (<code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>, etc.)
+rather than the shorter notation assigned to them in textbooks and articles (<code class="docutils literal notranslate"><span class="pre">h</span></code>, <code class="docutils literal notranslate"><span class="pre">K</span></code>).</p>
 <p>Stockpyl can solve the Wagner-Whitin model using dynamic programming:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mi">2</span>
@@ -161,12 +165,19 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <span class="go">{1: 0, 3: 0, 2: 0, 4: 1}</span>
 </pre></div>
 </div>
-<p>(c) Lawrence V. Snyder
-Lehigh University</p>
+<p>© Lawrence V. Snyder, Lehigh University</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Instsalling Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-eoq-problem">The EOQ Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-newsvendor-problem">The Newsvendor Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-rq-optimization-problem">The <span class="math notranslate nohighlight">\((r,Q)\)</span> Optimization Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-ss-optimization-problem">The <span class="math notranslate nohighlight">\((s,S)\)</span> Optimization Problem</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
@@ -200,7 +211,7 @@ Lehigh University</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="install.html" class="btn btn-neutral float-right" title="Instsalling Stockpyl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installing Stockpyl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

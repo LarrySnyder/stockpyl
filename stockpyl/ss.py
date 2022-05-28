@@ -7,12 +7,50 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`ss` module contains code for solving the :math:`(s,S)` problem.
+"""
+.. include:: globals.inc
+
+The |mod_ss| module contains code for solving the |ss| optimization problem.
 
 The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
 
+The exact problem with Poisson (or other discrete) demands can be solved using 
+the :func:`stockpyl.ss.s_s_discrete_exact` function, which implements Zheng and Federgruen's (1991)
+algorithm:
+
+.. doctest::
+    
+	>>> from stockpyl.ss import s_s_discrete_exact
+	>>> h = 1
+	>>> p = 4
+	>>> K = 5
+	>>> demand_mean = 6
+	>>> r, Q, cost = s_s_discrete_exact(h, p, K, use_poisson=True, demand_mean=demand_mean)
+	>>> r
+	4.0
+	>>> Q
+	10.0
+	>>> cost
+	8.034111561471642
+
+The :func:`stockpyl.ss.s_s_power_approximation` function implements the power approximation
+for normal demands by Ehrhardt and Mosier (1984):
+
+.. doctest::
+
+	>>> from stockpyl.ss import s_s_power_approximation
+	>>> h = 0.18
+	>>> p = 0.70
+	>>> K = 2.5
+	>>> demand_mean = 50
+	>>> demand_sd = 8
+	>>> r, Q = s_s_power_approximation(h, p, K, demand_mean, demand_sd)
+	>>> r
+	40.19461695647407
+	>>> Q
+	74.29017010980579
 """
 
 from scipy import integrate
@@ -28,11 +66,11 @@ from stockpyl.eoq import *
 def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 					  stockout_cost, fixed_cost, use_poisson, demand_mean=None,
 					  demand_hi=None, demand_pmf=None):
-	"""Calculate the exact cost of the given solution for an :math:`(s,S)`
+	"""Calculate the exact cost of the given solution for an |ss|
 	policy with given parameters under a discrete (Poisson or custom) demand
 	distribution.
 
-	Uses method described in Zheng and Federgruen (1991).
+	Uses method introduced in Zheng and Federgruen (1991).
 
 	Parameters
 	----------
@@ -86,6 +124,13 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 
 	where :math:`g(\cdot)` is the newsvendor cost function and :math:`M(\\cdot)`
 	and :math:`m(\\cdot)` are as described in equations (4.71)--(4.75).
+
+
+	References
+	----------
+	Y.-S. Zheng and A. Federgruen, Finding Optimal |ss| Policies is About as Simple
+	as Evaluating a Single Policy, *Operations Research* 39(4), 654-665 (1991).
+
 
 	**Example** (Example 4.7):
 
@@ -158,10 +203,10 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 
 def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 					   demand_mean=None, demand_hi=None, demand_pmf=None):
-	"""Determine optimal :math:`s` and :math:`S` for an :math:`(s,S)`
+	"""Determine optimal :math:`s` and :math:`S` for an |ss|
 	policy under a discrete (Poisson or custom) demand distribution.
 
-	Uses method described in Zheng and Federgruen (1991).
+	Uses method introduced in Zheng and Federgruen (1991).
 
 	Parameters
 	----------
@@ -171,10 +216,10 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 		Stockout cost per item per period. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	poisson_dist : bool
+	use_poisson : bool
 		Set to ``True`` to use Poisson distribution, ``False`` to use custom
-		discrete distribution. If ``True``, then ``mean`` must be
-		provided; if ``False``, then ``hi`` and ``demand_pdf`` must
+		discrete distribution. If ``True``, then ``demand_mean`` must be
+		provided; if ``False``, then ``demand_hi`` and ``demand_pdf`` must
 		be provied.
 	demand_mean : float, optional
 		Mean demand per period. Required if ``use_poisson`` is ``True``,
@@ -183,7 +228,7 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 		Upper limit of support of demand per period (lower limit is assumed to
 		be 0). Required if ``use_poisson`` is ``False``, ignored otherwise.
 	demand_pmf : list, optional
-		List of pmf values for demand values 0, ..., ``hi``. Required
+		List of pmf values for demand values 0, ..., ``demand_hi``. Required
 		if ``use_poisson`` is ``False``, ignored otherwise.
 
 	Returns
@@ -205,8 +250,15 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 		If ``demand_pmf`` is not a list of length ``demand_hi`` + 1.
 
 
-	**Algorithm Used:** Exact algorithm for periodic-review :math:`(s,S)`
+	**Algorithm Used:** Exact algorithm for periodic-review |ss|
 	policies with discrete demand distribution (Algorithm 4.2)
+
+
+	References
+	----------
+	Y.-S. Zheng and A. Federgruen, Finding Optimal |ss| Policies is About as Simple
+	as Evaluating a Single Policy, *Operations Research* 39(4), 654-665 (1991).
+
 
 	**Example** (Example 4.7):
 
@@ -336,8 +388,10 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 					   demand_mean, demand_sd):
-	"""Determine heuristic :math:`s` and :math:`S` for an :math:`(s,S)`
+	"""Determine heuristic :math:`s` and :math:`S` for an |ss|
 	policy under a normal demand distribution.
+
+	Uses the power approximation by Ehrhardt and Mosier (1984).
 
 	Parameters
 	----------
@@ -370,7 +424,7 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 	References
 	----------
 	R. Ehrhardt and C. Mosier, A Revision of the Power Approximation for
-	Computing :math:`(s, S)` Policies, *Management Science* 30, 618-622 (1984).
+	Computing |ss| Policies, *Management Science* 30, 618-622 (1984).
 
 
 	**Equations Used** (equations (4.77)-(4.80)):

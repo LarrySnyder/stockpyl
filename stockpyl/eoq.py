@@ -7,16 +7,57 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`eoq` module contains code for solving the economic order quantity
+"""
+.. include:: globals.inc
+
+The |mod_eoq| module contains code for solving the economic order quantity
 (EOQ) problem and some of its variants.
 
 The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
+refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
+
+The :func:`stockpyl.eoq.economic_order_quantity` function
+implements the basic EOQ model; it returns both the optimal order quantity and the corresponding
+optimal cost:
+
+.. doctest::
+    
+    >>> from stockpyl.eoq import economic_order_quantity
+    >>> Q, cost = economic_order_quantity(fixed_cost=8, holding_cost=0.225, demand_rate=1300)
+    >>> Q
+    304.0467800264368
+    >>> cost
+    68.41052550594829
+
+The module also contains functions for the EOQ with backorders (EOQB) and the economic production quantity (EPQ). 
+
+The :func:`stockpyl.eoq.joint_replenishment_problem_silver_heuristic` function implements 
+Silver's (1976) heuristic for the joint replenishment problem (JRP):
+
+.. doctest::
+
+	>>> from stockpyl.eoq import joint_replenishment_problem_silver_heuristic
+	>>> shared_fixed_cost = 600
+	>>> individual_fixed_costs = [120, 840, 300]
+	>>> holding_costs = [160, 20, 50]
+	>>> demand_rates = [1, 1, 1]
+	>>> Q, T, m, cost = joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
+	>>> Q # order quantities
+	[3.103164454170876, 9.309493362512628, 3.103164454170876]
+	>>> T # base cycle time
+	3.103164454170876
+	>>> m # order multiples
+	[1, 3, 1]
+	>>> cost
+	837.8544026261366
+
 
 """
 
 import numpy as np
+
+# TODO: add functions for quantity discounts
 
 
 def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantity=None):

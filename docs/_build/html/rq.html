@@ -38,23 +38,26 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -86,10 +89,59 @@
              
   <section id="module-stockpyl.rq">
 <span id="rq-module"></span><h1><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module<a class="headerlink" href="#module-stockpyl.rq" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">rq</span></code> module contains code for solving the <span class="math notranslate nohighlight">\((r,Q)\)</span> problem.</p>
+<p>The <a class="reference internal" href="#module-stockpyl.rq" title="stockpyl.rq"><code class="xref py py-mod docutils literal notranslate"><span class="pre">rq</span></code></a> module contains code for solving the <span class="math notranslate nohighlight">\((r,Q)\)</span> optimization problem,
+including a number of approximations.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
+refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>), 2nd edition
 (2019).</p>
+<p>The <a class="reference internal" href="#stockpyl.rq.r_q_poisson_exact" title="stockpyl.rq.r_q_poisson_exact"><code class="xref py py-func docutils literal notranslate"><span class="pre">stockpyl.rq.r_q_poisson_exact()</span></code></a> function implements Federgruen and Zheng’s (1992)
+exact algorithm for the <span class="math notranslate nohighlight">\((r,Q)\)</span> problem with Poisson demands:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.rq</span> <span class="kn">import</span> <span class="n">r_q_poisson_exact</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">r_q_poisson_exact</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">fixed_cost</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">lead_time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">107.92358063314975</span>
+</pre></div>
+</div>
+<p>For normally distributed demands, the module implements the expected-inventory-level (EIL) approximation
+(Whitin (1953), Hadley and Whitin (1963)), the EOQ with backorders (EOQB) approximation (see Zheng (1992)),
+the EOQ plus safety stock (EOQ+SS) approximation, and the loss-function approximation (Hadley and Whitin (1963)):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.rq</span> <span class="kn">import</span> <span class="n">r_q_eil_approximation</span><span class="p">,</span> <span class="n">r_q_eoqb_approximation</span><span class="p">,</span> <span class="n">r_q_eoqss_approximation</span><span class="p">,</span> <span class="n">r_q_loss_function_approximation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mf">0.225</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mf">7.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_mean</span> <span class="o">=</span> <span class="mi">1300</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_sd</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_eil</span><span class="p">,</span> <span class="n">Q_eil</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">r_q_eil_approximation</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_eil</span><span class="p">,</span> <span class="n">Q_eil</span>
+<span class="go">(213.97044213580244, 318.5901810768729)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_eoqb</span><span class="p">,</span> <span class="n">Q_eoqb</span> <span class="o">=</span> <span class="n">r_q_eoqb_approximation</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_eoqb</span><span class="p">,</span> <span class="n">Q_eoqb</span>
+<span class="go">(128.63781442427097, 308.5737801203754)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_eoqss</span><span class="p">,</span> <span class="n">Q_eoqss</span> <span class="o">=</span> <span class="n">r_q_eoqss_approximation</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_eoqss</span><span class="p">,</span> <span class="n">Q_eoqss</span>
+<span class="go">(190.3369965715624, 304.0467800264368)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_lf</span><span class="p">,</span> <span class="n">Q_lf</span> <span class="o">=</span> <span class="n">r_q_loss_function_approximation</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_lf</span><span class="p">,</span> <span class="n">Q_lf</span>
+<span class="go">(126.8670634479628, 328.4491421980451)</span>
+</pre></div>
+</div>
+<p>We can evaluate these approximate solutions under the exact expected cost function:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.rq</span> <span class="kn">import</span> <span class="n">r_q_cost</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="n">r_eil</span><span class="p">,</span> <span class="n">Q_eil</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="go">92.28687665608078</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="n">r_eoqb</span><span class="p">,</span> <span class="n">Q_eoqb</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="go">78.20243187688158</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="n">r_eoqss</span><span class="p">,</span> <span class="n">Q_eoqss</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="go">87.04837003438256</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_cost</span><span class="p">(</span><span class="n">r_lf</span><span class="p">,</span> <span class="n">Q_lf</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">demand_mean</span><span class="p">,</span> <span class="n">demand_sd</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+<span class="go">78.07114627035178</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="stockpyl.rq.r_q_cost">
 <span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_cost" title="Permalink to this definition">¶</a></dt>
@@ -180,6 +232,8 @@ when <span class="math notranslate nohighlight">\(g(r)\)</span> and <span class=
 <span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eil_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_eil_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “expected-inventory-level” (EIL)
 approximation. Assumes demand is normally distributed.</p>
+<p>The EIL approximation is one of the oldest and most widely known approximations for
+the <span class="math notranslate nohighlight">\((r,Q)\)</span> optimization problem, dating back to Whitin (1953) and Hadley and Whitin (1963).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -213,6 +267,16 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}r = F^{-1}\left(1 - \frac{Qh}{p\lambda}\right)\\Q = \sqrt{\frac{2\lambda[K + pn(r)]}{h}}\\g(r,Q) = h\left(r - \lambda L + \frac{Q}{2}\right) + \frac{K\lambda}{Q} + \frac{p\lambda n(r)}{Q}\end{aligned}\end{align} \]</div>
 <p><strong>Algorithm Used:</strong> Iterative algorithm for EIL approximation for <span class="math notranslate nohighlight">\((r,Q)\)</span> policy (Algorithm 5.1)</p>
+<p class="rubric">References</p>
+<ol class="upperalpha simple" start="20">
+<li><ol class="upperalpha simple" start="13">
+<li><p>Whitin, <em>The Theory of Inventory Management</em>, Princeton University Press, Princeton, NJ, 1953.</p></li>
+</ol>
+</li>
+</ol>
+<ol class="upperalpha simple" start="7">
+<li><p>Hadley and T. M. Whitin, <em>Analysis of Inventory Systems</em>, Prentice-Hall, Englewood Cliffs, NJ, 1963.</p></li>
+</ol>
 <p><strong>Example</strong> (Example 5.2):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eil_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(213.97044213580244, 318.5901810768729, 95.45114022285196)</span>
@@ -225,6 +289,7 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 <span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_eoqb_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_eoqb_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “EOQ with backorders” (EOQB)
 approximation. Assumes demand is normally distributed.</p>
+<p>See Zheng (1992) for a thorough exploration of the EOQB approximation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -254,6 +319,9 @@ approximation. Assumes demand is normally distributed.</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}Q^* = \sqrt{\frac{2K\lambda(h+p)}{hp}}\\g(r) = g(r+Q)\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(g(y)\)</span> is the newsvendor cost function.</p>
+<p class="rubric">References</p>
+<p>Y.-S. Zheng, On Properties of Stochastic Inventory Systems, <em>Management Science</em>
+38(1), 87-103 (1992).</p>
 <p><strong>Example</strong> (Example 5.2):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_eoqb_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(128.63781442427097, 308.5737801203754)</span>
@@ -306,6 +374,7 @@ approximation. Assumes demand is normally distributed.</p>
 <span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_loss_function_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_loss_function_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> using the “loss function”
 approximation. Assumes demand is normally distributed.</p>
+<p>This approximation is due to Hadley and Whitin (1963).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -339,6 +408,10 @@ when both <span class="math notranslate nohighlight">\(r\)</span> and <span clas
 \[ \begin{align}\begin{aligned}Q = \sqrt{\frac{2\left[K\lambda + (h+p)n^{(2)}(r)\right]}{h}}\\n(r) = \frac{hQ}{h+p}\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\(n(\cdot)\)</span> and <span class="math notranslate nohighlight">\(n^{(2)}(\cdot)\)</span> are the first- and
 second-order loss functions for the lead-time demand distribution.</p>
+<p class="rubric">References</p>
+<ol class="upperalpha simple" start="7">
+<li><p>Hadley and T. M. Whitin, <em>Analysis of Inventory Systems</em>, Prentice-Hall, Englewood Cliffs, NJ, 1963.</p></li>
+</ol>
 <p><strong>Example</strong> (Example 5.6):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_q_loss_function_approximation</span><span class="p">(</span><span class="mf">0.225</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>
 <span class="go">(126.8670634479628, 328.4491421980451)</span>
@@ -392,7 +465,7 @@ policy with given parameters under Poisson demand.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="stockpyl.rq.r_q_poisson_exact">
 <span class="sig-prename descclassname"><span class="pre">stockpyl.rq.</span></span><span class="sig-name descname"><span class="pre">r_q_poisson_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.rq.r_q_poisson_exact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine optimal <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> for Poisson demand_list, using
+<dd><p>Determine optimal <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> for Poisson demands, using the
 algorithm by Federgruen and Zheng (1992).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

@@ -4,3 +4,6 @@ Installing |sp|
 ====================
 
 ...stay tuned...
+
+
+|copy| Lawrence V. Snyder, Lehigh University

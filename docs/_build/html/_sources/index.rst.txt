@@ -37,6 +37,9 @@ Or the newsvendor problem with :math:`h=0.18`, :math:`p=0.70`, and :math:`D\sim 
     >>> cost
     1.9976051931766445
 
+Note that most functions in |sp| use longer, more descriptive parameter names (``holding_cost``, ``fixed_cost``, etc.)
+rather than the shorter notation assigned to them in textbooks and articles (``h``, ``K``). 
+
 |sp| can solve the Wagner-Whitin model using dynamic programming: 
 
 .. doctest::
@@ -111,8 +114,7 @@ in acyclical guaranteed-service model (GSM) systems:
     {1: 0, 3: 0, 2: 0, 4: 1}
 
 
-(c) Lawrence V. Snyder
-Lehigh University
+|copy| Lawrence V. Snyder, Lehigh University
 
 
 
@@ -121,6 +123,8 @@ Lehigh University
     :caption: Table of Contents
 
     install
+    overview_seio
+    overview_su
     api
 
 

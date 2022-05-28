@@ -930,12 +930,12 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		demand_sd = instance['demand_sd']
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
-									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd)
+									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0)
 		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
 		self.assertAlmostEqual(profit, 33.002394806823354)
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
-									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd, \
+									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0, \
 									base_stock_level=40)
 		self.assertAlmostEqual(base_stock_level, 40)
 		self.assertAlmostEqual(profit, 27.643868447129613)
@@ -953,12 +953,12 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		demand_sd = instance['demand_sd']
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
-									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd)
+									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0)
 		self.assertAlmostEqual(base_stock_level, 59.084578685373856)
 		self.assertAlmostEqual(profit, 2.104768082523147e+02)
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
-									purchase_cost, salvage_value, 0, 0, demand_mean, demand_sd, \
+									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0, \
 									base_stock_level=62)
 		self.assertAlmostEqual(base_stock_level, 62)
 		self.assertAlmostEqual(profit, 2.099143652105560e+02)
@@ -967,12 +967,12 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		holding_cost = 1
 		stockout_cost = 5
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
-									purchase_cost, salvage_value, holding_cost, stockout_cost, demand_mean, demand_sd)
+									purchase_cost, salvage_value, demand_mean, demand_sd, holding_cost, stockout_cost)
 		self.assertAlmostEqual(base_stock_level, 59.388143168769034)
 		self.assertAlmostEqual(profit, 1.954729310431908e+02)
 
 		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
-									purchase_cost, salvage_value, holding_cost, stockout_cost, demand_mean, demand_sd, \
+									purchase_cost, salvage_value, demand_mean, demand_sd, holding_cost, stockout_cost, \
 									base_stock_level=62)
 		self.assertAlmostEqual(base_stock_level, 62)
 		self.assertAlmostEqual(profit, 1.945482181675262e+02)
@@ -989,7 +989,7 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		demand_sd = 8
 		with self.assertRaises(TypeError):
 			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
-				salvage_value, 0, 0, demand_mean, demand_sd)
+				salvage_value, demand_mean, demand_sd, 0, 0)
 
 	def test_negative_parameter(self):
 		"""Test that newsvendor_normal_explicit function raises exception on negative parameter.
@@ -1003,4 +1003,4 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		demand_sd = 8
 		with self.assertRaises(ValueError):
 			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
-				salvage_value, 0, 0, demand_mean, demand_sd)
+				salvage_value, demand_mean, demand_sd, 0, 0)

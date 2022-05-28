@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="rq Module" href="rq.html" />
-    <link rel="prev" title="wagner_whitin Module" href="wagner_whitin.html" /> 
+    <link rel="prev" title="eoq Module" href="eoq.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,23 +38,26 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -86,11 +89,72 @@
              
   <section id="module-stockpyl.newsvendor">
 <span id="newsvendor-module"></span><h1><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module<a class="headerlink" href="#module-stockpyl.newsvendor" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">newsvendor</span></code> module contains code for solving the newsvendor
+<p>The <a class="reference internal" href="#module-stockpyl.newsvendor" title="stockpyl.newsvendor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">newsvendor</span></code></a> module contains code for solving the newsvendor
 problem and some of its variants.</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
+refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>), 2nd edition
 (2019).</p>
+<p>The <a class="reference internal" href="#stockpyl.newsvendor.newsvendor_normal" title="stockpyl.newsvendor.newsvendor_normal"><code class="xref py py-func docutils literal notranslate"><span class="pre">stockpyl.newsvendor.newsvendor_normal()</span></code></a> function
+implements the basic newsvendor model for normally distributed demands; it returns both the optimal base-stock level (i.e., order quantity)
+and the corresponding expected optimal cost:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_normal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">newsvendor_normal</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">demand_sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span>
+<span class="go">56.60395592743389</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">1.9976051931766445</span>
+</pre></div>
+</div>
+<p>If you only want to calculate the expected cost of a given base-stock level, you can either call
+<a class="reference internal" href="#stockpyl.newsvendor.newsvendor_normal" title="stockpyl.newsvendor.newsvendor_normal"><code class="xref py py-func docutils literal notranslate"><span class="pre">stockpyl.newsvendor.newsvendor_normal()</span></code></a>, passing it the optional <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> parameter, or
+call the <a class="reference internal" href="#stockpyl.newsvendor.newsvendor_normal_cost" title="stockpyl.newsvendor.newsvendor_normal_cost"><code class="xref py py-func docutils literal notranslate"><span class="pre">stockpyl.newsvendor.newsvendor_normal_cost()</span></code></a> function:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_normal</span><span class="p">,</span> <span class="n">newsvendor_normal_cost</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">demand_sd</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="mi">53</span><span class="p">)</span>
+<span class="go">(53, 2.223748044859164)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_cost</span><span class="p">(</span><span class="mi">53</span><span class="p">,</span> <span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">demand_sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">2.223748044859164</span>
+</pre></div>
+</div>
+<p>These functions use the version of the newsvendor problem based on holding and stockout (overage and
+underage) costs. The <a class="reference internal" href="#stockpyl.newsvendor.newsvendor_normal_explicit" title="stockpyl.newsvendor.newsvendor_normal_explicit"><code class="xref py py-func docutils literal notranslate"><span class="pre">stockpyl.newsvendor.newsvendor_normal_explicit()</span></code></a> function uses the “explicit” (or profit-maximization)
+form of the newsvendor problem, whose parameters are the selling revenue, purchase cost, and salvage value:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_normal_explicit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_explicit</span><span class="p">(</span><span class="n">selling_revenue</span><span class="o">=</span><span class="mf">1.00</span><span class="p">,</span> <span class="n">purchase_cost</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">salvage_value</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">demand_sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">(56.60395592743389, 33.002394806823354)</span>
+</pre></div>
+</div>
+<p>The module supports probability distributions other than normal; for example, Poisson:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mi">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_poisson</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+<span class="go">(56.0, 1.797235211809178)</span>
+</pre></div>
+</div>
+<p>You can also solve newsvendor problems for arbitrary continuous distributions specified as <code class="docutils literal notranslate"><span class="pre">scipy.stats.rv_continuous</span></code>
+objects:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_continuous</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">lognorm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">exp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">lognorm</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">exp</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_continuous</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="o">=</span><span class="n">demand_distrib</span><span class="p">)</span>
+<span class="go">(519.3023987673176, 198.42277610622506)</span>
+</pre></div>
+</div>
+<p>Or arbitrary discrete distributions specified as either a <code class="docutils literal notranslate"><span class="pre">scipy.stats.rv_discrete</span></code> object or
+as a dictionary containing the pmf:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_discrete</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">geom</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_distrib</span> <span class="o">=</span> <span class="n">geom</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">demand_distrib</span><span class="o">=</span><span class="n">demand_distrib</span><span class="p">)</span>
+<span class="go">(8.0, 7.194304)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># or ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="n">geom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">d_val</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span> <span class="k">for</span> <span class="n">d_val</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_pmf</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_discrete</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">demand_pmf</span><span class="o">=</span><span class="n">demand_pmf</span><span class="p">)</span>
+<span class="go">(8, 7.19102133030678)</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_normal">
 <span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal" title="Permalink to this definition">¶</a></dt>
@@ -543,7 +607,7 @@ requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</s
 
 <dl class="py function">
 <dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_normal_explicit">
-<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal_explicit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selling_revenue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salvage_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal_explicit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal_explicit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selling_revenue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salvage_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal_explicit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the “explicit”, profit-maximization version of the newsvendor
 problem with normal distribution, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied)
 calculate profit of given solution.</p>
@@ -556,12 +620,12 @@ calculate profit of given solution.</p>
 <li><p><strong>selling_revenue</strong> (<em>float</em>) – Revenue per unit sold. [<span class="math notranslate nohighlight">\(r\)</span>]</p></li>
 <li><p><strong>purchase_cost</strong> (<em>float</em>) – Cost per unit purchased. [<span class="math notranslate nohighlight">\(c\)</span>]</p></li>
 <li><p><strong>salvage_value</strong> (<em>float</em>) – Revenue per unit unsold. [<span class="math notranslate nohighlight">\(v\)</span>]</p></li>
-<li><p><strong>holding_cost</strong> (<em>float</em>) – Holding cost per item per period, excluding costs and revenues from
-buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
-<li><p><strong>stockout_cost</strong> (<em>float</em>) – Stockout cost per item per period, excluding costs and revenues from
-buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
 <li><p><strong>demand_mean</strong> (<em>float</em>) – Mean demand per period. [<span class="math notranslate nohighlight">\(\mu\)</span>]</p></li>
 <li><p><strong>demand_sd</strong> (<em>float</em>) – Standard deviation of demand per period. [<span class="math notranslate nohighlight">\(\sigma\)</span>]</p></li>
+<li><p><strong>holding_cost</strong> (<em>float</em><em>, </em><em>optional</em>) – Holding cost per item per period, over and above any costs and revenues from
+buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(h\)</span>]</p></li>
+<li><p><strong>stockout_cost</strong> (<em>float</em><em>, </em><em>optional</em>) – Stockout cost per item per period, over and above any costs and revenues from
+buying, selling, or salvaging items. [<span class="math notranslate nohighlight">\(p\)</span>]</p></li>
 <li><p><strong>lead_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Lead time. Default = 0. [<span class="math notranslate nohighlight">\(L\)</span>]</p></li>
 <li><p><strong>base_stock_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Base-stock level for profit evaluation. If supplied, no
 optimization will be performed. [<span class="math notranslate nohighlight">\(S\)</span>]</p></li>
@@ -589,7 +653,7 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 and standard deviation, <span class="math notranslate nohighlight">\(\alpha = (p+r-c)/(h+p+r-v)\)</span>,
 and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> is the normal complementary loss function.</p>
 <p><strong>Example</strong> (Example 4.2):</p>
-<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_explicit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_normal_explicit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 <span class="go">(56.60395592743389, 33.002394806823354)</span>
 </pre></div>
 </div>
@@ -601,7 +665,7 @@ and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> is the 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="wagner_whitin.html" class="btn btn-neutral float-left" title="wagner_whitin Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eoq.html" class="btn btn-neutral float-left" title="eoq Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="rq.html" class="btn btn-neutral float-right" title="rq Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

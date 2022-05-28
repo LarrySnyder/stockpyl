@@ -3,3 +3,5 @@
 
 .. automodule:: stockpyl.eoq
     :members:
+
+
