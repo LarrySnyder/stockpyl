@@ -6,18 +6,18 @@ API Documentation
     :caption: Contents:
 
     eoq
-    wagner_whitin
     newsvendor
     rq
     ss
     finite_horizon
-    sim
-    loss_functions
     supply_uncertainty
+    sim
+    instances
+    loss_functions
     ssm_serial
     gsm_tree
     gsm_serial
     gsm_helpers
-    instances
+    wagner_whitin
 
 

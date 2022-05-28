@@ -24,7 +24,6 @@ Lehigh University
 
 """
 
-from cmath import inf
 import networkx as nx
 import copy
 from stockpyl.demand_source import DemandSource

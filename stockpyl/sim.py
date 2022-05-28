@@ -242,9 +242,9 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	Ignore nodes for which visited=True.
 
 	If downstream node is currently disrupted and its disruption type = 'SP' (shipment-pausing),
-	no items are shipped to that node; they remain in finished-goods inventory. (They may later be
-	used for other downstream nodes; they are not earmarked for the disrupted node.)
-	# TODO: allow user to specify a mode in which items are earmarked for individual nodes
+	no items are shipped to that node. Those items are placed in disrupted-items inventory. 
+	They are not included in either the node's IL or its BOs, but they are charged a holding
+	cost as though they were included in IL.
 
 	Parameters
 	----------
@@ -397,6 +397,9 @@ def initialize_next_period_state_vars(network, period):
 		for s_index in n.successor_indices(include_external=True):
 			n.state_vars[period+1].backorders_by_successor[s_index] = \
 				n.state_vars[period].backorders_by_successor[s_index]
+		for s_index in n.successor_indices(include_external=False):
+			n.state_vars[period+1].disrupted_items_by_successor[s_index] = \
+				n.state_vars[period].disrupted_items_by_successor[s_index]
 		for p_index in n.predecessor_indices(include_external=True):
 			n.state_vars[period+1].on_order_by_predecessor[p_index] = \
 				n.state_vars[period].on_order_by_predecessor[p_index]
@@ -423,12 +426,11 @@ def calculate_period_costs(network, period):
 
 	for n in network.nodes:
 		# Finished goods holding cost.
+		items_held = max(0, n.state_vars[period].inventory_level) + n.get_attribute_total('disrupted_items_by_successor', period)
 		try:
-			n.state_vars[period].holding_cost_incurred = \
-				n.local_holding_cost_function(n.state_vars[period].inventory_level)
+			n.state_vars[period].holding_cost_incurred = n.local_holding_cost_function(items_held)
 		except TypeError:
-			n.state_vars[period].holding_cost_incurred = \
-				(n.local_holding_cost or 0) * max(0, n.state_vars[period].inventory_level)
+			n.state_vars[period].holding_cost_incurred = (n.local_holding_cost or 0) * items_held
 		# Raw materials holding cost.
 		# TODO: Allow different holding costs. Allow holding cost functions.
 		# TODO: unit tests
@@ -535,9 +537,9 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 		* Calculate demand met from stock.
 
 	If downstream node is currently disrupted and its disruption type = 'SP' (shipment-pausing),
-	no items are shipped to that node; they remain in finished-goods inventory. (They may later be
-	used for other downstream nodes; they are not earmarked for the disrupted node.)
-	# TODO: allow user to specify a mode in which items are earmarked for individual nodes
+	no items are shipped to that node. Those items are placed in disrupted-items inventory. 
+	They are not included in either the node's IL or its BOs, but they are charged a holding
+	cost as though they were included in IL.
 
 	Parameters
 	----------
@@ -552,12 +554,14 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 	# added but before demand is subtracted).
 	current_on_hand = max(0.0, starting_inventory_level) + new_finished_goods
 	current_backorders = max(0.0, -starting_inventory_level)
-	# Double-check BO calculations. (This fails for 'SP' disruptions.) # TODO: adjust for SP disruptions
-	if not any([s.disruption_process.disruption_type == 'SP' for s in node.successors()]):
-		current_backorders_check = node.get_attribute_total('backorders_by_successor', node.network.period)
-		assert np.isclose(current_backorders, current_backorders_check), \
-			"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
-				current_backorders, current_backorders_check, node.index, node.network.period)
+	# Double-check BO calculations.
+#	if not any([s.disruption_process.disruption_type == 'SP' for s in node.successors()]):
+	current_backorders_check = node.get_attribute_total('backorders_by_successor', node.network.period) \
+		+ node.get_attribute_total('disrupted_items_by_successor', node.network.period)
+	# TODO: put this back in
+#	assert np.isclose(current_backorders, current_backorders_check), \
+#		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
+#			current_backorders, current_backorders_check, node.index, node.network.period)
 
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
@@ -570,35 +574,47 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 
 		# Is there a shipment-pausing disruption at s?
 		if s is not None and s.disrupted and s.disruption_process.disruption_type == 'SP':
+			# Don't ship anything out.
 			OS = 0
+			# Disrupted items = the items that would have been shipped out, if there were no disruption.
+			DI = min(current_on_hand, node.state_vars_current.inbound_order[s_index])
 		else:
-			# Outbound shipment to s = min{OH, BO for s + new order from s}.
+			# Outbound shipment to s = min{OH, BO for s + new order from s} + DI for s.
 			OS = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
-					node.state_vars_current.inbound_order[s_index])
+					node.state_vars_current.inbound_order[s_index]) + node.state_vars_current.disrupted_items_by_successor[s_index]
+			# No disrupted items.
+			DI = 0
+
+		# Update outbound_shipment and current_on_hand.
 		node.state_vars_current.outbound_shipment[s_index] = OS
 		current_on_hand -= OS
 
-		# How much of outbound shipment was used to clear backorders?
-		# (Assumes backorders are cleared before satisfying current period's
+		# How much of outbound shipment was used for previously disrupted items and to clear backorders?
+		# (Assumes disrupted items are cleared first, then backorders, before satisfying current period's
 		# demand_list.)
-		BO_OS = min(node.state_vars_current.outbound_shipment[s_index],
-					node.state_vars_current.backorders_by_successor[s_index])
-		non_BO_OS = node.state_vars_current.outbound_shipment[s_index] - BO_OS
+		DI_OS = min(OS, node.state_vars_current.disrupted_items_by_successor[s_index])
+		BO_OS = min(OS - DI_OS, node.state_vars_current.backorders_by_successor[s_index])
+		non_BO_OS = OS - BO_OS
 
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demand_list.)
 		# TODO: handle successor-level DMFS and FR.
-		DMFS = max(0, node.state_vars_current.outbound_shipment[s_index]
-				- node.state_vars_current.backorders_by_successor[s_index])
+		# TODO: handle SP disruptions
+		DMFS = max(0, OS - node.state_vars_current.backorders_by_successor[s_index])
 		node.state_vars_current.demand_met_from_stock += DMFS
 		node.state_vars_current.demand_met_from_stock_cumul += DMFS
+		
 		# Update IL and BO.
 		node.state_vars_current.inventory_level -= node.state_vars_current.inbound_order[s_index]
 		node.state_vars_current.backorders_by_successor[s_index] -= BO_OS
 
 		# Calculate new backorders_by_successor.
 		node.state_vars_current.backorders_by_successor[s_index] += max(0,
-			node.state_vars_current.inbound_order[s_index] - non_BO_OS)
+			node.state_vars_current.inbound_order[s_index] - DI - non_BO_OS)
+
+		# Update disrupted_items.
+		if s is not None:
+			node.state_vars_current.disrupted_items_by_successor[s_index] += DI - DI_OS
 
 
 def calculate_fill_rate(node, period):

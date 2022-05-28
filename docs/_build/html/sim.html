@@ -1,66 +1,34 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sim Module &mdash; stockpyl 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="loss_functions Module" href="loss_functions.html" />
-    <link rel="prev" title="finite_horizon Module" href="finite_horizon.html" /> 
+    <link rel="next" title="instances Module" href="instances.html" />
+    <link rel="prev" title="supply_uncertainty Module" href="supply_uncertainty.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> stockpyl
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -68,103 +36,54 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">stockpyl</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="api.html">API Documentation</a> &raquo;</li>
-        
       <li><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/sim.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-stockpyl.sim">
+             
+  <section id="module-stockpyl.sim">
 <span id="sim-module"></span><h1><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module<a class="headerlink" href="#module-stockpyl.sim" title="Permalink to this headline">¶</a></h1>
 <p>Code for simulating multi-echelon inventory systems.</p>
 <p>‘node’ and ‘stage’ are used interchangeably in the documentation.</p>
@@ -173,8 +92,8 @@ that it contains, which contains all of the data for the simulation instance.</p
 <p>(c) Lawrence V. Snyder
 Lehigh University</p>
 <dl class="py function">
-<dt id="stockpyl.sim.simulation">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">simulation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.simulation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.simulation">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the simulation for <code class="docutils literal notranslate"><span class="pre">num_periods</span></code> periods. Fills performance
 measures directly into <code class="docutils literal notranslate"><span class="pre">network</span></code>.</p>
 <dl class="field-list simple">
@@ -196,10 +115,27 @@ measures directly into <code class="docutils literal notranslate"><span class="p
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.generate_downstream_orders">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">generate_downstream_orders</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.generate_downstream_orders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.update_disruption_states">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">update_disruption_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.update_disruption_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update disruption states for all nodes in network.
+Record disruption states in <code class="docutils literal notranslate"><span class="pre">state_vars</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="stockpyl.sim.generate_downstream_orders">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.generate_downstream_orders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate demand_list and orders for all downstream nodes using depth-first-search.
 Ignore nodes for which visited=True.</p>
+<p>If node is currently disrupted and disruption type = ‘OP’ (order-pausing), order quantity
+is forced to 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -214,10 +150,14 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.generate_downstream_shipments">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">generate_downstream_shipments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.generate_downstream_shipments" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.generate_downstream_shipments">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">generate_downstream_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.generate_downstream_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate shipments to all downstream nodes using depth-first-search.
 Ignore nodes for which visited=True.</p>
+<p>If downstream node is currently disrupted and its disruption type = ‘SP’ (shipment-pausing),
+no items are shipped to that node. Those items are placed in disrupted-items inventory.
+They are not included in either the node’s IL or its BOs, but they are charged a holding
+cost as though they were included in IL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -232,8 +172,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.initialize_state_vars">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">initialize_state_vars</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.initialize_state_vars" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.initialize_state_vars">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.initialize_state_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the state variables for each node:</p>
 <blockquote>
 <div><ul class="simple">
@@ -251,8 +191,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.receive_inbound_orders">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">receive_inbound_orders</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.receive_inbound_orders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.receive_inbound_orders">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.receive_inbound_orders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive inbound orders:</p>
 <blockquote>
 <div><ul class="simple">
@@ -269,16 +209,19 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.initialize_next_period_state_vars">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">initialize_next_period_state_vars</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.initialize_next_period_state_vars" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.initialize_next_period_state_vars">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">initialize_next_period_state_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.initialize_next_period_state_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set initial values for state variables in period <code class="docutils literal notranslate"><span class="pre">period</span></code> + 1.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Update shipment and order pipelines by “advancing” them by 1 period           and adding a 0 in the last element.</p></li>
 <li><p>Set IL, BO, RM, and OO next period = ending values this period.</p></li>
 <li><p>Set _cumul attributes = ending values this period.</p></li>
+<li><p>Do nothing for <code class="docutils literal notranslate"><span class="pre">disrupted</span></code>; this is set in update_disruption_states().</p></li>
 </ul>
 </div></blockquote>
+<p>If node is currently disrupted and its disruption type = ‘TP’ (transit-pausing),
+items in its shipment pipelines are not advanced.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -290,8 +233,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.calculate_period_costs">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">calculate_period_costs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.calculate_period_costs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.calculate_period_costs">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_period_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.calculate_period_costs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate costs and revenues for one period.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -304,8 +247,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.receive_inbound_shipments">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">receive_inbound_shipments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.receive_inbound_shipments" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.receive_inbound_shipments">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">receive_inbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.receive_inbound_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive inbound shipment for the node:</p>
 <blockquote>
 <div><ul class="simple">
@@ -315,6 +258,8 @@ visited by the depth-first search.</p></li>
 <li><p>Update IL and OO.</p></li>
 </ul>
 </div></blockquote>
+<p>If node is currently disrupted and disruption type = ‘RP’ (receipt-pausing), quantity received
+is forced to 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
@@ -323,8 +268,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.raw_materials_to_finished_goods">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">raw_materials_to_finished_goods</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.raw_materials_to_finished_goods" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.raw_materials_to_finished_goods">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">raw_materials_to_finished_goods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.raw_materials_to_finished_goods" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process raw materials to convert them to finished goods:</p>
 <blockquote>
 <div><ul class="simple">
@@ -346,8 +291,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.process_outbound_shipments">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">process_outbound_shipments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_inventory_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_finished_goods</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.process_outbound_shipments" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.process_outbound_shipments">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">process_outbound_shipments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_inventory_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_finished_goods</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.process_outbound_shipments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process outbound shipments for the node:</p>
 <blockquote>
 <div><ul class="simple">
@@ -356,6 +301,10 @@ visited by the depth-first search.</p></li>
 <li><p>Calculate demand met from stock.</p></li>
 </ul>
 </div></blockquote>
+<p>If downstream node is currently disrupted and its disruption type = ‘SP’ (shipment-pausing),
+no items are shipped to that node. Those items are placed in disrupted-items inventory.
+They are not included in either the node’s IL or its BOs, but they are charged a holding
+cost as though they were included in IL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -368,8 +317,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.calculate_fill_rate">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">calculate_fill_rate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.calculate_fill_rate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.calculate_fill_rate">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_fill_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.calculate_fill_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate fill rate for the node in the period.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -382,8 +331,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.propagate_shipment_downstream">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">propagate_shipment_downstream</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.propagate_shipment_downstream" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.propagate_shipment_downstream">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">propagate_shipment_downstream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.propagate_shipment_downstream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Propagate shipment downstream, i.e., add it to successors’ <code class="docutils literal notranslate"><span class="pre">inbound_shipment_pipeline</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -399,8 +348,8 @@ visited by the depth-first search.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.sim.run_multiple_trials">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></code><code class="sig-name descname"><span class="pre">run_multiple_trials</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.run_multiple_trials" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.sim.run_multiple_trials">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.sim.</span></span><span class="sig-name descname"><span class="pre">run_multiple_trials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.sim.run_multiple_trials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run <code class="docutils literal notranslate"><span class="pre">num_trials</span></code> trials of the simulation, each with  <code class="docutils literal notranslate"><span class="pre">num_periods</span></code>
 periods. Return mean and SEM of average cost.</p>
 <p>(To build alpha-confidence interval, use
@@ -428,55 +377,37 @@ most recent trial.</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="loss_functions.html" class="btn btn-neutral float-right" title="loss_functions Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="finite_horizon.html" class="btn btn-neutral float-left" title="finite_horizon Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="supply_uncertainty.html" class="btn btn-neutral float-left" title="supply_uncertainty Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instances.html" class="btn btn-neutral float-right" title="instances Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2022, Larry Snyder
-
-    </p>
+    <p>&#169; Copyright 2022, Larry Snyder.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

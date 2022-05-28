@@ -598,8 +598,9 @@ class SupplyChainNode(object):
 	def get_attribute_total(self, attribute, period, include_external=True):
 		"""Return total of attribute for the period specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
-		inbound_shipment, on_order_by_predecessor, inbound_order, outbound_shipment, or
-		backorders_by_successor. (If another attribute is specified, returns the value of the
+		inbound_shipment, on_order_by_predecessor, inbound_order, outbound_shipment, 
+		backorders_by_successor, disrupted_items_by_successor. 
+		(If another attribute is specified, returns the value of the
 		attribute, without any summation.)
 
 		If ``period`` is ``None``, sums the attribute over all periods.
@@ -635,7 +636,7 @@ class SupplyChainNode(object):
 			else:
 				return np.sum([self.state_vars[period].__dict__[attribute][p_index]
 							   for p_index in self.predecessor_indices(include_external=True)])
-		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor'):
+		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor', 'disrupted_items_by_successor'):
 			# These attributes are indexed by successor.
 			if period is None:
 				return np.sum([self.state_vars[t].__dict__[attribute][s_index]
@@ -713,7 +714,13 @@ class NodeStateVars(object):
 	backorders_by_successor : dict
 		``backorders_by_successor[s]`` = number of backorders for successor
 		``s``. If ``s`` is ``None``, refers to external demand.
-		Sum over all successors should always equal max{0, -inventory_level}.
+	disrupted_items_by_successor : dict
+		``disrupted_items_by_successor[s]`` = number of items held for successor ``s``
+		due to a type-SP disruption at ``s``. (Since external demand cannot be
+		disrupted, ``disrupted_items_by_successor[None]`` always = 0.) Items held for successor
+		are not included in ``backorders_by_successor``.
+		Sum over all successors of ``backorders_by_successor + disrupted_items_by_successor``
+		should always equal max{0, -inventory_level}. # TODO: check that this logic is correct
 	raw_material_inventory : dict
 		``raw_material_inventory[p]`` = number of units of predecessor ``p`'s
 		product in raw-material inventory at node. If ``p`` is ``None``, refers
@@ -787,6 +794,7 @@ class NodeStateVars(object):
 			self.outbound_shipment = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.on_order_by_predecessor = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.backorders_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
+			self.disrupted_items_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.order_quantity = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.raw_material_inventory = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 
@@ -800,6 +808,7 @@ class NodeStateVars(object):
 			self.outbound_shipment = {}
 			self.on_order_by_predecessor = {}
 			self.backorders_by_successor = {}
+			self.disrupted_items_by_successor = {}
 			self.order_quantity = {}
 			self.raw_material_inventory = {}
 
@@ -829,8 +838,8 @@ class NodeStateVars(object):
 	def on_hand(self):
 		return max(0, self.inventory_level)
 
-	# backorders = current backorders. Should always equal sum over all successors
-	# of backorders_by_successor[s].
+	# backorders = current backorders. Should always equal sum over all successors s
+	# of backorders_by_successor[s] + disrupted_items_by_successor[s].
 	@property
 	def backorders(self):
 		return max(0, -self.inventory_level)
@@ -1035,3 +1044,4 @@ class NodeStateVars(object):
 			change_dict_key(self.inbound_order, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.outbound_shipment, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.backorders_by_successor, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.disrupted_items_by_successor, s.index, old_to_new_dict[s.index])

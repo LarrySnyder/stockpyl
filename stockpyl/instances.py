@@ -20,7 +20,6 @@ Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals 
 #import copy
 import os
 import json
-from re import I
 import warnings
 import datetime
 import jsonpickle

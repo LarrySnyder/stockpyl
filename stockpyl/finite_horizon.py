@@ -237,7 +237,7 @@ def finite_horizon_dp(
 		>>> S
 		[0, 133.0, 133.0, 133.0, 133.0, 126.0]
 		>>> cost
-		1558.6946467384014
+		1558.6946467384012
 	"""
 
 	# TODO: handle non-normal demand_list

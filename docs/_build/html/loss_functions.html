@@ -1,67 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>loss_functions Module &mdash; stockpyl 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="supply_uncertainty Module" href="supply_uncertainty.html" />
-    <link rel="prev" title="sim Module" href="sim.html" /> 
+    <link rel="next" title="ssm_serial Module" href="ssm_serial.html" />
+    <link rel="prev" title="instances Module" href="instances.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> stockpyl
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -69,103 +37,54 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">stockpyl</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="api.html">API Documentation</a> &raquo;</li>
-        
       <li><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/loss_functions.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-stockpyl.loss_functions">
+             
+  <section id="module-stockpyl.loss_functions">
 <span id="loss-functions-module"></span><h1><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module<a class="headerlink" href="#module-stockpyl.loss_functions" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">loss_functions</span></code> module contains code for calculating loss functions.</p>
 <p>For a random variable <span class="math notranslate nohighlight">\(X\)</span>, the loss function, <span class="math notranslate nohighlight">\(n(x)\)</span>, and the
@@ -190,8 +109,8 @@ Chain Theory”, Wiley, 2019, 2nd ed., except as noted.</p>
 <p>(c) Lawrence V. Snyder
 Lehigh University</p>
 <dl class="py function">
-<dt id="stockpyl.loss_functions.standard_normal_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">standard_normal_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.standard_normal_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.standard_normal_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">standard_normal_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.standard_normal_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(\mathscr{L}(z)\)</span> and <span class="math notranslate nohighlight">\(\bar{\mathscr{L}}(z)\)</span>, the
 standard normal loss and complementary loss functions.</p>
 <dl class="field-list simple">
@@ -219,8 +138,8 @@ standard normal loss and complementary loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.standard_normal_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">standard_normal_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.standard_normal_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.standard_normal_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">standard_normal_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.standard_normal_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(\mathscr{L}^{(2)}(z)\)</span> and
 <span class="math notranslate nohighlight">\(\bar{\mathscr{L}}^{(2)}(z)\)</span>, the standard normal second-order loss
 and complementary loss functions.</p>
@@ -249,8 +168,8 @@ and complementary loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.normal_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">normal_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.normal_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.normal_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">normal_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.normal_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}(x)\)</span>, the normal loss function and
 complementary loss functions for a <span class="math notranslate nohighlight">\(N(\mu,\sigma^2)\)</span>
 distribution.</p>
@@ -284,8 +203,8 @@ loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.normal_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">normal_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.normal_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.normal_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">normal_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.normal_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 normal loss function and complementary second-order loss function for a
 <span class="math notranslate nohighlight">\(N(\mu,\sigma^2)\)</span> distribution.</p>
@@ -319,8 +238,8 @@ loss and complementary loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.lognormal_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">lognormal_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.lognormal_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.lognormal_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">lognormal_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.lognormal_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return lognormal loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{lognormal}(\mu,\sigma)\)</span>
 distribution.</p>
 <dl class="field-list simple">
@@ -352,8 +271,8 @@ distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.exponential_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">exponential_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.exponential_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.exponential_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">exponential_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.exponential_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return exponential loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{exp}(\mu)\)</span>
 distribution.</p>
 <dl class="field-list simple">
@@ -394,8 +313,8 @@ distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.exponential_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">exponential_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.exponential_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.exponential_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">exponential_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.exponential_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 exponential loss function and complementary second-order loss function for an
 <span class="math notranslate nohighlight">\(\text{exp}(\mu)\)</span> distribution.</p>
@@ -437,8 +356,8 @@ exponential loss function and complementary second-order loss function for an
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.gamma_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">gamma_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.gamma_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.gamma_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">gamma_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.gamma_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return gamma loss and complementary loss functions for a <span class="math notranslate nohighlight">\(\text{Gamma}(a,b)\)</span>
 distribution with shape parameter <span class="math notranslate nohighlight">\(a\)</span> and scale parameter <span class="math notranslate nohighlight">\(b\)</span>, i.e.,
 a distribution with pdf</p>
@@ -485,8 +404,8 @@ a distribution with pdf</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.gamma_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">gamma_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.gamma_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.gamma_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">gamma_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.gamma_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 loss and complementary loss functions for a
 <span class="math notranslate nohighlight">\(\text{Gamma}(a,b)\)</span> distribution with shape parameter <span class="math notranslate nohighlight">\(a\)</span> and
@@ -534,8 +453,8 @@ scale parameter <span class="math notranslate nohighlight">\(b\)</span>, i.e., a
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.uniform_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">uniform_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.uniform_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.uniform_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">uniform_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.uniform_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return uniform loss and complementary loss functions for a continuous <span class="math notranslate nohighlight">\(U[a,b]\)</span>
 distribution.</p>
 <dl class="field-list simple">
@@ -569,8 +488,8 @@ distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.uniform_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">uniform_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.uniform_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.uniform_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">uniform_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.uniform_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 loss and complementary loss functions for a
 <span class="math notranslate nohighlight">\(U[a,b]\)</span> distribution.</p>
@@ -605,8 +524,8 @@ loss and complementary loss functions for a
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.continuous_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">continuous_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.continuous_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.continuous_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">continuous_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.continuous_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return loss and complementary loss functions for an arbitrary continuous
 distribution, using numerical integration.</p>
 <p>TODO: handle distribution supplied as pdf function</p>
@@ -656,8 +575,8 @@ two <code class="docutils literal notranslate"><span class="pre">rv_continuous</
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.continuous_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">continuous_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.continuous_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.continuous_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">continuous_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.continuous_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return second-order loss and complementary loss functions for an arbitrary continuous
 distribution, using numerical integration.</p>
 <p>TODO: handle distribution supplied as pdf function</p>
@@ -709,8 +628,8 @@ two <code class="docutils literal notranslate"><span class="pre">rv_continuous</
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.poisson_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">poisson_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.poisson_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.poisson_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">poisson_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.poisson_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return Poisson loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{Pois}\)</span> (<code class="docutils literal notranslate"><span class="pre">mean</span></code>)
 distribution.</p>
 <dl class="field-list simple">
@@ -744,8 +663,8 @@ distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.poisson_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">poisson_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.poisson_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.poisson_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">poisson_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.poisson_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 Poisson loss function and complementary second-order loss function for a <span class="math notranslate nohighlight">\(\text{Pois}\)</span> (<code class="docutils literal notranslate"><span class="pre">mean</span></code>)
 distribution.</p>
@@ -780,8 +699,8 @@ distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.geometric_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">geometric_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.geometric_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.geometric_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">geometric_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.geometric_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return geometric loss and complementary loss functions for <span class="math notranslate nohighlight">\(\text{Geom}\)</span> (<code class="docutils literal notranslate"><span class="pre">p</span></code>)
 distribution. Uses the “number of trials” version of the geometric distribution,
 i.e., the pmf is</p>
@@ -830,8 +749,8 @@ the version we use here.)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.geometric_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">geometric_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.geometric_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.geometric_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">geometric_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.geometric_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 geometric loss function and complementary second-order loss function for a <span class="math notranslate nohighlight">\(\text{Geom}\)</span> (<code class="docutils literal notranslate"><span class="pre">p</span></code>)
 distribution. Uses the “number of trials” version of the geometric distribution,
@@ -881,8 +800,8 @@ the version we use here.)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.negative_binomial_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">negative_binomial_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.negative_binomial_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.negative_binomial_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">negative_binomial_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.negative_binomial_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return negative binomial (NB) loss and complementary loss functions for NB
 distribution with shape parameters <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p\)</span>. The pmf of this distribution
 is given by</p>
@@ -938,16 +857,16 @@ The notation has been adjusted to account for the version we use here.)</p>
 </ol>
 <p><strong>Example</strong>:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
-<span class="go">(4.447304632028365, 2.4473046320283647)</span>
+<span class="go">(4.447304632028364, 2.447304632028364)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="go">(9.326459980156917, 0.32645998015691724)</span>
+<span class="go">(9.326459980156931, 0.32645998015693145)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.negative_binomial_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">negative_binomial_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.negative_binomial_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.negative_binomial_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">negative_binomial_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.negative_binomial_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <span class="math notranslate nohighlight">\(n^{(2)}(x)\)</span> and <span class="math notranslate nohighlight">\(\bar{n}^{(2)}(x)\)</span>, the second-order
 exponential loss function and complementary second-order loss function for a
 negative binomial (NB) distribution with shape parameters <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p\)</span>.
@@ -1007,14 +926,14 @@ The notation has been adjusted to account for the version we use here.)</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_second_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
 <span class="go">(30.877804945158942, 10.122195054841043)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">negative_binomial_second_loss</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="go">(67.10108087745225, 0.8989191225477526)</span>
+<span class="go">(67.10108087745232, 0.8989191225476816)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.discrete_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">discrete_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.discrete_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.discrete_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">discrete_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.discrete_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return loss and complementary loss function for an arbitrary discrete
 distribution.</p>
 <p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">distrib</span></code>) or
@@ -1068,8 +987,8 @@ custom <code class="docutils literal notranslate"><span class="pre">rv_discrete<
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.loss_functions.discrete_second_loss">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></code><code class="sig-name descname"><span class="pre">discrete_second_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.discrete_second_loss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.loss_functions.discrete_second_loss">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.loss_functions.</span></span><span class="sig-name descname"><span class="pre">discrete_second_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.loss_functions.discrete_second_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return second-order loss and complementary loss function for an arbitrary discrete
 distribution.</p>
 <p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">distrib</span></code>) or
@@ -1125,55 +1044,37 @@ custom <code class="docutils literal notranslate"><span class="pre">rv_discrete<
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="supply_uncertainty.html" class="btn btn-neutral float-right" title="supply_uncertainty Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="sim.html" class="btn btn-neutral float-left" title="sim Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="instances.html" class="btn btn-neutral float-left" title="instances Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ssm_serial.html" class="btn btn-neutral float-right" title="ssm_serial Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2022, Larry Snyder
-
-    </p>
+    <p>&#169; Copyright 2022, Larry Snyder.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

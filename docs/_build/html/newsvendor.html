@@ -1,67 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>newsvendor Module &mdash; stockpyl 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="rq Module" href="rq.html" />
     <link rel="prev" title="wagner_whitin Module" href="wagner_whitin.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> stockpyl
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -69,18 +37,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
@@ -101,71 +59,32 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">stockpyl</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="api.html">API Documentation</a> &raquo;</li>
-        
       <li><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/newsvendor.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-stockpyl.newsvendor">
+             
+  <section id="module-stockpyl.newsvendor">
 <span id="newsvendor-module"></span><h1><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module<a class="headerlink" href="#module-stockpyl.newsvendor" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">newsvendor</span></code> module contains code for solving the newsvendor
 problem and some of its variants.</p>
@@ -173,8 +92,8 @@ problem and some of its variants.</p>
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_normal">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_normal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_normal">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with normal distribution, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
 <dl class="field-list simple">
@@ -222,8 +141,8 @@ loss and complementary loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_normal_cost">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_normal_cost</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal_cost" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_normal_cost">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> as the solution to the
 newsvendor problem with normal distribution.</p>
 <dl class="field-list simple">
@@ -263,8 +182,8 @@ loss and complementary loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_poisson">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_poisson</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_poisson" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_poisson">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_poisson" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with Poisson distribution, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
 <dl class="field-list simple">
@@ -309,8 +228,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_poisson_cost">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_poisson_cost</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_poisson_cost" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_poisson_cost">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_poisson_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_poisson_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> as the solution to the
 newsvendor problem with Poisson distribution.</p>
 <dl class="field-list simple">
@@ -350,8 +269,8 @@ loss and complementary loss functions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_continuous">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_continuous</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_continuous" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_continuous">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_continuous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_continuous" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with generic continuous distribution, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
 <p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_continuous</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code>) or
@@ -407,8 +326,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_discrete">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_discrete</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_discrete" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_discrete">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_distrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_pmf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_discrete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with generic discrete distribution, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate cost of given solution.</p>
 <p>Must provide either <code class="docutils literal notranslate"><span class="pre">rv_discrete</span></code> distribution (in <code class="docutils literal notranslate"><span class="pre">demand_distrib</span></code>) or
@@ -466,8 +385,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.myopic">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">myopic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.myopic" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.myopic">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">myopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.myopic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the optimizer of the myopic cost function, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code>
 is supplied) calculate the cost of given solution. Assumes demand is normally distributed.</p>
 <p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
@@ -523,8 +442,8 @@ New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (19
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.myopic_cost">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">myopic_cost</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.myopic_cost">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">myopic_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.myopic_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate “myopic” cost function. Assumes demand is normally distributed.</p>
 <p>The myopic cost function is denoted <span class="math notranslate nohighlight">\(G_i(y)\)</span> in Veinott (1966) and
 as <span class="math notranslate nohighlight">\(C^+(t,y)\)</span> in Zipkin (2000). It is not used in Snyder and Shen
@@ -572,8 +491,8 @@ New Conditions and a New Proof, <em>J. SIAM Appl. Math</em> 14(5), 1067-1083 (19
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.set_myopic_cost_to">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">set_myopic_cost_to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_half</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.set_myopic_cost_to">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">set_myopic_cost_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost_next_per</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_half</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.set_myopic_cost_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the value of <span class="math notranslate nohighlight">\(y\)</span> such that <span class="math notranslate nohighlight">\(G_t(y)\)</span>
 equals <code class="docutils literal notranslate"><span class="pre">cost</span></code>, where <span class="math notranslate nohighlight">\(G_t(\cdot)\)</span> is the myopic cost function
 for the current period, given by <code class="docutils literal notranslate"><span class="pre">myopic_cost()</span></code>. Assumes demand is normally distrbuted.</p>
@@ -623,8 +542,8 @@ requires <span class="math notranslate nohighlight">\(y \ge \underline{S}_t\)</s
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.newsvendor.newsvendor_normal_explicit">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></code><code class="sig-name descname"><span class="pre">newsvendor_normal_explicit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selling_revenue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salvage_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal_explicit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.newsvendor.newsvendor_normal_explicit">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.newsvendor.</span></span><span class="sig-name descname"><span class="pre">newsvendor_normal_explicit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selling_revenue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salvage_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.newsvendor.newsvendor_normal_explicit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the “explicit”, profit-maximization version of the newsvendor
 problem with normal distribution, or (if <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied)
 calculate profit of given solution.</p>
@@ -676,55 +595,37 @@ and <span class="math notranslate nohighlight">\(\bar{n}(\cdot)\)</span> is the 
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="rq.html" class="btn btn-neutral float-right" title="rq Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="wagner_whitin.html" class="btn btn-neutral float-left" title="wagner_whitin Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="wagner_whitin.html" class="btn btn-neutral float-left" title="wagner_whitin Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rq.html" class="btn btn-neutral float-right" title="rq Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2022, Larry Snyder
-
-    </p>
+    <p>&#169; Copyright 2022, Larry Snyder.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

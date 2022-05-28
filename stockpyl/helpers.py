@@ -430,7 +430,7 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 	x : dict, float, or list
 		Object to node-ify.
 	node_indices : list
-		List of node indices.
+		List of node indices. (``node_indices[n]`` is the index of the ``n``th node.)
 	default : float, optional
 		Value to use if ``x`` is ``None``.
 

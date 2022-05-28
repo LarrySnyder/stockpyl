@@ -1,67 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>supply_uncertainty Module &mdash; stockpyl 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ssm_serial Module" href="ssm_serial.html" />
-    <link rel="prev" title="loss_functions Module" href="loss_functions.html" /> 
+    <link rel="next" title="sim Module" href="sim.html" />
+    <link rel="prev" title="finite_horizon Module" href="finite_horizon.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> stockpyl
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -69,103 +37,54 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">stockpyl</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="api.html">API Documentation</a> &raquo;</li>
-        
       <li><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/supply_uncertainty.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-stockpyl.supply_uncertainty">
+             
+  <section id="module-stockpyl.supply_uncertainty">
 <span id="supply-uncertainty-module"></span><h1><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module<a class="headerlink" href="#module-stockpyl.supply_uncertainty" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> module contains code for solving inventory
 problems with supply uncertainty.</p>
@@ -173,8 +92,8 @@ problems with supply uncertainty.</p>
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
 <dl class="py function">
-<dt id="stockpyl.supply_uncertainty.eoq_with_disruptions">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></code><code class="sig-name descname"><span class="pre">eoq_with_disruptions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_disruptions">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the economic order quantity problem with disruptions (EOQD) as
 presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).
 Problem is solved numerically using golden section search.</p>
@@ -246,8 +165,8 @@ Problem is solved numerically using golden section search.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.supply_uncertainty.eoq_with_disruptions_cost">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></code><code class="sig-name descname"><span class="pre">eoq_with_disruptions_cost</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions_cost" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_disruptions_cost">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cost of using <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> as the solution to
 the economic order quantity problem with disruptions (EOQD) as
 presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
@@ -313,8 +232,8 @@ presented by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.supply_uncertainty.newsvendor_with_disruptions">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></code><code class="sig-name descname"><span class="pre">newsvendor_with_disruptions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.newsvendor_with_disruptions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.newsvendor_with_disruptions">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.newsvendor_with_disruptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with disruptions and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
 <dl class="field-list simple">
@@ -367,8 +286,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(S\
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></code><code class="sig-name descname"><span class="pre">eoq_with_additive_yield_uncertainty</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the EOQ problem with additive yield uncertainty and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
 <p>Note that the optimal solution depends only on the mean and standard deviation
@@ -414,8 +333,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(Q\
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></code><code class="sig-name descname"><span class="pre">eoq_with_multiplicative_yield_uncertainty</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_multiplicative_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the EOQ problem with multiplicative yield uncertainty and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">order_quantity</span></code> is supplied) calculate expected cost of given solution.</p>
 <p>Note that the optimal solution depends only on the mean and standard deviation
@@ -461,8 +380,8 @@ optimization will be performed. [<span class="math notranslate nohighlight">\(Q\
 </dd></dl>
 
 <dl class="py function">
-<dt id="stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">
-<code class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></code><code class="sig-name descname"><span class="pre">newsvendor_with_additive_yield_uncertainty</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">
+<span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">newsvendor_with_additive_yield_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_sd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_stock_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the newsvendor problem with additive yield uncertainty and deterministic demand, or (if
 <code class="docutils literal notranslate"><span class="pre">base_stock_level</span></code> is supplied) calculate expected cost of given solution.</p>
 <p>Either provide <code class="docutils literal notranslate"><span class="pre">yield_mean</span></code> and <code class="docutils literal notranslate"><span class="pre">yield_sd</span></code> to use a normal yield distribution,
@@ -525,55 +444,37 @@ and complementary loss function, respectively, of the yield distribution.</p>
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="ssm_serial.html" class="btn btn-neutral float-right" title="ssm_serial Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="loss_functions.html" class="btn btn-neutral float-left" title="loss_functions Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="finite_horizon.html" class="btn btn-neutral float-left" title="finite_horizon Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sim.html" class="btn btn-neutral float-right" title="sim Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2022, Larry Snyder
-
-    </p>
+    <p>&#169; Copyright 2022, Larry Snyder.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

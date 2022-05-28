@@ -1,65 +1,34 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>stockpyl Documentation &mdash; stockpyl 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Documentation" href="api.html" /> 
+    <link rel="next" title="Instsalling Stockpyl" href="install.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="#" class="icon icon-home"> stockpyl
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -67,163 +36,194 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">API Documentation:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Instsalling Stockpyl</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="#">stockpyl</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="#">Docs</a> &raquo;</li>
-        
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
       <li>stockpyl Documentation</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="stockpyl-documentation">
+             
+  <section id="stockpyl-documentation">
 <h1>stockpyl Documentation<a class="headerlink" href="#stockpyl-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Stockpyl is a Python package for inventory optimization. It contains implementation for
+classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
+and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
+(MEIO).</p>
+<p>Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
+<em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
+are much older, and <em>FoSCT</em> provides references to original sources.</p>
+<section id="some-examples">
+<h2>Some Examples<a class="headerlink" href="#some-examples" title="Permalink to this headline">¶</a></h2>
+<p>Solve the EOQ problem with <span class="math notranslate nohighlight">\(K=8\)</span>, <span class="math notranslate nohighlight">\(h=0.225\)</span>, and <span class="math notranslate nohighlight">\(\lambda=1300\)</span> (Example 3.1 in <em>FoSCT</em>):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.eoq</span> <span class="kn">import</span> <span class="n">economic_order_quantity</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">economic_order_quantity</span><span class="p">(</span><span class="n">fixed_cost</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.225</span><span class="p">,</span> <span class="n">demand_rate</span><span class="o">=</span><span class="mi">1300</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">304.0467800264368</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">68.41052550594829</span>
+</pre></div>
+</div>
+<p>Or the newsvendor problem with <span class="math notranslate nohighlight">\(h=0.18\)</span>, <span class="math notranslate nohighlight">\(p=0.70\)</span>, and <span class="math notranslate nohighlight">\(D\sim N(50, 8^2)\)</span> (Example 4.3 in <em>FoSCT</em>):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_normal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">newsvendor_normal</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">demand_sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span>
+<span class="go">56.60395592743389</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">1.9976051931766445</span>
+</pre></div>
+</div>
+<p>Stockpyl can solve the Wagner-Whitin model using dynamic programming:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.wagner_whitin</span> <span class="kn">import</span> <span class="n">wagner_whitin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="c1"># Optimal order quantities</span>
+<span class="go">[0, 210, 0, 150, 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span> <span class="c1"># Optimal cost</span>
+<span class="go">1380.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">theta</span> <span class="c1"># Cost-to-go function</span>
+<span class="go">array([   0., 1380.,  940.,  640.,  500.,    0.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="c1"># Optimal next period to order in</span>
+<span class="go">[0, 3, 5, 5, 5]</span>
+</pre></div>
+</div>
+<p>And finite-horizon stochastic inventory problems:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.finite_horizon</span> <span class="kn">import</span> <span class="n">finite_horizon_dp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h_terminal</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p_terminal</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">finite_horizon_dp</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">h_terminal</span><span class="p">,</span> <span class="n">p_terminal</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="c1"># Reorder points</span>
+<span class="go">[0, 110, 110, 110, 110, 111]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="c1"># Order-up-to levels</span>
+<span class="go">[0, 133.0, 133.0, 133.0, 133.0, 126.0]</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="ssm_serial.html#module-stockpyl.ssm_serial" title="stockpyl.ssm_serial"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ssm_serial</span></code></a> module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
+Chen-Zheng’s (1994) reworking of it):</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.ssm_serial</span> <span class="kn">import</span> <span class="n">optimize_base_stock_levels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span><span class="p">,</span> <span class="n">C_star</span> <span class="o">=</span> <span class="n">optimize_base_stock_levels</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">num_nodes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">echelon_holding_cost</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">lead_time</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">37.12</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">demand_mean</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">demand_standard_deviation</span><span class="o">=</span><span class="mi">1</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span>
+<span class="go">{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C_star</span>
+<span class="go">47.668653127136345</span>
+</pre></div>
+</div>
+<p>And the <a class="reference internal" href="gsm_tree.html#module-stockpyl.gsm_tree" title="stockpyl.gsm_tree"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gsm_tree</span></code></a> module implements Graves and Willems’ (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
+in acyclical guaranteed-service model (GSM) systems:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.gsm_tree</span> <span class="kn">import</span> <span class="n">optimize_committed_service_times</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.instances</span> <span class="kn">import</span> <span class="n">load_instance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a named instance, Example 6.5 from FoSCT</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">load_instance</span><span class="p">(</span><span class="s2">&quot;example_6_5&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cost</span><span class="p">,</span> <span class="n">opt_cst</span> <span class="o">=</span> <span class="n">optimize_committed_service_times</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cost</span>
+<span class="go">8.277916867529369</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cst</span>
+<span class="go">{1: 0, 3: 0, 2: 0, 4: 1}</span>
+</pre></div>
+</div>
+<p>(c) Lawrence V. Snyder
+Lehigh University</p>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">API Documentation:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Instsalling Stockpyl</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
+</section>
+</section>
+<section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-right" title="Instsalling Stockpyl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2022, Larry Snyder
-
-    </p>
+    <p>&#169; Copyright 2022, Larry Snyder.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

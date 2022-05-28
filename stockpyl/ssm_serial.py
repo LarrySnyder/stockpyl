@@ -529,7 +529,7 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		...		demand_mean=5, 
 		...		demand_standard_deviation=1
 		...		)
-		47.68009914084217
+		47.680099140842174
 	"""
 
 	# Check for presence of data.
@@ -864,7 +864,7 @@ def expected_holding_cost(echelon_S,
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
 		...	)
-		43.15945901616041
+		43.159459016160405
 	"""
 
 	# Validate echelon_S. (Other parameters will be validated in optimize_base_stock_levels().)

@@ -37,8 +37,6 @@ from scipy.stats import nbinom
 from scipy.stats import gamma
 #from scipy.integrate import quad
 from types import *
-from numbers import Number
-from numbers import Integral
 
 from stockpyl.helpers import *
 
@@ -1264,9 +1262,9 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 	.. doctest::
 
 		>>> negative_binomial_loss(14, 4, 0.2)
-		(4.447304632028365, 2.4473046320283647)
+		(4.447304632028364, 2.447304632028364)
 		>>> negative_binomial_loss(14, mean=23, sd=8)
-		(9.326459980156917, 0.32645998015691724)
+		(9.326459980156931, 0.32645998015693145)
 	"""
 
 	# Check for integer x.
@@ -1393,7 +1391,7 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 		>>> negative_binomial_second_loss(14, 4, 0.2)
 		(30.877804945158942, 10.122195054841043)
 		>>> negative_binomial_second_loss(14, mean=23, sd=8)
-		(67.10108087745225, 0.8989191225477526)
+		(67.10108087745232, 0.8989191225476816)
 
 	"""
 	# Check for integer x.

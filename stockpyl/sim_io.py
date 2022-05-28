@@ -15,6 +15,7 @@ from tabulate import tabulate
 import csv
 
 from stockpyl.sim import *
+from stockpyl.helpers import sort_dict_by_keys
 
 
 def write_results(network, num_periods, num_periods_to_print=None,
@@ -92,8 +93,10 @@ def write_results(network, num_periods, num_periods_to_print=None,
 					+ sort_dict_by_keys(node.state_vars[t].outbound_shipment) \
 					+ [node.state_vars[t].demand_met_from_stock,
 					node.state_vars[t].fill_rate,
-					node.state_vars[t].inventory_level,
-					node.state_vars[t].holding_cost_incurred,
+					node.state_vars[t].inventory_level] \
+					+ sort_dict_by_keys(node.state_vars[t].backorders_by_successor) \
+					+ sort_dict_by_keys(node.state_vars[t].disrupted_items_by_successor ) \
+					+ [node.state_vars[t].holding_cost_incurred,
 					node.state_vars[t].stockout_cost_incurred,
 					node.state_vars[t].in_transit_holding_cost_incurred,
 					node.state_vars[t].revenue_earned,
@@ -114,7 +117,10 @@ def write_results(network, num_periods, num_periods_to_print=None,
 		headers += dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
 		headers += dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
 		headers += dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
-		headers += ["DMFS", "FR", "IL", "HC", "SC", "ITHC", "REV", "TC"]
+		headers += ["DMFS", "FR", "IL"]
+		headers += dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
+		headers += dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
+		headers += ["HC", "SC", "ITHC", "REV", "TC"]
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))

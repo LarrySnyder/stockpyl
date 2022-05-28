@@ -726,13 +726,24 @@ class TestSingleStageSystem(unittest.TestCase):
 		self.assertEqual(node.inventory_policy.base_stock_level, 56.6)
 
 
-	def test_3_node_serial_upstream_0(self):
+class TestSerialSystem(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSerialSystem', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSerialSystem', 'tear_down_class()')
+		
+	def test_3_node_serial_downstream_0(self):
 		"""Test serial_system() to build 3-node serial system, indexed 0,...,2
-		with upstream node = 0.
+		with downstream node = 0.
 		"""
 		print_status('TestSerialSystem', 'test_3_node_serial_upstream_0()')
 
-		network = serial_system(3, downstream_0=False,
+		network = serial_system(3, downstream_0=True,
 								local_holding_cost=[7, 4, 2],
 								demand_type='N',
 								demand_mean=10, demand_standard_deviation=2,
@@ -752,15 +763,15 @@ class TestSingleStageSystem(unittest.TestCase):
 		middle_node_pred = middle_node.predecessor_indices()
 		sink_node_pred = sink_node.predecessor_indices()
 
-		self.assertEqual(source_node.index, 0)
+		self.assertEqual(source_node.index, 2)
 		self.assertEqual(middle_node.index, 1)
-		self.assertEqual(sink_node.index, 2)
+		self.assertEqual(sink_node.index, 0)
 
 		self.assertEqual(source_node_succ, [1])
-		self.assertEqual(middle_node_succ, [2])
+		self.assertEqual(middle_node_succ, [0])
 		self.assertEqual(sink_node_succ, [])
 		self.assertEqual(source_node_pred, [])
-		self.assertEqual(middle_node_pred, [0])
+		self.assertEqual(middle_node_pred, [2])
 		self.assertEqual(sink_node_pred, [1])
 
 		self.assertEqual(source_node.local_holding_cost, 2)

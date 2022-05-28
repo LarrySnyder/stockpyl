@@ -838,7 +838,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		indices = list(range(num_nodes))
 		downstream_node = 0
 	else:
-		indices = list(range(num_nodes-1, -1, -1))
+		indices = list(range(num_nodes-1, -1, -1)) # TODO: I think this is correct for the order in which the nodes are created (and linked), but not for how the parameters are supposed to be indexed
 		downstream_node = num_nodes-1
 
 	# Build dicts of attributes.
