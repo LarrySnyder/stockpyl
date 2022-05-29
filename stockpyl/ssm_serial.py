@@ -7,7 +7,10 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`ssm_serial` module contains code to implement Chen-Zheng (1994) algorithm 
+"""
+.. include:: globals.inc
+
+The :mod:`ssm_serial` module contains code to implement Chen-Zheng (1994) algorithm 
 for stochastic serial systems under the stochastic service model (SSM), based on 
 Clark and Scarf (1960), as described in Snyder and Shen (2019).
 
@@ -16,6 +19,8 @@ Clark and Scarf (1960), as described in Snyder and Shen (2019).
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
+
+|copy| Lawrence V. Snyder, Lehigh University
 
 References
 ----------

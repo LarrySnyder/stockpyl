@@ -1,12 +1,14 @@
-"""Input-output code for simulating multi-echelon stockpyl systems.
+"""
+.. include:: globals.inc
+
+Input-output code for simulating multi-echelon stockpyl systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
 
 The primary data object is the NetworkX DiGraph, which contains all of the data
 for the simulation instance.
 
-(c) Lawrence V. Snyder
-Lehigh University
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

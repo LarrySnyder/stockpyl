@@ -1,4 +1,7 @@
-"""Code for optimizing multi-echelon inventory systems using a variety of
+"""
+.. include:: globals.inc
+
+Code for optimizing multi-echelon inventory systems using a variety of
 generic methods.
 # TODO: rename to meio_generic?
 
@@ -7,8 +10,7 @@ generic methods.
 The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode``s
 that it contains, which contains all of the data for the optimization instance.
 
-(c) Lawrence V. Snyder
-Lehigh University
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

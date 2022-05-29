@@ -7,9 +7,15 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`instances` module contains code for loading and saving problem instances.
+"""
+.. include:: globals.inc
+
+The :mod:`instances` module contains code for loading and saving problem instances.
 Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
+
+|copy| Lawrence V. Snyder, Lehigh University
+
 
 .. csv-table:: Named Instances
    :file: ../docs/aux_files/temp.csv

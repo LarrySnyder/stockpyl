@@ -7,12 +7,50 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`finite_horizon` module contains code for solving finite-horizon
-inventory optimization problems using dynamic programming.
+"""
+.. include:: globals.inc
+
+The |mod_finite_horizon| module contains code for solving finite-horizon, stochastic
+inventory optimization problems, with or without fixed costs, using dynamic programming (DP).
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
+
+|copy| Lawrence V. Snyder, Lehigh University
+
+If the fixed costs are 0, then a base-stock policy is optimal and the results of the demand_pmf
+indicate the optimal base-stock levels, i.e., order-up-to levels (:math:`S`) in each time period:
+
+.. doctest::
+
+	>>> from stockpyl.finite_horizon import finite_horizon_dp
+	>>> T = 5
+	>>> h = 1
+	>>> p = 20
+	>>> h_terminal = 1
+	>>> p_terminal = 20
+	>>> c = 2
+	>>> K = 0
+	>>> mu = 100
+	>>> sigma = 20
+	>>> s, S, cost, _, _, _ = finite_horizon_dp(T, h, p, h_terminal, p_terminal, c, K, mu, sigma)
+	>>> S # Order-up-to levels
+	[0, 133.0, 133.0, 133.0, 133.0, 126.0]
+	>>> s # Reorder points equal order-up-to levels in a base-stock policy
+	[0, 133, 133, 133, 133, 126]
+
+If the fixed costs are non-zero, then an |ss| policy is optimal, and the results
+give both the reorder points (:math:`s`) and the order-up-to levels (:math:`S`)
+
+.. doctest::
+
+    >>> K = 50
+    >>> s, S, cost, _, _, _ = finite_horizon_dp(T, h, p, h_terminal, p_terminal, c, K, mu, sigma)
+    >>> s # Reorder points
+    [0, 110, 110, 110, 110, 111]
+    >>> S # Order-up-to levels
+    [0, 133.0, 133.0, 133.0, 133.0, 126.0]
 
 """
 

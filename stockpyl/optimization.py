@@ -7,8 +7,13 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`optimization` module contains optimization-related code used in other
+"""
+.. include:: globals.inc
+
+The :mod:`optimization` module contains optimization-related code used in other
 modules.
+
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

@@ -89,11 +89,41 @@
              
   <section id="module-stockpyl.finite_horizon">
 <span id="finite-horizon-module"></span><h1><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module<a class="headerlink" href="#module-stockpyl.finite_horizon" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">finite_horizon</span></code> module contains code for solving finite-horizon
-inventory optimization problems using dynamic programming.</p>
+<p>The <a class="reference internal" href="#module-stockpyl.finite_horizon" title="stockpyl.finite_horizon"><code class="xref py py-mod docutils literal notranslate"><span class="pre">finite_horizon</span></code></a> module contains code for solving finite-horizon, stochastic
+inventory optimization problems, with or without fixed costs, using dynamic programming (DP).</p>
 <p>The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
 (2019).</p>
+<p>© Lawrence V. Snyder, Lehigh University</p>
+<p>If the fixed costs are 0, then a base-stock policy is optimal and the results of the demand_pmf
+indicate the optimal base-stock levels, i.e., order-up-to levels (<span class="math notranslate nohighlight">\(S\)</span>) in each time period:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.finite_horizon</span> <span class="kn">import</span> <span class="n">finite_horizon_dp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h_terminal</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p_terminal</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">finite_horizon_dp</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">h_terminal</span><span class="p">,</span> <span class="n">p_terminal</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="c1"># Order-up-to levels</span>
+<span class="go">[0, 133.0, 133.0, 133.0, 133.0, 126.0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="c1"># Reorder points equal order-up-to levels in a base-stock policy</span>
+<span class="go">[0, 133, 133, 133, 133, 126]</span>
+</pre></div>
+</div>
+<p>If the fixed costs are non-zero, then an <span class="math notranslate nohighlight">\((s,S)\)</span> policy is optimal, and the results
+give both the reorder points (<span class="math notranslate nohighlight">\(s\)</span>) and the order-up-to levels (<span class="math notranslate nohighlight">\(S\)</span>)</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">finite_horizon_dp</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">h_terminal</span><span class="p">,</span> <span class="n">p_terminal</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="c1"># Reorder points</span>
+<span class="go">[0, 110, 110, 110, 110, 111]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="c1"># Order-up-to levels</span>
+<span class="go">[0, 133.0, 133.0, 133.0, 133.0, 126.0]</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="stockpyl.finite_horizon.finite_horizon_dp">
 <span class="sig-prename descclassname"><span class="pre">stockpyl.finite_horizon.</span></span><span class="sig-name descname"><span class="pre">finite_horizon_dp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_periods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">purchase_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discount_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_inventory_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trunc_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.finite_horizon.finite_horizon_dp" title="Permalink to this definition">¶</a></dt>

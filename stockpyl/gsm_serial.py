@@ -7,7 +7,10 @@
 # License: GPLv3
 # ===============================================================================
 
-"""Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
+"""
+.. include:: globals.inc
+
+Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with serial structures by Inderfurth (1991)).
 
 "node" and "stage" are used interchangeably in the documentation.
@@ -19,8 +22,7 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
-(c) Lawrence V. Snyder
-Lehigh University
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

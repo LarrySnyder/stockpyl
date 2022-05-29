@@ -8,11 +8,15 @@
 # ===============================================================================
 
 """
+.. include:: globals.inc
+
 This module contains the ``DemandSource`` class. A ``DemandSource``
 object is used to generate demands and to get attributes of the demand distribution.
 
 Notation and equation and section numbers refer to Snyder and Shen,
 "Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
+
+|copy| Lawrence V. Snyder, Lehigh University
 """
 
 

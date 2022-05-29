@@ -1,12 +1,14 @@
-"""Code for simulating multi-echelon inventory systems.
+"""
+.. include:: globals.inc
+
+Code for simulating multi-echelon inventory systems.
 
 'node' and 'stage' are used interchangeably in the documentation.
 
 The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` s
 that it contains, which contains all of the data for the simulation instance.
 
-(c) Lawrence V. Snyder
-Lehigh University
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

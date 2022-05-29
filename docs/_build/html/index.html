@@ -78,6 +78,7 @@ and Wagner-Whitin problems. It also contains algorithms for multi-echelon invent
 <p>Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
 <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
 are much older, and <em>FoSCT</em> provides references to original sources.</p>
+<p>© Lawrence V. Snyder, Lehigh University</p>
 <section id="some-examples">
 <h2>Some Examples<a class="headerlink" href="#some-examples" title="Permalink to this headline">¶</a></h2>
 <p>Solve the EOQ problem with <span class="math notranslate nohighlight">\(K=8\)</span>, <span class="math notranslate nohighlight">\(h=0.225\)</span>, and <span class="math notranslate nohighlight">\(\lambda=1300\)</span> (Example 3.1 in <em>FoSCT</em>):</p>
@@ -101,11 +102,11 @@ are much older, and <em>FoSCT</em> provides references to original sources.</p>
 <p>Note that most functions in Stockpyl use longer, more descriptive parameter names (<code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">fixed_cost</span></code>, etc.)
 rather than the shorter notation assigned to them in textbooks and articles (<code class="docutils literal notranslate"><span class="pre">h</span></code>, <code class="docutils literal notranslate"><span class="pre">K</span></code>).</p>
 <p>Stockpyl can solve the Wagner-Whitin model using dynamic programming:</p>
-<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">4</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.wagner_whitin</span> <span class="kn">import</span> <span class="n">wagner_whitin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">500</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.wagner_whitin</span> <span class="kn">import</span> <span class="n">wagner_whitin</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">wagner_whitin</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="c1"># Optimal order quantities</span>
 <span class="go">[0, 210, 0, 150, 0]</span>
@@ -165,7 +166,6 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <span class="go">{1: 0, 3: 0, 2: 0, 4: 1}</span>
 </pre></div>
 </div>
-<p>© Lawrence V. Snyder, Lehigh University</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
@@ -175,9 +175,17 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-newsvendor-problem">The Newsvendor Problem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-rq-optimization-problem">The <span class="math notranslate nohighlight">\((r,Q)\)</span> Optimization Problem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-ss-optimization-problem">The <span class="math notranslate nohighlight">\((s,S)\)</span> Optimization Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-wagner-whitin-problem">The Wagner-Whitin Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#finite-horizon-stochastic-problems">Finite-Horizon Stochastic Problems</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-eoq-problem-with-disruptions">The EOQ Problem with Disruptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-eoq-problem-with-yield-uncertainty">The EOQ Problem with Yield Uncertainty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-newsvendor-problem-with-disruptions">The Newsvendor Problem with Disruptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-newsvendor-problem-with-yield-uncertainty">The Newsvendor Problem with Yield Uncertainty</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>

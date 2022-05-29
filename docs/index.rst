@@ -12,6 +12,8 @@ Most of the models and algorithms implemented in |sp| are discussed in the textb
 *Fundamentals of Supply Chain Theory* (|fosct|) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
 are much older, and |fosct| provides references to original sources. 
 
+|copy| Lawrence V. Snyder, Lehigh University
+
 Some Examples
 -------------
 
@@ -44,11 +46,11 @@ rather than the shorter notation assigned to them in textbooks and articles (``h
 
 .. doctest::
 
+    >>> from stockpyl.wagner_whitin import wagner_whitin
     >>> T = 4
     >>> h = 2
     >>> K = 500
     >>> d = [90, 120, 80, 70]
-    >>> from stockpyl.wagner_whitin import wagner_whitin
     >>> Q, cost, theta, s = wagner_whitin(T, h, K, d)
     >>> Q # Optimal order quantities
     [0, 210, 0, 150, 0]
@@ -113,8 +115,6 @@ in acyclical guaranteed-service model (GSM) systems:
     >>> opt_cst
     {1: 0, 3: 0, 2: 0, 4: 1}
 
-
-|copy| Lawrence V. Snyder, Lehigh University
 
 
 

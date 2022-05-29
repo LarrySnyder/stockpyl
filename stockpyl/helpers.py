@@ -1,7 +1,9 @@
-"""Helper functions for stockpyl package.
+"""
+.. include:: globals.inc
 
-(c) Lawrence V. Snyder
-Lehigh University
+Helper functions for stockpyl package.
+
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

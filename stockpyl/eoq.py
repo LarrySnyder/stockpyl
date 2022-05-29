@@ -17,6 +17,8 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
 
+|copy| Lawrence V. Snyder, Lehigh University
+
 The :func:`stockpyl.eoq.economic_order_quantity` function
 implements the basic EOQ model; it returns both the optimal order quantity and the corresponding
 optimal cost:

@@ -49,7 +49,13 @@
 <li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-eoq-problem-with-disruptions">The EOQ Problem with Disruptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-eoq-problem-with-yield-uncertainty">The EOQ Problem with Yield Uncertainty</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-newsvendor-problem-with-disruptions">The Newsvendor Problem with Disruptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-newsvendor-problem-with-yield-uncertainty">The Newsvendor Problem with Yield Uncertainty</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
@@ -89,11 +95,132 @@
              
   <section id="module-stockpyl.supply_uncertainty">
 <span id="supply-uncertainty-module"></span><h1><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module<a class="headerlink" href="#module-stockpyl.supply_uncertainty" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> module contains code for solving inventory
-problems with supply uncertainty.</p>
+<p>Stockpyl contains code to solve the following types of single-echelon inventory optimization problems
+in the <a class="reference internal" href="#module-stockpyl.supply_uncertainty" title="stockpyl.supply_uncertainty"><code class="xref py py-mod docutils literal notranslate"><span class="pre">supply_uncertainty</span></code></a> module:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Economic order quantity (EOQ)-based models</dt><dd><ul>
+<li><p><a class="reference internal" href="overview_su.html#the-eoq-problem-with-disruptions"><span class="std std-ref">with disruptions</span></a></p></li>
+<li><p><a class="reference internal" href="overview_su.html#the-eoq-problem-with-yield-uncertainty"><span class="std std-ref">with yield uncertainty</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Newsvendor-based models</dt><dd><ul>
+<li><p>with disruptions</p></li>
+<li><p>with yield uncertainty</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
 <p>The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em>, 2nd edition
+refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>), 2nd edition
 (2019).</p>
+<p>© Lawrence V. Snyder, Lehigh University</p>
+<section id="the-eoq-problem-with-disruptions">
+<h2>The EOQ Problem with Disruptions<a class="headerlink" href="#the-eoq-problem-with-disruptions" title="Permalink to this headline">¶</a></h2>
+<p>The EOQ problem with disruptions (EOQD) assumes that the supplier can be disrupted
+randomly, following a 2-state Markov process. The <a class="reference internal" href="#stockpyl.supply_uncertainty.eoq_with_disruptions" title="stockpyl.supply_uncertainty.eoq_with_disruptions"><code class="xref py py-func docutils literal notranslate"><span class="pre">eoq_with_disruptions()</span></code></a> function
+solves the EOQD either exactly (using models by Parlar and Berkin (1991) and Berk and Arreola-Risa (1994)
+and optimizing numerically) or heuristically (using an approximation by Snyder (2014)).</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_uncertainty</span> <span class="kn">import</span> <span class="n">eoq_with_disruptions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mf">0.225</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_rate</span> <span class="o">=</span> <span class="mi">1300</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disruption_rate</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recovery_rate</span> <span class="o">=</span> <span class="mi">14</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">eoq_with_disruptions</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">demand_rate</span><span class="p">,</span> <span class="n">disruption_rate</span><span class="p">,</span> <span class="n">recovery_rate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">772.8110739983106</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">173.95000257319708</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">eoq_with_disruptions</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">demand_rate</span><span class="p">,</span> <span class="n">disruption_rate</span><span class="p">,</span> <span class="n">recovery_rate</span><span class="p">,</span> <span class="n">approximate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">773.1432417118889</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">173.957229385175</span>
+</pre></div>
+</div>
+</section>
+<section id="the-eoq-problem-with-yield-uncertainty">
+<h2>The EOQ Problem with Yield Uncertainty<a class="headerlink" href="#the-eoq-problem-with-yield-uncertainty" title="Permalink to this headline">¶</a></h2>
+<p>In EOQ problems with yield uncertainty, the supplier can always provide inventory, but
+the quantity delivered differs randomly from the quantity ordered. Stockpyl supports both
+additive yield uncertainty:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_uncertainty</span> <span class="kn">import</span> <span class="n">eoq_with_additive_yield_uncertainty</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="mi">18500</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.06</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">demand_rate</span> <span class="o">=</span> <span class="mi">75000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yield_mean</span> <span class="o">=</span> <span class="o">-</span><span class="mi">15000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yield_sd</span> <span class="o">=</span> <span class="mi">9000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">eoq_with_additive_yield_uncertainty</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">demand_rate</span><span class="p">,</span> <span class="n">yield_mean</span><span class="p">,</span> <span class="n">yield_sd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">230246.37046881882</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">12914.78222812913</span>
+</pre></div>
+</div>
+<p>and multiplicative yield uncertainty:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_uncertainty</span> <span class="kn">import</span> <span class="n">eoq_with_multiplicative_yield_uncertainty</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yield_mean</span> <span class="o">=</span> <span class="mf">0.8333</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yield_sd</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">0.0198</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">eoq_with_multiplicative_yield_uncertainty</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">demand_rate</span><span class="p">,</span> <span class="n">yield_mean</span><span class="p">,</span> <span class="n">yield_sd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
+<span class="go">254477.46130342316</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">13086.16169098594</span>
+</pre></div>
+</div>
+</section>
+<section id="the-newsvendor-problem-with-disruptions">
+<h2>The Newsvendor Problem with Disruptions<a class="headerlink" href="#the-newsvendor-problem-with-disruptions" title="Permalink to this headline">¶</a></h2>
+<p>In the newsvendor (or base-stock) problem with disruptions, the demand is deterministic but the supply
+can be disrupted, following a 2-state Markov process. The <a class="reference internal" href="#stockpyl.supply_uncertainty.newsvendor_with_disruptions" title="stockpyl.supply_uncertainty.newsvendor_with_disruptions"><code class="xref py py-func docutils literal notranslate"><span class="pre">newsvendor_with_disruptions()</span></code></a> function
+returns both the optimal base-stock level and the optimal expected cost.</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_uncertainty</span> <span class="kn">import</span> <span class="n">newsvendor_with_disruptions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.04</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">newsvendor_with_disruptions</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span>
+<span class="go">74000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">25317.887604785075</span>
+</pre></div>
+</div>
+</section>
+<section id="the-newsvendor-problem-with-yield-uncertainty">
+<h2>The Newsvendor Problem with Yield Uncertainty<a class="headerlink" href="#the-newsvendor-problem-with-yield-uncertainty" title="Permalink to this headline">¶</a></h2>
+<p>In newsvendor problems with yield uncertainty, the supplier can always provide inventory, but
+the quantity delivered differs randomly from the quantity ordered. Stockpyl currently supports only
+additive yield uncertainty:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_uncertainty</span> <span class="kn">import</span> <span class="n">newsvendor_with_additive_yield_uncertainty</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="mi">75</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="mi">1500000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yield_mean</span> <span class="o">=</span> <span class="mi">250000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yield_sd</span> <span class="o">=</span> <span class="mi">200000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">yield_mean</span><span class="p">,</span> <span class="n">yield_sd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span>
+<span class="go">1443484.3132203403</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">4497316.9310527835</span>
+</pre></div>
+</div>
+<p>If the yield mean and standard deviation are provided, as in the code above, the
+yield is assumed to have a normal distribution. Alternately, you can provide an arbitrary
+distribution as a <code class="docutils literal notranslate"><span class="pre">scipy.stats.rv_continuous</span></code> or <code class="docutils literal notranslate"><span class="pre">scipy.stats.rv_discrete</span></code> object:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">newsvendor_with_additive_yield_uncertainty</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">yield_distribution</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">500000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">))</span>
+<span class="go">(1833333.3333333335, 6249999.997499999)</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="stockpyl.supply_uncertainty.eoq_with_disruptions">
 <span class="sig-prename descclassname"><span class="pre">stockpyl.supply_uncertainty.</span></span><span class="sig-name descname"><span class="pre">eoq_with_disruptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holding_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disruption_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockpyl.supply_uncertainty.eoq_with_disruptions" title="Permalink to this definition">¶</a></dt>
@@ -447,6 +574,7 @@ and complementary loss function, respectively, of the yield distribution.</p>
 </div>
 </dd></dl>
 
+</section>
 </section>
 
 

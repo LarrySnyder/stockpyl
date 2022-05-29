@@ -1,7 +1,7 @@
 .. include:: globals.inc
 
-Single-Echelon Inventory Optimization
-=====================================
+Multi-Echelon Inventory Optimization
+====================================
 
 |sp| contains code to solve the following types of single-echelon inventory optimization problems:
 

@@ -7,7 +7,10 @@
 # License: GPLv3
 # ===============================================================================
 
-"""The :mod:`loss_functions` module contains code for calculating loss functions.
+"""
+.. include:: globals.inc
+
+The :mod:`loss_functions` module contains code for calculating loss functions.
 
 For a random variable :math:`X`, the loss function, :math:`n(x)`, and the
 complementary loss function, :math:`\\bar{n}(x)`, are defined as:
@@ -25,8 +28,7 @@ loss function, :math:`n^{(2)}(x)`, and the second-order complementary loss funct
 Equation and section numbers refer to Snyder and Shen, "Fundamentals of Supply
 Chain Theory", Wiley, 2019, 2nd ed., except as noted.
 
-(c) Lawrence V. Snyder
-Lehigh University
+|copy| Lawrence V. Snyder, Lehigh University
 
 """
 

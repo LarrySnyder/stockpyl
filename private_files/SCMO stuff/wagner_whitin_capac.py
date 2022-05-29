@@ -1,60 +1,5 @@
-# ===============================================================================
-# stockpyl - wagner_whitin Module
-# -------------------------------------------------------------------------------
-# Version: 0.0.0
-# Updated: 01-30-2022
-# Author: Larry Snyder
-# License: GPLv3
-# ===============================================================================
 
-"""
-.. include:: globals.inc
-
-The |mod_wagner_whitin| module contains code for solving the Wagner-Whitin
-problem using dynamic programming.
-
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
-
-|copy| Lawrence V. Snyder, Lehigh University
-
-.. doctest::
-
-    >>> from stockpyl.wagner_whitin import wagner_whitin
-    >>> T = 4
-    >>> h = 2
-    >>> K = 500
-    >>> d = [90, 120, 80, 70]
-    >>> Q, cost, theta, s = wagner_whitin(T, h, K, d)
-    >>> Q # Optimal order quantities
-    [0, 210, 0, 150, 0]
-    >>> cost # Optimal cost
-    1380.0
-    >>> theta # Cost-to-go function
-    array([   0., 1380.,  940.,  640.,  500.,    0.])
-    >>> s # Optimal next period to order in
-    [0, 3, 5, 5, 5]
-
-The cost parameters may also vary from period to period:
-
-.. doctest::
-
-	>>> h = [5, 1, 1, 2]
-	>>> K = [300, 500, 300, 500]
-	>>> Q, cost, _, _ = wagner_whitin(T, h, K, d)
-	>>> Q
-	[0, 90, 270, 0, 0]
-	>>> cost
-	1020.0
-"""
-
-import numpy as np
-
-from stockpyl.helpers import *
-
-
-def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0):
+def wagner_whitin_capac(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0, capac=np.inf):
 	"""Solve the Wagner-Whitin problem using dynamic programming (DP).
 
 	The time periods are indexed 1, ..., ``num_periods``. Lists given in
@@ -99,11 +44,6 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 	next_order_periods : list
 		List of "next order" period. [:math:`s`]
 
-	Raises
-	------
-	ValueError
-		If ``holding_cost``, ``fixed_cost``, ``demand``, or ``purchase_cost`` <= 0 for any time period.
-
 
 	**Equation Used** (modified from equation (3.39)):
 
@@ -133,10 +73,10 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 
 	"""
 	# Check that parameters are non-negative.
-	if not np.all(np.array(holding_cost) >= 0): raise ValueError("holding_cost must be non-negative")
-	if not np.all(np.array(fixed_cost) >= 0): raise ValueError("fixed_cost must be non-negative")
-	if not np.all(np.array(demand) >= 0): raise ValueError("demand must be non-negative")
-	if not np.all(np.array(purchase_cost) >= 0): raise ValueError("purchase_cost must be non-negative")
+	assert np.all(np.array(holding_cost) >= 0), "holding_cost must be non-negative."
+	assert np.all(np.array(fixed_cost) >= 0), "fixed_cost must be non-negative."
+	assert np.all(np.array(demand) >= 0), "demand must be non-negative."
+	assert np.all(np.array(purchase_cost) >= 0), "purchase_cost must be non-negative."
 
 	# Replace scalar parameters with lists (multiple copies of scalar).
 	holding_cost = ensure_list_for_time_periods(holding_cost, num_periods)
@@ -154,17 +94,20 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 		# Loop through possible next order periods.
 		best_cost = BIG_FLOAT
 		for ss in range(t+1, num_periods+2):
-			# Calculate cost if next order is in period ss.
-			cost = fixed_cost[t]
-			for i in range(t, ss):
-				# TODO: vectorize this
-				cost += purchase_cost[t] * demand[i] + holding_cost[t] * (i - t) * demand[i]
-			cost += theta[ss]
+			# Calculate purchase qty.
+			Q = np.sum([demand[i] for i in range(t, ss)])
+			if Q <= capac:
+				# Calculate cost if next order is in period ss.
+				cost = fixed_cost[t]
+				for i in range(t, ss):
+					# TODO: vectorize this
+					cost += purchase_cost[t] * demand[i] + holding_cost[t] * (i - t) * demand[i]
+				cost += theta[ss]
 
-			# Compare to best cost.
-			if cost < best_cost:
-				best_cost = cost
-				best_s = ss
+				# Compare to best cost.
+				if cost < best_cost:
+					best_cost = cost
+					best_s = ss
 
 		# Set theta and next_order_periods.
 		theta[t] = best_cost
@@ -179,5 +122,4 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 	cost = theta[1]
 
 	return order_quantities, cost, theta, next_order_periods
-
 
