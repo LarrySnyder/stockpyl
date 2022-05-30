@@ -10,11 +10,11 @@
 """
 .. include:: globals.inc
 
-The :mod:`ssm_serial` module contains code to implement Chen-Zheng (1994) algorithm 
+The |mod_ssm_serial| module contains code to implement Chen-Zheng (1994) algorithm 
 for stochastic serial systems under the stochastic service model (SSM), based on 
-Clark and Scarf (1960), as described in Snyder and Shen (2019).
+Clark and Scarf (1960).
 
-'node' and 'stage' are used interchangeably in the documentation.
+"node" and "stage" are used interchangeably in the documentation.
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
@@ -53,11 +53,11 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 								ltd_upper_tail_prob=1-stats.norm.cdf(4),
 								sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 								sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
-	"""Chen-Zheng (1994) algorithm for stochastic serial systems under
-	stochastic service model (SSM), as described in Snyder and Shen (2019).
+	"""Chen-Zheng (1994) algorithm for stochastic serial systems under the stochastic service model (SSM), which in 
+	turn is based on Clark and Scarf (1960). 
 
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
-	or in the ``network`` parameter.
+	or as a |class_network| in the ``network`` parameter.
 
 	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
 	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
@@ -72,7 +72,7 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed)
-	or a ``demand_source`` must be provided.
+	or a ``demand_source`` must be provided, or ``network`` must be provided.
 
 	Parameters
 	----------
@@ -176,6 +176,13 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		\\end{gather*}
 
 
+	References
+	----------
+	F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory systems. *Management Science*, 40(11):1426–1443, 1994.
+
+	A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
+
+
 	**Example** (Example 6.1):
 
 	.. testsetup:: *
@@ -226,9 +233,9 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
 	if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
 	elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
-	if (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
+	if network is None and (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
 		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
-
+	
 	# Get shortcuts to some parameters (for convenience).
 	N = num_nodes
 	if demand_source is None:
@@ -437,7 +444,7 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 	stochastic service model (SSM), as described in Snyder and Shen (2019).
 
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
-	or in the ``network`` parameter.
+	or as a |class_network| in the ``network`` parameter.
 
 	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
 	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 

@@ -923,6 +923,7 @@ def _connected_subgraph_nodes(tree):
 
 def gsm_to_ssm(tree, p=None):
 	"""Convert GSM tree to SSM tree:
+	
 		- Convert local to echelon holding costs.
 		- Convert processing times to lead times.
 		- Include stockout cost at demand nodes (if provided).

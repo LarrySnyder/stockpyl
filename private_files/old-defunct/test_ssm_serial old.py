@@ -42,7 +42,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+#		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_star, C_star = optimize_base_stock_levels(
 			num_nodes=len(instance.nodes),
@@ -123,7 +123,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_uniform()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		for n in instance.nodes:
 			if n.index == 1:
@@ -161,7 +161,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_bad_parameters()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(2).shipment_lead_time = -20
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -174,7 +174,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 		
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).stockout_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -187,7 +187,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).stockout_cost = -2
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -200,7 +200,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(2).echelon_holding_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -213,7 +213,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).demand_source = None
 		instance.get_node_from_index(1).demand_mean = None
 		instance.get_node_from_index(1).demand_standard_deviation = 10
@@ -250,7 +250,7 @@ class TestOptimizeBaseStockLevelsFromNetwork(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevelsFromNetwork', 'test_example_6_1()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_star, C_star = optimize_base_stock_levels_from_network(
 			instance, S=None, plots=False, x=None, x_num=100, d_num=10,
@@ -313,7 +313,7 @@ class TestOptimizeBaseStockLevelsFromNetwork(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevelsFromNetwork', 'test_example_6_1_uniform()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+#		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		for n in instance.nodes:
 			if n.index == 1:
@@ -340,10 +340,6 @@ class TestOptimizeBaseStockLevelsFromNetwork(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevelsFromNetwork', 'test_bad_indices()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		with self.assertRaises(ValueError):
-			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
-
-		instance = copy.deepcopy(get_named_instance("example_6_1"))
 		instance.reindex_nodes({0: 3, 1: 2, 2: 1})
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
@@ -361,31 +357,31 @@ class TestOptimizeBaseStockLevelsFromNetwork(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevelsFromNetwork', 'test_bad_parameters()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		#instance.reindex_nodes({0: 1, 1: 3, 2: 2})
 		instance.nodes[1].order_lead_time = -20
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		#instance.reindex_nodes({0: 1, 1: 3, 2: 2})
 		instance.nodes[0].stockout_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		#instance.reindex_nodes({0: 1, 1: 3, 2: 2})
 		instance.nodes[0].stockout_cost = -2
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		#instance.reindex_nodes({0: 1, 1: 3, 2: 2})
 		instance.nodes[2].echelon_holding_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 3, 2: 2})
+		#instance.reindex_nodes({0: 1, 1: 3, 2: 2})
 		instance.nodes[0].demand_distribution = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels_from_network(instance, S={n: 0 for n in instance.node_indices})
@@ -411,7 +407,7 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_local = {1: 4, 2: 5, 3: 1}
 		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
@@ -446,7 +442,7 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
@@ -485,7 +481,7 @@ class TestExpectedCost(unittest.TestCase):
 		print_status('TestExpectedCost', 'test_example_6_1()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		cost = expected_cost(instance, S_echelon, x_num=100, d_num=10,
@@ -566,7 +562,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		print_status('TestExpectedHoldingCost', 'test_example_6_1()')
 
 		instance = copy.deepcopy(get_named_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		cost = expected_holding_cost(instance, S_echelon, x_num=100, d_num=10,

@@ -328,16 +328,16 @@ def get_named_instance(instance_name):
 		# Example 6.1.
 		example_6_1_network = serial_system(
 			num_nodes=3,
-			local_holding_cost=[7, 4, 2],
-			echelon_holding_cost=[3, 2, 2],
-			stockout_cost=[37.12, 0, 0],
+			node_indices=[1, 2, 3],
+			echelon_holding_cost={1: 3, 2: 2, 3: 2},		
+			local_holding_cost={1: 7, 2: 4, 3: 2},		
+			shipment_lead_time={1: 1, 2: 1, 3: 2},	
+			stockout_cost={1: 37.12, 2: 0, 3: 0},
 			demand_type='N',
 			demand_mean=5,
 			demand_standard_deviation=1,
-			shipment_lead_time=[1, 1, 2],
 			inventory_policy_type='BS',
-			base_stock_levels=[6.49, 5.53, 10.69],
-			downstream_0=True
+			base_stock_levels={1: 6.49, 2: 5.53, 3: 10.69}
 		)
 		return example_6_1_network
 	elif instance_name == "problem_6_1":
@@ -765,8 +765,8 @@ def get_named_instance(instance_name):
 
 # CHAPTER 6
 
-# network = get_named_instance("example_6_1")
-# save_instance("example_6_1", network, "Example 6.1 (serial SSM)")
+network = get_named_instance("example_6_1")
+save_instance("example_6_1", network, "Example 6.1 (serial SSM)")
 
 # network = get_named_instance("problem_6_1")
 # save_instance("problem_6_1", network, "Problem 6.1 (serial SSM)")
@@ -783,17 +783,17 @@ def get_named_instance(instance_name):
 # network = get_named_instance("problem_6_16")
 # save_instance("problem_6_16", network, "Problem 6.16 (serial SSM)")
 
-network = network_from_edges(
-	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
-	processing_times=[1, 0, 1],
-	external_inbound_csts=[None, None, 1],
-	local_holding_cost=[7, 4, 2],
-	demand_bound_constants=1,
-	external_outbound_csts=[1, None, None],
-	demand_type=['N', None, None],
-	demand_mean=0,
-	demand_standard_deviation=[1, 0, 0]
-)
+# network = network_from_edges(
+# 	[(3, 2), (2, 1)], node_indices=[1, 2, 3],
+# 	processing_times=[1, 0, 1],
+# 	external_inbound_csts=[None, None, 1],
+# 	local_holding_cost=[7, 4, 2],
+# 	demand_bound_constants=1,
+# 	external_outbound_csts=[1, None, None],
+# 	demand_type=['N', None, None],
+# 	demand_mean=0,
+# 	demand_standard_deviation=[1, 0, 0]
+# )
 #save_instance("example_6_3", network, 'Example 6.3 (serial GSM)')
 
 # network = network_from_edges(

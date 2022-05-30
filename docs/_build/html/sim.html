@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="instances Module" href="instances.html" />
-    <link rel="prev" title="supply_uncertainty Module" href="supply_uncertainty.html" /> 
+    <link rel="prev" title="supply_chain_node Module" href="supply_chain_node.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_meio.html">Multi-Echelon Inventory Optimization</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
@@ -50,13 +51,15 @@
 <li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supply_chain_network.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_network</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supply_chain_node.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_node</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
@@ -102,7 +105,7 @@ measures directly into <code class="docutils literal notranslate"><span class="p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>num_periods</strong> (<em>int</em>) – Number of periods to simulate.</p></li>
 <li><p><strong>rand_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random number generator seed.</p></li>
 <li><p><strong>progress_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display a progress bar?</p></li>
@@ -125,7 +128,7 @@ Record disruption states in <code class="docutils literal notranslate"><span cla
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
 </ul>
 </dd>
@@ -143,7 +146,7 @@ is forced to 0.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node_index</strong> (<em>int</em>) – Index of starting node for depth-first search.</p></li>
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
 <li><p><strong>visited</strong> (<em>dict</em>) – Dictionary indicating whether each node in network has already been
 visited by the depth-first search.</p></li>
@@ -165,7 +168,7 @@ cost as though they were included in IL.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node_index</strong> (<em>int</em>) – Index of starting node for depth-first search.</p></li>
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
 <li><p><strong>visited</strong> (<em>dict</em>) – Dictionary indicating whether each node in network has already been
 visited by the depth-first search.</p></li>
@@ -188,7 +191,7 @@ visited by the depth-first search.</p></li>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p>
+<dd class="field-odd"><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -206,7 +209,7 @@ visited by the depth-first search.</p></li>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode" title="stockpyl.supply_chain_node.SupplyChainNode"><em>SupplyChainNode</em></a>) – The supply chain node.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -228,7 +231,7 @@ items in its shipment pipelines are not advanced.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>period</strong> (<em>int</em>) – The current time period.</p></li>
 </ul>
 </dd>
@@ -242,7 +245,7 @@ items in its shipment pipelines are not advanced.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>period</strong> (<em>int</em>) – The time period.</p></li>
 </ul>
 </dd>
@@ -265,7 +268,7 @@ items in its shipment pipelines are not advanced.</p>
 is forced to 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode" title="stockpyl.supply_chain_node.SupplyChainNode"><em>SupplyChainNode</em></a>) – The supply chain node.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -282,7 +285,7 @@ is forced to 0.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode" title="stockpyl.supply_chain_node.SupplyChainNode"><em>SupplyChainNode</em></a>) – The supply chain node.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>new_finished_goods</strong> – Number of new finished goods added to inventory this period.</p>
@@ -311,7 +314,7 @@ cost as though they were included in IL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p></li>
+<li><p><strong>node</strong> (<a class="reference internal" href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode" title="stockpyl.supply_chain_node.SupplyChainNode"><em>SupplyChainNode</em></a>) – The supply chain node.</p></li>
 <li><p><strong>starting_inventory_level</strong> (<em>float</em>) – Starting inventory level for the period.</p></li>
 <li><p><strong>new_finished_goods</strong> (<em>float</em>) – Number of new finished goods added to inventory this period.</p></li>
 </ul>
@@ -326,7 +329,7 @@ cost as though they were included in IL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p></li>
+<li><p><strong>node</strong> (<a class="reference internal" href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode" title="stockpyl.supply_chain_node.SupplyChainNode"><em>SupplyChainNode</em></a>) – The supply chain node.</p></li>
 <li><p><strong>period</strong> (<em>int</em>) – Time period.</p></li>
 </ul>
 </dd>
@@ -339,7 +342,7 @@ cost as though they were included in IL.</p>
 <dd><p>Propagate shipment downstream, i.e., add it to successors’ <code class="docutils literal notranslate"><span class="pre">inbound_shipment_pipeline</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<em>SupplyChainNode</em>) – The supply chain node.</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode" title="stockpyl.supply_chain_node.SupplyChainNode"><em>SupplyChainNode</em></a>) – The supply chain node.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>inbound_shipment</strong> – The inbound shipment quantity.</p>
@@ -363,7 +366,7 @@ most recent trial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>network</strong> (<em>SupplyChainNetwork</em>) – The multi-echelon inventory network.</p></li>
+<li><p><strong>network</strong> (<a class="reference internal" href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork" title="stockpyl.supply_chain_network.SupplyChainNetwork"><em>SupplyChainNetwork</em></a>) – The multi-echelon inventory network.</p></li>
 <li><p><strong>num_trials</strong> (<em>int</em>) – Number of trials to simulate.</p></li>
 <li><p><strong>num_periods</strong> (<em>int</em>) – Number of periods to simulate.</p></li>
 <li><p><strong>rand_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random number generator seed.</p></li>
@@ -386,7 +389,7 @@ most recent trial.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="supply_uncertainty.html" class="btn btn-neutral float-left" title="supply_uncertainty Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="supply_chain_node.html" class="btn btn-neutral float-left" title="supply_chain_node Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="instances.html" class="btn btn-neutral float-right" title="instances Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

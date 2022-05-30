@@ -23,6 +23,9 @@
 .. |mod_supply_uncertainty| replace:: :mod:`~stockpyl.supply_uncertainty`
 .. |mod_wagner_whitin| replace:: :mod:`~stockpyl.wagner_whitin`
 
+.. |class_network| replace:: :class:`~stockpyl.supply_chain_network.SupplyChainNetwork`
+.. |class_node| replace:: :class:`~stockpyl.supply_chain_network.SupplyChainNode`
+
 .. |rq| replace:: :math:`(r,Q)`
 .. |ss| replace:: :math:`(s,S)`
 

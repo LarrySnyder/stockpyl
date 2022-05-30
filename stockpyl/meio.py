@@ -129,7 +129,7 @@ def truncate_and_discretize(node_indices, values=None, truncation_lo=None,
 	return truncated_discretized_values
 
 
-def base_stock_group_assignments(node_indices, groups=None):
+def _base_stock_group_assignments(node_indices, groups=None):
 	"""Build dict indicating, for each node index, the group that the node is
 	assigned to for the purposes of base-stock-level optimization.
 
@@ -263,7 +263,7 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 	# Build dictionary indicating which optimization group each node is assigned to.
 	# (Group indices will not be consecutive; some will be empty.)
 	# Note that every set contains a node with the same index as the set.
-	opt_group, _ = base_stock_group_assignments(network.node_indices, groups=groups)
+	opt_group, _ = _base_stock_group_assignments(network.node_indices, groups=groups)
 
 	# Determine list of nodes to optimize, based on groups. Nodes that are not
 	# in the list will have their base-stock level set to the level from their group.
@@ -471,7 +471,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 	# Build dictionary indicating which optimization group each node is assigned to.
 	# (Group indices will not be consecutive; some will be empty.)
 	# Note that every set contains a node with the same index as the set.
-	opt_group, group_list = base_stock_group_assignments(network.node_indices, groups=groups)
+	opt_group, group_list = _base_stock_group_assignments(network.node_indices, groups=groups)
 
 	# Determine list of nodes to optimize, based on groups. Nodes that are not
 	# in the list will have their base-stock level set to the level from their group.

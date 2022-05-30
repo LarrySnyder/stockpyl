@@ -51,9 +51,9 @@ class SupplyChainNode(object):
 	network : SupplyChainNetwork
 		The network that contains the node.
 	_predecessors : list
-		List of immediate predecesssor ``SupplyChainNode``s.
+		List of immediate predecesssor ``SupplyChainNode`` objects.
 	_successors : list
-		List of immediate successor ``SupplyChainNode``s.
+		List of immediate successor ``SupplyChainNode`` objects.
 
 	# --- Data/Inputs --- #
 
@@ -82,14 +82,13 @@ class SupplyChainNode(object):
 	# TODO: does purchase cost live at upstream or downstream node? is it incurred on purhcase or delivery? does it count as revenue at the upstream node?
 	revenue : float
 		Revenue earned per unit of demand met. [r]
-	lead_time : int
-		Shipment lead time. [L]
 	shipment_lead_time : int
-		Shipment lead time. [L] # not currently supported # TODO: set as alias for lead_time
+		Shipment lead time. [L] # not currently supported 
 	order_lead_time : int
 		Order lead time.
 	demand_source : DemandSource
 		Demand source object.
+	# TODO: add properties demand_type, demand_mean, etc. that are aliases to demand_source.type, etc.
 	initial_inventory_level : float
 		Initial inventory level.
 	initial_orders : float # TODO: allow list
@@ -128,6 +127,8 @@ class SupplyChainNode(object):
 			The network that contains the node.
 		kwargs : optional
 			Optional keyword arguments to specify node attributes.
+
+		# TODO: check for uniqueness when add new node to network
 		# TODO: allow user to specify policy type and parameters insted of policy object
 		# TODO: similar for demand
 		# TODO: when set local or echelon h.c., update the other
@@ -339,10 +340,10 @@ class SupplyChainNode(object):
 		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``inventory_policy``):
 			* If ``overwrite`` is ``True``, replaces the object with a new, fully initialized one.
 			* If ``overwrite`` is ``False`` and the attribute does not exist, creates the attribute and 
-			fills it with a new, fully initialized one.
+			  fills it with a new, fully initialized one.
 			* If ``overwrite`` is ``False`` and the attribute exists but is ``None``, does nothing.
 			* If ``overwrite`` is ``False`` and the attribute exists and contains an object, calls its 
-			``initialize()`` method with ``overwrite=False`` to ensure all attributes are present.
+			  ``initialize()`` method with ``overwrite=False`` to ensure all attributes are present.
 
 		Parameters
 		----------

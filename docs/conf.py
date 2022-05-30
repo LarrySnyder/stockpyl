@@ -77,6 +77,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# Default domain. (added LVS 5/30/22)
+primary_domain = 'py'
+
 # Sort order. (added LVS 1/31/22)
 #autodoc_member_order = 'bysource'
 autodoc_default_options = {

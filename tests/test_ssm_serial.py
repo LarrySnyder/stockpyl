@@ -42,7 +42,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+#		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_star, C_star = optimize_base_stock_levels(
 			num_nodes=len(instance.nodes),
@@ -66,10 +66,10 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		network in Example 6.1 when provided as a network object.
 		"""
 
-		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1()')
+		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_from_network()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_star, C_star = optimize_base_stock_levels(network=instance,
 			S=None, plots=False, x=None, x_num=100, d_num=10,
@@ -144,7 +144,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_uniform()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		for n in instance.nodes:
 			if n.index == 1:
@@ -182,7 +182,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_bad_parameters()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(2).shipment_lead_time = -20
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -195,7 +195,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 		
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).stockout_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -208,7 +208,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).stockout_cost = -2
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -221,7 +221,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(2).echelon_holding_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
@@ -234,7 +234,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 				x_num=100, d_num=10)
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).demand_source = None
 		instance.get_node_from_index(1).demand_mean = None
 		instance.get_node_from_index(1).demand_standard_deviation = 10
@@ -271,7 +271,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		print_status('TestNewsvendorHeuristic', 'test_example_6_1()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_heur = newsvendor_heuristic(
 			num_nodes=len(instance.nodes),
@@ -293,7 +293,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		print_status('TestNewsvendorHeuristic', 'test_example_6_1()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_heur = newsvendor_heuristic(network=instance)
 		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
@@ -388,7 +388,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		print_status('TestNewsvendorHeuristic', 'test_bad_parameters()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(2).shipment_lead_time = -20
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
@@ -401,7 +401,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 				demand_source=None)
 		
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).stockout_cost = None
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
@@ -414,7 +414,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 				demand_source=None)
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).stockout_cost = -2
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
@@ -427,7 +427,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 				demand_source=None)
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(2).echelon_holding_cost = None
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
@@ -440,7 +440,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 				demand_source=None)
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 		instance.get_node_from_index(1).demand_source = None
 		instance.get_node_from_index(1).demand_mean = None
 		instance.get_node_from_index(1).demand_standard_deviation = 10
@@ -475,7 +475,7 @@ class TestExpectedCost(unittest.TestCase):
 		print_status('TestExpectedCost', 'test_example_6_1()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		cost = expected_cost(S_echelon, network=instance, x_num=100, d_num=10,
@@ -556,7 +556,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 		print_status('TestExpectedHoldingCost', 'test_example_6_1()')
 
 		instance = copy.deepcopy(load_instance("example_6_1"))
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		cost = expected_holding_cost(S_echelon, network=instance, x_num=100, d_num=10,

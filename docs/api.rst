@@ -11,13 +11,15 @@ API Documentation
     ss
     finite_horizon
     supply_uncertainty
-    sim
-    instances
-    loss_functions
     ssm_serial
     gsm_tree
     gsm_serial
     gsm_helpers
+    supply_chain_network
+    supply_chain_node
+    sim
+    instances
+    loss_functions
     wagner_whitin
 
 

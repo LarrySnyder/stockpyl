@@ -1183,7 +1183,7 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1()')
 
 		instance = load_instance("example_6_1")
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_local = {1: 4, 2: 5, 3: 1}
 		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
@@ -1218,7 +1218,7 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
 
 		instance = load_instance("example_6_1")
-		instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)

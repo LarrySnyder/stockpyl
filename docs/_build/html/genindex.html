@@ -39,6 +39,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_meio.html">Multi-Echelon Inventory Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
 
@@ -69,11 +70,15 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#C"><strong>C</strong></a>
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
  | <a href="#L"><strong>L</strong></a>
@@ -83,10 +88,57 @@
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode._predecessors">_predecessors (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode._successors">_successors (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_edge">add_edge() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_edges_from_list">add_edges_from_list() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_node">add_node() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_predecessor">add_predecessor() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+
+      <ul>
+        <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.add_predecessor">(stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      </ul></li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_successor">add_successor() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+
+      <ul>
+        <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.add_successor">(stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.backorders_by_successor">backorders_by_successor (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -108,11 +160,31 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="loss_functions.html#stockpyl.loss_functions.discrete_loss">discrete_loss() (in module stockpyl.loss_functions)</a>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.deep_equal_to">deep_equal_to() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+
+      <ul>
+        <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.deep_equal_to">(stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      </ul></li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.demand_cumul">demand_cumul (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.demand_met_from_stock">demand_met_from_stock (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.demand_met_from_stock_cumul">demand_met_from_stock_cumul (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.demand_source">demand_source (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="loss_functions.html#stockpyl.loss_functions.discrete_loss">discrete_loss() (in module stockpyl.loss_functions)</a>
+</li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.discrete_second_loss">discrete_second_loss() (in module stockpyl.loss_functions)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.disrupted">disrupted (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.disrupted_items_by_successor">disrupted_items_by_successor (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.disruption_process">disruption_process (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -120,18 +192,24 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.echelon_holding_cost">echelon_holding_cost (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.echelon_to_local_base_stock_levels">echelon_to_local_base_stock_levels() (in module stockpyl.supply_chain_network)</a>
+</li>
       <li><a href="eoq.html#stockpyl.eoq.economic_order_quantity">economic_order_quantity() (in module stockpyl.eoq)</a>
 </li>
       <li><a href="eoq.html#stockpyl.eoq.economic_order_quantity_with_backorders">economic_order_quantity_with_backorders() (in module stockpyl.eoq)</a>
 </li>
       <li><a href="eoq.html#stockpyl.eoq.economic_production_quantity">economic_production_quantity() (in module stockpyl.eoq)</a>
 </li>
-      <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty">eoq_with_additive_yield_uncertainty() (in module stockpyl.supply_uncertainty)</a>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.edges">edges (stockpyl.supply_chain_network.SupplyChainNetwork property)</a>
 </li>
-      <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.eoq_with_disruptions">eoq_with_disruptions() (in module stockpyl.supply_uncertainty)</a>
+      <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.eoq_with_additive_yield_uncertainty">eoq_with_additive_yield_uncertainty() (in module stockpyl.supply_uncertainty)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.eoq_with_disruptions">eoq_with_disruptions() (in module stockpyl.supply_uncertainty)</a>
+</li>
       <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.eoq_with_disruptions_cost">eoq_with_disruptions_cost() (in module stockpyl.supply_uncertainty)</a>
 </li>
       <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.eoq_with_multiplicative_yield_uncertainty">eoq_with_multiplicative_yield_uncertainty() (in module stockpyl.supply_uncertainty)</a>
@@ -150,6 +228,10 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.fill_rate">fill_rate (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="finite_horizon.html#stockpyl.finite_horizon.finite_horizon_dp">finite_horizon_dp() (in module stockpyl.finite_horizon)</a>
 </li>
   </ul></td>
@@ -164,15 +246,31 @@
 </li>
       <li><a href="sim.html#stockpyl.sim.generate_downstream_orders">generate_downstream_orders() (in module stockpyl.sim)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sim.html#stockpyl.sim.generate_downstream_shipments">generate_downstream_shipments() (in module stockpyl.sim)</a>
 </li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.geometric_loss">geometric_loss() (in module stockpyl.loss_functions)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="loss_functions.html#stockpyl.loss_functions.geometric_second_loss">geometric_second_loss() (in module stockpyl.loss_functions)</a>
 </li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_attribute_total">get_attribute_total() (stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.get_node_from_index">get_node_from_index() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_one_predecessor">get_one_predecessor() (stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_one_successor">get_one_successor() (stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
       <li><a href="gsm_tree.html#stockpyl.gsm_tree.gsm_to_ssm">gsm_to_ssm() (in module stockpyl.gsm_tree)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.holding_cost_incurred">holding_cost_incurred (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -180,13 +278,43 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit_from">in_transit_from() (stockpyl.supply_chain_node.NodeStateVars method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.in_transit_holding_cost">in_transit_holding_cost (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit_holding_cost_incurred">in_transit_holding_cost_incurred (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit_to">in_transit_to() (stockpyl.supply_chain_node.NodeStateVars method)</a>
+</li>
       <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.inbound_cst">inbound_cst() (in module stockpyl.gsm_helpers)</a>
 </li>
-      <li><a href="sim.html#stockpyl.sim.initialize_next_period_state_vars">initialize_next_period_state_vars() (in module stockpyl.sim)</a>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_order">inbound_order (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_order_pipeline">inbound_order_pipeline (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_shipment">inbound_shipment (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_shipment_pipeline">inbound_shipment_pipeline (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.initial_inventory_level">initial_inventory_level (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.initial_orders">initial_orders (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.initialize">initialize() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+
+      <ul>
+        <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.initialize">(stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      </ul></li>
+      <li><a href="sim.html#stockpyl.sim.initialize_next_period_state_vars">initialize_next_period_state_vars() (in module stockpyl.sim)</a>
+</li>
       <li><a href="sim.html#stockpyl.sim.initialize_state_vars">initialize_state_vars() (in module stockpyl.sim)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inventory_level">inventory_level (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.inventory_policy">inventory_policy (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
 </li>
       <li><a href="gsm_tree.html#stockpyl.gsm_tree.is_correctly_labeled">is_correctly_labeled() (in module stockpyl.gsm_tree)</a>
 </li>
@@ -206,8 +334,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="instances.html#stockpyl.instances.load_instance">load_instance() (in module stockpyl.instances)</a>
 </li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.local_holding_cost">local_holding_cost (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.local_holding_cost_function">local_holding_cost_function (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.local_to_echelon_base_stock_levels">local_to_echelon_base_stock_levels() (in module stockpyl.supply_chain_network)</a>
+</li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.lognormal_loss">lognormal_loss() (in module stockpyl.loss_functions)</a>
 </li>
   </ul></td>
@@ -216,6 +350,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.max_max_replenishment_time">max_max_replenishment_time (stockpyl.supply_chain_network.SupplyChainNetwork attribute)</a>
+</li>
       <li>
     module
 
@@ -244,6 +380,10 @@
 </li>
         <li><a href="ssm_serial.html#module-stockpyl.ssm_serial">stockpyl.ssm_serial</a>
 </li>
+        <li><a href="supply_chain_network.html#module-stockpyl.supply_chain_network">stockpyl.supply_chain_network</a>
+</li>
+        <li><a href="supply_chain_node.html#module-stockpyl.supply_chain_node">stockpyl.supply_chain_node</a>
+</li>
         <li><a href="supply_uncertainty.html#module-stockpyl.supply_uncertainty">stockpyl.supply_uncertainty</a>
 </li>
         <li><a href="wagner_whitin.html#module-stockpyl.wagner_whitin">stockpyl.wagner_whitin</a>
@@ -251,6 +391,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.mwor_system">mwor_system() (in module stockpyl.supply_chain_network)</a>
+</li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.myopic">myopic() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="finite_horizon.html#stockpyl.finite_horizon.myopic_bounds">myopic_bounds() (in module stockpyl.finite_horizon)</a>
@@ -269,6 +411,12 @@
 </li>
       <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.net_lead_time">net_lead_time() (in module stockpyl.gsm_helpers)</a>
 </li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.network">network (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.network_from_edges">network_from_edges() (in module stockpyl.supply_chain_network)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.networkx_digraph">networkx_digraph() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_continuous">newsvendor_continuous() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_discrete">newsvendor_discrete() (in module stockpyl.newsvendor)</a>
@@ -277,10 +425,10 @@
 </li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal">newsvendor_normal() (in module stockpyl.newsvendor)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal_cost">newsvendor_normal_cost() (in module stockpyl.newsvendor)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_normal_explicit">newsvendor_normal_explicit() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.newsvendor_poisson">newsvendor_poisson() (in module stockpyl.newsvendor)</a>
@@ -290,6 +438,14 @@
       <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.newsvendor_with_additive_yield_uncertainty">newsvendor_with_additive_yield_uncertainty() (in module stockpyl.supply_uncertainty)</a>
 </li>
       <li><a href="supply_uncertainty.html#stockpyl.supply_uncertainty.newsvendor_with_disruptions">newsvendor_with_disruptions() (in module stockpyl.supply_uncertainty)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.node">node (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.node_indices">node_indices (stockpyl.supply_chain_network.SupplyChainNetwork property)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.nodes">nodes (stockpyl.supply_chain_network.SupplyChainNetwork attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars">NodeStateVars (class in stockpyl.supply_chain_node)</a>
 </li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.normal_loss">normal_loss() (in module stockpyl.loss_functions)</a>
 </li>
@@ -301,10 +457,10 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.on_order_by_predecessor">on_order_by_predecessor (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
       <li><a href="ssm_serial.html#stockpyl.ssm_serial.optimize_base_stock_levels">optimize_base_stock_levels() (in module stockpyl.ssm_serial)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gsm_serial.html#stockpyl.gsm_serial.optimize_committed_service_times">optimize_committed_service_times() (in module stockpyl.gsm_serial)</a>
 
       <ul>
@@ -312,22 +468,44 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.order_lead_time">order_lead_time (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.order_quantity">order_quantity (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.outbound_shipment">outbound_shipment (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.period">period (stockpyl.supply_chain_network.SupplyChainNetwork attribute)</a>
+
+      <ul>
+        <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.period">(stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
+      </ul></li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.poisson_loss">poisson_loss() (in module stockpyl.loss_functions)</a>
 </li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.poisson_second_loss">poisson_second_loss() (in module stockpyl.loss_functions)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gsm_tree.html#stockpyl.gsm_tree.preprocess_tree">preprocess_tree() (in module stockpyl.gsm_tree)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.problem_specific_data">problem_specific_data (stockpyl.supply_chain_network.SupplyChainNetwork attribute)</a>
+
+      <ul>
+        <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.problem_specific_data">(stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      </ul></li>
       <li><a href="sim.html#stockpyl.sim.process_outbound_shipments">process_outbound_shipments() (in module stockpyl.sim)</a>
 </li>
       <li><a href="sim.html#stockpyl.sim.propagate_shipment_downstream">propagate_shipment_downstream() (in module stockpyl.sim)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.purchase_cost">purchase_cost (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -347,19 +525,37 @@
 </li>
       <li><a href="rq.html#stockpyl.rq.r_q_loss_function_approximation">r_q_loss_function_approximation() (in module stockpyl.rq)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="rq.html#stockpyl.rq.r_q_optimal_r_for_q">r_q_optimal_r_for_q() (in module stockpyl.rq)</a>
 </li>
       <li><a href="rq.html#stockpyl.rq.r_q_poisson_exact">r_q_poisson_exact() (in module stockpyl.rq)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.raw_material_inventory">raw_material_inventory (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
 </li>
       <li><a href="sim.html#stockpyl.sim.raw_materials_to_finished_goods">raw_materials_to_finished_goods() (in module stockpyl.sim)</a>
 </li>
       <li><a href="sim.html#stockpyl.sim.receive_inbound_orders">receive_inbound_orders() (in module stockpyl.sim)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sim.html#stockpyl.sim.receive_inbound_shipments">receive_inbound_shipments() (in module stockpyl.sim)</a>
 </li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.reindex_all_state_variables">reindex_all_state_variables() (stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.reindex_nodes">reindex_nodes() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.reindex_state_variables">reindex_state_variables() (stockpyl.supply_chain_node.NodeStateVars method)</a>
+</li>
       <li><a href="gsm_tree.html#stockpyl.gsm_tree.relabel_nodes">relabel_nodes() (in module stockpyl.gsm_tree)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.remove_node">remove_node() (stockpyl.supply_chain_network.SupplyChainNetwork method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.remove_predecessor">remove_predecessor() (stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.remove_successor">remove_successor() (stockpyl.supply_chain_node.SupplyChainNode method)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.revenue">revenue (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.revenue_earned">revenue_earned (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
 </li>
       <li><a href="sim.html#stockpyl.sim.run_multiple_trials">run_multiple_trials() (in module stockpyl.sim)</a>
 </li>
@@ -381,17 +577,37 @@
 </li>
       <li><a href="instances.html#stockpyl.instances.save_summary_to_csv">save_summary_to_csv() (in module stockpyl.instances)</a>
 </li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.serial_system">serial_system() (in module stockpyl.supply_chain_network)</a>
+</li>
       <li><a href="newsvendor.html#stockpyl.newsvendor.set_myopic_cost_to">set_myopic_cost_to() (in module stockpyl.newsvendor)</a>
 </li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.shipment_lead_time">shipment_lead_time (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
       <li><a href="sim.html#stockpyl.sim.simulation">simulation() (in module stockpyl.sim)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.single_stage">single_stage() (in module stockpyl.supply_chain_network)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.sink_nodes">sink_nodes (stockpyl.supply_chain_network.SupplyChainNetwork property)</a>
 </li>
       <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.solution_cost_from_base_stock_levels">solution_cost_from_base_stock_levels() (in module stockpyl.gsm_helpers)</a>
 </li>
       <li><a href="gsm_helpers.html#stockpyl.gsm_helpers.solution_cost_from_cst">solution_cost_from_cst() (in module stockpyl.gsm_helpers)</a>
 </li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.source_nodes">source_nodes (stockpyl.supply_chain_network.SupplyChainNetwork property)</a>
+</li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.standard_normal_loss">standard_normal_loss() (in module stockpyl.loss_functions)</a>
 </li>
       <li><a href="loss_functions.html#stockpyl.loss_functions.standard_normal_second_loss">standard_normal_second_loss() (in module stockpyl.loss_functions)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.state_vars">state_vars (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.state_vars_current">state_vars_current (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.stockout_cost">stockout_cost (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.stockout_cost_function">stockout_cost_function (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.stockout_cost_incurred">stockout_cost_incurred (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
 </li>
       <li>
     stockpyl.eoq
@@ -414,6 +630,8 @@
         <li><a href="gsm_helpers.html#module-stockpyl.gsm_helpers">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     stockpyl.gsm_serial
 
@@ -421,8 +639,6 @@
         <li><a href="gsm_serial.html#module-stockpyl.gsm_serial">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     stockpyl.gsm_tree
 
@@ -480,6 +696,20 @@
 </li>
       </ul></li>
       <li>
+    stockpyl.supply_chain_network
+
+      <ul>
+        <li><a href="supply_chain_network.html#module-stockpyl.supply_chain_network">module</a>
+</li>
+      </ul></li>
+      <li>
+    stockpyl.supply_chain_node
+
+      <ul>
+        <li><a href="supply_chain_node.html#module-stockpyl.supply_chain_node">module</a>
+</li>
+      </ul></li>
+      <li>
     stockpyl.supply_uncertainty
 
       <ul>
@@ -493,6 +723,24 @@
         <li><a href="wagner_whitin.html#module-stockpyl.wagner_whitin">module</a>
 </li>
       </ul></li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.supply_type">supply_type (stockpyl.supply_chain_node.SupplyChainNode attribute)</a>
+</li>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork">SupplyChainNetwork (class in stockpyl.supply_chain_network)</a>
+</li>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode">SupplyChainNode (class in stockpyl.supply_chain_node)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.TODO">TODO (stockpyl.supply_chain_network.SupplyChainNetwork attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.total_cost_incurred">total_cost_incurred (stockpyl.supply_chain_node.NodeStateVars attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 

@@ -308,9 +308,9 @@ class TestDerivedDemandMean(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 5)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 5)
 		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 5)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 5)
 
 	def test_assembly(self):
 		"""Test derived_demand_mean() for assembly system (Rosling (1989) Figure 1,
@@ -403,9 +403,9 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		self.assertEqual(network.get_node_from_index(0).derived_demand_standard_deviation, 1)
 		self.assertEqual(network.get_node_from_index(1).derived_demand_standard_deviation, 1)
 		self.assertEqual(network.get_node_from_index(2).derived_demand_standard_deviation, 1)
+		self.assertEqual(network.get_node_from_index(3).derived_demand_standard_deviation, 1)
 
 	def test_assembly(self):
 		"""Test derived_demand_standard_deviation() for assembly system (Rosling (1989) Figure 1,
@@ -498,6 +498,8 @@ class TestStateVariables(unittest.TestCase):
 		print_status('TestStateVariables', 'test_example_6_1_per_22()')
 
 		network = load_instance("example_6_1")
+		# reindex nodes to 2 -> 1 -> 0
+		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:
@@ -550,6 +552,8 @@ class TestStateVariables(unittest.TestCase):
 		print_status('TestStateVariables', 'test_example_6_1_per_37()')
 
 		network = load_instance("example_6_1")
+		# reindex nodes to 2 -> 1 -> 0
+		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Set initial inventory levels to local BS levels.
 		for n in network.nodes:

@@ -36,19 +36,21 @@ from stockpyl.helpers import *
 
 class SupplyChainNetwork(object):
 	"""The ``SupplyChainNetwork`` class contains one or more nodes, each
-	represented by a SupplyChainNode object.
+	represented by a ``SupplyChainNode`` object.
 
 	Attributes
 	----------
 	nodes : list
-		A list of all ``SupplyChainNode``s in the network. (Read only.)
+		A list of all ``SupplyChainNode`` objects in the network. (Read only.)
 	period : int
 		The current period. Used for simulation.
 	problem_specific_data : object
 		Placeholder for object that is used to provide data for specific
 		problem types.
+	max_max_replenishment_time : int
+		Largest value of ``max_replenishment_time`` among all nodes in the network.
 
-	TODO: allow **kwargs as input
+	TODO: allow kwargs as input
 	"""
 
 	def __init__(self):
@@ -57,13 +59,6 @@ class SupplyChainNetwork(object):
 		"""
 		# Initialize attributes.
 		self.initialize()
-
-		# # Initialize attributes.
-		# self._nodes = []
-		# self._period = 0
-
-		# # --- Intermediate Calculations for GSM Problems --- #
-		# self.max_max_replenishment_time = None
 
 	@property
 	def nodes(self):
@@ -136,18 +131,19 @@ class SupplyChainNetwork(object):
 
 		Handles ``_nodes`` list as follows:
 			* If ``overwrite`` is ``True``, replaces ``_nodes`` with an empty list.
-			* If ``overwrite`` is ``False`` and ``_nodes`` does not exist, creates the ``_nodes`` attribute
-			and fills it with an empty list.
+			* If ``overwrite`` is ``False`` and ``_nodes`` does not exist, creates the ``_nodes`` attribute 
+			  and fills it with an empty list.
 			* If ``overwrite`` is ``False`` and ``_nodes`` exists but is ``None`` or an empty list, does nothing.
 			* If ``overwrite`` is ``False`` and ``_nodes`` exists and contains at least one ``SupplyChainNode`` 
-			object, calls the ``initialize()`` method for each node with ``overwrite=False`` to ensure all attributes
-			are present (as well as all attributes in its object attributes such as ``demand_source``, etc.).
+			  object, calls the ``initialize()`` method for each node with ``overwrite=False`` to ensure all attributes are present (as well as all attributes in its object attributes such as ``demand_source``, etc.).
+
 
 		Parameters
 		----------
 		overwrite : bool, optional
 			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
 			only those attributes that are missing from the object. Default = ``True``.
+
 		"""
 
 		# NOTE: If the attribute list changes, deep_equal_to() must be updated accordingly.
@@ -420,15 +416,16 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 	Other than ``edges``, all parameters are optional. If they are provided,
 	they must be either a dict, a list, or a singleton, with the following
 	requirements:
+
 		- If ``node_indices`` is provided, then the parameter may be specified
-		either as a dict (with keys equal to the indices in ``node_indices``),
-		as a list (whose items are in the same order as ``node_indices``),
-		or as a singleton (in which case all nodes will have that parameter
-		set to the singleton value).
+		  either as a dict (with keys equal to the indices in ``node_indices``),
+		  as a list (whose items are in the same order as ``node_indices``),
+		  or as a singleton (in which case all nodes will have that parameter
+		  set to the singleton value).
 		- If ``node_indices`` is not provided, then the parameter may be
-		specified either as a dict (with keys equal to 0,...,``num_nodes``-1) or
-		as a singleton (in which case all nodes will have that
-		parameter set to the singleton value). (It cannot be a list.)
+		  specified either as a dict (with keys equal to 0,...,``num_nodes``-1) or
+		  as a singleton (in which case all nodes will have that
+		  parameter set to the singleton value). (It cannot be a list.)
 
 	A node's supply type is set to UNLIMITED if it has no predecessors;
 	otherwise, its supply type is set to NONE.
@@ -781,19 +778,20 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	Other than ``num_nodes``, all parameters are optional. If they are provided,
 	they must be either a dict, a list, or a singleton, with the following
 	requirements:
+
 		- If ``node_indices`` is provided, then the parameter may be specified
-		either as a dict (with keys equal to the indices in ``node_indices``)
-		or as a singleton (in which case all nodes will have that parameter
-		set to the singleton value).
+		  either as a dict (with keys equal to the indices in ``node_indices``)
+		  or as a singleton (in which case all nodes will have that parameter
+		  set to the singleton value).
 		- If ``node_indices`` is not provided, then the parameter may be
-		specified either as a dict (with keys equal to 0,...,``num_nodes``-1),
-		as a list, or as a singleton (in which case all nodes will have that
-		parameter set to the singleton value). If the parameter is specified as
-		a dict or list, then the keys or list indices must correspond to the
-		actual indexing of the nodes; that is, if ``downstream_0`` is ``True``,
-		then key/index ``0`` should refer to the downstream-most node, and if
-		``downstream_0`` is ``False``, then key/index ``0`` should refer to the
-		upstream-most node.
+		  specified either as a dict (with keys equal to 0,...,``num_nodes``-1),
+		  as a list, or as a singleton (in which case all nodes will have that
+		  parameter set to the singleton value). If the parameter is specified as
+		  a dict or list, then the keys or list indices must correspond to the
+		  actual indexing of the nodes; that is, if ``downstream_0`` is ``True``,
+		  then key/index ``0`` should refer to the downstream-most node, and if
+		  ``downstream_0`` is ``False``, then key/index ``0`` should refer to the
+		  upstream-most node.
 
 	Parameters
 	----------
@@ -884,6 +882,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
+	# TODO: allow to specify type but not parameters (e.g., if they are about to be optimized), maybe even allow not to specify type
 	for n_index in indices:
 		# Check parameters for inventory policy type.
 		if inventory_policy_type_dict[n_index] is None:
@@ -994,19 +993,20 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	Other than ``num_nodes``, all parameters are optional. If they are provided,
 	they must be either a dict, a list, or a singleton, with the following
 	requirements:
+
 		- If ``node_indices`` is provided, then the parameter may be specified
-		either as a dict (with keys equal to the indices in ``node_indices``)
-		or as a singleton (in which case all nodes will have that parameter
-		set to the singleton value).
+		  either as a dict (with keys equal to the indices in ``node_indices``)
+		  or as a singleton (in which case all nodes will have that parameter
+		  set to the singleton value).
 		- If ``node_indices`` is not provided, then the parameter may be
-		specified either as a dict (with keys equal to 0,...,``num_nodes``-1),
-		as a list, or as a singleton (in which case all nodes will have that
-		parameter set to the singleton value). If the parameter is specified as
-		a dict or list, then the keys or list indices must correspond to the
-		actual indexing of the nodes; that is, if ``downstream_0`` is ``True``,
-		then key/index ``0`` should refer to the downstream-most node, and if
-		``downstream_0`` is ``False``, then the largest key/index should refer
-		to the downstream-most node.
+		  specified either as a dict (with keys equal to 0,...,``num_nodes``-1),
+		  as a list, or as a singleton (in which case all nodes will have that
+		  parameter set to the singleton value). If the parameter is specified as
+		  a dict or list, then the keys or list indices must correspond to the
+		  actual indexing of the nodes; that is, if ``downstream_0`` is ``True``,
+		  then key/index ``0`` should refer to the downstream-most node, and if
+		  ``downstream_0`` is ``False``, then the largest key/index should refer
+		  to the downstream-most node.
 
 	Parameters
 	----------

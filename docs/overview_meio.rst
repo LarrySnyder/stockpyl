@@ -3,15 +3,13 @@
 Multi-Echelon Inventory Optimization
 ====================================
 
-|sp| contains code to solve the following types of single-echelon inventory optimization problems:
+|sp| contains code to solve the following types of multi-echelon inventory optimization (MEIO) problems:
 
-* The :ref:`economic order quantity (EOQ) problem<overview_seio:The EOQ Problem>` (|mod_eoq| module)
-* The :ref:`newsvendor problem<overview_seio:The Newsvendor Problem>` (|mod_newsvendor| module)
-* The :ref:`(r,Q) optimization problem<overview_seio:The |rq| Optimization Problem>` (|mod_rq| module)
-* The :ref:`(s,S) optimization problem<overview_seio:The |ss| Optimization Problem>` (|mod_ss| module)
-* The :ref:`Wagner-Whitin problem<overview_seio:The Wagner-Whitin Problem>` (|mod_wagner_whitin| module)
-* :ref:`Finite-horizon stochastic problems<overview_seio:Finite-Horizon Stochastic Problems>` with or without fixed costs (|mod_finite_horizon| module)
-* Plus a number of single-echelon problems with :ref:`supply uncertainty<overview_su:Supply Uncertainty>`
+* :ref:`Serial systems under the stochastic-service model (SSM)<overview_meio:Serial SSM Systems>` (|mod_ssm_serial| module)
+* Serial or tree systems under the guaranteed-service model (GSM) (|mod_gsm_serial| and |mod_gsm_tree| modules)
+* Systems with arbitrary topology, optimized using enumeration or coordinate descent
+
+The terms "node" and "stage" are used interchangeably in the documentation.
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
@@ -19,296 +17,152 @@ refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd e
 
 |copy| Lawrence V. Snyder, Lehigh University
 
-The EOQ Problem
----------------
-
-The |mod_eoq| module contains code for solving the economic order quantity
-(EOQ) problem and some of its variants. The :func:`stockpyl.eoq.economic_order_quantity` function
-implements the basic EOQ model; it returns both the optimal order quantity and the corresponding
-optimal cost:
-
-.. doctest::
-    
-    >>> from stockpyl.eoq import economic_order_quantity
-    >>> Q, cost = economic_order_quantity(fixed_cost=8, holding_cost=0.225, demand_rate=1300)
-    >>> Q
-    304.0467800264368
-    >>> cost
-    68.41052550594829
-
-The module also contains functions for the EOQ with backorders (EOQB) and the economic production quantity (EPQ). 
-
-The :func:`stockpyl.eoq.joint_replenishment_problem_silver_heuristic` function implements 
-Silver's (1976) heuristic for the joint replenishment problem (JRP):
-
-.. doctest::
-
-	>>> from stockpyl.eoq import joint_replenishment_problem_silver_heuristic
-	>>> shared_fixed_cost = 600
-	>>> individual_fixed_costs = [120, 840, 300]
-	>>> holding_costs = [160, 20, 50]
-	>>> demand_rates = [1, 1, 1]
-	>>> Q, T, m, cost = joint_replenishment_problem_silver_heuristic(shared_fixed_cost, individual_fixed_costs, holding_costs, demand_rates)
-	>>> Q # order quantities
-	[3.103164454170876, 9.309493362512628, 3.103164454170876]
-	>>> T # base cycle time
-	3.103164454170876
-	>>> m # order multiples
-	[1, 3, 1]
-	>>> cost
-	837.8544026261366
-
-
-The Newsvendor Problem
-----------------------
-
-The |mod_newsvendor| module contains code for solving the newsvendor problem and some of its variants. 
-The :func:`stockpyl.newsvendor.newsvendor_normal` function 
-implements the basic newsvendor model for normally distributed demands; it returns both the optimal base-stock level (i.e., order quantity)
-and the corresponding expected optimal cost:
-
-.. doctest::
-    
-    >>> from stockpyl.newsvendor import newsvendor_normal
-    >>> S, cost = newsvendor_normal(holding_cost=0.18, stockout_cost=0.70, demand_mean=50, demand_sd=8)
-    >>> S
-    56.60395592743389
-    >>> cost
-    1.9976051931766445
-
-If you only want to calculate the expected cost of a given base-stock level, you can either call
-:func:`stockpyl.newsvendor.newsvendor_normal`, passing it the optional ``base_stock_level`` parameter, or
-call the :func:`stockpyl.newsvendor.newsvendor_normal_cost` function:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_normal, newsvendor_normal_cost
-	>>> newsvendor_normal(holding_cost=0.18, stockout_cost=0.70, demand_mean=50, demand_sd=8, base_stock_level=53)
-	(53, 2.223748044859164)
-	>>> newsvendor_normal_cost(53, holding_cost=0.18, stockout_cost=0.70, demand_mean=50, demand_sd=8)
-	2.223748044859164
-
-These functions use the version of the newsvendor problem based on holding and stockout (overage and
-underage) costs. The :func:`stockpyl.newsvendor.newsvendor_normal_explicit` function uses the "explicit" (or profit-maximization)
-form of the newsvendor problem, whose parameters are the selling revenue, purchase cost, and salvage value:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_normal_explicit
-	>>> newsvendor_normal_explicit(selling_revenue=1.00, purchase_cost=0.30, salvage_value=0.12, demand_mean=50, demand_sd=8)
-	(56.60395592743389, 33.002394806823354)
-
-The module supports probability distributions other than normal; for example, Poisson:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_poisson
-	>>> h, p, mu = 0.18, 0.70, 50
-	>>> newsvendor_poisson(h, p, mu)
-	(56.0, 1.797235211809178)
-
-You can also solve newsvendor problems for arbitrary continuous distributions specified as ``scipy.stats.rv_continuous`` 
-objects:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_continuous
-	>>> from scipy.stats import lognorm
-	>>> from math import exp
-	>>> demand_distrib = lognorm(0.3, 0, exp(6))
-	>>> newsvendor_continuous(holding_cost=1, stockout_cost=4, demand_distrib=demand_distrib)
-	(519.3023987673176, 198.42277610622506)
-
-Or arbitrary discrete distributions specified as either a ``scipy.stats.rv_discrete`` object or
-as a dictionary containing the pmf:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_discrete
-	>>> from scipy.stats import geom
-	>>> demand_distrib = geom(0.2)
-	>>> newsvendor_discrete(holding_cost=1, stockout_cost=4, demand_distrib=demand_distrib)
-	(8.0, 7.194304)
-	>>> # or ...
-	>>> d = range(0, 50)
-	>>> f = [geom.pmf(d_val, 0.2) for d_val in d]
-	>>> demand_pmf = dict(zip(d, f))
-	>>> newsvendor_discrete(holding_cost=1, stockout_cost=4, demand_pmf=demand_pmf)
-	(8, 7.19102133030678)
-
-
-The |rq| Optimization Problem
------------------------------
-
-The |mod_rq| module contains code for solving the |rq| optimization problem, including
-a number of approximations.
-The :func:`stockpyl.rq.r_q_poisson_exact` function implements Federgruen and Zheng's (1992)
-exact algorithm for the |rq| problem with Poisson demands:
-
-.. doctest::
-    
-	>>> from stockpyl.rq import r_q_poisson_exact
-	>>> r, Q, cost = r_q_poisson_exact(holding_cost=20, stockout_cost=150, fixed_cost=100, demand_mean=1.5, lead_time=2)
-	>>> r
-	3
-	>>> Q
-	5
-	>>> cost
-	107.92358063314975
-
-For normally distributed demands, the module implements the expected-inventory-level (EIL) approximation
-(Whitin (1953), Hadley and Whitin (1963)), the EOQ with backorders (EOQB) approximation (see Zheng (1992)),
-the EOQ plus safety stock (EOQ+SS) approximation, and the loss-function approximation (Hadley and Whitin (1963)):
-
-.. doctest::
-
-	>>> from stockpyl.rq import r_q_eil_approximation, r_q_eoqb_approximation, r_q_eoqss_approximation, r_q_loss_function_approximation
-	>>> h = 0.225
-	>>> p = 7.5
-	>>> K = 8
-	>>> demand_mean = 1300
-	>>> demand_sd = 150
-	>>> L = 1/12
-	>>> r_eil, Q_eil, _ = r_q_eil_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_eil, Q_eil
-	(213.97044213580244, 318.5901810768729)
-	>>> r_eoqb, Q_eoqb = r_q_eoqb_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_eoqb, Q_eoqb
-	(128.63781442427097, 308.5737801203754)
-	>>> r_eoqss, Q_eoqss = r_q_eoqss_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_eoqss, Q_eoqss
-	(190.3369965715624, 304.0467800264368)
-	>>> r_lf, Q_lf = r_q_loss_function_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_lf, Q_lf
-	(126.8670634479628, 328.4491421980451)
-
-We can evaluate these approximate solutions under the exact expected cost function:
-
-.. doctest::
-
-	>>> from stockpyl.rq import r_q_cost
-	>>> r_q_cost(r_eil, Q_eil, h, p, K, demand_mean, demand_sd, L)
-	92.28687665608078
-	>>> r_q_cost(r_eoqb, Q_eoqb, h, p, K, demand_mean, demand_sd, L)
-	78.20243187688158
-	>>> r_q_cost(r_eoqss, Q_eoqss, h, p, K, demand_mean, demand_sd, L)
-	87.04837003438256
-	>>> r_q_cost(r_lf, Q_lf, h, p, K, demand_mean, demand_sd, L)
-	78.07114627035178
-
-
-The |ss| Optimization Problem
------------------------------
-
-The |mod_ss| module contains code for solving the |ss| optimization problem. 
-
-The exact problem with Poisson (or other discrete) demands can be solved using 
-the :func:`stockpyl.ss.s_s_discrete_exact` function, which implements Zheng and Federgruen's (1991)
-algorithm:
-
-.. doctest::
-    
-	>>> from stockpyl.ss import s_s_discrete_exact
-	>>> h = 1
-	>>> p = 4
-	>>> K = 5
-	>>> demand_mean = 6
-	>>> r, Q, cost = s_s_discrete_exact(h, p, K, use_poisson=True, demand_mean=demand_mean)
-	>>> r
-	4.0
-	>>> Q
-	10.0
-	>>> cost
-	8.034111561471642
-
-The :func:`stockpyl.ss.s_s_power_approximation` function implements the power approximation
-for normal demands by Ehrhardt and Mosier (1984):
-
-.. doctest::
-
-	>>> from stockpyl.ss import s_s_power_approximation
-	>>> h = 0.18
-	>>> p = 0.70
-	>>> K = 2.5
-	>>> demand_mean = 50
-	>>> demand_sd = 8
-	>>> r, Q = s_s_power_approximation(h, p, K, demand_mean, demand_sd)
-	>>> r
-	40.19461695647407
-	>>> Q
-	74.29017010980579
-
-
-The Wagner-Whitin Problem
+The |class_network| Class
 -------------------------
 
-The |mod_wagner_whitin| module contains code for solving the Wagner-Whitin problem using dynamic programming: 
+All of the MEIO code in |sp| makes use of the |class_network| class, which contains all of the data for 
+an MEIO instance. For some functions, you provide data in the form of lists, dicts, or singletons and the
+function builds the |class_network| object for you, while other functions require you to pass an |class_network| 
+object directly.
+
+A |class_network|, in turn, consists of one or more |class_node| objects. When you create a |class_node|,
+you provide an index and any parameters you wish. (The list of available parameters is in the documentation
+for the |class_node| class.) For example:
 
 .. doctest::
 
-    >>> from stockpyl.wagner_whitin import wagner_whitin
-    >>> T = 4
-    >>> h = 2
-    >>> K = 500
-    >>> d = [90, 120, 80, 70]
-    >>> Q, cost, theta, s = wagner_whitin(T, h, K, d)
-    >>> Q # Optimal order quantities
-    [0, 210, 0, 150, 0]
-    >>> cost # Optimal cost
-    1380.0
-    >>> theta # Cost-to-go function
-    array([   0., 1380.,  940.,  640.,  500.,    0.])
-    >>> s # Optimal next period to order in
-    [0, 3, 5, 5, 5]
+	>>> from stockpyl.supply_chain_node import SupplyChainNode
+	>>> my_node = SupplyChainNode(index=1, local_holding_cost=3, stockout_cost=20, shipment_lead_time=2)
+	>>> my_other_node = SupplyChainNode(index=2, name="other_node", echelon_holding_cost=1.5)
 
-The cost parameters may also vary from period to period:
+You can then add these nodes to a |class_network|:
 
 .. doctest::
 
-	>>> h = [5, 1, 1, 2]
-	>>> K = [300, 500, 300, 500]
-	>>> Q, cost, _, _ = wagner_whitin(T, h, K, d)
-	>>> Q
-	[0, 90, 270, 0, 0]
-	>>> cost
-	1020.0
+	>>> from stockpyl.supply_chain_network import SupplyChainNetwork
+	>>> network = SupplyChainNetwork()
+	>>> network.add_node(my_node)
+	>>> network.add_successor(my_node, my_other_node)
 
+The network now contains both nodes, and a (directed) edge from ``my_node`` to ``my_other_node``. Nodes can
+be accessed either from a |class_network| object's :attr:`~stockpyl.supply_chain_network.SupplyChainNetwork.nodes` 
+attribute (a list of nodes), or using its member function :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.get_node_from_index`:
+ 
+.. doctest::
 
-Finite-Horizon Stochastic Problems
-----------------------------------
+	>>> n1 = network.nodes[0]
+	>>> n1.index
+	1
+	>>> n1.local_holding_cost
+	3
+	>>> n2 = network.get_node_from_index(2)
+	>>> n2.index
+	2
+	>>> n2.echelon_holding_cost
+	1.5
 
-The |mod_finite_horizon| module contains code for solving finite-horizon, stochastic
-inventory optimization problems, with or without fixed costs, using dynamic programming (DP).
-
-If the fixed costs are 0, then a base-stock policy is optimal and the results of the demand_pmf
-indicate the optimal base-stock levels, i.e., order-up-to levels (:math:`S`) in each time period:
+The |mod_supply_chain_network| module contains functions for quickly building certain types
+of multi-echelon networks; for example:
 
 .. doctest::
 
-	>>> from stockpyl.finite_horizon import finite_horizon_dp
-	>>> T = 5
-	>>> h = 1
-	>>> p = 20
-	>>> h_terminal = 1
-	>>> p_terminal = 20
-	>>> c = 2
-	>>> K = 0
-	>>> mu = 100
-	>>> sigma = 20
-	>>> s, S, cost, _, _, _ = finite_horizon_dp(T, h, p, h_terminal, p_terminal, c, K, mu, sigma)
-	>>> S # Order-up-to levels
-	[0, 133.0, 133.0, 133.0, 133.0, 126.0]
-	>>> s # Reorder points equal order-up-to levels in a base-stock policy
-	[0, 133, 133, 133, 133, 126]
+	>>> from stockpyl.supply_chain_network import serial_system
+	>>> serial_3 = serial_system(
+	...     num_nodes=3,
+	...     local_holding_cost=[8, 4, 2],
+	...     stockout_cost=[40, 0, 0],
+	...     shipment_lead_time=[1, 1, 2],
+	...     demand_type='N', # normally distributed demand
+	...     demand_mean=5,
+	...     demand_standard_deviation=1,
+	...     inventory_policy_type='BS', # base-stock policy
+	...     base_stock_levels=[6, 8, 12],
+	...     downstream_0=True
+	... )
+	>>> serial_3.nodes[1].local_holding_cost
+	4
 
-If the fixed costs are non-zero, then an |ss| policy is optimal, and the results
-give both the reorder points (:math:`s`) and the order-up-to levels (:math:`S`)
+There are several other ways to build |class_network| objects; see the documentation for the
+object for more information.
 
-.. doctest::
+Serial SSM Systems
+------------------
 
-    >>> K = 50
-    >>> s, S, cost, _, _, _ = finite_horizon_dp(T, h, p, h_terminal, p_terminal, c, K, mu, sigma)
-    >>> s # Reorder points
-    [0, 110, 110, 110, 110, 111]
-    >>> S # Order-up-to levels
-    [0, 133.0, 133.0, 133.0, 133.0, 126.0]
+The |mod_ssm_serial| module contains code to solve serial systems under the stochastic service
+model (SSM), either exactly, using the :func:`~stockpyl.ssm_serial.optimize_base_stock_levels` function
+(which implements the algorithm by Chen and Zheng (1994), which in turn is
+based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic`
+function (which implements the newsvendor heuristic by Shang and Song (1996)).
+
+For either function, you may pass the instance data as individual parameters (costs, demand distribution, etc.) 
+or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as individual parameters:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
+		>>> S_star, C_star = optimize_base_stock_levels(
+		... 	num_nodes=3, 
+		... 	echelon_holding_cost=[3, 2, 2], 
+		... 	lead_time=[1, 1, 2], 
+		... 	stockout_cost=37.12, 
+		... 	demand_mean=5, 
+		... 	demand_standard_deviation=1
+		...	)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+Here is the same example, first building a |class_network| and then passing that instead:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
+		>>> from stockpyl.supply_chain_network import serial_system
+		>>> example_6_1_network = serial_system(
+		...     num_nodes=3,
+		...     node_indices=[1, 2, 3],
+		...     echelon_holding_cost={1: 3, 2: 2, 3: 2},
+		...     shipment_lead_time={1: 1, 2: 1, 3: 2},
+		...     stockout_cost={1: 37.12, 2: 0, 3: 0},
+		...     demand_type='N',
+		...     demand_mean=5,
+		...     demand_standard_deviation=1,
+		...     inventory_policy_type='BS',
+		...     base_stock_levels=0,
+		... )
+		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
+		>>> from stockpyl.instances import load_instance
+		>>> example_6_1_network = load_instance("example_6_1")
+		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+To solve the instance using the newsvendor heuristic:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import newsvendor_heuristic
+		>>> S_heur = newsvendor_heuristic(network=example_6_1_network)
+		>>> S_heur
+		{1: 6.490880975286938, 2: 12.027434723327854, 3: 22.634032391786285}
+		>>> # Evaluate the (exact) expected cost of the heuristic solution.
+		>>> from stockpyl.ssm_serial import expected_cost
+		>>> expected_cost(S_heur, network=example_6_1_network)
+		47.680099140842174
