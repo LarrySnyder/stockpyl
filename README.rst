@@ -6,9 +6,9 @@ classical single-node inventory models like the economic order quantity (EOQ), n
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO). 
 
-Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
-*Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
-are much older, and *FoSCT* provides references to original sources. 
+.. note:: Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
+    *Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
+    are much older, and *FoSCT* provides references to original sources. 
 
 
 
@@ -79,7 +79,7 @@ And finite-horizon stochastic inventory problems:
     >>> S # Order-up-to levels
     [0, 133.0, 133.0, 133.0, 133.0, 126.0]
 
-The ``ssm_serial`` module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
+Stockpyl includes an implementation of the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
 Chen-Zheng's (1994) reworking of it):
 
 .. doctest::
@@ -98,7 +98,7 @@ Chen-Zheng's (1994) reworking of it):
     >>> C_star
     47.668653127136345
 
-And the ``gsm_tree`` module implements Graves and Willems' (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
+And Graves and Willems' (2000) dynamic programming algorithm for optimizing committed service times (CSTs)
 in acyclical guaranteed-service model (GSM) systems:
 
 .. doctest::
@@ -112,3 +112,5 @@ in acyclical guaranteed-service model (GSM) systems:
     {1: 0, 3: 0, 2: 0, 4: 1}
     >>> opt_cost
     8.277916867529369
+
+For more information, read the docs.
