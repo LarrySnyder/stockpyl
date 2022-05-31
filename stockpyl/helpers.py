@@ -3,7 +3,7 @@
 
 Helper functions for stockpyl package.
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 """
 

@@ -8,7 +8,7 @@ Code for simulating multi-echelon inventory systems.
 The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` s
 that it contains, which contains all of the data for the simulation instance.
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 """
 

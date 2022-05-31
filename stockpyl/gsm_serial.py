@@ -22,8 +22,62 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
-|copy| Lawrence V. Snyder, Lehigh University
 
+
+Here is Example 6.4 from |fosct|, passing the data as individual parameters:
+
+	.. doctest::
+
+		>>> from stockpyl.gsm_serial import optimize_committed_service_times
+		>>> opt_cst, opt_cost = optimize_committed_service_times(
+		...		num_nodes=3,
+		...		local_holding_cost=[7, 4, 2],
+		...		processing_time=[1, 0, 1],
+		...		demand_bound_constant=1,
+		...		external_outbound_cst=1,
+		...		external_inbound_cst=1,
+		...		demand_mean=0,
+		...		demand_standard_deviation=1
+		...	)
+		>>> opt_cst
+		{3: 0, 2: 0, 1: 1}
+		>>> opt_cost
+		2.8284271247461903
+
+Or passing a |class_network|:
+
+	.. doctest::
+
+		>>> from stockpyl.gsm_serial import optimize_committed_service_times
+		>>> from stockpyl.supply_chain_network import network_from_edges
+		>>> example_6_4_network = network_from_edges(
+		...     [(3, 2), (2, 1)],
+		...     node_indices=[1, 2, 3],
+		...     processing_times=[1, 0, 1],
+		...     external_inbound_csts=[None, None, 1],
+		...     local_holding_cost=[7, 4, 2],
+		...     demand_bound_constants=1,
+		...     external_outbound_csts=[1, None, None],
+		...     demand_type=['N', None, None],
+		...     demand_mean=0,
+		...     demand_standard_deviation=[1, 0, 0]
+		... )
+		>>> optimize_committed_service_times(network=example_6_4_network)
+		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
+
+Or loading the instance directly:
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> optimize_committed_service_times(network=load_instance("example_6_3"))
+		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
+
+
+References
+----------
+K. Inderfurth. Safety stock optimization in multistage inventory systems. 
+*International Journal of Production Economics*, 24:103-113, 1991.
 """
 
 import networkx as nx
@@ -45,7 +99,7 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	"""Optimize committed service times.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
-	Inderfurth (1991)).
+	Inderfurth (1991).
 
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
 	or in the ``network`` parameter.
@@ -56,10 +110,12 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	
 	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
 	  each corresponding to a node index.
-	* If the parameter is a list, it must have length ``num_nodes`` + 1;
-	  the 0th entry will be ignored and the other entries will correspond to the node indices.
+	* If the parameter is a list, it must have length ``num_nodes``;
+	  the ``n`` th entry in the list corresponds to node with index ``n`` + 1.
 	* If the parameter is a singleton, all nodes will have that parameter set to the
 	  singleton value.
+
+	# TODO: allow list with ``num_nodes`` + 1 entries.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed)
@@ -92,10 +148,10 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 
 	Returns
 	-------
-	opt_cost : float
-		Optimal expected cost of system.
 	opt_cst : dict
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
+	opt_cost : float
+		Optimal expected cost of system.
 
 
 	**Example** (Example 6.3):
@@ -108,12 +164,16 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 
 		>>> from stockpyl.instances import load_instance
 		>>> network = load_instance("example_6_3")
-		>>> opt_cost, opt_cst = optimize_committed_service_times(network=network)
-		>>> opt_cost
-		2.8284271247461903
+		>>> opt_cst, opt_cost = optimize_committed_service_times(network=network)
 		>>> opt_cst
 		{3: 0, 2: 0, 1: 1}
+		>>> opt_cost
+		2.8284271247461903
 
+	References
+	----------
+	K. Inderfurth. Safety stock optimization in multistage inventory systems. 
+	*International Journal of Production Economics*, 24:103-113, 1991.
 	"""
 
 	# TODO: handle other indexing (other than N, ..., 1)
@@ -121,8 +181,8 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	# Check for presence of data.
 	if network is None and (num_nodes is None or local_holding_cost is None or \
 		processing_time is None or demand_bound_constant is None or external_outbound_cst is None or \
-		external_inbound_cst is None or demand_mean is None or demand_standard_deviation is None or \
-		demand_source is None):
+		external_inbound_cst is None or \
+		((demand_mean is None or demand_standard_deviation is None) and demand_source is None)):
 		raise ValueError("You must provide either network or num_nodes, ..., demand_bound_constant")
 
 	# Convert parameters to network, if parameters provided.
@@ -141,9 +201,9 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 			node = SupplyChainNode(
 				index=n,
 				network=network,
-				local_holding_cost=ensure_dict_for_nodes(local_holding_cost[n], num_nodes)[n],
-				processing_time=ensure_dict_for_nodes(processing_time[n], num_nodes)[n],
-				demand_bound_constant=ensure_dict_for_nodes(demand_bound_constant[n], num_nodes)[n]
+				local_holding_cost=ensure_dict_for_nodes(local_holding_cost, node_indices=list(range(1, num_nodes+1)))[n],
+				processing_time=ensure_dict_for_nodes(processing_time, node_indices=list(range(1, num_nodes+1)))[n],
+				demand_bound_constant=ensure_dict_for_nodes(demand_bound_constant, node_indices=list(range(1, num_nodes+1)))[n]
 			)
 			if n == 1:
 				# Add demand information.
@@ -167,9 +227,9 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 		network.add_edges_from_list([(n + 1, n) for n in range(1, num_nodes)])
 		
 	# Solve.
-	opt_cost, opt_cst = _cst_dp_serial(network)
+	opt_cst, opt_cost = _cst_dp_serial(network)
 
-	return opt_cost, opt_cst
+	return opt_cst, opt_cost
 
 
 def _cst_dp_serial(network):
@@ -188,10 +248,10 @@ def _cst_dp_serial(network):
 
 	Returns
 	-------
-	opt_cost : float
-		Optimal expected cost of system.
 	opt_cst : dict
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
+	opt_cost : float
+		Optimal expected cost of system.
 
 	"""
 
@@ -297,5 +357,5 @@ def _cst_dp_serial(network):
 	# Get optimal cost.
 	opt_cost = theta[num_nodes][network.get_node_from_index(num_nodes).external_inbound_cst]
 
-	return opt_cost, opt_cst
+	return opt_cst, opt_cost
 

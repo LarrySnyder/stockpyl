@@ -12,7 +12,7 @@ Most of the models and algorithms implemented in |sp| are discussed in the textb
 *Fundamentals of Supply Chain Theory* (|fosct|) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
 are much older, and |fosct| provides references to original sources. 
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 Some Examples
 -------------
@@ -109,12 +109,11 @@ in acyclical guaranteed-service model (GSM) systems:
     >>> from stockpyl.instances import load_instance
     >>> # Load a named instance, Example 6.5 from FoSCT
     >>> tree = load_instance("example_6_5")
-    >>> opt_cost, opt_cst = optimize_committed_service_times(tree)
-    >>> opt_cost
-    8.277916867529369
+    >>> opt_cst, opt_cost = optimize_committed_service_times(tree)
     >>> opt_cst
     {1: 0, 3: 0, 2: 0, 4: 1}
-
+    >>> opt_cost
+    8.277916867529369
 
 
 

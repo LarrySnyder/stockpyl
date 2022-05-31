@@ -13,7 +13,7 @@
 This module contains the ``SupplyChainNode`` class, which is a stage or node
 in a supply chain network.
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 """
 

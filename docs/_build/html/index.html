@@ -79,7 +79,6 @@ and Wagner-Whitin problems. It also contains algorithms for multi-echelon invent
 <p>Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
 <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
 are much older, and <em>FoSCT</em> provides references to original sources.</p>
-<p>© Lawrence V. Snyder, Lehigh University</p>
 <section id="some-examples">
 <h2>Some Examples<a class="headerlink" href="#some-examples" title="Permalink to this headline">¶</a></h2>
 <p>Solve the EOQ problem with <span class="math notranslate nohighlight">\(K=8\)</span>, <span class="math notranslate nohighlight">\(h=0.225\)</span>, and <span class="math notranslate nohighlight">\(\lambda=1300\)</span> (Example 3.1 in <em>FoSCT</em>):</p>
@@ -160,11 +159,11 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.instances</span> <span class="kn">import</span> <span class="n">load_instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a named instance, Example 6.5 from FoSCT</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">load_instance</span><span class="p">(</span><span class="s2">&quot;example_6_5&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cost</span><span class="p">,</span> <span class="n">opt_cst</span> <span class="o">=</span> <span class="n">optimize_committed_service_times</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cost</span>
-<span class="go">8.277916867529369</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cst</span><span class="p">,</span> <span class="n">opt_cost</span> <span class="o">=</span> <span class="n">optimize_committed_service_times</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cst</span>
 <span class="go">{1: 0, 3: 0, 2: 0, 4: 1}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cost</span>
+<span class="go">8.277916867529369</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
@@ -188,8 +187,10 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="overview_meio.html">Multi-Echelon Inventory Optimization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#the-class-network-class">The <code class="xref py py-class docutils literal notranslate"><span class="pre">SupplyChainNetwork</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#the-supplychainnetwork-class">The <code class="docutils literal notranslate"><span class="pre">SupplyChainNetwork</span></code> Class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview_meio.html#serial-ssm-systems">Serial SSM Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#serial-or-tree-gsm-systems">Serial or Tree GSM Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#general-meio-systems">General MEIO Systems</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
@@ -203,6 +204,7 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meio_general.html"><code class="docutils literal notranslate"><span class="pre">meio_general</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_chain_network.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_network</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supply_chain_node.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_node</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>

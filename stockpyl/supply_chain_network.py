@@ -12,7 +12,7 @@
 
 This module contains the ``SupplyChainNetwork`` class.
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 """
 

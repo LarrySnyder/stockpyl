@@ -10,8 +10,8 @@
 """
 .. include:: globals.inc
 
-Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
-for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
+The |mod_gsm_tree| module implements Graves and Willems's (2000) dynamic programming (DP)
+algorithm for multi-echelon inventory systems with tree structures. 
 
 "node" and "stage" are used interchangeably in the documentation.
 
@@ -22,7 +22,48 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
-|copy| Lawrence V. Snyder, Lehigh University
+
+
+References
+----------
+S. C. Graves and S. P. Willems. Optimizing strategic safety stock placement in supply chains. 
+*Manufacturing and Service Operations Management*, 2(1):68-83, 2000.
+
+S. C. Graves and S. P. Willems. Erratum: Optimizing strategic safety stock placement in supply chains. 
+*Manufacturing and Service Operations Management*, 5(2):176-177, 2003.
+
+The 
+:func:`~stockpyl.gsm_tree.optimize_committed_service_times` function requires
+a |class_network| containing all of the instance data to be passed as an argument. 
+The code snippet below solves Example 6.5 in |fosct|.
+
+	.. doctest::
+
+		>>> from stockpyl.gsm_tree import optimize_committed_service_times
+		>>> from stockpyl.supply_chain_network import network_from_edges
+		>>> example_6_5_network = network_from_edges(
+		... 	[(1, 3), (3, 2), (3, 4)],
+		... 	node_indices=[1, 2, 3, 4],
+		... 	processing_times=[2, 1, 1, 1],
+		... 	external_inbound_csts=[1, None, None, None],
+		... 	local_holding_cost=[1, 3, 2, 3],
+		... 	demand_bound_constants=[1, 1, 1, 1],
+		... 	external_outbound_csts=[None, 0, None, 1],
+		... 	demand_type=[None, 'N', None, 'N'],
+		... 	demand_mean=0,
+		... 	demand_standard_deviation=[None, 1, None, 1]
+		... )
+		>>> opt_cst, opt_cost = optimize_committed_service_times(tree=example_6_5_network)
+		>>> opt_cst
+		{1: 0, 3: 0, 2: 0, 4: 1}
+		>>> opt_cost
+		8.277916867529369
+
+Example 6.5 is a built-in instance in |sp|, so it can be loaded directly instead:
+
+		>>> from stockpyl.instances import load_instance
+		>>> optimize_committed_service_times(tree=load_instance("example_6_5"))
+		({1: 0, 3: 0, 2: 0, 4: 1}, 8.277916867529369)
 
 """
 
@@ -44,7 +85,7 @@ def optimize_committed_service_times(tree):
 	"""Optimize committed service times.
 
 	Optimization is performed using the dynamic programming (DP) algorithm of
-	Graves and Willems (2000).
+	Graves and Willems (2000, 2003).
 
 	``tree`` is the ``SupplyChainNetwork`` containing the instance. The tree need not already have been
 	pre-processed using :func:`preprocess_tree` or :func:`relabel_nodes`; this function will do so. 
@@ -59,10 +100,10 @@ def optimize_committed_service_times(tree):
 
 	Returns
 	-------
-	opt_cost : float
-		Optimal expected cost of system.
 	opt_cst : dict
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
+	opt_cost : float
+		Optimal expected cost of system.
 
 
 	**Example** (Example 6.5):
@@ -75,12 +116,20 @@ def optimize_committed_service_times(tree):
 
 		>>> from stockpyl.instances import load_instance
 		>>> tree = load_instance("example_6_5")
-		>>> opt_cost, opt_cst = optimize_committed_service_times(tree)
-		>>> opt_cost
-		8.277916867529369
+		>>> opt_cst, opt_cost = optimize_committed_service_times(tree)
 		>>> opt_cst
 		{1: 0, 3: 0, 2: 0, 4: 1}
+		>>> opt_cost
+		8.277916867529369
 
+
+	References
+	----------
+	S. C. Graves and S. P. Willems. Optimizing strategic safety stock placement in supply chains. 
+	*Manufacturing and Service Operations Management*, 2(1):68-83, 2000.
+
+	S. C. Graves and S. P. Willems. Erratum: Optimizing strategic safety stock placement in supply chains. 
+	*Manufacturing and Service Operations Management*, 5(2):176-177, 2003.
 	"""
 
 	# Preprocess tree.
@@ -90,12 +139,12 @@ def optimize_committed_service_times(tree):
 	tree = relabel_nodes(tree)
 
 	# Solve.
-	opt_cost, opt_cst_relabeled = _cst_dp_tree(tree)
+	opt_cst_relabeled, opt_cost = _cst_dp_tree(tree)
 
 	# Prepare optimal solution in terms of original labels.
 	opt_cst = {k.original_label: opt_cst_relabeled[k.index] for k in tree.nodes}
 
-	return opt_cost, opt_cst
+	return opt_cst, opt_cost
 
 
 def _cst_dp_tree(tree):
@@ -117,10 +166,10 @@ def _cst_dp_tree(tree):
 
 	Returns
 	-------
-	opt_cost : float
-		Optimal expected cost of system.
 	opt_cst : dict
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
+	opt_cost : float
+		Optimal expected cost of system.
 
 	"""
 
@@ -262,7 +311,7 @@ def _cst_dp_tree(tree):
 	# Get optimal cost.
 	opt_cost = best_theta_in
 
-	return opt_cost, opt_cst
+	return opt_cst, opt_cost
 
 
 def _calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):

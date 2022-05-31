@@ -13,7 +13,7 @@
 The :mod:`optimization` module contains optimization-related code used in other
 modules.
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 """
 

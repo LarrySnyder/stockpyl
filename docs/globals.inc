@@ -1,5 +1,7 @@
 .. |sp| replace:: Stockpyl
 .. |fosct| replace:: *FoSCT*
+.. |fosct_notation| replace:: The notation and references (equations, sections, examples, etc.) used below refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition (2019).
+
 
 .. |mod_demand_source| replace:: :mod:`~stockpyl.demand_source`
 .. |mod_disruption_process| replace:: :mod:`~stockpyl.disruption_process`
@@ -11,11 +13,12 @@
 .. |mod_helpers| replace:: :mod:`~stockpyl.helpers`
 .. |mod_instances| replace:: :mod:`~stockpyl.instances`
 .. |mod_loss_functions| replace:: :mod:`~stockpyl.loss_functions`
-.. |mod_meio| replace:: :mod:`~stockpyl.meio`
+.. |mod_meio_general| replace:: :mod:`~stockpyl.meio_general`
 .. |mod_newsvendor| replace:: :mod:`~stockpyl.newsvendor`
 .. |mod_optimization| replace:: :mod:`~stockpyl.optimization`
 .. |mod_policy| replace:: :mod:`~stockpyl.policy`
 .. |mod_rq| replace:: :mod:`~stockpyl.rq`
+.. |mod_sim| replace:: :mod:`~stockpyl.sim`
 .. |mod_ss| replace:: :mod:`~stockpyl.ss`
 .. |mod_ssm_serial| replace:: :mod:`~stockpyl.ssm_serial`
 .. |mod_supply_chain_network| replace:: :mod:`~stockpyl.supply_chain_network`

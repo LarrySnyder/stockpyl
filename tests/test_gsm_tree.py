@@ -1770,7 +1770,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = load_instance("example_6_5")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertEqual(opt_cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
@@ -1785,7 +1785,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = load_instance("figure_6_14")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 18.8240044725922)
@@ -1810,10 +1810,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree = copy.deepcopy(load_instance("figure_6_14"))
 		tree.get_node_from_index(10).external_outbound_cst = 5
 
-		opt_cost, opt_cst = \
-			gsm_tree.optimize_committed_service_times(tree)
-
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 12.4686888061037)
@@ -1838,7 +1835,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree = copy.deepcopy(load_instance("figure_6_14"))
 		tree.get_node_from_index(10).external_outbound_cst = 8
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 3.25788236403285)
@@ -1863,7 +1860,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree = copy.deepcopy(load_instance("figure_6_14"))
 		tree.get_node_from_index(10).external_outbound_cst = 12
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 0.232617430735335)
@@ -1887,7 +1884,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = load_instance("problem_6_7")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 160 * np.sqrt(5))
@@ -1901,7 +1898,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		tree = load_instance("problem_6_9")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 15.649530249501)
@@ -1917,7 +1914,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree.get_node_from_index(1).external_outbound_cst = 0
 		tree.get_node_from_index(2).external_outbound_cst = 7
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 13.121240238718)
@@ -1933,7 +1930,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		tree.get_node_from_index(1).external_outbound_cst = 21
 		tree.get_node_from_index(2).external_outbound_cst = 5
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 10.5811190103555)
@@ -1954,7 +1951,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 			demand_source=DemandSource(type='N', mean=0, standard_deviation=1)
 		))
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_tree.optimize_committed_service_times(tree)
 
 		self.assertAlmostEqual(opt_cost, 2)

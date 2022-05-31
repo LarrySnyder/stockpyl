@@ -1,7 +1,7 @@
 import unittest
 from scipy import stats
 
-import stockpyl.meio as meio
+import stockpyl.meio_general as meio_general
 from stockpyl.instances import *
 from stockpyl.ssm_serial import *
 from stockpyl.supply_chain_network import *
@@ -46,7 +46,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = load_instance("example_6_1")
 		values = {1: [0, 5, 10], 2: list(range(10)), 3: list(range(0, 30, 5))}
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, values)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, values)
 
 		self.assertDictEqual(td_dict, {1: [0, 5, 10], 2: list(range(10)), 3: list(range(0, 30, 5))})
 
@@ -60,7 +60,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		lo = {1: 0, 2: 10, 3: 100}
 		hi = {1: 10, 2: 12, 3: 200}
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, truncation_lo=lo, truncation_hi=hi)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, truncation_lo=lo, truncation_hi=hi)
 
 		self.assertDictEqual(td_dict, {1: list(range(0, 11)), 2: list(range(10, 13)), 3: list(range(100, 201))})
 
@@ -74,7 +74,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		lo = 0
 		hi = 10
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, truncation_lo=lo, truncation_hi=hi)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, truncation_lo=lo, truncation_hi=hi)
 
 		self.assertDictEqual(td_dict, {1: list(range(0, 11)), 2: list(range(0, 11)), 3: list(range(0, 11))})
 
@@ -87,7 +87,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = load_instance("example_6_1")
 		step = {1: 1, 2: 5, 3: 10}
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_step=step)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, discretization_step=step)
 
 		self.assertDictEqual(td_dict, {1: list(range(0, 101)), 2: list(range(0, 101, 5)), 3: list(range(0, 101, 10))})
 
@@ -100,7 +100,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = load_instance("example_6_1")
 		num = {1: 11, 2: 51, 3: 101}
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_num=num)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, discretization_num=num)
 
 		self.assertDictEqual(td_dict, {1: list(range(0, 101, 10)), 2: list(range(0, 101, 2)), 3: list(range(0, 101))})
 
@@ -113,7 +113,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		network = load_instance("example_6_1")
 		num = 26
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, discretization_num=num)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, discretization_num=num)
 
 		self.assertDictEqual(td_dict, {1: list(range(0, 101, 4)), 2: list(range(0, 101, 4)), 3: list(range(0, 101, 4))})
 
@@ -128,7 +128,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		num = 26
 		values = {i: None for i in network.node_indices}
 
-		td_dict = meio.truncate_and_discretize(network.node_indices, values=values, discretization_num=num)
+		td_dict = meio_general.truncate_and_discretize(network.node_indices, values=values, discretization_num=num)
 
 		self.assertDictEqual(td_dict, {1: list(range(0, 101, 4)), 2: list(range(0, 101, 4)), 3: list(range(0, 101, 4))})
 
@@ -150,19 +150,19 @@ class TestBaseStockGroupAssignments(unittest.TestCase):
 
 		node_indices = list(range(9))
 
-		optimization_group, group_list = meio._base_stock_group_assignments(node_indices, [{0, 2, 3}, {1, 4, 5}, {6, 7}, {8}])
+		optimization_group, group_list = meio_general._base_stock_group_assignments(node_indices, [{0, 2, 3}, {1, 4, 5}, {6, 7}, {8}])
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 0, 3: 0, 4: 1, 5: 1, 6: 6, 7: 6, 8: 8})
 		self.assertListEqual(group_list, [[0, 2, 3], [1, 4, 5], [6, 7], [8]])
 
-		optimization_group, group_list = meio._base_stock_group_assignments(node_indices, [{0, 2, 3}])
+		optimization_group, group_list = meio_general._base_stock_group_assignments(node_indices, [{0, 2, 3}])
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 0, 3: 0, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8})
 		self.assertListEqual(group_list, [[0, 2, 3], [1], [4], [5], [6], [7], [8]])
 
-		optimization_group, group_list = meio._base_stock_group_assignments(node_indices, [{4, 6, 7}, {1, 2}, {0, 5}])
+		optimization_group, group_list = meio_general._base_stock_group_assignments(node_indices, [{4, 6, 7}, {1, 2}, {0, 5}])
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 1, 3: 3, 4: 4, 5: 0, 6: 4, 7: 4, 8: 8})
 		self.assertListEqual(group_list, [[0, 5], [1, 2], [3], [4, 6, 7], [8]])
 
-		optimization_group, group_list = meio._base_stock_group_assignments(node_indices)
+		optimization_group, group_list = meio_general._base_stock_group_assignments(node_indices)
 		self.assertDictEqual(optimization_group, {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8})
 		self.assertListEqual(group_list, [[0], [1], [2], [3], [4], [5], [6], [7], [8]])
 
@@ -186,7 +186,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 
 		network = load_instance("example_4_1_network")
 
-		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
+		best_S, best_cost = meio_general.meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
 												sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762,
 												progress_bar=False, print_solutions=False)
 
@@ -201,7 +201,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
+		best_S, best_cost = meio_general.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
 													 truncation_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5,
 													 sim_num_periods=500, sim_rand_seed=762,
 													 progress_bar=False, print_solutions=False)
@@ -220,7 +220,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
 #		network.reindex_nodes({0: 1, 1: 2, 2: 3})
 		obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(network, S), network=network, x_num=100, d_num=10)
-		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
+		best_S, best_cost = meio_general.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
 												truncation_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn,
 												progress_bar=False, print_solutions=False)
 
@@ -237,7 +237,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
-		best_S, best_cost = meio.meio_by_enumeration(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
+		best_S, best_cost = meio_general.meio_by_enumeration(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 												truncation_lo={0: 35, 1: 22, 3: 10},
 												truncation_hi={0: 50, 1: 31, 3: 14},
 												discretization_step={0: 5, 1: 3, 3: 1},
@@ -268,7 +268,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 
 		network = load_instance("example_4_1_network")
 
-		best_S, best_cost = meio.meio_by_coordinate_descent(network, initial_solution={0: 50},
+		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, initial_solution={0: 50},
 															search_lo=40, search_hi=60,
 															sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762)
 
@@ -286,7 +286,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 
 		f = lambda S: newsvendor_normal_cost(S[0], n0.holding_cost, n0.stockout_cost, n0.demand_source.mean, n0.demand_source.standard_deviation)
 
-		best_S, best_cost = meio.meio_by_coordinate_descent(network, initial_solution={0: 50},
+		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, initial_solution={0: 50},
 															search_lo=40, search_hi=60,
 															objective_function=f)
 
@@ -300,16 +300,15 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		print_status('TestMEIOByCoordinateDescent', 'test_example_6_1()')
 
 		network = load_instance("example_6_1")
-#		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
-		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
-													 truncation_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5,
-													 sim_num_periods=500, sim_rand_seed=762,
-													 progress_bar=False, print_solutions=False)
+		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, search_lo={1: 5, 2: 4, 3: 10},
+													 search_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5,
+													 sim_num_periods=500, sim_rand_seed=762)
 
-		self.assertDictEqual(best_S, {1: 7, 2: 5, 3: 11})
-		self.assertAlmostEqual(best_cost, 51.736651092915224)
+		self.assertDictEqual(best_S, {1: 6.442728744867265, 2: 5.713943482508711, 3: 10.59579104356543})
+		self.assertAlmostEqual(best_cost, 51.3500177930988)
 
+	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_example_6_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_example_6_1_obj_fcn(self):
 		"""Test that meio_by_coordinate_descent() correctly solves Example 6.1 when
 		objective function is provided.
@@ -319,14 +318,12 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		network = load_instance("example_6_1")
 
 		# reindex nodes N, ..., 1 (ssm_serial.expected_cost() requires it)
-#		network.reindex_nodes({0: 1, 1: 2, 2: 3})
 		obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(network, S), network=network, x_num=100, d_num=10)
-		best_S, best_cost = meio.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
-												truncation_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn,
-												progress_bar=False, print_solutions=False)
+		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, search_lo={1: 5, 2: 4, 3: 10},
+													 search_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn)
 
-		self.assertDictEqual(best_S, {1: 7, 2: 5, 3: 11})
-		self.assertAlmostEqual(best_cost, 48.214497895254894)
+		self.assertDictEqual(best_S, {1: 6.73426038452249, 2: 5.278098969007219, 3: 10.995733389307562})
+		self.assertAlmostEqual(best_cost, 47.820555289455875)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_rong_atan_snyder_figure_1a(self):
@@ -338,7 +335,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
-		best_S, best_cost = meio.meio_by_coordinate_descent(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
+		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 												search_lo={0: 35, 1: 22, 3: 10},
 												search_hi={0: 50, 1: 31, 3: 14},
 												sim_num_trials=1,

@@ -28,7 +28,7 @@ loss function, :math:`n^{(2)}(x)`, and the second-order complementary loss funct
 Equation and section numbers refer to Snyder and Shen, "Fundamentals of Supply
 Chain Theory", Wiley, 2019, 2nd ed., except as noted.
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 """
 

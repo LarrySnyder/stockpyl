@@ -17,7 +17,7 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 .. doctest::
 

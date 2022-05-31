@@ -10,9 +10,11 @@
 """
 .. include:: globals.inc
 
-The |mod_ssm_serial| module contains code to implement Chen-Zheng (1994) algorithm 
-for stochastic serial systems under the stochastic service model (SSM), based on 
-Clark and Scarf (1960).
+The |mod_ssm_serial| module contains code to solve serial systems under the stochastic service
+model (SSM), either exactly, using the :func:`~stockpyl.ssm_serial.optimize_base_stock_levels` function
+(which implements the algorithm by Chen and Zheng (1994), which in turn is
+based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic`
+function (which implements the newsvendor heuristic by Shang and Song (1996)).
 
 "node" and "stage" are used interchangeably in the documentation.
 
@@ -20,7 +22,80 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
-|copy| Lawrence V. Snyder, Lehigh University
+
+
+For either type of optimization (exact or heuristic), you may pass the instance data as individual parameters (costs, demand distribution, etc.) 
+or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as individual parameters:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
+		>>> S_star, C_star = optimize_base_stock_levels(
+		... 	num_nodes=3, 
+		... 	echelon_holding_cost=[3, 2, 2], 
+		... 	lead_time=[1, 1, 2], 
+		... 	stockout_cost=37.12, 
+		... 	demand_mean=5, 
+		... 	demand_standard_deviation=1
+		...	)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+Here is the same example, first building a |class_network| and then passing that instead:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
+		>>> from stockpyl.supply_chain_network import serial_system
+		>>> example_6_1_network = serial_system(
+		...     num_nodes=3,
+		...     node_indices=[1, 2, 3],
+		...     echelon_holding_cost={1: 3, 2: 2, 3: 2},
+		...     shipment_lead_time={1: 1, 2: 1, 3: 2},
+		...     stockout_cost={1: 37.12, 2: 0, 3: 0},
+		...     demand_type='N',
+		...     demand_mean=5,
+		...     demand_standard_deviation=1,
+		...     inventory_policy_type='BS',
+		...     base_stock_levels=0,
+		... )
+		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
+		>>> from stockpyl.instances import load_instance
+		>>> example_6_1_network = load_instance("example_6_1")
+		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
+		>>> S_star
+		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		>>> C_star
+		47.668653127136345
+
+To solve the instance using the newsvendor heuristic:
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import newsvendor_heuristic
+		>>> S_heur = newsvendor_heuristic(network=example_6_1_network)
+		>>> S_heur
+		{1: 6.490880975286938, 2: 12.027434723327854, 3: 22.634032391786285}
+		>>> # Evaluate the (exact) expected cost of the heuristic solution.
+		>>> from stockpyl.ssm_serial import expected_cost
+		>>> expected_cost(S_heur, network=example_6_1_network)
+		47.680099140842174
 
 References
 ----------
@@ -29,7 +104,6 @@ F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory syst
 A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
 """
 
-from multiprocessing.sharedctypes import Value
 import numpy as np
 from scipy import stats
 #import math
@@ -65,10 +139,12 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	
 	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
 	  each corresponding to a node index.
-	* If the parameter is a list, it must have length ``num_nodes`` + 1;
-	  the 0th entry will be ignored and the other entries will correspond to the node indices.
+	* If the parameter is a list, it must have length ``num_nodes``;
+	  the ``n``th entry in the list corresponds to node with index ``n``+1.
 	* If the parameter is a singleton, all nodes will have that parameter set to the
 	  singleton value.
+
+	# TODO: allow list with ``num_nodes`` + 1 entries.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed)

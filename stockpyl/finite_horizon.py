@@ -17,7 +17,7 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
 (2019).
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 If the fixed costs are 0, then a base-stock policy is optimal and the results of the demand_pmf
 indicate the optimal base-stock levels, i.e., order-up-to levels (:math:`S`) in each time period:

@@ -16,7 +16,7 @@ The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
 
-|copy| Lawrence V. Snyder, Lehigh University
+
 
 The exact problem with Poisson (or other discrete) demands can be solved using 
 the :func:`stockpyl.ss.s_s_discrete_exact` function, which implements Zheng and Federgruen's (1991)

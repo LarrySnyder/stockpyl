@@ -5,20 +5,21 @@ Multi-Echelon Inventory Optimization
 
 |sp| contains code to solve the following types of multi-echelon inventory optimization (MEIO) problems:
 
-* :ref:`Serial systems under the stochastic-service model (SSM)<overview_meio:Serial SSM Systems>` (|mod_ssm_serial| module)
+* Serial systems under the stochastic-service model (SSM) (|mod_ssm_serial| module)
 * Serial or tree systems under the guaranteed-service model (GSM) (|mod_gsm_serial| and |mod_gsm_tree| modules)
-* Systems with arbitrary topology, optimized using enumeration or coordinate descent
+* Systems with arbitrary topology<overview_meio:General MEIO Systems, optimized using enumeration or coordinate descent (|mod_meio_general| module)
 
 The terms "node" and "stage" are used interchangeably in the documentation.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
+|fosct_notation|
 
-|copy| Lawrence V. Snyder, Lehigh University
+.. contents::
+    :depth: 2
 
-The |class_network| Class
--------------------------
+
+
+The ``SupplyChainNetwork`` Class
+--------------------------------
 
 All of the MEIO code in |sp| makes use of the |class_network| class, which contains all of the data for 
 an MEIO instance. For some functions, you provide data in the form of lists, dicts, or singletons and the
@@ -146,8 +147,7 @@ Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> from stockpyl.instances import load_instance
-		>>> example_6_1_network = load_instance("example_6_1")
-		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
+		>>> S_star, C_star = optimize_base_stock_levels(network=load_instance("example_6_1"))
 		>>> S_star
 		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
 		>>> C_star
@@ -166,3 +166,211 @@ To solve the instance using the newsvendor heuristic:
 		>>> from stockpyl.ssm_serial import expected_cost
 		>>> expected_cost(S_heur, network=example_6_1_network)
 		47.680099140842174
+
+
+Serial or Tree GSM Systems
+--------------------------
+
+|sp| contains functions to optimize committed service times (CSTs) in either serial or
+general tree systems under the guaranteed-service model (GSM). 
+
+For serial GSM systems, the |mod_gsm_serial| module implements the dynamic programming (DP)
+algorithm of Inderfurth (1991). Here is Example 6.4 from |fosct|, passing the data as individual
+parameters:
+
+	.. doctest::
+
+		>>> from stockpyl.gsm_serial import optimize_committed_service_times
+		>>> opt_cst, opt_cost = optimize_committed_service_times(
+		...		num_nodes=3,
+		...		local_holding_cost=[7, 4, 2],
+		...		processing_time=[1, 0, 1],
+		...		demand_bound_constant=1,
+		...		external_outbound_cst=1,
+		...		external_inbound_cst=1,
+		...		demand_mean=0,
+		...		demand_standard_deviation=1
+		...	)
+		>>> opt_cst
+		{3: 0, 2: 0, 1: 1}
+		>>> opt_cost
+		2.8284271247461903
+
+Or passing a |class_network|:
+
+	.. doctest::
+
+		>>> from stockpyl.gsm_serial import optimize_committed_service_times
+		>>> from stockpyl.supply_chain_network import network_from_edges
+		>>> example_6_4_network = network_from_edges(
+		...     [(3, 2), (2, 1)],
+		...     node_indices=[1, 2, 3],
+		...     processing_times=[1, 0, 1],
+		...     external_inbound_csts=[None, None, 1],
+		...     local_holding_cost=[7, 4, 2],
+		...     demand_bound_constants=1,
+		...     external_outbound_csts=[1, None, None],
+		...     demand_type=['N', None, None],
+		...     demand_mean=0,
+		...     demand_standard_deviation=[1, 0, 0]
+		... )
+		>>> optimize_committed_service_times(network=example_6_4_network)
+		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
+
+Or loading the instance directly:
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> optimize_committed_service_times(network=load_instance("example_6_3"))
+		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
+
+The |mod_gsm_tree| module implements Graves and Willems's (2000) dynamic programming (DP)
+algorithm for multi-echelon inventory systems with tree structures. The 
+:func:`~stockpyl.gsm_tree.optimize_committed_service_times` function requires
+a |class_network| containing all of the instance data to be passed as an argument. 
+The code snippet below solves Example 6.5 in |fosct|.
+
+	.. doctest::
+
+		>>> from stockpyl.gsm_tree import optimize_committed_service_times
+		>>> from stockpyl.supply_chain_network import network_from_edges
+		>>> example_6_5_network = network_from_edges(
+		... 	[(1, 3), (3, 2), (3, 4)],
+		... 	node_indices=[1, 2, 3, 4],
+		... 	processing_times=[2, 1, 1, 1],
+		... 	external_inbound_csts=[1, None, None, None],
+		... 	local_holding_cost=[1, 3, 2, 3],
+		... 	demand_bound_constants=[1, 1, 1, 1],
+		... 	external_outbound_csts=[None, 0, None, 1],
+		... 	demand_type=[None, 'N', None, 'N'],
+		... 	demand_mean=0,
+		... 	demand_standard_deviation=[None, 1, None, 1]
+		... )
+		>>> opt_cst, opt_cost = optimize_committed_service_times(tree=example_6_5_network)
+		>>> opt_cst
+		{1: 0, 3: 0, 2: 0, 4: 1}
+		>>> opt_cost
+		8.277916867529369
+
+Example 6.5 is a built-in instance in |sp|, so it can be loaded directly instead:
+
+	.. doctest::
+
+		>>> from stockpyl.instances import load_instance
+		>>> optimize_committed_service_times(tree=load_instance("example_6_5"))
+		({1: 0, 3: 0, 2: 0, 4: 1}, 8.277916867529369)
+
+
+General MEIO Systems
+--------------------
+
+For MEIO systems with arbitrary topology (not necessarily serial or tree systems),
+the |mod_meio_general| module can optimize base-stock levels approximately using
+relatively brute-force approaches—either coordinate descent or enumeration. These
+heuristics tend to be quite slow and not particularly accurate, but they are sometimes
+the best methods available for complex systems that are not well solved in the literature.
+
+For both approaches, you may provide an objective function that will be used to evaluate
+each candidate solution, or you may omit the objective function and the algorithm will
+evaluate solutions using simulation. Obviously, evaluating using simulation is typically
+much slower than using an objective function.
+
+The :func:`~stockpyl.meio_general.meio_by_enumeration` function allows you to control
+how the enumeration is performed (i.e., how the search space is truncated and discretized),
+or you can specify the exact base-stock levels to test for each node. 
+
+In the code snippet below, we solve Example 6.1 from |fosct| using enumeration.
+We specify upper and lower bounds on the base-stock levels to test for each node and
+evaluate each candidate set of base-stock levels using simulation (5 trials, 
+500 periods per trial):
+
+	.. doctest::
+		:skipif: False	# set to False to run the test
+
+		>>> from stockpyl.meio_general import meio_by_enumeration
+		>>> from stockpyl.instances import load_instance
+		>>> example_6_1_network = load_instance("example_6_1")
+		>>> best_S, best_cost = meio_by_enumeration(
+		...		network=example_6_1_network, 
+		...		truncation_lo={1: 5, 2: 4, 3: 10}, 
+		...		truncation_hi={1: 7, 2: 7, 3: 12}, 
+		...		sim_num_trials=5, 
+		...		sim_num_periods=500, 
+		...		sim_rand_seed=42
+		...	)
+		>>> best_S
+		{1: 7, 2: 5, 3: 11}
+		>>> best_cost
+		50.66575868556389
+
+This solution is not bad—it is 6.3% worse than the optimal solution—but we stacked the
+deck by giving the function a pretty narrow range of base-stock levels to test, and even then
+the execution was relatively slow.
+
+Alternately, we can provide an objective function. This is more accurate and faster than
+evaluating solutions using simulation, but if the objective function must be evaluated numerically
+(as it does for serial SSM systems), speed and accuracy are still non-trivial issues to consider.
+In the code below, we first define an objective function using a Python lambda function;
+it evaluates each solution by first converting the local base-stock levels to echelon and then 
+passing them to the :func:`~stockpyl.ssm_serial.expected_cost` function for serial SSM systems,
+which requires echelon base-stock levels as inputs. The discretization settings used below
+(``x_num=100, d_num=10``) are relatively coarse, producing inaccurate solutions but pretty quickly.
+
+	.. doctest::
+		:skipif: False	# set to False to run the test
+
+		>>> from stockpyl.ssm_serial import expected_cost
+		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
+		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=100, d_num=10)
+		>>> best_S, best_cost = meio_by_enumeration(
+		...     network=example_6_1_network, 
+		...     truncation_lo={1: 5, 2: 4, 3: 10},
+		...     truncation_hi={1: 7, 2: 7, 3: 12}, 
+		...     objective_function=obj_fcn
+		... )
+		>>> best_S
+		{1: 7, 2: 5, 3: 11}
+		>>> best_cost
+		48.21449789525489
+
+The :func:`~stockpyl.meio_general.meio_by_coordinate_descent` function optimizes (approximately)
+using `coordinate descent <https://en.wikipedia.org/wiki/Coordinate_descent>`_. In principle, 
+coordinate descent will find the globally optimal solution if the objective function is
+jointly convex in the base-stock levels, but if solutions are evaluated using simulation,
+then there are no guarantees. Just as with the :func:`~stockpyl.meio_general.meio_by_enumeration` function,
+:func:`~stockpyl.meio_general.meio_by_coordinate_descent` can evaluate solutions based on either
+simulation or a provided objective function. And like enumeration, coordinate descent can be quite slow
+and not particularly accurate.
+
+	
+	.. doctest::
+		:skipif: False	# set to False to run the test
+
+		>>> from stockpyl.meio_general import meio_by_coordinate_descent
+		>>> from stockpyl.ssm_serial import expected_cost
+		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
+		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=100, d_num=10)
+		>>> best_S, best_cost = meio_by_coordinate_descent(
+		...		network=example_6_1_network, 
+		...		search_lo={1: 5, 2: 4, 3: 10}, 
+		...		search_hi={1: 7, 2: 7, 3: 12}, 
+		...		sim_num_trials=5, 
+		...		sim_num_periods=100, 
+		...		sim_rand_seed=762
+		...	)
+		>>> best_S, best_cost = meio_by_coordinate_descent(example_6_1_network, search_lo={1: 5, 2: 4, 3: 10}, search_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762)
+		>>> best_S
+		{1: 6.442728744867265, 2: 5.713943482508711, 3: 10.59579104356543}
+		>>> best_cost
+		51.3500177930988
+		>>> best_S, best_cost = meio_by_coordinate_descent(
+		...		example_6_1_network, 
+		...		search_lo={1: 5, 2: 4, 3: 10},
+		...     search_hi={1: 7, 2: 7, 3: 12}, 
+		...		objective_function=obj_fcn
+		...	)
+		>>> best_S
+		{1: 6.73426038452249, 2: 5.278098969007219, 3: 10.995733389307562}
+		>>> best_cost
+		47.820555289455875

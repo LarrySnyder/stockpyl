@@ -40,7 +40,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestOptimizeCommittedServiceTimes', 'tear_down_class()')
 
-	def test_example_6_4(self):
+	def test_example_6_3(self):
 		"""Test that optimize_committed_service_times() works for network in
 		Example 6.3.
 		"""
@@ -49,7 +49,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		network = load_instance("example_6_3")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
 
 		self.assertEqual(opt_cost, 2 * np.sqrt(2))
@@ -64,7 +64,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		network = load_instance("problem_6_7")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
 
 		self.assertAlmostEqual(opt_cost, 160 * np.sqrt(5))
@@ -79,7 +79,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		network = load_instance("problem_6_8")
 
-		opt_cost, opt_cst = \
+		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
 
 		self.assertAlmostEqual(opt_cost, 1378.31, 1)
@@ -120,11 +120,11 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 					network.add_edge(n, n - 1)
 			
 			# Solve using serial DP.
-			opt_cost, opt_cst = \
+			opt_cst, opt_cost = \
 				gsm_serial.optimize_committed_service_times(network=network)
 
 			# Solve using tree DP.
-			opt_cost_tree, opt_cst_tree = \
+			opt_cst_tree, opt_cost_tree = \
 				gsm_tree.optimize_committed_service_times(tree=network)
 
 			self.assertAlmostEqual(opt_cost, opt_cost_tree)
