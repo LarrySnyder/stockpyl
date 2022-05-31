@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>stockpyl Documentation &mdash; stockpyl 0.1 documentation</title>
+  <title>Stockpyl &mdash; stockpyl 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -60,7 +60,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>stockpyl Documentation</li>
+      <li>Stockpyl</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -70,8 +70,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="stockpyl-documentation">
-<h1>stockpyl Documentation<a class="headerlink" href="#stockpyl-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="stockpyl">
+<h1>Stockpyl<a class="headerlink" href="#stockpyl" title="Permalink to this headline">¶</a></h1>
 <p>Stockpyl is a Python package for inventory optimization. It contains implementation for
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
@@ -136,7 +136,7 @@ rather than the shorter notation assigned to them in textbooks and articles (<co
 <span class="go">[0, 133.0, 133.0, 133.0, 133.0, 126.0]</span>
 </pre></div>
 </div>
-<p>The <a class="reference internal" href="ssm_serial.html#module-stockpyl.ssm_serial" title="stockpyl.ssm_serial"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ssm_serial</span></code></a> module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
+<p>The <code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
 Chen-Zheng’s (1994) reworking of it):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.ssm_serial</span> <span class="kn">import</span> <span class="n">optimize_base_stock_levels</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span><span class="p">,</span> <span class="n">C_star</span> <span class="o">=</span> <span class="n">optimize_base_stock_levels</span><span class="p">(</span>
@@ -153,7 +153,7 @@ Chen-Zheng’s (1994) reworking of it):</p>
 <span class="go">47.668653127136345</span>
 </pre></div>
 </div>
-<p>And the <a class="reference internal" href="gsm_tree.html#module-stockpyl.gsm_tree" title="stockpyl.gsm_tree"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gsm_tree</span></code></a> module implements Graves and Willems’ (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
+<p>And the <code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> module implements Graves and Willems’ (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
 in acyclical guaranteed-service model (GSM) systems:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.gsm_tree</span> <span class="kn">import</span> <span class="n">optimize_committed_service_times</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.instances</span> <span class="kn">import</span> <span class="n">load_instance</span>

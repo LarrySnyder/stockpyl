@@ -1,23 +1,21 @@
-.. include:: globals.inc
+Stockpyl
+========
 
-stockpyl Documentation
-======================
-
-|sp| is a Python package for inventory optimization. It contains implementation for
+Stockpyl is a Python package for inventory optimization. It contains implementation for
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO). 
 
-Most of the models and algorithms implemented in |sp| are discussed in the textbook
-*Fundamentals of Supply Chain Theory* (|fosct|) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
-are much older, and |fosct| provides references to original sources. 
+Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
+*Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
+are much older, and *FoSCT* provides references to original sources. 
 
 
 
 Some Examples
 -------------
 
-Solve the EOQ problem with :math:`K=8`, :math:`h=0.225`, and :math:`\lambda=1300` (Example 3.1 in |fosct|):
+Solve the EOQ problem with :math:`K=8`, :math:`h=0.225`, and :math:`\lambda=1300` (Example 3.1 in *FoSCT*):
 
 .. doctest::
     
@@ -28,7 +26,7 @@ Solve the EOQ problem with :math:`K=8`, :math:`h=0.225`, and :math:`\lambda=1300
     >>> cost
     68.41052550594829
 
-Or the newsvendor problem with :math:`h=0.18`, :math:`p=0.70`, and :math:`D\sim N(50, 8^2)` (Example 4.3 in |fosct|):
+Or the newsvendor problem with :math:`h=0.18`, :math:`p=0.70`, and :math:`D\sim N(50, 8^2)` (Example 4.3 in *FoSCT*):
 
 .. doctest::
     
@@ -39,10 +37,10 @@ Or the newsvendor problem with :math:`h=0.18`, :math:`p=0.70`, and :math:`D\sim 
     >>> cost
     1.9976051931766445
 
-Note that most functions in |sp| use longer, more descriptive parameter names (``holding_cost``, ``fixed_cost``, etc.)
+Note that most functions in Stockpyl use longer, more descriptive parameter names (``holding_cost``, ``fixed_cost``, etc.)
 rather than the shorter notation assigned to them in textbooks and articles (``h``, ``K``). 
 
-|sp| can solve the Wagner-Whitin model using dynamic programming: 
+Stockpyl can solve the Wagner-Whitin model using dynamic programming: 
 
 .. doctest::
 
@@ -81,7 +79,7 @@ And finite-horizon stochastic inventory problems:
     >>> S # Order-up-to levels
     [0, 133.0, 133.0, 133.0, 133.0, 126.0]
 
-The |mod_ssm_serial| module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
+The ``ssm_serial`` module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
 Chen-Zheng's (1994) reworking of it):
 
 .. doctest::
@@ -100,7 +98,7 @@ Chen-Zheng's (1994) reworking of it):
     >>> C_star
     47.668653127136345
 
-And the |mod_gsm_tree| module implements Graves and Willems' (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
+And the ``gsm_tree`` module implements Graves and Willems' (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
 in acyclical guaranteed-service model (GSM) systems:
 
 .. doctest::
@@ -114,22 +112,3 @@ in acyclical guaranteed-service model (GSM) systems:
     {1: 0, 3: 0, 2: 0, 4: 1}
     >>> opt_cost
     8.277916867529369
-
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Table of Contents
-
-    install
-    overview_seio
-    overview_su
-    overview_meio
-    api
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
