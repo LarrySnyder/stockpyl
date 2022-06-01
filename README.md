@@ -1,6 +1,9 @@
 Stockpyl
 ========
 
+![GitHub](https://img.shields.io/github/license/LarrySnyder/stockpyl)
+![GitHub issues](https://img.shields.io/github/issues/LarrySnyder/stockpyl)
+
 Stockpyl is a Python package for inventory optimization. It contains implementation for
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
