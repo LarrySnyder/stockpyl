@@ -85,11 +85,13 @@ Citation
 
 If you'd like to cite the Stockpyl package, you can use the following BibTeX entry:
 
-```bibtex
-@misc{stockpyl,
-  title={Stockpyl},
-  author={Snyder, Lawrence V.},
-  year={2022},
-  url={https://github.com/LarrySnyder/stockpyl}
-}
-```
+.. code-block:: bibtex
+
+    @misc{stockpyl,
+        title={Stockpyl},
+        author={Snyder, Lawrence V.},
+        year={2022},
+        url={https://github.com/LarrySnyder/stockpyl}
+    }
+
+
