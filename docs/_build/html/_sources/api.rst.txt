@@ -5,22 +5,22 @@ API Documentation
     :maxdepth: 2
     :caption: Contents:
 
-    eoq
-    newsvendor
-    rq
-    ss
-    finite_horizon
-    supply_uncertainty
-    ssm_serial
-    gsm_tree
-    gsm_serial
-    gsm_helpers
-    meio_general
-    supply_chain_network
-    supply_chain_node
-    sim
-    instances
-    loss_functions
-    wagner_whitin
+    api/eoq
+    api/newsvendor
+    api/rq
+    api/ss
+    api/finite_horizon
+    api/supply_uncertainty
+    api/ssm_serial
+    api/gsm_tree
+    api/gsm_serial
+    api/gsm_helpers
+    api/meio_general
+    api/supply_chain_network
+    api/supply_chain_node
+    api/sim
+    api/instances
+    api/loss_functions
+    api/wagner_whitin
 
 

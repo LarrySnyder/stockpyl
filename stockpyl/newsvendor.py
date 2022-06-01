@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The |mod_newsvendor| module contains code for solving the newsvendor
 problem and some of its variants.

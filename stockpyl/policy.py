@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 This module contains the ``Policy`` class. A ``Policy`` object is used to make
 order quantity calculations.

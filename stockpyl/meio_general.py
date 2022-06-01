@@ -1,5 +1,5 @@
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 
 For MEIO systems with arbitrary topology (not necessarily serial or tree systems),

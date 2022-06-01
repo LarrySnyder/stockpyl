@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 Helper code for dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with tree structures by Graves and Willems (2000).

@@ -8,12 +8,12 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The |mod_ssm_serial| module contains code to solve serial systems under the stochastic service
 model (SSM), either exactly, using the :func:`~stockpyl.ssm_serial.optimize_base_stock_levels` function
 (which implements the algorithm by Chen and Zheng (1994), which in turn is
-based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic`
+based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic` 
 function (which implements the newsvendor heuristic by Shang and Song (1996)).
 
 "node" and "stage" are used interchangeably in the documentation.
@@ -140,7 +140,7 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
 	  each corresponding to a node index.
 	* If the parameter is a list, it must have length ``num_nodes``;
-	  the ``n``th entry in the list corresponds to node with index ``n``+1.
+	  the ``n`` th entry in the list corresponds to node with index ``n`` + 1.
 	* If the parameter is a singleton, all nodes will have that parameter set to the
 	  singleton value.
 

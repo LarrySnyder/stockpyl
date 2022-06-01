@@ -1,4 +1,4 @@
-.. include:: globals.inc
+.. include:: ../../globals.inc
 
 Multi-Echelon Inventory Optimization
 ====================================

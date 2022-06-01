@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 This module contains the ``SupplyChainNetwork`` class.
 

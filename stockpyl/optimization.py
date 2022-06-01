@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The :mod:`optimization` module contains optimization-related code used in other
 modules.

@@ -1,5 +1,5 @@
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 Helper functions for stockpyl package.
 

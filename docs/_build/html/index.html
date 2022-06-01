@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installing Stockpyl" href="install.html" /> 
+    <link rel="next" title="Getting Started" href="getting_started/getting_started.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,13 +37,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview_meio.html">Multi-Echelon Inventory Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api.html">API Documentation</a></li>
 </ul>
 
         </div>
@@ -76,9 +73,13 @@
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
-<em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
-are much older, and <em>FoSCT</em> provides references to original sources.</p>
+Fundamentals of Supply Chain Theory* (<em>FoSCT</em>) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
+are much older; see <em>FoSCT</em> for references to original sources.</p>
+</div>
+<hr class="docutils" />
 <section id="some-examples">
 <h2>Some Examples<a class="headerlink" href="#some-examples" title="Permalink to this headline">¶</a></h2>
 <p>Solve the EOQ problem with <span class="math notranslate nohighlight">\(K=8\)</span>, <span class="math notranslate nohighlight">\(h=0.225\)</span>, and <span class="math notranslate nohighlight">\(\lambda=1300\)</span> (Example 3.1 in <em>FoSCT</em>):</p>
@@ -136,7 +137,7 @@ rather than the shorter notation assigned to them in textbooks and articles (<co
 <span class="go">[0, 133.0, 133.0, 133.0, 133.0, 126.0]</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> module includes the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
+<p>Stockpyl includes an implementation of the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
 Chen-Zheng’s (1994) reworking of it):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.ssm_serial</span> <span class="kn">import</span> <span class="n">optimize_base_stock_levels</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span><span class="p">,</span> <span class="n">C_star</span> <span class="o">=</span> <span class="n">optimize_base_stock_levels</span><span class="p">(</span>
@@ -153,7 +154,7 @@ Chen-Zheng’s (1994) reworking of it):</p>
 <span class="go">47.668653127136345</span>
 </pre></div>
 </div>
-<p>And the <code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> module implements Graves and Willems’ (2000) the dynamic programming algorithm for optimizing committed service times (CSTs)
+<p>And Graves and Willems’ (2000) dynamic programming algorithm for optimizing committed service times (CSTs)
 in acyclical guaranteed-service model (GSM) systems:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.gsm_tree</span> <span class="kn">import</span> <span class="n">optimize_committed_service_times</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.instances</span> <span class="kn">import</span> <span class="n">load_instance</span>
@@ -166,51 +167,44 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <span class="go">8.277916867529369</span>
 </pre></div>
 </div>
+<hr class="docutils" />
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<p class="caption" role="heading"><span class="caption-text">Documentation Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview_seio.html">Single-Echelon Inventory Optimization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-eoq-problem">The EOQ Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-newsvendor-problem">The Newsvendor Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-rq-optimization-problem">The <span class="math notranslate nohighlight">\((r,Q)\)</span> Optimization Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-ss-optimization-problem">The <span class="math notranslate nohighlight">\((s,S)\)</span> Optimization Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#the-wagner-whitin-problem">The Wagner-Whitin Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_seio.html#finite-horizon-stochastic-problems">Finite-Horizon Stochastic Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/install.html">Installing Stockpyl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/overview/overview.html">Overview of Stockpyl Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_seio.html">Single-Echelon Inventory Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_su.html">Supply Uncertainty</a></li>
+<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_meio.html">Multi-Echelon Inventory Optimization</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="overview_su.html">Supply Uncertainty</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-eoq-problem-with-disruptions">The EOQ Problem with Disruptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-eoq-problem-with-yield-uncertainty">The EOQ Problem with Yield Uncertainty</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-newsvendor-problem-with-disruptions">The Newsvendor Problem with Disruptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_su.html#the-newsvendor-problem-with-yield-uncertainty">The Newsvendor Problem with Yield Uncertainty</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="overview_meio.html">Multi-Echelon Inventory Optimization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#the-supplychainnetwork-class">The <code class="docutils literal notranslate"><span class="pre">SupplyChainNetwork</span></code> Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#serial-ssm-systems">Serial SSM Systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#serial-or-tree-gsm-systems">Serial or Tree GSM Systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview_meio.html#general-meio-systems">General MEIO Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/supply_uncertainty.html#the-eoq-problem-with-disruptions">The EOQ Problem with Disruptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/supply_uncertainty.html#the-eoq-problem-with-yield-uncertainty">The EOQ Problem with Yield Uncertainty</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/supply_uncertainty.html#the-newsvendor-problem-with-disruptions">The Newsvendor Problem with Disruptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/supply_uncertainty.html#the-newsvendor-problem-with-yield-uncertainty">The Newsvendor Problem with Yield Uncertainty</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="eoq.html"><code class="docutils literal notranslate"><span class="pre">eoq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="newsvendor.html"><code class="docutils literal notranslate"><span class="pre">newsvendor</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rq.html"><code class="docutils literal notranslate"><span class="pre">rq</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ss.html"><code class="docutils literal notranslate"><span class="pre">ss</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="finite_horizon.html"><code class="docutils literal notranslate"><span class="pre">finite_horizon</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="supply_uncertainty.html"><code class="docutils literal notranslate"><span class="pre">supply_uncertainty</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meio_general.html"><code class="docutils literal notranslate"><span class="pre">meio_general</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="supply_chain_network.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_network</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="supply_chain_node.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_node</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ssm_serial.html"><code class="docutils literal notranslate"><span class="pre">ssm_serial</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gsm_tree.html"><code class="docutils literal notranslate"><span class="pre">gsm_tree</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gsm_serial.html"><code class="docutils literal notranslate"><span class="pre">gsm_serial</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gsm_helpers.html"><code class="docutils literal notranslate"><span class="pre">gsm_helpers</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/meio_general.html"><code class="docutils literal notranslate"><span class="pre">meio_general</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/supply_chain_network.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_network</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/supply_chain_node.html"><code class="docutils literal notranslate"><span class="pre">supply_chain_node</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/sim.html"><code class="docutils literal notranslate"><span class="pre">sim</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/instances.html"><code class="docutils literal notranslate"><span class="pre">instances</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loss_functions.html"><code class="docutils literal notranslate"><span class="pre">loss_functions</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/wagner_whitin.html"><code class="docutils literal notranslate"><span class="pre">wagner_whitin</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -229,7 +223,7 @@ in acyclical guaranteed-service model (GSM) systems:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="install.html" class="btn btn-neutral float-right" title="Installing Stockpyl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="getting_started/getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

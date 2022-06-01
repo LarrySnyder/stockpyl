@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The |mod_rq| module contains code for solving the |rq| optimization problem, 
 including a number of approximations.

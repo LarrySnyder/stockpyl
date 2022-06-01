@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The |mod_gsm_tree| module implements Graves and Willems's (2000) dynamic programming (DP)
 algorithm for multi-echelon inventory systems with tree structures. 

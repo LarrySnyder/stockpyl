@@ -6,9 +6,9 @@ classical single-node inventory models like the economic order quantity (EOQ), n
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO). 
 
-.. note:: Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
-    *Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
-    are much older, and *FoSCT* provides references to original sources. 
+Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
+*Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
+are much older; see *FoSCT* for references to original sources. 
 
 
 

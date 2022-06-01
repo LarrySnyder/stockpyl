@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with serial structures by Inderfurth (1991)).

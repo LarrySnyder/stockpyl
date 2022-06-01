@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The |mod_ss| module contains code for solving the |ss| optimization problem.
 

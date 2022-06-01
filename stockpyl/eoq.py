@@ -8,7 +8,7 @@
 # ===============================================================================
 
 """
-.. include:: globals.inc
+.. include:: ../globals.inc
 
 The |mod_eoq| module contains code for solving the economic order quantity
 (EOQ) problem and some of its variants.
