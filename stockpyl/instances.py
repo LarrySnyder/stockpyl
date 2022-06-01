@@ -18,7 +18,7 @@ Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals 
 
 
 .. csv-table:: Named Instances
-   :file: ../docs/aux_files/temp.csv
+   :file: ../docs/aux_files/named_instances.csv
    :widths: 30, 70
    :header-rows: 1
 """
