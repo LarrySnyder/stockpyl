@@ -66,7 +66,7 @@ Resources
 
 * `PyPI <https://pypi.org/project/stockpyl/>`_
 * Documentation
-* Issue tracking
+* `Issue tracking <https://github.com/LarrySnyder/stockpyl/issues>`_
 
 Feedback
 --------
