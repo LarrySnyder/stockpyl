@@ -951,7 +951,7 @@ def expected_holding_cost(echelon_S,
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
 		...	)
-		43.159459016160405
+		43.15945901616041
 	"""
 
 	# Validate echelon_S. (Other parameters will be validated in optimize_base_stock_levels().)

@@ -26,11 +26,11 @@ or you can specify the exact base-stock levels to test for each node.
 
 In the code snippet below, we solve Example 6.1 from |fosct| using enumeration.
 We specify upper and lower bounds on the base-stock levels to test for each node and
-evaluate each candidate set of base-stock levels using simulation (5 trials, 
-500 periods per trial):
+evaluate each candidate set of base-stock levels using simulation (3 trials, 
+100 periods per trial—a very coarse approximation since the simulation runs are very small):
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.meio_general import meio_by_enumeration
 		>>> from stockpyl.instances import load_instance
@@ -39,18 +39,19 @@ evaluate each candidate set of base-stock levels using simulation (5 trials,
 		...		network=example_6_1_network, 
 		...		truncation_lo={1: 5, 2: 4, 3: 10}, 
 		...		truncation_hi={1: 7, 2: 7, 3: 12}, 
-		...		sim_num_trials=5, 
-		...		sim_num_periods=500, 
+		...		sim_num_trials=3, 
+		...		sim_num_periods=100, 
 		...		sim_rand_seed=42
 		...	)
 		>>> best_S
-		{1: 7, 2: 5, 3: 11}
+		{1: 7, 2: 6, 3: 10}
 		>>> best_cost
-		50.66575868556389
+		65.0337132520378
 
-This solution is not bad—it is 6.3% worse than the optimal solution—but we stacked the
-deck by giving the function a pretty narrow range of base-stock levels to test, and even then
-the execution was relatively slow.
+This solution is not good—it is 36.4% worse than the optimal solution—even though we stacked the
+deck by giving the function a pretty narrow range of base-stock levels to test. The solution would improve
+if we used more simulation trials and more periods per trial, but then 
+the execution would be even slower.
 
 Alternately, we can provide an objective function. This is more accurate and faster than
 evaluating solutions using simulation, but if the objective function must be evaluated numerically
@@ -62,7 +63,7 @@ which requires echelon base-stock levels as inputs. The discretization settings 
 (``x_num=100, d_num=10``) are relatively coarse, producing inaccurate solutions but pretty quickly.
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import expected_cost
 		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
@@ -76,7 +77,7 @@ which requires echelon base-stock levels as inputs. The discretization settings 
 		>>> best_S
 		{1: 7, 2: 5, 3: 11}
 		>>> best_cost
-		48.21449789525489
+		48.21449789525488
 
 The :func:`~stockpyl.meio_general.meio_by_coordinate_descent` function optimizes (approximately)
 using `coordinate descent <https://en.wikipedia.org/wiki/Coordinate_descent>`_. In principle, 
@@ -89,25 +90,28 @@ and not particularly accurate.
 
 	
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.meio_general import meio_by_coordinate_descent
 		>>> from stockpyl.ssm_serial import expected_cost
 		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
-		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=100, d_num=10)
 		>>> best_S, best_cost = meio_by_coordinate_descent(
 		...		network=example_6_1_network, 
 		...		search_lo={1: 5, 2: 4, 3: 10}, 
 		...		search_hi={1: 7, 2: 7, 3: 12}, 
-		...		sim_num_trials=5, 
+		...		sim_num_trials=3, 
 		...		sim_num_periods=100, 
 		...		sim_rand_seed=762
 		...	)
-		>>> best_S, best_cost = meio_by_coordinate_descent(example_6_1_network, search_lo={1: 5, 2: 4, 3: 10}, search_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762)
 		>>> best_S
-		{1: 6.442728744867265, 2: 5.713943482508711, 3: 10.59579104356543}
+		{1: 6.381339837124608, 2: 5.896080179686133, 3: 10.048610642262988}
 		>>> best_cost
-		51.3500177930988
+		65.79707993192646
+
+	.. doctest::
+		:skipif: True	# set to False to run the test
+
+		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=20, d_num=10)
 		>>> best_S, best_cost = meio_by_coordinate_descent(
 		...		example_6_1_network, 
 		...		search_lo={1: 5, 2: 4, 3: 10},
@@ -115,9 +119,9 @@ and not particularly accurate.
 		...		objective_function=obj_fcn
 		...	)
 		>>> best_S
-		{1: 6.73426038452249, 2: 5.278098969007219, 3: 10.995733389307562}
+		{1: 5.892036436905893, 2: 5.995771265226075, 3: 11.99995914365099}
 		>>> best_cost
-		47.820555289455875
+		62.33491040676202
 
 """
 

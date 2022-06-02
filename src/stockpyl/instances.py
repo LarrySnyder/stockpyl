@@ -33,7 +33,7 @@ import csv
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
 
-DEFAULT_JSON_FILEPATH = 'datasets/stockpyl_instances.json'
+DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
 
 # TODO: function to sort instances in JSON by name, or even better, by chapter then name
 

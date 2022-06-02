@@ -7,11 +7,11 @@ Supply Uncertainty
 in the |mod_supply_uncertainty| module:
 
 - Economic order quantity (EOQ)-based models
-	- :ref:`with disruptions<overview/overview_su:The EOQ Problem with Disruptions>` 
-	- :ref:`with yield uncertainty<overview/overview_su:The EOQ Problem with Yield Uncertainty>` 
+	- :ref:`with disruptions<getting_started/overview/overview_su:The EOQ Problem with Disruptions>` 
+	- :ref:`with yield uncertainty<getting_started/overview/overview_su:The EOQ Problem with Yield Uncertainty>` 
 - Newsvendor-based models
-	- :ref:`with disruptions<overview/overview_su:The Newsvendor Problem with Disruptions>` 
-	- :ref:`with yield uncertainty<overview/overview_su:The Newsvendor Problem with Yield Uncertainty>` 
+	- :ref:`with disruptions<getting_started/overview/overview_su:The Newsvendor Problem with Disruptions>` 
+	- :ref:`with yield uncertainty<getting_started/overview/overview_su:The Newsvendor Problem with Yield Uncertainty>` 
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition

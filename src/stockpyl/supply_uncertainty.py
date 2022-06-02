@@ -13,11 +13,11 @@
 in the |mod_supply_uncertainty| module:
 
 * Economic order quantity (EOQ)-based models
-	- :ref:`with disruptions<supply_uncertainty:The EOQ Problem with Disruptions>` 
-	- :ref:`with yield uncertainty<supply_uncertainty:The EOQ Problem with Yield Uncertainty>` 
+	- with disruptions
+	- with yield uncertainty
 * Newsvendor-based models
-	- :ref:`with disruptions<supply_uncertainty:The Newsvendor Problem with Disruptions>` 
-	- :ref:`with yield uncertainty<supply_uncertainty:The Newsvendor Problem with Yield Uncertainty>` 
+	- with disruptions
+	- with yield uncertainty
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition

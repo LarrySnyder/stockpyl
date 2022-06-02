@@ -36,3 +36,8 @@ Make docs:
 Test doctests:
 ``make doctest``
 
+Commit and push to GitHub
+
+Build on RTD:
+Go to https://readthedocs.org/projects/stockpyl/
+Click "Build Version"
