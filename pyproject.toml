@@ -1,0 +1,31 @@
+# pyproject.toml
+
+# As per https://github.com/pypa/setuptools/blob/main/docs/userguide/quickstart.rst
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stockpyl"
+version = "0.1.0a0"
+description = "Python package for inventory optimization"
+readme = "README.md"
+authors = [{ name = "Larry Snyder", email = "larry.snyder@lehigh.edu" }]
+license = { file = "LICENSE" }
+classifiers = [
+		"Development Status :: 3 - Alpha",
+		"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+		"Natural Language :: English",
+		"Programming Language :: Python :: 3",
+		"Topic :: Education",
+		"Topic :: Office/Business",
+		"Topic :: Scientific/Engineering"
+]
+keywords = ["inventory", "optimization", "education"]
+dependencies = [
+]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/LarrySnyder/stockpyl"
+Documentation = "https://stockpyl.readthedocs.io/en/latest/"

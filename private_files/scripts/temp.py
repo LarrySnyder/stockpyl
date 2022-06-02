@@ -1,7 +1,7 @@
 # This is necessary in order to make the import statements work.
 import sys
 
-sys.path.append('../src/')
+#sys.path.append('../src/')
 
 from stockpyl import eoq
 
