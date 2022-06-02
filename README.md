@@ -1,6 +1,7 @@
 Stockpyl
 ========
 
+![PyPI](https://img.shields.io/pypi/v/stockpyl)
 [![Documentation Status](https://readthedocs.org/projects/stockpyl/badge/?version=latest)](https://stockpyl.readthedocs.io/en/latest/?badge=latest)
 ![GitHub](https://img.shields.io/github/license/LarrySnyder/stockpyl)
 ![GitHub issues](https://img.shields.io/github/issues/LarrySnyder/stockpyl)

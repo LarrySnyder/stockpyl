@@ -26,3 +26,13 @@ Upload to PyPI:
 
 Packaging the Docs
 ==================
+
+Change to ``docs`` directory:
+``cd docs``
+
+Make docs:
+``make html``
+
+Test doctests:
+``make doctest``
+
