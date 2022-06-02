@@ -95,7 +95,6 @@ as a dictionary containing the pmf:
 """
 
 
-from multiprocessing.sharedctypes import Value
 from scipy import stats
 from scipy.optimize import brentq
 import numpy as np

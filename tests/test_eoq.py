@@ -1,6 +1,8 @@
 #from math import *
-from multiprocessing.sharedctypes import Value
 import unittest
+# import sys
+
+# sys.path.append('../src')
 
 from numpy import ndarray
 
