@@ -24,10 +24,10 @@ sphinx:
 #    - pdf
 
 python:
-   install:
-   - requirements: requirements.txt, docs/requirements.txt
-   - method: pip
+  install:
+    - requirements: docs/requirements.txt, requirements.txt
+    - method: pip
       path: .
       extra_requirements:
-         - docs
-   system_packages: true
+        - docs
+  system_packages: true
