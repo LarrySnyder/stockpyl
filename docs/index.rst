@@ -1,5 +1,6 @@
 .. include:: globals.inc
 
+
 Stockpyl
 ========
 
