@@ -1,12 +1,13 @@
 .. include:: globals.inc
 
+
 Stockpyl
 ========
 
-|sp| is a Python package for inventory optimization. It contains implementation for
+|sp| is a Python package for inventory optimization. It implements
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
-(MEIO). 
+(MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions. 
 
 .. note:: Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
     Fundamentals of Supply Chain Theory* (|fosct|) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
