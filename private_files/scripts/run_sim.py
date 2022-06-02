@@ -1,7 +1,7 @@
 # This is necessary in order to make the import statements work.
 import sys
 
-sys.path.append('../stockpyl')
+#sys.path.append('../stockpyl')
 
 from stockpyl import sim
 from stockpyl import sim_io
