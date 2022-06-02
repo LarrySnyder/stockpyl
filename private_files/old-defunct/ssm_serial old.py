@@ -24,7 +24,6 @@ F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory syst
 A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
 """
 
-from multiprocessing.sharedctypes import Value
 import numpy as np
 from scipy import stats
 #import math

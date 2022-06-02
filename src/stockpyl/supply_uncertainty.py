@@ -149,7 +149,6 @@ distribution as a ``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` o
 
 # TODO: add Dada
 
-from multiprocessing.sharedctypes import Value
 import numpy as np
 from math import log
 from scipy.stats import *

@@ -1,15 +1,15 @@
 # This is necessary in order to make the import statements work.
 import sys
 
-#sys.path.append('../stockpyl')
+#sys.path.append('../../src')
 
 from stockpyl import sim
-from stockpyl import sim_io
-from stockpyl import supply_chain_network
-from stockpyl import supply_chain_node
-from stockpyl import instances
-from stockpyl import policy
-from stockpyl import demand_source
+from ...src.stockpyl import sim_io
+from ...src.stockpyl import supply_chain_network
+from ...src.stockpyl import supply_chain_node
+from ...src.stockpyl import instances
+from ...src.stockpyl import policy
+from ...src.stockpyl import demand_source
 
 import numpy as np
 
