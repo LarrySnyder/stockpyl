@@ -464,5 +464,3 @@ class TestNewsvendorWithAdditiveYieldUncertainty(unittest.TestCase):
 		self.assertAlmostEqual(cost, 333.34, places=1)
 
 
-
-	# TODO: non-uniform examples

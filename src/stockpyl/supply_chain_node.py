@@ -35,8 +35,6 @@ from stockpyl.helpers import *
 # SupplyChainNode Class
 # ===============================================================================
 
-# TODO: add mean and SD attributes and allow those OR DemandSource
-
 class SupplyChainNode(object):
 	"""The ``SupplyChainNode`` class contains the data, state variables, and
 	performance measures for a supply chain node.
@@ -77,8 +75,6 @@ class SupplyChainNode(object):
 		ending IL. Function should check that IL < 0.
 	purchase_cost : float
 		Cost incurred per unit
-	# TODO: purchase cost, salvage value
-	# TODO: does purchase cost live at upstream or downstream node? is it incurred on purhcase or delivery? does it count as revenue at the upstream node?
 	revenue : float
 		Revenue earned per unit of demand met. [r]
 	shipment_lead_time : int
@@ -87,12 +83,11 @@ class SupplyChainNode(object):
 		Order lead time.
 	demand_source : DemandSource
 		Demand source object.
-	# TODO: add properties demand_type, demand_mean, etc. that are aliases to demand_source.type, etc.
 	initial_inventory_level : float
 		Initial inventory level.
-	initial_orders : float # TODO: allow list
+	initial_orders : float
 		Initial outbound order quantity.
-	initial shipments : float # TODO: allow list
+	initial shipments : float
 		Initial inbound shipment quantity.
 	inventory_policy : Policy
 		Inventory policy to be used to make inventory decisions.
@@ -127,11 +122,6 @@ class SupplyChainNode(object):
 		kwargs : optional
 			Optional keyword arguments to specify node attributes.
 
-		# TODO: check for uniqueness when add new node to network
-		# TODO: allow user to specify policy type and parameters insted of policy object
-		# TODO: similar for demand
-		# TODO: when set local or echelon h.c., update the other
-
 		Raises
 		------
 		AttributeError
@@ -141,7 +131,6 @@ class SupplyChainNode(object):
 		self.initialize()
 
 		# Set named attributes.
-		# TODO: move these to kwargs
 		self.index = index
 		self.name = name
 		self.network = network
@@ -175,7 +164,6 @@ class SupplyChainNode(object):
 
 	@property
 	def descendants(self):
-		# TODO: build the digraph at the network level, keep it static, and update it when network structure updates
 		G = self.network.networkx_digraph()
 		desc = nx.descendants(G, self.index)
 		return [self.network.get_node_from_index(d) for d in desc]
@@ -212,7 +200,6 @@ class SupplyChainNode(object):
 		# Rosling (1989) calls this M_i; Zipkin (2000) calls it \underline{L}_j.
 		# Some assembly-system algorithms assume that the nodes are indexed
 		# in order of forward echelon lead time.
-		# TODO: make static?
 		return int(self.shipment_lead_time + np.sum([d.shipment_lead_time for d in self.descendants]))
 
 	@property
@@ -224,7 +211,6 @@ class SupplyChainNode(object):
 		# If node is the smallest-indexed node in the network, equivalent lead
 		# time equals forward echelon lead time, which also equals shipment lead time.
 		# Rosling (1989) calls this L_i; Zipkin (2000) calls it L''_j.
-		# TODO: make static?
 		if self.index == np.min(self.network.node_indices):
 			return self.forward_echelon_lead_time
 		else:
@@ -234,7 +220,6 @@ class SupplyChainNode(object):
 	@property
 	def derived_demand_mean(self):
 		# Mean of derived demand, i.e., external demand at node and all of its descendants.
-		# TODO: handle non-normal demand
 		if self.demand_source is not None and self.demand_source.type == 'N':
 			DDM = self.demand_source.mean
 		else:
@@ -247,7 +232,6 @@ class SupplyChainNode(object):
 	@property
 	def derived_demand_standard_deviation(self):
 		# Standard deviation of derived demand, i.e., external demand at node and all of its descendants.
-		# TODO: handle non-normal demand
 		if self.demand_source is not None and self.demand_source.type == 'N':
 			DDV = self.demand_source.standard_deviation ** 2
 		else:
@@ -398,11 +382,10 @@ class SupplyChainNode(object):
 			self.initial_shipments = None
 		if overwrite or not hasattr(self, 'inventory_policy'):
 			self.inventory_policy = Policy(node=self)
-#			self.inventory_policy.node = self # TODO: should this be here? # TODO: do this in constructor?
 		elif self.inventory_policy is not None:
 			self.inventory_policy.initialize(overwrite=False)
 		if overwrite or not hasattr(self, 'supply_type'):
-			self.supply_type = None # TODO: this is awkward; make default UNLIMITED?
+			self.supply_type = None 
 		if overwrite or not hasattr(self, 'disruption_process'):
 			self.disruption_process = DisruptionProcess()
 		elif self.disruption_process is not None:
@@ -461,8 +444,6 @@ class SupplyChainNode(object):
 		bool
 			``True`` if the two nodes are equal, ``False`` otherwise.
 		"""
-
-		# TODO: unit tests
 
 		return self.index == other.index and \
 			self.name == other.name and \
@@ -724,7 +705,7 @@ class NodeStateVars(object):
 		disrupted, ``disrupted_items_by_successor[None]`` always = 0.) Items held for successor
 		are not included in ``backorders_by_successor``.
 		Sum over all successors of ``backorders_by_successor + disrupted_items_by_successor``
-		should always equal max{0, -inventory_level}. # TODO: check that this logic is correct
+		should always equal max{0, -inventory_level}. 
 	raw_material_inventory : dict
 		``raw_material_inventory[p]`` = number of units of predecessor ``p`'s
 		product in raw-material inventory at node. If ``p`` is ``None``, refers
@@ -751,7 +732,6 @@ class NodeStateVars(object):
 	order_quantity : dict
 		``order_quantity[p]`` = order quantity placed by the node to
 		predecessor ``p`` in period. If ``p`` is ``None``, refers to external supply.
-		# TODO: rename to outbound_order
 	"""
 
 	def __init__(self, node=None, period=None):
@@ -779,19 +759,16 @@ class NodeStateVars(object):
 		if node:
 
 			# Initialize dicts with appropriate keys.
-			# TODO: this should happen elsewhere; what if some successors or predecessors haven't been added to the network yet??
 			self.inbound_shipment_pipeline = {p_index:
 				[0] * ((self.node.order_lead_time or 0) + (self.node.shipment_lead_time or 0) + 1)
 											for p_index in self.node.predecessor_indices(include_external=True)}
 			self.inbound_shipment = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
-			# TODO: nodes without predecessors cannot have order lead time; either fix this or document it (the workaround is just to add it to the shipment lead time)
 			self.inbound_order_pipeline = {s_index:
 				[0] * ((self.node.network.get_node_from_index(s_index).order_lead_time or 0) + 1)
 										   for s_index in node.successor_indices()}
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
 			# or its own order lead time.)
-			# TODO: should this be ... or node.demand_source.type is None?
 			if node.demand_source is None or node.demand_source.type is not None:
 				self.inbound_order_pipeline[None] = [0]
 			self.inbound_order = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
@@ -890,7 +867,6 @@ class NodeStateVars(object):
 	# more than 1 predecessor (it is an assembly node), including external supplier,
 	# in-transit items are counted using the "units" of the node itself.
 	# That is, they are divided by the total number of predecessors.
-	# TODO: handle BOM
 	@property
 	def in_transit(self):
 		total_in_transit = np.sum([self.in_transit_from(p)
@@ -904,7 +880,6 @@ class NodeStateVars(object):
 	# predecessor (it is an assembly node), including external supplier,
 	# on-order items are counted using the "units" of the node itself.
 	# That is, they are divided by the total number of predecessors.
-	# TODO: handle BOM
 	@property
 	def on_order(self):
 		total_on_order = self.node.get_attribute_total('on_order_by_predecessor',
@@ -918,7 +893,6 @@ class NodeStateVars(object):
 	# raw_material_aggregate = total raw materials at the node. Raw materials
 	# are counted using the "units" of the node itself. That is, they are
 	# divided by the total number of predecessors.
-	# TODO: handle BOM
 	@property
 	def raw_material_aggregate(self):
 		total_raw_material = self.node.get_attribute_total('raw_material_inventory',
@@ -948,7 +922,6 @@ class NodeStateVars(object):
 	# echelon_on_hand_inventory = current echelon on-hand inventory at node
 	# = on-hand inventory at node and at or in transit to all of its
 	# downstream nodes.
-	# TODO: how to handle downstream raw material inventory?
 	@property
 	def echelon_on_hand_inventory(self):
 		EOHI = self.on_hand
@@ -964,7 +937,6 @@ class NodeStateVars(object):
 	# echelon_inventory_level = current echelon inventory level at node
 	# = echelon on-hand inventory minus backorders at terminal node(s)
 	# downstream from node.
-	# TODO: how to handle downstream raw material inventory?
 	@property
 	def echelon_inventory_level(self):
 		EIL = self.echelon_on_hand_inventory
@@ -994,21 +966,19 @@ class NodeStateVars(object):
 	# forward echelon lead time for the node. That is, = current echelon inventory level
 	# plus items ordered L_i periods ago or earlier.
 	# Rosling (1989) calls this X^L_{it}; Zipkin (2000) calls it IN^+_j(t).
-	# TODO: what if there are order lead times?
+	# Assumes there are no order lead times.
 	# This quantity is used (only?) for balanced echelon base-stock policies.
 	# Nodes are assumed to be indexed consecutively in non-decreasing order of
 	# forward echelon lead time.
 	# Note: Balanced echelon base-stock policy assumes a node never orders
 	# more than its predecessor can ship; therefore, # of items shipped in a
 	# given interval is the same as # of items ordered. In addition, there
-	# are no raw-material inventories. # TODO: what if we are not in LRB?
-	# ``predecessor_index`` must be supplied.
+	# are no raw-material inventories.
 	def echelon_inventory_position_adjusted(self):
 		# Calculate portion of in-transit inventory that was ordered L_i periods
 		# ago or earlier.
 		# Since order quantity to all predecessors is the same, choose one arbitrarily
 		# and get order quantities for that predecessor.
-		# TODO: Is this right?
 		in_transit_adjusted = 0
 		pred = self.node.get_one_predecessor()
 		if pred is None:

@@ -365,8 +365,6 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 	# 			demand_source = None
 	# 		n.demand_source = demand_source
 
-		# TODO: this
-
 		# S_heur = newsvendor_heuristic(
 		# 	num_nodes=len(instance.nodes),
 		# 	echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},

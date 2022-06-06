@@ -156,7 +156,6 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 			# Calculate cost if next order is in period ss.
 			cost = fixed_cost[t]
 			for i in range(t, ss):
-				# TODO: vectorize this
 				cost += purchase_cost[t] * demand[i] + holding_cost[t] * (i - t) * demand[i]
 			cost += theta[ss]
 

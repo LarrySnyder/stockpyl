@@ -33,8 +33,6 @@ from stockpyl.helpers import *
 # DemandSource Class
 # ===============================================================================
 
-# TODO: handle custom continuous
-
 class DemandSource(object):
 	"""
 	Attributes

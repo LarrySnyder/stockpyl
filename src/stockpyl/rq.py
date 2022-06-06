@@ -74,8 +74,6 @@ We can evaluate these approximate solutions under the exact expected cost functi
 
 """
 
-# TODO: exact optimization for normal demands??
-
 from scipy import integrate
 from scipy.stats import norm
 from scipy.stats import poisson
@@ -143,8 +141,6 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 		78.07116250928294
 
 	"""
-
-	# TODO handle non-normal demand
 
 	# Check that parameters are positive/non-negative.
 	if order_quantity <= 0: raise ValueError("order_quantity must be positive")
@@ -233,8 +229,6 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 
 	"""
 
-	# TODO handle non-normal demand
-
 	# Check that parameters are positive/non-negative.
 	if order_quantity <= 0: raise ValueError("order_quantity must be positive")
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
@@ -251,7 +245,7 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 	S, _ = newsvendor_normal(holding_cost, stockout_cost, mu, sigma)
 
 	# Initialize bounds and midpoint for bisection search.
-	r_lo = S - 5 * order_quantity  # TODO: better way to do this?
+	r_lo = S - 5 * order_quantity  
 	r_hi = S
 	r = (r_lo + r_hi) / 2
 
@@ -355,8 +349,6 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 		(213.97044213580244, 318.5901810768729, 95.45114022285196)
 
 	"""
-
-	# TODO handle non-normal demand
 
 	# Check that parameters are positive/non-negative.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
@@ -466,8 +458,6 @@ def r_q_eoqb_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	"""
 
-	# TODO handle non-normal demand
-
 	# Check that parameters are positive/non-negative.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
@@ -544,8 +534,6 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 		(190.3369965715624, 304.0467800264368)
 
 	"""
-
-	# TODO handle non-normal demand
 
 	# Check that parameters are positive/non-negative.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
@@ -638,8 +626,6 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 		(126.8670634479628, 328.4491421980451)
 
 	"""
-
-	# TODO handle non-normal demand
 
 	# Check that parameters are positive/non-negative.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")

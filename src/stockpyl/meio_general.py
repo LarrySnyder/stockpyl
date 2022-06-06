@@ -150,8 +150,6 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 	base-stock levels. Evaluate each combination using the provided objective
 	function, or simulation if not provided.
 
-	# TODO: generalize to allow parameters other than BSL
-
 	Parameters
 	----------
 	network : SupplyChainNetwork
@@ -219,7 +217,6 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 	nodes_to_optimize = {opt_group[n_ind] for n_ind in network.node_indices}
 
 	# Build lists needed for truncation and discretization, based on nodes_to_optimize.
-	# TODO: wrap this in a separate function
 	dict_base_stock_levels = ensure_dict_for_nodes(base_stock_levels, network.node_indices)
 	dict_truncation_lo = ensure_dict_for_nodes(truncation_lo, network.node_indices)
 	dict_truncation_hi = ensure_dict_for_nodes(truncation_hi, network.node_indices)
@@ -281,7 +278,6 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 											   sim_rand_seed, progress_bar=False)
 
 		# Compare to best solution found so far.
-		# TODO: do something with sem?
 		if mean_cost < best_cost:
 			best_cost = mean_cost
 			best_S = S_complete
@@ -346,7 +342,6 @@ def base_stock_level_bisection_search(network, node_to_optimize, lo=None, hi=Non
 	"""
 
 	# Determine bounds, if not provided.
-	# TODO: do this better
 	if lo is None:
 		lo = 0
 	if hi is None:
@@ -368,8 +363,6 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 	"""Optimize the MEIO instance by coordinate descent on the
 	base-stock levels. Evaluate each solution using the provided objective
 	function, or simulation if not provided.
-
-	# TODO: generalize to allow parameters other than BSL
 
 	Parameters
 	----------
@@ -433,7 +426,6 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 	dict_hi = ensure_dict_for_nodes(search_hi, network.node_indices)
 	nto_lo = {n_ind: dict_lo[n_ind] for n_ind in nodes_to_optimize}
 	nto_hi = {n_ind: dict_hi[n_ind] for n_ind in nodes_to_optimize}
-	# TODO: do this better
 	for n_ind in nodes_to_optimize:
 		if nto_lo[n_ind] is None:
 			nto_lo[n_ind] = 0
@@ -443,7 +435,6 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 
 	# Determine initial solution.
 	if initial_solution is None:
-		# TODO: do this better -- set to mean implied demand
 		nto_initial_solution = {}
 		for n in nodes_to_optimize:
 			nto_initial_solution[n] = np.sum([s.demand_source.mean for s in network.sink_nodes])
@@ -536,8 +527,6 @@ def truncate_and_discretize(node_indices, values=None, truncation_lo=None,
 		- ``discretization_step`` is set to 1 and ``discretization_num`` is set to
 		  (``truncation_hi`` - ``truncation_lo``) / ``discretization_step``.
 		
-		# TODO: use demand distribution to set lo and hi, even at upstream nodes
-
 	Parameters
 	----------
 	node_indices : list
@@ -601,7 +590,6 @@ def truncate_and_discretize(node_indices, values=None, truncation_lo=None,
 
 			# Determine lo, hi, step/num for each node. If not provided,
 			# use default settings.
-			# TODO: what if lead_time_demand_distribution is not provided by demand_source object?
 			lo = lo_dict[n_ind] or DEFAULT_LO
 			hi = hi_dict[n_ind] or DEFAULT_HI
 			if step_dict[n_ind] is not None:

@@ -73,8 +73,6 @@ class Policy(object):
 
 	"""
 
-	# TODO: handle predecessor-specific order quantities
-
 	def __init__(self, **kwargs):
 		"""Policy constructor method.
 
@@ -116,8 +114,6 @@ class Policy(object):
 
 		"""
 
-		# TODO: unit tests
-		
 		return self._type == other._type and \
 			self._base_stock_level == other._base_stock_level and \
 			self._order_quantity == other._order_quantity and \
@@ -475,8 +471,6 @@ class Policy(object):
 		order_quantity : float
 			The order quantity.
 		"""
-
-		# TODO: unit tests
 
 		# Determine target inventory position.
 		target_IP = min(self.base_stock_level, echelon_inventory_position_adjusted)

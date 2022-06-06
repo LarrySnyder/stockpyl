@@ -48,8 +48,6 @@ class SupplyChainNetwork(object):
 		problem types.
 	max_max_replenishment_time : int
 		Largest value of ``max_replenishment_time`` among all nodes in the network.
-
-	TODO: allow kwargs as input
 	"""
 
 	def __init__(self):
@@ -410,8 +408,6 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 					   external_outbound_csts=None, demand_bound_constants=None, units_requireds=None):
 	"""Construct supply chain network with the specified edges.
 
-	# TODO: make the parameters vargs.
-
 	Other than ``edges``, all parameters are optional. If they are provided,
 	they must be either a dict, a list, or a singleton, with the following
 	requirements:
@@ -429,8 +425,6 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 	A node's supply type is set to UNLIMITED if it has no predecessors;
 	otherwise, its supply type is set to NONE.
 
-	# TODO: allow names instead of indices?
-
 	Parameters
 	----------
 	edges : list
@@ -447,7 +441,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 	revenue
 	order_lead_time
 	shipment_lead_time
-	type # TODO: allow string representation
+	demand_type 
 	demand_mean
 	demand_standard_deviation
 	demand_lo
@@ -468,9 +462,6 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 	network : SupplyChainNetwork
 		The supply chain network, with parameters filled.
 
-	# TODO: if initial_IL not provided, default to BS levels
-
-	# TODO: unit tests
 	"""
 	# Create network.
 	network = SupplyChainNetwork()
@@ -485,7 +476,6 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 
 	# Check node_indices; if not provided, build it.
 	if node_indices is None:
-		# TODO: is this right??
 		node_indices = network.node_indices
 	else:
 		if set(node_indices) != set(network.node_indices):
@@ -543,7 +533,6 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 	for n in network.nodes:
 		# Check parameters for inventory policy type.
 		# if inventory_policy_type_dict[n.index] is None:
-		# 	# TODO: remove this check? only relevant for sim
 		# 	raise ValueError("Valid inventory_policy_type has not been provided")
 		if inventory_policy_type_dict[n.index] in ('BS', 'EBS', 'BEBS') and base_stock_levels_dict[n.index] is None:
 			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
@@ -668,7 +657,6 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 	network : SupplyChainNetwork
 		The single-stage network, with parameters filled.
 
-	# TODO: if initial_IL not provided, default to BS levels
 	"""
 
 	# Check that valid demand info has been provided.
@@ -828,7 +816,6 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	network : SupplyChainNetwork
 		The serial system network, with parameters filled.
 
-	# TODO: if initial_IL not provided, default to BS levels
 	"""
 
 	# Build list of node indices.
@@ -839,7 +826,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		indices = list(range(num_nodes))
 		downstream_node = 0
 	else:
-		indices = list(range(num_nodes-1, -1, -1)) # TODO: I think this is correct for the order in which the nodes are created (and linked), but not for how the parameters are supposed to be indexed
+		indices = list(range(num_nodes-1, -1, -1)) 
 		downstream_node = num_nodes-1
 
 	# Build dicts of attributes.
@@ -881,7 +868,6 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
 
 	# Check that valid inventory policy has been provided.
-	# TODO: allow to specify type but not parameters (e.g., if they are about to be optimized), maybe even allow not to specify type
 	for n_index in indices:
 		# Check parameters for inventory policy type.
 		if inventory_policy_type_dict[n_index] is None:
@@ -901,7 +887,6 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 			and order_quantities_dict[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
 
-	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
 	network = SupplyChainNetwork()
 	for n in range(num_nodes):
@@ -1044,7 +1029,6 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	network : SupplyChainNetwork
 		The MWOR network, with parameters filled.
 
-	# TODO: if initial_IL not provided, default to BS levels
 	"""
 
 	# Calculate total # of nodes (= # warehouses + 1)
@@ -1082,7 +1066,6 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 	order_quantities_list = ensure_list_for_nodes(order_quantities, num_nodes, None)
 	order_up_to_levels_list = ensure_list_for_nodes(order_up_to_levels, num_nodes, None)
 
-	# TODO: write separate functions to do these type/input checks
 	# Check that valid demand info has been provided.
 	if demand_type_list[0] is None or demand_type_list[0] == None:
 		raise ValueError("Valid type has not been provided")
@@ -1117,7 +1100,6 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 			and order_quantities_list[n_index] is None:
 			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
 
-	# TODO: I don't think the indexing is right for the parameters.
 	# Build network, in order from downstream to upstream.
 	network = SupplyChainNetwork()
 	for n in range(num_nodes):
@@ -1138,7 +1120,6 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.order_lead_time = order_lead_time_list[n]
 
 		# Build and set demand source.
-		# TODO: make a one-line way to create demand source -- this is way too cumbersome
 		demand_type = demand_type_list[n]
 		if n == 0:
 			demand_source = DemandSource()
@@ -1218,7 +1199,6 @@ def local_to_echelon_base_stock_levels(network, S_local):
 		Dict of echelon base-stock levels.
 
 	"""
-	# TODO: allow more general topologies.
 
 	S_echelon = {}
 	for n in network.nodes:
@@ -1250,7 +1230,6 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 		Dict of local base-stock levels.
 
 	"""
-	# TODO: allow more general topologies.
 
 	S_local = {}
 

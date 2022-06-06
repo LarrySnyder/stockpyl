@@ -146,8 +146,6 @@ distribution as a ``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` o
 
 """
 
-# TODO: add Dada
-
 import numpy as np
 from math import log
 from scipy.stats import *

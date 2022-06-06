@@ -255,8 +255,6 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 
 	"""
 
-	# TODO: delete this function since newsvendor_normal subsumes it?
-
 	# Check that parameters are positive.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
@@ -348,8 +346,6 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	if base_stock_level is not None and not is_integer(base_stock_level):
 		raise ValueError("base_stock_level must be an integer (or None)")
 
-	# TODO: handle lead time
-
 	# Is S provided?
 	if base_stock_level is None:
 		# Calculate alpha.
@@ -423,15 +419,11 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 
 	"""
 
-	# TODO: delete this function since newsvendor_poisson() subsumes it?
-
 	# Check that parameters are positive.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
 	if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer")
-
-	# TODO: handle lead time
 
 	# Calculate loss functions.
 	n, n_bar = lf.poisson_loss(base_stock_level, demand_mean)
@@ -524,9 +516,6 @@ def newsvendor_continuous(holding_cost, stockout_cost, demand_distrib=None,
 
 	# Check that either distribution or pmf have been supplied.
 	if demand_distrib is None and demand_pdf is None: raise ValueError("must provide demand_distrib or demand_pdf")
-
-	# TODO: handle lead time
-	# TODO: handle demand_pdf as function
 
 	# For now, raise error if only demand_pdf is provided. TODO: (Need to add this
 	# capability.)
@@ -637,8 +626,6 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 
 	# Check that either distribution or pmf have been supplied.
 	if demand_distrib is None and demand_pmf is None: raise ValueError("must provide demand_distrib or demand_pmf")
-
-	# TODO: handle lead time
 
 	# Is S provided?
 	if base_stock_level is None:
@@ -764,8 +751,6 @@ def myopic(
 
 	"""
 
-# TODO: handle non-normal demand
-
 	# Calculate c_plus.
 	c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 
@@ -862,8 +847,6 @@ def myopic_cost(
 
 	"""
 
-# TODO: handle non-normal demand
-
 	# Calculate newsvendor cost.
 	g = newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 			demand_mean, demand_sd)
@@ -945,8 +928,6 @@ def set_myopic_cost_to(
 
 	"""
 
-	# TODO: handle non-normal demand
-
 	# Calculate c_plus.
 	c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 
@@ -1006,8 +987,6 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 
 	Assumes ``salvage_value`` < ``purchase_cost`` < ``selling_revenue``
 	(otherwise the solution is not well-defined).
-
-	# TODO: handle non-normal demand
 
 	Parameters
 	----------

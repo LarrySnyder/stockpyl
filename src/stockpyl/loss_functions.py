@@ -312,9 +312,6 @@ def lognormal_loss(x, mu, sigma):
 	return n, n_bar
 
 
-# TODO: lognormal second loss
-
-
 def exponential_loss(x, mu):
 	"""
 	Return exponential loss and complementary loss functions for :math:`\\text{exp}(\\mu)`
@@ -630,7 +627,6 @@ def uniform_loss(x, a, b):
 	------
 	ValueError
 		If ``x`` < ``a`` or > ``b``.
-		# TODO: actually this is OK, just figure out what function equals in this case
 
 
 	**Equations Used:**
@@ -689,7 +685,6 @@ def uniform_second_loss(x, a, b):
 	------
 	ValueError
 		If ``x`` < ``a`` or > ``b``.
-		# TODO: actually this is OK, just figure out what function equals in this case
 
 
 	**Equations Used:**
@@ -727,8 +722,6 @@ def continuous_loss(x, distrib):
 	"""
 	Return loss and complementary loss functions for an arbitrary continuous
 	distribution, using numerical integration.
-
-	TODO: handle distribution supplied as pdf function
 
 	Parameters
 	----------
@@ -812,8 +805,6 @@ def continuous_second_loss(x, distrib):
 	Return second-order loss and complementary loss functions for an arbitrary continuous
 	distribution, using numerical integration.
 
-	TODO: handle distribution supplied as pdf function
-
 	Parameters
 	----------
 	x : float
@@ -882,8 +873,6 @@ def continuous_second_loss(x, distrib):
 
 	# Find E[X] and Var[X].
 #	E, V = distrib.stats(moments='mv')
-
-	# TODO: allow different methods of computation
 
 	# Calculate loss functions.
 	n2 = 0.5 * distrib.expect(lambda y: max(y - x, 0)**2, lb=x, ub=ub)
@@ -1299,7 +1288,6 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 	# formula above does not seem to be working (e.g., if r = 6, p = 0.4, then
 	# returns negative value for n(10). So for now, using generic function:
 #	n, n_bar = discrete_loss(x, nbinom(r, p))
-	# TODO: what's going on above?
 
 	return n, n_bar
 
@@ -1529,7 +1517,6 @@ def discrete_loss(x, distrib=None, pmf=None):
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
-		# TODO: vectorize this?
 		n = np.sum([(y - x) * pmf[y] for y in x_values if y >= x])
 		n_bar = np.sum([(x - y) * pmf[y] for y in x_values if y <= x])
 
@@ -1634,7 +1621,6 @@ def discrete_second_loss(x, distrib=None, pmf=None):
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
-		# TODO: vectorize this?
 		n2 = 0.5 * np.sum([(y - x) * (y - x - 1) * pmf[y] for y in x_values if y >= x])
 		n2_bar = 0.5 * np.sum([(x - y) * (x + 1 - y) * pmf[y] for y in x_values if y <= x])
 

@@ -143,8 +143,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	* If the parameter is a singleton, all nodes will have that parameter set to the
 	  singleton value.
 
-	# TODO: allow list with ``num_nodes`` + 1 entries.
-
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed)
 	or a ``demand_source`` must be provided, or ``network`` must be provided.
@@ -281,8 +279,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		47.668653127136345
 	"""
 
-	# TODO: handle other indexing (other than N ... 1)
-
 	# Check for presence of data.
 	if network is None and (num_nodes is None or echelon_holding_cost is None or \
 		lead_time is None or stockout_cost is None):
@@ -330,8 +326,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		demand_source.standard_deviation = demand_standard_deviation
 	sum_ltd_dist = demand_source.lead_time_demand_distribution(float(np.sum(L)))
 
-	# TODO: would it be better to calculate mean, a, b directly if we know them?
-
 	# Get truncation bounds for sum-of-lead-time demand distribution.
 	# If support is finite, use support; otherwise, use F^{-1}(.).
 	if sum_ltd_dist.a == float("-inf"):
@@ -348,7 +342,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 
 	# Determine x (inventory level) array (truncated and discretized).
 	if x is None:
-		# TODO: is this the best x-range to use?
 		# x-range = [sum_ltd_lo-sum_ltd_mean, sum_ltd_hi].
 		x_lo = sum_ltd_lo - sum_ltd_dist.mean()
 		x_hi = sum_ltd_hi
@@ -416,7 +409,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 			C_hat_lim2[j, :] = h[j] * x_ext
 
 		# Get lead-time demand distribution.
-		# TODO: what happens if demand_source does not provide these functions?
 		ltd_dist = demand_source.lead_time_demand_distribution(L[j])
 
 		# Get truncation bounds for lead-time demand distribution.
@@ -437,7 +429,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		d = np.arange(d_lo, d_hi + d_delta, d_delta)
 
 		# Calculate discretized cdf array.
-		# TODO: handle situation where demand_distrib does not provide _cdf
 		fd = np.array([ltd_dist.cdf(d_val+d_delta/2) - ltd_dist.cdf(d_val-d_delta/2) for d_val in d])
 #		fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
 
@@ -451,7 +442,6 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 			# This method uses the following result (see Problem 6.13):
 			# lim_{y -> -infty} C_j(y) = -(p + h'_{j+1})(y - sum_{i=1}^j E[D_i])
 			# lim_{y -> +infty} C_j(y) = h_j(y - E[D_j]) + C_{j-1}(S*_{j-1})
-			# TODO: this can probably be vectorized and be much faster
 
 			the_cost = np.zeros(d.size)
 
@@ -669,8 +659,6 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		demand_source.standard_deviation = demand_standard_deviation
 	for j in indices:
 		sum_ltd_dist[j] = demand_source.lead_time_demand_distribution(float(np.sum(L[1:(j+1)])))
-
-	# TODO: unit tests for non-normal demand distributions
 	
 	# Solve newsvendor problems.
 	S_heur = {}
@@ -689,7 +677,6 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 			S_l, _ = newsvendor_normal(h_eff_l, p_eff, mu_ltd, sigma_ltd)
 		elif demand_source.type == 'UC':
 			# Uniform continuous.
-			# TODO: handle other continuous distributions (in DemandSource() too)
 			# Build LTD distribution.
 			ltd_distrib = demand_source.lead_time_demand_distribution(float(np.sum(L[1:(j+1)])))
 			# Calculate newsvendor quantities.

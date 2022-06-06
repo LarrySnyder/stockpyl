@@ -114,8 +114,6 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	* If the parameter is a singleton, all nodes will have that parameter set to the
 	  singleton value.
 
-	# TODO: allow list with ``num_nodes`` + 1 entries.
-
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed)
 	or a ``demand_source`` must be provided.
@@ -175,8 +173,6 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	*International Journal of Production Economics*, 24:103-113, 1991.
 	"""
 
-	# TODO: handle other indexing (other than N, ..., 1)
-
 	# Check for presence of data.
 	if network is None and (num_nodes is None or local_holding_cost is None or \
 		processing_time is None or demand_bound_constant is None or external_outbound_cst is None or \
@@ -188,9 +184,6 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	if network:
 		network = copy.deepcopy(network)
 	else:
-
-		# TODO: do this using serial_system(), once that's refactored
-		# to allow kwargs
 
 		# Build network.
 		network = SupplyChainNetwork()
@@ -322,7 +315,6 @@ def _cst_dp_serial(network):
 				# Fill theta and best_cst_adjacent.
 				theta[k_index][SI] = min_cost
 				best_S[k_index][SI] = min_S
-				# TODO: once got an error saying min_S was used here without being defined -- figure out how this can happen
 
 			# Set values of theta_in and best_cst_adjacent for
 			# max_replenishment_time+1 to max_max_replenishment_time to

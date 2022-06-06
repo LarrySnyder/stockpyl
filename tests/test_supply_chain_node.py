@@ -743,7 +743,6 @@ class TestStateVariables(unittest.TestCase):
 		self.assertEqual(network.nodes[1].state_vars[per].echelon_inventory_position(), OH0+IT01+OH1-BO0+OO1+RM1)
 		self.assertEqual(network.nodes[2].state_vars[per].echelon_inventory_position(), OH0+IT02+OH2-BO0+OO2+RM2)
 
-	# TODO: add Rosling test back
 	# def test_rosling_figure_1_per_22(self):
 	# 	"""Test state variables for simulation of system in Rosling (1989), Figure 1,
 	# 	at end of period 22.

@@ -146,8 +146,6 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 
 	"""
 
-	# TODO: improve performance
-
 	# Check parameters.
 	if not is_integer(reorder_point): raise ValueError("reorder_point must be an integer")
 	if not is_integer(order_up_to_level): raise ValueError("order_up_to_level must be an integer")
@@ -274,8 +272,6 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 	"""
 
-	# TODO: improve performance
-
 	# Check parameters.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
@@ -307,7 +303,6 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 		if use_poisson:
 			gs = newsvendor_poisson_cost(s, holding_cost, stockout_cost, demand_mean)
 		else:
-			# TODO: build newsvendor_discrete_cost function
 			gs = newsvendor_discrete(holding_cost, stockout_cost,
 									 demand_pmf=demand_pmf_dict,
 									 base_stock_level=s)[1]

@@ -277,9 +277,6 @@ def finite_horizon_dp(
 		1558.6946467384012
 	"""
 
-	# TODO: handle non-normal demand_list
-	# TODO: handle arbitrary discretizations
-
 	# Validate singleton parameters.
 	if num_periods <= 0 or not is_integer(num_periods): raise ValueError("num_periods must be a positive integer")
 	if terminal_holding_cost < 0: raise ValueError("terminal_holding_cost must be non-negative")
@@ -301,7 +298,7 @@ def finite_horizon_dp(
 	if not np.all(np.array(fixed_cost[1:]) >= 0): raise ValueError("fixed_cost must be non-negative")
 	if not np.all(np.array(discount_factor[1:]) > 0) or \
 		not np.all(np.array(discount_factor[1:]) <= 1): raise ValueError("discount_factor must be <0 and <=1")
-	if not np.all(np.array(demand_mean[1:]) >= 0): raise ValueError("mean must be non-negative")
+	if not np.all(np.array(demand_mean[1:]) >= 0): raise ValueError("demand_mean must be non-negative")
 	if not np.all(np.array(demand_sd[1:]) >= 0): raise ValueError("demand_sd must be non-negative")
 
 	# Determine truncation for D: mu +/- d_spread * sigma (but no negative values)
@@ -333,7 +330,6 @@ def finite_horizon_dp(
 				   holding_cost[num_periods] + terminal_holding_cost))
 
 	# Calculate newsvendor solution for each period, or use mu if sigma = 0.
-	# TODO: MATLAB code just uses mu in every case; why?
 	nv = np.zeros(num_periods+1)
 	for t in range(1, num_periods+1):
 		nv[t] = demand_mean[t]
@@ -411,7 +407,6 @@ def finite_horizon_dp(
 
 				# Calculate amount of demand probability that was truncated
 				# and issue warning if truncprob > trunc_tol
-				# TODO: fix this -- generates too many warnings
 				#truncprob = np.dot(prob, d_range != d_eff)
 				#if truncprob > trunc_tol:
 				#	warnings.warn('Total probability of truncated demand exceeds trunc_tol: t = {:d}, y = {:d}, truncprob = {:f}'.format(t, y, truncprob))
@@ -642,8 +637,6 @@ def myopic_bounds(
 
 	"""
 
-	# TODO: unit tests
-
 	# Validate singleton parameters.
 	assert num_periods > 0 and is_integer(num_periods), "num_periods must be a positive integer."
 	assert terminal_holding_cost >= 0, "terminal_holding_cost must be non-negative"
@@ -722,62 +715,3 @@ def myopic_bounds(
 
 	return S_underbar, S_overbar, s_underbar, s_overbar
 
-
-# TODO: delete or move this
-
-if __name__ == "__main__":
-
-	instance = load_instance("problem_4_29")
-
-	# num_periods = 6
-	# holding_cost = [1, 1, 1, 1, 2, 2]
-	# stockout_cost = [20, 20, 10, 15, 10, 10]
-	# terminal_holding_cost = 4
-	# terminal_stockout_cost = 50
-	# purchase_cost = [0.2, 0.8, 0.5, 0.5, 0.2, 0.8]
-	# fixed_cost = 100
-	# demand_mean = [20, 60, 110, 200, 200, 40]
-	# demand_sd = [4.6000, 11.9000, 26.4000, 32.8000, 1.8000, 8.5000]
-	# discount_factor = 0.98
-	# initial_inventory_level = 0
-
-	S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(
-				instance['num_periods'], 
-				instance['holding_cost'], 
-				instance['stockout_cost'], 
-				instance['terminal_holding_cost'], 
-				instance['terminal_stockout_cost'], 
-				instance['purchase_cost'], 
-				instance['fixed_cost'], 
-				instance['demand_mean'], 
-				instance['demand_sd'], 
-				instance['discount_factor']
-		)
-
-	# Solve problem.
-	reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
-		x_range = finite_horizon_dp(				
-				instance['num_periods'], 
-				instance['holding_cost'], 
-				instance['stockout_cost'], 
-				instance['terminal_holding_cost'], 
-				instance['terminal_stockout_cost'], 
-				instance['purchase_cost'], 
-				instance['fixed_cost'], 
-				instance['demand_mean'], 
-				instance['demand_sd'], 
-				instance['discount_factor'], 
-				instance['initial_inventory_level']
-		)
-
-	results = []
-	for t in range(1, num_periods+1):
-		results.append([t, reorder_points[t], order_up_to_levels[t], S_underbar[t], S_overbar[t],
-					   s_underbar[t], s_overbar[t]])
-
-	print(tabulate(results, headers=["t", "s", "S", "S_underbar", "S_overbar", "s_underbar", "s_overbar"]))
-
-	print(S_underbar, S_overbar, s_underbar, s_overbar)
-
-	# S_underbar, S_overbar, s_underbar, s_overbar = myopic_bounds(5, 1, 20, 1, 20, 2, 50, 100, 20)
-	# print(S_underbar[1], S_overbar[1], s_underbar[1], s_overbar[1])

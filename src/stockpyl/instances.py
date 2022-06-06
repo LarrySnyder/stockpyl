@@ -35,8 +35,6 @@ from stockpyl.supply_chain_node import *
 
 DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
 
-# TODO: function to sort instances in JSON by name, or even better, by chapter then name
-
 def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True):
 	"""Load an instance from a JSON file. 
 
@@ -67,7 +65,6 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 	ValueError
 		If the JSON file does not exist or the instance cannot be found in the JSON file.
 	"""
-	# TODO: unit tests
 
 	# Does JSON file exist?
 	if os.path.exists(filepath):
@@ -106,17 +103,12 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 		# the deep copy will contain default values for those attributes.
 		if initialize_missing_attributes:
 			instance.initialize(overwrite=False)
-		# TODO: this method of making sure that all attributes are present feels clunky and prone to error.
-		# A better way might be to not use jsonpickle and instead create the relevant objects when loading, 
-		# then fill them from the data in the file.
 
 		return instance
 	except TypeError as e:
 		# If the instance contains any dicts with integer keys, they will have
 		# been saved as strings when the JSON was saved. Convert them back to integers here.
 		# Currently, only demand_pmf has this issue.
-		# TODO: try to do this without a try...except. try...except makes it too hard to debug
-		# if there is another (unplanned) exception
 		if 'demand_pmf' in instance.keys():
 			instance['demand_pmf'] = {int(k): v for k, v in instance['demand_pmf'].items()}
 
@@ -149,8 +141,6 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 		otherwise, it will not do anything and issue a warning.
 	"""
 
-	# TODO: unit tests
-	
 	# Does JSON file exist?
 	if os.path.exists(filepath):
 		# Load data from JSON.

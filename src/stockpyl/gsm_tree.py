@@ -75,8 +75,6 @@ from stockpyl.supply_chain_network import SupplyChainNetwork
 from stockpyl.supply_chain_node import SupplyChainNode
 
 
-# TODO: implement units_required
-
 
 ### OPTIMIZATION ###
 
@@ -286,7 +284,6 @@ def _cst_dp_tree(tree):
 				# p(p(k_index)) is upstream from p(k_index) (or it's the final node) --
 				# that means that optimal CST values are stored in
 				# best_cst_adjacent[pk][opt_in_cst[ppk]][.].
-				# TODO: best_cst_adjacent[pk][opt_in_cst[pk]][.] ???
 				opt_cst[k_index] = best_cst_adjacent[pk][opt_in_cst[pk]][k_index]
 			opt_in_cst[k_index] = best_cst_adjacent[k_index][opt_cst[k_index]][k_index]
 		else:
@@ -512,8 +509,6 @@ def _calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
 
 	Assumes demand bound over :math:`\\tau` periods is of the form
 	:math:`z_\\alpha\\sigma\\sqrt{\\tau}`.
-
-	# TODO: allow more general demand bound.
 
 	Upstream nodes are allowed to use outbound CSTs greater than :math:`SI` and
 	downstream nodes are allowed to use inbound CSTs greater than :math:`S`.

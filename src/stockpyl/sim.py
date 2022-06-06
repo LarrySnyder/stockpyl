@@ -52,8 +52,6 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		Total cost over all nodes and periods.
 	"""
 
-	# TODO: check for directed loops
-
 	# CONSTANTS
 
 	# Number of extra periods to allow for calculations past the last period.
@@ -215,7 +213,6 @@ def generate_downstream_orders(node_index, network, period, visited):
 				# Calculate order quantity.
 				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=p.index)
 			# Place order in predecessor's order pipeline.
-			# TODO: handle this in a separate function (at the predecessor node)
 			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
 				order_quantity
 			p_index = p.index
@@ -228,7 +225,6 @@ def generate_downstream_orders(node_index, network, period, visited):
 				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
 			# Place order to external supplier.
 			# (For now, this just means adding to inbound shipment pipeline.)
-			# TODO: Handle other types of supply functions
 			node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time + shipment_lead_time] += \
 				order_quantity
 			p_index = None
@@ -314,11 +310,9 @@ def initialize_state_vars(network):
 	# Initialize inventory levels and other quantities.
 	for n in network.nodes:
 		# Initialize inventory_level to initial_inventory_level (or 0 if None).
-		# TODO: handle what happens if initial IL < 0 (or prohibit it)
 		n.state_vars[0].inventory_level = n.initial_inventory_level or 0
 
 		# Initialize inbound shipment pipeline and on-order quantities.
-		# TODO: allow different initial shipment/order quantities for different pred/succ.
 		for p_index in n.predecessor_indices(include_external=True):
 			for l in range(n.shipment_lead_time or 0):
 				n.state_vars[0].inbound_shipment_pipeline[p_index][l] = n.initial_shipments or 0
@@ -331,7 +325,6 @@ def initialize_state_vars(network):
 				n.state_vars[0].inbound_order_pipeline[s.index][l] = s.initial_orders
 
 		# Initialize raw material inventory.
-		# TODO: allow initial RM inventory
 		for p in n.predecessor_indices(include_external=True):
 			n.state_vars[0].raw_material_inventory[p_index] = 0
 
@@ -434,8 +427,6 @@ def calculate_period_costs(network, period):
 		except TypeError:
 			n.state_vars[period].holding_cost_incurred = (n.local_holding_cost or 0) * items_held
 		# Raw materials holding cost.
-		# TODO: Allow different holding costs. Allow holding cost functions.
-		# TODO: unit tests
 		for p in n.predecessors(include_external=False):
 			n.state_vars[period].holding_cost_incurred += \
 				(p.local_holding_cost or 0) * n.state_vars[period].raw_material_inventory[p.index]
@@ -518,7 +509,6 @@ def raw_materials_to_finished_goods(node):
 
 	"""
 	# Determine number of units that can be processed.
-	# TODO: handle BOM
 	new_finished_goods = np.min([node.state_vars_current.raw_material_inventory[p_index]
 						for p_index in node.predecessor_indices(include_external=True)])
 
@@ -560,14 +550,12 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 #	if not any([s.disruption_process.disruption_type == 'SP' for s in node.successors()]):
 	current_backorders_check = node.get_attribute_total('backorders_by_successor', node.network.period) \
 		+ node.get_attribute_total('disrupted_items_by_successor', node.network.period)
-	# TODO: put this back in
-#	assert np.isclose(current_backorders, current_backorders_check), \
-#		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
-#			current_backorders, current_backorders_check, node.index, node.network.period)
+	assert np.isclose(current_backorders, current_backorders_check), \
+		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
+			current_backorders, current_backorders_check, node.index, node.network.period)
 
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
-	# TODO: allow different allocation policies
 	node.state_vars_current.demand_met_from_stock = 0.0
 	for s in node.successors(include_external=True):
 #	for s_index in node.successor_indices(include_external=True):
@@ -600,8 +588,6 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demand_list.)
-		# TODO: handle successor-level DMFS and FR.
-		# TODO: handle SP disruptions
 		DMFS = max(0, OS - node.state_vars_current.backorders_by_successor[s_index])
 		node.state_vars_current.demand_met_from_stock += DMFS
 		node.state_vars_current.demand_met_from_stock_cumul += DMFS
@@ -658,7 +644,6 @@ def propagate_shipment_downstream(node):
 
 	"""
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
-	# TODO: handle end of horizon -- if period+s.shipment_lead_time > T
 	for s in node.successors():
 		s.state_vars_current.inbound_shipment_pipeline[node.index][s.shipment_lead_time or 0] \
 			= node.state_vars_current.outbound_shipment[s.index]
@@ -677,8 +662,6 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 
 	Note: After trials, ``network`` will contain performance measures for the
 	most recent trial.
-
-	TODO: figure out how to handle randseed -- need to avoid setting it in simulation()
 
 	Parameters
 	----------

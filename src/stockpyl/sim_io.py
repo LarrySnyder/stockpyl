@@ -45,18 +45,15 @@ def write_results(network, num_periods, num_periods_to_print=None,
 
 	"""
 
-	# TODO: sort nodes in order of index before printing
-
 	# Build list of results strings
 	results = []
 
-	# Average row. # TODO: handle averages
 #	temp = ["Avg"]
 # 	for node in network.nodes:
 # 		temp = temp + ["|", #np.average([node.state_vars[t].inventory_level for t in range(num_periods)]),
 # 					   node.get_attribute_total('inbound_order', None) / num_periods,
 # 					   None,
-# 					   None, # TODO: handle average Q by predecessor
+# 					   None, 
 # 					   node.get_attribute_total('on_order_by_predecessor', None) / num_periods,
 # 					   None,
 # 					   None, None,
@@ -135,8 +132,7 @@ def write_results(network, num_periods, num_periods_to_print=None,
 
 	# CSV output
 	if write_csv:
-		csvFile = open(csv_filename, 'w')
-		with csvFile:
+		with open(csv_filename, 'w') as csvFile:
 			writer = csv.writer(csvFile)
 			writer.writerow(headers)
 			for r in results:

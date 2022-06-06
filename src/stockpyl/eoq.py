@@ -58,8 +58,6 @@ Silver's (1976) heuristic for the joint replenishment problem (JRP):
 
 import numpy as np
 
-# TODO: add functions for quantity discounts
-
 
 def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantity=None):
 	"""Solve the economic order quantity (EOQ) problem, or (if

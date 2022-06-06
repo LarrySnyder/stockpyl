@@ -81,7 +81,7 @@ sim_io.write_results(
 	num_periods=T,
 #	num_periods_to_print=100,
 	write_csv=True,
-	csv_filename='private_files/debugging_files/ss_disr.csv'
+	csv_filename='/Users/larry/Documents/GitHub/stockpyl/private_files/debugging_files/ss_disr.csv'
 )
 print(f"avg. cost per period = {total_cost/T} ")
 print(f"avg. disrupted periods = {np.sum([two_stage_determ.get_node_from_index(1).state_vars[t].disrupted for t in range(T)]) / T} (expected {two_stage_determ.get_node_from_index(1).disruption_process.steady_state_probabilities()[1]})")

@@ -66,8 +66,6 @@ def golden_section_search(f, a, b, tol=1e-5, verbose=False):
 		Optimal value of ``f``.
 
 	"""
-	# TODO: comment this better
-
 	# Calculate golden-section quantities.
 	invphi = (math.sqrt(5) - 1) / 2  # 1 / phi
 	invphi2 = (3 - math.sqrt(5)) / 2  # 1 / phi^2

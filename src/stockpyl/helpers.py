@@ -621,7 +621,6 @@ def irwin_hall_cdf(x, n):
 		The cdf of ``x``.
 	"""
 
-	# TODO vectorize this
 	F = 0
 	for k in range(int(np.floor(x)) + 1):
 		F += ((-1) ** k) * comb(n, k) * (x - k) ** n
@@ -658,7 +657,6 @@ def sum_of_continuous_uniforms_distribution(n, lo=0, hi=1):
 	"""
 
 	class sum_of_continuous_uniforms_rv(stats.rv_continuous):
-		# TODO: this is a different pattern than is used here https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_continuous.html
 
 		def _cdf(self, x):
 			# P(X <= x) = P(Y <= (y - n * lo) / (hi - lo)), where Y is the sum of
@@ -744,7 +742,6 @@ def sum_of_discrete_uniforms_distribution(n, lo, hi):
 		If ``n`` is not an integer.
 
 	"""
-	# TODO: unit tests
 	
 	# Check whether n is an integer.
 	if not is_integer(n):
@@ -790,7 +787,6 @@ def sum_of_discretes_distribution(n, lo, hi, p):
 
 	"""
 
-	# TODO: handle non-integer support values
 
 	# Check whether n, lo, and hi are integers.
 	if not is_integer(n):

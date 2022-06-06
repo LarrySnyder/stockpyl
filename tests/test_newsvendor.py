@@ -331,8 +331,6 @@ class TestNewsvendorContinuous(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorContinuous', 'test_example_4_1_with_pdf()')
 
-		# TODO
-
 	def test_problem_4_8b(self):
 		"""Test that newsvendor_continuous function correctly solves Problem
 		4.8(b).

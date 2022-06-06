@@ -587,8 +587,6 @@ class TestGSMToSSM(unittest.TestCase):
 
 		SSM_tree = gsm_tree.gsm_to_ssm(tree)
 
-# TODO: node 2 EHC = 0.02 need almostequal
-
 		correct_SSM_tree = SupplyChainNetwork()
 		correct_SSM_tree.add_node(SupplyChainNode(1, 'Raw_Material', correct_SSM_tree, shipment_lead_time=2, echelon_holding_cost=0.01))
 		correct_SSM_tree.add_node(SupplyChainNode(2, 'Process_Wafers', correct_SSM_tree, shipment_lead_time=3, echelon_holding_cost=0.02))
