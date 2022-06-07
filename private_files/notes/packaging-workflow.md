@@ -21,7 +21,7 @@ Upload to TestPyPI:
 ``twine upload -r testpypi dist/*``
 
 Upload to PyPI:
-``twine upload dist/*``
+``twine upload --skip-existing dist/*``
 
 
 Packaging the Docs
