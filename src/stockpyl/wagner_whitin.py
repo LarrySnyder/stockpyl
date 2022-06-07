@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 The |mod_wagner_whitin| module contains code for solving the Wagner-Whitin
 problem using dynamic programming.

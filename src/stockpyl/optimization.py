@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 The :mod:`optimization` module contains optimization-related code used in other
 modules.
@@ -40,9 +40,11 @@ def golden_section_search(f, a, b, tol=1e-5, verbose=False):
 		>>> a = 1
 		>>> b = 5
 		>>> tol = 1e-5
-		>>> x = golden_section_search(f, a, b, tol)
-		>>> print(x)
-		2.0000005374905
+		>>> x, fx = golden_section_search(f, a, b, tol)
+		>>> x
+		2.0000005374905 
+		>>> fx
+		2.888960377059731e-13
 
 	Parameters
 	----------

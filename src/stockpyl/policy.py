@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 This module contains the ``Policy`` class. A ``Policy`` object is used to make
 order quantity calculations.
@@ -296,7 +296,7 @@ class Policy(object):
 		----------
 		predecessor_index : int, optional
 			The predecessor for which the order quantity should be calculated.
-			Use ``None'' for external supplier, or if node has only one predecessor
+			Use ``None`` for external supplier, or if node has only one predecessor
 			(including external supplier).
 		inventory_position : float, optional
 			Inventory position immediately before order is placed (after demand is subtracted).

@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 This module contains the ``DisruptionProcess`` class. A ``DisruptionProcess``
 object is used to keep track of a given node's disruption state.

@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- 
+- Unit tests for ``sim_io`` module
+
 ## [0.0.2] -- 2022-06-06
 ### Fixed
 - Fix problems with setup that prevented installation via pip.

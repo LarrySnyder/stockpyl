@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 The :mod:`loss_functions` module contains code for calculating loss functions.
 

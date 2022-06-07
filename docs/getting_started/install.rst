@@ -1,7 +1,11 @@
+.. include:: ../globals.inc
+	
 Installing Stockpyl
 ====================
 
-...stay tuned...
+|sp| is hosted on PyPI. To install::
+
+	pip install stockpyl
 
 
 

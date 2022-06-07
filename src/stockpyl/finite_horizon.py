@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 The |mod_finite_horizon| module contains code for solving finite-horizon, stochastic
 inventory optimization problems, with or without fixed costs, using dynamic programming (DP).

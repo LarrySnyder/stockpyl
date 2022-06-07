@@ -1,5 +1,5 @@
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 Helper functions for stockpyl package.
 
@@ -316,17 +316,19 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	"Suitable for time-period indexing" means that it has length num_periods+1,
 	and element [0] is ignored.
 
-	If x is a singleton, return a list consisting of `num_periods` copies of x.
-	If x is a list of length `num_periods`, return x.
-	If x is a list of length `num_periods`-1, shift elements to the right by 1 slot,
-		fill [0] element with 0, and return new list.
-	Otherwise, raise a ValueError.
+	* If x is a singleton, return a list consisting of `num_periods` copies of x.
+	* If x is a list of length `num_periods`, return x.
+	* If x is a list of length `num_periods`-1, shift elements to the right by 1 slot, 
+	  fill [0] element with 0, and return new list.
+	
+	Otherwise, raise a ``ValueError``.
 
 	Examples:
-		- ensure_list_for_time_periods(5, 3) returns [5, 5, 5]
-		- ensure_list_for_time_periods([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
-		- ensure_list_for_time_periods([5, 2, 1], 4) returns [0, 5, 2, 1]
-		- ensure_list_for_time_periods([0, 5, 2, 1], 3) raises a ValueError.
+
+	* ensure_list_for_time_periods(5, 3) returns [5, 5, 5]
+	* ensure_list_for_time_periods([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
+	* ensure_list_for_time_periods([5, 2, 1], 4) returns [0, 5, 2, 1]
+	* ensure_list_for_time_periods([0, 5, 2, 1], 3) raises a ValueError.
 
 	Parameters
 	----------
@@ -366,18 +368,20 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 
 	"Suitable for node indexing" means that it has length num_nodes.
 
-	If x is a singleton, return a list consisting of `num_nodes` copies of x.
-	If x is a list of length `num_nodes`, return x.
-	If x is None and `default` is provided, return a list consisting of
-		`num_nodes` copies of `default`.
-	If x is None and `default` is not provided, a list consisting of
-	 	`num_nodes` copies of None.
+	* If x is a singleton, return a list consisting of `num_nodes` copies of x.
+	* If x is a list of length `num_nodes`, return x.
+	* If x is None and `default` is provided, return a list consisting of
+	  `num_nodes` copies of `default`.
+	* If x is None and `default` is not provided, a list consisting of 
+	  `num_nodes` copies of None.
+	
 	Otherwise, raise a ValueError.
 
 	Examples:
-		- ensure_list_for_nodes(5, 3) returns [5, 5, 5]
-		- ensure_list_for_nodes([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
-		- ensure_list_for_nodes([0, 5, 2, 1], 3) raises a ValueError.
+
+	* ensure_list_for_nodes(5, 3) returns [5, 5, 5]
+	* ensure_list_for_nodes([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
+	* ensure_list_for_nodes([0, 5, 2, 1], 3) raises a ValueError.
 
 	Parameters
 	----------
@@ -411,28 +415,30 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 	"""Ensure that x is a dict suitable with node indices as keys(); if not, create
 	such a dict and return it.
 
-	If ``x`` is a dict, return ``x``.
-	If ``x`` is a singleton, return a dict with keys equal to ``node_indices``
-		and values all equal to ``x``.
-	If ``x`` is a list with the same length as ``node_indices``, return a dict
-		with keys equal to ``node_indices`` and values equal to ``x``.
-	If ``x`` is ``None`` and ``default`` is provided, return a dict with keys
-		equal to ``node_indices`` and values all equal to ``default``.
-	If ``x`` is ``None`` and ``default`` is not provided, return a dict with
-		keys equal to ``node_indices`` and values all equal to ``None``.
+	* If ``x`` is a dict, return ``x``.
+	* If ``x`` is a singleton, return a dict with keys equal to ``node_indices``
+	  and values all equal to ``x``.
+	* If ``x`` is a list with the same length as ``node_indices``, return a dict
+	  with keys equal to ``node_indices`` and values equal to ``x``.
+	* If ``x`` is ``None`` and ``default`` is provided, return a dict with keys
+	  equal to ``node_indices`` and values all equal to ``default``.
+	* If ``x`` is ``None`` and ``default`` is not provided, return a dict with
+	  keys equal to ``node_indices`` and values all equal to ``None``.
+	
 	Otherwise, raise a ``ValueError``.
 
 	Examples:
-		- ensure_dict_for_nodes(5, [0, 1, 2]) returns {0: 5, 1: 5, 2:5}.
-		- ensure_dict_for_nodes([0, 5, 2], [0, 1, 2]) returns {0: 0, 1: 5, 2: 2}.
-		- ensure_list_for_nodes([0, 5, 2, 1], [0, 1, 2]) raises a ValueError.
+
+	* ensure_dict_for_nodes(5, [0, 1, 2]) returns {0: 5, 1: 5, 2:5}.
+	* ensure_dict_for_nodes([0, 5, 2], [0, 1, 2]) returns {0: 0, 1: 5, 2: 2}.
+	* ensure_list_for_nodes([0, 5, 2, 1], [0, 1, 2]) raises a ValueError.
 
 	Parameters
 	----------
 	x : dict, float, or list
 		Object to node-ify.
 	node_indices : list
-		List of node indices. (``node_indices[n]`` is the index of the ``n``th node.)
+		List of node indices. (``node_indices[n]`` is the index of the ``n`` th node.)
 	default : float, optional
 		Value to use if ``x`` is ``None``.
 

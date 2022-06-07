@@ -1,5 +1,13 @@
+# ===============================================================================
+# stockpyl - meio_general Module
+# -------------------------------------------------------------------------------
+# Updated: 01-30-2022
+# Author: Larry Snyder
+# License: GPLv3
+# ===============================================================================
+
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 
 For MEIO systems with arbitrary topology (not necessarily serial or tree systems),

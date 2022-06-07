@@ -7,7 +7,12 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
+
+
+Overview 
+--------
+
 
 The |mod_newsvendor| module contains code for solving the newsvendor
 problem and some of its variants.
@@ -15,8 +20,6 @@ problem and some of its variants.
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
-
-
 
 
 The :func:`stockpyl.newsvendor.newsvendor_normal` function 
@@ -91,6 +94,10 @@ as a dictionary containing the pmf:
 	>>> demand_pmf = dict(zip(d, f))
 	>>> newsvendor_discrete(holding_cost=1, stockout_cost=4, demand_pmf=demand_pmf)
 	(8, 7.19102133030678)
+
+
+	API Reference
+	-------------
 """
 
 

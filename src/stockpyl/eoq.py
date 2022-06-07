@@ -7,7 +7,10 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
+
+Overview 
+--------
 
 The |mod_eoq| module contains code for solving the economic order quantity
 (EOQ) problem and some of its variants.
@@ -53,7 +56,8 @@ Silver's (1976) heuristic for the joint replenishment problem (JRP):
 	>>> cost
 	837.8544026261366
 
-
+API Reference
+-------------
 """
 
 import numpy as np

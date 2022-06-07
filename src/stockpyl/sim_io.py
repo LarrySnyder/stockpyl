@@ -1,5 +1,5 @@
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 Input-output code for simulating multi-echelon stockpyl systems.
 

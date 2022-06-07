@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 The :mod:`instances` module contains code for loading and saving problem instances.
 Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
@@ -17,7 +17,7 @@ Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals 
 
 
 .. csv-table:: Named Instances
-   :file: ../docs/aux_files/named_instances.csv
+   :file: ../../docs/aux_files/named_instances.csv
    :widths: 30, 70
    :header-rows: 1
 """

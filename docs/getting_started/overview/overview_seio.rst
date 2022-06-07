@@ -5,18 +5,21 @@ Single-Echelon Inventory Optimization
 
 |sp| contains code to solve the following types of single-echelon inventory optimization problems:
 
-* The :ref:`economic order quantity (EOQ) problem<getting_started/overview/overview_seio:The EOQ Problem>` (|mod_eoq| module)
-* The :ref:`newsvendor problem<getting_started/overview/overview_seio:The Newsvendor Problem>` (|mod_newsvendor| module)
-* The :ref:`(r,Q) optimization problem<getting_started/overview/overview_seio:The |rq| Optimization Problem>` (|mod_rq| module)
-* The :ref:`(s,S) optimization problem<getting_started/overview/overview_seio:The |ss| Optimization Problem>` (|mod_ss| module)
-* The :ref:`Wagner-Whitin problem<getting_started/overview/overview_seio:The Wagner-Whitin Problem>` (|mod_wagner_whitin| module)
-* :ref:`Finite-horizon stochastic problems<getting_started/overview/overview_seio:Finite-Horizon Stochastic Problems>` with or without fixed costs (|mod_finite_horizon| module)
-* Plus a number of single-echelon problems with :ref:`supply uncertainty<getting_started/overview/overview_su:Supply Uncertainty>`
+* The economic order quantity (EOQ) problem (|mod_eoq| module)
+* The newsvendor problem (|mod_newsvendor| module)
+* The (r,Q) optimization problem (|mod_rq| module)
+* The (s,S) optimization problem (|mod_ss| module)
+* The Wagner-Whitin problem (|mod_wagner_whitin| module)
+* Finite-horizon stochastic problems with or without fixed costs (|mod_finite_horizon| module)
+* Plus a number of single-echelon problems with supply uncertainty
 
 The notation and references (equations, sections, examples, etc.) used below
 refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
 (2019).
 
+
+.. contents::
+    :depth: 2
 
 
 The EOQ Problem

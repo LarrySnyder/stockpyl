@@ -7,7 +7,7 @@
 # ===============================================================================
 
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 This module contains the ``DemandSource`` class. A ``DemandSource``
 object is used to generate demands and to get attributes of the demand distribution.

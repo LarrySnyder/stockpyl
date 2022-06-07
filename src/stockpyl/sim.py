@@ -1,5 +1,5 @@
 """
-.. include:: ../globals.inc
+.. include:: ../../globals.inc
 
 Code for simulating multi-echelon inventory systems.
 
