@@ -24,3 +24,15 @@ View report:
 
 Or view HTML version, with links to missing lines of code:
 ``coverage html``, then open ``htmlcov/index.html``
+
+*Note*: ``.coveragerc`` file tells ``coverage`` not to check coverage for code in ``tests`` folder
+
+Updating Coverage Badge
+=======================
+
+(Run from ``stockpyl`` directory)
+
+Generate coverage-badge and save to SVG file:
+``coverage-badge -o coverage_badge.svg -f``
+
+(After committing, README.md will be updated with current badge)

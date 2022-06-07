@@ -40,7 +40,7 @@ class TestrQCost(unittest.TestCase):
 	def test_example_5_1(self):
 		"""Test that r_q_cost() function correctly evaluates cost in Example 5.1.
 		"""
-		print_status('TestNewsvendorNormal', 'test_example_5_1()')
+		print_status('TestrQCost', 'test_example_5_1()')
 
 		instance = load_instance("example_5_1")
 		holding_cost = instance['holding_cost']
@@ -61,7 +61,7 @@ class TestrQCost(unittest.TestCase):
 	def test_problem_5_1(self):
 		"""Test that r_q_cost() function correctly evaluates cost in Problem 5.1.
 		"""
-		print_status('TestNewsvendorNormal', 'test_problem_5_1()')
+		print_status('TestrQCost', 'test_problem_5_1()')
 
 		instance = load_instance("problem_5_1")
 		holding_cost = instance['holding_cost']
