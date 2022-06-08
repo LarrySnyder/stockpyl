@@ -26,6 +26,62 @@ def tear_down_module():
 	print_status('---', 'tear_down_module()')
 
 
+class TestPolicyEq(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestPolicyEq', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPolicyEq', 'tear_down_class()')
+
+	def test_true(self):
+		"""Test that Policy.__eq__() correctly returns True when objects are equal.
+		"""
+		print_status('TestPolicyEq', 'test_true()')
+
+		pol1 = Policy(type='rQ', reorder_point=45.3, order_quantity=17.4)
+		pol2 = Policy(type='rQ', reorder_point=45.3, order_quantity=17.4)
+		eq = pol1 == pol2
+		self.assertTrue(eq)
+
+		pol1 = Policy(type='BS', base_stock_level=60)
+		pol2 = Policy(type='BS', base_stock_level=60)
+		eq = pol1 == pol2
+		self.assertTrue(eq)
+
+	def test_false(self):
+		"""Test that Policy.__eq__() correctly returns False when objects are not equal.
+		"""
+		print_status('TestPolicyEq', 'test_false()')
+
+		pol1 = Policy(type='rQ', reorder_point=45.3, order_quantity=17.4)
+		pol2 = Policy(type='rQ', reorder_point=45.3, order_quantity=12)
+		eq = pol1 == pol2
+		self.assertFalse(eq)
+
+		pol1 = Policy(type='rQ', reorder_point=45.3, order_quantity=17.4)
+		pol2 = Policy(type='rQ', reorder_point=45.3)
+		eq = pol1 == pol2
+		self.assertFalse(eq)
+
+		pol1 = Policy(type='BS', base_stock_level=60)
+		pol2 = Policy(type='BS', base_stock_level=50)
+		eq = pol1 == pol2
+		self.assertFalse(eq)
+
+		pol1 = Policy(type='BS', base_stock_level=60)
+		pol2 = Policy(type='BS')
+		eq = pol1 == pol2
+		self.assertFalse(eq)
+
+		pol1 = Policy(type='BS', base_stock_level=60)
+		pol2 = Policy(type='BS', reorder_point=40)
+		eq = pol1 == pol2
+		self.assertFalse(eq)
+		
 class TestPolicyRepr(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
