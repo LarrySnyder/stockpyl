@@ -15,8 +15,22 @@ Overview
 This module contains the |class_node| class, which is a stage or node
 in a supply chain network.
 
+.. note:: |node_stage|
+
 .. note:: |fosct_notation|
 
+A |class_node| is used primarily for :ref:`multi-echelon inventory optimization (MEIO) <meio_page>`
+or :ref:`simulation <sim_page>`. |class_node| objects are rarely, if ever, used as standalone objects;
+rather, they are included in |class_network| objects, which describe the complete instance 
+to be optimized or simulated. 
+
+The node object contains many attributes, and different functions use different sets of attributes.
+For example, the :func:`stockpyl.ssm_serial.optimize_base_stock_levels` function takes a
+|class_network| whose nodes contain values for ``echelon_holding_cost``, ``lead_time``, ``stockout_cost``,
+and ``demand_source`` attributes, while :func:`stockpyl.gsm_serial.optimize_committed_service_times`
+uses ``local_holding_cost``, ``processing_time``, etc.
+Therefore, to determine which attributes are needed, refer to the documentation for the function 
+you are using.
 
 
 API Reference
@@ -48,21 +62,13 @@ class SupplyChainNode(object):
 
 	Attributes
 	----------
-	# --- Attributes Related to Parent Network --- #
 
 	network : |class_network|
 		The network that contains the node.
-	_predecessors : list
-		List of immediate predecesssor |class_node| objects.
-	_successors : list
-		List of immediate successor |class_node| objects.
-
-	# --- Data/Inputs --- #
-
 	local_holding_cost : float
-		Local holding cost, per unit per period. [h']
+		Local holding cost, per unit per period. [:math:`h'`]
 	echelon_holding_cost : float
-		Echelon holding cost, per unit per period. [h] # not currently supported
+		Echelon holding cost, per unit per period. (**Note:** *not currently supported*.) [:math:`h`] 
 	local_holding_cost_function : function
 		Function that calculates local holding cost per period, as a function
 		of ending inventory level. Function must take exactly one argument, the
@@ -70,20 +76,20 @@ class SupplyChainNode(object):
 	in_transit_holding_cost : float
 		Holding cost coefficient used to calculate in-transit holding cost for
 		shipments en route from the node to its downstream successors, if any.
-		If in_transit_holding_cost is None, then the stage's local_holding_cost
-		is used. To ignore in-transit holding costs, set in_transit_holding_cost = 0.
+		If ``in_transit_holding_cost`` is ``None``, then the stage's local_holding_cost
+		is used. To ignore in-transit holding costs, set ``in_transit_holding_cost`` = 0.
 	stockout_cost : float
-		Stockout cost, per unit (per period, if backorders). [p]
+		Stockout cost, per unit (per period, if backorders). [:math:`p`]
 	stockout_cost_function : function
 		Function that calculates stockout cost per period, as a function
 		of ending inventory level. Function must take exactly one argument, the
 		ending IL. Function should check that IL < 0.
 	purchase_cost : float
-		Cost incurred per unit
+		Cost incurred per unit. (**Note:** *not currently supported*.)
 	revenue : float
-		Revenue earned per unit of demand met. [r]
+		Revenue earned per unit of demand met. (**Note:** *not currently supported*.) [:math:`r`] 
 	shipment_lead_time : int
-		Shipment lead time. [L] # not currently supported 
+		Shipment lead time.  (**Note:** *not currently supported*.)  [:math:`L`]
 	order_lead_time : int
 		Order lead time.
 	demand_source : |class_demand_source|
@@ -97,16 +103,18 @@ class SupplyChainNode(object):
 	inventory_policy : |class_policy|
 		Inventory policy to be used to make inventory decisions.
 	supply_type : str
-		Supply type (unlimited, etc.).
+		Supply type (unlimited, etc.). Currently supported strings are:
+
+			* None
+			* 'U' (unlimited)
+
 	disruption_process : |class_disruption_process|
 		Disruption process object (if any).
-	state_vars : list of NodeStateVars
-		List of NodeStateVars, one for each period in a simulation.
-	state_vars_current : NodeStateVars
+	state_vars : list of |class_state_vars|
+		List of |class_state_vars|, one for each period in a simulation.
+	state_vars_current : |class_state_vars|
 		Shortcut to most recent set of state variables. (Period is determined
 		from ``self.network.period``).
-
-	# --- Problem-Specific Data --- #
 	problem_specific_data : object
 		Placeholder for object that is used to provide data for specific
 		problem types.
@@ -326,6 +334,7 @@ class SupplyChainNode(object):
 		attributes are present.)
 
 		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``inventory_policy``):
+
 			* If ``overwrite`` is ``True``, replaces the object with a new, fully initialized one.
 			* If ``overwrite`` is ``False`` and the attribute does not exist, creates the attribute and 
 			  fills it with a new, fully initialized one.
@@ -484,12 +493,11 @@ class SupplyChainNode(object):
 	def add_successor(self, successor):
 		"""Add ``successor`` to the node's list of successors.
 
-		Notes
-		-----
-		This method simply updates the node's list of successors. It does not
-		add ``successor`` to the network or add ``self`` as a predecessor of
-		``successor``. Typically, this method is called by the network rather
-		than directly. Use ``SupplyChainNetwork.add_successor()`` instead.
+		.. important:: This method simply updates the node's list of successors. It does not
+			add ``successor`` to the network or add ``self`` as a predecessor of
+			``successor``. Typically, this method is called by the network rather
+			than directly. Use the :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.add_successor` method 
+			in |class_network| instead.
 
 		Parameters
 		----------
@@ -502,12 +510,11 @@ class SupplyChainNode(object):
 	def add_predecessor(self, predecessor):
 		"""Add ``predecessor`` to the node's list of predecessors.
 
-		Notes
-		-----
-		This method simply updates the node's list of predecessors. It does not
-		add ``predecessor`` to the network or add ``self`` as a successor of
-		``predecessor``. Typically, this method is called by the network rather
-		than directly. Use ``SupplyChainNetwork.add_predecessor()`` instead.
+		.. important:: This method simply updates the node's list of predecessors. It does not
+			add ``predecessor`` to the network or add ``self`` as a successor of
+			``predecessor``. Typically, this method is called by the network rather
+			than directly. Use the :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.add_predecessor` method 
+			in |class_network| instead.
 
 		Parameters
 		----------
@@ -520,12 +527,11 @@ class SupplyChainNode(object):
 	def remove_successor(self, successor):
 		"""Remove ``successor`` from the node's list of successors.
 
-		Notes
-		-----
-		This method simply updates the node's list of successors. It does not
-		remove ``successor`` from the network or remove ``self`` as a predecessor of
-		``successor``. Typically, this method is called by 
-		``SupplyChainNetwork.remove_node()`` rather than directly.
+		.. important:: This method simply updates the node's list of successors. It does not
+			remove ``successor`` from the network or remove ``self`` as a predecessor of
+			``successor``. Typically, this method is called by the 
+			:meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.remove_node` method of the 
+			|class_network| rather than directly.
 
 		Parameters
 		----------
@@ -538,12 +544,11 @@ class SupplyChainNode(object):
 	def remove_predecessor(self, predecessor):
 		"""Remove ``predecessor`` from the node's list of predecessors.
 
-		Notes
-		-----
-		This method simply updates the node's list of predecessors. It does not
-		remove ``predecessor`` from the network or remove ``self`` as a successor of
-		``predecessor``. Typically, this method is called by 
-		``SupplyChainNetwork.remove_node()`` rather than directly.
+		.. important:: This method simply updates the node's list of predecessors. It does not
+			remove ``predecessor`` from the network or remove ``self`` as a successor of
+			``predecessor``. Typically, this method is called by the 
+			:meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.remove_node` method of the 
+			|class_network| rather than directly.
 
 		Parameters
 		----------
@@ -585,11 +590,11 @@ class SupplyChainNode(object):
 
 	# Attribute management.
 
-	def get_attribute_total(self, attribute, period, include_external=True):
-		"""Return total of attribute for the period specified, for an
+	def _get_attribute_total(self, attribute, period, include_external=True):
+		"""Return total of ``attribute`` in the node's ``state_vars`` for the period specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
-		inbound_shipment, on_order_by_predecessor, inbound_order, outbound_shipment, 
-		backorders_by_successor, disrupted_items_by_successor. 
+		``inbound_shipment``,`` on_order_by_predecessor``, ``inbound_order``, ``outbound_shipment``, 
+		``backorders_by_successor``, ``disrupted_items_by_successor``. 
 		(If another attribute is specified, returns the value of the
 		attribute, without any summation.)
 
@@ -598,7 +603,7 @@ class SupplyChainNode(object):
 		If ``include_external`` is ``True``, includes the external supply or
 		demand node (if any) in the total.
 
-		Example: get_attribute_total(inbound_shipment, 5) returns the total
+		Example: ``_get_attribute_total(inbound_shipment, 5)`` returns the total
 		inbound shipment, from all predecessor nodes (including the external
 		supply, if any), in period 5.
 
@@ -659,8 +664,9 @@ class SupplyChainNode(object):
 # ===============================================================================
 
 class NodeStateVars(object):
-	"""The ``NodeStateVars`` class contains values of the state variables
-	for a supply chain node. All state variables refer to their values at the
+	"""The |class_state_vars| class contains values of the state variables
+	for a supply chain node during a :ref:`simulation <sim_page>`.
+	All state variables refer to their values at the
 	end of a period (except during the period itself, in which case the
 	values might be intermediate until the period is complete).
 
@@ -689,7 +695,7 @@ class NodeStateVars(object):
 		external demand.
 	demand_cumul : float
 		Cumulative demand (from all sources, internal and external)
-		from period 0 through the current period. (Used for fill_rate calculation.)
+		from period 0 through the current period. (Used for ``fill_rate`` calculation.)
 	outbound_shipment : dict
 		``outbound_shipment[s]`` = outbound shipment to successor node ``s``.
 		If ``s`` is ``None``, refers to external demand.
@@ -709,9 +715,9 @@ class NodeStateVars(object):
 		disrupted, ``disrupted_items_by_successor[None]`` always = 0.) Items held for successor
 		are not included in ``backorders_by_successor``.
 		Sum over all successors of ``backorders_by_successor + disrupted_items_by_successor``
-		should always equal max{0, -inventory_level}. 
+		should always equal max{0, -``inventory_level``}. 
 	raw_material_inventory : dict
-		``raw_material_inventory[p]`` = number of units of predecessor ``p`'s
+		``raw_material_inventory[p]`` = number of units of predecessor ``p``'s
 		product in raw-material inventory at node. If ``p`` is ``None``, refers
 		to external supply.
 	disrupted : bool
@@ -730,7 +736,7 @@ class NodeStateVars(object):
 		Demands met from stock at the node in the period.
 	demand_met_from_stock_cumul : float
 		Cumulative demand_list met from stock from period 0 through the current period.
-		(Used for fill_rate calculation.)
+		(Used for ``fill_rate`` calculation.)
 	fill_rate : float
 		Cumulative fill rate in periods 0, ..., period.
 	order_quantity : dict
@@ -818,15 +824,17 @@ class NodeStateVars(object):
 	# --- Calculated State Variables --- #
 	# These are calculated based on the primary state variables.
 
-	# on_hand = current on-hand inventory.
 	@property
 	def on_hand(self):
+		"""Current on-hand inventory. Read only.
+		"""
 		return max(0, self.inventory_level)
 
-	# backorders = current backorders. Should always equal sum over all successors s
-	# of backorders_by_successor[s] + disrupted_items_by_successor[s].
 	@property
 	def backorders(self):
+		"""Current number of backorders. Should always equal sum over all successors ``s``
+		of ``backorders_by_successor[s]`` + ``disrupted_items_by_successor[s]``.  Read only.
+		"""
 		return max(0, -self.inventory_level)
 
 	def in_transit_to(self, successor):
@@ -867,12 +875,13 @@ class NodeStateVars(object):
 
 		return np.sum(self.inbound_shipment_pipeline[p][:])
 
-	# in_transit = current total inventory in transit to the node. If node has
-	# more than 1 predecessor (it is an assembly node), including external supplier,
-	# in-transit items are counted using the "units" of the node itself.
-	# That is, they are divided by the total number of predecessors.
 	@property
 	def in_transit(self):
+		"""Current total inventory in transit to the node. If node has
+		more than 1 predecessor (it is an assembly node), including external supplier,
+		in-transit items are counted using the "units" of the node itself.
+		That is, they are divided by the total number of predecessors. Read only.
+		"""
 		total_in_transit = np.sum([self.in_transit_from(p)
 								   for p in self.node.predecessors(include_external=True)])
 		if total_in_transit == 0:
@@ -880,12 +889,13 @@ class NodeStateVars(object):
 		else:
 			return total_in_transit / len(self.node.predecessors(include_external=True))
 
-	# on_order = current total on-order quantity. If node has more than 1
-	# predecessor (it is an assembly node), including external supplier,
-	# on-order items are counted using the "units" of the node itself.
-	# That is, they are divided by the total number of predecessors.
 	@property
 	def on_order(self):
+		"""Current total on-order quantity. If node has more than 1
+		predecessor (it is an assembly node), including external supplier,
+		on-order items are counted using the "units" of the node itself.
+		That is, they are divided by the total number of predecessors. Read only.
+		"""
 		total_on_order = self.node.get_attribute_total('on_order_by_predecessor',
 												  self.period,
 												  include_external=True)
@@ -894,11 +904,12 @@ class NodeStateVars(object):
 		else:
 			return total_on_order / len(self.node.predecessors(include_external=True))
 
-	# raw_material_aggregate = total raw materials at the node. Raw materials
-	# are counted using the "units" of the node itself. That is, they are
-	# divided by the total number of predecessors.
 	@property
 	def raw_material_aggregate(self):
+		"""Total raw materials at the node. Raw materials
+		are counted using the "units" of the node itself. That is, they are
+		divided by the total number of predecessors. Read only.
+		"""
 		total_raw_material = self.node.get_attribute_total('raw_material_inventory',
 															self.period,
 															include_external=True)
@@ -907,14 +918,26 @@ class NodeStateVars(object):
 		else:
 			return total_raw_material / len(self.node.predecessors(include_external=True))
 
-	# inventory_position = current local inventory position at node
-	# = IL + OO.
-	# On-order includes raw material inventory that has not yet been processed.
-	# If the node has more than one predecessor (including external supplier),
-	# set ``predecessor_index`` for predecessor-specific IP, or set to ``None``
-	# to use aggregate on-order and raw material inventory (counting such
-	# items using the "units" of the node itself).
 	def inventory_position(self, predecessor_index=None):
+		"""Current local inventory position at node. Equals inventory level plus
+		on-order inventory. 
+		On-order includes raw material inventory that has not yet been processed.
+		If the node has more than one predecessor (including external supplier),
+		set ``predecessor_index`` for predecessor-specific inventory position, or set to ``None``
+		to use aggregate on-order and raw material inventory (counting such
+		items using the "units" of the node itself).
+
+		Parameters
+		----------
+		predecessor_index : int, optional
+			Predecessor to consider in inventory position calculation (excluding all others),
+			or ``None`` to include all predecessors.
+
+		Returns
+		-------
+		float
+			The inventory position.		
+		"""
 		if predecessor_index is not None:
 			return self.inventory_level \
 					+ self.on_order_by_predecessor[predecessor_index] \
@@ -923,11 +946,11 @@ class NodeStateVars(object):
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
 			return self.inventory_level + self.on_order + self.raw_material_aggregate
 
-	# echelon_on_hand_inventory = current echelon on-hand inventory at node
-	# = on-hand inventory at node and at or in transit to all of its
-	# downstream nodes.
 	@property
 	def echelon_on_hand_inventory(self):
+		"""Current echelon on-hand inventory at node. Equals on-hand inventory at node 
+		and at or in transit to all of its downstream nodes. Read only.
+		"""
 		EOHI = self.on_hand
 		for d in self.node.descendants:
 			EOHI += d.state_vars[self.period].on_hand
@@ -938,25 +961,36 @@ class NodeStateVars(object):
 					EOHI += d.state_vars[self.period].in_transit_from(p)
 		return EOHI
 
-	# echelon_inventory_level = current echelon inventory level at node
-	# = echelon on-hand inventory minus backorders at terminal node(s)
-	# downstream from node.
 	@property
 	def echelon_inventory_level(self):
+		"""Current echelon inventory level at node. Equals echelon on-hand inventory 
+		minus backorders at terminal node(s) downstream from node. Read only.
+		"""
 		EIL = self.echelon_on_hand_inventory
 		for d in self.node.descendants + [self.node]:
 			if d in self.node.network.sink_nodes:
 				EIL -= d.state_vars[self.period].backorders
 		return EIL
 
-	# echelon_inventory_position = current echelon inventory position at node
-	# = echelon inventory level + on order.
-	# On-order includes raw material inventory that has not yet been processed.
-	# If the node has more than one predecessor (including external supplier),
-	# set ``predecessor_index`` for predecessor-specific IP, or set to ``None``
-	# to use aggregate on-order and raw material inventory (counting such
-	# items using the "units" of the node itself).
 	def echelon_inventory_position(self, predecessor_index=None):
+		"""Current echelon inventory position at node. Equals echelon inventory level plus
+		on order items. On-order includes raw material inventory that has not yet been processed.
+		If the node has more than one predecessor (including external supplier),
+		set ``predecessor_index`` for predecessor-specific inventory position, or set to ``None``
+		to use aggregate on-order and raw material inventory (counting such
+		items using the "units" of the node itself).
+
+		Parameters
+		----------
+		predecessor_index : int, optional
+			Predecessor to consider in inventory position calculation (excluding all others),
+			or ``None`` to include all predecessors.
+
+		Returns
+		-------
+		float
+			The echelon inventory position.
+		"""
 		if predecessor_index is not None:
 			return self.echelon_inventory_level \
 					+ self.on_order_by_predecessor[predecessor_index] \
@@ -965,20 +999,30 @@ class NodeStateVars(object):
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
 			return self.echelon_inventory_level + self.on_order + self.raw_material_aggregate
 
-	# echelon_inventory_position_adjusted = current echelon inventory position
-	# including only items ordered L_i periods ago or earlier, where L_i is the
-	# forward echelon lead time for the node. That is, = current echelon inventory level
-	# plus items ordered L_i periods ago or earlier.
-	# Rosling (1989) calls this X^L_{it}; Zipkin (2000) calls it IN^+_j(t).
-	# Assumes there are no order lead times.
-	# This quantity is used (only?) for balanced echelon base-stock policies.
-	# Nodes are assumed to be indexed consecutively in non-decreasing order of
-	# forward echelon lead time.
-	# Note: Balanced echelon base-stock policy assumes a node never orders
-	# more than its predecessor can ship; therefore, # of items shipped in a
-	# given interval is the same as # of items ordered. In addition, there
-	# are no raw-material inventories.
-	def echelon_inventory_position_adjusted(self):
+	def _echelon_inventory_position_adjusted(self):
+		"""Calculate the adjusted echelon inventory position. Equals the current echelon inventory position
+		including only items ordered :math:`L_i` periods ago or earlier, where :math:`L_i` is the
+		forward echelon lead time for the node. That is, equals current echelon inventory level
+		plus items ordered :math:`L_i` periods ago or earlier.
+
+		Rosling (1989) calls this :math:`X^L_{it}`; Zipkin (2000) calls it :math:`IN^+_j(t)`.
+
+		Assumes there are no order lead times.
+
+		This quantity is used (only?) for balanced echelon base-stock policies.
+		Nodes are assumed to be indexed consecutively in non-decreasing order of
+		forward echelon lead time.
+	
+		Note: Balanced echelon base-stock policy assumes a node never orders
+		more than its predecessor can ship; therefore, # of items shipped in a
+		given interval is the same as # of items ordered. In addition, there
+		are no raw-material inventories.
+
+		Returns
+		-------
+		float
+			The adjusted echelon inventory position.
+		"""
 		# Calculate portion of in-transit inventory that was ordered L_i periods
 		# ago or earlier.
 		# Since order quantity to all predecessors is the same, choose one arbitrarily

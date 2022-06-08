@@ -1,6 +1,8 @@
 Multi-Echelon Inventory Optimization
 =====================================
 
+.. _meio_page:
+
 .. toctree::
 	:maxdepth: 1
 	:caption: Contents
