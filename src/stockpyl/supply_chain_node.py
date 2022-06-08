@@ -62,7 +62,6 @@ class SupplyChainNode(object):
 
 	Attributes
 	----------
-
 	network : |class_network|
 		The network that contains the node.
 	local_holding_cost : float
@@ -112,9 +111,6 @@ class SupplyChainNode(object):
 		Disruption process object (if any).
 	state_vars : list of |class_state_vars|
 		List of |class_state_vars|, one for each period in a simulation.
-	state_vars_current : |class_state_vars|
-		Shortcut to most recent set of state variables. (Period is determined
-		from ``self.network.period``).
 	problem_specific_data : object
 		Placeholder for object that is used to provide data for specific
 		problem types.
@@ -157,12 +153,36 @@ class SupplyChainNode(object):
 	# Properties and functions related to network structure.
 
 	def predecessors(self, include_external=False):
+		"""Return a list of all predecessors of the node, as |class_node| objects.
+
+		Parameters
+		----------
+		include_external : bool, optional
+			Include the external supplier (if any)? Default = ``False``.
+
+		Returns
+		-------
+		list
+			List of all predecessors, as |class_node| objects.
+		"""
 		if include_external and self.supply_type is not None:
 			return self._predecessors + [None]
 		else:
 			return self._predecessors
 
 	def successors(self, include_external=False):
+		"""Return a list of all successors of the node, as |class_node| objects.
+
+		Parameters
+		----------
+		include_external : bool, optional
+			Include the external customer (if any)? Default = ``False``.
+
+		Returns
+		-------
+		list
+			List of all successors, as |class_node| objects.
+		"""
 		if include_external and \
 				(self.demand_source is not None and self.demand_source.type is not None):
 			return self._successors + [None]
@@ -170,60 +190,107 @@ class SupplyChainNode(object):
 			return self._successors
 
 	def predecessor_indices(self, include_external=False):
+		"""Return a list of indices of all predecessors of the node.
+
+		Parameters
+		----------
+		include_external : bool, optional
+			Include the external supplier (if any)? Default = ``False``.
+
+		Returns
+		-------
+		list
+			List of all predecessor indices.
+		"""
 		return [node.index if node else None for node in self.predecessors(include_external)]
 
 	def successor_indices(self, include_external=False):
+		"""Return a list of indices of all successors of the node.
+
+		Parameters
+		----------
+		include_external : bool, optional
+			Include the external customer (if any)? Default = ``False``.
+
+		Returns
+		-------
+		list
+			List of all successor indices.
+		"""
 		return [node.index if node else None for node in self.successors(include_external)]
 
 	@property
 	def descendants(self):
+		"""A list of all descendants of the node, as |class_node| objects.
+		A descendant is a node that is downstream from the node but not necessarily directly
+		adjacent; that is, a node that can be reached from the node via a directed path. Read only.
+		"""
 		G = self.network.networkx_digraph()
 		desc = nx.descendants(G, self.index)
 		return [self.network.get_node_from_index(d) for d in desc]
 
 	@property
 	def ancestors(self):
+		"""A list of all ancestors of the node, as |class_node| objects.
+		An ancestor is a node that is upstream from the node but not necessarily directly
+		adjacent; that is, a node from which we can reach the node via a directed path.
+		Read only.
+		"""
 		G = self.network.networkx_digraph()
 		anc = nx.ancestors(G, self.index)
 		return [self.network.get_node_from_index(a) for a in anc]
 
 	@property
 	def neighbors(self):
+		"""A list of all neighbors (successors and predecessors) of the node, as
+		|class_node| objects. Read only.
+		"""
 		return list(set(self.successors()).union(set(self.predecessors())))
 
 	@property
 	def neighbor_indices(self):
+		"""A list of indices of all neighbors (successors and predecessors) of the node.
+		Read only.
+		"""
 		return [n.index for n in self.neighbors]
 
 	# Properties related to input parameters.
 
 	@property
 	def holding_cost(self):
-		# An alias for ``local_holding_cost``. Read only.
+		"""An alias for ``local_holding_cost``. Read only.
+		"""
 		return self.local_holding_cost
 
 	@property
 	def lead_time(self):
-		# An alias for ``shipment_lead_time``. Read only.
+		"""An alias for ``shipment_lead_time``. Read only.
+		"""
 		return self.shipment_lead_time
 
 	@property
 	def forward_echelon_lead_time(self):
-		# Total shipment lead time for node and all of its descendants.
-		# Rosling (1989) calls this M_i; Zipkin (2000) calls it \underline{L}_j.
-		# Some assembly-system algorithms assume that the nodes are indexed
-		# in order of forward echelon lead time.
+		"""Total shipment lead time for node and all of its descendants.
+		Rosling (1989) calls this :math:`M_i`; Zipkin (2000) calls it :math:`\\underline{L}_j`.
+		Some assembly-system algorithms assume that the nodes are indexed
+		in order of forward echelon lead time. Read only.
+		"""
 		return int(self.shipment_lead_time + np.sum([d.shipment_lead_time for d in self.descendants]))
 
 	@property
 	def equivalent_lead_time(self):
-		# Difference between forward echelon lead time for the node (node i) and
-		# for node i-1, where the nodes are indexed in non-decreasing order of
-		# forward_echelon_lead_time, consecutively.
-		# (If nodes are not indexed in this way, results will be unreliable.)
-		# If node is the smallest-indexed node in the network, equivalent lead
-		# time equals forward echelon lead time, which also equals shipment lead time.
-		# Rosling (1989) calls this L_i; Zipkin (2000) calls it L''_j.
+		"""Difference between forward echelon lead time for the node (node :math:`i`) and
+		for node :math:`i-1`, where the nodes are indexed in non-decreasing order of
+		forward_echelon_lead_time, consecutively.
+		(If nodes are not indexed in this way, results will be unreliable.)
+		
+		If node is the smallest-indexed node in the network, equivalent lead
+		time equals forward echelon lead time, which also equals shipment lead time.
+		
+		Rosling (1989) calls this :math:`L_i`; Zipkin (2000) calls it :math:`L''_j`.
+
+		Read only.
+		"""
 		if self.index == np.min(self.network.node_indices):
 			return self.forward_echelon_lead_time
 		else:
@@ -232,7 +299,10 @@ class SupplyChainNode(object):
 
 	@property
 	def derived_demand_mean(self):
-		# Mean of derived demand, i.e., external demand at node and all of its descendants.
+		"""
+		Mean of derived demand, i.e., external demand at node and all of its descendants.
+		Read only.
+		"""
 		if self.demand_source is not None and self.demand_source.type == 'N':
 			DDM = self.demand_source.mean
 		else:
@@ -244,7 +314,10 @@ class SupplyChainNode(object):
 
 	@property
 	def derived_demand_standard_deviation(self):
-		# Standard deviation of derived demand, i.e., external demand at node and all of its descendants.
+		"""
+		Standard deviation of derived demand, i.e., external demand at node and all of its descendants.
+		Read only.
+		"""
 		if self.demand_source is not None and self.demand_source.type == 'N':
 			DDV = self.demand_source.standard_deviation ** 2
 		else:
@@ -258,12 +331,19 @@ class SupplyChainNode(object):
 
 	@property
 	def state_vars_current(self):
-		# An alias for the most recent set of state variables. Read only.
+		"""
+		An alias for the most recent set of state variables, i.e., for the
+		current period. (Period is determined from ``self.network.period``). Read only.
+		"""
 		return self.state_vars[self.network.period]
 
 	@property
 	def disrupted(self):
-		# Is the node currently disrupted? Works even if the node has no DisruptionProcess object.
+		"""Is the node currently disrupted? 
+		
+		(Works even if the node has no |class_disruption_process| object in its
+		``disruption_process`` attribute.)
+		"""
 		if self.disruption_process is None:
 			return False
 		else:

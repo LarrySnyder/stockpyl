@@ -12,7 +12,17 @@
 Overview 
 --------
 
-This module contains the |class_network| class.
+This module contains the |class_network| class, which is a network consisting of
+one or more nodes. The network and nodes together specify a problem instance.
+
+.. note:: |node_stage|
+
+.. note:: |fosct_notation|
+
+A |class_network| is used primarily for :ref:`multi-echelon inventory optimization (MEIO) <meio_page>`
+or :ref:`simulation <sim_page>`. Most data for the problem instance is specified
+in the |class_node| objects contained within the |class_network|, rather than in
+the network itself.
 
 
 API Reference
@@ -25,13 +35,14 @@ API Reference
 # ===============================================================================
 
 import networkx as nx
+import numpy as np
 #import json
 
 #import supply_chain_node
-from stockpyl.demand_source import *
-from stockpyl.supply_chain_node import *
-from stockpyl.policy import *
-from stockpyl.helpers import *
+from stockpyl import demand_source
+from stockpyl import supply_chain_node
+from stockpyl import policy
+from stockpyl.helpers import is_list, ensure_dict_for_nodes, ensure_list_for_nodes
 
 
 # ===============================================================================
@@ -44,8 +55,6 @@ class SupplyChainNetwork(object):
 
 	Attributes
 	----------
-	nodes : list
-		A list of all |class_node| objects in the network. (Read only.)
 	period : int
 		The current period. Used for simulation.
 	problem_specific_data : object
@@ -53,6 +62,7 @@ class SupplyChainNetwork(object):
 		problem types.
 	max_max_replenishment_time : int
 		Largest value of ``max_replenishment_time`` among all nodes in the network.
+		Used by |mod_gsm_tree| module.
 	"""
 
 	def __init__(self):
@@ -64,11 +74,13 @@ class SupplyChainNetwork(object):
 
 	@property
 	def nodes(self):
+		"""List of all nodes in the network, as |class_node| objects. Read only.
+		"""
 		return self._nodes
 
 	@property
 	def node_indices(self):
-		"""Return list of indices of nodes in the network.
+		"""List of indices of all nodes in the network. Read only.
 		"""
 		return [node.index for node in self.nodes]
 
@@ -82,24 +94,22 @@ class SupplyChainNetwork(object):
 
 	@property
 	def source_nodes(self):
-		"""List of all source nodes, i.e., all nodes that have no predecessors.
+		"""List of all source nodes, i.e., all nodes that have no predecessors,
+		as |class_node| objects.
 		"""
 		return [node for node in self.nodes if node.predecessor_indices() == []]
 
 	@property
 	def sink_nodes(self):
-		"""List of all sink nodes, i.e., all nodes that have no successors.
+		"""List of all sink nodes, i.e., all nodes that have no successors,
+		as |class_node| objects.
 		"""
 		return [node for node in self.nodes if node.successor_indices() == []]
 
 	@property
 	def edges(self):
-		"""List of all edges, as tuples. 
-
-		Returns
-		-------
-		list
-			List of edges.
+		"""List of all edges, as tuples whose elements are the indices of
+		the nodes in the edge.
 		"""
 		edge_list = []
 		for n in self.nodes:
@@ -132,6 +142,7 @@ class SupplyChainNetwork(object):
 		attributes are present.)
 
 		Handles ``_nodes`` list as follows:
+
 			* If ``overwrite`` is ``True``, replaces ``_nodes`` with an empty list.
 			* If ``overwrite`` is ``False`` and ``_nodes`` does not exist, creates the ``_nodes`` attribute 
 			  and fills it with an empty list.
@@ -206,7 +217,7 @@ class SupplyChainNetwork(object):
 
 		Returns
 		-------
-		SupplyChainNode
+		|class_node|
 			The node whose index is ``index``, or ``None`` if none.
 
 		"""
@@ -218,6 +229,7 @@ class SupplyChainNetwork(object):
 
 	def reindex_nodes(self, old_to_new_dict, new_names=None):
 		"""Change indices of the nodes in the network using ``old_to_new_dict``.
+		If ``new_names`` is provided, also updates ``name`` attribute of the nodes.
 
 		Parameters
 		----------
@@ -379,7 +391,7 @@ class SupplyChainNetwork(object):
 			self.nodes.remove(node)
 
 	def networkx_digraph(self):
-		"""Build a ``networkx`` ``DiGraph`` object with the same structure as
+		"""Build a `NetworkX <https://networkx.org/>`_ ``DiGraph`` object with the same structure as
 		the |class_network|.
 
 		Returns
@@ -427,8 +439,8 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 		  as a singleton (in which case all nodes will have that
 		  parameter set to the singleton value). (It cannot be a list.)
 
-	A node's supply type is set to UNLIMITED if it has no predecessors;
-	otherwise, its supply type is set to NONE.
+	A node's supply type is set to 'U' (unlimited) if it has no predecessors;
+	otherwise, its supply type is set to ``None``.
 
 	Parameters
 	----------
@@ -440,27 +452,8 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 		are contained in the edges in ``edges``. The reason to include
 		``node_indices`` is to specify the order of nodes if the costs or other
 		parameters are provided as lists.
-	local_holding_cost
-	echelon_holding_cost
-	stockout_cost
-	revenue
-	order_lead_time
-	shipment_lead_time
-	demand_type 
-	demand_mean
-	demand_standard_deviation
-	demand_lo
-	demand_hi
-	demand_list
-	initial_IL
-	initial_orders
-	initial_shipments
-	inventory_policy_type
-	base_stock_levels
-	reorder_points
-	order_quantities
-	order_up_to_levels
-	...
+	(other_parameters) : dict, list, or singleton, as described above
+		Any desired attributes to be set in the network's |class_node| objects.
 
 	Returns
 	-------
@@ -474,9 +467,9 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 	# Add nodes.
 	for e in edges:
 		if e[0] not in network.node_indices:
-			network.add_node(SupplyChainNode(e[0]))
+			network.add_node(supply_chain_node.SupplyChainNode(e[0]))
 		if e[1] not in network.node_indices:
-			network.add_node(SupplyChainNode(e[1]))
+			network.add_node(supply_chain_node.SupplyChainNode(e[1]))
 	num_nodes = len(network.nodes)
 
 	# Check node_indices; if not provided, build it.
@@ -567,7 +560,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 
 		# Build and set demand source.
 		if demand_type_dict[n.index] is not None:
-			demand_source = DemandSource()
+			demand_source = demand_source.DemandSource()
 			demand_type = demand_type_dict[n.index]
 			demand_source.type = demand_type
 			if demand_type == 'N':
@@ -629,33 +622,14 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 				 inventory_policy_type=None, base_stock_level=None,
 				 reorder_point=None, order_quantity=None,
 				 order_up_to_level=None):
-	"""Generate single-stage system.
+	"""Generate a single-stage system.
 
 	All parameters are optional.
 
 	Parameters
 	----------
-	holding_cost
-	holding_cost
-	stockout_cost
-	revenue
-	order_lead_time
-	shipment_lead_time
-	demand_type
-	demand_mean
-	demand_standard_deviation
-	demand_lo
-	demand_hi
-	demand_list
-	initial_IL
-	initial_orders
-	initial_shipments
-	supply_type
-	inventory_policy_type
-	base_stock_level
-	reorder_point
-	order_quantity
-	order_up_to_level
+	(all_parameters) : int or float
+		Any desired attributes to be set in the network's |class_node| object.
 
 	Returns
 	-------
@@ -698,7 +672,7 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 	network = SupplyChainNetwork()
 
 	# Create node.
-	node = SupplyChainNode(index=0)
+	node = supply_chain_node.SupplyChainNode(index=0)
 
 	# Set parameters.
 
@@ -713,7 +687,7 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 
 	# Build and set demand source.
 	demand_type = demand_type
-	demand_source = DemandSource()
+	demand_source = demand_source.DemandSource()
 	demand_source.type = demand_type
 	if demand_type == 'N':
 		demand_source.mean = demand_mean
@@ -794,27 +768,8 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 	downstream_0 : bool, optional
 		If True, node 0 is downstream; if False, node 0 is upstream. Ignored if
 		``node_labels`` is provided.
-	local_holding_cost
-	echelon_holding_cost
-	stockout_cost
-	revenue
-	order_lead_time
-	shipment_lead_time
-	demand_type
-	demand_mean
-	demand_standard_deviation
-	demand_lo
-	demand_hi
-	demand_list
-	initial_IL
-	initial_orders
-	initial_shipments
-	supply_type
-	inventory_policy_type
-	base_stock_levels
-	reorder_points
-	order_quantities
-	order_up_to_levels
+	(other_parameters) : dict, list, or singleton, as described above
+		Any desired attributes to be set in the network's |class_node| objects.
 
 	Returns
 	-------
@@ -899,7 +854,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
 		# as the downstream-most node. indices[n] is the label of node n.)
 		n_ind = indices[n]
-		node = SupplyChainNode(index=n_ind)
+		node = supply_chain_node.SupplyChainNode(index=n_ind)
 
 		# Set parameters.
 
@@ -915,7 +870,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_dict[n_ind]
 		if n == 0:
-			demand_source = DemandSource()
+			demand_source = demand_source.DemandSource()
 			demand_source.type = demand_type
 			if demand_type == 'N':
 				demand_source.mean = demand_mean_dict[n_ind]
@@ -1007,27 +962,8 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		If True, node 0 is the single downstream node; if False, node
 		``num_warehouses`` is the single downstream node. Ignored if
 		``node_labels`` is provided.
-	local_holding_cost
-	echelon_holding_cost
-	stockout_cost
-	revenue
-	order_lead_time
-	shipment_lead_time
-	demand_type
-	demand_mean
-	demand_standard_deviation
-	demand_lo
-	demand_hi
-	demand_list
-	initial_IL
-	initial_orders
-	initial_shipments
-	supply_type
-	inventory_policy_type
-	base_stock_levels
-	reorder_points
-	order_quantities
-	order_up_to_levels
+	(other_parameters) : dict, list, or singleton, as described above
+		Any desired attributes to be set in the network's |class_node| objects.
 
 	Returns
 	-------
@@ -1111,7 +1047,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 
 		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
 		# as the downstream-most node. indices[n] is the label of node n.)
-		node = SupplyChainNode(index=indices[n])
+		node = supply_chain_node.SupplyChainNode(index=indices[n])
 
 		# Set parameters.
 
@@ -1127,7 +1063,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_list[n]
 		if n == 0:
-			demand_source = DemandSource()
+			demand_source = demand_source.DemandSource()
 			demand_source.type = demand_type
 			if demand_type == 'N':
 				demand_source.mean = demand_mean_list[n]
@@ -1150,7 +1086,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
-		policy = Policy(type=inventory_policy_type_list[n], node=node)
+		policy = policy.Policy(type=inventory_policy_type_list[n], node=node)
 		if inventory_policy_type_list[n] in ('BS', 'EBS', 'BEBS'):
 			policy.base_stock_level = base_stock_levels_list[n]
 		elif inventory_policy_type_list[n] == 'rQ':
