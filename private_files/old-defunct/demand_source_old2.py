@@ -707,8 +707,8 @@ class DemandSourceFactory(object):
 
 		Returns
 		-------
-		demand_source : DemandSource
-			The DemandSource object.
+		demand_source : |class_demand_source|
+			The |class_demand_source| object.
 
 		"""
 		if demand_type == DemandType.NONE:

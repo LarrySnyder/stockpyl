@@ -9,13 +9,48 @@
 """
 .. include:: ../../globals.inc
 
-This module contains the ``DisruptionProcess`` class. A ``DisruptionProcess``
-object is used to keep track of a given node's disruption state.
+Overview 
+--------
 
-Notation and equation and section numbers refer to Snyder and Shen,
-"Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
+This module contains the |class_disruption_process| class. A |class_disruption_process|
+object represents a disruption process that a node is subject to. Attributes specify the type of 
+random process governing the disruption, as well as the type of disruption itself (i.e., its effects).
+The object keeps track of the current disruption state and generates new states according
+to the random process.
 
+.. note:: |fosct_notation|
 
+**Example:** Create a |class_disruption_process| object representing disruptions that follow a 2-state
+Markov process with a disruption probability of 0.1 and a recovery probability of 0.3. 
+Disruptions are "order-pausing" (a disrupted node cannot place orders). Generate a new
+disruption state assuming the current state is ``True`` (disrupted).
+
+	.. testsetup:: *
+
+		from stockpyl.disruption_process import *
+
+	.. doctest::
+
+		>>> dp = DisruptionProcess(
+		...     random_process_type='M',        # 2-state Markovian
+		...     disruption_type='OP',           # order-pausing disruptions
+		...     disruption_probability=0.1,
+		...     recovery_probability=0.3
+		... )
+		>>> dp.disrupted = True
+		>>> dp.update_disruption_state()
+		>>> dp.disrupted	# doctest: +SKIP
+		True
+		>>> dp.update_disruption_state()
+		>>> dp.disrupted	# doctest: +SKIP
+		False
+		>>> # Calculate steady-state probabilities of being up and down.
+		>>> pi_up, pi_down = dp.steady_state_probabilities()
+		>>> pi_up, pi_down
+		(0.7499999999999999, 0.25)
+
+API Reference
+-------------
 
 """
 
@@ -35,32 +70,47 @@ from stockpyl.helpers import *
 
 class DisruptionProcess(object):
 	"""
+	A |class_disruption_process| object represents a disruption process that a node is subject to. Attributes specify the type of 
+	random process governing the disruption, as well as the type of disruption itself (i.e., its effects).
+	The object keeps track of the current disruption state and generates new states according
+	to the random process.
+
+	Parameters
+	----------
+	**kwargs 
+		Keyword arguments specifying values of one or more attributes of the |class_disruption_process|, 
+		e.g., ``random_process_type='M'``.
+
 	Attributes
 	----------
-	_random_process_type : str
+	random_process_type : str
 		The type of random process governing the disruptions, as a string. Currently supported strings are:
+			
 			* None
 			* 'M' (2-state Markovian)
 			* 'E' (explicit: disruption state for each period is provided explicitly)
-	_disruption_type : str
+
+	disruption_type : str
 		The type of disruption, as a string. Currently supported strings are:
+
 			* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them) (default)
 			* 'OP' (order-pausing: the stage cannot place orders during disruptions)
 			* 'TP' (transit-pausing: items in transit to the stage are paused during disruptions)
 			* 'RP' (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
-				just before the stage and are received when the disruption ends)
-	_disruption_probability : float
+			  just before the stage and are received when the disruption ends)
+
+	disruption_probability : float
 		The probability that the node is disrupted in period :math:`t+1` given that 
 		it is not disrupted in period `t`. Required if ``random_process_type`` = 'M'. [:math:`\\alpha`]
-	_recovery_probability : float
+	recovery_probability : float
 		The probability that the node is not disrupted in period :math:`t+1` given that 
 		it is disrupted in period `t`. Required if ``random_process_type`` = 'M'. [:math:`\\beta`]
-	_disruption_state_list : list, optional
+	disruption_state_list : list, optional
 		List of disruption states (``True``/``False``, one per period), if ``random_process_type`` = ``'E'``. If 
 		disruption state is required in a period beyond the length of the list,
 		the list is restarted at the beginning. 
 		Required if ``random_process_type`` = 'E'.
-	_disrupted : bool
+	disrupted : bool
 		``True`` if the node is currently disrupted, ``False`` otherwise.
 	"""
 
@@ -70,12 +120,12 @@ class DisruptionProcess(object):
 		Parameters
 		----------
 		kwargs : optional
-			Optional keyword arguments to specify ``DisruptionProcess`` attributes.
+			Optional keyword arguments to specify |class_disruption_process| attributes.
 
 		Raises
 		------
 		AttributeError
-			If an optional keyword argument does not match a ``DisruptionProcess`` attribute.
+			If an optional keyword argument does not match a |class_disruption_process| attribute.
 		"""
 		# Initialize parameters.
 		self.initialize()
@@ -92,19 +142,19 @@ class DisruptionProcess(object):
 	# SPECIAL METHODS
 
 	def __eq__(self, other):
-		"""Determine whether ``other`` is equal to this ``DisruptionProcess`` object. 
-		Two ``DisruptionProcess`` objects are considered equal if all of their attributes 
+		"""Determine whether ``other`` is equal to this |class_disruption_process| object. 
+		Two |class_disruption_process| objects are considered equal if all of their attributes 
 		(*except* ``_disrupted``, the state variable) are equal.
 
 		Parameters
 		----------
-		other : DisruptionProcess
-			The ``DisruptionProcess`` object to compare to.
+		other : |class_disruption_process|
+			The |class_disruption_process| object to compare to.
 
 		Returns
 		-------
 		bool
-			``True`` if the ``DisruptionProcess`` objects are equal, ``False`` otherwise.
+			``True`` if the |class_disruption_process| objects are equal, ``False`` otherwise.
 		"""
 
 		return self._random_process_type == other._random_process_type and \
@@ -114,19 +164,19 @@ class DisruptionProcess(object):
 			self._disruption_state_list == other._disruption_state_list
 
 	def __ne__(self, other):
-		"""Determine whether ``other`` is not equal to this ``DisruptionProcess`` object. 
-		Two ``DisruptionProcess`` objects are considered equal if all of their attributes 
+		"""Determine whether ``other`` is not equal to this |class_disruption_process| object. 
+		Two |class_disruption_process| objects are considered equal if all of their attributes 
 		(*except* ``_disrupted``, the state variable) are equal.
 
 		Parameters
 		----------
-		other : DisruptionProcess
-			The ``DisruptionProcess`` object to compare to.
+		other : |class_disruption_process|
+			The |class_disruption_process| object to compare to.
 
 		Returns
 		-------
 		bool
-			True if the ``DisruptionProcess`` objects are not equal, False otherwise.
+			True if the |class_disruption_process| objects are not equal, False otherwise.
 		"""
 		return not self.__eq__(other)
 
@@ -186,11 +236,11 @@ class DisruptionProcess(object):
 
 	def __repr__(self):
 		"""
-		Return a string representation of the ``DisruptionProcess`` instance.
+		Return a string representation of the |class_disruption_process| instance.
 
 		Returns
 		-------
-			A string representation of the ``DisruptionProcess`` instance.
+			A string representation of the |class_disruption_process| instance.
 
 		"""
 		# Build string of parameters.
@@ -211,11 +261,11 @@ class DisruptionProcess(object):
 
 	def __str__(self):
 		"""
-		Return the full name of the ``DisruptionProcess`` instance.
+		Return the full name of the |class_disruption_process| instance.
 
 		Returns
 		-------
-			The ``DisruptionProcess`` name.
+			The |class_disruption_process| name.
 
 		"""
 		return self.__repr__()
@@ -283,15 +333,15 @@ class DisruptionProcess(object):
 		if self.random_process_type is None:
 			disrupted = False
 		if self.random_process_type == 'M':
-			disrupted = self.generate_disruption_state_markovian()
+			disrupted = self._generate_disruption_state_markovian()
 		elif self.random_process_type == 'E':
-			disrupted = self.generate_disruption_state_explicit(period)
+			disrupted = self._generate_disruption_state_explicit(period)
 		else:
 			disrupted = False
 
 		self.disrupted = disrupted
 
-	def generate_disruption_state_markovian(self):
+	def _generate_disruption_state_markovian(self):
 		"""Generate new disruption state for a Markovian disruption process.
 
 		Returns
@@ -305,7 +355,7 @@ class DisruptionProcess(object):
 		else:
 			return np.random.rand() <= self.disruption_probability
 
-	def generate_disruption_state_explicit(self, period=None):
+	def _generate_disruption_state_explicit(self, period=None):
 		"""Generate explicit disruption state.
 
 		Returns

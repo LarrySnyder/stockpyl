@@ -9,9 +9,14 @@
 """
 .. include:: ../../globals.inc
 
-This module contains the ``SupplyChainNetwork`` class.
+Overview 
+--------
+
+This module contains the |class_network| class.
 
 
+API Reference
+-------------
 
 """
 
@@ -34,13 +39,13 @@ from stockpyl.helpers import *
 # ===============================================================================
 
 class SupplyChainNetwork(object):
-	"""The ``SupplyChainNetwork`` class contains one or more nodes, each
-	represented by a ``SupplyChainNode`` object.
+	"""The |class_network| class contains one or more nodes, each
+	represented by a |class_node| object.
 
 	Attributes
 	----------
 	nodes : list
-		A list of all ``SupplyChainNode`` objects in the network. (Read only.)
+		A list of all |class_node| objects in the network. (Read only.)
 	period : int
 		The current period. Used for simulation.
 	problem_specific_data : object
@@ -106,12 +111,12 @@ class SupplyChainNetwork(object):
 
 	def __repr__(self):
 		"""
-		Return a string representation of the ``SupplyChainNetwork`` instance.
+		Return a string representation of the |class_network| instance.
 
 		Returns
 		-------
 		str
-			A string representation of the ``SupplyChainNetwork`` instance.
+			A string representation of the |class_network| instance.
 
 		"""
 		return "SupplyChainNetwork({:s})".format(str(vars(self)))
@@ -131,7 +136,7 @@ class SupplyChainNetwork(object):
 			* If ``overwrite`` is ``False`` and ``_nodes`` does not exist, creates the ``_nodes`` attribute 
 			  and fills it with an empty list.
 			* If ``overwrite`` is ``False`` and ``_nodes`` exists but is ``None`` or an empty list, does nothing.
-			* If ``overwrite`` is ``False`` and ``_nodes`` exists and contains at least one ``SupplyChainNode`` 
+			* If ``overwrite`` is ``False`` and ``_nodes`` exists and contains at least one |class_node| 
 			  object, calls the ``initialize()`` method for each node with ``overwrite=False`` to ensure all attributes are present (as well as all attributes in its object attributes such as ``demand_source``, etc.).
 
 
@@ -164,7 +169,7 @@ class SupplyChainNetwork(object):
 		
 		Parameters
 		----------
-		other : SupplyChainNetwork
+		other : |class_network|
 			The network to compare this one to.
 		rel_tol : float, optional
 			Relative tolerance to use when comparing equality of float attributes.
@@ -244,7 +249,7 @@ class SupplyChainNetwork(object):
 
 		Parameters
 		----------
-		node : SupplyChainNode
+		node : |class_node|
 			The node to add to the network.
 		"""
 
@@ -311,9 +316,9 @@ class SupplyChainNetwork(object):
 
 		Parameters
 		----------
-		node : SupplyChainNode
+		node : |class_node|
 			The node to which the successor should be added.
-		successor_node : SupplyChainNode
+		successor_node : |class_node|
 			The node to be added as a successor.
 
 		"""
@@ -336,9 +341,9 @@ class SupplyChainNetwork(object):
 
 		Parameters
 		----------
-		node : SupplyChainNode
+		node : |class_node|
 			The node to which the successor should be added.
-		predecessor_node : SupplyChainNode
+		predecessor_node : |class_node|
 			The node to be added as a predecessor.
 
 		"""
@@ -358,7 +363,7 @@ class SupplyChainNetwork(object):
 
 		Parameters
 		----------
-		node : SupplyChainNode
+		node : |class_node|
 			The node to remove.
 		"""
 
@@ -375,7 +380,7 @@ class SupplyChainNetwork(object):
 
 	def networkx_digraph(self):
 		"""Build a ``networkx`` ``DiGraph`` object with the same structure as
-		the ``SupplyChainNetwork``.
+		the |class_network|.
 
 		Returns
 		-------
@@ -459,7 +464,7 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 
 	Returns
 	-------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The supply chain network, with parameters filled.
 
 	"""
@@ -654,7 +659,7 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 
 	Returns
 	-------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The single-stage network, with parameters filled.
 
 	"""
@@ -813,7 +818,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 
 	Returns
 	-------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The serial system network, with parameters filled.
 
 	"""
@@ -1026,7 +1031,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 
 	Returns
 	-------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The MWOR network, with parameters filled.
 
 	"""
@@ -1188,7 +1193,7 @@ def local_to_echelon_base_stock_levels(network, S_local):
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The serial inventory network.
 	S_local : dict
 		Dict of local base-stock levels.
@@ -1219,7 +1224,7 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The serial inventory network.
 	S_echelon : dict
 		Dict of echelon base-stock levels.

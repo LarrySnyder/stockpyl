@@ -9,17 +9,18 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The |mod_ssm_serial| module contains code to solve serial systems under the stochastic service
 model (SSM), either exactly, using the :func:`~stockpyl.ssm_serial.optimize_base_stock_levels` function
 (which implements the algorithm by Chen and Zheng (1994), which in turn is
 based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic` 
 function (which implements the newsvendor heuristic by Shang and Song (1996)).
 
-"node" and "stage" are used interchangeably in the documentation.
+.. note:: |node_stage|
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -101,6 +102,11 @@ References
 F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory systems. *Management Science*, 40(11):1426–1443, 1994.
 
 A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
+
+
+API Reference
+-------------
+
 """
 
 import numpy as np
@@ -144,8 +150,8 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	  singleton value.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
-	provided (in which case the demand will be assumed to be normally distributed)
-	or a ``demand_source`` must be provided, or ``network`` must be provided.
+	provided (in which case the demand will be assumed to be normally distributed),
+	or ``demand_source`` must be provided, or ``network`` must be provided.
 
 	Parameters
 	----------
@@ -161,11 +167,11 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
 	demand_standard_deviation : float, optional
 		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : DemandSource, optional
-		A DemandSource object describing the demand distribution. Required if
+	demand_source : |class_demand_source|, optional
+		A |class_demand_source| object describing the demand distribution. Required if
 		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : SupplyChainNetwork, optional
-		A SupplyChainNetwork object that provides all of the necessary data. If provided,
+	network : |class_network|, optional
+		A |class_network| object that provides all of the necessary data. If provided,
 		``num_nodes``, ..., ``demand_source`` are ignored.
 	S : dict, optional
 		Dict of echelon base-stock levels to evaluate. If present, no
@@ -506,7 +512,7 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 								stockout_cost=None, demand_mean=None, demand_standard_deviation=None,
 								demand_source=None, network=None, weight=0.5):
 	"""Shang-Song (2003) heuristic for stochastic serial systems under
-	stochastic service model (SSM), as described in Snyder and Shen (2019).
+	stochastic service model (SSM), as described in |fosct|.
 
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
 	or as a |class_network| in the ``network`` parameter.
@@ -523,8 +529,8 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 	  singleton value.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
-	provided (in which case the demand will be assumed to be normally distributed)
-	or a ``demand_source`` must be provided.
+	provided (in which case the demand will be assumed to be normally distributed),
+	or ``demand_source`` must be provided, or ``network`` must be provided.
 
 
 	Parameters
@@ -541,11 +547,11 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
 	demand_standard_deviation : float, optional
 		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : DemandSource, optional
-		A DemandSource object describing the demand distribution. Required if
+	demand_source : |class_demand_source|, optional
+		A |class_demand_source| object describing the demand distribution. Required if
 		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : SupplyChainNetwork, optional
-		A SupplyChainNetwork object that provides all of the necessary data. If provided,
+	network : |class_network|, optional
+		A |class_network| object that provides all of the necessary data. If provided,
 		``num_nodes``, ..., ``demand_source`` are ignored.
 	weight : float, optional
 		Weight to use in weighted sum of lower- and upper-bound base-stock levels. 
@@ -729,8 +735,8 @@ def expected_cost(echelon_S,
 	  singleton value.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
-	provided (in which case the demand will be assumed to be normally distributed)
-	or a ``demand_source`` must be provided.
+	provided (in which case the demand will be assumed to be normally distributed),
+	or ``demand_source`` must be provided, or ``network`` must be provided.
 
 	Parameters
 	----------
@@ -748,11 +754,11 @@ def expected_cost(echelon_S,
 		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
 	demand_standard_deviation : float, optional
 		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : DemandSource, optional
-		A DemandSource object describing the demand distribution. Required if
+	demand_source : |class_demand_source|, optional
+		A |class_demand_source| object describing the demand distribution. Required if
 		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : SupplyChainNetwork, optional
-		A SupplyChainNetwork object that provides all of the necessary data. If provided,
+	network : |class_network|, optional
+		A |class_network| object that provides all of the necessary data. If provided,
 		``num_nodes``, ..., ``demand_source`` are ignored.
 	x_num : int, optional
 		Number of discretization intervals to use for ``x`` range.
@@ -858,8 +864,8 @@ def expected_holding_cost(echelon_S,
 	  singleton value.
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
-	provided (in which case the demand will be assumed to be normally distributed)
-	or a ``demand_source`` must be provided.
+	provided (in which case the demand will be assumed to be normally distributed),
+	or ``demand_source`` must be provided, or ``network`` must be provided.
 
 	Parameters
 	----------
@@ -877,11 +883,11 @@ def expected_holding_cost(echelon_S,
 		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
 	demand_standard_deviation : float, optional
 		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : DemandSource, optional
-		A DemandSource object describing the demand distribution. Required if
+	demand_source : |class_demand_source|, optional
+		A |class_demand_source| object describing the demand distribution. Required if
 		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : SupplyChainNetwork, optional
-		A SupplyChainNetwork object that provides all of the necessary data. If provided,
+	network : |class_network|, optional
+		A |class_network| object that provides all of the necessary data. If provided,
 		``num_nodes``, ..., ``demand_source`` are ignored.
 	x_num : int, optional
 		Number of discretization intervals to use for ``x`` range.

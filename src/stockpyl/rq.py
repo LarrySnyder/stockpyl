@@ -9,16 +9,17 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The |mod_rq| module contains code for solving the |rq| optimization problem, 
 including a number of approximations.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
-The :func:`stockpyl.rq.r_q_poisson_exact` function implements Federgruen and Zheng's (1992)
+The :func:`r_q_poisson_exact` function implements Federgruen and Zheng's (1992)
 exact algorithm for the |rq| problem with Poisson demands:
 
 .. doctest::
@@ -72,6 +73,8 @@ We can evaluate these approximate solutions under the exact expected cost functi
 	>>> r_q_cost(r_lf, Q_lf, h, p, K, demand_mean, demand_sd, L)
 	78.07114627035178
 
+API Reference
+-------------
 """
 
 from scipy import integrate

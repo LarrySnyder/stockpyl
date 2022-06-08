@@ -17,10 +17,7 @@ Overview
 The |mod_newsvendor| module contains code for solving the newsvendor
 problem and some of its variants.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
-
+.. note:: |fosct_notation|
 
 The :func:`stockpyl.newsvendor.newsvendor_normal` function 
 implements the basic newsvendor model for normally distributed demands; it returns both the optimal base-stock level (i.e., order quantity)
@@ -96,8 +93,8 @@ as a dictionary containing the pmf:
 	(8, 7.19102133030678)
 
 
-	API Reference
-	-------------
+API Reference
+-------------
 """
 
 
@@ -683,8 +680,8 @@ def myopic(
 	is supplied) calculate the cost of given solution. Assumes demand is normally distributed.
 
 	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
-	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in Snyder and Shen
-	(2019), but the function is given in terms of Snyder-Shen notation below.
+	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in |fosct|, 
+	but the function is given in terms of Snyder-Shen notation below.
 
 	Parameters are singleton values for the current period, not arrays.
 
@@ -793,8 +790,8 @@ def myopic_cost(
 	"""Calculate "myopic" cost function. Assumes demand is normally distributed.
 
 	The myopic cost function is denoted :math:`G_i(y)` in Veinott (1966) and
-	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in Snyder and Shen
-	(2019), but the function is given in terms of Snyder-Shen notation below.
+	as :math:`C^+(t,y)` in Zipkin (2000). It is not used in |fosct|, 
+	but the function is given in terms of Snyder-Shen notation below.
 
 	Parameters are singleton values for the current period, not arrays.
 

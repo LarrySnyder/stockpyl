@@ -1,8 +1,13 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 Helper functions for stockpyl package.
 
+API Reference
+-------------
 
 
 """
@@ -57,7 +62,7 @@ def dict_match(d1, d2, require_presence=False, rel_tol=1e-9, abs_tol=0.0):
 	"""Check whether two dicts have equal keys and values.
 
 	A missing key is treated as 0 if the key is present in the other dict,
-	unless require_presence is True, in which case the dict must have the
+	unless require_presence is ``True``, in which case the dict must have the
 	key to count as a match.
 
 	Parameters

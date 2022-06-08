@@ -9,6 +9,9 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 
 For MEIO systems with arbitrary topology (not necessarily serial or tree systems),
 the |mod_meio_general| module can optimize base-stock levels approximately using
@@ -16,9 +19,12 @@ relatively brute-force approaches—either coordinate descent or enumeration. Th
 heuristics tend to be quite slow and not particularly accurate, but they are sometimes
 the best methods available for complex systems that are not well solved in the literature.
 
-'node' and 'stage' are used interchangeably in the documentation.
+.. note:: |node_stage|
 
-The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` objects
+.. note:: |fosct_notation|
+
+
+The primary data object is the |class_network| and the |class_node| objects
 that it contains, which contains all of the data for the optimization instance.
 
 
@@ -131,6 +137,8 @@ and not particularly accurate.
 		>>> best_cost
 		62.33491040676202
 
+API Reference
+-------------
 """
 
 import numpy as np
@@ -160,7 +168,7 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The network to optimize.
 	base_stock_levels : dict, optional
 		A dictionary indicating, for each node index, the base-stock levels to
@@ -202,7 +210,7 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 	sim_rand_seed : int, optional
 		Rand seed to use for simulation. Ignored if ``objective_function`` is provided.
 	progress_bar : bool, optional
-		Display a progress bar? Ignored if ``print_solutions`` is True.
+		Display a progress bar? Ignored if ``print_solutions`` is ``True``.
 	print_solutions : bool, optional
 		Print each solution and its cost?
 
@@ -318,9 +326,9 @@ def base_stock_level_bisection_search(network, node_to_optimize, lo=None, hi=Non
 	
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The supply chain network.
-	node_to_optimize : SupplyChainNode
+	node_to_optimize : |class_node|
 		The supply chain node to optimize.
 	lo : float, optional
 		The low end of the search range. If omitted, it is set automatically.
@@ -374,7 +382,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The network to optimize.
 	initial_solution : dict, optional
 		The starting solution, as a dict. If omitted, initial solution will be set

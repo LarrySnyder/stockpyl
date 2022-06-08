@@ -9,12 +9,13 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The |mod_wagner_whitin| module contains code for solving the Wagner-Whitin
 problem using dynamic programming.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -46,6 +47,10 @@ The cost parameters may also vary from period to period:
 	[0, 90, 270, 0, 0]
 	>>> cost
 	1020.0
+
+API Reference
+-------------
+
 """
 
 import numpy as np

@@ -90,6 +90,10 @@ autodoc_default_options = {
 # (added LVS 5/28/22)
 autosectionlabel_prefix_document = True
 
+# If true, the current module name will be prepended to all description
+# unit titles (such as .. function::). (added LVS 6/7/22)
+add_module_names = False
+
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -1,7 +1,8 @@
 .. |sp| replace:: Stockpyl
 .. |fosct| replace:: *FoSCT*
-.. |fosct_notation| replace:: The notation and references (equations, sections, examples, etc.) used below refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition (2019).
 
+.. |fosct_notation| replace:: The notation and references (equations, sections, examples, etc.) used below refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition (2019).
+.. |node_stage| replace:: The terms "node" and "stage" are used interchangeably in the documentation.
 
 .. |mod_demand_source| replace:: :mod:`~stockpyl.demand_source`
 .. |mod_disruption_process| replace:: :mod:`~stockpyl.disruption_process`
@@ -28,6 +29,9 @@
 
 .. |class_network| replace:: :class:`~stockpyl.supply_chain_network.SupplyChainNetwork`
 .. |class_node| replace:: :class:`~stockpyl.supply_chain_network.SupplyChainNode`
+.. |class_demand_source| replace:: :class:`~stockpyl.demand_source.DemandSource`
+.. |class_disruption_process| replace:: :class:`~stockpyl.disruption_process.DisruptionProcess`
+.. |class_policy| replace:: :class:`~stockpyl.policy.Policy`
 
 .. |rq| replace:: :math:`(r,Q)`
 .. |ss| replace:: :math:`(s,S)`

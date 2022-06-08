@@ -9,9 +9,12 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The :mod:`instances` module contains code for loading and saving problem instances.
-Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+
+.. note:: |fosct_notation|
 
 
 
@@ -20,6 +23,10 @@ Unless otherwise noted, instances are taken from Snyder and Shen, *Fundamentals 
    :file: ../../docs/aux_files/named_instances.csv
    :widths: 30, 70
    :header-rows: 1
+
+API Reference
+-------------
+
 """
 
 #import copy
@@ -38,7 +45,7 @@ DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
 def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True):
 	"""Load an instance from a JSON file. 
 
-	If the instance was originally specified as a ``SupplyChainNetwork`` object, returns the
+	If the instance was originally specified as a |class_network| object, returns the
 	object; otherwise, returns the instance in a dictionary.
 
 	Parameters
@@ -55,7 +62,7 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 	Returns
 	-------
 	dict or SupplyChainNetwork
-		The loaded instance. If the instance was originally specified as a ``SupplyChainNetwork``
+		The loaded instance. If the instance was originally specified as a |class_network|
 		object, returns the object; otherwise, returns the instance in a dictionary in which
 		the keys equal the parameter names (e.g., "holding_cost") and the values equal the parameter
 		values (e.g., 0.5).
@@ -127,7 +134,7 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 		The name of the instance. This will be used later for retreving the instance.
 	instance_data : dict or SupplyChainNetwork
 		The instance data as a dictionary (with keys equal to parameter names (e.g., "holding_cost")
-		and values equal to parameter values (e.g., 0.5)) or as a ``SupplyChainNetwork`` object 
+		and values equal to parameter values (e.g., 0.5)) or as a |class_network| object 
 		(in which case the instance is serialized using :mod:`jsonpickle`).
 	instance_description : str, optional
 		A longer descrtiption of the instance.

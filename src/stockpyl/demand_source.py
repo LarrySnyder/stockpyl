@@ -9,12 +9,35 @@
 """
 .. include:: ../../globals.inc
 
-This module contains the ``DemandSource`` class. A ``DemandSource``
-object is used to generate demands and to get attributes of the demand distribution.
+Overview 
+--------
 
-Notation and equation and section numbers refer to Snyder and Shen,
-"Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
+This module contains the |class_demand_source| class. A |class_demand_source|
+object represents external demand observed by a node.
+The demand can be random or deterministic. Attributes specify the type of demand
+distribution and its parameters. The object can generate demands from the specified distribution.
 
+.. note:: |fosct_notation|
+
+**Example:** Create a |class_demand_source| object representing demand that has a normal
+distribution with a mean of 50 and a standard deviation of 10. Generate a random demand from the distribution.
+
+	.. testsetup:: *
+
+		from stockpyl.demand_source import *
+
+	.. doctest::
+
+		>>> ds = DemandSource(type='N', mean=50, standard_deviation=10)
+		>>> ds.generate_demand()	# doctest: +SKIP
+		46.75370030596123
+		>>> # Tell object to round demands to integers.
+		>>> ds.round_to_int = True
+		>>> ds.generate_demand()	# doctest: +SKIP
+		63
+
+API Reference
+-------------
 
 """
 
@@ -28,17 +51,27 @@ import scipy.stats
 
 from stockpyl.helpers import *
 
-
 # ===============================================================================
 # DemandSource Class
 # ===============================================================================
 
 class DemandSource(object):
 	"""
+	A |class_demand_source| object represents external demand observed by a node.
+	The demand can be random or deterministic. Attributes specify the type of demand
+	distribution and its parameters. The object can generate demands from the specified distribution.
+
+	Parameters
+	----------
+	**kwargs 
+		Keyword arguments specifying values of one or more attributes of the |class_demand_source|, 
+		e.g., ``type='N'``.
+
 	Attributes
 	----------
-	_type : str
+	type : str
 		The demand type, as a string. Currently supported strings are:
+
 			* None
 			* 'N' (normal)
 			* 'P' (Poisson)
@@ -46,28 +79,29 @@ class DemandSource(object):
 			* 'UC' (uniform continuous)
 			* 'D' (deterministic)
 			* 'CD' (custom discrete)
-	_round_to_int : bool
+			
+	round_to_int : bool
 		Round demand to nearest integer?
-	_mean : float, optional
-		Mean of demand per period. Required if ``type`` = 'N' or 'P'. [:math:`\mu`]
-	_standard_deviation : float, optional
-		Standard deviation of demand per period. Required if ``type`` =='N'. [:math:`\sigma`]
-	_demand_list : list, optional
+	mean : float, optional
+		Mean of demand per period. Required if ``type`` == 'N' or 'P'. [:math:`\mu`]
+	standard_deviation : float, optional
+		Standard deviation of demand per period. Required if ``type`` == 'N'. [:math:`\sigma`]
+	demand_list : list, optional
 		List of demands, one per period (for deterministic demand types), or list
 		of possible demand values (for custom discrete demand types). For deterministic
 		demand types, if demand is required in a period beyond the length of the list,
 		the list is restarted at the beginning. This also allows ``demand_list`` to be
 		a singleton, in which case it is used in every period.
-		Required if ``type`` = 'D' or 'CD'. [:math:`d`]
-	_probabilities : list, optional
+		Required if ``type`` == 'D' or 'CD'. [:math:`d`]
+	probabilities : list, optional
 		List of probabilities of each demand value (for custom discrete demand types).
-		Required if ``type`` = 'CD'.
-	_lo : float, optional
+		Required if ``type`` == 'CD'.
+	lo : float, optional
 		Low value of demand range (for uniform demand types). Required if
-		``type`` = 'UD' or 'UC'.
-	_hi : float, optional
+		``type`` == 'UD' or 'UC'.
+	hi : float, optional
 		High value of demand range (for uniform demand types). Required if
-		``type`` = 'UD' or 'UC'.
+		``type`` == 'UD' or 'UC'.
 	"""
 
 	def __init__(self, **kwargs):
@@ -76,12 +110,12 @@ class DemandSource(object):
 		Parameters
 		----------
 		kwargs : optional
-			Optional keyword arguments to specify ``DemandSource`` attributes.
+			Optional keyword arguments to specify |class_demand_source| attributes.
 
 		Raises
 		------
 		AttributeError
-			If an optional keyword argument does not match a ``DemandSource`` attribute.
+			If an optional keyword argument does not match class_demand_source| attribute.
 		"""
 		# Initialize parameters.
 		self.initialize()
@@ -106,7 +140,7 @@ class DemandSource(object):
 
 		Parameters
 		----------
-		other : DemandSource
+		other : |class_demand_source|
 			The demand source object to compare to.
 
 		Returns
@@ -132,7 +166,7 @@ class DemandSource(object):
 
 		Parameters
 		----------
-		other : DemandSource
+		other : |class_demand_source|
 			The demand source object to compare to.
 
 		Returns
@@ -212,7 +246,7 @@ class DemandSource(object):
 	@property
 	def demand_distribution(self):
 		"""Demand distribution, as a ``scipy.stats.rv_continuous`` or
-		``scipy.stats.rv_discrete`` object.
+		``scipy.stats.rv_discrete`` object. Read only.
 		"""
 		if self.type is None:
 			distribution = None
@@ -236,11 +270,11 @@ class DemandSource(object):
 
 	def __repr__(self):
 		"""
-		Return a string representation of the ``DemandSource`` instance.
+		Return a string representation of the |class_demand_source| instance.
 
 		Returns
 		-------
-			A string representation of the ``DemandSource`` instance.
+			A string representation of the |class_demand_source| instance.
 
 		"""
 		# Build string of parameters.
@@ -273,7 +307,7 @@ class DemandSource(object):
 
 	def __str__(self):
 		"""
-		Return the full name of the ``DemandSource`` instance.
+		Return the full name of the |class_demand_source| instance.
 
 		Returns
 		-------
@@ -372,26 +406,26 @@ class DemandSource(object):
 		if self.type is None:
 			return None
 		if self.type == 'N':
-			demand = self.generate_demand_normal()
+			demand = self._generate_demand_normal()
 		elif self.type == 'P':
-			demand = self.generate_demand_poisson()
+			demand = self._generate_demand_poisson()
 		elif self.type == 'UD':
-			demand = self.generate_demand_uniform_discrete()
+			demand = self._generate_demand_uniform_discrete()
 		elif self.type == 'UC':
-			demand = self.generate_demand_uniform_continuous()
+			demand = self._generate_demand_uniform_continuous()
 		elif self.type == 'D':
-			demand = self.generate_demand_deterministic(period)
+			demand = self._generate_demand_deterministic(period)
 		elif self.type == 'CD':
-			demand = self.generate_demand_custom_discrete()
+			demand = self._generate_demand_custom_discrete()
 		else:
 			demand = None
 
 		if self.round_to_int:
-			demand = np.round(demand)
+			demand = int(np.round(demand))
 
 		return demand
 
-	def generate_demand_normal(self):
+	def _generate_demand_normal(self):
 		"""Generate demand from normal distribution.
 
 		Returns
@@ -402,7 +436,7 @@ class DemandSource(object):
 		"""
 		return max(0, np.random.normal(self.mean, self.standard_deviation))
 
-	def generate_demand_poisson(self):
+	def _generate_demand_poisson(self):
 		"""Generate demand from Poisson distribution.
 
 		Returns
@@ -413,7 +447,7 @@ class DemandSource(object):
 		"""
 		return np.random.poisson(self.mean)
 
-	def generate_demand_uniform_discrete(self):
+	def _generate_demand_uniform_discrete(self):
 		"""Generate demand from discrete uniform distribution.
 
 		Returns
@@ -424,7 +458,7 @@ class DemandSource(object):
 		"""
 		return np.random.randint(int(self.lo), int(self.hi) + 1)
 
-	def generate_demand_uniform_continuous(self):
+	def _generate_demand_uniform_continuous(self):
 		"""Generate demand from continuous uniform distribution.
 
 		Returns
@@ -435,8 +469,14 @@ class DemandSource(object):
 		"""
 		return np.random.uniform(self.lo, self.hi - self.lo)
 
-	def generate_demand_deterministic(self, period=None):
+	def _generate_demand_deterministic(self, period=None):
 		"""Generate deterministic demand.
+
+		Parameters
+		----------
+		period : int, optional
+			The period to generate a demand value for. This is required if ``demand_list`` is a 
+			list of demands, one per period. If omitted, will return first (or only) demand in list.
 
 		Returns
 		-------
@@ -456,7 +496,7 @@ class DemandSource(object):
 			# Return demand_list singleton.
 			return self.demand_list
 
-	def generate_demand_custom_discrete(self):
+	def _generate_demand_custom_discrete(self):
 		"""Generate demand from custom discrete distribution.
 
 		Returns
@@ -532,10 +572,10 @@ class DemandSource(object):
 		"""Return lead-time demand distribution, as a
 		``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
 
-		NOTE: For 'P', 'UC', 'UD', and 'CD' demands, this method calculates the lead-time
-		demand distribution as the sum of ``lead_time`` independent random variables.
-		Therefore, the method requires ``lead_time`` to be an integer for these
-		distributions. If it is not, it raises a ``ValueError``.
+		.. note:: For 'P', 'UC', 'UD', and 'CD' demands, this method calculates the lead-time
+			demand distribution as the sum of ``lead_time`` independent random variables.
+			Therefore, the method requires ``lead_time`` to be an integer for these
+			distributions. If it is not, it raises a ``ValueError``.
 
 		Parameters
 		----------

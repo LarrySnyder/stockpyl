@@ -9,9 +9,18 @@
 """
 .. include:: ../../globals.inc
 
-This module contains the ``SupplyChainNode`` class, which is a stage or node
+Overview 
+--------
+
+This module contains the |class_node| class, which is a stage or node
 in a supply chain network.
 
+.. note:: |fosct_notation|
+
+
+
+API Reference
+-------------
 
 
 """
@@ -23,34 +32,30 @@ in a supply chain network.
 import numpy as np
 import networkx as nx
 from math import isclose
-from copy import deepcopy
 
-#from stockpyl.datatypes import *
-from stockpyl.policy import *
-from stockpyl.demand_source import *
-from stockpyl.disruption_process import *
-from stockpyl.helpers import *
+from stockpyl import policy
+from stockpyl import demand_source
+from stockpyl import disruption_process
+from stockpyl.helpers import change_dict_key
 
 # ===============================================================================
 # SupplyChainNode Class
 # ===============================================================================
 
 class SupplyChainNode(object):
-	"""The ``SupplyChainNode`` class contains the data, state variables, and
+	"""The |class_node| class contains the data, state variables, and
 	performance measures for a supply chain node.
-
-	Notation below in brackets [...] is from Snyder and Shen (2019).
 
 	Attributes
 	----------
 	# --- Attributes Related to Parent Network --- #
 
-	network : SupplyChainNetwork
+	network : |class_network|
 		The network that contains the node.
 	_predecessors : list
-		List of immediate predecesssor ``SupplyChainNode`` objects.
+		List of immediate predecesssor |class_node| objects.
 	_successors : list
-		List of immediate successor ``SupplyChainNode`` objects.
+		List of immediate successor |class_node| objects.
 
 	# --- Data/Inputs --- #
 
@@ -81,7 +86,7 @@ class SupplyChainNode(object):
 		Shipment lead time. [L] # not currently supported 
 	order_lead_time : int
 		Order lead time.
-	demand_source : DemandSource
+	demand_source : |class_demand_source|
 		Demand source object.
 	initial_inventory_level : float
 		Initial inventory level.
@@ -89,11 +94,11 @@ class SupplyChainNode(object):
 		Initial outbound order quantity.
 	initial shipments : float
 		Initial inbound shipment quantity.
-	inventory_policy : Policy
+	inventory_policy : |class_policy|
 		Inventory policy to be used to make inventory decisions.
 	supply_type : str
 		Supply type (unlimited, etc.).
-	disruption_process : DisruptionProcess
+	disruption_process : |class_disruption_process|
 		Disruption process object (if any).
 	state_vars : list of NodeStateVars
 		List of NodeStateVars, one for each period in a simulation.
@@ -117,7 +122,7 @@ class SupplyChainNode(object):
 			must have a unique index.
 		name : str, optional
 			String to identify node.
-		network : SupplyChainNetwork
+		network : |class_network|
 			The network that contains the node.
 		kwargs : optional
 			Optional keyword arguments to specify node attributes.
@@ -125,7 +130,7 @@ class SupplyChainNode(object):
 		Raises
 		------
 		AttributeError
-			If an optional keyword argument does not match a ``SupplyChainNode`` attribute.
+			If an optional keyword argument does not match a |class_node| attribute.
 		"""
 		# Initialize attributes.
 		self.initialize()
@@ -264,7 +269,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		other : SupplyChainNode
+		other : |class_node|
 			The node to compare to.
 
 		Returns
@@ -281,7 +286,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		other : SupplyChainNode
+		other : |class_node|
 			The node to compare to.
 
 		Returns
@@ -301,11 +306,11 @@ class SupplyChainNode(object):
 
 	def __repr__(self):
 		"""
-		Return a string representation of the ``SupplyChainNode`` instance.
+		Return a string representation of the |class_node| instance.
 
 		Returns
 		-------
-			A string representation of the ``SupplyChainNode`` instance.
+			A string representation of the |class_node| instance.
 
 		"""
 		return "SupplyChainNode({:s})".format(str(vars(self)))
@@ -371,7 +376,7 @@ class SupplyChainNode(object):
 		if overwrite or not hasattr(self, 'order_lead_time'):
 			self.order_lead_time = None
 		if overwrite or not hasattr(self, 'demand_source'):
-			self.demand_source = DemandSource()
+			self.demand_source = demand_source.DemandSource()
 		elif self.demand_source is not None:
 			self.demand_source.initialize(overwrite=False)
 		if overwrite or not hasattr(self, 'initial_inventory_level'):
@@ -381,13 +386,13 @@ class SupplyChainNode(object):
 		if overwrite or not hasattr(self, 'initial_shipments'):
 			self.initial_shipments = None
 		if overwrite or not hasattr(self, 'inventory_policy'):
-			self.inventory_policy = Policy(node=self)
+			self.inventory_policy = policy.Policy(node=self)
 		elif self.inventory_policy is not None:
 			self.inventory_policy.initialize(overwrite=False)
 		if overwrite or not hasattr(self, 'supply_type'):
 			self.supply_type = None 
 		if overwrite or not hasattr(self, 'disruption_process'):
-			self.disruption_process = DisruptionProcess()
+			self.disruption_process = disruption_process.DisruptionProcess()
 		elif self.disruption_process is not None:
 			self.disruption_process.initialize(overwrite=False)
 
@@ -434,7 +439,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		other : SupplyChainNode
+		other : |class_node|
 			The node to compare this one to.
 		rel_tol : float, optional
 			Relative tolerance to use when comparing equality of float attributes.
@@ -488,7 +493,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		successor : SupplyChainNode
+		successor : |class_node|
 			The node to add as a successor.
 
 		"""
@@ -506,7 +511,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		predecessor : SupplyChainNode
+		predecessor : |class_node|
 			The node to add as a predecessor.
 
 		"""
@@ -524,7 +529,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		successor : SupplyChainNode
+		successor : |class_node|
 			The node to remove as a successor.
 
 		"""
@@ -542,7 +547,7 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		predecessor : SupplyChainNode
+		predecessor : |class_node|
 			The node to remove as a predecessor.
 
 		"""
@@ -555,7 +560,7 @@ class SupplyChainNode(object):
 
 		Returns
 		-------
-		successor : SupplyChainNode
+		successor : |class_node|
 			A successor of the node.
 		"""
 		if len(self._successors) == 0:
@@ -570,7 +575,7 @@ class SupplyChainNode(object):
 
 		Returns
 		-------
-		predecessor : SupplyChainNode
+		predecessor : |class_node|
 			A predecessor of the node.
 		"""
 		if len(self._predecessors) == 0:
@@ -659,11 +664,10 @@ class NodeStateVars(object):
 	end of a period (except during the period itself, in which case the
 	values might be intermediate until the period is complete).
 
-	Notation below in brackets [...] is from Snyder and Shen (2019).
 
 	Attributes
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The node the state variables refer to.
 	period : int
 		The period of the simulation that the state variables refer to.
@@ -744,7 +748,7 @@ class NodeStateVars(object):
 
 		Parameters
 		----------
-		node : SupplyChainNode, optional
+		node : |class_node|, optional
 			The node to which these state variables refer.
 		period : int, optional
 			The period to which these state variables refer.
@@ -832,7 +836,7 @@ class NodeStateVars(object):
 
 		Parameters
 		----------
-		successor : SupplyChainNode
+		successor : |class_node|
 			The successor node.
 
 		Returns
@@ -849,7 +853,7 @@ class NodeStateVars(object):
 
 		Parameters
 		----------
-		predecessor : SupplyChainNode
+		predecessor : |class_node|
 			The predecessor node (or ``None`` for external supplier).
 
 		Returns

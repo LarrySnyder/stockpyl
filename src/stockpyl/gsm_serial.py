@@ -9,17 +9,15 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with serial structures by Inderfurth (1991)).
 
-"node" and "stage" are used interchangeably in the documentation.
+.. note:: |node_stage|
 
-The primary data object is the ``SupplyChainNetwork``, which contains all of the data
-for the GSM instance.
-
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -77,6 +75,10 @@ References
 ----------
 K. Inderfurth. Safety stock optimization in multistage inventory systems. 
 *International Journal of Production Economics*, 24:103-113, 1991.
+
+API Reference
+-------------
+
 """
 
 import networkx as nx
@@ -95,9 +97,7 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 								demand_bound_constant=None, external_outbound_cst=None, external_inbound_cst=None,
 								demand_mean=None, demand_standard_deviation=None,
 								demand_source=None, network=None):
-	"""Optimize committed service times.
-
-	Optimization is performed using the dynamic programming (DP) algorithm of
+	"""Optimize committed service times using the dynamic programming (DP) algorithm of
 	Inderfurth (1991).
 
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
@@ -136,12 +136,12 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
 	demand_standard_deviation : float, optional
 		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : DemandSource, optional
+	demand_source : |class_demand_source|, optional
 		A DemandSource object describing the demand distribution at node 1. Required if
 		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : SupplyChainNetwork, optional
+	network : |class_network|, optional
 		A SupplyChainNetwork object that provides all of the necessary data. If provided,
-		``num_nodes``, ..., ``demand_bound_constant`` are ignored.
+		``num_nodes``, ..., ``demand_source`` are ignored.
 
 	Returns
 	-------
@@ -235,7 +235,7 @@ def _cst_dp_serial(network):
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon serial network. 
 
 	Returns

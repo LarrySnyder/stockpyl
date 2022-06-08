@@ -9,6 +9,9 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 |sp| contains code to solve the following types of single-echelon inventory optimization problems
 in the |mod_supply_uncertainty| module:
 
@@ -19,9 +22,7 @@ in the |mod_supply_uncertainty| module:
 	- with disruptions
 	- with yield uncertainty
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -143,6 +144,8 @@ distribution as a ``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` o
 	>>> newsvendor_with_additive_yield_uncertainty(h, p, d, yield_distribution=uniform(-500000, 1000000))
 	(1833333.3333333335, 6249999.997499999)
 
+API Reference
+-------------
 
 """
 

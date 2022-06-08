@@ -15,9 +15,8 @@ Overview
 The |mod_eoq| module contains code for solving the economic order quantity
 (EOQ) problem and some of its variants.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
+.. note:: |fosct_notation|
+
 
 
 

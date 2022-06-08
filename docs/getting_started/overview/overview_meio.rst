@@ -9,7 +9,7 @@ Multi-Echelon Inventory Optimization
 * Serial or tree systems under the guaranteed-service model (GSM) (|mod_gsm_serial| and |mod_gsm_tree| modules)
 * Systems with arbitrary topology<overview_meio:General MEIO Systems, optimized using enumeration or coordinate descent (|mod_meio_general| module)
 
-The terms "node" and "stage" are used interchangeably in the documentation.
+.. note:: |node_stage|
 
 |fosct_notation|
 
@@ -18,7 +18,7 @@ The terms "node" and "stage" are used interchangeably in the documentation.
 
 
 
-The ``SupplyChainNetwork`` Class
+The |class_network| Class
 --------------------------------
 
 All of the MEIO code in |sp| makes use of the |class_network| class, which contains all of the data for 

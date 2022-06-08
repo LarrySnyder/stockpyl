@@ -730,7 +730,7 @@ class PolicyFactory(object):
 
 		Returns
 		-------
-		policy : Policy
+		policy : |class_policy|
 			The Policy object.
 
 		"""

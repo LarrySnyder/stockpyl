@@ -1,13 +1,18 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 Code for simulating multi-echelon inventory systems.
 
-'node' and 'stage' are used interchangeably in the documentation.
+.. note:: |node_stage|
 
-The primary data object is the ``SupplyChainNetwork`` and the ``SupplyChainNode`` s
+The primary data object is the |class_network| and the |class_node| objects
 that it contains, which contains all of the data for the simulation instance.
 
+API Reference
+-------------
 
 
 """
@@ -37,7 +42,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	num_periods : int
 		Number of periods to simulate.
@@ -77,7 +82,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	pbar = tqdm(total=num_periods, disable=not progress_bar)
 
 	# Initialize state variables.
-	initialize_state_vars(network)
+	_initialize_state_vars(network)
 
 	# MAIN LOOP
 
@@ -91,7 +96,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 		# UPDATE DISRUPTION STATES
 
-		update_disruption_states(network, t)
+		_update_disruption_states(network, t)
 
 		# GENERATE DEMANDS AND ORDERS
 
@@ -101,7 +106,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		# Generate demand_list and place orders. Use depth-first search, starting
 		# at nodes with no successors, and propagating orders upstream.
 		for n in network.source_nodes:
-			generate_downstream_orders(n.index, network, t, visited)
+			_generate_downstream_orders(n.index, network, t, visited)
 
 		# GENERATE SHIPMENTS
 
@@ -111,15 +116,15 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		# Generate shipments. Use depth-first search, starting at nodes with
 		# no predecessors, and propagating shipments downstream.
 		for n in network.source_nodes:
-			generate_downstream_shipments(n.index, network, t, visited)
+			_generate_downstream_shipments(n.index, network, t, visited)
 
 		# UPDATE COSTS, PIPELINES, ETC.
 
 		# Set initial values for period t+1 state variables.
-		initialize_next_period_state_vars(network, t)
+		_initialize_next_period_state_vars(network, t)
 
 		# Calculate costs.
-		calculate_period_costs(network, t)
+		_calculate_period_costs(network, t)
 
 	# Close progress bar.
 	pbar.close()
@@ -133,13 +138,13 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 
 # HELPER FUNCTIONS
 
-def update_disruption_states(network, period):
+def _update_disruption_states(network, period):
 	"""Update disruption states for all nodes in network.
 	Record disruption states in ``state_vars``.
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	period : int
 		Time period.
@@ -154,7 +159,7 @@ def update_disruption_states(network, period):
 		n.state_vars_current.disrupted = n.disrupted
 
 
-def generate_downstream_orders(node_index, network, period, visited):
+def _generate_downstream_orders(node_index, network, period, visited):
 	"""Generate demand_list and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
@@ -165,7 +170,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 	----------
 	node_index : int
 		Index of starting node for depth-first search.
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	period : int
 		Time period.
@@ -194,10 +199,10 @@ def generate_downstream_orders(node_index, network, period, visited):
 	# Call generate_downstream_orders() for all non-visited successors.
 	for s in node.successors():
 		if not visited[s.index]:
-			generate_downstream_orders(s.index, network, period, visited)
+			_generate_downstream_orders(s.index, network, period, visited)
 
 	# Receive inbound orders.
-	receive_inbound_orders(node)
+	_receive_inbound_orders(node)
 
 	# Get lead times (for convenience).
 	order_lead_time = node.order_lead_time or 0
@@ -235,7 +240,7 @@ def generate_downstream_orders(node_index, network, period, visited):
 		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
 
 
-def generate_downstream_shipments(node_index, network, period, visited):
+def _generate_downstream_shipments(node_index, network, period, visited):
 	"""Generate shipments to all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
@@ -248,7 +253,7 @@ def generate_downstream_shipments(node_index, network, period, visited):
 	----------
 	node_index : int
 		Index of starting node for depth-first search.
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	period : int
 		Time period.
@@ -273,27 +278,27 @@ def generate_downstream_shipments(node_index, network, period, visited):
 
 	# Receive inbound shipments. (Set inbound_shipment, remove from shipment
 	# pipeline, update OO.)
-	receive_inbound_shipments(node)
+	_receive_inbound_shipments(node)
 
 	# Convert raw materials to finished goods.
-	new_finished_goods = raw_materials_to_finished_goods(node)
+	new_finished_goods = _raw_materials_to_finished_goods(node)
 
 	# Process outbound shipments.
-	process_outbound_shipments(node, starting_inventory_level, new_finished_goods)
+	_process_outbound_shipments(node, starting_inventory_level, new_finished_goods)
 
 	# Calculate fill rate (cumulative in periods 0,...,t).
-	calculate_fill_rate(node, period)
+	_calculate_fill_rate(node, period)
 
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
-	propagate_shipment_downstream(node)
+	_propagate_shipment_downstream(node)
 
 	# Call generate_downstream_shipments() for all non-visited successors.
 	for s in list(node.successors()):
 		if not visited[s.index]:
-			generate_downstream_shipments(s.index, network, period, visited)
+			_generate_downstream_shipments(s.index, network, period, visited)
 
 
-def initialize_state_vars(network):
+def _initialize_state_vars(network):
 	"""Initialize the state variables for each node:
 
 		* inventory_level = to initial_inventory_level
@@ -303,7 +308,7 @@ def initialize_state_vars(network):
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	"""
 
@@ -329,7 +334,7 @@ def initialize_state_vars(network):
 			n.state_vars[0].raw_material_inventory[p_index] = 0
 
 
-def receive_inbound_orders(node):
+def _receive_inbound_orders(node):
 	"""Receive inbound orders:
 
 		* Set inbound order from pipeline.
@@ -338,7 +343,7 @@ def receive_inbound_orders(node):
 
 	Parameters
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The supply chain node.
 	"""
 	for s_index in node.successor_indices(include_external=True):
@@ -351,7 +356,7 @@ def receive_inbound_orders(node):
 		node.state_vars_current.demand_cumul += node.state_vars_current.inbound_order[s_index]
 
 
-def initialize_next_period_state_vars(network, period):
+def _initialize_next_period_state_vars(network, period):
 	"""Set initial values for state variables in period ``period`` + 1.
 
 		* Update shipment and order pipelines by "advancing" them by 1 period \
@@ -365,7 +370,7 @@ def initialize_next_period_state_vars(network, period):
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	period : int
 		The current time period.
@@ -408,12 +413,12 @@ def initialize_next_period_state_vars(network, period):
 			n.state_vars[period].demand_cumul
 
 
-def calculate_period_costs(network, period):
+def _calculate_period_costs(network, period):
 	"""Calculate costs and revenues for one period.
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	period : int
 		The time period.
@@ -457,7 +462,7 @@ def calculate_period_costs(network, period):
 			n.state_vars[period].revenue_earned
 
 
-def receive_inbound_shipments(node):
+def _receive_inbound_shipments(node):
 	"""Receive inbound shipment for the node:
 
 		* Set inbound_shipment.
@@ -470,7 +475,7 @@ def receive_inbound_shipments(node):
 
 	Parameters
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The supply chain node.
 	"""
 	# Loop through predecessors.
@@ -491,7 +496,7 @@ def receive_inbound_shipments(node):
 		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
 
 
-def raw_materials_to_finished_goods(node):
+def _raw_materials_to_finished_goods(node):
 	"""Process raw materials to convert them to finished goods:
 
 		* Remove items from raw material inventory.
@@ -499,7 +504,7 @@ def raw_materials_to_finished_goods(node):
 
 	Parameters
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The supply chain node.
 
 	Returns
@@ -520,7 +525,7 @@ def raw_materials_to_finished_goods(node):
 	return new_finished_goods
 
 
-def process_outbound_shipments(node, starting_inventory_level, new_finished_goods):
+def _process_outbound_shipments(node, starting_inventory_level, new_finished_goods):
 	"""Process outbound shipments for the node:
 
 		* Determine outbound shipments. Demands are satisfied in order of \
@@ -535,7 +540,7 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 
 	Parameters
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The supply chain node.
 	starting_inventory_level : float
 		Starting inventory level for the period.
@@ -605,12 +610,12 @@ def process_outbound_shipments(node, starting_inventory_level, new_finished_good
 			node.state_vars_current.disrupted_items_by_successor[s_index] += DI - DI_OS
 
 
-def calculate_fill_rate(node, period):
+def _calculate_fill_rate(node, period):
 	"""Calculate fill rate for the node in the period.
 
 	Parameters
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The supply chain node.
 	period : int
 		Time period.
@@ -629,12 +634,12 @@ def calculate_fill_rate(node, period):
 		node.state_vars_current.fill_rate = 1.0
 
 
-def propagate_shipment_downstream(node):
+def _propagate_shipment_downstream(node):
 	"""Propagate shipment downstream, i.e., add it to successors' ``inbound_shipment_pipeline``.
 
 	Parameters
 	----------
-	node : SupplyChainNode
+	node : |class_node|
 		The supply chain node.
 
 	Returns
@@ -665,7 +670,7 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	num_trials : int
 		Number of trials to simulate.

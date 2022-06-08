@@ -9,21 +9,23 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 Helper code for dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
 
-"node" and "stage" are used interchangeably in the documentation.
+.. note:: |node_stage|
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
+API Reference
+-------------
 
 """
 
 
 import numpy as np
-import math
 
 from stockpyl.helpers import *
 
@@ -31,11 +33,11 @@ from stockpyl.helpers import *
 ### SOLUTION HANDLING ###
 
 def solution_cost_from_cst(tree, cst):
-	"""Calculate expected cost per period of given solution as specified by CST.
+	"""Calculate expected cost per period of given solution as specified by committed service times (CSTs).
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Network need not have been relabeled.
 	cst : dict
 		Dict of CSTs for each node, using the same node labeling as tree. [:math:`S`]
@@ -86,7 +88,7 @@ def solution_cost_from_base_stock_levels(tree, local_bsl):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Graph need not have been relabeled.
 	local_bsl : dict
 		Dict of local base-stock levels for each node, using the same node
@@ -132,7 +134,7 @@ def inbound_cst(tree, node_index, cst):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Network need not have been relabeled.
 	node_index : node *or* iterable container
 		A single node index *or* a container of node indices (dict, list, set, etc.).
@@ -191,7 +193,7 @@ def net_lead_time(tree, node_index, cst):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Network need not have been relabeled.
 	node_index : node *or* iterable container
 		A single node index *or* a container of node indices (dict, list, set, etc.).
@@ -249,7 +251,7 @@ def cst_to_base_stock_levels(tree, node_index, cst):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Graph need not have been relabeled.
 	node_index : node *or* iterable container
 		A single node index *or* a container of node indices (dict, list, set, etc.).
@@ -258,7 +260,7 @@ def cst_to_base_stock_levels(tree, node_index, cst):
 
 	Returns
 	-------
-	base_stock : float *or* dict
+	base_stock_level : float *or* dict
 		Base-stock level of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
 		base-stock levels keyed by node (if ``node_index`` is an iterable container). [:math:`y`]
 
@@ -290,14 +292,14 @@ def cst_to_base_stock_levels(tree, node_index, cst):
 	nlt = net_lead_time(tree, node_index, cst)
 	ss = safety_stock_levels(tree, node_index, cst)
 
-	base_stock = {}
+	base_stock_level = {}
 	for k in node_index:
-		base_stock[k] = tree.get_node_from_index(k).net_demand_mean * nlt[k] + ss[k]
+		base_stock_level[k] = tree.get_node_from_index(k).net_demand_mean * nlt[k] + ss[k]
 
 	if n_is_iterable:
-		return base_stock
+		return base_stock_level
 	else:
-		return base_stock[node_index[0]]
+		return base_stock_level[node_index[0]]
 
 
 def safety_stock_levels(tree, node_index, cst):
@@ -306,7 +308,7 @@ def safety_stock_levels(tree, node_index, cst):
 	
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Graph need not have been relabeled.
 	node_index : node *or* iterable container
 		A single node index *or* a container of node indices (dict, list, set, etc.).
@@ -315,7 +317,7 @@ def safety_stock_levels(tree, node_index, cst):
 
 	Returns
 	-------
-	safety_stock : float *or* dict
+	safety_stock_level : float *or* dict
 		Safety stock of node ``node_index`` (if ``node_index`` is a single node); *or* a dictionary of
 		safety stock values keyed by node (if ``node_index`` is an iterable container).
 
@@ -346,14 +348,14 @@ def safety_stock_levels(tree, node_index, cst):
 	# Calculate net lead times.
 	nlt = net_lead_time(tree, node_index, cst)
 
-	safety_stock = {}
+	safety_stock_level = {}
 	for k in node_index:
 		node_k = tree.get_node_from_index(k)
-		safety_stock[k] = node_k.demand_bound_constant * \
+		safety_stock_level[k] = node_k.demand_bound_constant * \
 						  node_k.net_demand_standard_deviation * \
 						  np.sqrt(nlt[k])
 
 	if n_is_iterable:
-		return safety_stock
+		return safety_stock_level
 	else:
-		return safety_stock[node_index[0]]
+		return safety_stock_level[node_index[0]]

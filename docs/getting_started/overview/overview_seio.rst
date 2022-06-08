@@ -13,9 +13,8 @@ Single-Echelon Inventory Optimization
 * Finite-horizon stochastic problems with or without fixed costs (|mod_finite_horizon| module)
 * Plus a number of single-echelon problems with supply uncertainty
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
+.. note:: |fosct_notation|
+
 
 
 .. contents::

@@ -1,14 +1,16 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 Input-output code for simulating multi-echelon stockpyl systems.
 
-'node' and 'stage' are used interchangeably in the documentation.
-
-The primary data object is the NetworkX DiGraph, which contains all of the data
-for the simulation instance.
+.. note:: |node_stage|
 
 
+API Reference
+-------------
 
 """
 
@@ -26,7 +28,7 @@ def write_results(network, num_periods, num_periods_to_print=None,
 
 	Parameters
 	----------
-	network : SupplyChainNetwork
+	network : |class_network|
 		The multi-echelon inventory network.
 	num_periods : int
 		Number of periods in simulation.

@@ -9,17 +9,18 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The |mod_gsm_tree| module implements Graves and Willems's (2000) dynamic programming (DP)
 algorithm for multi-echelon inventory systems with tree structures. 
 
-"node" and "stage" are used interchangeably in the documentation.
+.. note:: |node_stage|
 
-The primary data object is the ``SupplyChainNetwork``, which contains all of the data
+The primary data object is the |class_network|, which contains all of the data
 for the GSM instance.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -64,6 +65,8 @@ Example 6.5 is a built-in instance in |sp|, so it can be loaded directly instead
 		>>> optimize_committed_service_times(tree=load_instance("example_6_5"))
 		({1: 0, 3: 0, 2: 0, 4: 1}, 8.277916867529369)
 
+API Reference
+-------------
 """
 
 import networkx as nx
@@ -79,12 +82,10 @@ from stockpyl.supply_chain_node import SupplyChainNode
 ### OPTIMIZATION ###
 
 def optimize_committed_service_times(tree):
-	"""Optimize committed service times.
-
-	Optimization is performed using the dynamic programming (DP) algorithm of
+	"""Optimize committed service times using the dynamic programming (DP) algorithm of
 	Graves and Willems (2000, 2003).
 
-	``tree`` is the ``SupplyChainNetwork`` containing the instance. The tree need not already have been
+	``tree`` is the |class_network| containing the instance. The tree need not already have been
 	pre-processed using :func:`preprocess_tree` or :func:`relabel_nodes`; this function will do so. 
 
 	Output parameters are expressed using the original labeling of tree, even if the nodes
@@ -92,7 +93,7 @@ def optimize_committed_service_times(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Current node labels are ignored and may be anything.
 
 	Returns
@@ -150,7 +151,7 @@ def _cst_dp_tree(tree):
 	Optimization is performed using the dynamic programming (DP) algorithm of
 	Graves and Willems (2000).
 
-	``tree`` is the ``SupplyChainNetwork`` containing the instance. It must be pre-processed
+	``tree`` is the |class_network| containing the instance. It must be pre-processed
 	before calling this function.
 
 	Assumes demand bound over tau periods is of the form
@@ -158,7 +159,7 @@ def _cst_dp_tree(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Current node labels are ignored and may be anything.
 
 	Returns
@@ -312,7 +313,7 @@ def _cst_dp_tree(tree):
 
 def _calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
 	"""Calculate the function :math:`\\theta^o_k(S)` as described in Section 6.3.6.2 of
-	Snyder and Shen (2019) [function :math:`f_i(S)` in Section 5 of Graves and Willems
+	|fosct| [function :math:`f_i(S)` in Section 5 of Graves and Willems
 	(2003)].
 
 	Original function is modified in the following ways:
@@ -331,7 +332,7 @@ def _calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Tree must be pre-processed already.
 	k_index : int
 		Index of node.
@@ -412,7 +413,7 @@ def _calculate_theta_out(tree, k_index, S, theta_in_partial, theta_out_partial):
 
 def _calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
 	"""Calculate the function :math:`\\theta^i_k(SI)` as described in Section 6.3.6.2 of
-	Snyder and Shen (2019) [function :math:`g_i(SI)` in Section 5 of Graves and Willems
+	|fosct| [function :math:`g_i(SI)` in Section 5 of Graves and Willems
 	(2003)].
 
 	Original function is modified in the following ways:
@@ -429,7 +430,7 @@ def _calculate_theta_in(tree, k_index, SI, theta_in_partial, theta_out_partial):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Tree must be pre-processed already.
 	k_index : int
 		Index of node.
@@ -516,7 +517,7 @@ def _calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Tree must be pre-processed already.
 	k_index : int
 		Index of node.
@@ -609,14 +610,14 @@ def preprocess_tree(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network. Current node labels are ignored and may be anything.
 	start_index : int, optional
 		Integer to use as starting (smallest) node label.
 
 	Returns
 	-------
-	new_tree : SupplyChainNetwork
+	new_tree : |class_network|
 		Pre-processed multi-echelon tree network.
 
 	"""
@@ -669,7 +670,7 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 	Willems (2000).
 
 	If tree is already correctly labeled, returns the original tree,
-	unless ``force_relabel`` is True, in which case performs the relabeling.
+	unless ``force_relabel`` is ``True``, in which case performs the relabeling.
 
 	Does not modify the input tree. Fills ``original_label``,
 	``larger_adjacent_node``, and ``larger_adjacent_node_is_downstream`` attributes
@@ -678,19 +679,19 @@ def relabel_nodes(tree, start_index=0, force_relabel=False):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 		Current node labels are ignored (unless the tree is already correctly
 		labeled) and may be anything.
 	start_index : int, optional
 		Integer to use as starting (smallest) node label.
 	force_relabel : bool, optional
-		If True, function will relabel nodes even if original tree is correctly
+		If ``True``, function will relabel nodes even if original tree is correctly
 		labeled.
 
 	Returns
 	-------
-	relabeled_tree : SupplyChainNetwork
+	relabeled_tree : |class_network|
 		The relabeled tree network.
 
 	"""
@@ -757,7 +758,7 @@ def is_correctly_labeled(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 
 	Returns
@@ -802,7 +803,7 @@ def _find_larger_adjacent_nodes(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 		Nodes are assumed to have been relabeled using :func:`relabel_nodes`.
 
@@ -848,7 +849,7 @@ def _longest_paths(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 		Nodes are assumed to have been relabeled using :func:`relabel_nodes`.
 
@@ -894,7 +895,7 @@ def _net_demand(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 
 	Returns
@@ -937,7 +938,7 @@ def _connected_subgraph_nodes(tree):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 
 	Returns
@@ -975,7 +976,7 @@ def gsm_to_ssm(tree, p=None):
 
 	Parameters
 	----------
-	tree : SupplyChainNetwork
+	tree : |class_network|
 		The multi-echelon tree network.
 	p : float or dict, optional
 		Stockout cost to use at demand nodes, or dict indicating stockout cost
@@ -985,7 +986,7 @@ def gsm_to_ssm(tree, p=None):
 
 	Returns
 	-------
-	SSM_tree : SupplyChainNetwork
+	SSM_tree : |class_network|
 		SSM representation of tree.
 	"""
 

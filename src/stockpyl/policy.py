@@ -9,12 +9,30 @@
 """
 .. include:: ../../globals.inc
 
-This module contains the ``Policy`` class. A ``Policy`` object is used to make
-order quantity calculations.
+Overview 
+--------
 
-Notation and equation and section numbers refer to Snyder and Shen,
-"Fundamentals of Supply Chain Theory", Wiley, 2019, 2nd ed., except as noted.
+This module contains the |class_policy| class. A |class_policy| object is used to 
+encapsulate inventory policy calculations and to make order quantity calculations.
 
+.. note:: |fosct_notation|
+
+**Example:** Create a |class_policy| object representing a base-stock policy with
+base-stock level 60. Calculate the order quantity if the current inventory position
+is 52.5.
+
+	.. testsetup:: *
+
+		from stockpyl.policy import *
+
+	.. doctest::
+
+		>>> pol = Policy(type='BS', base_stock_level=60)
+		>>> pol.get_order_quantity(inventory_position=52.5)
+		7.5
+
+API Reference
+-------------
 
 """
 
@@ -24,35 +42,25 @@ Notation and equation and section numbers refer to Snyder and Shen,
 
 import numpy as np
 
-
-# ===============================================================================
-# Data Types
-# ===============================================================================
-
-# class InventoryPolicyType(Enum):
-# 	CUSTOM = 0
-# 	BASE_STOCK = 1
-# 	r_Q = 2
-# 	s_S = 3
-# 	FIXED_QUANTITY = 4
-# 	ECHELON_BASE_STOCK = 5
-# 	BALANCED_ECHELON_BASE_STOCK = 6
-# 	LOCAL_BASE_STOCK = 7
-# #	STERMAN = 3
-# #	RANDOM = 4
-#
-
 # ===============================================================================
 # Policy Class
 # ===============================================================================
 
 class Policy(object):
-	"""The ``Policy`` class is used to encapsulate inventory policy calculations.
+	"""A |class_policy| object is used to encapsulate inventory policy calculations and to make
+	order quantity calculations.
+
+	Parameters
+	----------
+	**kwargs 
+		Keyword arguments specifying values of one or more attributes of the |class_demand_source|, 
+		e.g., ``type='BS'``.
 
 	Attributes
 	----------
-	_type : str
+	type : str
 		The policy type, as a string. Currently supported strings are:
+
 			* None
 			* 'BS' (base stock)
 			* 'sS' (s, S)
@@ -60,16 +68,18 @@ class Policy(object):
 			* 'FQ' (fixed quantity)
 			* 'EBS' (echelon base-stock)
 			* 'BEBS' (balanced echelon base-stock)
-	_node : SupplyChainNode
+
+	node : |class_node|
 		The node the policy refers to.
-	_base_stock_level : float
-		The base-stock level used by the policy, if applicable.
-	_order_quantity : float
-		The order quantity used by the policy, if applicable.
-	_reorder_point : float
-		The reorder point used by the policy, if applicable.
-	_order_up_to_level : float
-		The order-up-to level used by the policy, if applicable.
+	base_stock_level : float, optional
+		The base-stock level used by the policy, if applicable. Required if ``type`` == 'BS',
+		'EBS', or 'BEBS'.
+	order_quantity : float, optional
+		The order quantity used by the policy, if applicable. Required if ``type`` == 'FQ' or 'rQ'.
+	reorder_point : float, optional
+		The reorder point used by the policy, if applicable. Required if ``type`` == 'sS' or 'rQ'.
+	order_up_to_level : float, optional
+		The order-up-to level used by the policy, if applicable. Required if ``type`` == 'sS'.
 
 	"""
 
@@ -104,8 +114,8 @@ class Policy(object):
 
 		Parameters
 		----------
-		other : Policy
-			The policy object to compare to.
+		other : |class_policy|
+			The |class_policy| object to compare to.
 
 		Returns
 		-------
@@ -127,7 +137,7 @@ class Policy(object):
 
 		Parameters
 		----------
-		other : DemandSource
+		other : |class_demand_source|
 			The policy object to compare to.
 
 		Returns
@@ -190,11 +200,11 @@ class Policy(object):
 
 	def __repr__(self):
 		"""
-		Return a string representation of the ``Policy`` instance.
+		Return a string representation of the |class_policy| instance.
 
 		Returns
 		-------
-			A string representation of the ``Policy`` instance.
+			A string representation of the |class_policy| instance.
 
 		"""
 		# Build string of parameters.
@@ -216,7 +226,7 @@ class Policy(object):
 
 	def __str__(self):
 		"""
-		Return the full name of the ``Policy`` instance.
+		Return the full name of the |class_policy| instance.
 
 		Returns
 		-------
@@ -340,15 +350,15 @@ class Policy(object):
 
 		# Determine order quantity based on policy.
 		if self.type == 'BS':
-			return self.get_order_quantity_base_stock(IP)
+			return self._get_order_quantity_base_stock(IP)
 		elif self.type == 'sS':
-			return self.get_order_quantity_s_S(IP)
+			return self._get_order_quantity_s_S(IP)
 		elif self.type == 'rQ':
-			return self.get_order_quantity_r_Q(IP)
+			return self._get_order_quantity_r_Q(IP)
 		elif self.type == 'FQ':
-			return self.get_order_quantity_fixed_quantity()
+			return self._get_order_quantity_fixed_quantity()
 		elif self.type == 'EBS':
-			return self.get_order_quantity_echelon_base_stock(IP)
+			return self._get_order_quantity_echelon_base_stock(IP)
 		elif self.type == 'BEBS':
 			# Was EIPA provided?
 			if echelon_inventory_position_adjusted is not None:
@@ -361,11 +371,11 @@ class Policy(object):
 					partner_node = self.node.network.get_node_from_index(self.node.index + 1)
 					EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
 
-			return self.get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
+			return self._get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
 		else:
 			return None
 
-	def get_order_quantity_base_stock(self, inventory_position):
+	def _get_order_quantity_base_stock(self, inventory_position):
 		"""Calculate order quantity using base-stock policy.
 
 		Parameters
@@ -381,7 +391,7 @@ class Policy(object):
 
 		return max(0.0, self.base_stock_level - inventory_position)
 
-	def get_order_quantity_s_S(self, inventory_position):
+	def _get_order_quantity_s_S(self, inventory_position):
 		"""Calculate order quantity using (s,S) policy.
 
 		Parameters
@@ -400,7 +410,7 @@ class Policy(object):
 		else:
 			return 0
 
-	def get_order_quantity_r_Q(self, inventory_position):
+	def _get_order_quantity_r_Q(self, inventory_position):
 		"""Calculate order quantity using (r,Q) policy.
 
 		Parameters
@@ -419,7 +429,7 @@ class Policy(object):
 		else:
 			return 0.0
 
-	def get_order_quantity_fixed_quantity(self):
+	def _get_order_quantity_fixed_quantity(self):
 		"""Calculate order quantity using fixed-quantity policy.
 
 		Returns
@@ -430,7 +440,7 @@ class Policy(object):
 
 		return self.order_quantity
 
-	def get_order_quantity_echelon_base_stock(self, echelon_inventory_position):
+	def _get_order_quantity_echelon_base_stock(self, echelon_inventory_position):
 		"""Calculate order quantity using echelon base-stock policy.
 
 		Returns
@@ -441,7 +451,7 @@ class Policy(object):
 
 		return max(0.0, self.base_stock_level - echelon_inventory_position)
 
-	def get_order_quantity_balanced_echelon_base_stock(self, echelon_inventory_position,
+	def _get_order_quantity_balanced_echelon_base_stock(self, echelon_inventory_position,
 													   echelon_inventory_position_adjusted):
 		"""Calculate order quantity.
 		Follows a balanced echelon base-stock policy, i.e., order up to :math:`min{S_i, IN^+_{i+1}}`, where

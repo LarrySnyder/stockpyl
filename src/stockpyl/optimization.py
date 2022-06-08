@@ -9,9 +9,14 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The :mod:`optimization` module contains optimization-related code used in other
 modules.
 
+API Reference
+-------------
 
 
 """

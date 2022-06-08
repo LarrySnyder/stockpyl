@@ -9,11 +9,12 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The |mod_ss| module contains code for solving the |ss| optimization problem.
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory* (|fosct|), 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -52,6 +53,10 @@ for normal demands by Ehrhardt and Mosier (1984):
 	40.19461695647407
 	>>> Q
 	74.29017010980579
+
+API Reference
+-------------
+
 """
 
 from scipy import integrate
@@ -85,7 +90,7 @@ def s_s_cost_discrete(reorder_point, order_up_to_level, holding_cost,
 		Stockout cost per item per period. [:math:`p`]
 	fixed_cost : float
 		Fixed cost per order. [:math:`K`]
-	poisson_dist : bool
+	use_poisson : bool
 		Set to ``True`` to use Poisson distribution, ``False`` to use custom
 		discrete distribution. If ``True``, then ``mean`` must be
 		provided; if ``False``, then ``hi`` and ``demand_pdf`` must

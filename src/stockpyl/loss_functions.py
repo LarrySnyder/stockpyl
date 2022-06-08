@@ -9,6 +9,9 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The :mod:`loss_functions` module contains code for calculating loss functions.
 
 For a random variable :math:`X`, the loss function, :math:`n(x)`, and the
@@ -24,10 +27,11 @@ loss function, :math:`n^{(2)}(x)`, and the second-order complementary loss funct
 	* :math:`n^{(2)}(x) = \\frac{1}{2}E\\left[\\left([X-x]^+\\right)^2\\right]`
 	* :math:`\\bar{n}^{(2)}(x) = \\frac{1}{2}E\\left[\\left([X-x]^-\\right)^2\\right]`
 
-Equation and section numbers refer to Snyder and Shen, "Fundamentals of Supply
-Chain Theory", Wiley, 2019, 2nd ed., except as noted.
+.. note:: |fosct_notation|
 
 
+API Reference
+-------------
 
 """
 

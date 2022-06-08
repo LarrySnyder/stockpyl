@@ -9,12 +9,13 @@
 """
 .. include:: ../../globals.inc
 
+Overview 
+--------
+
 The |mod_finite_horizon| module contains code for solving finite-horizon, stochastic
 inventory optimization problems, with or without fixed costs, using dynamic programming (DP).
 
-The notation and references (equations, sections, examples, etc.) used below
-refer to Snyder and Shen, *Fundamentals of Supply Chain Theory*, 2nd edition
-(2019).
+.. note:: |fosct_notation|
 
 
 
@@ -51,6 +52,8 @@ give both the reorder points (:math:`s`) and the order-up-to levels (:math:`S`)
     >>> S # Order-up-to levels
     [0, 133.0, 133.0, 133.0, 133.0, 126.0]
 
+API Reference
+-------------
 """
 
 import numpy as np
@@ -86,7 +89,7 @@ def finite_horizon_dp(
 	fixed costs, minimizing the expected discounted cost over the time horizon,
 	using dynamic programming (DP).
 
-	See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
+	See Sections 4.3.3 and 4.4.3 of |fosct| for discussion and
 	notation.
 
 	Returns :math:`s^*_t` and :math:`S^*_t` in the output lists ``reorder_points``
@@ -136,11 +139,11 @@ def finite_horizon_dp(
 	Raises warnings if the discretization and truncation settings are likely to
 	lead to suboptimal results. (See details in the code.)
 
-	Executes faster than straightforward implementation because it calculates
-	:math:`H_t(y)` (as defined in (4.87)) for each :math:`t` and :math:`y`,
-	and then uses this when calculating :math:`\\theta_t(x)` for each :math:`x`.
-	This avoids having to recalculate the terms that don't depend on :math:`x`
-	(which are computationally expensive).
+	.. note:: This function executes faster than straightforward implementation because it calculates
+		:math:`H_t(y)` (as defined in (4.87)) for each :math:`t` and :math:`y`,
+		and then uses this when calculating :math:`\\theta_t(x)` for each :math:`x`.
+		This avoids having to recalculate the terms that don't depend on :math:`x`
+		(which are computationally expensive).
 
 	Parameters
 	----------
@@ -511,14 +514,14 @@ def myopic_bounds(
 	Calculate the "myopic" bounds for the finite-horizon inventory optimization problem,
 	with or without fixed costs. 
 
-	See Sections 4.3.3 and 4.4.3 of Snyder and Shen (2019) for discussion and
+	See Sections 4.3.3 and 4.4.3 of |fosct| for discussion and
 	notation.
 
 	The myopic bounds :math:`\\bar{s}_t`, :math:`\\underline{S}_t`,
 	and :math:`\\bar{S}_t` are denoted :math:`r^+(t)`, :math:`s^+(t)`, and :math:`s^++(t)`,
 	respectively, in Zipkin (2000). (Zipkin does not have an analogous quantity
-	to :math:`\\underline{s}_t`.) They are not used in Snyder and Shen
-	(2019), but the bounds are given in terms of Snyder-Shen notation below.
+	to :math:`\\underline{s}_t`.) They are not used in |fosct|, 
+	but the bounds are given in terms of |fosct| notation below.
 
 	Demands are assumed to be normally distributed.
 
@@ -609,7 +612,7 @@ def myopic_bounds(
 
 	where :math:`G_t(y)` is the myopic newsvendor cost function in period :math:`t`,
 	denoted :math:`G_i(y)` in Veinott (1966) and
-	as :math:`C^+(t,y)` in Zipkin (2000), and is implemented in ``stockpyl.newsvendor.myopic()``.)
+	as :math:`C^+(t,y)` in Zipkin (2000), and is implemented in :func:`stockpyl.newsvendor.myopic`.)
 
 	In the fourth equation, if :math:`K_t - \\gamma_tK_{t+1} < 0`, then :math:`\\bar{s}_t` is invalid and
 	``s_overbar[t]`` is set to ``None``.
