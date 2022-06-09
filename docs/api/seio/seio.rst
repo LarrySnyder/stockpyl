@@ -1,3 +1,5 @@
+.. include:: ../../globals.inc
+
 Single-Echelon Inventory Optimization
 =====================================
 
@@ -12,3 +14,7 @@ Single-Echelon Inventory Optimization
 	wagner_whitin
 	finite_horizon
 	supply_uncertainty
+
+
+For an overview of single-echelon inventory optimization in |sp|,
+see the "Overview" page for :ref:`single-echelon inventory optimization<overview_seio_page>`.

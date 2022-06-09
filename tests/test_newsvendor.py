@@ -663,7 +663,7 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 		critical_ratio = \
 			(stockout_cost - c_plus) / (stockout_cost + holding_cost)
-		S_underbar = stats.norm.ppf(critical_ratio, demand_mean, demand_sd)
+		S_underbar = norm.ppf(critical_ratio, demand_mean, demand_sd)
 
 		base_stock_level = newsvendor.set_myopic_cost_to(17, holding_cost,
 														 stockout_cost,
@@ -755,7 +755,7 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 		critical_ratio = \
 			(stockout_cost - c_plus) / (stockout_cost + holding_cost)
-		S_underbar = stats.norm.ppf(critical_ratio, demand_mean, demand_sd)
+		S_underbar = norm.ppf(critical_ratio, demand_mean, demand_sd)
 
 		base_stock_level = newsvendor.set_myopic_cost_to(72000, holding_cost,
 														 stockout_cost,
@@ -847,7 +847,7 @@ class TestSetMyopicCostTo(unittest.TestCase):
 		c_plus = purchase_cost - discount_factor * purchase_cost_next_per
 		critical_ratio = \
 			(stockout_cost - c_plus) / (stockout_cost + holding_cost)
-		S_underbar = stats.norm.ppf(critical_ratio, demand_mean, demand_sd)
+		S_underbar = norm.ppf(critical_ratio, demand_mean, demand_sd)
 		G_S_underbar = newsvendor.myopic_cost(S_underbar, holding_cost, stockout_cost,
 											  purchase_cost, purchase_cost_next_per,
 											  demand_mean, demand_sd, discount_factor)

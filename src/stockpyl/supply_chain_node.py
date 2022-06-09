@@ -976,7 +976,7 @@ class NodeStateVars(object):
 		on-order items are counted using the "units" of the node itself.
 		That is, they are divided by the total number of predecessors. Read only.
 		"""
-		total_on_order = self.node.get_attribute_total('on_order_by_predecessor',
+		total_on_order = self.node._get_attribute_total('on_order_by_predecessor',
 												  self.period,
 												  include_external=True)
 		if total_on_order == 0:
@@ -990,7 +990,7 @@ class NodeStateVars(object):
 		are counted using the "units" of the node itself. That is, they are
 		divided by the total number of predecessors. Read only.
 		"""
-		total_raw_material = self.node.get_attribute_total('raw_material_inventory',
+		total_raw_material = self.node._get_attribute_total('raw_material_inventory',
 															self.period,
 															include_external=True)
 		if total_raw_material == 0:

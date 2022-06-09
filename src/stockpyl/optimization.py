@@ -12,7 +12,7 @@
 Overview 
 --------
 
-The :mod:`optimization` module contains optimization-related code used in other
+The |mod_optimization| module contains optimization-related code used in other
 modules.
 
 API Reference
@@ -30,7 +30,7 @@ def golden_section_search(f, a, b, tol=1e-5, verbose=False):
 	This implementation reuses function evaluations, saving 1/2 of the evaluations
 	per iteration, and returns a bounding interval.
 
-	Given a function ``f`` with a single local minimum in the interval [``a``,``b``],
+	Given a function ``f`` with a single local minimum in the interval [``a``, ``b``],
 	returns a point within ``tol`` of the minimizer.
 
 	**Example**:

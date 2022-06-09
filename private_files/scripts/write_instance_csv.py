@@ -1,10 +1,9 @@
 # Short script to save instance information to CSV for inclusion in
 # documentation page.
 
-import sys
+# Must be run from src directory.
 
-sys.path.append('/Users/larry/Documents/GitHub/stockpyl')
 
-from stockpyl.instances import *
+from stockpyl.instances import _save_summary_to_csv
 
-save_summary_to_csv('docs/aux_files/temp.csv')
+_save_summary_to_csv('../docs/aux_files/named_instances.csv')

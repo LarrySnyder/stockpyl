@@ -12,14 +12,16 @@
 Overview 
 --------
 
-The :mod:`instances` module contains code for loading and saving problem instances.
+The |mod_instances| module contains code for loading and saving problem instances.
 
 .. note:: |fosct_notation|
 
+|sp| has a number of built-in instances, most (but not all) of which are taken from |fosct|.
+These can be loaded using the :func:`~load_instance` function by providing the instance name. 
+A list of the built-in instances is provided below.
 
 
-
-.. csv-table:: Named Instances
+.. csv-table:: Built-In Instances
    :file: ../../docs/aux_files/named_instances.csv
    :widths: 30, 70
    :header-rows: 1
@@ -40,6 +42,7 @@ import csv
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
 
+#: Default path to JSON file containing built-in instances. Relative to 'src' directory.
 DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
 
 def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True):
@@ -53,7 +56,7 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 	instance_name : str
 		The name of the instance.
 	filepath : str, optional
-		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
+		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
 	initialize_missing_attributes : bool, optional
 		If ``True``, method will ensure that all attributes are present in the instance loaded,
 		initializing any missing attributes to their default values. (Typically this is only set
@@ -139,7 +142,7 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	instance_description : str, optional
 		A longer descrtiption of the instance.
 	filepath : str, optional
-		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
+		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
 	replace : bool, optional
 		If an instance with the same ``instance_name`` is already in the file, the function
 		will replace it if ``True`` and will ignore it (and write nothing) if ``False``.
@@ -207,7 +210,7 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	f.close()
 
 
-def save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
+def _save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
 	"""Save a CSV file with a summary of the instances in a JSON file.
 
 	Main purpose of this method is to build the CSV file that populates the table
@@ -218,7 +221,7 @@ def save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
 	save_filepath : str
 		Path to the CSV file to create.
 	json_filepath : str, optional
-		Path to the JSON file. If ``None``, ``../datasets/stockpyl_instances.json`` is used.
+		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
 	"""
 
 	# Load JSON file.

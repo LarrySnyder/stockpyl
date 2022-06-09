@@ -1,5 +1,7 @@
 .. include:: ../../globals.inc
 
+.. _overview_meio_page:
+
 Multi-Echelon Inventory Optimization
 ====================================
 

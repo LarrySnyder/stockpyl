@@ -560,21 +560,21 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 
 		# Build and set demand source.
 		if demand_type_dict[n.index] is not None:
-			demand_source = demand_source.DemandSource()
+			ds = demand_source.DemandSource()
 			demand_type = demand_type_dict[n.index]
-			demand_source.type = demand_type
+			ds.type = demand_type
 			if demand_type == 'N':
-				demand_source.mean = demand_mean_dict[n.index]
-				demand_source.standard_deviation = demand_standard_deviation_dict[n.index]
+				ds.mean = demand_mean_dict[n.index]
+				ds.standard_deviation = demand_standard_deviation_dict[n.index]
 			elif demand_type in ('UC', 'UD'):
-				demand_source.lo = demand_lo_dict[n.index]
-				demand_source.hi = demand_hi_dict[n.index]
+				ds.lo = demand_lo_dict[n.index]
+				ds.hi = demand_hi_dict[n.index]
 			elif demand_type == 'D':
-				demand_source.demand_list = demand_list[n.index]
+				ds.demand_list = demand_list[n.index]
 			elif demand_type == 'CD':
-				demand_source.demand_list = demand_list[n.index]
-				demand_source.probabilities = probabilities_dict[n.index]
-			n.demand_source = demand_source
+				ds.demand_list = demand_list[n.index]
+				ds.probabilities = probabilities_dict[n.index]
+			n.demand_source = ds
 
 		# Set initial quantities.
 		n.initial_inventory_level = initial_IL_dict[n.index]
@@ -687,20 +687,20 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 
 	# Build and set demand source.
 	demand_type = demand_type
-	demand_source = demand_source.DemandSource()
-	demand_source.type = demand_type
+	ds = demand_source.DemandSource()
+	ds.type = demand_type
 	if demand_type == 'N':
-		demand_source.mean = demand_mean
-		demand_source.standard_deviation = demand_standard_deviation
+		ds.mean = demand_mean
+		ds.standard_deviation = demand_standard_deviation
 	elif demand_type in ('UC', 'UD'):
-		demand_source.lo = demand_lo
-		demand_source.hi = demand_hi
+		ds.lo = demand_lo
+		ds.hi = demand_hi
 	elif demand_type == 'D':
-		demand_source.demand_list = demand_list
+		ds.demand_list = demand_list
 	elif demand_type == 'CD':
-		demand_source.demand_list = demand_list
-		demand_source.probabilities = probabilities
-	node.demand_source = demand_source
+		ds.demand_list = demand_list
+		ds.probabilities = probabilities
+	node.demand_source = ds
 
 	# Set initial quantities.
 	node.initial_inventory_level = initial_IL
@@ -870,22 +870,22 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_dict[n_ind]
 		if n == 0:
-			demand_source = demand_source.DemandSource()
-			demand_source.type = demand_type
+			ds = demand_source.DemandSource()
+			ds.type = demand_type
 			if demand_type == 'N':
-				demand_source.mean = demand_mean_dict[n_ind]
-				demand_source.standard_deviation = demand_standard_deviation_dict[n_ind]
+				ds.mean = demand_mean_dict[n_ind]
+				ds.standard_deviation = demand_standard_deviation_dict[n_ind]
 			elif demand_type in ('UC', 'UD'):
-				demand_source.lo = demand_lo_dict[n_ind]
-				demand_source.hi = demand_hi_dict[n_ind]
+				ds.lo = demand_lo_dict[n_ind]
+				ds.hi = demand_hi_dict[n_ind]
 			elif demand_type == 'D':
-				demand_source.demand_list = demand_list[n_ind]
+				ds.demand_list = demand_list[n_ind]
 			elif demand_type == 'CD':
-				demand_source.demand_list = demand_list[n_ind]
-				demand_source.probabilities = probabilities_dict[n_ind]
+				ds.demand_list = demand_list[n_ind]
+				ds.probabilities = probabilities_dict[n_ind]
 		else:
-			demand_source = None
-		node.demand_source = demand_source
+			ds = None
+		node.demand_source = ds
 
 		# Set initial quantities.
 		node.initial_inventory_level = initial_IL_dict[n_ind]
@@ -1063,22 +1063,22 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_list[n]
 		if n == 0:
-			demand_source = demand_source.DemandSource()
-			demand_source.type = demand_type
+			ds = demand_source.DemandSource()
+			ds.type = demand_type
 			if demand_type == 'N':
-				demand_source.mean = demand_mean_list[n]
-				demand_source.standard_deviation = demand_standard_deviation_list[n]
+				ds.mean = demand_mean_list[n]
+				ds.standard_deviation = demand_standard_deviation_list[n]
 			elif demand_type in ('UC', 'UD'):
-				demand_source.lo = demand_lo_list[n]
-				demand_source.hi = demand_hi_list[n]
+				ds.lo = demand_lo_list[n]
+				ds.hi = demand_hi_list[n]
 			elif demand_type == 'D':
-				demand_source.demand_list = demand_list[n]
+				ds.demand_list = demand_list[n]
 			elif demand_type == 'CD':
-				demand_source.demand_list = demand_list[n]
-				demand_source.probabilities = probabilities_list[n]
+				ds.demand_list = demand_list[n]
+				ds.probabilities = probabilities_list[n]
 		else:
-			demand_source = None
-		node.demand_source = demand_source
+			ds = None
+		node.demand_source = ds
 
 		# Set initial quantities.
 		node.initial_inventory_level = initial_IL_list[n]
@@ -1086,20 +1086,20 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
-		policy = policy.Policy(type=inventory_policy_type_list[n], node=node)
+		pol = policy.Policy(type=inventory_policy_type_list[n], node=node)
 		if inventory_policy_type_list[n] in ('BS', 'EBS', 'BEBS'):
-			policy.base_stock_level = base_stock_levels_list[n]
+			pol.base_stock_level = base_stock_levels_list[n]
 		elif inventory_policy_type_list[n] == 'rQ':
-			policy.reorder_point = reorder_points_list[n]
-			policy.order_quantity = order_quantities_list[n]
+			pol.reorder_point = reorder_points_list[n]
+			pol.order_quantity = order_quantities_list[n]
 		elif inventory_policy_type_list[n] == 'sS':
-			policy.reorder_point = reorder_points_list[n]
-			policy.order_up_to_level = order_up_to_levels_list[n]
+			pol.reorder_point = reorder_points_list[n]
+			pol.order_up_to_level = order_up_to_levels_list[n]
 		elif inventory_policy_type_list[n] == 'FQ':
-			policy.order_quantity=order_quantities_list[n]
+			pol.order_quantity=order_quantities_list[n]
 		else:
-			policy = None
-		node.inventory_policy = policy
+			pol = None
+		node.inventory_policy = pol
 
 		# Set supply type.
 		if n == 0:

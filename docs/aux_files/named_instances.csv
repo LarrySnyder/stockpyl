@@ -42,6 +42,11 @@ problem_6_2a,Problem 6.2(a) (serial SSM)
 problem_6_2a_adj,"Problem 6.2(a) (serial SSM), adjusted for periodic review (since L=0.5 in that problem, here we treat each period as having length 0.5 in the original problem.)"
 problem_6_2b_adj,"Problem 6.2(b) (serial SSM), adjusted for periodic review (since L=0.5 in that problem, here we treat each period as having length 0.5 in the original problem.)"
 problem_6_16,Problem 6.16 (serial SSM)
+example_6_5,Example 6.5 (tree GSM)
+figure_6_12,Figure 6.12 (tree GSM
+figure_6_14,Figure 6.14 (tree GSM)
+problem_6_7,Problem 6.7 (serial GSM)
+problem_6_9,Problem 6.9 (tree GSM)
 example_9_1,Example 9.1 (EOQB)
 problem_9_8,Problem 9.8 (EOQB)
 example_9_3,Example 9.3 (base-stock with disruptions)
@@ -53,6 +58,8 @@ example_9_6,Example 9.6 (newsvendor with additive yield uncertainty)
 problem_9_5,Problem 9.5 (newsvendor with additive yield uncertainty)
 assembly_3_stage,"3-stage assembly system (2 warehouses, 1 retailer)"
 rosling_figure_1,assembly system from Figure 1 in Rosling (1989) (structure and lead times are from Rosling; all other parameters are made up)
-rong_atan_snyder_figure_1a,"distribution system from Figure 1(a) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson)"
-rong_atan_snyder_figure_1b,"distribution system from Figure 1(b) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)"
-rong_atan_snyder_figure_1c,"distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)"
+rong_atan_snyder_figure_1a,"distribution system from Figure 1(a) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson)"
+rong_atan_snyder_figure_1b,"distribution system from Figure 1(b) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson, and with costs and lead times omitted)"
+rong_atan_snyder_figure_1c,"distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson, and with costs and lead times omitted)"
+example_6_3,Example 6.3 (serial GSM)
+problem_6_8,Problem 6.8 (serial GSM)

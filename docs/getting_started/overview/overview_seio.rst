@@ -1,5 +1,7 @@
 .. include:: ../../globals.inc
 
+.. _overview_seio_page:
+
 Single-Echelon Inventory Optimization
 =====================================
 

@@ -4,7 +4,8 @@
 Overview 
 --------
 
-Helper functions for stockpyl package.
+The |mod_helpers| module contains helper functions that are used by functions throughout the 
+|sp| package.
 
 API Reference
 -------------
@@ -31,7 +32,7 @@ BIG_FLOAT = 1.0e100
 ### UTILITY FUNCTIONS ###
 
 def min_of_dict(d):
-	"""Determine min value of dict and return min and argmin (key).
+	"""Determine min value of a dict and return min and argmin (key).
 
 	Values must be numeric.
 
@@ -44,7 +45,7 @@ def min_of_dict(d):
 	-------
 	min_value : float
 		Minimum value in dict.
-	min_key
+	min_key : any
 		Key that attains minimum value.
 
 	Raises
@@ -62,7 +63,7 @@ def dict_match(d1, d2, require_presence=False, rel_tol=1e-9, abs_tol=0.0):
 	"""Check whether two dicts have equal keys and values.
 
 	A missing key is treated as 0 if the key is present in the other dict,
-	unless require_presence is ``True``, in which case the dict must have the
+	unless ``require_presence`` is ``True``, in which case the dict must have the
 	key to count as a match.
 
 	Parameters
@@ -72,7 +73,7 @@ def dict_match(d1, d2, require_presence=False, rel_tol=1e-9, abs_tol=0.0):
 	d2 : node
 		Second dict for comparison.
 	require_presence : bool, optional
-		Set to True to require dicts to have the same keys, or False
+		Set to ``True`` to require dicts to have the same keys, or ``False``
 		(default) to treat missing keys as 0s.
 	rel_tol : float
 		Relative tolerance.
@@ -106,16 +107,17 @@ def dict_match(d1, d2, require_presence=False, rel_tol=1e-9, abs_tol=0.0):
 
 
 def is_iterable(x):
-	"""Determine whether x is an iterable or a singleton.
+	"""Determine whether ``x`` is an iterable or a singleton.
 
 	Parameters
 	----------
-	x
+	x : any
 		Object to test for iterable vs. singleton.
 
 	Returns
 	-------
-	True if x is iterable, False if it is a singleton.
+	bool
+		``True`` if ``x`` is iterable, ``False`` if it is a singleton.
 
 	"""
 	# First check whether x is a string (because strings act like iterables).
@@ -136,19 +138,20 @@ def is_list(x):
 
 	Parameters
 	----------
-	x
+	x : any
 		Object to test for list-ness.
 
 	Returns
 	-------
-	True if x is a list, False otherwise.
+	bool
+		``True`` if ``x`` is a list, ``False`` otherwise.
 
 	"""
 	return isinstance(x, list)
 
 
 def is_integer(x):
-	"""Determine whether x is an integer. Return False if x is not a float,
+	"""Determine whether ``x`` is an integer. Return ``False`` if ``x`` is not a float,
 	or is a non-integer float, or is an int.
 
 	Parameters
@@ -158,8 +161,8 @@ def is_integer(x):
 
 	Returns
 	-------
-	is_int : bool
-		True if x is an integer, False otherwise.
+	bool
+		``True`` if ``x`` is an integer, ``False`` otherwise.
 
 	"""
 	# Check whether x is an int.
@@ -179,9 +182,7 @@ def is_integer(x):
 def is_discrete_distribution(distribution):
 	"""Check whether the given distribution object is discrete.
 
-	Works both for ``rv_frozen`` objects (i.e., `frozen distributions
-	<https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html#freezing-a
-	-distribution>`_) and for custom distribution (i.e., subclasses of
+	Works both for ``rv_frozen`` objects and for custom distributions (i.e., subclasses of
 	``rv_continuous`` and ``rv_discrete``).
 
 	See https://stackoverflow.com/a/61530461/3453768.
@@ -193,12 +194,12 @@ def is_discrete_distribution(distribution):
 
 	Returns
 	-------
-	``True`` if the distribution is discrete, ``False`` otherwise.
+	bool
+		``True`` if the distribution is discrete, ``False`` otherwise.
 
-	Notes
-	-----
-	Not reliable if ``distribution`` is not an ``rv_frozen``, ``rv_discrete``,
-	or ``rv_continuous`` object.
+
+	.. note:: Not reliable if ``distribution`` is not an ``rv_frozen``, ``rv_discrete``,
+		or ``rv_continuous`` object.
 
 	"""
 	# First check whether distribution is a frozen distribution (in which case
@@ -214,9 +215,7 @@ def is_discrete_distribution(distribution):
 def is_continuous_distribution(distribution):
 	"""Check whether the given distribution object is continuous.
 
-	Works both for ``rv_frozen`` objects (i.e., `frozen distributions
-	<https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html#freezing-a
-	-distribution>`_) and for custom distribution (i.e., subclasses of
+	Works both for ``rv_frozen`` objects and for custom distributions (i.e., subclasses of
 	``rv_continuous`` and ``rv_discrete``).
 
 	See https://stackoverflow.com/a/61530461/3453768.
@@ -228,12 +227,12 @@ def is_continuous_distribution(distribution):
 
 	Returns
 	-------
-	``True`` if the distribution is continuous, ``False`` otherwise.
+	bool
+		``True`` if the distribution is continuous, ``False`` otherwise.
 
-	Notes
-	-----
-	Not reliable if ``distribution`` is not an ``rv_frozen``, ``rv_discrete``,
-	or ``rv_continuous`` object.
+
+	.. note:: Not reliable if ``distribution`` is not an ``rv_frozen``, ``rv_discrete``,
+		or ``rv_continuous`` object.
 
 	"""
 	# First check whether distribution is a frozen distribution (in which case
@@ -247,7 +246,7 @@ def is_continuous_distribution(distribution):
 
 
 def find_nearest(array, values, sorted=False):
-	"""Determine entries in ``array` that are closest to each of the
+	"""Determine entries in ``array`` that are closest to each of the
 	entries in ``values`` and return their indices. Neither array needs to be sorted,
 	but if ``array`` is sorted and ``sorted`` is set to ``True``, execution will be faster.
 	``array`` and ``values`` need not be the same length.
@@ -290,12 +289,21 @@ def find_nearest(array, values, sorted=False):
 ### LIST-HANDLING FUNCTIONS ###
 
 def check_iterable_sizes(iterable_list):
-	"""Check whether `iterable_list` is a list in which every item is an iterable of the
-	same size _or_ a singleton.
+	"""Check whether ``iterable_list`` is a list in which every item is an iterable of the
+	same size *or* a singleton.
 
-	Examples:
-		- ensure_iterable_sizes([[5, 3, 1], ('a', 'b', 'c'), 7]) returns True
-		- ensure_iterable_sizes([[5, 3, 1], ('a, 'b'), 7]) returns False
+	**Examples:**
+
+	.. testsetup:: *
+
+		from stockpyl.helpers import *
+
+	.. doctest::
+
+		>>> check_iterable_sizes([[5, 3, 1], ('a', 'b', 'c'), 7])
+		True
+		>>> check_iterable_sizes([[5, 3, 1], ('a', 'b'), 7])
+		False
 
 	Parameters
 	----------
@@ -304,8 +312,10 @@ def check_iterable_sizes(iterable_list):
 
 	Returns
 	-------
-	True if `iterable_list` is a list in which every item is an iterable of the
-	same size _or_ a singleton, False otherwise.
+	bool
+		``True`` if ``iterable_list`` is a list in which every item is an iterable of the
+		same size *or* a singleton, ``False`` otherwise.
+
 	"""
 	# Build set of lengths of items in list, excluding singletons.
 	lengths = {len(i) for i in iterable_list if is_iterable(i) and len(i) != 1}
@@ -315,25 +325,38 @@ def check_iterable_sizes(iterable_list):
 
 
 def ensure_list_for_time_periods(x, num_periods, var_name=None):
-	"""Ensure that `x` is a list suitable for time-period indexing; if not, create
+	"""Ensure that ``x`` is a list suitable for time-period indexing; if not, create
 	such a list and return it.
 
-	"Suitable for time-period indexing" means that it has length num_periods+1,
-	and element [0] is ignored.
+	"Suitable for time-period indexing" means that it has length ``num_periods`` + 1,
+	and the 0th element is ignored.
 
-	* If x is a singleton, return a list consisting of `num_periods` copies of x.
-	* If x is a list of length `num_periods`, return x.
-	* If x is a list of length `num_periods`-1, shift elements to the right by 1 slot, 
-	  fill [0] element with 0, and return new list.
+	* If ``x`` is a singleton, return a list consisting of ``num_periods`` copies of ``x`` plus
+	  a ``0`` in the 0th element.
+	* If ``x`` is a list of length ``num_periods``+1, return ``x``.
+	* If ``x`` is a list of length ``num_periods``, shift elements to the right by 1 slot, 
+	  fill the 0th element with 0, and return new list.
+	* Otherwise, raise a ``ValueError``.
+
+	**Examples:**
 	
-	Otherwise, raise a ``ValueError``.
+	.. testsetup:: *
 
-	Examples:
+		from stockpyl.helpers import *
 
-	* ensure_list_for_time_periods(5, 3) returns [5, 5, 5]
-	* ensure_list_for_time_periods([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
-	* ensure_list_for_time_periods([5, 2, 1], 4) returns [0, 5, 2, 1]
-	* ensure_list_for_time_periods([0, 5, 2, 1], 3) raises a ValueError.
+	.. doctest::
+
+		>>> ensure_list_for_time_periods(5, 3)
+		[0, 5, 5, 5]
+		>>> ensure_list_for_time_periods([0, 5, 2, 1], 4)
+		[0, 0, 5, 2, 1]
+		>>> ensure_list_for_time_periods([5, 2, 1, 3, 2], 4)
+		[5, 2, 1, 3, 2]
+		>>> ensure_list_for_time_periods([0, 5, 2, 1, 5], 3)
+		Traceback (most recent call last):
+			...
+		ValueError: x must be a singleton or a list of length num_periods or num_periods+1
+
 
 	Parameters
 	----------
@@ -350,6 +373,11 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	-------
 	x_new : list
 		Time-period-ified list.
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not a singleton or a list of length ``num_periods`` or ``num_periods``+1.
 	"""
 	# Determine whether x is singleton or iterable.
 	if is_iterable(x):
@@ -368,25 +396,36 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 
 
 def ensure_list_for_nodes(x, num_nodes, default=None):
-	"""Ensure that x is a list suitable for node indexing; if not, create
+	"""Ensure that ``x`` is a list suitable for node indexing; if not, create
 	such a list and return it.
 
-	"Suitable for node indexing" means that it has length num_nodes.
+	"Suitable for node indexing" means that it has length ``num_nodes``.
 
-	* If x is a singleton, return a list consisting of `num_nodes` copies of x.
-	* If x is a list of length `num_nodes`, return x.
-	* If x is None and `default` is provided, return a list consisting of
-	  `num_nodes` copies of `default`.
-	* If x is None and `default` is not provided, a list consisting of 
-	  `num_nodes` copies of None.
+	* If ``x`` is a singleton, return a list consisting of ``num_nodes`` copies of ``x``.
+	* If ``x`` is a list of length ``num_nodes``, return ``x``.
+	* If ``x`` is ``None`` and ``default`` is provided, return a list consisting of
+	  ``num_nodes`` copies of ``default``.
+	* If ``x`` is ``None`` and ``default`` is not provided, a list consisting of 
+	  ``num_nodes`` copies of ``None``.
+	* Otherwise, raise a ``ValueError``.
+
+	**Examples:**
 	
-	Otherwise, raise a ValueError.
+	.. testsetup:: *
 
-	Examples:
+		from stockpyl.helpers import *
 
-	* ensure_list_for_nodes(5, 3) returns [5, 5, 5]
-	* ensure_list_for_nodes([0, 5, 2, 1], 4) returns [0, 5, 2, 1]
-	* ensure_list_for_nodes([0, 5, 2, 1], 3) raises a ValueError.
+	.. doctest::
+
+		>>> ensure_list_for_nodes(5, 3)
+		[5, 5, 5]
+		>>> ensure_list_for_nodes([0, 5, 2, 1], 4)
+		[0, 5, 2, 1]
+		>>> ensure_list_for_nodes([0, 5, 2, 1], 3)
+		Traceback (most recent call last):
+			...
+		ValueError: x must be a singleton, a list of length num_nodes, or None
+
 
 	Parameters
 	----------
@@ -395,12 +434,17 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 	num_nodes : int
 		Number of nodes.
 	default : float, optional
-		Value to use if x is None.
+		Value to use if ``x`` is ``None``.
 
 	Returns
 	-------
 	x_new : list
 		Node-ified list.
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not a singleton, a list of length ``num_nodes``, or ``None``.
 	"""
 	# Is x None?
 	if x is None:
@@ -411,13 +455,13 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			if len(list(x)) == num_nodes:
 				return list(x)
 			else:
-				raise ValueError('x must be a singleton or a list of length num_nodes')
+				raise ValueError('x must be a singleton, a list of length num_nodes, or None')
 		else:
 			return [x] * num_nodes
 
 
 def ensure_dict_for_nodes(x, node_indices, default=None):
-	"""Ensure that x is a dict suitable with node indices as keys(); if not, create
+	"""Ensure that ``x`` is a dict with node indices as ``keys``; if not, create
 	such a dict and return it.
 
 	* If ``x`` is a dict, return ``x``.
@@ -429,14 +473,25 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 	  equal to ``node_indices`` and values all equal to ``default``.
 	* If ``x`` is ``None`` and ``default`` is not provided, return a dict with
 	  keys equal to ``node_indices`` and values all equal to ``None``.
+	* Otherwise, raise a ``ValueError``.
+
+	**Examples:**
 	
-	Otherwise, raise a ``ValueError``.
+	.. testsetup:: *
 
-	Examples:
+		from stockpyl.helpers import *
 
-	* ensure_dict_for_nodes(5, [0, 1, 2]) returns {0: 5, 1: 5, 2:5}.
-	* ensure_dict_for_nodes([0, 5, 2], [0, 1, 2]) returns {0: 0, 1: 5, 2: 2}.
-	* ensure_list_for_nodes([0, 5, 2, 1], [0, 1, 2]) raises a ValueError.
+	.. doctest::
+
+		>>> ensure_dict_for_nodes(5, [0, 1, 2])
+		{0: 5, 1: 5, 2: 5}
+		>>> ensure_dict_for_nodes([0, 5, 2], [0, 1, 2])
+		{0: 0, 1: 5, 2: 2}
+		>>> ensure_list_for_nodes([0, 5, 2, 1], [0, 1, 2])
+		Traceback (most recent call last):
+			...
+		ValueError: x must be a singleton, dict, list with the same length as node_indices, or None
+
 
 	Parameters
 	----------
@@ -451,6 +506,11 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 	-------
 	x_new : dict
 		Node-ified dict.
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not a dict, a singleton, a list with the same length as ``node_indices``, or ``None``.
 	"""
 	# Is x None?
 	if type(x) == dict:
@@ -463,7 +523,7 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 			if len(list(x)) == len(node_indices):
 				return {node_indices[i]: x[i] for i in range(len(x))}
 			else:
-				raise ValueError('x must be a singleton, dict, or list with the same length as node_indices')
+				raise ValueError('x must be a singleton, dict, list with the same length as node_indices, or None')
 		else:
 			return {node_indices[i]: x for i in range(len(node_indices))}
 
@@ -471,6 +531,7 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 def sort_dict_by_keys(d, ascending=True, return_values=True):
 	"""Sort dict by keys and return sorted list of values or keys, depending
 	on the value of ``return_values``.
+
 	Special handling is included to handle keys that might be ``None``.
 	(``None`` is assumed to come before any other element when sorting in
 	ascending order.)
@@ -533,7 +594,8 @@ def change_dict_key(dict_to_change, old_key, new_key):
 
 	Raises
 	------
-	KeyError : if dict_to_change[old_key] is undefined.
+	KeyError
+		If ``dict_to_change[old_key]`` is undefined.
 	"""
 	# Change key.
 	# See https://stackoverflow.com/a/4406521/3453768.
@@ -543,7 +605,8 @@ def change_dict_key(dict_to_change, old_key, new_key):
 ### STATS FUNCTIONS ###
 
 def convolve_many(arrays):
-	"""Convolve a list of 1-dimensional float arrays together, using FFTs.
+	"""Convolve a list of 1-dimensional float arrays together, using 
+	fast Fourier transforms (FFTs).
 	The arrays need not have the same length, but each array should
 	have length at least 1.
 
@@ -552,7 +615,7 @@ def convolve_many(arrays):
 	:math:`X_1+\\cdots+X_n`. Assuming the possible values of all of the random
 	variables are equally spaced with spacing :math:`s`, the possible values of
 	:math:`X_1+\\cdots+X_n` corresponding to the output are
-	:math:`\\min_i\\{\\min X_i\\},\\ldots,\\sum_i \\max X_i`, with spacing :math:`s`.
+	:math:`\\sum_i\\min X_i,\\ldots,\\sum_i \\max X_i`, with spacing :math:`s`.
 
 	Code is adapted from https://stackoverflow.com/a/29236193/3453768.
 
@@ -566,7 +629,8 @@ def convolve_many(arrays):
 	convolution : array
 		Array of elements in the convolution.
 
-	**Example**
+
+	**Example:**
 	Let :math:`X_1 = \\{0, 1, 2\\}` with probabilities :math:`[0.6, 0.3, 0.1]`,
 	:math:`X_2 = \\{0, 1, 2\\}` with probabilities :math:`[0.5, 0.4, 0.1]`,
 	:math:`X_3 = \\{0, 1\\}` with probabilities :math:`[0.3, 0.7]`, and
@@ -581,7 +645,7 @@ def convolve_many(arrays):
 		>>> convolve_many([[0.6, 0.3, 0.1], [0.5, 0.4, 0.1], [0.3, 0.7], [1.0]])
 		array([0.09 , 0.327, 0.342, 0.182, 0.052, 0.007])
 
-	In other words, :math:`X_1+\\cdots+X_4 = \\{0, 1, \\ldots, 5\\}`: with
+	In other words, :math:`X_1+\\cdots+X_4 = \\{0, 1, \\ldots, 5\\}` with
 	probabilities :math:`[0.09 , 0.327, 0.342, 0.182, 0.052, 0.007]`.
 
 	"""
@@ -615,7 +679,7 @@ def convolve_many(arrays):
 
 def irwin_hall_cdf(x, n):
 	"""Return cdf of Irwin-Hall distribution, i.e., distribution of sum of ``n``
-	U[0,1] random variables.
+	:math:`U[0,1]` random variables.
 
 	See https://en.wikipedia.org/wiki/Irwin%E2%80%93Hall_distribution.
 
@@ -624,7 +688,7 @@ def irwin_hall_cdf(x, n):
 	x : float
 		Argument of cdf function.
 	n : int
-		Number of U[0,1] random variables in the sum.
+		Number of :math:`U[0,1]` random variables in the sum.
 
 	Returns
 	-------
@@ -641,7 +705,7 @@ def irwin_hall_cdf(x, n):
 
 
 def sum_of_continuous_uniforms_distribution(n, lo=0, hi=1):
-	"""Return distribution of sum of ``n`` identical continuous uniform random variables as
+	"""Return distribution of sum of ``n`` identical continuous uniform random variables as an
 	``rv_continuous`` object.
 
 	If ``lo`` = 0 and ``hi`` = 1, this distribution is the Irwin-Hall distribution.
@@ -658,7 +722,7 @@ def sum_of_continuous_uniforms_distribution(n, lo=0, hi=1):
 	Returns
 	-------
 	distribution : rv_continuous
-		The rv_continuous object.
+		The ``rv_continuous`` object.
 
 	Raises
 	------
@@ -730,7 +794,7 @@ def sum_of_discrete_uniforms_pmf(n, lo, hi):
 				
 
 def sum_of_discrete_uniforms_distribution(n, lo, hi):
-	"""Return distribution of sum of ``n`` identical discrete uniform random variables as
+	"""Return distribution of sum of ``n`` identical discrete uniform random variables as an
 	``rv_continuous`` object.
 
 	Parameters
@@ -745,7 +809,7 @@ def sum_of_discrete_uniforms_distribution(n, lo, hi):
 	Returns
 	-------
 	distribution : rv_discrete
-		The rv_discrete object.
+		The ``rv_discrete`` object.
 
 	Raises
 	------
@@ -766,11 +830,11 @@ def sum_of_discrete_uniforms_distribution(n, lo, hi):
 	
 	
 def sum_of_discretes_distribution(n, lo, hi, p):
-	"""Return distribution of convolution of ``n`` identical discrete random variables as
+	"""Return distribution of convolution of ``n`` identical discrete random variables as an
 	``rv_discrete`` object.
 
-	The random variables must have support ``lo``, ``lo``+1, ..., ``hi``.
-	(The convolution will have support ``n * lo``, ``n * lo``+1, ..., ``n * hi``.
+	The random variables must have support ``lo``, ``lo`` + 1, ..., ``hi``.
+	(The convolution will have support ``n * lo``, ``n * lo`` + 1, ..., ``n * hi``).
 
 
 	Parameters
@@ -787,7 +851,7 @@ def sum_of_discretes_distribution(n, lo, hi, p):
 	Returns
 	-------
 	distribution : rv_discrete
-		The rv_discrete object.
+		The ``rv_discrete`` object.
 
 	Raises
 	------

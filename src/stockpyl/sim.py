@@ -426,7 +426,7 @@ def _calculate_period_costs(network, period):
 
 	for n in network.nodes:
 		# Finished goods holding cost.
-		items_held = max(0, n.state_vars[period].inventory_level) + n.get_attribute_total('disrupted_items_by_successor', period)
+		items_held = max(0, n.state_vars[period].inventory_level) + n._get_attribute_total('disrupted_items_by_successor', period)
 		try:
 			n.state_vars[period].holding_cost_incurred = n.local_holding_cost_function(items_held)
 		except TypeError:
@@ -553,8 +553,8 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 	current_backorders = max(0.0, -starting_inventory_level)
 	# Double-check BO calculations.
 #	if not any([s.disruption_process.disruption_type == 'SP' for s in node.successors()]):
-	current_backorders_check = node.get_attribute_total('backorders_by_successor', node.network.period) \
-		+ node.get_attribute_total('disrupted_items_by_successor', node.network.period)
+	current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period) \
+		+ node._get_attribute_total('disrupted_items_by_successor', node.network.period)
 	assert np.isclose(current_backorders, current_backorders_check), \
 		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
 			current_backorders, current_backorders_check, node.index, node.network.period)
@@ -625,7 +625,7 @@ def _calculate_fill_rate(node, period):
 	met_from_stock = node.state_vars[period].demand_met_from_stock_cumul
 	total_demand = node.state_vars[period].demand_cumul
 	# met_from_stock = np.sum([node.state_vars[t].demand_met_from_stock for t in range(period + 1)])
-	# total_demand = np.sum([node.get_attribute_total('inbound_order', t)
+	# total_demand = np.sum([node._get_attribute_total('inbound_order', t)
 	# 					   for t in range(period + 1)])
 
 	if total_demand > 0:

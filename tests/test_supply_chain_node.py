@@ -7,6 +7,7 @@ import unittest
 
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
+from stockpyl.demand_source import DemandSource
 from stockpyl.instances import *
 from stockpyl.sim import *
 

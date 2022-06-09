@@ -335,7 +335,7 @@ class Policy(object):
 			else:
 				# Calculate total demand (inbound orders), including successor nodes and
 				# external demand.
-				demand = self.node.get_attribute_total('inbound_order', self.node.network.period)
+				demand = self.node._get_attribute_total('inbound_order', self.node.network.period)
 
 				# Calculate (local or echelon) inventory position, before demand is subtracted.
 				if self.type in ('EBS', 'BEBS'):
@@ -369,7 +369,7 @@ class Policy(object):
 					EIPA = np.inf
 				else:
 					partner_node = self.node.network.get_node_from_index(self.node.index + 1)
-					EIPA = partner_node.state_vars_current.echelon_inventory_position_adjusted()
+					EIPA = partner_node.state_vars_current._echelon_inventory_position_adjusted()
 
 			return self._get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
 		else:

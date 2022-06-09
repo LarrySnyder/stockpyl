@@ -12,7 +12,7 @@
 Overview 
 --------
 
-The :mod:`loss_functions` module contains code for calculating loss functions.
+The |mod_loss_functions| module contains code for calculating loss functions.
 
 For a random variable :math:`X`, the loss function, :math:`n(x)`, and the
 complementary loss function, :math:`\\bar{n}(x)`, are defined as:
@@ -924,11 +924,11 @@ def poisson_loss(x, mean):
 
 	.. math::
 
-		n(x) = -(x - \\mu)(1-F(x)) + \\mu * f(x)
+		n(x) = -(x - \\mu)(1-F(x)) + \\mu f(x)
 
 	.. math::
 
-		\\bar{n}(x) = (x - \\mu) * F(x) + \\mu * f(x)
+		\\bar{n}(x) = (x - \\mu) F(x) + \\mu f(x)
 
 
 	**Example**:

@@ -1,3 +1,5 @@
+.. include:: ../../globals.inc
+	
 Multi-Echelon Inventory Optimization
 =====================================
 
@@ -12,3 +14,6 @@ Multi-Echelon Inventory Optimization
 	gsm_serial
 	gsm_helpers
 	meio_general
+
+For an overview of multi-echelon inventory optimization (MEIO) in |sp|,
+see the "Overview" page for :ref:`multi-echelon inventory optimization (MEIO) <overview_meio_page>`.
