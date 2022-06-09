@@ -55,6 +55,11 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 	-------
 	float
 		Total cost over all nodes and periods.
+
+	Raises
+	------
+	ValueError
+		If network contains a directed cycle.
 	"""
 
 	# CONSTANTS
@@ -64,6 +69,10 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 					+ np.max([n.shipment_lead_time or 0 for n in network.nodes]))) + 2
 
 	# INITIALIZATION
+
+	# Check that the network doesn't contain a directed cycle.
+	if network.has_directed_cycle():
+		raise ValueError("network may not contain a directed cycle")
 
 	# Initialize state and decision variables at each node.
 

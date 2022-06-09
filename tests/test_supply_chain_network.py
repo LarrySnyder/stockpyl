@@ -8,6 +8,7 @@ import copy
 
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
+from stockpyl.supply_chain_node import SupplyChainNode
 from stockpyl.demand_source import DemandSource
 from stockpyl.instances import *
 from stockpyl.sim import *
@@ -247,6 +248,63 @@ class TestEdges(unittest.TestCase):
 		edges = network.edges
 
 		self.assertListEqual(edges, [(0, 1), (0, 2), (0, 3)])
+
+
+class TestHasDirectedCycle(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestHasDirectedCycle', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestHasDirectedCycle', 'tear_down_class()')
+
+	def test_named_instances(self):
+		"""Test has_directed_cycle() for a few named instances.
+		"""
+		print_status('TestHasDirectedCycle', 'test_named_instances()')
+
+		instance = load_instance("example_6_1")
+		self.assertFalse(instance.has_directed_cycle())
+
+		instance = load_instance("rosling_figure_1")
+		self.assertFalse(instance.has_directed_cycle())
+
+		instance = load_instance("rong_atan_snyder_figure_1a")
+		self.assertFalse(instance.has_directed_cycle())
+
+	def test_cyclic(self):
+		"""Test has_directed_cycle() for a cyclic network.
+		"""
+		print_status('TestHasDirectedCycle', 'test_cyclic()')
+
+		instance = load_instance("example_6_1")
+		instance.add_edge(1, 3)
+		self.assertTrue(instance.has_directed_cycle())
+
+		instance = load_instance("example_6_1")
+		instance.add_edge(1, 2)
+		self.assertTrue(instance.has_directed_cycle())
+
+		instance = load_instance("rosling_figure_1")
+		instance.add_node(SupplyChainNode(index=8))
+		instance.add_edges_from_list([(1, 8), (8, 6)])
+		self.assertTrue(instance.has_directed_cycle())
+
+		instance = load_instance("rosling_figure_1")
+		instance.add_edge(1, 3)
+		self.assertTrue(instance.has_directed_cycle())
+
+	def test_single_node(self):
+		"""Test has_directed_cycle() for a network consisting of a single node.
+		"""
+		print_status('TestHasDirectedCycle', 'test_single_node()')
+
+		instance = SupplyChainNetwork()
+		instance.add_node(SupplyChainNode(index=1))
+		self.assertFalse(instance.has_directed_cycle())
 
 class TestAddSuccessor(unittest.TestCase):
 	@classmethod

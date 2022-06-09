@@ -117,6 +117,24 @@ class SupplyChainNetwork(object):
 				edge_list.append((n.index, m.index))
 		return edge_list
 
+	def has_directed_cycle(self):
+		"""Check whether network contains a directed cycle.
+
+		Returns
+		-------
+		bool
+			``True`` if network contains a directed cycle, ``False`` otherwise.
+		"""
+
+		# Build networkx representation.
+		G = self.networkx_digraph()
+
+		# Count simple cycles.
+		num_cycles = len(list(nx.simple_cycles(G)))
+
+		return num_cycles > 0
+
+
 	# Special members.
 
 	def __repr__(self):

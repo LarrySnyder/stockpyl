@@ -230,6 +230,18 @@ class TestSimulation(unittest.TestCase):
 		self.assertEqual(network.get_node_from_index(2).state_vars[45].raw_material_inventory[5], 0)
 		self.assertEqual(network.get_node_from_index(4).state_vars[45].raw_material_inventory[6], 0)
 
+	def test_directed_cycle(self):
+		"""Test that simulation() function correctly raises a ValueError if network contains a 
+		directed cycle.
+		"""
+		print_status('TestSimulation', 'test_directed_cycle()')
+
+		instance = load_instance("example_6_1")
+		instance.add_edge(1, 3)
+
+		with self.assertRaises(ValueError):
+			simulation(instance, 100, rand_seed=17, progress_bar=False)
+
 
 class TestSerialEchelonVsLocal(unittest.TestCase):
 	"""Test that simulation results agree for a serial system when run using
