@@ -235,6 +235,33 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[3], [nodes[0]])
 
 
+class TestLeadTime(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestLeadTime', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestLeadTime', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test lead_time property for 3-node serial system in Example 6.1.
+		"""
+		print_status('TestLeadTime', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+
+		nodes = network.nodes
+
+		self.assertEqual(nodes[0].lead_time, nodes[0].shipment_lead_time)
+		self.assertEqual(nodes[2].lead_time, nodes[2].shipment_lead_time)
+
+		nodes[1].lead_time = 7
+		self.assertEqual(nodes[1].shipment_lead_time, 7)
+
+
 class TestForwardEchelonLeadTime(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

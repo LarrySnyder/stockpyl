@@ -88,9 +88,11 @@ class SupplyChainNode(object):
 	revenue : float
 		Revenue earned per unit of demand met. (**Note:** *not currently supported*.) [:math:`r`] 
 	shipment_lead_time : int
-		Shipment lead time.  (**Note:** *not currently supported*.)  [:math:`L`]
+		Shipment lead time. [:math:`L`]
+	lead_time : int
+		An alias for ``shipment_lead_time``.
 	order_lead_time : int
-		Order lead time.
+		Order lead time.  (**Note:** *not currently supported*.) 
 	demand_source : |class_demand_source|
 		Demand source object.
 	initial_inventory_level : float
@@ -264,9 +266,11 @@ class SupplyChainNode(object):
 
 	@property
 	def lead_time(self):
-		"""An alias for ``shipment_lead_time``. Read only.
-		"""
 		return self.shipment_lead_time
+
+	@lead_time.setter
+	def lead_time(self, value):
+		self.shipment_lead_time = value
 
 	@property
 	def forward_echelon_lead_time(self):
