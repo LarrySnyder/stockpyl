@@ -374,6 +374,12 @@ class TestAddEdge(unittest.TestCase):
 		self.assertEqual(node1succ, [0])
 		self.assertEqual(node2succ, [1])
 
+		# Check that edge is not added if it already exists.
+		num_edges = len(network.edges)
+		network.add_edge(2, 1)
+		self.assertEqual(num_edges, len(network.edges))
+
+		# Check that error is raised if nodes do not exist.
 		with self.assertRaises(ValueError):
 			network.add_edge(5, 1)
 
@@ -408,6 +414,11 @@ class TestAddEdge(unittest.TestCase):
 		self.assertEqual(node2succ, [])
 		self.assertEqual(node3succ, [])
 
+		# Check that edge is not added if it already exists.
+		num_edges = len(network.edges)
+		network.add_edge(0, 2)
+		self.assertEqual(num_edges, len(network.edges))
+		
 
 class TestAddEdgesFromList(unittest.TestCase):
 	@classmethod
@@ -445,6 +456,12 @@ class TestAddEdgesFromList(unittest.TestCase):
 		self.assertEqual(node1succ, [0])
 		self.assertEqual(node2succ, [1])
 
+		# Check that edge is not added if it already exists.
+		num_edges = len(network.edges)
+		network.add_edges_from_list([(2, 1)])
+		self.assertEqual(num_edges, len(network.edges))
+		
+		# Check that error is raised if nodes do not exist.
 		with self.assertRaises(ValueError):
 			network.add_edges_from_list([(5, 1)])
 
@@ -476,6 +493,11 @@ class TestAddEdgesFromList(unittest.TestCase):
 		self.assertEqual(node1succ, [])
 		self.assertEqual(node2succ, [])
 		self.assertEqual(node3succ, [])
+
+		# Check that edge is not added if it already exists.
+		num_edges = len(network.edges)
+		network.add_edges_from_list([(0, 1), (0, 3)])
+		self.assertEqual(num_edges, len(network.edges))
 
 
 class TestRemoveNode(unittest.TestCase):

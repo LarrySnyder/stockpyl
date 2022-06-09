@@ -272,7 +272,8 @@ class SupplyChainNetwork(object):
 
 	def add_edge(self, from_index, to_index):
 		"""Add an edge to the network to and from the nodes with the specified indices.
-
+		If the edge is already in the network, does nothing.
+		
 		Parameters
 		----------
 		from_index : int
@@ -286,21 +287,24 @@ class SupplyChainNetwork(object):
 			If either index is not in the network.
 		"""
 
-		# Get nodes.
-		from_node = self.get_node_from_index(from_index)
-		to_node = self.get_node_from_index(to_index)
+		if (from_index, to_index) not in self.edges:
 
-		# Do nodes exist?
-		if from_node is None:
-			raise ValueError(f"No node with index {from_index} in network")
-		if to_node is None:
-			raise ValueError(f"No node with index {to_index} in network")
-		
-		# Add edge.
-		self.add_successor(from_node, to_node)
+			# Get nodes.
+			from_node = self.get_node_from_index(from_index)
+			to_node = self.get_node_from_index(to_index)
+
+			# Do nodes exist?
+			if from_node is None:
+				raise ValueError(f"No node with index {from_index} in network")
+			if to_node is None:
+				raise ValueError(f"No node with index {to_index} in network")
+			
+			# Add edge.
+			self.add_successor(from_node, to_node)
 
 	def add_edges_from_list(self, edge_list):
 		"""Add multiple edges to the network from a list of index tuples.
+		Any edge that is already in the network is ignored.
 
 		Parameters
 		----------
