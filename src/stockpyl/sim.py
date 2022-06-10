@@ -36,7 +36,7 @@ from stockpyl.instances import *
 
 # SIMULATION
 
-def simulation(network, num_periods, rand_seed=None, progress_bar=True):
+def simulation(network, num_periods, rand_seed=None, progress_bar=True, consistency_checks=True):
 	"""Perform the simulation for ``num_periods`` periods. Fills performance
 	measures directly into ``network``.
 
@@ -50,6 +50,9 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True):
 		Random number generator seed.
 	progress_bar : bool, optional
 		Display a progress bar?
+	consistency_checks : bool, optional
+		Set to ``True`` (default) to run consistency checks during the simulation. This is 
+		for bug catching.
 
 	Returns
 	-------
@@ -249,7 +252,7 @@ def _generate_downstream_orders(node_index, network, period, visited):
 		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
 
 
-def _generate_downstream_shipments(node_index, network, period, visited):
+def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks=True):
 	"""Generate shipments to all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
@@ -269,6 +272,9 @@ def _generate_downstream_shipments(node_index, network, period, visited):
 	visited : dict
 		Dictionary indicating whether each node in network has already been
 		visited by the depth-first search.
+	consistency_checks : bool, optional
+		Set to ``True`` (default) to run consistency checks during the simulation. This is 
+		for bug catching.
 
 	"""
 	# Did we already visit this node?
@@ -293,7 +299,7 @@ def _generate_downstream_shipments(node_index, network, period, visited):
 	new_finished_goods = _raw_materials_to_finished_goods(node)
 
 	# Process outbound shipments.
-	_process_outbound_shipments(node, starting_inventory_level, new_finished_goods)
+	_process_outbound_shipments(node, starting_inventory_level, new_finished_goods, consistency_checks)
 
 	# Calculate fill rate (cumulative in periods 0,...,t).
 	_calculate_fill_rate(node, period)
@@ -543,7 +549,7 @@ def _raw_materials_to_finished_goods(node):
 	return new_finished_goods
 
 
-def _process_outbound_shipments(node, starting_inventory_level, new_finished_goods):
+def _process_outbound_shipments(node, starting_inventory_level, new_finished_goods, consistency_checks):
 	"""Process outbound shipments for the node:
 
 		* Determine outbound shipments. Demands are satisfied in order of \
@@ -564,18 +570,21 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		Starting inventory level for the period.
 	new_finished_goods : float
 		Number of new finished goods added to inventory this period.
+	consistency_checks : bool, optional
+		Set to ``True`` (default) to run consistency checks during the simulation. This is 
+		for bug catching.
 	"""
 	# Determine current on-hand and backorders (after new finished goods are
 	# added but before demand is subtracted).
 	current_on_hand = max(0.0, starting_inventory_level) + new_finished_goods
 	current_backorders = max(0.0, -starting_inventory_level)
 
-	CHECK_BACKORDERS = True
-	if CHECK_BACKORDERS:
+	if consistency_checks:
 		# Double-check BO calculations.
 		current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period) 
 		if not np.isclose(current_backorders, current_backorders_check):
 			print(f"Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}")
+			print(f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly")
 			write_file = input(f"Write instance and state variables to file for debugging? (y/n) ")
 			if write_file:
 				filename = 'failed_instance_' + str(datetime.datetime.now())
