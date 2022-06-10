@@ -17,9 +17,13 @@ API Reference
 import numpy as np
 from tabulate import tabulate
 import csv
+from copy import deepcopy
 
 from stockpyl.sim import *
 from stockpyl.helpers import sort_dict_by_keys
+from stockpyl.instances import save_instance, load_instance
+from stockpyl.demand_source import DemandSource
+from stockpyl.disruption_process import DisruptionProcess
 
 
 def write_results(network, num_periods, num_periods_to_print=None,
@@ -168,3 +172,60 @@ def dict_to_header_list(d, abbrev):
 			header_list.append(abbrev + ":{:d}".format(i))
 
 	return header_list
+
+
+def write_instance_and_states(network, filepath, instance_name=None, num_periods=None):
+	"""Write a JSON file containing the instance and all of the history of the
+	state variables. This is mostly used for debugging.
+
+	Parameters
+	----------
+	network : |class_network|
+		The multi-echelon inventory network.
+	filepath : str
+		The filename and path for the saved JSON file.
+	instance_name : str, optional
+		The name of the instance to use when saving.
+	num_periods : int, optional
+		Number of periods of state data to save. If ``None``, will save all
+		periods in the simulation (even if some are all zeroes).
+	"""
+
+	# Make a copy of the network.
+	new_network = deepcopy(network)
+
+	# Determine how many periods to save.
+	num_periods_to_save = num_periods or len(new_network.nodes[0].state_vars)
+
+	for node in new_network.nodes:
+	
+		# Change network's demands to deterministic, with the demands given in the state history.
+		if node.demand_source is not None and node.demand_source.type is not None:
+			# Create new demand source.
+			demand_list = [node.state_vars[t].inbound_order[None] for t in range(num_periods_to_save)]
+			node.demand_source = DemandSource(
+				type='D',
+				demand_list=demand_list
+			)
+
+		# Change network's disruptions to deterministic, with the disruptions given in
+		# the state history.
+		if node.disruption_process is not None and node.disruption_process.random_process_type is not None:
+			# Create new disruption process.
+			disruption_list = [node.state_vars[t].disrupted for t in range(num_periods_to_save)]
+			node.disruption_process = DisruptionProcess(
+				random_process_type='E',
+				disruption_type=node.disruption_process.disruption_type,
+				disruption_state_list=disruption_list
+			)
+
+	# Save the instance, excluding state variables.
+	save_instance(
+		instance_name=instance_name,
+		instance_data=new_network,
+		filepath=filepath,
+		replace=True,
+		omit_state_vars=True
+	)
+
+	

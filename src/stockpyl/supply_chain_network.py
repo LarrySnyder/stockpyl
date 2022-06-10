@@ -76,7 +76,10 @@ class SupplyChainNetwork(object):
 	def nodes(self):
 		"""List of all nodes in the network, as |class_node| objects. Read only.
 		"""
-		return self._nodes
+		if hasattr(self, '_nodes'):
+			return self._nodes
+		else:
+			return []
 
 	@property
 	def node_indices(self):

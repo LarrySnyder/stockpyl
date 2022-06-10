@@ -38,6 +38,7 @@ import warnings
 import datetime
 import jsonpickle
 import csv
+from copy import deepcopy
 
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
@@ -45,7 +46,8 @@ from stockpyl.supply_chain_node import *
 #: Default path to JSON file containing built-in instances. Relative to 'src' directory.
 DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
 
-def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True):
+def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True,
+	ignore_state_vars=True):
 	"""Load an instance from a JSON file. 
 
 	If the instance was originally specified as a |class_network| object, returns the
@@ -58,13 +60,15 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 	filepath : str, optional
 		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
 	initialize_missing_attributes : bool, optional
-		If ``True``, method will ensure that all attributes are present in the instance loaded,
+		If ``True``, function will ensure that all attributes are present in the instance loaded,
 		initializing any missing attributes to their default values. (Typically this is only set
 		to ``False`` for debugging purposes.)
+	ignore_state_vars : bool, optional
+		If ``True``, function will ignore any saved state variables in the nodes.
 
 	Returns
 	-------
-	dict or SupplyChainNetwork
+	dict or |class_network|
 		The loaded instance. If the instance was originally specified as a |class_network|
 		object, returns the object; otherwise, returns the instance in a dictionary in which
 		the keys equal the parameter names (e.g., "holding_cost") and the values equal the parameter
@@ -114,6 +118,12 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 		if initialize_missing_attributes:
 			instance.initialize(overwrite=False)
 
+		# Delete the state variables and replace with initialized version, 
+		# if ignore_state_variables = True.
+		if ignore_state_vars:
+			for n in instance.nodes:
+				n.state_vars = []
+
 		return instance
 	except TypeError as e:
 		# If the instance contains any dicts with integer keys, they will have
@@ -125,7 +135,8 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 		return instance
 
 
-def save_instance(instance_name, instance_data, instance_description='', filepath=DEFAULT_JSON_FILEPATH, replace=True, create_if_none=True):
+def save_instance(instance_name, instance_data, instance_description='', filepath=DEFAULT_JSON_FILEPATH, 
+	replace=True, create_if_none=True, omit_state_vars=True):
 	"""Save an instance to a JSON file. 
 	
 	Appends the instance; does not check to see whether the instance is already in the file. 
@@ -149,6 +160,9 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	create_if_none : bool, optional
 		If the file does not already exist, the function will create a new file if ``True``; 
 		otherwise, it will not do anything and issue a warning.
+	omit_state_vars : bool, optional
+		If ``True``, the function will not save state variables as part of the nodes,
+		even if they are present in the instance. # TODO
 	"""
 
 	# Does JSON file exist?
@@ -176,12 +190,18 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 		if not replace:
 			return
 
+	# Make local copy of network and omit state variables, if requested. 
+	local_copy = deepcopy(instance_data)
+	if omit_state_vars:
+		for n in local_copy.nodes:
+			n.state_vars = None
+
 	# Was data provided as dict or SupplyChainNetwork?
-	if isinstance(instance_data, dict):
-		data = instance_data
+	if isinstance(local_copy, dict):
+		data = local_copy
 	else:
 		# Assume SupplyChainNetwork.
-		data = jsonpickle.encode(instance_data)
+		data = jsonpickle.encode(local_copy)
 
 	# Create dictionary with instance metadata and data.
 	instance_dict = {

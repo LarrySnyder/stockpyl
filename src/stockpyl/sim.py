@@ -169,7 +169,7 @@ def _update_disruption_states(network, period):
 
 
 def _generate_downstream_orders(node_index, network, period, visited):
-	"""Generate demand_list and orders for all downstream nodes using depth-first-search.
+	"""Generate demands and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
 	If node is currently disrupted and disruption type = 'OP' (order-pausing), order quantity
@@ -395,8 +395,17 @@ def _initialize_next_period_state_vars(network, period):
 					n.state_vars[period].inbound_shipment_pipeline[p]
 			else:
 				# No; items in shipment pipeline advance by 1 slot.
-				n.state_vars[period+1].inbound_shipment_pipeline[p] = \
-					n.state_vars[period].inbound_shipment_pipeline[p][1:] + [0]
+				# Copy items from slot 0 in period t to t+1. (Normally, this will equal 0, but it can 
+				# be non-zero if there was a type-RP disruption.)
+				n.state_vars[period+1].inbound_shipment_pipeline[p][0] = \
+					n.state_vars[period].inbound_shipment_pipeline[p][0]
+				# Add items from slot s+1 in period t to slot s in period t+1.
+				for s in range(len(n.state_vars[period].inbound_shipment_pipeline[p])-1):
+					n.state_vars[period+1].inbound_shipment_pipeline[p][s] += \
+						n.state_vars[period].inbound_shipment_pipeline[p][s+1]
+
+				# n.state_vars[period+1].inbound_shipment_pipeline[p] = \
+				# 	n.state_vars[period].inbound_shipment_pipeline[p][1:] + [0]
 		for s in n.successor_indices(include_external=True):
 			n.state_vars[period+1].inbound_order_pipeline[s] = \
 				n.state_vars[period].inbound_order_pipeline[s][1:] + [0]
@@ -560,13 +569,22 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 	# added but before demand is subtracted).
 	current_on_hand = max(0.0, starting_inventory_level) + new_finished_goods
 	current_backorders = max(0.0, -starting_inventory_level)
-	# Double-check BO calculations.
-#	if not any([s.disruption_process.disruption_type == 'SP' for s in node.successors()]):
-	current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period) \
-		+ node._get_attribute_total('disrupted_items_by_successor', node.network.period)
-	assert np.isclose(current_backorders, current_backorders_check), \
-		"current_backorders = {:} <> current_backorders_check = {:}, node = {:d}, period = {:d}".format(
-			current_backorders, current_backorders_check, node.index, node.network.period)
+
+	CHECK_BACKORDERS = True
+	if CHECK_BACKORDERS:
+		# Double-check BO calculations.
+		current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period) 
+		if not np.isclose(current_backorders, current_backorders_check):
+			print(f"Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}")
+			write_file = input(f"Write instance and state variables to file for debugging? (y/n) ")
+			if write_file:
+				filename = 'failed_instance_' + str(datetime.datetime.now())
+				write_instance_and_states(
+					network=node.network, 
+					filepath='/Users/larry/Documents/GitHub/stockpyl/private_files/debugging_files/'+filename+'.json',
+					instance_name='failed_instance'
+				)
+			raise ValueError()
 
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
@@ -576,29 +594,37 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		# Get successor index (for convenience).
 		s_index = None if s is None else s.index
 
+		# Determine number of items that will ship out to s (if there is no disruption), not including
+		# disrupted items waiting to ship. = min{OH, BO for s + new order from s} 
+		ready_to_ship = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
+			node.state_vars_current.inbound_order[s_index])
+
 		# Is there a shipment-pausing disruption at s?
 		if s is not None and s.disrupted and s.disruption_process.disruption_type == 'SP':
-			# Don't ship anything out.
+			# Yes: Don't ship anything out.
 			OS = 0
-			# Disrupted items = the items that would have been shipped out, if there were no disruption.
-			DI = min(current_on_hand, node.state_vars_current.inbound_order[s_index])
+			# New disrupted items = the items that would have been shipped out, if there were no disruption.
+			DI = ready_to_ship
+			# Previously backordered items that are now disrupted items. (These are included in DI.)
+			BO_to_DI = min(ready_to_ship, node.state_vars_current.backorders_by_successor[s_index])
 		else:
-			# Outbound shipment to s = min{OH, BO for s + new order from s} + DI for s.
-			OS = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
-					node.state_vars_current.inbound_order[s_index]) + node.state_vars_current.disrupted_items_by_successor[s_index]
-			# No disrupted items.
+			# No: Outbound shipment to s = ready_to_ship + DI for s.
+			OS = ready_to_ship + node.state_vars_current.disrupted_items_by_successor[s_index]
+			# No new disrupted items.
 			DI = 0
-
-		# Update outbound_shipment and current_on_hand.
-		node.state_vars_current.outbound_shipment[s_index] = OS
-		current_on_hand -= OS
+			BO_to_DI = 0
 
 		# How much of outbound shipment was used for previously disrupted items and to clear backorders?
 		# (Assumes disrupted items are cleared first, then backorders, before satisfying current period's
-		# demand_list.)
+		# demands.)
 		DI_OS = min(OS, node.state_vars_current.disrupted_items_by_successor[s_index])
 		BO_OS = min(OS - DI_OS, node.state_vars_current.backorders_by_successor[s_index])
-		non_BO_OS = OS - BO_OS
+		non_BO_DI_OS = OS - BO_OS - DI_OS
+
+		# Update outbound_shipment and current_on_hand. (Outbound items that were previously disrupted
+		# do not get subtracted from current_on_hand because they were not included in it to begin with.)
+		node.state_vars_current.outbound_shipment[s_index] = OS
+		current_on_hand -= (OS - DI_OS)
 
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demand_list.)
@@ -608,11 +634,11 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		
 		# Update IL and BO.
 		node.state_vars_current.inventory_level -= node.state_vars_current.inbound_order[s_index]
-		node.state_vars_current.backorders_by_successor[s_index] -= BO_OS
 
 		# Calculate new backorders_by_successor.
+		node.state_vars_current.backorders_by_successor[s_index] -= (BO_OS + BO_to_DI)
 		node.state_vars_current.backorders_by_successor[s_index] += max(0,
-			node.state_vars_current.inbound_order[s_index] - DI - non_BO_OS)
+			node.state_vars_current.inbound_order[s_index] - DI - non_BO_DI_OS)
 
 		# Update disrupted_items.
 		if s is not None:
@@ -658,9 +684,12 @@ def _propagate_shipment_downstream(node):
 
 	"""
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
+	# (Normally inbound_shipment_pipeline[node.index][s.shipment_lead_time] should equal 0,
+	# unless there is a type-TP disruption, in which case outbound shipments
+	# successor wait in slot s.shipment_lead_time until the disruption ends.)
 	for s in node.successors():
 		s.state_vars_current.inbound_shipment_pipeline[node.index][s.shipment_lead_time or 0] \
-			= node.state_vars_current.outbound_shipment[s.index]
+			+= node.state_vars_current.outbound_shipment[s.index]
 
 
 # -------------------

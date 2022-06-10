@@ -852,7 +852,8 @@ class NodeStateVars(object):
 
 		if node:
 
-			# Initialize dicts with appropriate keys.
+			# Initialize dicts with appropriate keys. (inbound_shipment_pipeline gets
+			# order_lead_time+shipment_lead_time slots for orders to external supplier)
 			self.inbound_shipment_pipeline = {p_index:
 				[0] * ((self.node.order_lead_time or 0) + (self.node.shipment_lead_time or 0) + 1)
 											for p_index in self.node.predecessor_indices(include_external=True)}

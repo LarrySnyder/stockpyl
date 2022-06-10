@@ -14,6 +14,7 @@ from stockpyl import disruption_process
 from stockpyl import supply_uncertainty
 
 import numpy as np
+import datetime
 
 # Number of periods.
 T = 1000
@@ -54,19 +55,19 @@ if False:
 # Build two-stage system with deterministic demand. 1 --> 0
 two_stage_determ = supply_chain_network.serial_system(
 	num_nodes=2,
-	local_holding_cost=[2, 1],
-	stockout_cost=[10, 0],
-	shipment_lead_time=[1, 1], 
+	local_holding_cost=[1, 2],
+	stockout_cost=[0, 10],
+	shipment_lead_time=[1, 4], 
 	demand_type='D',
-	demand_list=[10, 0],
+	demand_list=[0, 10],
 	inventory_policy_type='BS',
-	base_stock_levels=[10, 10], 
-	downstream_0=True
+	base_stock_levels=[10, 90], 
+	downstream_0=False
 )
 # Downstream stage (stage 0) is subject to disruptions.
 two_stage_determ.get_node_from_index(0).disruption_process = disruption_process.DisruptionProcess(
 	random_process_type='M',
-	disruption_type='TP', 
+	disruption_type='SP', 
 	disruption_probability=0.05,
 	recovery_probability=0.3
 )
@@ -85,3 +86,11 @@ sim_io.write_results(
 )
 print(f"avg. cost per period = {total_cost/T} ")
 print(f"avg. disrupted periods = {np.sum([two_stage_determ.get_node_from_index(1).state_vars[t].disrupted for t in range(T)]) / T} (expected {two_stage_determ.get_node_from_index(1).disruption_process.steady_state_probabilities()[1]})")
+
+
+# filename = 'saved_instance_'+str(datetime.datetime.now())
+# sim_io.write_instance_and_states(
+# 	network=two_stage_determ, 
+# 	filepath='/Users/larry/Documents/GitHub/stockpyl/private_files/debugging_files/'+filename+'.json',
+# 	instance_name='temp'
+# )

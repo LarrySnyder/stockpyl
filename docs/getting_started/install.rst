@@ -3,7 +3,7 @@
 Installing Stockpyl
 ====================
 
-|sp| is hosted on PyPI. To install::
+|sp| is available on PyPI. To install::
 
 	pip install stockpyl
 
