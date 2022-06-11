@@ -1,4 +1,5 @@
 import unittest
+import random
 
 from stockpyl.instances import *
 from stockpyl.sim import *
@@ -412,3 +413,101 @@ class TestBadBackorders(unittest.TestCase):
 		simulation(network, T, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 		# (Nothing to check, other than that a ValueError error wasn't raised during the simulation.)
+
+
+class TestConsistencyChecks(unittest.TestCase):
+	"""This tests a bunch of instances with randomly generated disruption processes to make sure their
+	consistency checks are OK."""
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSimulation', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSimulation', 'tear_down_class()')
+
+	def try_multiple_disruption_processes(self, instance_name):
+		"""Run multiple trials of simulation on instance, generating different random disruption
+		processes each time, and checking that consistency checks are OK.
+		"""
+		T = 100
+		num_trials = 10
+		random.seed(42)
+
+		for _ in range(num_trials):
+			# Build network.
+			network = load_instance(instance_name)
+			# Add disruptions.
+			num_disrupted_nodes = random.randint(1, len(network.nodes))
+			disrupted_nodes = random.sample(network.nodes, num_disrupted_nodes)
+			for n in disrupted_nodes:
+				n.disruption_process = DisruptionProcess(
+					random_process_type='M',
+					disruption_type=random.choice(['OP', 'SP', 'RP', 'TP']),
+					disruption_probability=random.random() * 0.5,
+					recovery_probability=random.random()
+				)
+
+			# Simulate.
+			simulation(network, T, rand_seed=17, progress_bar=False, consistency_checks='E')
+			# (Nothing to check, except to make sure no ValueErrors were raised.)
+			
+	def test_example_6_1_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of Example 6.1, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_example_6_1_with_disruptions()')
+
+		self.try_multiple_disruption_processes("example_6_1")
+
+	def test_problem_6_1_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of Problem 6.1, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_problem_6_1_with_disruptions()')
+
+		self.try_multiple_disruption_processes("problem_6_1")
+
+	def test_problem_6_2a_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of Problem 6.2a, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_problem_6_2a_with_disruptions()')
+
+		self.try_multiple_disruption_processes("problem_6_2a_adj")
+
+	def test_problem_6_16_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of Problem 6.16, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_problem_6_16_with_disruptions()')
+
+		self.try_multiple_disruption_processes("problem_6_16")
+
+	def test_example_4_1_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of Example 4.1, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_example_4_1_with_disruptions()')
+
+		self.try_multiple_disruption_processes("example_4_1_network")
+
+	def test_assembly_3_stage_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of 3-stage assembly system, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_assembly_3_stage_with_disruptions()')
+
+		self.try_multiple_disruption_processes("assembly_3_stage")
+
+	def test_rosling_figure_1_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of model in Rosling (1989), Figure 1, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_rosling_figure_1_with_disruptions()')
+
+		self.try_multiple_disruption_processes("rosling_figure_1")
+
+	def test_rong_atan_snyder_figure_1a_with_disruptions(self):
+		"""Test that consistency checks are OK for simulation of Figure 1 in Rong, Atan, and Snyder, with disruptions.
+		"""
+		print_status('TestConsistencyChecks', 'test_rong_atan_snyder_figure_1a_with_disruptions()')
+
+		self.try_multiple_disruption_processes("rong_atan_snyder_figure_1a")
+
+
