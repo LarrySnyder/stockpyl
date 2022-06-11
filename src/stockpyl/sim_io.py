@@ -19,7 +19,7 @@ from tabulate import tabulate
 import csv
 from copy import deepcopy
 
-from stockpyl.sim import *
+#from stockpyl.sim import simulation
 from stockpyl.helpers import sort_dict_by_keys
 from stockpyl.instances import save_instance, load_instance
 from stockpyl.demand_source import DemandSource

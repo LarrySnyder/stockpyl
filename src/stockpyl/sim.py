@@ -18,25 +18,33 @@ API Reference
 """
 
 import numpy as np
-import math
 from scipy import stats
 from tqdm import tqdm				# progress bar
-import cProfile
+import warnings
+import datetime
 
 #from stockpyl.datatypes import *
-from stockpyl.supply_chain_network import *
-from stockpyl.supply_chain_node import *
-from stockpyl.sim_io import *
-from stockpyl.helpers import *
+#from stockpyl.supply_chain_network import SupplyChainNetwork
+from stockpyl.supply_chain_node import NodeStateVars
+from stockpyl.sim_io import write_instance_and_states
+from stockpyl import helpers
 #from tests.instances_ssm_serial import *
-from stockpyl.instances import *
+from stockpyl.instances import load_instance
+
+
+# -------------------
+
+# GLOBAL VARIABLES
+
+# Did we already issue a warning about backorder mismatches?
+issued_backorder_warning = False
 
 
 # -------------------
 
 # SIMULATION
 
-def simulation(network, num_periods, rand_seed=None, progress_bar=True, consistency_checks=True):
+def simulation(network, num_periods, rand_seed=None, progress_bar=True, consistency_checks='warn'):
 	"""Perform the simulation for ``num_periods`` periods. Fills performance
 	measures directly into ``network``.
 
@@ -50,9 +58,15 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 		Random number generator seed.
 	progress_bar : bool, optional
 		Display a progress bar?
-	consistency_checks : bool, optional
-		Set to ``True`` (default) to run consistency checks during the simulation. This is 
-		for bug catching.
+	consistency_checks : str, optional
+		String indicating whether to run consistency checks (backorder calculations) and what to do
+		if check fails. Currently supported strings are:
+
+		* 'N': No consistency checks
+		* 'W': Issue warning if check fails but do not dump instance and simulation data to file (default)
+		* 'WF': Issue warning if check fails and dump instance and simulation data to file
+		* 'E': Raise exception if check fails but do not dump instance and simulation data to file
+		* 'EF': Raise exception if check fails and dump instance and simulation data to file
 
 	Returns
 	-------
@@ -128,7 +142,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 		# Generate shipments. Use depth-first search, starting at nodes with
 		# no predecessors, and propagating shipments downstream.
 		for n in network.source_nodes:
-			_generate_downstream_shipments(n.index, network, t, visited)
+			_generate_downstream_shipments(n.index, network, t, visited, consistency_checks=consistency_checks)
 
 		# UPDATE COSTS, PIPELINES, ETC.
 
@@ -252,7 +266,7 @@ def _generate_downstream_orders(node_index, network, period, visited):
 		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
 
 
-def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks=True):
+def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks='W'):
 	"""Generate shipments to all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
@@ -272,9 +286,9 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	visited : dict
 		Dictionary indicating whether each node in network has already been
 		visited by the depth-first search.
-	consistency_checks : bool, optional
-		Set to ``True`` (default) to run consistency checks during the simulation. This is 
-		for bug catching.
+	consistency_checks : str, optional
+		String indicating whether to run consistency checks (backorder calculations) and what to do
+		if check fails. For currently supported strings, see docstring for simulation().
 
 	"""
 	# Did we already visit this node?
@@ -299,7 +313,7 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	new_finished_goods = _raw_materials_to_finished_goods(node)
 
 	# Process outbound shipments.
-	_process_outbound_shipments(node, starting_inventory_level, new_finished_goods, consistency_checks)
+	_process_outbound_shipments(node, starting_inventory_level, new_finished_goods, consistency_checks=consistency_checks)
 
 	# Calculate fill rate (cumulative in periods 0,...,t).
 	_calculate_fill_rate(node, period)
@@ -310,7 +324,7 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	# Call generate_downstream_shipments() for all non-visited successors.
 	for s in list(node.successors()):
 		if not visited[s.index]:
-			_generate_downstream_shipments(s.index, network, period, visited)
+			_generate_downstream_shipments(s.index, network, period, visited, consistency_checks=consistency_checks)
 
 
 def _initialize_state_vars(network):
@@ -549,7 +563,7 @@ def _raw_materials_to_finished_goods(node):
 	return new_finished_goods
 
 
-def _process_outbound_shipments(node, starting_inventory_level, new_finished_goods, consistency_checks):
+def _process_outbound_shipments(node, starting_inventory_level, new_finished_goods, consistency_checks='W'):
 	"""Process outbound shipments for the node:
 
 		* Determine outbound shipments. Demands are satisfied in order of \
@@ -570,30 +584,58 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		Starting inventory level for the period.
 	new_finished_goods : float
 		Number of new finished goods added to inventory this period.
-	consistency_checks : bool, optional
-		Set to ``True`` (default) to run consistency checks during the simulation. This is 
-		for bug catching.
+	consistency_checks : str, optional
+		String indicating whether to run consistency checks (backorder calculations) and what to do
+		if check fails. For currently supported strings, see docstring for simulation().
 	"""
 	# Determine current on-hand and backorders (after new finished goods are
 	# added but before demand is subtracted).
 	current_on_hand = max(0.0, starting_inventory_level) + new_finished_goods
 	current_backorders = max(0.0, -starting_inventory_level)
 
-	if consistency_checks:
+	global issued_backorder_warning
+	if consistency_checks in ('W', 'WF', 'E', 'EF') and not issued_backorder_warning:
 		# Double-check BO calculations.
 		current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period) 
 		if not np.isclose(current_backorders, current_backorders_check):
-			print(f"Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}")
-			print(f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly")
-			write_file = input(f"Write instance and state variables to file for debugging? (y/n) ")
-			if write_file:
+			if consistency_checks in ('WF', 'EF'):
+				# Write instance and simulation data to file.
 				filename = 'failed_instance_' + str(datetime.datetime.now())
+				filepath = 'aux_files/'+filename+'.json'
 				write_instance_and_states(
 					network=node.network, 
-					filepath='/Users/larry/Documents/GitHub/stockpyl/private_files/debugging_files/'+filename+'.json',
+					filepath=filepath,
 					instance_name='failed_instance'
 				)
-			raise ValueError()
+			# Issue warning.
+			# See https://stackoverflow.com/q/287871/3453768 for terminal text color.
+			if consistency_checks in ('W', 'WF'):
+				textcolor = '\033[93m'
+			else:
+				textcolor = '\033[91m'
+			warning_msg = f"\n{textcolor}Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.\n"
+			if consistency_checks in ('WF', 'EF'):
+				warning_msg += f"The instance and simulation data have been written to {filepath}.\n"
+			warning_msg += f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.\n"
+			if consistency_checks in ('W', 'WF'):
+				warning_msg += f"Simulation will proceed, but results may be incorrect."
+			warning_msg += "\x1b[0m" # reset color
+			if consistency_checks in ('W', 'WF'):
+				warnings.warn(warning_msg)
+				issued_backorder_warning = True
+			if consistency_checks in ('E', 'EF'):
+				raise ValueError(warning_msg)
+			# warnings.warn(f"Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.")
+			# warnings.warn(f"The instance and simulation data have been written to {filepath}.")
+			# warnings.warn(f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.")
+			# warnings.warn(f"Include the text of this error message as well as the file referenced above.")
+			# warnings.warn(f"Simulation will proceed, but results may be incorrect.")
+
+	# 		# print(f"{textcolor}Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.")
+	# 		# print(f"{textcolor}The instance and simulation data have been written to {filepath}.")
+	# 		# print(f"{textcolor}Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.")
+	# 		# print(f"{textcolor}Include the text of this error message as well as the file referenced above.")
+	# 		# raise ValueError()
 
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
@@ -614,14 +656,17 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 			OS = 0
 			# New disrupted items = the items that would have been shipped out, if there were no disruption.
 			DI = ready_to_ship
-			# Previously backordered items that are now disrupted items. (These are included in DI.)
+			# Decompose DI into new demands that are now disrupted items and previously backordered items 
+			# that are now disrupted items. Assumes backorders are handled first, then new demands.
 			BO_to_DI = min(ready_to_ship, node.state_vars_current.backorders_by_successor[s_index])
+			ND_to_DI = DI - BO_to_DI
 		else:
 			# No: Outbound shipment to s = ready_to_ship + DI for s.
 			OS = ready_to_ship + node.state_vars_current.disrupted_items_by_successor[s_index]
 			# No new disrupted items.
 			DI = 0
 			BO_to_DI = 0
+			ND_to_DI = 0
 
 		# How much of outbound shipment was used for previously disrupted items and to clear backorders?
 		# (Assumes disrupted items are cleared first, then backorders, before satisfying current period's
@@ -633,7 +678,7 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		# Update outbound_shipment and current_on_hand. (Outbound items that were previously disrupted
 		# do not get subtracted from current_on_hand because they were not included in it to begin with.)
 		node.state_vars_current.outbound_shipment[s_index] = OS
-		current_on_hand -= (OS - DI_OS)
+		current_on_hand -= (OS - DI_OS + DI)
 
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demand_list.)
@@ -647,7 +692,7 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		# Calculate new backorders_by_successor.
 		node.state_vars_current.backorders_by_successor[s_index] -= (BO_OS + BO_to_DI)
 		node.state_vars_current.backorders_by_successor[s_index] += max(0,
-			node.state_vars_current.inbound_order[s_index] - DI - non_BO_DI_OS)
+			node.state_vars_current.inbound_order[s_index] - ND_to_DI - non_BO_DI_OS)
 
 		# Update disrupted_items.
 		if s is not None:

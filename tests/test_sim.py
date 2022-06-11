@@ -4,6 +4,7 @@ from stockpyl.instances import *
 from stockpyl.sim import *
 from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
 from stockpyl.policy import *
+from stockpyl.disruption_process import DisruptionProcess
 
 
 # Module-level functions.
@@ -44,7 +45,7 @@ class TestSimulation(unittest.TestCase):
 		# reindex nodes to 2 -> 1 -> 0
 		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
-		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
@@ -65,7 +66,7 @@ class TestSimulation(unittest.TestCase):
 
 		network = load_instance("problem_6_1")
 
-		total_cost = simulation(network, 100, rand_seed=531, progress_bar=False)
+		total_cost = simulation(network, 100, rand_seed=531, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 35794.476254, places=4)
@@ -86,7 +87,7 @@ class TestSimulation(unittest.TestCase):
 
 		network = load_instance("problem_6_2a_adj")
 
-		total_cost = simulation(network, 100, rand_seed=1340, progress_bar=False)
+		total_cost = simulation(network, 100, rand_seed=1340, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 38381.048422, places=4)
@@ -111,7 +112,7 @@ class TestSimulation(unittest.TestCase):
 
 		network = load_instance("problem_6_16")
 
-		total_cost = simulation(network, 100, rand_seed=762, progress_bar=False)
+		total_cost = simulation(network, 100, rand_seed=762, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 52386.309175, places=4)
@@ -132,7 +133,7 @@ class TestSimulation(unittest.TestCase):
 
 		network = load_instance("example_4_1_network")
 
-		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False)
+		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 255.2472033, places=4)
@@ -152,7 +153,7 @@ class TestSimulation(unittest.TestCase):
 
 		network = load_instance("assembly_3_stage")
 
-		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertEqual(total_cost, 1884)
@@ -190,7 +191,7 @@ class TestSimulation(unittest.TestCase):
 		network.get_node_from_index(6).inventory_policy.base_stock_level = 65
 		network.get_node_from_index(7).inventory_policy.base_stock_level = 75
 
-		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
+		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertEqual(total_cost, 0)
@@ -240,7 +241,7 @@ class TestSimulation(unittest.TestCase):
 		instance.add_edge(1, 3)
 
 		with self.assertRaises(ValueError):
-			simulation(instance, 100, rand_seed=17, progress_bar=False)
+			simulation(instance, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 
 class TestSerialEchelonVsLocal(unittest.TestCase):
@@ -271,7 +272,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 			n.initial_inventory_level = n.inventory_policy.base_stock_level
 
 		# Simulate with local BS policy.
-		total_cost_local = simulation(network_local, 100, rand_seed=41, progress_bar=False)
+		total_cost_local = simulation(network_local, 100, rand_seed=41, progress_bar=False, consistency_checks='E')
 
 		# Create the network for echelon policy test.
 		network_ech = load_instance("example_6_1")
@@ -291,7 +292,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 			n.inventory_policy.base_stock_level = S_echelon[n.index]
 
 		# Simulate with echelon BS policy.
-		total_cost_ech = simulation(network_ech, 100, rand_seed=41, progress_bar=False)
+		total_cost_ech = simulation(network_ech, 100, rand_seed=41, progress_bar=False, consistency_checks='E')
 
 		# Compare total costs.
 		self.assertAlmostEqual(total_cost_local, total_cost_ech, places=4)
@@ -328,7 +329,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 			n.initial_inventory_level = n.inventory_policy.base_stock_level
 
 		# Simulate with local BS policy.
-		total_cost_local = simulation(network_local, 100, rand_seed=41, progress_bar=False)
+		total_cost_local = simulation(network_local, 100, rand_seed=41, progress_bar=False, consistency_checks='E')
 
 		# Create the network for echelon policy test.
 		network_ech = load_instance("problem_6_2a_adj")
@@ -348,7 +349,7 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 			n.inventory_policy.base_stock_level = S_echelon[n.index]
 
 		# Simulate with echelon BS policy.
-		total_cost_ech = simulation(network_ech, 100, rand_seed=41, progress_bar=False)
+		total_cost_ech = simulation(network_ech, 100, rand_seed=41, progress_bar=False, consistency_checks='E')
 
 		# Compare total costs.
 		self.assertAlmostEqual(total_cost_local, total_cost_ech, places=4)
@@ -369,3 +370,45 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 										   network_ech.nodes[i].state_vars[99].inbound_shipment[p])
 			np.testing.assert_allclose(network_local.nodes[i].state_vars[99].backorders,
 									   network_ech.nodes[i].state_vars[99].backorders)
+
+
+class TestBadBackorders(unittest.TestCase):
+	"""This tests instances that have in the past caused failures of the backorder check during the simulation."""
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSimulation', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSimulation', 'tear_down_class()')
+
+	def test_rong_atan_snyder_figure_1a_with_disruptions(self):
+		"""Test that simulation() function correctly simulates model from
+		Rong, Atan, and Snyder Figure 1, with disruptions.
+		"""
+		print_status('TestBadBackorders', 'test_rong_atan_snyder_figure_1a_with_disruptions()')
+
+		T = 100
+
+		# Build network.
+		network = load_instance("rong_atan_snyder_figure_1a")
+		# Add disruptions.
+		network.get_node_from_index(1).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='OP',
+			disruption_probability=0.1,
+			recovery_probability=0.3
+		)
+		network.get_node_from_index(3).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='SP',
+			disruption_probability=0.1,
+			recovery_probability=0.3
+		)
+
+		# Simulate.
+		simulation(network, T, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# (Nothing to check, other than that a ValueError error wasn't raised during the simulation.)

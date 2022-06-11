@@ -139,9 +139,6 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	replace=True, create_if_none=True, omit_state_vars=True):
 	"""Save an instance to a JSON file. 
 	
-	Appends the instance; does not check to see whether the instance is already in the file. 
-	(To update an existing instance, use :func:`update_instance`.)
-
 	Parameters
 	----------
 	instance_name : str
@@ -222,6 +219,9 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	# saved as strings when the JSON is saved. load_instance() converts them back to integers.
 	# Currently, only demand_pmf has this issue.
 
+	# Make sure path exists; if not, create it.
+	os.makedirs(os.path.dirname(filepath), exist_ok=True)
+	
 	# Write all instances to JSON.
 	with open(filepath, 'w') as f:
 		json.dump(json_contents, f)

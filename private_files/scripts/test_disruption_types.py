@@ -18,7 +18,7 @@ import tqdm
 import matplotlib.pyplot as plt
 
 # Number of periods.
-T = 100
+T = 10000
 
 # Two-stage system with deterministic demand. 0 --> 1
 two_stage_determ = supply_chain_network.serial_system(

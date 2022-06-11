@@ -5,6 +5,7 @@ import os
 import stockpyl.sim_io as sim_io
 from stockpyl.sim import *
 from stockpyl.instances import *
+from stockpyl.disruption_process import DisruptionProcess
 
 
 # Module-level functions.
@@ -68,7 +69,200 @@ class TestWriteResults(unittest.TestCase):
 			os.remove(filename)
 
 
+class TestWriteInstanceAndStates(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestWriteInstanceAndStates', 'set_up_class()')
 
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestWriteInstanceAndStates', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that write_instance_and_states() function correctly writes results from
+		simulation of Example 6.1.
+		"""
+		print_status('TestWriteInstanceAndStates', 'test_example_6_1()')
+
+		T = 100
+
+		# Build network.
+		network = load_instance("example_6_1")
+		# reindex nodes to 2 -> 1 -> 0
+		network.reindex_nodes({1: 0, 2: 1, 3: 2})
+
+		# Simulate and write results.
+		simulation(network, T, rand_seed=17, progress_bar=False)
+		filename = 'tests/additional_files/temp_TestWriteInstanceAndStates_test_example_6_1.json'
+		sim_io.write_instance_and_states(network, filename, 'temp')
+
+		# Correct node 0 demands.
+		node0 = network.get_node_from_index(0)
+		demand_list = [node0.state_vars[t].inbound_order[None] for t in range(T)]
+
+		# Load instance and check it.
+		new_network = load_instance('temp', filename, ignore_state_vars=True)
+		self.assertListEqual(new_network.get_node_from_index(0).demand_source.demand_list[0:T], demand_list[0:T])
+		# Remove state variables and demand sources and make sure networks are equal otherwise.
+		for node in network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+		for node in new_network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+		self.assertTrue(network.deep_equal_to(new_network))
+
+		# Delete file.
+		os.remove(filename)
+
+	def test_example_6_1_with_disruptions(self):
+		"""Test that write_instance_and_states() function correctly writes results from
+		simulation of Example 6.1 with disruptions.
+		"""
+		print_status('TestWriteInstanceAndStates', 'test_example_6_1_with_disruptions()')
+
+		T = 100
+
+		# Build network.
+		network = load_instance("example_6_1")
+		# reindex nodes to 2 -> 1 -> 0
+		network.reindex_nodes({1: 0, 2: 1, 3: 2})
+		# Add disruptions.
+		network.get_node_from_index(1).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='OP',
+			disruption_probability=0.1,
+			recovery_probability=0.3
+		)
+
+		# Simulate and write results.
+		simulation(network, T, rand_seed=17, progress_bar=False)
+		filename = 'tests/additional_files/temp_TestWriteInstanceAndStates_test_example_6_1_with_disruptions.json'
+		sim_io.write_instance_and_states(network, filename, 'temp')
+
+		# Correct node 0 demands and node 1 disruptions.
+		node0 = network.get_node_from_index(0)
+		demand_list = [node0.state_vars[t].inbound_order[None] for t in range(T)]
+		node1 = network.get_node_from_index(1)
+		disruption_list = [node1.state_vars[t].disrupted for t in range(T)]
+
+		# Load instance and check it.
+		new_network = load_instance('temp', filename, ignore_state_vars=True)
+		self.assertListEqual(new_network.get_node_from_index(0).demand_source.demand_list[0:T], demand_list[0:T])
+		self.assertListEqual(new_network.get_node_from_index(1).disruption_process.disruption_state_list[0:T], disruption_list[0:T])
+		# Remove state variables, demand sources, and disruption processes and make sure networks are equal otherwise.
+		for node in network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+			node.disruption_process = None
+		for node in new_network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+			node.disruption_process = None
+		self.assertTrue(network.deep_equal_to(new_network))
+
+		# Delete file.
+		os.remove(filename)
+
+	def test_rong_atan_snyder_figure_1a(self):
+		"""Test that write_instance_and_states() function correctly writes results from
+		simulation of Rong, Atan, and Snyder Figure 1.
+		"""
+		print_status('TestWriteInstanceAndStates', 'test_rong_atan_snyder_figure_1a()')
+
+		T = 100
+
+		# Build network.
+		network = load_instance("rong_atan_snyder_figure_1a")
+
+		# Simulate and write results.
+		simulation(network, T, rand_seed=17, progress_bar=False)
+		filename = 'tests/additional_files/temp_TestWriteInstanceAndStates_test_rong_atan_snyder_figure_1a.json'
+		sim_io.write_instance_and_states(network, filename, 'temp')
+
+		# Correct demands.
+		demand_list = {}
+		for node in network.nodes:
+			if node in network.sink_nodes:
+				demand_list[node.index] = [node.state_vars[t].inbound_order[None] for t in range(T)]
+
+		# Load instance and check it.
+		new_network = load_instance('temp', filename, ignore_state_vars=True)
+		for node in new_network.nodes:
+			if node in new_network.sink_nodes:
+				self.assertListEqual(node.demand_source.demand_list[0:T], demand_list[node.index][0:T])
+		# Remove state variables and demand sources and make sure networks are equal otherwise.
+		for node in network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+		for node in new_network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+		self.assertTrue(network.deep_equal_to(new_network))
+
+		# Delete file.
+		os.remove(filename)
+
+	def test_rong_atan_snyder_figure_1a_with_disruptions(self):
+		"""Test that write_instance_and_states() function correctly writes results from
+		simulation of Rong, Atan, and Snyder Figure 1, with disruptions.
+		"""
+		print_status('TestWriteInstanceAndStates', 'test_rong_atan_snyder_figure_1a_with_disruptions()')
+
+		T = 100
+
+		# Build network.
+		network = load_instance("rong_atan_snyder_figure_1a")
+		# Add disruptions.
+		network.get_node_from_index(1).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='OP',
+			disruption_probability=0.1,
+			recovery_probability=0.3
+		)
+		network.get_node_from_index(3).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='SP',
+			disruption_probability=0.1,
+			recovery_probability=0.3
+		)
+
+		# Simulate and write results.
+		simulation(network, T, rand_seed=17, progress_bar=False)
+		filename = 'tests/additional_files/temp_TestWriteInstanceAndStates_test_rong_atan_snyder_figure_1a_with_disruptions.json'
+		sim_io.write_instance_and_states(network, filename, 'temp')
+
+		# Correct demands and disruption states.
+		demand_list = {}
+		disruption_state_list = {}
+		for node in network.nodes:
+			if node in network.sink_nodes:
+				demand_list[node.index] = [node.state_vars[t].inbound_order[None] for t in range(T)]
+			if node.disruption_process is not None and node.disruption_process.random_process_type is not None:
+				disruption_state_list[node.index] = [node.state_vars[t].disrupted for t in range(T)]
+
+		# Load instance and check it.
+		new_network = load_instance('temp', filename, ignore_state_vars=True)
+		for node in new_network.nodes:
+			if node in new_network.sink_nodes:
+				self.assertListEqual(node.demand_source.demand_list[0:T], demand_list[node.index][0:T])
+			if node.disruption_process is not None and node.disruption_process.random_process_type is not None:
+				self.assertListEqual(node.disruption_process.disruption_state_list[0:T], disruption_state_list[node.index][0:T])
+		# Remove state variables, demand sources, and disruption processes and make sure networks are equal otherwise.
+		for node in network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+			node.disruption_process = None
+		for node in new_network.nodes:
+			node.demand_source = None
+			node.state_vars = None
+			node.disruption_process = None
+		self.assertTrue(network.deep_equal_to(new_network))
+
+		# Delete file.
+		os.remove(filename)
 class TestDictToHeaderList(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
