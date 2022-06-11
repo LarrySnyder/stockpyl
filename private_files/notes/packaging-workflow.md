@@ -7,6 +7,8 @@ Conda environment:
 Install locally (if not already done):
 ``python -m pip install -e .``
 
+Make sure ``CHANGELOG.MD`` is up to date
+
 Bump version number: 
 ``bumpver update --patch`` [or ``--minor`` or ``--major``]
 add ``--dry`` to do dry run

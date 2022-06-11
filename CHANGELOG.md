@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Unit tests for ``sim_io`` module, ``Policy.__eq__()``
+- Various new unit tests.
+- Improved documentation throughout.
+- Feature to check for duplicate edges when adding edges to a network.
+- Feature to check for directed cycles before running simulation.
+
+### Fixed
+- Various bugs in backorder calculations in simulation, especially with disruptions.
 
 ## [0.0.2] -- 2022-06-06
 ### Fixed
