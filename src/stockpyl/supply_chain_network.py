@@ -65,12 +65,31 @@ class SupplyChainNetwork(object):
 		Used by |mod_gsm_tree| module.
 	"""
 
-	def __init__(self):
+	def __init__(self, **kwargs):
 		"""SupplyChainNetwork constructor method.
+
+		Parameters
+		----------
+		kwargs : optional
+			Optional keyword arguments to specify network attributes.
+
+		Raises
+		------
+		AttributeError
+			If an optional keyword argument does not match a |class_network| attribute.
 
 		"""
 		# Initialize attributes.
 		self.initialize()
+
+		# Set attributes specified by kwargs.
+		for key, value in kwargs.items():
+			if key in vars(self):
+				vars(self)[key] = value
+			elif f"_{key}" in vars(self):
+				vars(self)[f"_{key}"] = value
+			else:
+				raise AttributeError(f"{key} is not an attribute of SupplyChainNetwork")
 
 	@property
 	def nodes(self):

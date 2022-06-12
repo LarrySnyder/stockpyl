@@ -8,6 +8,7 @@ import unittest
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
 from stockpyl.demand_source import DemandSource
+from stockpyl.policy import Policy
 from stockpyl.instances import *
 from stockpyl.sim import *
 
@@ -40,11 +41,43 @@ class TestSupplyChainNodeInit(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestSupplyChainNodeInit', 'tear_down_class()')
 
-	# def test_init(self):
-	# 	"""Test that SupplyChainNode.__init__() correctly raises errors on
-	# 	incorrect parameters.
-	# 	"""
-	# 	print_status('TestPolicyInit', 'test_init()')
+	def test_kwargs(self):
+		"""Test that SupplyChainNode.__init__() produces identical nodes
+		if parameters are passed as arguments vs. set later.
+		"""
+		print_status('TestSupplyChainNodeInit', 'test_kwargs()')
+
+		node1 = SupplyChainNode(index=1, name='foo', local_holding_cost=5, order_lead_time=2)
+		node2 = SupplyChainNode(index=1)
+		node2.name = 'foo'
+		node2.local_holding_cost = 5
+		node2.order_lead_time = 2
+		self.assertTrue(node1.deep_equal_to(node2))
+
+		node1 = SupplyChainNode(index=3, name='bar', local_holding_cost=2,
+			demand_source=DemandSource(type='N', mean=20, standard_deviation=4), 
+			inventory_policy=Policy(type='BS', base_stock_level=30)
+		)
+		node2 = SupplyChainNode(index=3)
+		node2.name = 'bar'
+		node2.local_holding_cost = 2
+		node2.demand_source = DemandSource()
+		node2.demand_source.type = 'N'
+		node2.demand_source.mean = 20
+		node2.demand_source.standard_deviation = 4
+		node2.inventory_policy = Policy()
+		node2.inventory_policy.type = 'BS'
+		node2.inventory_policy.base_stock_level = 30
+		self.assertTrue(node1.deep_equal_to(node2))
+
+	def test_bad_params(self):
+		"""Test that SupplyChainNode.__init__() correctly raises errors on
+		invalid parameters.
+		"""
+		print_status('TestSupplyChainNodeInit', 'test_bad_params()')
+
+		with self.assertRaises(AttributeError):
+			_ = SupplyChainNode(index=4, foo=7)
 
 
 class TestSupplyChainNodeEq(unittest.TestCase):

@@ -31,6 +31,39 @@ def tear_down_module():
 	print_status('---', 'tear_down_module()')
 
 
+class TestSupplyChainNetworkInit(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSupplyChainNetworkInit', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSupplyChainNetworkInit', 'tear_down_class()')
+
+	def test_kwargs(self):
+		"""Test that SupplyChainNetwork.__init__() produces identical networks
+		if parameters are passed as arguments vs. set later.
+		"""
+		print_status('TestSupplyChainNetworkInit', 'test_kwargs()')
+
+		network1 = SupplyChainNetwork(period=10, max_max_replenishment_time=20)
+		network2 = SupplyChainNetwork()
+		network2.period = 10
+		network2.max_max_replenishment_time = 20
+		self.assertTrue(network1.deep_equal_to(network2))
+
+	def test_bad_params(self):
+		"""Test that SupplyChainNetwork.__init__() correctly raises errors on
+		invalid parameters.
+		"""
+		print_status('TestSupplyChainNetworkInit', 'test_bad_params()')
+
+		with self.assertRaises(AttributeError):
+			_ = SupplyChainNetwork(period=4, foo=7)
+
+
 class TestDeepEqualTo(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
