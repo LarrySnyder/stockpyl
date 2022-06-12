@@ -20,6 +20,7 @@
 .. |mod_policy| replace:: :mod:`~stockpyl.policy`
 .. |mod_rq| replace:: :mod:`~stockpyl.rq`
 .. |mod_sim| replace:: :mod:`~stockpyl.sim`
+.. |mod_sim_io| replace:: :mod:`~stockpyl.sim_io`
 .. |mod_ss| replace:: :mod:`~stockpyl.ss`
 .. |mod_ssm_serial| replace:: :mod:`~stockpyl.ssm_serial`
 .. |mod_supply_chain_network| replace:: :mod:`~stockpyl.supply_chain_network`

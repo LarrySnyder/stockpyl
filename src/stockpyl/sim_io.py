@@ -4,9 +4,61 @@
 Overview 
 --------
 
-Input-output code for simulating multi-echelon stockpyl systems.
+The |mod_sim_io| module contains functions for writing the results of simulations. The main
+function is :func:`write_results`, which writes a table to stdout (as well as to a CSV file
+if requested) that lists the state variables for all nodes in the network and all periods
+in the simulation. All state variables refer to their values at the end of the period.
 
 .. note:: |node_stage|
+
+The table has the following format:
+
+	* Each row corresponds to a period in the simulation.
+	* Each node is represented by a group of columns. 
+	* The columns for each node are as follows:
+
+		- ``i=<node index>``: label for the column group
+		- ``DISR``: was the node disrupted in the period? (True/False)
+		- ``IO:s``: inbound order received from successor ``s``
+		- ``IOPL:s``: inbound order pipeline from successor ``s``: a list of order
+		  quantities arriving from succesor ``s`` in ``r`` periods from the
+		  period, for ``r`` = 0, ..., ``order_lead_time``
+		- ``OQ:p``: order quantity placed to predecessor ``p`` in the period
+		- ``OO:p``: on-order quantity (items that have been ordered from successor
+		  ``p`` but not yet received) 
+		- ``IS:p``: inbound shipment received from predecessor ``p`` 
+		- ``ISPL:p``: inbound shipment pipeline from predecessor ``p``: a list of
+		  shipment quantities arriving from predecessor ``p`` in ``r`` periods from
+		  the period, for ``r`` = 0, ..., ``shipment_lead_time``
+		- ``RM:p``: number of items from predecessor ``p`` in raw-material inventory
+		  at node
+		- ``OS:s``: outbound shipment to successor ``s``
+		- ``DMFS``: demand met from stock at the node in the current period
+		- ``FR``: fill rate; cumulative from start of simulation to the current period
+		- ``IL``: inventory level (positive, negative, or zero) at node
+		- ``BO:s``: backorders owed to successor ``s``
+		- ``DI:s``: disrupted items: number of items held for successor ``s`` due to
+		  a type-SP disruption at ``s``
+		- ``HC``: holding cost incurred at the node in the period
+		- ``SC``: stockout cost incurred at the node in the period
+		- ``ITHC``: in-transit holding cost incurred for items in transit to all successors
+		  of the node
+		- ``REV``: revenue (**Note:** *not currently supported*)
+		- ``TC``: total cost incurred at the node (holding, stockout, and in-transit holding)
+
+	* For state variables that are indexed by successor, if ``s`` = ``EXT``, the column
+	  refers to the node's external customer
+	* For state variables that are indexed by predecessor, if ``p`` = ``EXT``, the column
+	  refers to the node's external supplier
+
+
+**Example:** Consider a 4-node system in which nodes 1 and 2 face external demand; node 3 has
+an external supplier and serves nodes 1 and 2; and node 4 has an external customer and serves node 1.
+Demands at nodes 1 and 2 have Poisson distributions with mean 10. The holding cost is 1 at nodes 3 and 4
+and 2 at nodes 1 and 2. The stockout cost is 10 at nodes 1 and 2. Node 1 has no order lead time and a
+shipment lead time of 2. Node 2 has an order lead time of 1 and a shipment lead time of 1. Nodes 3 and for
+each have a shipment lead time of 1. Each stage follows a base-stock policy, with base-stock levels of
+12, 12, 20, 12 at nodes 1, ..., 4, respectively. The code below builds this network in |sp|.
 
 
 API Reference
@@ -114,17 +166,17 @@ def write_results(network, num_periods, num_periods_to_print=None,
 	headers = ["t"]
 	for node in network.nodes:
 		headers = headers + ["|i={:d}".format(node.index)] + ["DISR"]
-		headers += dict_to_header_list(node.state_vars[0].inbound_order, "IO")
-		headers += dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
-		headers += dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
-		headers += dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
-		headers += dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
-		headers += dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
-		headers += dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
-		headers += dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
+		headers += _dict_to_header_list(node.state_vars[0].inbound_order, "IO")
+		headers += _dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
+		headers += _dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
+		headers += _dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
+		headers += _dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
+		headers += _dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
+		headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
+		headers += _dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
 		headers += ["DMFS", "FR", "IL"]
-		headers += dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
-		headers += dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
+		headers += _dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
+		headers += _dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
 		headers += ["HC", "SC", "ITHC", "REV", "TC"]
 
 	# Write results to screen
@@ -145,7 +197,7 @@ def write_results(network, num_periods, num_periods_to_print=None,
 				writer.writerow(r)
 
 
-def dict_to_header_list(d, abbrev):
+def _dict_to_header_list(d, abbrev):
 	"""Return list of headers for the given abbreviation and the values of the
 	dict ``d``.
 

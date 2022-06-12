@@ -785,11 +785,9 @@ class NodeStateVars(object):
 		If ``s`` is ``None``, refers to external demand.
 	on_order_by_predecessor : dict
 		``on_order_by_predecessor[p]`` = on-order quantity (items that have been
-		ordered from successor node ``p`` but not yet received) at node at the
-		beginning of period. If ``p`` is ``None``, refers to external supply.
+		ordered from successor node ``p`` but not yet received) at node. If ``p`` is ``None``, refers to external supply.
 	inventory_level : float
-		Inventory level (positive, negative, or zero) at node at the beginning
-		of period.
+		Inventory level (positive, negative, or zero) at node 
 	backorders_by_successor : dict
 		``backorders_by_successor[s]`` = number of backorders for successor
 		``s``. If ``s`` is ``None``, refers to external demand.

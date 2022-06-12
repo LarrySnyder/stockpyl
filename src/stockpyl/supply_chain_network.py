@@ -585,20 +585,16 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 
 		# Build and set demand source.
 		if demand_type_dict[n.index] is not None:
-			ds = demand_source.DemandSource()
-			demand_type = demand_type_dict[n.index]
-			ds.type = demand_type
-			if demand_type == 'N':
-				ds.mean = demand_mean_dict[n.index]
-				ds.standard_deviation = demand_standard_deviation_dict[n.index]
-			elif demand_type in ('UC', 'UD'):
-				ds.lo = demand_lo_dict[n.index]
-				ds.hi = demand_hi_dict[n.index]
-			elif demand_type == 'D':
-				ds.demand_list = demand_list[n.index]
-			elif demand_type == 'CD':
-				ds.demand_list = demand_list[n.index]
-				ds.probabilities = probabilities_dict[n.index]
+			ds = demand_source.DemandSource(
+				# Pass all parameters, even though some will be None.
+				type=demand_type_dict[n.index],
+				mean=demand_mean_dict[n.index],
+				standard_deviation=demand_standard_deviation_dict[n.index],
+				demand_list=demand_list[n.index],
+				probabilities=probabilities_dict[n.index],
+				lo=demand_lo_dict[n.index],
+				hi=demand_hi_dict[n.index]
+			)
 			n.demand_source = ds
 
 		# Set initial quantities.
@@ -711,20 +707,16 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 	node.order_lead_time = order_lead_time
 
 	# Build and set demand source.
-	demand_type = demand_type
-	ds = demand_source.DemandSource()
-	ds.type = demand_type
-	if demand_type == 'N':
-		ds.mean = demand_mean
-		ds.standard_deviation = demand_standard_deviation
-	elif demand_type in ('UC', 'UD'):
-		ds.lo = demand_lo
-		ds.hi = demand_hi
-	elif demand_type == 'D':
-		ds.demand_list = demand_list
-	elif demand_type == 'CD':
-		ds.demand_list = demand_list
-		ds.probabilities = probabilities
+	ds = demand_source.DemandSource(
+		# Pass all parameters, even though some will be None.
+		type=demand_type,
+		mean=demand_mean,
+		standard_deviation=demand_standard_deviation,
+		demand_list=demand_list,
+		probabilities=probabilities,
+		lo=demand_lo,
+		hi=demand_hi
+	)
 	node.demand_source = ds
 
 	# Set initial quantities.
@@ -895,19 +887,16 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_dict[n_ind]
 		if n == 0:
-			ds = demand_source.DemandSource()
-			ds.type = demand_type
-			if demand_type == 'N':
-				ds.mean = demand_mean_dict[n_ind]
-				ds.standard_deviation = demand_standard_deviation_dict[n_ind]
-			elif demand_type in ('UC', 'UD'):
-				ds.lo = demand_lo_dict[n_ind]
-				ds.hi = demand_hi_dict[n_ind]
-			elif demand_type == 'D':
-				ds.demand_list = demand_list[n_ind]
-			elif demand_type == 'CD':
-				ds.demand_list = demand_list[n_ind]
-				ds.probabilities = probabilities_dict[n_ind]
+			ds = demand_source.DemandSource(
+				# Pass all parameters, even though some will be None.
+				type=demand_type,
+				mean=demand_mean_dict[n_ind],
+				standard_deviation=demand_standard_deviation_dict[n_ind],
+				demand_list=None if demand_list is None else demand_list[n_ind],
+				probabilities=probabilities_dict[n_ind],
+				lo=demand_lo_dict[n_ind],
+				hi=demand_hi_dict[n_ind]
+			)
 		else:
 			ds = None
 		node.demand_source = ds
@@ -1088,19 +1077,16 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_list[n]
 		if n == 0:
-			ds = demand_source.DemandSource()
-			ds.type = demand_type
-			if demand_type == 'N':
-				ds.mean = demand_mean_list[n]
-				ds.standard_deviation = demand_standard_deviation_list[n]
-			elif demand_type in ('UC', 'UD'):
-				ds.lo = demand_lo_list[n]
-				ds.hi = demand_hi_list[n]
-			elif demand_type == 'D':
-				ds.demand_list = demand_list[n]
-			elif demand_type == 'CD':
-				ds.demand_list = demand_list[n]
-				ds.probabilities = probabilities_list[n]
+			ds = demand_source.DemandSource(
+				# Pass all parameters, even though some will be None.
+				type=demand_type,
+				mean=demand_mean_list[n],
+				standard_deviation=demand_standard_deviation_list[n],
+				demand_list=None if demand_list is None else demand_list[n],
+				probabilities=probabilities_list[n],
+				lo=demand_lo_list[n],
+				hi=demand_hi_list[n]
+			)
 		else:
 			ds = None
 		node.demand_source = ds

@@ -129,8 +129,6 @@ class DemandSource(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of DemandSource")
 
-#			vars(self)[key] = value
-
 	# SPECIAL METHODS
 
 	def __eq__(self, other):

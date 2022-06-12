@@ -289,11 +289,11 @@ class TestDictToHeaderList(unittest.TestCase):
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 
 		# Node 1 IO.
-		header_list = sim_io.dict_to_header_list(network.get_node_from_index(1).state_vars[0].inbound_order, "IO")
+		header_list = sim_io._dict_to_header_list(network.get_node_from_index(1).state_vars[0].inbound_order, "IO")
 		self.assertListEqual(header_list, ['IO:0'])
 
 		# Node 2 IS.
-		header_list = sim_io.dict_to_header_list(network.get_node_from_index(2).state_vars[0].inbound_shipment, "IS")
+		header_list = sim_io._dict_to_header_list(network.get_node_from_index(2).state_vars[0].inbound_shipment, "IS")
 		self.assertListEqual(header_list, ['IS:EXT'])
 
 	def test_mwor(self):
@@ -312,14 +312,14 @@ class TestDictToHeaderList(unittest.TestCase):
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 
 		# Node 0 IS.
-		header_list = sim_io.dict_to_header_list(network.get_node_from_index(0).state_vars[0].inbound_shipment, "IS")
+		header_list = sim_io._dict_to_header_list(network.get_node_from_index(0).state_vars[0].inbound_shipment, "IS")
 		self.assertListEqual(header_list, ['IS:1', 'IS:2', 'IS:3'])
 
 		# Node 2 IS.
-		header_list = sim_io.dict_to_header_list(network.get_node_from_index(2).state_vars[0].inbound_shipment, "IS")
+		header_list = sim_io._dict_to_header_list(network.get_node_from_index(2).state_vars[0].inbound_shipment, "IS")
 		self.assertListEqual(header_list, ['IS:EXT'])
 
 		# Node 0 ISPL.
-		header_list = sim_io.dict_to_header_list(network.get_node_from_index(0).state_vars[0].inbound_shipment_pipeline, "ISPL")
+		header_list = sim_io._dict_to_header_list(network.get_node_from_index(0).state_vars[0].inbound_shipment_pipeline, "ISPL")
 		self.assertListEqual(header_list, ['ISPL:1', 'ISPL:2', 'ISPL:3'])
 

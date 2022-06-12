@@ -377,7 +377,7 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	Raises
 	------
 	ValueError
-		If ``x`` is not a singleton or a list of length ``num_periods`` or ``num_periods``+1.
+		If ``x`` is not a singleton or a list of length ``num_periods`` or ``num_periods`` + 1.
 	"""
 	# Determine whether x is singleton or iterable.
 	if is_iterable(x):
