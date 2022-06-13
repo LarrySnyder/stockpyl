@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various new unit tests.
 - Ability to pass ``kwargs`` to ``SupplyChainNetwork()``
 
+### Changed
+- Improved flexibility of inputs in ``network_from_edges()``
+
 ## [0.0.3] -- 2022-06-11
 ### Added
 - Various new unit tests.

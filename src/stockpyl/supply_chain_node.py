@@ -104,11 +104,7 @@ class SupplyChainNode(object):
 	inventory_policy : |class_policy|
 		Inventory policy to be used to make inventory decisions.
 	supply_type : str
-		Supply type (unlimited, etc.). Currently supported strings are:
-
-			* None
-			* 'U' (unlimited)
-
+		Supply type (unlimited, etc.). (**Note:** *not currently supported*.) 
 	disruption_process : |class_disruption_process|
 		Disruption process object (if any).
 	state_vars : list of |class_state_vars|
@@ -740,7 +736,7 @@ class SupplyChainNode(object):
 
 		"""
 		for i in range(len(self.state_vars)):
-			self.state_vars[i].reindex_state_variabels(old_to_new_dict)
+			self.state_vars[i].reindex_state_variables(old_to_new_dict)
 
 
 # ===============================================================================

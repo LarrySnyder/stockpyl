@@ -503,16 +503,15 @@ class TestBuildNodeDataDict(unittest.TestCase):
 		"""
 		print_status('TestBuildNodeDataDict', 'test_various()')
 
-		attribute_names=['local_holding_cost', 'stockout_cost', 'demand_mean', 'lead_time', 'processing_time']
-		attribute_values = {}
-		attribute_values['local_holding_cost'] = 1
-		attribute_values['stockout_cost'] = [10, 8, 0]
-		attribute_values['demand_mean'] = {1: 0, 3: 50}
-		attribute_values['lead_time'] = None
-		attribute_values['processing_time'] = None
+		attribute_dict = {}
+		attribute_dict['local_holding_cost'] = 1
+		attribute_dict['stockout_cost'] = [10, 8, 0]
+		attribute_dict['demand_mean'] = {1: 0, 3: 50}
+		attribute_dict['lead_time'] = None
+		attribute_dict['processing_time'] = None
 		node_indices = [3, 2, 1]
 		default_values = {'lead_time': 0, 'demand_mean': 99}
-		data_dict = helpers.build_node_data_dict(attribute_names, attribute_values, node_indices, default_values)
+		data_dict = helpers.build_node_data_dict(attribute_dict, node_indices, default_values)
 
 		self.assertDictEqual(data_dict[1], {'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None})
 		self.assertDictEqual(data_dict[2], {'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'lead_time': 0, 'processing_time': None})
@@ -523,13 +522,12 @@ class TestBuildNodeDataDict(unittest.TestCase):
 		"""		
 		print_status('TestBuildNodeDataDict', 'test_bad_attribute_value()')
 
-		attribute_names=['local_holding_cost', 'stockout_cost']
-		attribute_values = {}
-		attribute_values['local_holding_cost'] = 1
-		attribute_values['stockout_cost'] = [10, 8, 0, 7]
+		attribute_dict = {}
+		attribute_dict['local_holding_cost'] = 1
+		attribute_dict['stockout_cost'] = [10, 8, 0, 7]
 		node_indices = [3, 2, 1]
 		with self.assertRaises(ValueError):
-			_ = helpers.build_node_data_dict(attribute_names, attribute_values, node_indices)
+			_ = helpers.build_node_data_dict(attribute_dict, node_indices)
 
 
 class TestEnsureDictForNodes(unittest.TestCase):

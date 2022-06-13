@@ -460,48 +460,47 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
-def build_node_data_dict(attribute_names, attribute_values, node_indices, default_values=None):
+def build_node_data_dict(attribute_dict, node_indices, default_values=None):
 	"""Build a dict of dicts containing data for all nodes and for one or more attributes.
+	The dict returned, ``data_dict``, is keyed by the node indices. 
 	``data_dict[n]`` is a dict of data for the node with index ``n``, and 
-	``data_dict[n][a]`` is the value of attribute ``a``, where ``a`` is in the 
-	``attribute_names`` list and its value is specified by ``attribute_values``.
+	``data_dict[n][a]`` is the value of attribute ``a``, where ``a`` is in a key
+	in ``attribute_dict``.
 
-	:func:`~build_node_data_dict` is like calling :func:`~ensure_dict_for_nodes` for multiple
-	attribute simultaneously.
+	:func:`~build_node_data_dict` is similar calling :func:`~ensure_dict_for_nodes` for multiple
+	attributes simultaneously.
 
-	For each attribute ``a`` in ``attribute_names``, ``attribute_values[a]`` 
+	For each attribute ``a`` in ``attribute_dict`` keys, ``attribute_dict[a]`` 
 	may take one of several forms. For a given node index ``n`` and attribute ``a``:
 
-		* If ``attribute_values[a]`` is a dict, then ``data_dict[n][a]`` is set to
-		  ``attribute_values[a][n]``. If ``n`` is not a key in ``attribute_values[a]``
-		  then ``attribute_values[a][n]`` is set to ``default_values[a]`` if it exists
+		* If ``attribute_dict[a]`` is a dict, then ``data_dict[n][a]`` is set to
+		  ``attribute_dict[a][n]``. If ``n`` is not a key in ``attribute_dict[a]``
+		  then ``data_dict[n][a]`` is set to ``default_values[a]`` if it exists
 		  and to ``None`` otherwise.
-		* If ``attribute_values[a]`` is a singleton, then ``data_dict[n][a]`` is set to
-		  ``attribute_values[a]``.
-		* If ``attribute_values[a]`` is a list with the same length as ``node_indices``,
+		* If ``attribute_dict[a]`` is a singleton, then ``data_dict[n][a]`` is set to
+		  ``attribute_dict[a]``.
+		* If ``attribute_dict[a]`` is a list with the same length as ``node_indices``,
 		  then the values in the list are assumed to correspond to the node indices in the
-		  order they are specified in ``node_indices``. That is, ``attribute_values[a][k]`` 
+		  order they are specified in ``node_indices``. That is, ``attribute_dict[a][k]`` 
 		  is placed in ``data_dict[node_indices[k]][a]``, for ``k`` in ``range(len(node_indices))``.
-		* If ``attribute_values[a]`` is ``None`` or ``a`` is not a key in ``attribute_values`` 
-		  and ``default_values[a]`` is provided, ``data_dict[n][a]`` is set to ``default_values[a]``. 
+		* If ``attribute_dict[a]`` is ``None`` and ``default_values[a]`` is provided, 
+		  ``data_dict[n][a]`` is set to ``default_values[a]``. 
 		  (This is useful for setting default values for attributes that are passed without knowing 
 		  whether data is provided for them.)
-		* If ``attribute_values[a]`` is ``None`` or ``a`` is not a key in ``attribute_values`` 
-		  and ``default_values[a]`` is not provided, ``data_dict[n][a]`` is set to ``None``.
-		* Otherwise, a ``ValueError`` is raised.
+		* If ``attribute_dict[a]`` is ``None`` and ``default_values[a]`` is not provided, 
+		  ``data_dict[n][a]`` is set to ``None``.
+		* If ``attribute_dict[a]`` is a list that does *not* have the same length as ``node_indices``, a ``ValueError`` is raised.
 
 
 	Parameters
 	----------
-	attribute_names : list of str
-		List of names of attributes to include in the data dict.
-	attribute_values : dict
-		Dict whose keys are strings (typically in ``attribute_names``) and whose values
+	attribute_dict : dict
+		Dict whose keys are strings (representing node attributes) and whose values
 		are dicts, lists, and/or singletons specifying the values of the attributes for the nodes.
 	node_indices : list
 		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
 	default_values : dict
-		Dict whose keys are strings (typically in ``attribute_names``) and whose values
+		Dict whose keys are strings (in ``attribute_dict.keys()``) and whose values
 		are the default values to use if the attribute is not provided.
 
 	Returns
@@ -512,7 +511,7 @@ def build_node_data_dict(attribute_names, attribute_values, node_indices, defaul
 	Raises
 	------
 	ValueError
-		If ``attribute_values[a]`` is a list whose length does not equal that of ``node_indices``.
+		If ``attribute_dict[a]`` is a list whose length does not equal that of ``node_indices``.
 
 	**Example:**
 	
@@ -522,16 +521,15 @@ def build_node_data_dict(attribute_names, attribute_values, node_indices, defaul
 
 	.. doctest::
 
-		>>> attribute_names=['local_holding_cost', 'stockout_cost', 'demand_mean', 'lead_time', 'processing_time']
-		>>> attribute_values = {}
-		>>> attribute_values['local_holding_cost'] = 1
-		>>> attribute_values['stockout_cost'] = [10, 8, 0]
-		>>> attribute_values['demand_mean'] = {1: 0, 3: 50}
-		>>> attribute_values['lead_time'] = None
-		>>> attribute_values['processing_time'] = None
+		>>> attribute_dict = {}
+		>>> attribute_dict['local_holding_cost'] = 1
+		>>> attribute_dict['stockout_cost'] = [10, 8, 0]
+		>>> attribute_dict['demand_mean'] = {1: 0, 3: 50}
+		>>> attribute_dict['lead_time'] = None
+		>>> attribute_dict['processing_time'] = None
 		>>> node_indices = [3, 2, 1]
 		>>> default_values = {'lead_time': 0, 'demand_mean': 99}
-		>>> data_dict = build_node_data_dict(attribute_names, attribute_values, node_indices, default_values)
+		>>> data_dict = build_node_data_dict(attribute_dict, node_indices, default_values)
 		>>> data_dict[1]
 		{'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None}
 		>>> data_dict[2]
@@ -545,25 +543,25 @@ def build_node_data_dict(attribute_names, attribute_values, node_indices, defaul
 	data_dict = {n: {} for n in node_indices}
 
 	# Loop through attributes in attribute_names.
-	for a in attribute_names:
+	for a in attribute_dict:
 
-		# What type is ``attribute_values[a]``?
-		if a not in attribute_values or attribute_values[a] is None:
+		# What type is ``attribute_dict[a]``?
+		if attribute_dict[a] is None:
 			
-			# Attribute not included in attribute_values; use default (if any).
+			# Use default (if any).
 			for n in node_indices:
 				if a in default_values:
 					data_dict[n][a] = default_values[a]
 				else:
 					data_dict[n][a] = None
 
-		elif type(attribute_values[a]) == dict:
+		elif type(attribute_dict[a]) == dict:
 
 			for n in node_indices:
-				# Is n a key in attribute_values[a]?
-				if n in attribute_values[a]:
+				# Is n a key in attribute_dict[a]?
+				if n in attribute_dict[a]:
 					# Yes: use it.
-					data_dict[n][a] = attribute_values[a][n]
+					data_dict[n][a] = attribute_dict[a][n]
 				elif a in default_values:
 					# No, but default value is provided; use it instead.
 					data_dict[n][a] = default_values[a]
@@ -571,20 +569,20 @@ def build_node_data_dict(attribute_names, attribute_values, node_indices, defaul
 					# No, and no default value is provided; use None.
 					data_dict[n][a] = None
 		
-		elif is_iterable(attribute_values[a]):
+		elif is_iterable(attribute_dict[a]):
 
-			# attribute_values[a] is a list; check its length.
-			if len(list(attribute_values[a])) == len(node_indices):
+			# attribute_dict[a] is a list; check its length.
+			if len(list(attribute_dict[a])) == len(node_indices):
 				for k in range(len(node_indices)):
-					data_dict[node_indices[k]][a] = attribute_values[a][k]
+					data_dict[node_indices[k]][a] = attribute_dict[a][k]
 			else:
-				raise ValueError('attribute_values[a] must be a singleton, dict, list with the same length as node_indices, or None for all a in attribute_names')
+				raise ValueError('attribute_dict[a] must be a singleton, dict, list with the same length as node_indices, or None for all a in attribute_names')
 
 		else:
 
-			# attribute_values[a] is a singleton. 
+			# attribute_dict[a] is a singleton. 
 			for n in node_indices:
-				data_dict[n][a] = attribute_values[a]
+				data_dict[n][a] = attribute_dict[a]
 
 	return data_dict
 

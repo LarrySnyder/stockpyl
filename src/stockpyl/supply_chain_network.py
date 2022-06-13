@@ -39,11 +39,12 @@ import numpy as np
 #import json
 
 #import supply_chain_node
-from stockpyl import demand_source
-from stockpyl import supply_chain_node
-from stockpyl import policy
+from stockpyl.supply_chain_node import SupplyChainNode
+from stockpyl.demand_source import DemandSource
+from stockpyl.policy import Policy
+from stockpyl.disruption_process import DisruptionProcess
 from stockpyl.helpers import is_list, ensure_dict_for_nodes, ensure_list_for_nodes
-
+from stockpyl.helpers import build_node_data_dict
 
 # ===============================================================================
 # SupplyChainNetwork Class
@@ -279,7 +280,11 @@ class SupplyChainNetwork(object):
 			Dict in which keys are old indices and values are new names.
 
 		"""
-		# Reindex nodes in network.
+		# Reindex state variables. (This must be done before reindexing nodes.)
+		for node in self.nodes:
+			node.reindex_all_state_variables(old_to_new_dict)
+
+		# Reindex nodes.
 		for node in self.nodes:
 			# Reindex node.
 			old_index = node.index
@@ -287,8 +292,6 @@ class SupplyChainNetwork(object):
 			# Rename node.
 			if new_names is not None:
 				node.name = new_names[old_index]
-			# Reindex node's state variables.
-			node.reindex_all_state_variables(old_to_new_dict)
 
 	# Methods related to network structure.
 
@@ -457,71 +460,80 @@ class SupplyChainNetwork(object):
 # Network-Creation Methods
 # ===============================================================================
 
-def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelon_holding_cost=None,
-					   stockout_cost=None, revenue=None, order_lead_time=None,
-					   shipment_lead_time=None, demand_type=None, demand_mean=None,
-					   demand_standard_deviation=None, demand_lo=None, demand_hi=None,
-					   demand_list=None, probabilities=None, initial_IL=None,
-					   initial_orders=None, initial_shipments=None, supply_type=None,
-					   inventory_policy_type=None, base_stock_levels=None,
-					   reorder_points=None, order_quantities=None,
-					   order_up_to_levels=None, processing_times=None, external_inbound_csts=None,
-					   external_outbound_csts=None, demand_bound_constants=None, units_requireds=None):
-	"""Construct supply chain network with the specified edges.
+def network_from_edges(edges, node_indices=None, **kwargs):
+	"""Construct a supply chain network with the specified edges.
 
-	Other than ``edges``, all parameters are optional. If they are provided,
-	they must be either a dict, a list, or a singleton, with the following
-	requirements:
+	The ``kwargs`` parameters specify the attributes (data) for the nodes in the network.
+	If they are provided, they must be either a dict, a list, or a singleton,
+	with the following requirements:
 
-		- If ``node_indices`` is provided, then the parameter may be specified
-		  either as a dict (with keys equal to the indices in ``node_indices``),
-		  as a list (whose items are in the same order as ``node_indices``),
-		  or as a singleton (in which case all nodes will have that parameter
-		  set to the singleton value).
-		- If ``node_indices`` is not provided, then the parameter may be
-		  specified either as a dict (with keys equal to 0,...,``num_nodes``-1) or
-		  as a singleton (in which case all nodes will have that
-		  parameter set to the singleton value). (It cannot be a list.)
+		* If the parameter is a dict, then the keys must contain the node indices
+		  and the values must contain the corresponding attribute values. If a given
+		  node index is contained in the list of edges but is not a key in the dict,
+		  the attribute value is set to ``None`` for that node.
+		* If the parameter is a singleton, then the attribute is set to that value
+		  for all nodes.
+		* If the parameter is a list and ``node_indices`` is provided, ``node_indices``
+		  must contain the same indices as the nodes in the edges in ``edges`` (otherwise a ``ValueError``
+		  is raised). The values in the list are
+		  assumed to correspond to the node indices in the order they are specified in 
+		  ``node_indices``. That is, the value in slot ``k`` in the parameter list is
+		  assigned to the node with index ``node_indices[k]``. If a given
+		  node index is contained in the list of edges but is not in ``node_indices``,
+		  the attribute value is set to ``None`` for that node.
+		* If the parameter is a list and ``node_indices`` is not provided, the values 
+		  in the list are assumed to correspond to the sorted list of node indices in 
+		  the edge list. That is, the value in slot ``k`` in the parameter list is assigned
+		  to the node in slot ``k`` when the nodes in the edge list are sorted.
 
-	A node's supply type is set to 'U' (unlimited) if it has no predecessors;
-	otherwise, its supply type is set to ``None``.
+	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
+
+	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
+	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
+	In the latter case, a ``DemandSource`` object will be constructed with the specified
+	attributes and filled into the ``demand_source`` attribute of the node. **Note:** If providing
+	individual demand source attributes, the ``type`` attribute must be called ``demand_type``
+	to avoid ambiguity with other objects.
+
+	Similarly, you may pass |class_policy| and |class_disruption_process| objects for
+	the ``inventory_policy`` and ``disruption_process`` attributes, or you may pass
+	the individual attributes for these objects. **Note:** If providing individual inventory policy
+	attributes, the ``type`` attribute must be called ``policy_type`` to avoid
+	ambiguity with other objects.
+
+	.. note:: This function does not check that valid attributes have been provided for
+	``demand_source``, ``inventory_policy``, and ``disruption_process``. For example,
+	it does not check that a ``base_stock_level`` has been provided if the policy type
+	is set to ``BS``.
 
 	Parameters
 	----------
 	edges : list
-		List of edges, with each edge specified as a tuple ``(a, b)`` with the
-		predecessor node given by ``a`` and the successor node given by ``b``.
+		List of edges, with each edge specified as a tuple ``(a, b)``, where ``a``
+		is the index of the predecessor and ``b`` is the index of the successor node.
 	node_indices : list, optional
-		List of node indices. These should be the same as the node indices that
-		are contained in the edges in ``edges``. The reason to include
-		``node_indices`` is to specify the order of nodes if the costs or other
-		parameters are provided as lists.
-	(other_parameters) : dict, list, or singleton, as described above
-		Any desired attributes to be set in the network's |class_node| objects.
-
-	Returns
-	-------
-	network : |class_network|
-		The supply chain network, with parameters filled.
+		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
+	kwargs : optional
+		Optional keyword arguments to specify node attributes.
 
 	"""
+
 	# Create network.
 	network = SupplyChainNetwork()
 
 	# Add nodes.
 	for e in edges:
 		if e[0] not in network.node_indices:
-			network.add_node(supply_chain_node.SupplyChainNode(e[0]))
+			network.add_node(SupplyChainNode(e[0]))
 		if e[1] not in network.node_indices:
-			network.add_node(supply_chain_node.SupplyChainNode(e[1]))
-	num_nodes = len(network.nodes)
+			network.add_node(SupplyChainNode(e[1]))
 
 	# Check node_indices; if not provided, build it.
 	if node_indices is None:
-		node_indices = network.node_indices
+		node_indices = sorted(network.node_indices)
 	else:
 		if set(node_indices) != set(network.node_indices):
-			raise(ValueError, "node_indices list does not match nodes contained in edge list")
+			raise ValueError("node_indices list does not match nodes contained in edge list")
 
 	# Add edges.
 	for e in edges:
@@ -529,123 +541,94 @@ def network_from_edges(edges, node_indices=None, local_holding_cost=None, echelo
 		sink = network.get_node_from_index(e[1])
 		network.add_successor(source, sink)
 
-	# Build vectors of attributes.
-	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, node_indices, None)
-	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, node_indices, None)
-	stockout_cost_dict = ensure_dict_for_nodes(stockout_cost, node_indices, None)
-	revenue_dict = ensure_dict_for_nodes(revenue, node_indices, None)
-	order_lead_time_dict = ensure_dict_for_nodes(order_lead_time, node_indices, None)
-	shipment_lead_time_dict = ensure_dict_for_nodes(shipment_lead_time, node_indices, None)
-	demand_type_dict = ensure_dict_for_nodes(demand_type, node_indices, None)
-	demand_mean_dict = ensure_dict_for_nodes(demand_mean, node_indices, None)
-	demand_standard_deviation_dict = ensure_dict_for_nodes(demand_standard_deviation, node_indices, None)
-	demand_lo_dict = ensure_dict_for_nodes(demand_lo, node_indices, None)
-	demand_hi_dict = ensure_dict_for_nodes(demand_hi, node_indices, None)
-#	demands_list = ensure_list_for_time_periods(demand_list, node_indices, None)
-	probabilities_dict = ensure_dict_for_nodes(probabilities, node_indices, None)
-	initial_IL_dict = ensure_dict_for_nodes(initial_IL, node_indices, None)
-	initial_orders_dict = ensure_dict_for_nodes(initial_orders, node_indices, None)
-	initial_shipments_dict = ensure_dict_for_nodes(initial_shipments, node_indices, None)
-	supply_type_dict = ensure_dict_for_nodes(supply_type, node_indices, None)
-	inventory_policy_type_dict = ensure_dict_for_nodes(inventory_policy_type, node_indices, None)
-	base_stock_levels_dict = ensure_dict_for_nodes(base_stock_levels, node_indices, None)
-	reorder_points_dict = ensure_dict_for_nodes(reorder_points, node_indices, None)
-	order_quantities_dict = ensure_dict_for_nodes(order_quantities, node_indices, None)
-	order_up_to_levels_dict = ensure_dict_for_nodes(order_up_to_levels, node_indices, None)
-	processing_time_dict = ensure_dict_for_nodes(processing_times, node_indices, None)
-	external_inbound_cst_dict = ensure_dict_for_nodes(external_inbound_csts, node_indices, None)
-	external_outbound_cst_dict = ensure_dict_for_nodes(external_outbound_csts, node_indices, None)
-	demand_bound_constant_dict = ensure_dict_for_nodes(demand_bound_constants, node_indices, None)
-	units_required_dict = ensure_dict_for_nodes(units_requireds, node_indices, None)
+	# Build data dict.
+	data_dict = build_node_data_dict(attribute_dict=kwargs, node_indices=node_indices)
 
-	# Check that valid demand info has been provided.
-	for n in network.nodes:
-		if demand_type_dict[n.index] == 'N' and (demand_mean_dict[n.index] is None or demand_standard_deviation_dict[n.index] is None):
-			raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-		elif (demand_type_dict[n.index] == 'UD' or
-			  demand_type_dict[n.index] == 'UC') and \
-			(demand_lo_dict[n.index] is None or demand_hi_dict[n.index] is None):
-			raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-		elif demand_type_dict[n.index] == 'D' and demand_list is None:
-			raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
-		elif demand_type_dict[n.index] == 'CD' and (demand_list is None or probabilities_dict is None):
-			raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
-
-	# Check that valid inventory policy has been provided.
-	for n in network.nodes:
-		# Check parameters for inventory policy type.
-		# if inventory_policy_type_dict[n.index] is None:
-		# 	raise ValueError("Valid inventory_policy_type has not been provided")
-		if inventory_policy_type_dict[n.index] in ('BS', 'EBS', 'BEBS') and base_stock_levels_dict[n.index] is None:
-			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-		elif inventory_policy_type_dict[n.index] == 'rQ' \
-			and (reorder_points_dict[n.index] is None or order_quantities_dict[n.index] is None):
-			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
-							 "provided")
-		elif inventory_policy_type_dict[n.index] == 'sS' \
-			and (reorder_points_dict[n.index] is None or order_up_to_levels_dict[n.index] is None):
-			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
-							 "provided")
-		elif inventory_policy_type_dict[n.index] == 'FQ' \
-			and order_quantities_dict[n.index] is None:
-			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-
-	# Set parameters.
+	# Set node attributes. (The code below uses the get() function to access the
+	# dictionaries within data_dict; get() returns None if the requested key is not
+	# in the dict.)
 	for n in network.nodes:
 
-		# Set costs and lead times.
-		n.local_holding_cost = local_holding_cost_dict[n.index]
-		n.echelon_holding_cost = echelon_holding_cost_dict[n.index]
-		n.stockout_cost = stockout_cost_dict[n.index]
-		n.revenue = revenue_dict[n.index]
-#		node.lead_time = shipment_lead_time_list[n]
-		n.shipment_lead_time = shipment_lead_time_dict[n.index]
-		n.order_lead_time = order_lead_time_dict[n.index]
+		# Costs and lead times. 
+		if data_dict[n.index].get('local_holding_cost') is not None:
+			n.local_holding_cost 		= data_dict[n.index].get('local_holding_cost') 
+		else:
+			n.local_holding_cost 		= data_dict[n.index].get('holding_cost')
+		n.echelon_holding_cost			= data_dict[n.index].get('echelon_holding_cost')
+		n.local_holding_cost_function	= data_dict[n.index].get('local_holding_cost_function')
+		n.in_transit_holding_cost		= data_dict[n.index].get('in_transit_holding_cost')
+		n.stockout_cost					= data_dict[n.index].get('stockout_cost')
+		n.stockout_cost_function		= data_dict[n.index].get('stockout_cost_function')
+		n.purchase_cost					= data_dict[n.index].get('purchase_cost')
+		n.revenue						= data_dict[n.index].get('revenue')
+		if data_dict[n.index].get('shipment_lead_time') is not None:
+			n.shipment_lead_time		= data_dict[n.index].get('shipment_lead_time')
+		else:
+			n.shipment_lead_time		= data_dict[n.index].get('lead_time')
+		n.order_lead_time				= data_dict[n.index].get('order_lead_time')
 
-		# Build and set demand source.
-		if demand_type_dict[n.index] is not None:
-			ds = demand_source.DemandSource(
-				# Pass all parameters, even though some will be None.
-				type=demand_type_dict[n.index],
-				mean=demand_mean_dict[n.index],
-				standard_deviation=demand_standard_deviation_dict[n.index],
-				demand_list=demand_list[n.index],
-				probabilities=probabilities_dict[n.index],
-				lo=demand_lo_dict[n.index],
-				hi=demand_hi_dict[n.index]
-			)
+		# Demand source.
+		if data_dict[n.index].get('demand_source') is not None:
+			n.demand_source = data_dict[n.index]['demand_source']
+		else:
+			# Create DemandSource object. (Don't override default value for round_to_int 
+			# with None.)
+			ds = DemandSource()
+			ds.type 				= data_dict[n.index].get('demand_type')
+			if data_dict[n.index].get('round_to_int') is not None:
+				ds.round_to_int		= data_dict[n.index].get('round_to_int')
+			ds.mean					= data_dict[n.index].get('mean')
+			ds.standard_deviation	= data_dict[n.index].get('standard_deviation')
+			ds.demand_list			= data_dict[n.index].get('demand_list')
+			ds.probabilities		= data_dict[n.index].get('probabilities')
+			ds.lo					= data_dict[n.index].get('lo')
+			ds.hi					= data_dict[n.index].get('hi')
 			n.demand_source = ds
 
-		# Set initial quantities.
-		n.initial_inventory_level = initial_IL_dict[n.index]
-		n.initial_orders = initial_orders_dict[n.index]
-		n.initial_shipments = initial_shipments_dict[n.index]
-
-		# Set inventory policy.
-		n.inventory_policy.type = inventory_policy_type_dict[n.index]
-		if inventory_policy_type_dict[n.index] in ('BS', 'EBS', 'BEBS'):
-			n.inventory_policy.base_stock_level = base_stock_levels_dict[n.index]
-		elif inventory_policy_type_dict[n.index] == 'rQ':
-			n.inventory_policy.reorder_point = reorder_points_dict[n.index]
-			n.inventory_policy.order_quantity = order_quantities_dict[n.index]
-		elif inventory_policy_type_dict[n.index] == 'sS':
-			n.inventory_policy.reorder_point = reorder_points_dict[n.index]
-			n.inventory_policy.order_up_to_level = order_up_to_levels_dict[n.index]
-		elif inventory_policy_type_dict[n.index] == 'FQ':
-			n.inventory_policy.order_quantity=order_quantities_dict[n.index]
-
-		# Set supply type.
-		if len(n.predecessors()) == 0:
-			n.supply_type = 'U'
+		# Inventory policy.
+		if data_dict[n.index].get('inventory_policy') is not None:
+			n.inventory_policy = data_dict[n.index]['inventory_policy']
 		else:
-			n.supply_type = None
+			# Create Policy object.
+			pol = Policy()
+			pol.type				= data_dict[n.index].get('policy_type')
+			pol.base_stock_level	= data_dict[n.index].get('base_stock_level')
+			pol.order_quantity		= data_dict[n.index].get('order_quantity')
+			pol.reorder_point		= data_dict[n.index].get('reorder_point')
+			pol.order_up_to_level	= data_dict[n.index].get('order_up_to_level')
+			n.inventory_policy = pol
 
-		# Set GSM parameters.
-		n.processing_time = processing_time_dict[n.index]
-		n.external_inbound_cst = external_inbound_cst_dict[n.index]
-		n.external_outbound_cst = external_outbound_cst_dict[n.index]
-		n.demand_bound_constant = demand_bound_constant_dict[n.index]
-		n.units_required = units_required_dict[n.index]
+		# Disruption process.
+		if data_dict[n.index].get('disruption_process') is not None:
+			n.disruption_process = data_dict[n.index]['disruption_process']
+		else:
+			# Create DisruptionProcess object. (Don't override default values for disruption_type
+			# or disrupted with None.)
+			dp = DisruptionProcess()
+			dp.random_process_type		= data_dict[n.index].get('random_process_type')
+			if data_dict[n.index].get('disruption_type') is not None:
+				dp.disruption_type		= data_dict[n.index].get('disruption_type')
+			dp.disruption_probability	= data_dict[n.index].get('disruption_probability')
+			dp.recovery_probability		= data_dict[n.index].get('recovery_probability')
+			dp.disruption_state_list	= data_dict[n.index].get('disruption_state_list')
+			if data_dict[n.index].get('disrupted') is not None:
+				dp.disrupted			= data_dict[n.index].get('disrupted')
+			n.disruption_process = dp
+
+		# Initial quantities.
+		n.initial_inventory_level	= data_dict[n.index].get('initial_inventory_level')
+		n.initial_orders			= data_dict[n.index].get('initial_orders')
+		n.initial_shipments			= data_dict[n.index].get('initial_shipments')
+
+		# GSM parameters.
+		n.processing_time			= data_dict[n.index].get('processing_time')
+		n.external_inbound_cst		= data_dict[n.index].get('external_inbound_cst')
+		n.external_outbound_cst		= data_dict[n.index].get('external_outbound_cst')
+		n.demand_bound_constant		= data_dict[n.index].get('demand_bound_constant')
+		n.units_required			= data_dict[n.index].get('units_required')
+
+		# Problem-specific data.
+		n.problem_specific_data		= data_dict[n.index].get('problem_specific_data')
 
 	return network
 
@@ -712,7 +695,7 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 	network = SupplyChainNetwork()
 
 	# Create node.
-	node = supply_chain_node.SupplyChainNode(index=0)
+	node = SupplyChainNode(index=0)
 
 	# Set parameters.
 
@@ -726,7 +709,7 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 	node.order_lead_time = order_lead_time
 
 	# Build and set demand source.
-	ds = demand_source.DemandSource(
+	ds = DemandSource(
 		# Pass all parameters, even though some will be None.
 		type=demand_type,
 		mean=demand_mean,
@@ -890,7 +873,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
 		# as the downstream-most node. indices[n] is the label of node n.)
 		n_ind = indices[n]
-		node = supply_chain_node.SupplyChainNode(index=n_ind)
+		node = SupplyChainNode(index=n_ind)
 
 		# Set parameters.
 
@@ -906,7 +889,7 @@ def serial_system(num_nodes, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_dict[n_ind]
 		if n == 0:
-			ds = demand_source.DemandSource(
+			ds = DemandSource(
 				# Pass all parameters, even though some will be None.
 				type=demand_type,
 				mean=demand_mean_dict[n_ind],
@@ -1080,7 +1063,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 
 		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
 		# as the downstream-most node. indices[n] is the label of node n.)
-		node = supply_chain_node.SupplyChainNode(index=indices[n])
+		node = SupplyChainNode(index=indices[n])
 
 		# Set parameters.
 
@@ -1096,7 +1079,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		# Build and set demand source.
 		demand_type = demand_type_list[n]
 		if n == 0:
-			ds = demand_source.DemandSource(
+			ds = DemandSource(
 				# Pass all parameters, even though some will be None.
 				type=demand_type,
 				mean=demand_mean_list[n],
@@ -1116,7 +1099,7 @@ def mwor_system(num_warehouses, node_indices=None, downstream_0=True,
 		node.initial_shipments = initial_shipments_list[n]
 
 		# Set inventory policy.
-		pol = policy.Policy(type=inventory_policy_type_list[n], node=node)
+		pol = Policy(type=inventory_policy_type_list[n], node=node)
 		if inventory_policy_type_list[n] in ('BS', 'EBS', 'BEBS'):
 			pol.base_stock_level = base_stock_levels_list[n]
 		elif inventory_policy_type_list[n] == 'rQ':
