@@ -488,6 +488,10 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 
 	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
 
+	If ``edges`` is ``None`` or ``[]``, a single-node network is returned. The index of the node
+	is set to 0, unless ``node_indices`` is provided, in which case the node's index is set to
+	``node_indices[0]``. The rules for ``kwargs`` above also apply to the single-node case.
+
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
 	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
 	In the latter case, a ``DemandSource`` object will be constructed with the specified
@@ -511,6 +515,7 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 	edges : list
 		List of edges, with each edge specified as a tuple ``(a, b)``, where ``a``
 		is the index of the predecessor and ``b`` is the index of the successor node.
+		If ``None`` or empty, a single-node network is created.
 	node_indices : list, optional
 		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
 	kwargs : optional
@@ -521,12 +526,21 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 	# Create network.
 	network = SupplyChainNetwork()
 
-	# Add nodes.
-	for e in edges:
-		if e[0] not in network.node_indices:
-			network.add_node(SupplyChainNode(e[0]))
-		if e[1] not in network.node_indices:
-			network.add_node(SupplyChainNode(e[1]))
+	# Is the edge list non-empty?
+	if edges:
+		# Add nodes from edge list.
+		for e in edges:
+			if e[0] not in network.node_indices:
+				network.add_node(SupplyChainNode(e[0]))
+			if e[1] not in network.node_indices:
+				network.add_node(SupplyChainNode(e[1]))
+	else:
+		# Add single node.
+		if node_indices is not None:
+			ind = node_indices[0]
+		else:
+			ind = 0
+		network.add_node(SupplyChainNode(ind))
 
 	# Check node_indices; if not provided, build it.
 	if node_indices is None:

@@ -460,7 +460,7 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
-def build_node_data_dict(attribute_dict, node_indices, default_values=None):
+def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 	"""Build a dict of dicts containing data for all nodes and for one or more attributes.
 	The dict returned, ``data_dict``, is keyed by the node indices. 
 	``data_dict[n]`` is a dict of data for the node with index ``n``, and 

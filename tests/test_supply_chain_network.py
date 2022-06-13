@@ -982,11 +982,11 @@ class TestNetworkFromEdges(unittest.TestCase):
 
 		return correct_network
 
-	def test_1(self):
+	def test_4_node_1(self):
 		"""Test that network_from_edges() correctly builds the network defined in
 		get_correct_network() when built using all lists.
 		"""
-		print_status('TestNetworkFromEdges', 'test_1()')
+		print_status('TestNetworkFromEdges', 'test_4_node_1()')
 
 		# Correct network.
 		correct_network = self.get_correct_network()
@@ -1011,10 +1011,10 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
 
-	def test_2(self):
+	def test_4_node_2(self):
 		"""Similar to test 1, but no node_indices provided.
 		"""
-		print_status('TestNetworkFromEdges', 'test_2()')
+		print_status('TestNetworkFromEdges', 'test_4_node_2()')
 
 		# Correct network.
 		correct_network = self.get_correct_network()
@@ -1038,10 +1038,10 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
 		
-	def test_3(self):
+	def test_4_node_3(self):
 		"""Similar to test 1, but with out-of-order index list.
 		"""
-		print_status('TestNetworkFromEdges', 'test_3()')
+		print_status('TestNetworkFromEdges', 'test_4_node_3()')
 
 		# Correct network.
 		correct_network = self.get_correct_network()
@@ -1067,11 +1067,11 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
 
-	def test_4(self):
+	def test_4_node_4(self):
 		"""Similar to test 1, but with various ways of providing data. Also add
 		a new attribute to test singleton.
 		"""
-		print_status('TestNetworkFromEdges', 'test_4()')
+		print_status('TestNetworkFromEdges', 'test_4_node_4()')
 
 		# Correct network.
 		correct_network = self.get_correct_network()
@@ -1085,20 +1085,64 @@ class TestNetworkFromEdges(unittest.TestCase):
 			stockout_cost={3: None, 1: 20, 2: 50, 4: None},
 			demand_source={
 				1: DemandSource(type='N', mean=50, standard_deviation=5),
-				2: DemandSource(type='N', mean=20, standard_deviation=3),
+				2: None,
 				3: None, 
 				4: None
 			},
+			demand_type={2: 'N'},
+			mean={2: 20},
+			standard_deviation={2: 3},
 			inventory_policy=[
 				Policy(type='BS', base_stock_level=100),
 				Policy(type='BS', base_stock_level=70),
-				Policy(type='BS', base_stock_level=25),
+				None,
 				Policy(type='rQ', reorder_point=20, order_quantity=60),
 			],
+			policy_type='BS', # superceded by Policy for nodes 1, 3, 4
+			base_stock_level=25,
 			shipment_lead_time=[0, 2, 6, 1],
 			order_lead_time=5
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
+
+	def test_single_node(self):
+		"""Test network_from_edges() for building a single-node network.
+		"""
+		print_status('TestNetworkFromEdges', 'test_single_node()')
+
+		# Correct network.
+		node = SupplyChainNode(
+			index=0,
+			local_holding_cost=2,
+			stockout_cost=20,
+			demand_source=DemandSource(type='N', mean=10, standard_deviation=1)
+		)
+		correct_network = SupplyChainNetwork()
+		correct_network.add_node(node)
+
+		network = network_from_edges(
+			edges=[],
+			local_holding_cost=2,
+			stockout_cost=20,
+			demand_type='N',
+			mean=10,
+			standard_deviation=1
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
+
+		# Change index.
+		correct_network.nodes[0].index = 7
+		network = network_from_edges(
+			edges=[],
+			node_indices=[7],
+			local_holding_cost=2,
+			stockout_cost=20,
+			demand_type='N',
+			mean=10,
+			standard_deviation=1
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
+
 
 class TestSerialSystem(unittest.TestCase):
 	@classmethod
