@@ -460,6 +460,135 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
+def build_node_data_dict(attribute_names, attribute_values, node_indices, default_values=None):
+	"""Build a dict of dicts containing data for all nodes and for one or more attributes.
+	``data_dict[n]`` is a dict of data for the node with index ``n``, and 
+	``data_dict[n][a]`` is the value of attribute ``a``, where ``a`` is in the 
+	``attribute_names`` list and its value is specified by ``attribute_values``.
+
+	:func:`~build_node_data_dict` is like calling :func:`~ensure_dict_for_nodes` for multiple
+	attribute simultaneously.
+
+	For each attribute ``a`` in ``attribute_names``, ``attribute_values[a]`` 
+	may take one of several forms. For a given node index ``n`` and attribute ``a``:
+
+		* If ``attribute_values[a]`` is a dict, then ``data_dict[n][a]`` is set to
+		  ``attribute_values[a][n]``. If ``n`` is not a key in ``attribute_values[a]``
+		  then ``attribute_values[a][n]`` is set to ``default_values[a]`` if it exists
+		  and to ``None`` otherwise.
+		* If ``attribute_values[a]`` is a singleton, then ``data_dict[n][a]`` is set to
+		  ``attribute_values[a]``.
+		* If ``attribute_values[a]`` is a list with the same length as ``node_indices``,
+		  then the values in the list are assumed to correspond to the node indices in the
+		  order they are specified in ``node_indices``. That is, ``attribute_values[a][k]`` 
+		  is placed in ``data_dict[node_indices[k]][a]``, for ``k`` in ``range(len(node_indices))``.
+		* If ``attribute_values[a]`` is ``None`` or ``a`` is not a key in ``attribute_values`` 
+		  and ``default_values[a]`` is provided, ``data_dict[n][a]`` is set to ``default_values[a]``. 
+		  (This is useful for setting default values for attributes that are passed without knowing 
+		  whether data is provided for them.)
+		* If ``attribute_values[a]`` is ``None`` or ``a`` is not a key in ``attribute_values`` 
+		  and ``default_values[a]`` is not provided, ``data_dict[n][a]`` is set to ``None``.
+		* Otherwise, a ``ValueError`` is raised.
+
+
+	Parameters
+	----------
+	attribute_names : list of str
+		List of names of attributes to include in the data dict.
+	attribute_values : dict
+		Dict whose keys are strings (typically in ``attribute_names``) and whose values
+		are dicts, lists, and/or singletons specifying the values of the attributes for the nodes.
+	node_indices : list
+		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
+	default_values : dict
+		Dict whose keys are strings (typically in ``attribute_names``) and whose values
+		are the default values to use if the attribute is not provided.
+
+	Returns
+	-------
+	data_dict : dict
+		The data dict.
+
+	Raises
+	------
+	ValueError
+		If ``attribute_values[a]`` is a list whose length does not equal that of ``node_indices``.
+
+	**Example:**
+	
+	.. testsetup:: *
+
+		from stockpyl.helpers import build_node_data_dict
+
+	.. doctest::
+
+		>>> attribute_names=['local_holding_cost', 'stockout_cost', 'demand_mean', 'lead_time', 'processing_time']
+		>>> attribute_values = {}
+		>>> attribute_values['local_holding_cost'] = 1
+		>>> attribute_values['stockout_cost'] = [10, 8, 0]
+		>>> attribute_values['demand_mean'] = {1: 0, 3: 50}
+		>>> attribute_values['lead_time'] = None
+		>>> attribute_values['processing_time'] = None
+		>>> node_indices = [3, 2, 1]
+		>>> default_values = {'lead_time': 0, 'demand_mean': 99}
+		>>> data_dict = build_node_data_dict(attribute_names, attribute_values, node_indices, default_values)
+		>>> data_dict[1]
+		{'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None}
+		>>> data_dict[2]
+		{'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'lead_time': 0, 'processing_time': None}
+		>>> data_dict[3]
+		{'local_holding_cost': 1, 'stockout_cost': 10, 'demand_mean': 50, 'lead_time': 0, 'processing_time': None}
+
+	"""
+
+	# Initialize data_dict.
+	data_dict = {n: {} for n in node_indices}
+
+	# Loop through attributes in attribute_names.
+	for a in attribute_names:
+
+		# What type is ``attribute_values[a]``?
+		if a not in attribute_values or attribute_values[a] is None:
+			
+			# Attribute not included in attribute_values; use default (if any).
+			for n in node_indices:
+				if a in default_values:
+					data_dict[n][a] = default_values[a]
+				else:
+					data_dict[n][a] = None
+
+		elif type(attribute_values[a]) == dict:
+
+			for n in node_indices:
+				# Is n a key in attribute_values[a]?
+				if n in attribute_values[a]:
+					# Yes: use it.
+					data_dict[n][a] = attribute_values[a][n]
+				elif a in default_values:
+					# No, but default value is provided; use it instead.
+					data_dict[n][a] = default_values[a]
+				else:
+					# No, and no default value is provided; use None.
+					data_dict[n][a] = None
+		
+		elif is_iterable(attribute_values[a]):
+
+			# attribute_values[a] is a list; check its length.
+			if len(list(attribute_values[a])) == len(node_indices):
+				for k in range(len(node_indices)):
+					data_dict[node_indices[k]][a] = attribute_values[a][k]
+			else:
+				raise ValueError('attribute_values[a] must be a singleton, dict, list with the same length as node_indices, or None for all a in attribute_names')
+
+		else:
+
+			# attribute_values[a] is a singleton. 
+			for n in node_indices:
+				data_dict[n][a] = attribute_values[a]
+
+	return data_dict
+
+
 def ensure_dict_for_nodes(x, node_indices, default=None):
 	"""Ensure that ``x`` is a dict with node indices as ``keys``; if not, create
 	such a dict and return it.
@@ -474,6 +603,27 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 	* If ``x`` is ``None`` and ``default`` is not provided, return a dict with
 	  keys equal to ``node_indices`` and values all equal to ``None``.
 	* Otherwise, raise a ``ValueError``.
+
+
+	Parameters
+	----------
+	x : dict, float, or list
+		Object to node-ify.
+	node_indices : list
+		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
+	default : float, optional
+		Value to use if ``x`` is ``None``.
+
+	Returns
+	-------
+	x_new : dict
+		Node-ified dict.
+
+	Raises
+	------
+	ValueError
+		If ``x`` is not a dict, a singleton, a list with the same length as ``node_indices``, or ``None``.
+
 
 	**Examples:**
 	
@@ -492,25 +642,6 @@ def ensure_dict_for_nodes(x, node_indices, default=None):
 			...
 		ValueError: x must be a singleton, dict, list with the same length as node_indices, or None
 
-
-	Parameters
-	----------
-	x : dict, float, or list
-		Object to node-ify.
-	node_indices : list
-		List of node indices. (``node_indices[n]`` is the index of the ``n`` th node.)
-	default : float, optional
-		Value to use if ``x`` is ``None``.
-
-	Returns
-	-------
-	x_new : dict
-		Node-ified dict.
-
-	Raises
-	------
-	ValueError
-		If ``x`` is not a dict, a singleton, a list with the same length as ``node_indices``, or ``None``.
 	"""
 	# Is x None?
 	if type(x) == dict:

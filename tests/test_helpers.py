@@ -487,6 +487,51 @@ class TestEnsureListForNodes(unittest.TestCase):
 			x = helpers.ensure_list_for_nodes([3.14, 3.14, 3.14, 3.14, 3.14], 8)
 
 
+class TestBuildNodeDataDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestBuildNodeDataDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestBuildNodeDataDict', 'tear_down_class()')
+
+	def test_various(self):
+		"""Test that build_node_data_dict() returns correct result for various attribute_value types.
+		"""
+		print_status('TestBuildNodeDataDict', 'test_various()')
+
+		attribute_names=['local_holding_cost', 'stockout_cost', 'demand_mean', 'lead_time', 'processing_time']
+		attribute_values = {}
+		attribute_values['local_holding_cost'] = 1
+		attribute_values['stockout_cost'] = [10, 8, 0]
+		attribute_values['demand_mean'] = {1: 0, 3: 50}
+		attribute_values['lead_time'] = None
+		attribute_values['processing_time'] = None
+		node_indices = [3, 2, 1]
+		default_values = {'lead_time': 0, 'demand_mean': 99}
+		data_dict = helpers.build_node_data_dict(attribute_names, attribute_values, node_indices, default_values)
+
+		self.assertDictEqual(data_dict[1], {'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[2], {'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[3], {'local_holding_cost': 1, 'stockout_cost': 10, 'demand_mean': 50, 'lead_time': 0, 'processing_time': None})
+
+	def test_bad_attribute_value(self):
+		"""Test that build_node_data_dict() correctly raises exception if attribute_values[a] is bad.
+		"""		
+		print_status('TestBuildNodeDataDict', 'test_bad_attribute_value()')
+
+		attribute_names=['local_holding_cost', 'stockout_cost']
+		attribute_values = {}
+		attribute_values['local_holding_cost'] = 1
+		attribute_values['stockout_cost'] = [10, 8, 0, 7]
+		node_indices = [3, 2, 1]
+		with self.assertRaises(ValueError):
+			_ = helpers.build_node_data_dict(attribute_names, attribute_values, node_indices)
+
+
 class TestEnsureDictForNodes(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
