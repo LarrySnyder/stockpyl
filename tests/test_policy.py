@@ -255,6 +255,25 @@ class TestGetOrderQuantity(unittest.TestCase):
 		q3 = policy.get_order_quantity(inventory_position=140)
 		self.assertEqual(q3, 0)
 
+	def test_balanced_echelon_base_stock(self):
+		"""Test that get_order_quantity() returns correct order quantity
+		under a balanced echelon base-stock policy for a few instances.
+		"""
+		print_status('TestGetOrderQuantity', 'test_balanced_echelon_base_stock()')
+
+		policy = Policy()
+		policy.type = 'BEBS'
+		policy.base_stock_level = 100
+
+		q = policy.get_order_quantity(inventory_position=85, echelon_inventory_position_adjusted=40)
+		self.assertEqual(q, 0)
+		q = policy.get_order_quantity(inventory_position=45, echelon_inventory_position_adjusted=200)
+		self.assertEqual(q, 55)
+		q = policy.get_order_quantity(inventory_position=-20, echelon_inventory_position_adjusted=80)
+		self.assertEqual(q, 100)
+		q = policy.get_order_quantity(inventory_position=140, echelon_inventory_position_adjusted=200)
+		self.assertEqual(q, 0)
+
 
 class TestInitialize(unittest.TestCase):
 	@classmethod
