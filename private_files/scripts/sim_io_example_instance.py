@@ -6,12 +6,12 @@ network = network_from_edges(
 	node_order_in_lists=[1, 2, 3, 4],
 	local_holding_cost=[2, 2, 1, 1],
 	stockout_cost=[10, 10, 0, 0],
-	order_lead_time=[0, 1, 0, 0],
+	order_lead_time=[0, 0, 0, 0],	# TODO: change back to [0, 1, 0, 0]
 	shipment_lead_time=[2, 1, 1, 1],
 	demand_type=['P', 'P', None, None],
-	demand_mean=[10, 10, None, None],
-	inventory_policy_type=['BS', 'BS', 'BS', 'BS'],
-	base_stock_levels=[12, 12, 20, 12]
+	mean=[10, 10, None, None],
+	policy_type=['BS', 'BS', 'BS', 'BS'],
+	base_stock_level=[12, 12, 20, 12]
 )
 
 # TODO: order_lead_time is messing up node.state_vars_current.inbound_order_pipeline

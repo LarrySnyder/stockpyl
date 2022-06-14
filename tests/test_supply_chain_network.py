@@ -839,22 +839,22 @@ class TestSingleStageNetwork(unittest.TestCase):
 		self.assertEqual(node.inventory_policy.base_stock_level, 56.6)
 
 
-class TestSerialSystemNew(unittest.TestCase):
+class TestSerialSystem(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestSerialSystemNew', 'set_up_class()')
+		print_status('TestSerialSystem', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestSerialSystemNew', 'tear_down_class()')
+		print_status('TestSerialSystem', 'tear_down_class()')
 		
 	def test_3_node_serial_downstream_0(self):
 		"""Test serial_system_new() to build 3-node serial system, indexed 0,...,2
 		with downstream node = 0.
 		"""
-		print_status('TestSerialSystemNew', 'test_3_node_serial_upstream_0()')
+		print_status('TestSerialSystem', 'test_3_node_serial_upstream_0()')
 
 		network = serial_system(
 			3,
@@ -900,7 +900,7 @@ class TestSerialSystemNew(unittest.TestCase):
 		"""Test serial_system() to build 3-node serial system, with node_order_in_system
 		provided.
 		"""
-		print_status('TestSerialSystemNew', 'test_3_node_serial_node_order_in_system()')
+		print_status('TestSerialSystem', 'test_3_node_serial_node_order_in_system()')
 
 		network = serial_system(
 			3,
@@ -945,7 +945,7 @@ class TestSerialSystemNew(unittest.TestCase):
 		"""Test serial_system() to build 3-node serial system, with node_order_in_system
 		and node_order_in_lists provided.
 		"""
-		print_status('TestSerialSystemNew', 'test_3_node_serial_node_order_in_system_node_order_in_lists()')
+		print_status('TestSerialSystem', 'test_3_node_serial_node_order_in_system_node_order_in_lists()')
 
 		network = serial_system(
 			3,
@@ -1007,7 +1007,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			index=3,
 			local_holding_cost=2, 
 			inventory_policy=Policy(type='BS', base_stock_level=100),
-			shipment_lead_time=0
+			shipment_lead_time=0,
+			supply_type='U'
 		)
 		correct_network.add_node(node3)
 		node1 = SupplyChainNode(
@@ -1032,7 +1033,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			index=4,
 			local_holding_cost=1, 
 			inventory_policy=Policy(type='rQ', reorder_point=20, order_quantity=60),
-			shipment_lead_time=1
+			shipment_lead_time=1,
+			supply_type='U'
 		)
 		correct_network.add_predecessor(node1, node4)
 
@@ -1171,7 +1173,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			index=0,
 			local_holding_cost=2,
 			stockout_cost=20,
-			demand_source=DemandSource(type='N', mean=10, standard_deviation=1)
+			demand_source=DemandSource(type='N', mean=10, standard_deviation=1),
+			supply_type='U'
 		)
 		correct_network = SupplyChainNetwork()
 		correct_network.add_node(node)
