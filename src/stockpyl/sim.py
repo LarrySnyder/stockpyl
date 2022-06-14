@@ -48,6 +48,9 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 	"""Perform the simulation for ``num_periods`` periods. Fills performance
 	measures directly into ``network``.
 
+	If ``initial_inventory_level`` is ``None`` for any node, its initial inventory level is set
+	to its base-stock level (or similar for other inventory policy types).
+
 	Parameters
 	----------
 	network : |class_network|
@@ -330,7 +333,7 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 def _initialize_state_vars(network):
 	"""Initialize the state variables for each node:
 
-		* inventory_level = to initial_inventory_level
+		* inventory_level = to initial_inventory_level (or base-stock level, etc., if initial_inventory_level is None)
 		* inbound_shipment_pipeline = initial_shipments
 		* on_order = initial_shipments * shipment_lead_time + initial_orders * order_lead_time
 		* inbound_order_pipeline = initial_orders
@@ -343,8 +346,12 @@ def _initialize_state_vars(network):
 
 	# Initialize inventory levels and other quantities.
 	for n in network.nodes:
-		# Initialize inventory_level to initial_inventory_level (or 0 if None).
-		n.state_vars[0].inventory_level = n.initial_inventory_level or 0
+		# Initialize inventory_level to initial_inventory_level (or to BS level, etc., if None).
+		if n.initial_inventory_level is not None:
+			init_IL = n.initial_inventory_level
+		else:
+			init_IL = n.inventory_policy.get_order_quantity(inventory_position=0)
+		n.state_vars[0].inventory_level = init_IL
 
 		# Initialize inbound shipment pipeline and on-order quantities.
 		for p_index in n.predecessor_indices(include_external=True):
