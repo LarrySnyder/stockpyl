@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Various new unit tests.
 - Ability to pass ``kwargs`` to ``SupplyChainNetwork()``
+- ``owmr_system()`` function to build OWMR networks
 
 ### Changed
 - Improved flexibility of inputs in ``network_from_edges()``

@@ -628,6 +628,7 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 			# Create Policy object.
 			pol = Policy()
 			pol.type				= data_dict[n.index].get('policy_type')
+			pol.node				= n
 			pol.base_stock_level	= data_dict[n.index].get('base_stock_level')
 			pol.order_quantity		= data_dict[n.index].get('order_quantity')
 			pol.reorder_point		= data_dict[n.index].get('reorder_point')
@@ -650,6 +651,9 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 			if data_dict[n.index].get('disrupted') is not None:
 				dp.disrupted			= data_dict[n.index].get('disrupted')
 			n.disruption_process = dp
+
+		# Supply type.
+		n.supply_type				= data_dict[n.index].get('supply_type')
 
 		# Initial quantities.
 		n.initial_inventory_level	= data_dict[n.index].get('initial_inventory_level')
@@ -677,7 +681,6 @@ def single_stage_system(index=0, **kwargs):
 	"""Generate a single-stage network.
 
 	The ``kwargs`` parameters specify the attributes (data) for the node.
-	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
 
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
 	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
@@ -723,10 +726,17 @@ def single_stage_system(index=0, **kwargs):
 
 	"""
 
+	# Make local copy of kwarg dict.
+	local_kwargs = copy.deepcopy(kwargs)
+	# Set supply_type parameter.
+	if 'supply_type' not in local_kwargs:
+		local_kwargs['supply_type'] = {}
+	local_kwargs['supply_type'] = 'U'
+
 	return network_from_edges(
 		edges=[],
 		node_order_in_lists=[index],
-		**kwargs
+		**local_kwargs
 	)
 
 
@@ -758,10 +768,10 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
 		  (or in ``range(num_nodes)``, if ``node_order_in_system`` is not provided).
 
-	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
-
 	``demand_source`` attribute is only set at the downstream-most node,
-	no matter how the corresponding parameter is set.
+	no matter how the corresponding parameter is set. ``supply_type`` attribute is set to 'U'
+	at the upstream-most node and to ``None`` at all other nodes, no matter how the
+	corresponding parameter is set.
 
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
 	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
@@ -816,19 +826,143 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 	
 	# Make local copy of kwarg dict.
 	local_kwargs = copy.deepcopy(kwargs)
-	# Determine sink node.
+	# Determine source and sink nodes.
+	source_node = node_order_in_system[0]
 	sink_node = node_order_in_system[-1]
 	# Set demand_source parameter so it only occurs at sink node.
+	if 'demand_source' not in local_kwargs:
+		local_kwargs['demand_source'] = {}
 	for n in node_order_in_system:
 		if n != sink_node:
-			if 'demand_source' not in local_kwargs:
-				local_kwargs['demand_source'] = {}
 			local_kwargs['demand_source'][n] = DemandSource()
+	# Set supply_type parameter so that it only occurs at source node.
+	if 'supply_type' not in local_kwargs:
+		local_kwargs['supply_type'] = {}
+	for n in node_order_in_system:
+		if n == source_node:
+			local_kwargs['supply_type'][n] = 'U'
+		else:
+			local_kwargs['supply_type'][n] = None
+
+	# Determine node_order_in_lists.
+	if node_order_in_lists is None:
+		node_order_in_lists = node_order_in_system
 
 	# Build network.
 	return network_from_edges(
 		edges=edges, 
 		node_order_in_lists=node_order_in_lists, 
+		**local_kwargs
+	)
+
+
+def owmr_system(num_retailers, node_order_in_system=None, node_order_in_lists=None, **kwargs):
+	"""Generate a one-warehouse, multiple-retailer (OWMR) (i.e., 2-echelon distribution)
+	system with the specified number of retailers. By default, node 0 is the warehouse
+	and nodes 1, ..., ``num_retailers`` are the retailers, but this can be changed 
+	by setting ``node_order_in_system``.
+
+	The ``kwargs`` parameters specify the attributes (data) for the nodes in the network.
+	If they are provided, they must be either a dict, a list, or a singleton,
+	with the following requirements:
+
+		* If the parameter is a dict, then the keys must contain the node indices
+		  and the values must contain the corresponding attribute values. If a given
+		  node index is contained in ``node_order_in_system`` (or in ``range(num_nodes)``,
+		  if ``node_order_in_system`` is not provided) but is not a key in the dict,
+		  the attribute value is set to ``None`` for that node.
+		* If the parameter is a singleton, then the attribute is set to that value
+		  for all nodes.
+		* If the parameter is a list and ``node_order_in_lists`` is provided, ``node_order_in_lists``
+		  must contain the same indices as the nodes in the edges in ``edges`` (otherwise a ``ValueError``
+		  is raised). The values in the list are
+		  assumed to correspond to the node indices in the order they are specified in 
+		  ``node_order_in_lists``. That is, the value in slot ``k`` in the parameter list is
+		  assigned to the node with index ``node_order_in_lists[k]``. If a given
+		  node index is contained in the list of edges but is not in ``node_order_in_lists``,
+		  the attribute value is set to ``None`` for that node.
+		* If the parameter is a list and ``node_order_in_lists`` is not provided, the values 
+		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
+		  (or in ``range(num_retailers+1)``, if ``node_order_in_system`` is not provided).
+
+	``demand_source`` attribute is not set at the warehouse node,
+	no matter how the corresponding parameter is set.``supply_type`` attribute is set to 'U'
+	at the warehouse node and to ``None`` at all other nodes, no matter how the
+	corresponding parameter is set.
+
+	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
+	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
+	In the latter case, a ``DemandSource`` object will be constructed with the specified
+	attributes and filled into the ``demand_source`` attribute of the node. **Note:** If providing
+	individual demand source attributes, the ``type`` attribute must be called ``demand_type``
+	to avoid ambiguity with other objects.
+
+	Similarly, you may pass |class_policy| and |class_disruption_process| objects for
+	the ``inventory_policy`` and ``disruption_process`` attributes, or you may pass
+	the individual attributes for these objects. **Note:** If providing individual inventory policy
+	attributes, the ``type`` attribute must be called ``policy_type`` to avoid
+	ambiguity with other objects.
+
+	If ``kwargs`` contains a parameter that is not an attribute of |class_node| or one of
+	its attribute objects (|class_demand_source|, |class_policy|, or |class_disruption_process|), 
+	an ``AttributeError`` is raised. (Exception: ``demand_type`` and ``policy_type`` are allowed
+	even though they are not attributes of |class_node|; see above.)
+
+
+	.. note:: This function does not check that valid attributes have been provided for
+		``demand_source``, ``inventory_policy``, and ``disruption_process``. For example,
+		it does not check that a ``base_stock_level`` has been provided if the policy type
+		is set to ``BS``.
+
+
+	Parameters
+	----------
+	num_retailers : int
+		Number of retailers in OWMR system.
+	node_order_in_system : list, optional
+		List of node indices in the order that they appear in the OWMR system,
+		with warehouse node first and retailer nodes last. If omitted, the warehouse
+		will have index 0 and the retailers will have indices 1, ..., ``num_retailers``.
+	node_order_in_lists : list, optional
+		List of node indices in the order in which the nodes are listed in any
+		attributes that are lists. (``node_order_in_lists[k]`` is the index of the ``k`` th node.)
+	kwargs : optional
+		Optional keyword arguments to specify node attributes.
+
+	Raises
+	------
+	AttributeError
+		If ``kwargs`` contains a parameter that is not an attribute of |class_node|.
+	"""
+
+	# Determine edges of network.
+	if node_order_in_system is None:
+		node_order_in_system = list(range(0, num_retailers+1))
+	edges = [(node_order_in_system[0], node_order_in_system[k]) for k in range(1, num_retailers+1)]
+
+	# Make local copy of kwarg dict.
+	local_kwargs = copy.deepcopy(kwargs)
+	# Set demand_source parameter so it only occurs at retailer nodes.
+	if 'demand_source' not in local_kwargs:
+		local_kwargs['demand_source'] = {}
+	local_kwargs['demand_source'][node_order_in_system[-1]] = DemandSource()
+	# Set supply_type parameter so that it only occurs at warehouse node.
+	if 'supply_type' not in local_kwargs:
+		local_kwargs['supply_type'] = {}
+	for n in node_order_in_system:
+		if n == node_order_in_system[0]:
+			local_kwargs['supply_type'][n] = 'U'
+		else:
+			local_kwargs['supply_type'][n] = None
+
+	# Determine node_order_in_lists.
+	if node_order_in_lists is None:
+		node_order_in_lists = node_order_in_system
+
+	# Build network.
+	return network_from_edges(
+		edges=edges,
+		node_order_in_lists=node_order_in_lists,
 		**local_kwargs
 	)
 
@@ -860,12 +994,12 @@ def mwor_system(num_warehouses, node_order_in_system=None, node_order_in_lists=N
 		  the attribute value is set to ``None`` for that node.
 		* If the parameter is a list and ``node_order_in_lists`` is not provided, the values 
 		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
-		  (or in ``range(num_nodes)``, if ``node_order_in_system`` is not provided).
-
-	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
+		  (or in ``range(num_warehouses+1)``, if ``node_order_in_system`` is not provided).
 
 	``demand_source`` attribute is only set at the retailer node,
-	no matter how the corresponding parameter is set.
+	no matter how the corresponding parameter is set. ``supply_type`` attribute is set to 'U'
+	at the warehouse nodes and to ``None`` at the retailer node, no matter how the
+	corresponding parameter is set.
 
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
 	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
@@ -912,7 +1046,7 @@ def mwor_system(num_warehouses, node_order_in_system=None, node_order_in_lists=N
 		If ``kwargs`` contains a parameter that is not an attribute of |class_node|.
 	"""
 
-	# Determine nodes and edges of network.
+	# Determine edges of network.
 	if node_order_in_system is None:
 		node_order_in_system = list(range(1, num_warehouses+1)) + [0]
 	edges = [(node_order_in_system[k], node_order_in_system[-1]) for k in range(0, num_warehouses)]
@@ -920,10 +1054,22 @@ def mwor_system(num_warehouses, node_order_in_system=None, node_order_in_lists=N
 	# Make local copy of kwarg dict.
 	local_kwargs = copy.deepcopy(kwargs)
 	# Set demand_source parameter so it only occurs at retailer node.
+	if 'demand_source' not in local_kwargs:
+		local_kwargs['demand_source'] = {}
 	for n in node_order_in_system[0:-1]:
-		if 'demand_source' not in local_kwargs:
-			local_kwargs['demand_source'] = {}
 		local_kwargs['demand_source'][n] = DemandSource()
+	# Set supply_type parameter so that it only occurs at warehouse nodes.
+	if 'supply_type' not in local_kwargs:
+		local_kwargs['supply_type'] = {}
+	for n in node_order_in_system:
+		if n == node_order_in_system[-1]:
+			local_kwargs['supply_type'][n] = None
+		else:
+			local_kwargs['supply_type'][n] = 'U'
+
+	# Determine node_order_in_lists.
+	if node_order_in_lists is None:
+		node_order_in_lists = node_order_in_system
 
 	# Build network.
 	return network_from_edges(

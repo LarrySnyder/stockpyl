@@ -104,7 +104,11 @@ class SupplyChainNode(object):
 	inventory_policy : |class_policy|
 		Inventory policy to be used to make inventory decisions.
 	supply_type : str
-		Supply type (unlimited, etc.). (**Note:** *not currently supported*.) 
+		Supply type , as a string. Currently supported strings are:
+
+			* None
+			* 'U': unlimited
+			
 	disruption_process : |class_disruption_process|
 		Disruption process object (if any).
 	state_vars : list of |class_state_vars|

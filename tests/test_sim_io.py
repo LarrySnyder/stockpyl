@@ -302,11 +302,12 @@ class TestDictToHeaderList(unittest.TestCase):
 		print_status('TestDictToHeaderList', 'test_mwor()')
 
 		# Build network.
-		network = mwor_system(3, local_holding_cost=[5, 1, 1, 2],
+		network = mwor_system(3, node_order_in_lists=[0, 1, 2, 3],
+								local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[10, 10, 10, 10])
+								mean=10, standard_deviation=2,
+								policy_type='BS',
+								base_stock_level=[10, 10, 10, 10])
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
