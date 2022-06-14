@@ -27,10 +27,9 @@ two_stage_determ = supply_chain_network.serial_system(
 	stockout_cost=[0, 10],
 	shipment_lead_time=[1, 1],
 	demand_type='D',
-	demand_list=[0, 10],
-	inventory_policy_type='BS',
-	base_stock_levels=[10, 10],
-	downstream_0=False
+	list=[0, 10],
+	policy_type='BS',
+	base_stock_level=[10, 10]
 )
 # Downstream stage (stage 1) is subject to disruptions.
 two_stage_determ.get_node_from_index(1).disruption_process = disruption_process.DisruptionProcess(

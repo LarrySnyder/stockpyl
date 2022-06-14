@@ -20,7 +20,7 @@ from stockpyl.supply_chain_network import *
 
 example_6_5_network = network_from_edges(
 	[(1, 3), (3, 2), (3, 4)],
-	node_indices=[1, 2, 3, 4],
+	node_order_in_lists=[1, 2, 3, 4],
 	processing_times=[2, 1, 1, 1],
 	external_inbound_csts=[1, None, None, None],
 	local_holding_cost=[1, 3, 2, 3],

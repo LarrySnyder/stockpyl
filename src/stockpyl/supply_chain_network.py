@@ -37,6 +37,7 @@ API Reference
 import networkx as nx
 import numpy as np
 #import json
+import copy
 
 #import supply_chain_node
 from stockpyl.supply_chain_node import SupplyChainNode
@@ -460,7 +461,7 @@ class SupplyChainNetwork(object):
 # Network-Creation Methods
 # ===============================================================================
 
-def network_from_edges(edges, node_indices=None, **kwargs):
+def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 	"""Construct a supply chain network with the specified edges.
 
 	The ``kwargs`` parameters specify the attributes (data) for the nodes in the network.
@@ -473,24 +474,22 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 		  the attribute value is set to ``None`` for that node.
 		* If the parameter is a singleton, then the attribute is set to that value
 		  for all nodes.
-		* If the parameter is a list and ``node_indices`` is provided, ``node_indices``
+		* If the parameter is a list and ``node_order_in_lists`` is provided, ``node_order_in_lists``
 		  must contain the same indices as the nodes in the edges in ``edges`` (otherwise a ``ValueError``
 		  is raised). The values in the list are
 		  assumed to correspond to the node indices in the order they are specified in 
-		  ``node_indices``. That is, the value in slot ``k`` in the parameter list is
-		  assigned to the node with index ``node_indices[k]``. If a given
-		  node index is contained in the list of edges but is not in ``node_indices``,
+		  ``node_order_in_lists``. That is, the value in slot ``k`` in the parameter list is
+		  assigned to the node with index ``node_order_in_lists[k]``. If a given
+		  node index is contained in the list of edges but is not in ``node_order_in_lists``,
 		  the attribute value is set to ``None`` for that node.
-		* If the parameter is a list and ``node_indices`` is not provided, the values 
+		* If the parameter is a list and ``node_order_in_lists`` is not provided, the values 
 		  in the list are assumed to correspond to the sorted list of node indices in 
 		  the edge list. That is, the value in slot ``k`` in the parameter list is assigned
 		  to the node in slot ``k`` when the nodes in the edge list are sorted.
 
-	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
-
 	If ``edges`` is ``None`` or ``[]``, a single-node network is returned. The index of the node
-	is set to 0, unless ``node_indices`` is provided, in which case the node's index is set to
-	``node_indices[0]``. The rules for ``kwargs`` above also apply to the single-node case.
+	is set to 0, unless ``node_order_in_lists`` is provided, in which case the node's index is set to
+	``node_order_in_lists[0]``. The rules for ``kwargs`` above also apply to the single-node case.
 
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
 	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
@@ -505,10 +504,17 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 	attributes, the ``type`` attribute must be called ``policy_type`` to avoid
 	ambiguity with other objects.
 
+	If ``kwargs`` contains a parameter that is not an attribute of |class_node| or one of
+	its attribute objects (|class_demand_source|, |class_policy|, or |class_disruption_process|), 
+	an ``AttributeError`` is raised. (Exception: ``demand_type`` and ``policy_type`` are allowed
+	even though they are not attributes of |class_node|; see above.)
+
+
 	.. note:: This function does not check that valid attributes have been provided for
-	``demand_source``, ``inventory_policy``, and ``disruption_process``. For example,
-	it does not check that a ``base_stock_level`` has been provided if the policy type
-	is set to ``BS``.
+		``demand_source``, ``inventory_policy``, and ``disruption_process``. For example,
+		it does not check that a ``base_stock_level`` has been provided if the policy type
+		is set to ``BS``.
+
 
 	Parameters
 	----------
@@ -516,10 +522,17 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 		List of edges, with each edge specified as a tuple ``(a, b)``, where ``a``
 		is the index of the predecessor and ``b`` is the index of the successor node.
 		If ``None`` or empty, a single-node network is created.
-	node_indices : list, optional
-		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
+	node_order_in_lists : list, optional
+		List of node indices in the order in which the nodes are listed in any
+		attributes that are lists. (``node_order_in_lists[k]`` is the index of the ``k`` th node.)
 	kwargs : optional
 		Optional keyword arguments to specify node attributes.
+
+
+	Raises
+	------
+	AttributeError
+		If ``kwargs`` contains a parameter that is not an attribute of |class_node|.
 
 	"""
 
@@ -536,18 +549,27 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 				network.add_node(SupplyChainNode(e[1]))
 	else:
 		# Add single node.
-		if node_indices is not None:
-			ind = node_indices[0]
+		if node_order_in_lists is not None:
+			ind = node_order_in_lists[0]
 		else:
 			ind = 0
 		network.add_node(SupplyChainNode(ind))
 
-	# Check node_indices; if not provided, build it.
-	if node_indices is None:
-		node_indices = sorted(network.node_indices)
+	# Check attributes in kwargs.
+	for a in kwargs.keys():
+		if not hasattr(network.nodes[0], a) and \
+			not hasattr(network.nodes[0].demand_source, a) and \
+			not hasattr(network.nodes[0].inventory_policy, a) and \
+			not hasattr(network.nodes[0].disruption_process, a) and \
+			a not in ('demand_type', 'policy_type'):
+			raise AttributeError(f"{a} is not an attribute of SupplyChainNode")
+
+	# Check node_order_in_lists; if not provided, build it.
+	if node_order_in_lists is None:
+		node_order_in_lists = sorted(network.node_indices)
 	else:
-		if set(node_indices) != set(network.node_indices):
-			raise ValueError("node_indices list does not match nodes contained in edge list")
+		if set(node_order_in_lists) != set(network.node_indices):
+			raise ValueError("node_order_in_lists does not match nodes contained in edge list")
 
 	# Add edges.
 	for e in edges:
@@ -556,7 +578,7 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 		network.add_successor(source, sink)
 
 	# Build data dict.
-	data_dict = build_node_data_dict(attribute_dict=kwargs, node_indices=node_indices)
+	data_dict = build_node_data_dict(attribute_dict=kwargs, node_order_in_lists=node_order_in_lists)
 
 	# Set node attributes. (The code below uses the get() function to access the
 	# dictionaries within data_dict; get() returns None if the requested key is not
@@ -651,22 +673,38 @@ def network_from_edges(edges, node_indices=None, **kwargs):
 # Methods to Create Specific Network Structures
 # ===============================================================================
 
-def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
-				 shipment_lead_time=0, demand_type=None, demand_mean=0,
-				 demand_standard_deviation=0, demand_lo=0, demand_hi=0,
-				 demand_list=None, probabilities=None, initial_IL=0,
-				 initial_orders=0, initial_shipments=0, supply_type=None,
-				 inventory_policy_type=None, base_stock_level=None,
-				 reorder_point=None, order_quantity=None,
-				 order_up_to_level=None):
-	"""Generate a single-stage system.
+def single_stage_system(index=0, **kwargs):
+	"""Generate a single-stage network.
 
-	All parameters are optional.
+	The ``kwargs`` parameters specify the attributes (data) for the node.
+	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
+
+	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
+	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
+	In the latter case, a ``DemandSource`` object will be constructed with the specified
+	attributes and filled into the ``demand_source`` attribute of the node. **Note:** If providing
+	individual demand source attributes, the ``type`` attribute must be called ``demand_type``
+	to avoid ambiguity with other objects.
+
+	Similarly, you may pass |class_policy| and |class_disruption_process| objects for
+	the ``inventory_policy`` and ``disruption_process`` attributes, or you may pass
+	the individual attributes for these objects. **Note:** If providing individual inventory policy
+	attributes, the ``type`` attribute must be called ``policy_type`` to avoid
+	ambiguity with other objects.
+
+
+	.. note:: This function does not check that valid attributes have been provided for
+		``demand_source``, ``inventory_policy``, and ``disruption_process``. For example,
+		it does not check that a ``base_stock_level`` has been provided if the policy type
+		is set to ``BS``.
+	
 
 	Parameters
 	----------
-	(all_parameters) : int or float
-		Any desired attributes to be set in the network's |class_node| object.
+	index : int, optional
+		Index to use for the node. Default = 0.
+	kwargs : optional
+		Optional keyword arguments to specify node attributes.
 
 	Returns
 	-------
@@ -675,280 +713,103 @@ def single_stage(holding_cost=0, stockout_cost=0, revenue=0, order_lead_time=0,
 
 	"""
 
-	# Check that valid demand info has been provided.
-	if demand_type == 'N' and (demand_mean is None or demand_standard_deviation is None):
-		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type == 'UD' or
-		  demand_type == 'UC') and \
-		(demand_lo is None or demand_hi is None):
-		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type == 'D' and demand_list is None:
-		raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
-	elif demand_type == 'CD' and (demand_list is None or probabilities is None):
-		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
-
-	# Check that valid inventory policy has been provided.
-	if inventory_policy_type is None:
-		raise ValueError("Valid inventory_policy_type has not been provided")
-	elif inventory_policy_type in ('BS', 'EBS', 'BEBS') \
-		and base_stock_level is None:
-		raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-	elif inventory_policy_type == 'rQ' \
-		and (reorder_point is None or order_quantity is None):
-		raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
-						 "provided")
-	elif inventory_policy_type == 'sS' \
-		and (reorder_point is None or order_up_to_level is None):
-		raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
-						 "provided")
-	elif inventory_policy_type == 'FQ' \
-		and order_quantity is None:
-		raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-
-	# Build network.
-	network = SupplyChainNetwork()
-
-	# Create node.
-	node = SupplyChainNode(index=0)
-
-	# Set parameters.
-
-	# Set costs and lead times.
-	node.local_holding_cost = holding_cost
-	node.echelon_holding_cost = holding_cost
-	node.stockout_cost = stockout_cost
-	node.revenue = revenue
-#		node.lead_time = shipment_lead_time
-	node.shipment_lead_time = shipment_lead_time
-	node.order_lead_time = order_lead_time
-
-	# Build and set demand source.
-	ds = DemandSource(
-		# Pass all parameters, even though some will be None.
-		type=demand_type,
-		mean=demand_mean,
-		standard_deviation=demand_standard_deviation,
-		demand_list=demand_list,
-		probabilities=probabilities,
-		lo=demand_lo,
-		hi=demand_hi
+	return network_from_edges(
+		edges=[],
+		node_order_in_lists=[index],
+		**kwargs
 	)
-	node.demand_source = ds
-
-	# Set initial quantities.
-	node.initial_inventory_level = initial_IL
-	node.initial_orders = initial_orders
-	node.initial_shipments = initial_shipments
-
-	# Set inventory policy.
-	node.inventory_policy.type = inventory_policy_type
-	if inventory_policy_type in ('BS', 'EBS', 'BEBS'):
-		node.inventory_policy.base_stock_level = base_stock_level
-	elif inventory_policy_type == 'rQ':
-		node.inventory_policy.reorder_point = reorder_point
-		node.inventory_policy.order_quantity = order_quantity
-	elif inventory_policy_type == 'sS':
-		node.inventory_policy.reorder_point = reorder_point
-		node.inventory_policy.order_up_to_level = order_up_to_level
-	elif inventory_policy_type == 'FQ':
-		node.inventory_policy.order_quantity = order_quantity
-
-	# Set supply type.
-	node.supply_type = 'U'
-
-	# Add node to network.
-	network.add_node(node)
-
-	return network
 
 
-def serial_system(num_nodes, node_indices=None, downstream_0=True,
-				  local_holding_cost=None, echelon_holding_cost=None,
-				  stockout_cost=None, revenue=None, order_lead_time=None,
-				  shipment_lead_time=None, demand_type=None, demand_mean=None,
-				  demand_standard_deviation=None, demand_lo=None, demand_hi=None,
-				  demand_list=None, probabilities=None, initial_IL=None,
-				  initial_orders=None, initial_shipments=None, supply_type=None,
-				  inventory_policy_type=None, base_stock_levels=None,
-				  reorder_points=None, order_quantities=None,
-				  order_up_to_levels=None):
-	"""Generate serial system with specified number of nodes.
+def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None, **kwargs):
+	"""Generate a serial system with the specified number of nodes. By default, node 0
+	is upstream and node ``num_nodes`` - 1 is downstream, but this can be changed by
+	setting ``node_order_in_system``. 
 
-	Other than ``num_nodes``, all parameters are optional. If they are provided,
-	they must be either a dict, a list, or a singleton, with the following
-	requirements:
+	The ``kwargs`` parameters specify the attributes (data) for the nodes in the network.
+	If they are provided, they must be either a dict, a list, or a singleton,
+	with the following requirements:
 
-		- If ``node_indices`` is provided, then the parameter may be specified
-		  either as a dict (with keys equal to the indices in ``node_indices``)
-		  or as a singleton (in which case all nodes will have that parameter
-		  set to the singleton value).
-		- If ``node_indices`` is not provided, then the parameter may be
-		  specified either as a dict (with keys equal to 0,...,``num_nodes``-1),
-		  as a list, or as a singleton (in which case all nodes will have that
-		  parameter set to the singleton value). If the parameter is specified as
-		  a dict or list, then the keys or list indices must correspond to the
-		  actual indexing of the nodes; that is, if ``downstream_0`` is ``True``,
-		  then key/index ``0`` should refer to the downstream-most node, and if
-		  ``downstream_0`` is ``False``, then key/index ``0`` should refer to the
-		  upstream-most node.
+		* If the parameter is a dict, then the keys must contain the node indices
+		  and the values must contain the corresponding attribute values. If a given
+		  node index is contained in ``node_order_in_system`` (or in ``range(num_nodes)``,
+		  if ``node_order_in_system`` is not provided) but is not a key in the dict,
+		  the attribute value is set to ``None`` for that node.
+		* If the parameter is a singleton, then the attribute is set to that value
+		  for all nodes.
+		* If the parameter is a list and ``node_order_in_lists`` is provided, ``node_order_in_lists``
+		  must contain the same indices as the nodes in the edges in ``edges`` (otherwise a ``ValueError``
+		  is raised). The values in the list are
+		  assumed to correspond to the node indices in the order they are specified in 
+		  ``node_order_in_lists``. That is, the value in slot ``k`` in the parameter list is
+		  assigned to the node with index ``node_order_in_lists[k]``. If a given
+		  node index is contained in the list of edges but is not in ``node_order_in_lists``,
+		  the attribute value is set to ``None`` for that node.
+		* If the parameter is a list and ``node_order_in_lists`` is not provided, the values 
+		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
+		  (or in ``range(num_nodes)``, if ``node_order_in_system`` is not provided).
+
+	Parameters in ``kwargs`` that do not correspond to attributes of a |class_node| are ignored.
+
+	``demand_source`` attribute is only set at the downstream-most node,
+	no matter how the corresponding parameter is set.
+
+	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
+	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).
+	In the latter case, a ``DemandSource`` object will be constructed with the specified
+	attributes and filled into the ``demand_source`` attribute of the node. **Note:** If providing
+	individual demand source attributes, the ``type`` attribute must be called ``demand_type``
+	to avoid ambiguity with other objects.
+
+	Similarly, you may pass |class_policy| and |class_disruption_process| objects for
+	the ``inventory_policy`` and ``disruption_process`` attributes, or you may pass
+	the individual attributes for these objects. **Note:** If providing individual inventory policy
+	attributes, the ``type`` attribute must be called ``policy_type`` to avoid
+	ambiguity with other objects.
+
+
+	.. note:: This function does not check that valid attributes have been provided for
+		``demand_source``, ``inventory_policy``, and ``disruption_process``. For example,
+		it does not check that a ``base_stock_level`` has been provided if the policy type
+		is set to ``BS``.
+
 
 	Parameters
 	----------
 	num_nodes : int
-		Number of nodes in serial system.
-	node_indices : list, optional
-		List of node indices, with downstream-most node listed first.
-	downstream_0 : bool, optional
-		If True, node 0 is downstream; if False, node 0 is upstream. Ignored if
-		``node_labels`` is provided.
-	(other_parameters) : dict, list, or singleton, as described above
-		Any desired attributes to be set in the network's |class_node| objects.
-
-	Returns
-	-------
-	network : |class_network|
-		The serial system network, with parameters filled.
-
+		Number of nodes in the serial system.
+	node_order_in_system : list, optional
+		List of node indices in the order that they appear in the serial system,
+		with upstream-most node listed first. If omitted, the system will be indexed
+		0, ..., ``num_nodes`` - 1.
+	node_order_in_lists : list, optional
+		List of node indices in the order in which the nodes are listed in any
+		attributes that are lists. (``node_order_in_lists[k]`` is the index of the ``k`` th node.)
+	kwargs : optional
+		Optional keyword arguments to specify node attributes.
 	"""
 
-	# Build list of node indices.
-	if node_indices is not None:
-		indices = node_indices
-		downstream_node = node_indices[0]
-	elif downstream_0:
-		indices = list(range(num_nodes))
-		downstream_node = 0
-	else:
-		indices = list(range(num_nodes-1, -1, -1)) 
-		downstream_node = num_nodes-1
+	# Determine edges of network.
+	if node_order_in_system is None:
+		node_order_in_system = list(range(num_nodes))
+	edges = [(node_order_in_system[k], node_order_in_system[k+1]) for k in range(len(node_order_in_system)-1)]
+	
+	# Make local copy of kwarg dict.
+	local_kwargs = copy.deepcopy(kwargs)
+	# Determine sink node.
+	sink_node = node_order_in_system[-1]
+	# Set demand_source parameter so it only occurs at sink node.
+	for n in node_order_in_system:
+		if n != sink_node:
+			if 'demand_source' not in local_kwargs:
+				local_kwargs['demand_source'] = {}
+			local_kwargs['demand_source'][n] = DemandSource()
 
-	# Build dicts of attributes.
-	local_holding_cost_dict = ensure_dict_for_nodes(local_holding_cost, indices, None)
-	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices, None)
-	stockout_cost_dict = ensure_dict_for_nodes(stockout_cost, indices, None)
-	revenue_dict = ensure_dict_for_nodes(revenue, indices, None)
-	order_lead_time_dict = ensure_dict_for_nodes(order_lead_time, indices, None)
-	shipment_lead_time_dict = ensure_dict_for_nodes(shipment_lead_time, indices, None)
-	demand_type_dict = ensure_dict_for_nodes(demand_type, indices, None)
-	demand_mean_dict = ensure_dict_for_nodes(demand_mean, indices, None)
-	demand_standard_deviation_dict = ensure_dict_for_nodes(demand_standard_deviation, indices, None)
-	demand_lo_dict = ensure_dict_for_nodes(demand_lo, indices, None)
-	demand_hi_dict = ensure_dict_for_nodes(demand_hi, indices, None)
-#	demands_dict = ensure_dict_for_time_periods(demand_list, indices, None)
-	probabilities_dict = ensure_dict_for_nodes(probabilities, indices, None)
-	initial_IL_dict = ensure_dict_for_nodes(initial_IL, indices, None)
-	initial_orders_dict = ensure_dict_for_nodes(initial_orders, indices, None)
-	initial_shipments_dict = ensure_dict_for_nodes(initial_shipments, indices, None)
-	supply_type_dict = ensure_dict_for_nodes(supply_type, indices, None)
-	inventory_policy_type_dict = ensure_dict_for_nodes(inventory_policy_type, indices, None)
-	base_stock_levels_dict = ensure_dict_for_nodes(base_stock_levels, indices, None)
-	reorder_points_dict = ensure_dict_for_nodes(reorder_points, indices, None)
-	order_quantities_dict = ensure_dict_for_nodes(order_quantities, indices, None)
-	order_up_to_levels_dict = ensure_dict_for_nodes(order_up_to_levels, indices, None)
-
-	# Check that valid demand info has been provided.
-	if demand_type_dict[downstream_node] is None:
-		raise ValueError("Valid type has not been provided")
-	elif demand_type_dict[downstream_node] == 'N' and (demand_mean_dict[downstream_node] is None or demand_standard_deviation_dict[downstream_node] is None):
-		raise ValueError("Demand type was specified as normal but mean and/or SD were not provided")
-	elif (demand_type_dict[downstream_node] == 'UD' or
-		  demand_type_dict[downstream_node] == 'UC') and \
-		(demand_lo_dict[downstream_node] is None or demand_hi_dict[downstream_node] is None):
-		raise ValueError("Demand type was specified as uniform but lo and/or hi were not provided")
-	elif demand_type_dict[downstream_node] == 'D' and demand_list is None:
-		raise ValueError("Demand type was specified as deterministic but demand_list was not provided")
-	elif demand_type_dict[downstream_node] == 'CD' and (demand_list is None or probabilities_dict is None):
-		raise ValueError("Demand type was specified as discrete explicit but demand_list and/or probabilities were not provided")
-
-	# Check that valid inventory policy has been provided.
-	for n_index in indices:
-		# Check parameters for inventory policy type.
-		if inventory_policy_type_dict[n_index] is None:
-			raise ValueError("Valid inventory_policy_type has not been provided")
-		elif inventory_policy_type_dict[n_index] in ('BS', 'EBS', 'BEBS') \
-			and base_stock_levels_dict[n_index] is None:
-			raise ValueError("Policy type was specified as base-stock but base-stock level was not provided")
-		elif inventory_policy_type_dict[n_index] == 'rQ' \
-			and (reorder_points_dict[n_index] is None or order_quantities_dict[n_index] is None):
-			raise ValueError("Policy type was specified as (r,Q) but reorder point and/or order quantity were not "
-							 "provided")
-		elif inventory_policy_type_dict[n_index] == 'sS' \
-			and (reorder_points_dict[n_index] is None or order_up_to_levels_dict[n_index] is None):
-			raise ValueError("Policy type was specified as (s,S) but reorder point and/or order-up-to level were not "
-							 "provided")
-		elif inventory_policy_type_dict[n_index] == 'FQ' \
-			and order_quantities_dict[n_index] is None:
-			raise ValueError("Policy type was specified as fixed-quantity but order quantity was not provided")
-
-	# Build network, in order from downstream to upstream.
-	network = SupplyChainNetwork()
-	for n in range(num_nodes):
-
-		# Create node. (n is the position of the node, 0..num_nodes-1, with 0
-		# as the downstream-most node. indices[n] is the label of node n.)
-		n_ind = indices[n]
-		node = SupplyChainNode(index=n_ind)
-
-		# Set parameters.
-
-		# Set costs and lead times.
-		node.local_holding_cost = local_holding_cost_dict[n_ind]
-		node.echelon_holding_cost = echelon_holding_cost_dict[n_ind]
-		node.stockout_cost = stockout_cost_dict[n_ind]
-		node.revenue = revenue_dict[n_ind]
-#		node.lead_time = shipment_lead_time_dict[n_ind]
-		node.shipment_lead_time = shipment_lead_time_dict[n_ind]
-		node.order_lead_time = order_lead_time_dict[n_ind]
-
-		# Build and set demand source.
-		demand_type = demand_type_dict[n_ind]
-		if n == 0:
-			ds = DemandSource(
-				# Pass all parameters, even though some will be None.
-				type=demand_type,
-				mean=demand_mean_dict[n_ind],
-				standard_deviation=demand_standard_deviation_dict[n_ind],
-				demand_list=None if demand_list is None else demand_list[n_ind],
-				probabilities=probabilities_dict[n_ind],
-				lo=demand_lo_dict[n_ind],
-				hi=demand_hi_dict[n_ind]
-			)
-		else:
-			ds = None
-		node.demand_source = ds
-
-		# Set initial quantities.
-		node.initial_inventory_level = initial_IL_dict[n_ind]
-		node.initial_orders = initial_orders_dict[n_ind]
-		node.initial_shipments = initial_shipments_dict[n_ind]
-
-		# Set inventory policy.
-		node.inventory_policy.type = inventory_policy_type_dict[n_ind]
-		if inventory_policy_type_dict[n_ind] in ('BS', 'EBS', 'BEBS'):
-			node.inventory_policy.base_stock_level = base_stock_levels_dict[n_ind]
-		elif inventory_policy_type_dict[n_ind] == 'rQ':
-			node.inventory_policy.reorder_point = reorder_points_dict[n_ind]
-			node.inventory_policy.order_quantity = order_quantities_dict[n_ind]
-		elif inventory_policy_type_dict[n_ind] == 'sS':
-			node.inventory_policy.reorder_point = reorder_points_dict[n_ind]
-			node.inventory_policy.order_up_to_level = order_up_to_levels_dict[n_ind]
-		elif inventory_policy_type_dict[n_ind] == 'FQ':
-			node.inventory_policy.order_quantity=order_quantities_dict[n_ind]
-
-		# Set supply type.
-		if n == num_nodes-1:
-			node.supply_type = 'U'
-		else:
-			node.supply_type = None
-
-		# Add node to network.
-		if n == 0:
-			network.add_node(node)
-		else:
-			network.add_predecessor(network.get_node_from_index(prev_node), node)
-		prev_node = node.index
-
-	return network
+	# Build network.
+	return network_from_edges(
+		edges=edges, 
+		node_order_in_lists=node_order_in_lists, 
+		**local_kwargs
+	)
 
 
 def mwor_system(num_warehouses, node_indices=None, downstream_0=True,

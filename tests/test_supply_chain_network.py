@@ -808,27 +808,27 @@ class TestReindexNodes(unittest.TestCase):
 		self.assertEqual(network.get_node_from_index(14).state_vars[45].raw_material_inventory[16], 0)
 
 
-class TestSingleStageSystem(unittest.TestCase):
+class TestSingleStageNetwork(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestSingleStageSystem', 'set_up_class()')
+		print_status('TestSingleStageNetwork', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestSingleStageSystem', 'tear_down_class()')
+		print_status('TestSingleStageNetwork', 'tear_down_class()')
 
 	def test_example_4_1(self):
-		"""Test single_stage() to build system in Example 4.1.
+		"""Test single_stage_network() to build system in Example 4.1.
 		"""
-		print_status('TestSingleStageSystem', 'test_example_4_1()')
+		print_status('TestSingleStageNetwork', 'test_example_4_1()')
 
-		network = single_stage(holding_cost=0.18,
+		network = single_stage_system(holding_cost=0.18,
 							    stockout_cost=0.70,
 								demand_type='N',
-								demand_mean=50, demand_standard_deviation=8,
-								inventory_policy_type='BS',
+								mean=50, standard_deviation=8,
+								policy_type='BS',
 								base_stock_level=56.6)
 
 		node = network.nodes[0]
@@ -839,29 +839,34 @@ class TestSingleStageSystem(unittest.TestCase):
 		self.assertEqual(node.inventory_policy.base_stock_level, 56.6)
 
 
-class TestSerialSystem(unittest.TestCase):
+class TestSerialSystemNew(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
-		print_status('TestSerialSystem', 'set_up_class()')
+		print_status('TestSerialSystemNew', 'set_up_class()')
 
 	@classmethod
 	def tear_down_class(cls):
 		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestSerialSystem', 'tear_down_class()')
+		print_status('TestSerialSystemNew', 'tear_down_class()')
 		
 	def test_3_node_serial_downstream_0(self):
-		"""Test serial_system() to build 3-node serial system, indexed 0,...,2
+		"""Test serial_system_new() to build 3-node serial system, indexed 0,...,2
 		with downstream node = 0.
 		"""
-		print_status('TestSerialSystem', 'test_3_node_serial_upstream_0()')
+		print_status('TestSerialSystemNew', 'test_3_node_serial_upstream_0()')
 
-		network = serial_system(3, downstream_0=True,
-								local_holding_cost=[7, 4, 2],
-								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[5, 5, 5])
+		network = serial_system(
+			3,
+			node_order_in_system=[2, 1, 0],
+			node_order_in_lists=[0, 1, 2],
+			local_holding_cost=[7, 4, 2],
+			demand_type='N',
+			mean=10,
+			standard_deviation=2,
+			policy_type='BS',
+			base_stock_level=5
+		)
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -891,18 +896,22 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(middle_node.local_holding_cost, 4)
 		self.assertEqual(sink_node.local_holding_cost, 7)
 
-	def test_3_node_serial_index_list(self):
-		"""Test serial_system() to build 3-node serial system, with index list
-		given explicitly.
+	def test_3_node_serial_node_order_in_system(self):
+		"""Test serial_system() to build 3-node serial system, with node_order_in_system
+		provided.
 		"""
-		print_status('TestSerialSystem', 'test_3_node_serial_index_list()')
+		print_status('TestSerialSystemNew', 'test_3_node_serial_node_order_in_system()')
 
-		network = serial_system(3, node_indices=[17, 14, 12],
-								local_holding_cost=[7, 4, 2],
-								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[5, 5, 5])
+		network = serial_system(
+			3,
+			node_order_in_system=[12, 14, 17],
+			local_holding_cost=[2, 4, 7],
+			demand_type='N',
+			mean=10,
+			standard_deviation=2,
+			policy_type='BS',
+			base_stock_level=5			
+		)
 
 		# Get nodes, in order from upstream to downstream.
 		source_node = network.source_nodes[0]
@@ -931,6 +940,53 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(source_node.local_holding_cost, 2)
 		self.assertEqual(middle_node.local_holding_cost, 4)
 		self.assertEqual(sink_node.local_holding_cost, 7)
+
+	def test_3_node_serial_node_order_in_system_node_order_in_lists(self):
+		"""Test serial_system() to build 3-node serial system, with node_order_in_system
+		and node_order_in_lists provided.
+		"""
+		print_status('TestSerialSystemNew', 'test_3_node_serial_node_order_in_system_node_order_in_lists()')
+
+		network = serial_system(
+			3,
+			node_order_in_system=[12, 14, 17],
+			node_order_in_lists=[14, 12, 17],
+			local_holding_cost=[4, 2, 7],
+			demand_type='N',
+			mean=10,
+			standard_deviation=2,
+			policy_type='BS',
+			base_stock_level=5			
+		)
+
+		# Get nodes, in order from upstream to downstream.
+		source_node = network.source_nodes[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
+
+		# Get successors and predecessors.
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
+
+		self.assertEqual(source_node.index, 12)
+		self.assertEqual(middle_node.index, 14)
+		self.assertEqual(sink_node.index, 17)
+
+		self.assertEqual(source_node_succ, [14])
+		self.assertEqual(middle_node_succ, [17])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [12])
+		self.assertEqual(sink_node_pred, [14])
+
+		self.assertEqual(source_node.local_holding_cost, 2)
+		self.assertEqual(middle_node.local_holding_cost, 4)
+		self.assertEqual(sink_node.local_holding_cost, 7)
+
 
 
 class TestNetworkFromEdges(unittest.TestCase):
@@ -993,7 +1049,7 @@ class TestNetworkFromEdges(unittest.TestCase):
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],
-			node_indices=[1, 2, 3, 4],
+			node_order_in_lists=[1, 2, 3, 4],
 			local_holding_cost=[4, 7, 2, 1],
 			stockout_cost=[20, 50, None, None],
 			demand_source=[
@@ -1048,7 +1104,7 @@ class TestNetworkFromEdges(unittest.TestCase):
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],
-			node_indices=[3, 1, 2, 4],
+			node_order_in_lists=[3, 1, 2, 4],
 			local_holding_cost=[2, 4, 7, 1],
 			stockout_cost=[None, 20, 50, None],
 			demand_source=[
@@ -1080,7 +1136,7 @@ class TestNetworkFromEdges(unittest.TestCase):
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],
-			node_indices=[3, 1, 2, 4],
+			node_order_in_lists=[3, 1, 2, 4],
 			local_holding_cost=[2, 4, 7, 1],
 			stockout_cost={3: None, 1: 20, 2: 50, 4: None},
 			demand_source={
@@ -1134,7 +1190,7 @@ class TestNetworkFromEdges(unittest.TestCase):
 		correct_network.nodes[0].index = 7
 		network = network_from_edges(
 			edges=[],
-			node_indices=[7],
+			node_order_in_lists=[7],
 			local_holding_cost=2,
 			stockout_cost=20,
 			demand_type='N',
@@ -1142,140 +1198,6 @@ class TestNetworkFromEdges(unittest.TestCase):
 			standard_deviation=1
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
-
-
-class TestSerialSystem(unittest.TestCase):
-	@classmethod
-	def set_up_class(cls):
-		"""Called once, before any tests."""
-		print_status('TestSerialSystem', 'set_up_class()')
-
-	@classmethod
-	def tear_down_class(cls):
-		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestSerialSystem', 'tear_down_class()')
-
-	def test_3_node_serial_downstream_0(self):
-		"""Test serial_system() to build 3-node serial system, indexed 0,...,2
-		with downstream node = 0.
-		"""
-		print_status('TestSerialSystem', 'test_3_node_serial_downstream_0()')
-
-		network = serial_system(3, local_holding_cost=[7, 4, 2],
-								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[5, 5, 5])
-
-		# Get nodes, in order from upstream to downstream.
-		source_node = network.source_nodes[0]
-		middle_node = source_node.successors()[0]
-		sink_node = middle_node.successors()[0]
-
-		# Get successors and predecessors.
-		source_node_succ = source_node.successor_indices()
-		middle_node_succ = middle_node.successor_indices()
-		sink_node_succ = sink_node.successor_indices()
-		source_node_pred = source_node.predecessor_indices()
-		middle_node_pred = middle_node.predecessor_indices()
-		sink_node_pred = sink_node.predecessor_indices()
-
-		self.assertEqual(source_node.index, 2)
-		self.assertEqual(middle_node.index, 1)
-		self.assertEqual(sink_node.index, 0)
-
-		self.assertEqual(source_node_succ, [1])
-		self.assertEqual(middle_node_succ, [0])
-		self.assertEqual(sink_node_succ, [])
-		self.assertEqual(source_node_pred, [])
-		self.assertEqual(middle_node_pred, [2])
-		self.assertEqual(sink_node_pred, [1])
-
-		self.assertEqual(source_node.local_holding_cost, 2)
-		self.assertEqual(middle_node.local_holding_cost, 4)
-		self.assertEqual(sink_node.local_holding_cost, 7)
-
-	def test_3_node_serial_upstream_0(self):
-		"""Test serial_system() to build 3-node serial system, indexed 0,...,2
-		with upstream node = 0.
-		"""
-		print_status('TestSerialSystem', 'test_3_node_serial_upstream_0()')
-
-		network = serial_system(3, downstream_0=False,
-								local_holding_cost=[7, 4, 2],
-								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[5, 5, 5])
-
-		# Get nodes, in order from upstream to downstream.
-		source_node = network.source_nodes[0]
-		middle_node = source_node.successors()[0]
-		sink_node = middle_node.successors()[0]
-
-		# Get successors and predecessors.
-		source_node_succ = source_node.successor_indices()
-		middle_node_succ = middle_node.successor_indices()
-		sink_node_succ = sink_node.successor_indices()
-		source_node_pred = source_node.predecessor_indices()
-		middle_node_pred = middle_node.predecessor_indices()
-		sink_node_pred = sink_node.predecessor_indices()
-
-		self.assertEqual(source_node.index, 0)
-		self.assertEqual(middle_node.index, 1)
-		self.assertEqual(sink_node.index, 2)
-
-		self.assertEqual(source_node_succ, [1])
-		self.assertEqual(middle_node_succ, [2])
-		self.assertEqual(sink_node_succ, [])
-		self.assertEqual(source_node_pred, [])
-		self.assertEqual(middle_node_pred, [0])
-		self.assertEqual(sink_node_pred, [1])
-
-		self.assertEqual(source_node.local_holding_cost, 2)
-		self.assertEqual(middle_node.local_holding_cost, 4)
-		self.assertEqual(sink_node.local_holding_cost, 7)
-
-	def test_3_node_serial_index_list(self):
-		"""Test serial_system() to build 3-node serial system, with index list
-		given explicitly.
-		"""
-		print_status('TestSerialSystem', 'test_3_node_serial_index_list()')
-
-		network = serial_system(3, node_indices=[17, 14, 12],
-								local_holding_cost={17: 7, 14: 4, 12: 2},
-								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=5)
-
-		# Get nodes, in order from upstream to downstream.
-		source_node = network.source_nodes[0]
-		middle_node = source_node.successors()[0]
-		sink_node = middle_node.successors()[0]
-
-		# Get successors and predecessors.
-		source_node_succ = source_node.successor_indices()
-		middle_node_succ = middle_node.successor_indices()
-		sink_node_succ = sink_node.successor_indices()
-		source_node_pred = source_node.predecessor_indices()
-		middle_node_pred = middle_node.predecessor_indices()
-		sink_node_pred = sink_node.predecessor_indices()
-
-		self.assertEqual(source_node.index, 12)
-		self.assertEqual(middle_node.index, 14)
-		self.assertEqual(sink_node.index, 17)
-
-		self.assertEqual(source_node_succ, [14])
-		self.assertEqual(middle_node_succ, [17])
-		self.assertEqual(sink_node_succ, [])
-		self.assertEqual(source_node_pred, [])
-		self.assertEqual(middle_node_pred, [12])
-		self.assertEqual(sink_node_pred, [14])
-
-		self.assertEqual(source_node.local_holding_cost, 2)
-		self.assertEqual(middle_node.local_holding_cost, 4)
-		self.assertEqual(sink_node.local_holding_cost, 7)
 
 
 class TestMWORSystem(unittest.TestCase):

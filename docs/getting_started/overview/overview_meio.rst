@@ -72,15 +72,14 @@ of multi-echelon networks; for example:
 	>>> from stockpyl.supply_chain_network import serial_system
 	>>> serial_3 = serial_system(
 	...     num_nodes=3,
-	...     local_holding_cost=[8, 4, 2],
-	...     stockout_cost=[40, 0, 0],
-	...     shipment_lead_time=[1, 1, 2],
+	...     local_holding_cost=[2, 4, 8],
+	...     stockout_cost=[0, 0, 40],
+	...     shipment_lead_time=[2, 1, 1],
 	...     demand_type='N', # normally distributed demand
-	...     demand_mean=5,
-	...     demand_standard_deviation=1,
-	...     inventory_policy_type='BS', # base-stock policy
-	...     base_stock_levels=[6, 8, 12],
-	...     downstream_0=True
+	...     mean=5,
+	...     standard_deviation=1,
+	...     policy_type='BS', # base-stock policy
+	...     base_stock_level=[12, 8, 6]
 	... )
 	>>> serial_3.nodes[1].local_holding_cost
 	4
@@ -126,15 +125,15 @@ Here is the same example, first building a |class_network| and then passing that
 		>>> from stockpyl.supply_chain_network import serial_system
 		>>> example_6_1_network = serial_system(
 		...     num_nodes=3,
-		...     node_indices=[1, 2, 3],
+		...     node_order_in_system=[3, 2, 1],
 		...     echelon_holding_cost={1: 3, 2: 2, 3: 2},
 		...     shipment_lead_time={1: 1, 2: 1, 3: 2},
 		...     stockout_cost={1: 37.12, 2: 0, 3: 0},
 		...     demand_type='N',
-		...     demand_mean=5,
-		...     demand_standard_deviation=1,
-		...     inventory_policy_type='BS',
-		...     base_stock_levels=0,
+		...     mean=5,
+		...     standard_deviation=1,
+		...     policy_type='BS',
+		...     base_stock_level=0,
 		... )
 		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
 		>>> S_star
@@ -177,7 +176,7 @@ Serial or Tree GSM Systems
 general tree systems under the guaranteed-service model (GSM). 
 
 For serial GSM systems, the |mod_gsm_serial| module implements the dynamic programming (DP)
-algorithm of Inderfurth (1991). Here is Example 6.4 from |fosct|, passing the data as individual
+algorithm of Inderfurth (1991). Here is Example 6.3 from |fosct|, passing the data as individual
 parameters:
 
 	.. doctest::
@@ -204,19 +203,19 @@ Or passing a |class_network|:
 
 		>>> from stockpyl.gsm_serial import optimize_committed_service_times
 		>>> from stockpyl.supply_chain_network import network_from_edges
-		>>> example_6_4_network = network_from_edges(
-		...     [(3, 2), (2, 1)],
-		...     node_indices=[1, 2, 3],
-		...     processing_times=[1, 0, 1],
-		...     external_inbound_csts=[None, None, 1],
+		>>> example_6_3_network = network_from_edges(
+		...     edges=[(3, 2), (2, 1)],
+		...     node_order_in_lists=[1, 2, 3],
+		...     processing_time=[1, 0, 1],
+		...     external_inbound_cst=[None, None, 1],
 		...     local_holding_cost=[7, 4, 2],
-		...     demand_bound_constants=1,
-		...     external_outbound_csts=[1, None, None],
+		...     demand_bound_constant=1,
+		...     external_outbound_cst=[1, None, None],
 		...     demand_type=['N', None, None],
-		...     demand_mean=0,
-		...     demand_standard_deviation=[1, 0, 0]
+		...     mean=0,
+		...     standard_deviation=[1, 0, 0]
 		... )
-		>>> optimize_committed_service_times(network=example_6_4_network)
+		>>> optimize_committed_service_times(network=example_6_3_network)
 		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
 
 Or loading the instance directly:
@@ -238,16 +237,16 @@ The code snippet below solves Example 6.5 in |fosct|.
 		>>> from stockpyl.gsm_tree import optimize_committed_service_times
 		>>> from stockpyl.supply_chain_network import network_from_edges
 		>>> example_6_5_network = network_from_edges(
-		... 	[(1, 3), (3, 2), (3, 4)],
-		... 	node_indices=[1, 2, 3, 4],
-		... 	processing_times=[2, 1, 1, 1],
-		... 	external_inbound_csts=[1, None, None, None],
+		... 	edges=[(1, 3), (3, 2), (3, 4)],
+		... 	node_order_in_lists=[1, 2, 3, 4],
+		... 	processing_time=[2, 1, 1, 1],
+		... 	external_inbound_cst=[1, None, None, None],
 		... 	local_holding_cost=[1, 3, 2, 3],
-		... 	demand_bound_constants=[1, 1, 1, 1],
-		... 	external_outbound_csts=[None, 0, None, 1],
+		... 	demand_bound_constant=[1, 1, 1, 1],
+		... 	external_outbound_cst=[None, 0, None, 1],
 		... 	demand_type=[None, 'N', None, 'N'],
-		... 	demand_mean=0,
-		... 	demand_standard_deviation=[None, 1, None, 1]
+		... 	mean=0,
+		... 	standard_deviation=[None, 1, None, 1]
 		... )
 		>>> opt_cst, opt_cost = optimize_committed_service_times(tree=example_6_5_network)
 		>>> opt_cst

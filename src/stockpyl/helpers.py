@@ -460,7 +460,7 @@ def ensure_list_for_nodes(x, num_nodes, default=None):
 			return [x] * num_nodes
 
 
-def build_node_data_dict(attribute_dict, node_indices, default_values={}):
+def build_node_data_dict(attribute_dict, node_order_in_lists, default_values={}):
 	"""Build a dict of dicts containing data for all nodes and for one or more attributes.
 	The dict returned, ``data_dict``, is keyed by the node indices. 
 	``data_dict[n]`` is a dict of data for the node with index ``n``, and 
@@ -479,17 +479,17 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 		  and to ``None`` otherwise.
 		* If ``attribute_dict[a]`` is a singleton, then ``data_dict[n][a]`` is set to
 		  ``attribute_dict[a]``.
-		* If ``attribute_dict[a]`` is a list with the same length as ``node_indices``,
+		* If ``attribute_dict[a]`` is a list with the same length as ``node_order_in_lists``,
 		  then the values in the list are assumed to correspond to the node indices in the
-		  order they are specified in ``node_indices``. That is, ``attribute_dict[a][k]`` 
-		  is placed in ``data_dict[node_indices[k]][a]``, for ``k`` in ``range(len(node_indices))``.
+		  order they are specified in ``node_order_in_lists``. That is, ``attribute_dict[a][k]`` 
+		  is placed in ``data_dict[node_order_in_lists[k]][a]``, for ``k`` in ``range(len(node_order_in_lists))``.
 		* If ``attribute_dict[a]`` is ``None`` and ``default_values[a]`` is provided, 
 		  ``data_dict[n][a]`` is set to ``default_values[a]``. 
 		  (This is useful for setting default values for attributes that are passed without knowing 
 		  whether data is provided for them.)
 		* If ``attribute_dict[a]`` is ``None`` and ``default_values[a]`` is not provided, 
 		  ``data_dict[n][a]`` is set to ``None``.
-		* If ``attribute_dict[a]`` is a list that does *not* have the same length as ``node_indices``, a ``ValueError`` is raised.
+		* If ``attribute_dict[a]`` is a list that does *not* have the same length as ``node_order_in_lists``, a ``ValueError`` is raised.
 
 
 	Parameters
@@ -497,11 +497,13 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 	attribute_dict : dict
 		Dict whose keys are strings (representing node attributes) and whose values
 		are dicts, lists, and/or singletons specifying the values of the attributes for the nodes.
-	node_indices : list
-		List of node indices. (``node_indices[k]`` is the index of the ``k`` th node.)
+	node_order_in_lists : list
+		List of node indices in the order in which the nodes are listed in any
+		attributes that are lists. (``node_order_in_lists[k]`` is the index of the ``k`` th node.)
 	default_values : dict
-		Dict whose keys are strings (in ``attribute_dict.keys()``) and whose values
+		Dict whose keys are strings (in ``attribute_dict.keys()`` ) and whose values
 		are the default values to use if the attribute is not provided.
+
 
 	Returns
 	-------
@@ -511,7 +513,8 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 	Raises
 	------
 	ValueError
-		If ``attribute_dict[a]`` is a list whose length does not equal that of ``node_indices``.
+		If ``attribute_dict[a]`` is a list whose length does not equal that of ``node_order_in_lists``.
+
 
 	**Example:**
 	
@@ -527,9 +530,9 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 		>>> attribute_dict['demand_mean'] = {1: 0, 3: 50}
 		>>> attribute_dict['lead_time'] = None
 		>>> attribute_dict['processing_time'] = None
-		>>> node_indices = [3, 2, 1]
+		>>> node_order_in_lists = [3, 2, 1]
 		>>> default_values = {'lead_time': 0, 'demand_mean': 99}
-		>>> data_dict = build_node_data_dict(attribute_dict, node_indices, default_values)
+		>>> data_dict = build_node_data_dict(attribute_dict, node_order_in_lists, default_values)
 		>>> data_dict[1]
 		{'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None}
 		>>> data_dict[2]
@@ -540,7 +543,7 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 	"""
 
 	# Initialize data_dict.
-	data_dict = {n: {} for n in node_indices}
+	data_dict = {n: {} for n in node_order_in_lists}
 
 	# Loop through attributes in attribute_names.
 	for a in attribute_dict:
@@ -549,7 +552,7 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 		if attribute_dict[a] is None:
 			
 			# Use default (if any).
-			for n in node_indices:
+			for n in node_order_in_lists:
 				if a in default_values:
 					data_dict[n][a] = default_values[a]
 				else:
@@ -557,7 +560,7 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 
 		elif type(attribute_dict[a]) == dict:
 
-			for n in node_indices:
+			for n in node_order_in_lists:
 				# Is n a key in attribute_dict[a]?
 				if n in attribute_dict[a]:
 					# Yes: use it.
@@ -572,16 +575,16 @@ def build_node_data_dict(attribute_dict, node_indices, default_values={}):
 		elif is_iterable(attribute_dict[a]):
 
 			# attribute_dict[a] is a list; check its length.
-			if len(list(attribute_dict[a])) == len(node_indices):
-				for k in range(len(node_indices)):
-					data_dict[node_indices[k]][a] = attribute_dict[a][k]
+			if len(list(attribute_dict[a])) == len(node_order_in_lists):
+				for k in range(len(node_order_in_lists)):
+					data_dict[node_order_in_lists[k]][a] = attribute_dict[a][k]
 			else:
 				raise ValueError('attribute_dict[a] must be a singleton, dict, list with the same length as node_indices, or None for all a in attribute_names')
 
 		else:
 
 			# attribute_dict[a] is a singleton. 
-			for n in node_indices:
+			for n in node_order_in_lists:
 				data_dict[n][a] = attribute_dict[a]
 
 	return data_dict

@@ -21,15 +21,16 @@ T = 1000
 # The data below replicate Example 6.1 from Fundamentals of Supply Chain Theory 2e.
 serial_3 = supply_chain_network.serial_system(
 	num_nodes=3,
+	node_order_in_system=[3, 2, 1],
+	node_order_in_lists=[1, 2, 3],
 	local_holding_cost=[7, 4, 2],
 	stockout_cost=[37.12, 0, 0],
 	shipment_lead_time=[1, 1, 2],
 	demand_type='N',
-	demand_mean=5,
-	demand_standard_deviation=1,
-	inventory_policy_type='BS',
-	base_stock_levels=[6.49, 12.02-6.49, 22.71-12.02],
-	downstream_0=True
+	mean=5,
+	standard_deviation=1,
+	policy_type='BS',
+	base_stock_level=[6.49, 12.02-6.49, 22.71-12.02]
 )
 
 # Simulate the system.

@@ -53,15 +53,14 @@ Here is the same example, first building a |class_network| and then passing that
 		>>> from stockpyl.supply_chain_network import serial_system
 		>>> example_6_1_network = serial_system(
 		...     num_nodes=3,
-		...     node_indices=[1, 2, 3],
+		...     node_order_in_system=[1, 2, 3],
 		...     echelon_holding_cost={1: 3, 2: 2, 3: 2},
 		...     shipment_lead_time={1: 1, 2: 1, 3: 2},
 		...     stockout_cost={1: 37.12, 2: 0, 3: 0},
 		...     demand_type='N',
-		...     demand_mean=5,
-		...     demand_standard_deviation=1,
-		...     inventory_policy_type='BS',
-		...     base_stock_levels=0,
+		...     mean=5,
+		...     standard_deviation=1,
+		...     policy_type='BS'
 		... )
 		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
 		>>> S_star

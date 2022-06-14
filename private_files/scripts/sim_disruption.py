@@ -55,14 +55,14 @@ if False:
 	# Build two-stage system with deterministic demand. 1 --> 0
 	two_stage_determ = supply_chain_network.serial_system(
 		num_nodes=2,
+		node_order_in_system=[1, 2],
 		local_holding_cost=[1, 2],
 		stockout_cost=[0, 10],
 		shipment_lead_time=[1, 4], 
 		demand_type='D',
 		demand_list=[0, 10],
-		inventory_policy_type='BS',
-		base_stock_levels=[10, 90], 
-		downstream_0=False
+		policy_type='BS',
+		base_stock_level=[10, 90]
 	)
 	# Downstream stage (stage 0) is subject to disruptions.
 	two_stage_determ.get_node_from_index(0).disruption_process = disruption_process.DisruptionProcess(

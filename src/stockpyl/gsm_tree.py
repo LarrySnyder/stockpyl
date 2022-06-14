@@ -42,16 +42,16 @@ The code snippet below solves Example 6.5 in |fosct|.
 		>>> from stockpyl.gsm_tree import optimize_committed_service_times
 		>>> from stockpyl.supply_chain_network import network_from_edges
 		>>> example_6_5_network = network_from_edges(
-		... 	[(1, 3), (3, 2), (3, 4)],
-		... 	node_indices=[1, 2, 3, 4],
-		... 	processing_times=[2, 1, 1, 1],
-		... 	external_inbound_csts=[1, None, None, None],
+		... 	edges=[(1, 3), (3, 2), (3, 4)],
+		... 	node_order_in_lists=[1, 2, 3, 4],
+		... 	processing_time=[2, 1, 1, 1],
+		... 	external_inbound_cst=[1, None, None, None],
 		... 	local_holding_cost=[1, 3, 2, 3],
-		... 	demand_bound_constants=[1, 1, 1, 1],
-		... 	external_outbound_csts=[None, 0, None, 1],
+		... 	demand_bound_constant=[1, 1, 1, 1],
+		... 	external_outbound_cst=[None, 0, None, 1],
 		... 	demand_type=[None, 'N', None, 'N'],
-		... 	demand_mean=0,
-		... 	demand_standard_deviation=[None, 1, None, 1]
+		... 	mean=0,
+		... 	standard_deviation=[None, 1, None, 1]
 		... )
 		>>> opt_cst, opt_cost = optimize_committed_service_times(tree=example_6_5_network)
 		>>> opt_cst

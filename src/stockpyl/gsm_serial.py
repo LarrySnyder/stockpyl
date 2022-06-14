@@ -47,19 +47,19 @@ Or passing a |class_network|:
 
 		>>> from stockpyl.gsm_serial import optimize_committed_service_times
 		>>> from stockpyl.supply_chain_network import network_from_edges
-		>>> example_6_4_network = network_from_edges(
-		...     [(3, 2), (2, 1)],
-		...     node_indices=[1, 2, 3],
-		...     processing_times=[1, 0, 1],
-		...     external_inbound_csts=[None, None, 1],
+		>>> example_6_3_network = network_from_edges(
+		...     edges=[(3, 2), (2, 1)],
+		...     node_order_in_lists=[1, 2, 3],
+		...     processing_time=[1, 0, 1],
+		...     external_inbound_cst=[None, None, 1],
 		...     local_holding_cost=[7, 4, 2],
-		...     demand_bound_constants=1,
-		...     external_outbound_csts=[1, None, None],
+		...     demand_bound_constant=1,
+		...     external_outbound_cst=[1, None, None],
 		...     demand_type=['N', None, None],
-		...     demand_mean=0,
-		...     demand_standard_deviation=[1, 0, 0]
+		...     mean=0,
+		...     standard_deviation=[1, 0, 0]
 		... )
-		>>> optimize_committed_service_times(network=example_6_4_network)
+		>>> optimize_committed_service_times(network=example_6_3_network)
 		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
 
 Or loading the instance directly:

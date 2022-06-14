@@ -143,11 +143,11 @@ def get_named_instance(instance_name):
 			local_holding_cost=[0.18],
 			stockout_cost=[0.70],
 			demand_type='N',
-			demand_mean=50,
-			demand_standard_deviation=8,
+			mean=50,
+			standard_deviation=8,
 			shipment_lead_time=[1],
-			inventory_policy_type='BS',
-			base_stock_levels=[56.6]
+			policy_type='BS',
+			base_stock_level=[56.6]
 		)
 		return example_4_1_network
 	elif instance_name == "example_4_1":
@@ -166,17 +166,17 @@ def get_named_instance(instance_name):
 		demand_sd = 8
 		return selling_revenue, purchase_cost, salvage_value, demand_mean, demand_sd
 	elif instance_name == "example_4_2_network":
-		# Example 4.2 (newsvendo rexplicit), as SupplyChainNetwork object.
+		# Example 4.2 (newsvendor explicit), as SupplyChainNetwork object.
 		example_4_2_network = serial_system(
 			num_nodes=1,
 			local_holding_cost=[0.18],
 			stockout_cost=[0.70],
 			demand_type='N',
-			demand_mean=50,
-			demand_standard_deviation=8,
+			mean=50,
+			standard_deviation=8,
 			shipment_lead_time=[1],
-			inventory_policy_type='BS',
-			base_stock_levels=[56.6])
+			policy_type='BS',
+			base_stock_level=[56.6])
 		return example_4_2_network
 	elif instance_name == "example_4_3":
 		# Example 4.3 (= Example 4.1).
@@ -328,48 +328,50 @@ def get_named_instance(instance_name):
 		# Example 6.1.
 		example_6_1_network = serial_system(
 			num_nodes=3,
-			node_indices=[1, 2, 3],
+			node_order_in_system=[3, 2, 1],
 			echelon_holding_cost={1: 3, 2: 2, 3: 2},		
 			local_holding_cost={1: 7, 2: 4, 3: 2},		
 			shipment_lead_time={1: 1, 2: 1, 3: 2},	
 			stockout_cost={1: 37.12, 2: 0, 3: 0},
 			demand_type='N',
-			demand_mean=5,
-			demand_standard_deviation=1,
-			inventory_policy_type='BS',
-			base_stock_levels={1: 6.49, 2: 5.53, 3: 10.69}
+			mean=5,
+			standard_deviation=1,
+			policy_type='BS',
+			base_stock_level={1: 6.49, 2: 5.53, 3: 10.69}
 		)
 		return example_6_1_network
 	elif instance_name == "problem_6_1":
 		# Problem 6.1.
 		problem_6_1_network = serial_system(
 			num_nodes=2,
+			node_order_in_system=[2, 1],
+			node_order_in_lists=[1, 2],
 			local_holding_cost=[2, 1],
 			echelon_holding_cost=[1, 1],
 			stockout_cost=[15, 0],
 			demand_type='N',
-			demand_mean=100,
-			demand_standard_deviation=15,
+			mean=100,
+			standard_deviation=15,
 			shipment_lead_time=[1, 1],
-			inventory_policy_type='BS',
-			base_stock_levels=[100, 94],
-			downstream_0=True
+			policy_type='BS',
+			base_stock_level=[100, 94]
 		)
 		return problem_6_1_network
 	elif instance_name == "problem_6_2a":
 		# Problem 6.2a.
 		problem_6_2a_network = serial_system(
 			num_nodes=5,
+			node_order_in_system=[5, 4, 3, 2, 1],
+			node_order_in_lists=[1, 2, 3, 4, 5],
 			local_holding_cost=[1, 2, 3, 5, 7],
 			echelon_holding_cost=[2, 2, 1, 1, 1],
 			stockout_cost=[24, 0, 0, 0, 0],
 			demand_type='N',
-			demand_mean=64,
-			demand_standard_deviation=8,
+			mean=64,
+			standard_deviation=8,
 			shipment_lead_time=[0.5, 0.5, 0.5, 0.5, 0.5],
-			inventory_policy_type='BS',
-			base_stock_levels=[40.59, 33.87, 35.14, 33.30, 32.93],
-			downstream_0=True
+			policy_type='BS',
+			base_stock_level=[40.59, 33.87, 35.14, 33.30, 32.93]
 		)
 		return problem_6_2a_network
 	elif instance_name == "problem_6_2a_adj":
@@ -378,15 +380,16 @@ def get_named_instance(instance_name):
 		# having length 0.5 in the original problem.)
 		problem_6_2a_network_adj = serial_system(
 			num_nodes=5,
+			node_order_in_system=[5, 4, 3, 2, 1],
+			node_order_in_lists=[1, 2, 3, 4, 5],
 			local_holding_cost=list(np.array([1, 2, 3, 5, 7]) / 2),
 			stockout_cost=list(np.array([24, 0, 0, 0, 0]) / 2),
 			demand_type='N',
-			demand_mean=64 / 2,
-			demand_standard_deviation=8 / np.sqrt(2),
+			mean=64 / 2,
+			standard_deviation=8 / np.sqrt(2),
 			shipment_lead_time=[1, 1, 1, 1, 1],
-			inventory_policy_type='BS',
-			base_stock_levels=[40.59, 33.87, 35.14, 33.30, 32.93],
-			downstream_0=True
+			policy_type='BS',
+			base_stock_level=[40.59, 33.87, 35.14, 33.30, 32.93]
 		)
 		return problem_6_2a_network_adj
 	elif instance_name == "problem_6_2b_adj":
@@ -401,18 +404,19 @@ def get_named_instance(instance_name):
 		# Problem 6.16.
 		problem_6_16_network = serial_system(
 			num_nodes=2,
+			node_order_in_system=[2, 1],
+			node_order_in_lists=[1, 2],
 			local_holding_cost=[7, 2],
 			stockout_cost=[24, 0],
 			demand_type='N',
-			demand_mean=20,
-			demand_standard_deviation=4,
+			mean=20,
+			standard_deviation=4,
 			shipment_lead_time=[8, 3],
-			inventory_policy_type='BS',
-			base_stock_levels=[171.1912, 57.7257],
-			initial_IL=20,
+			policy_type='BS',
+			base_stock_level=[171.1912, 57.7257],
+			initial_inventory_level=20,
 			initial_orders=20,
-			initial_shipments=20,
-			downstream_0=True
+			initial_shipments=20
 		)
 		return problem_6_16_network
 
@@ -604,6 +608,7 @@ def get_named_instance(instance_name):
 	elif instance_name == "kangye_3_stage_serial":
 		kangye_3_stage_serial = serial_system(
 			num_nodes=3,
+			node_order_in_system=[1, 2, 3],
 			local_holding_cost=[1, 5, 10],
 			stockout_cost=[0, 0, 100],
 			demand_type='N',

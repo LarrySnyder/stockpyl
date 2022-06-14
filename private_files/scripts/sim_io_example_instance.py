@@ -3,7 +3,7 @@ from stockpyl.sim import simulation
 
 network = network_from_edges(
 	edges=[(3, 2), (3, 1), (4, 1)],
-	node_indices=[1, 2, 3, 4],
+	node_order_in_lists=[1, 2, 3, 4],
 	local_holding_cost=[2, 2, 1, 1],
 	stockout_cost=[10, 10, 0, 0],
 	order_lead_time=[0, 1, 0, 0],
