@@ -1219,9 +1219,9 @@ class TestMWORSystem(unittest.TestCase):
 
 		network = mwor_system(3, local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[10, 10, 10, 10])
+								mean=10, standard_deviation=2,
+								policy_type='BS',
+								base_stock_level=[10, 10, 10, 10])
 
 		# Get nodes.
 		wh1 = network.source_nodes[0]
@@ -1264,17 +1264,18 @@ class TestMWORSystem(unittest.TestCase):
 		"""
 		print_status('TestMWORSystem', 'test_4_node_mrow_downstream_3()')
 
-		network = mwor_system(3, downstream_0=False,
+		network = mwor_system(3, node_order_in_system=[0, 1, 2, 3],
+								node_order_in_lists=[3, 2, 1, 0],
 								local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[10, 10, 10, 10])
+								mean=10, standard_deviation=2,
+								policy_type='BS',
+								base_stock_level=[10, 10, 10, 10])
 
 		# Get nodes.
-		wh1 = network.source_nodes[0]
+		wh1 = network.source_nodes[2]
 		wh2 = network.source_nodes[1]
-		wh3 = network.source_nodes[2]
+		wh3 = network.source_nodes[0]
 		ret = network.sink_nodes[0]
 
 		# Get successors and predecessors.
@@ -1296,7 +1297,7 @@ class TestMWORSystem(unittest.TestCase):
 		self.assertEqual(wh1_succ, [3])
 		self.assertEqual(wh2_succ, [3])
 		self.assertEqual(wh3_succ, [3])
-		self.assertEqual(ret_pred, [2, 1, 0])
+		self.assertEqual(ret_pred, [0, 1, 2])
 		self.assertEqual(wh1_pred, [])
 		self.assertEqual(wh2_pred, [])
 		self.assertEqual(wh3_pred, [])
@@ -1312,12 +1313,13 @@ class TestMWORSystem(unittest.TestCase):
 		"""
 		print_status('TestMWORSystem', 'test_4_node_mrow_index_list()')
 
-		network = mwor_system(3, node_indices=[17, 14, 12, 5],
+		network = mwor_system(3, node_order_in_system=[5, 12, 14, 17],
+								node_order_in_lists=[17, 5, 14, 12],
 								local_holding_cost=[5, 1, 1, 2],
 								demand_type='N',
-								demand_mean=10, demand_standard_deviation=2,
-								inventory_policy_type='BS',
-								base_stock_levels=[10, 10, 10, 10])
+								mean=10, standard_deviation=2,
+								policy_type='BS',
+								base_stock_level=[10, 10, 10, 10])
 
 		# Get nodes.
 		wh1 = network.source_nodes[0]
@@ -1336,23 +1338,23 @@ class TestMWORSystem(unittest.TestCase):
 		wh3_pred = wh3.predecessor_indices()
 
 		self.assertEqual(ret.index, 17)
-		self.assertEqual(wh1.index, 14)
+		self.assertEqual(wh1.index, 5)
 		self.assertEqual(wh2.index, 12)
-		self.assertEqual(wh3.index, 5)
+		self.assertEqual(wh3.index, 14)
 
 		self.assertEqual(ret_succ, [])
 		self.assertEqual(wh1_succ, [17])
 		self.assertEqual(wh2_succ, [17])
 		self.assertEqual(wh3_succ, [17])
-		self.assertEqual(ret_pred, [14, 12, 5])
+		self.assertEqual(ret_pred, [5, 12, 14])
 		self.assertEqual(wh1_pred, [])
 		self.assertEqual(wh2_pred, [])
 		self.assertEqual(wh3_pred, [])
 
 		self.assertEqual(ret.local_holding_cost, 5)
 		self.assertEqual(wh1.local_holding_cost, 1)
-		self.assertEqual(wh2.local_holding_cost, 1)
-		self.assertEqual(wh3.local_holding_cost, 2)
+		self.assertEqual(wh2.local_holding_cost, 2)
+		self.assertEqual(wh3.local_holding_cost, 1)
 
 
 class TestNetworkxDigraph(unittest.TestCase):
