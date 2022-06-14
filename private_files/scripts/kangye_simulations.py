@@ -5,12 +5,9 @@ sys.path.append('../stockpyl')
 
 from stockpyl import sim
 from stockpyl import sim_io
-from stockpyl import supply_chain_network
 from stockpyl.instances import load_instance
 from stockpyl.disruption_process import DisruptionProcess
-#from stockpyl import supply_uncertainty
 
-import numpy as np
 
 # Number of periods.
 T = 1000

@@ -46,6 +46,11 @@ class TestSimulation(unittest.TestCase):
 		# reindex nodes to 2 -> 1 -> 0
 		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
@@ -67,6 +72,11 @@ class TestSimulation(unittest.TestCase):
 
 		network = load_instance("problem_6_1")
 
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
 		total_cost = simulation(network, 100, rand_seed=531, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
@@ -87,6 +97,11 @@ class TestSimulation(unittest.TestCase):
 		print_status('TestSimulation', 'test_problem_6_2a()')
 
 		network = load_instance("problem_6_2a_adj")
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
 
 		total_cost = simulation(network, 100, rand_seed=1340, progress_bar=False, consistency_checks='E')
 
@@ -133,6 +148,11 @@ class TestSimulation(unittest.TestCase):
 		print_status('TestSimulation', 'test_single_stage()')
 
 		network = load_instance("example_4_1_network")
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
 
 		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False, consistency_checks='E')
 

@@ -186,6 +186,11 @@ class TestMEIOByEnumeration(unittest.TestCase):
 
 		network = load_instance("example_4_1_network")
 
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
 		best_S, best_cost = meio_general.meio_by_enumeration(network, truncation_lo=55, truncation_hi=58, discretization_step=0.1,
 												sim_num_trials=5, sim_num_periods=500, sim_rand_seed=762,
 												progress_bar=False, print_solutions=False)
@@ -200,6 +205,11 @@ class TestMEIOByEnumeration(unittest.TestCase):
 		print_status('TestMEIOByEnumeration', 'test_example_6_1()')
 
 		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
 
 		best_S, best_cost = meio_general.meio_by_enumeration(network, truncation_lo={1: 5, 2: 4, 3: 10},
 													 truncation_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5,
@@ -237,6 +247,11 @@ class TestMEIOByEnumeration(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
 		best_S, best_cost = meio_general.meio_by_enumeration(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 												truncation_lo={0: 35, 1: 22, 3: 10},
 												truncation_hi={0: 50, 1: 31, 3: 14},
@@ -267,6 +282,11 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		print_status('TestMEIOByCoordinateDescent', 'test_example_4_1()')
 
 		network = load_instance("example_4_1_network")
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
 
 		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, initial_solution={0: 50},
 															search_lo=40, search_hi=60,
@@ -301,6 +321,11 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
 		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, search_lo={1: 5, 2: 4, 3: 10},
 													 search_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5,
 													 sim_num_periods=500, sim_rand_seed=762)
@@ -334,6 +359,11 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		print_status('TestMEIOByCoordinateDescent', 'test_rong_atan_snyder_figure_1a()')
 
 		network = load_instance("rong_atan_snyder_figure_1a")
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
 
 		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, groups=[{0}, {1, 2}, {3, 4, 5, 6}],
 												search_lo={0: 35, 1: 22, 3: 10},
