@@ -356,7 +356,7 @@ def _initialize_state_vars(network):
 		# Initialize inbound order pipeline. (Exclude external demand.)
 		for s in n.successors():
 			for l in range(s.order_lead_time or 0):
-				n.state_vars[0].inbound_order_pipeline[s.index][l] = s.initial_orders
+				n.state_vars[0].inbound_order_pipeline[s.index][l] = s.initial_orders or 0
 
 		# Initialize raw material inventory.
 		for p in n.predecessor_indices(include_external=True):
