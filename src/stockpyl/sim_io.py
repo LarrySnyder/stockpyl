@@ -124,12 +124,13 @@ inventory level is 8 (``IL``). These 8 units incur a holding cost of 2 each; but
 incur node 3's holding cost rate of 1 each. So, the total holding cost (``HC``) at node 1 is 19 in period 2.
 	  
 
-
 .. csv-table:: Simulation Results
    :file: aux_files/sim_io_example_instance.csv
    :widths: auto
    :header-rows: 1
    :stub-columns: 1
+   
+:download:`Download table in CSV format <../../../src/stockpyl/aux_files/sim_io_example_instance.csv>`
 
 
 API Reference
