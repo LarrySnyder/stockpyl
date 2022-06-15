@@ -680,6 +680,13 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 			# Calculate newsvendor quantities.
 			S_u, _ = newsvendor_normal(h_eff_u, p_eff, mu_ltd, sigma_ltd)
 			S_l, _ = newsvendor_normal(h_eff_l, p_eff, mu_ltd, sigma_ltd)
+		elif demand_source.type == 'P':
+			# Poisson.
+			# Calculate parameters of LTD distribution.
+			mu_ltd = mu * np.sum(L[1:j+1])
+			# Calculate newsvendor quantities.
+			S_u, _ = newsvendor_poisson(h_eff_u, p_eff, mu_ltd)
+			S_l, _ = newsvendor_poisson(h_eff_l, p_eff, mu_ltd)
 		elif demand_source.type == 'UC':
 			# Uniform continuous.
 			# Build LTD distribution.
