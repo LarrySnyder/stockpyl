@@ -1,4 +1,0 @@
-include README.md
-include datasets/*.json
-
-exclude private_files/*
