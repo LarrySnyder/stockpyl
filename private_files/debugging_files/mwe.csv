@@ -1,0 +1,9 @@
+﻿Name,Cost,Depth,Class,Mean,SD,CST,SL,Time
+Manuf_0001,39.00,1,Manuf,,,12,,10.00
+Manuf_0002,36.00,1,Manuf,,,8,,10.00
+Part_0001,12.00,2,Part,,,,,28.00
+Part_0002,5.00,2,Part,,,,,15.00
+Part_0003,9.00,2,Part,,,,,10.00
+Retail_0001,0.00,0,Retail,253,36.62,0,0.95,0.00
+Retail_0002,0.00,0,Retail,45,1,0,0.95,0.00
+Retail_0003,0.00,0,Retail,75,2,0,0.95,0.00
