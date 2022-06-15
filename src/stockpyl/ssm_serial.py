@@ -53,7 +53,7 @@ Here is the same example, first building a |class_network| and then passing that
 		>>> from stockpyl.supply_chain_network import serial_system
 		>>> example_6_1_network = serial_system(
 		...     num_nodes=3,
-		...     node_order_in_system=[1, 2, 3],
+		...     node_order_in_system=[3, 2, 1],
 		...     echelon_holding_cost={1: 3, 2: 2, 3: 2},
 		...     shipment_lead_time={1: 1, 2: 1, 3: 2},
 		...     stockout_cost={1: 37.12, 2: 0, 3: 0},

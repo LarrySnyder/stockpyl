@@ -570,7 +570,7 @@ class DemandSource(object):
 		"""Return lead-time demand distribution, as a
 		``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
 
-		.. note:: For 'P', 'UC', 'UD', and 'CD' demands, this method calculates the lead-time
+		.. note:: For 'UC', 'UD', and 'CD' demands, this method calculates the lead-time
 			demand distribution as the sum of ``lead_time`` independent random variables.
 			Therefore, the method requires ``lead_time`` to be an integer for these
 			distributions. If it is not, it raises a ``ValueError``.
@@ -588,12 +588,12 @@ class DemandSource(object):
 		Raises
 		------
 		ValueError
-			If ``type`` is 'P', 'UC', 'UD', or 'CD' and ``lead_time`` is not an integer.
+			If ``type`` is 'UC', 'UD', or 'CD' and ``lead_time`` is not an integer.
 		"""
 
 		# Check whether lead_time is an integer.
-		if self.type in ('P', 'UC', 'UD', 'CD') and not is_integer(lead_time):
-			raise ValueError("lead_time must be an integer for 'P', 'UC', 'UD', or 'CD' demand")
+		if self.type in ('UC', 'UD', 'CD') and not is_integer(lead_time):
+			raise ValueError("lead_time must be an integer for 'UC', 'UD', or 'CD' demand")
 
 		# Get distribution object.
 		if self.type == 'N':
