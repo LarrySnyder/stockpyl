@@ -22,7 +22,7 @@ A list of the built-in instances is provided below.
 
 
 .. csv-table:: Built-In Instances
-   :file: ../../docs/aux_files/named_instances.csv
+   :file: named_instances.csv
    :widths: 30, 70
    :header-rows: 1
 
@@ -30,6 +30,10 @@ API Reference
 -------------
 
 """
+
+
+#   :file: ../../docs/aux_files/named_instances.csv
+
 
 #import copy
 import os
