@@ -126,7 +126,7 @@ incur node 3's holding cost rate of 1 each. So, the total holding cost (``HC``) 
 
 
 .. csv-table:: Simulation Results
-   :file: ../../docs/aux_files/sim_io_example_instance.csv
+   :file: aux_files/sim_io_example_instance.csv
    :widths: auto
    :header-rows: 1
    :stub-columns: 1
