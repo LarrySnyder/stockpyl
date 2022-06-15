@@ -22,7 +22,7 @@ A list of the built-in instances is provided below.
 
 
 .. csv-table:: Built-In Instances
-   :file: named_instances.csv
+   :file: src/stockpyl/named_instances.csv
    :widths: 30, 70
    :header-rows: 1
 
