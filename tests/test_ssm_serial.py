@@ -138,7 +138,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 
 	def test_example_6_1_uniform(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes
-		network in Example 6.1 with uniform demand_list.
+		network in Example 6.1 with uniform demands.
 		"""
 
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_uniform()')
@@ -173,6 +173,37 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
 		self.assertAlmostEqual(C_star, 46.45421661501915, places=5)
+
+	def test_example_6_1_poisson(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes
+		network in Example 6.1 with Poisson demands.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_poisson()')
+
+		instance = copy.deepcopy(load_instance("example_6_1"))
+
+		for n in instance.nodes:
+			if n.index == 1:
+				demand_source = DemandSource()
+				demand_source.type = 'P'
+				demand_source.mean = 5 
+			else:
+				demand_source = None
+			n.demand_source = demand_source
+
+		S_star, C_star = optimize_base_stock_levels(
+			num_nodes=len(instance.nodes),
+			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
+			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
+			stockout_cost=instance.get_node_from_index(1).stockout_cost,
+			demand_mean=None,
+			demand_standard_deviation=None,
+			demand_source=instance.get_node_from_index(1).demand_source, 
+			S=None, plots=False)
+		correct_S_star = {1: 9, 2: 15, 3: 26}
+		self.assertDictEqual(S_star, correct_S_star)
+		self.assertAlmostEqual(C_star, 72.02506008691718, places=5)
 
 	def test_bad_parameters(self):
 		"""Test that optimize_base_stock_levels() correctly raises exceptions if
@@ -368,7 +399,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 
 	# def test_example_6_1_uniform(self):
 	# 	"""Test that newsvendor_heuristic() correctly optimizes
-	# 	network in Example 6.1 with uniform demand_list.
+	# 	network in Example 6.1 with uniform demands.
 	# 	"""
 
 	# 	print_status('TestNewsvendorHeuristic', 'test_example_6_1_uniform()')

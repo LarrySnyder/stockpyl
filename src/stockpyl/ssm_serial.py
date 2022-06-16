@@ -151,6 +151,9 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	provided (in which case the demand will be assumed to be normally distributed),
 	or ``demand_source`` must be provided, or ``network`` must be provided.
 
+	If ``demand_source`` is provided and has all-integer support, this is accounted for
+	in the discretization, and the solutions returned will also be integer.
+
 	Parameters
 	----------
 	num_nodes : int, optional
@@ -184,9 +187,12 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		to determine automatically.
 	x_num : int, optional
 		Number of discretization intervals to use for ``x`` range. Ignored if
-		``x`` is provided.
+		``x`` is provided. Ignored if a discrete distribution is provided in
+		``demand_source`` (since in that case ``x`` range is discretized to integers).
 	d_num : int, optional
-		Number of discretization intervals to use for ``d`` range.
+		Number of discretization intervals to use for ``d`` range. 
+		Ignored if a discrete distribution is provided in
+		``demand_source`` (since in that case ``d`` range is discretized to integers).
 	ltd_lower_tail_prob : float, optional
 		Lower tail probability to use when truncating lead-time demand
 		distribution.
@@ -344,31 +350,34 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	else:
 		sum_ltd_hi = sum_ltd_dist.interval(1)[1]
 
+	# Is demand distribution discrete (integer)?
+	if demand_source.type in ('P', 'UD'):
+		discrete_distribution = True
+	elif demand_source.type == 'CD' and np.all([is_integer(d) for d in demand_source.demand_list]):
+		discrete_distribution = True
+	else:
+		discrete_distribution = False
+
 	# Determine x (inventory level) array (truncated and discretized).
+	# If demand distribution is discrete, discretize to integers; otherwise,
+	# use x_num to determine granularity.
 	if x is None:
 		# x-range = [sum_ltd_lo-sum_ltd_mean, sum_ltd_hi].
 		x_lo = sum_ltd_lo - sum_ltd_dist.mean()
 		x_hi = sum_ltd_hi
-		x_delta = (x_hi - x_lo) / x_num
-		# x_lo = -4 * sigma * np.sqrt(sum(L))
-		# x_hi = mu * sum(L) + 8 * sigma * np.sqrt(sum(L))
-		# x_delta = (x_hi - x_lo) / x_num
 		# Ensure x >= largest echelon BS level, if provided.
 		if S is not None:
 			x_hi = max(x_hi, max(S, key=S.get))
-		# Build x range.
-		x = np.arange(x_lo, x_hi + x_delta, x_delta)
+		# Build x range. Is demand distribution discrete?
+		if discrete_distribution:
+			# x_lo and h_hi should already be integers, but cast them anyway.
+			x = np.arange(int(x_lo), int(x_hi) + 1)
+			x_delta = 1
+		else:
+			x_delta = (x_hi - x_lo) / x_num
+			x = np.arange(x_lo, x_hi + x_delta, x_delta)
 	else:
 		x_delta = x[1] - x[0]
-
-	# Standard normal demand array (truncated and discretized).
-	# (Use mu + d * sigma to get distribution-specific demand_list).
-	# d_lo = -4
-	# d_hi = 4
-	# d_delta = (d_hi - d_lo) / d_num
-	# d = np.arange(d_lo, d_hi + d_delta, d_delta)
-	# # Probability array.
-	# fd = stats.norm.cdf(d+d_delta/2) - stats.norm.cdf(d-d_delta/2)
 
 	# Extended x array (used for approximate C-hat function).
 	x_ext_lo = np.min(x) - sum_ltd_hi
@@ -429,8 +438,12 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		# Determine d (lead-time demand) array (truncated and discretized).
 		d_lo = ltd_lo
 		d_hi = ltd_hi
-		d_delta = (d_hi - d_lo) / d_num
-		d = np.arange(d_lo, d_hi + d_delta, d_delta)
+		if discrete_distribution:
+			d = np.arange(int(d_lo), int(d_hi) + 1)
+			d_delta = 1
+		else:
+			d_delta = (d_hi - d_lo) / d_num
+			d = np.arange(d_lo, d_hi + d_delta, d_delta)
 
 		# Calculate discretized cdf array.
 		fd = np.array([ltd_dist.cdf(d_val+d_delta/2) - ltd_dist.cdf(d_val-d_delta/2) for d_val in d])
