@@ -345,6 +345,27 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
 
+	def test_rounding(self):
+		"""Test that newsvendor_heuristic() handles rounding correctly.
+		"""
+		print_status('TestNewsvendorHeuristic', 'test_problem_6_2a()')
+
+		instance = copy.deepcopy(load_instance("example_6_1"))
+
+		S_heur_up = newsvendor_heuristic(network=instance, round_type='up')
+		self.assertDictEqual(S_heur_up, {1: 7, 2: 13, 3: 23})
+
+		S_heur_down = newsvendor_heuristic(network=instance, round_type='down')
+		self.assertDictEqual(S_heur_down, {1: 6, 2: 12, 3: 22})
+
+		S_heur_nearest = newsvendor_heuristic(network=instance, round_type='nearest')
+		self.assertDictEqual(S_heur_nearest, {1: 6, 2: 12, 3: 23})
+
+		S_heur_none = newsvendor_heuristic(network=instance, round_type=None)
+		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur_none[n], correct_S_heur[n], places=5)
+
 	# def test_example_6_1_uniform(self):
 	# 	"""Test that newsvendor_heuristic() correctly optimizes
 	# 	network in Example 6.1 with uniform demand_list.
