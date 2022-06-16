@@ -8,11 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Named instances from Shang and Song (2003)
+- More flexible options for node indexing in ``ssm_serial.optimize_base_stock_levels()`` 
 
 ### Changed
 - Smarter initialization of inventory levels in simulation
-- ``ssm_serial.optimize_base_stock_levels()`` recognizes if demand distribution is discrete 
-  and handles discretization accordingly
+- ``ssm_serial.optimize_base_stock_levels()`` recognizes if demand distribution is discrete and handles discretization accordingly
 
 ## [0.0.4] -- 2022-06-14
 ### Added
