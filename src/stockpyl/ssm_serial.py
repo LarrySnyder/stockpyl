@@ -117,12 +117,14 @@ import copy
 from stockpyl.demand_source import DemandSource
 from stockpyl.helpers import round_dict_values
 from stockpyl.newsvendor import *
+from stockpyl.supply_chain_network import serial_system
 
 
 ### OPTIMIZATION ###
 
-def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_time=None,
-								stockout_cost=None, demand_mean=None, demand_standard_deviation=None,
+def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_order_in_lists=None,
+								echelon_holding_cost=None, lead_time=None, stockout_cost=None, 
+								demand_mean=None, demand_standard_deviation=None,
 								demand_source=None, network=None,
 								S=None, plots=False, x=None,
 								x_num=1000, d_num=100,
@@ -136,16 +138,30 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
 	or as a |class_network| in the ``network`` parameter.
 
-	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
-	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
-	a dict, a list, or a singleton, with the following requirements:
+	By default, the nodes in the system are assumed to be indexed
+	``num_nodes``, ..., 1, with node 1 at the downstream end, but this can be changed by
+	providing either the ``node_order_in_system`` or ``network`` parameter.
+
+	The node-specific parameters (``echelon_holding_cost``, ``lead_time``)
+	must be either a dict, a list, or a singleton, with the following requirements:
 	
-	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
-	  each corresponding to a node index.
-	* If the parameter is a list, it must have length ``num_nodes``;
-	  the ``n`` th entry in the list corresponds to node with index ``n`` + 1.
-	* If the parameter is a singleton, all nodes will have that parameter set to the
-	  singleton value.
+	* If the parameter is a dict, then the keys must contain the node indices and the values
+	  must contain the corresponding attribute values. If a given node index is contained in
+	  ``node_order_in_system`` (or in 1, ..., ``num_nodes``, if ``node_order_in_system`` is not
+	  provided) but is not a key in the dict, the attribute value is set to ``None`` for that node.
+	* If the parameter is a singleton, then the attribute is set to that value for all nodes.
+	* If the parameter is a list and ``node_order_in_lists`` is provided, ``node_order_in_lists`` 
+	  must contain the same indices as ``node_order_in_system`` (if it is provided) or 1, ..., ``num_nodes``
+	  (if it is not), otherwise a ``ValueError`` is raised. The values in the list are assumed
+	  to correpond to the node indices in the order they are specified in ``node_order_in_lists``.
+	  That is, the value in slot ``k`` in the parameter list is assigned to the node with index
+	  ``node_order_in_lists[k]``. 
+	* If the parameter is a list and ``node_order_in_lists`` is not provided, the values
+	  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system``
+	  (or in 1, ..., ``num_nodes``, if ``node_order_in_system`` is not provided).
+	
+	(These are the same requirements as in :func:`stockpyl.supply_chain_network.serial_system`, except
+	that the default node numbering is 1, ..., ``num_nodes`` here.)
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed),
@@ -158,6 +174,14 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	----------
 	num_nodes : int, optional
 		Number of nodes in serial system. [:math:`N`]
+	node_order_in_system : list, optional
+		List of node indices in the order that they appear in the serial system,
+		with upstream-most node listed first. If omitted, the system will be indexed
+		``num_nodes``, ..., 1. Ignored if ``network`` is provided.
+	node_order_in_lists : list, optional
+		List of node indices in the order in which the nodes are listed in any
+		attributes that are lists. (``node_order_in_lists[k]`` is the index of the ``k`` th node.)
+		Ignored if ``network`` is provided.
 	echelon_holding_cost : float, list, or dict, optional
 		Echelon holding cost at each node. [:math:`h`]
 	lead_time : float, list, or dict, optional
@@ -217,6 +241,8 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 	------
 	ValueError
 		If ``network`` is ``None`` and ``num_nodes``, ..., ``stockout_cost`` are ``None``.
+	ValueError
+		If ``network``, ``node_order_in_system``, and ``num_nodes`` are all ``None``.
 	ValueError
 		If ``stockout_cost`` is ``None`` or if ``echelon_holding_cost`` or
 		``lead_time`` is ``None`` for any node.
@@ -289,51 +315,20 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 		47.668653127136345
 	"""
 
-	# Check for presence of data.
-	if network is None and (num_nodes is None or echelon_holding_cost is None or \
-		lead_time is None or stockout_cost is None):
-		raise ValueError("You must provide either network or num_nodes, ..., stockout_cost")
+	# Validate data and re-index to N, ..., 1.
+	old_to_new_dict, num_nodes, echelon_holding_cost_dict, lead_time_dict, stockout_cost, demand_source \
+		= _preprocess_parameters(num_nodes, node_order_in_system, node_order_in_lists, echelon_holding_cost,
+		lead_time, stockout_cost, demand_mean, demand_standard_deviation, demand_source, network)
 
-	# Convert network to parameters, if network provided.
-	if network:
-		num_nodes = len(network.nodes)
-		echelon_holding_cost = {node.index: node.echelon_holding_cost for node in network.nodes}
-		lead_time = {node.index: node.lead_time for node in network.nodes}
-		stockout_cost = network.get_node_from_index(1).stockout_cost
-		demand_source = network.get_node_from_index(1).demand_source
-
-	# Build dicts of parameters.
-	indices = list(range(1, num_nodes+1))
-	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices)
-	lead_time_dict = ensure_dict_for_nodes(lead_time, indices, 0)
-	stockout_cost_dict = {n: stockout_cost if n == 1 else 0 for n in indices}
-	
-	# Validate parameters.
-	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
-	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
-	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
-	if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
-	elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
-	if network is None and (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
-		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
-	
 	# Get shortcuts to some parameters (for convenience).
 	N = num_nodes
-	if demand_source is None:
-		mu = demand_mean
-	else:
-		mu = demand_source.demand_distribution.mean()
+	mu = demand_source.demand_distribution.mean()
 	L = [0] + [lead_time_dict[j] for j in range(1, N+1)]
 	h = [0] + [echelon_holding_cost_dict[j] for j in range(1, N+1)]
 	p = stockout_cost
 
 	# Build "sum of lead-time demand" distribution (LTD distribution in
 	# which L = sum of all lead times)
-	if demand_source is None:
-		demand_source = DemandSource()
-		demand_source.type = 'N'
-		demand_source.mean = demand_mean
-		demand_source.standard_deviation = demand_standard_deviation
 	sum_ltd_dist = demand_source.lead_time_demand_distribution(float(np.sum(L)))
 
 	# Get truncation bounds for sum-of-lead-time demand distribution.
@@ -516,10 +511,15 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 
 		plt.show()
 
+	# Revert to original node indexing.
+	temp_S_star = {n_ind: S_star[old_to_new_dict[n_ind]] for n_ind in old_to_new_dict.keys()}
+	S_star = temp_S_star
+
 	return S_star, C_star[N]	
 
 
-def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=None,
+def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_in_lists=None,
+								echelon_holding_cost=None, lead_time=None,
 								stockout_cost=None, demand_mean=None, demand_standard_deviation=None,
 								demand_source=None, network=None, weight=0.5, round_type=None):
 	"""Shang-Song (2003) heuristic for stochastic serial systems under
@@ -528,16 +528,30 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
 	or as a |class_network| in the ``network`` parameter.
 
-	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
-	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
-	a dict, a list, or a singleton, with the following requirements:
+	By default, the nodes in the system are assumed to be indexed
+	``num_nodes``, ..., 1, with node 1 at the downstream end, but this can be changed by
+	providing either the ``node_order_in_system`` or ``network`` parameter.
+
+	The node-specific parameters (``echelon_holding_cost``, ``lead_time``)
+	must be either a dict, a list, or a singleton, with the following requirements:
 	
-	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
-	  each corresponding to a node index.
-	* If the parameter is a list, it must have length ``num_nodes`` + 1;
-	  the 0th entry will be ignored and the other entries will correspond to the node indices.
-	* If the parameter is a singleton, all nodes will have that parameter set to the
-	  singleton value.
+	* If the parameter is a dict, then the keys must contain the node indices and the values
+	  must contain the corresponding attribute values. If a given node index is contained in
+	  ``node_order_in_system`` (or in 1, ..., ``num_nodes``, if ``node_order_in_system`` is not
+	  provided) but is not a key in the dict, the attribute value is set to ``None`` for that node.
+	* If the parameter is a singleton, then the attribute is set to that value for all nodes.
+	* If the parameter is a list and ``node_order_in_lists`` is provided, ``node_order_in_lists`` 
+	  must contain the same indices as ``node_order_in_system`` (if it is provided) or 1, ..., ``num_nodes``
+	  (if it is not), otherwise a ``ValueError`` is raised. The values in the list are assumed
+	  to correpond to the node indices in the order they are specified in ``node_order_in_lists``.
+	  That is, the value in slot ``k`` in the parameter list is assigned to the node with index
+	  ``node_order_in_lists[k]``. 
+	* If the parameter is a list and ``node_order_in_lists`` is not provided, the values
+	  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system``
+	  (or in 1, ..., ``num_nodes``, if ``node_order_in_system`` is not provided).
+	
+	(These are the same requirements as in :func:`stockpyl.supply_chain_network.serial_system`, except
+	that the default node numbering is 1, ..., ``num_nodes`` here.)
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed),
@@ -550,6 +564,14 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 	----------
 	num_nodes : int, optional
 		Number of nodes in serial system. [:math:`N`]
+	node_order_in_system : list, optional
+		List of node indices in the order that they appear in the serial system,
+		with upstream-most node listed first. If omitted, the system will be indexed
+		``num_nodes``, ..., 1. Ignored if ``network`` is provided.
+	node_order_in_lists : list, optional
+		List of node indices in the order in which the nodes are listed in any
+		attributes that are lists. (``node_order_in_lists[k]`` is the index of the ``k`` th node.)
+		Ignored if ``network`` is provided.
 	echelon_holding_cost : float, list, or dict, optional
 		Echelon holding cost at each node. [:math:`h`]
 	lead_time : float, list, or dict, optional
@@ -636,36 +658,42 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		47.680099140842174
 	"""
 
-	# Check for presence of data.
-	if network is None and (num_nodes is None or echelon_holding_cost is None or \
-		lead_time is None or stockout_cost is None):
-		raise ValueError("You must provide either network or num_nodes, ..., stockout_cost")
+	# Validate data and re-index to N, ..., 1.
+	old_to_new_dict, num_nodes, echelon_holding_cost_dict, lead_time_dict, stockout_cost, demand_source \
+		= _preprocess_parameters(num_nodes, node_order_in_system, node_order_in_lists, echelon_holding_cost,
+		lead_time, stockout_cost, demand_mean, demand_standard_deviation, demand_source, network)
 
-	# Convert network to parameters, if network provided.
-	if network:
-		num_nodes = len(network.nodes)
-		echelon_holding_cost = {node.index: node.echelon_holding_cost for node in network.nodes}
-		lead_time = {node.index: node.lead_time for node in network.nodes}
-		stockout_cost = network.get_node_from_index(1).stockout_cost
-		demand_source = network.get_node_from_index(1).demand_source
+	# # Check for presence of data.
+	# if network is None and (num_nodes is None or echelon_holding_cost is None or \
+	# 	lead_time is None or stockout_cost is None):
+	# 	raise ValueError("You must provide either network or num_nodes, ..., stockout_cost")
 
-	# Build dicts of parameters.
-	indices = list(range(1, num_nodes+1))
-	echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices)
-	lead_time_dict = ensure_dict_for_nodes(lead_time, indices, 0)
-	stockout_cost_dict = {n: stockout_cost if n == 1 else 0 for n in indices}
+	# # Convert network to parameters, if network provided.
+	# if network:
+	# 	num_nodes = len(network.nodes)
+	# 	echelon_holding_cost = {node.index: node.echelon_holding_cost for node in network.nodes}
+	# 	lead_time = {node.index: node.lead_time for node in network.nodes}
+	# 	stockout_cost = network.get_node_from_index(1).stockout_cost
+	# 	demand_source = network.get_node_from_index(1).demand_source
+
+	# # Build dicts of parameters.
+	# indices = list(range(1, num_nodes+1))
+	# echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices)
+	# lead_time_dict = ensure_dict_for_nodes(lead_time, indices, 0)
+	# stockout_cost_dict = {n: stockout_cost if n == 1 else 0 for n in indices}
 	
-	# Validate parameters.
-	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
-	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
-	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
-	if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
-	elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
-	if (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
-		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
+	# # Validate parameters.
+	# if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
+	# if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
+	# if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
+	# if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
+	# elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	# if (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
+	# 	raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
 
 	# Get shortcuts to some parameters (for convenience).
 	N = num_nodes
+	indices = list(range(1, num_nodes+1))
 	if demand_source is None:
 		mu = demand_mean
 		sigma = demand_standard_deviation
@@ -728,6 +756,10 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		
 		# Take weighted average.
 		S_heur[j] = weight * S_l + (1 - weight) * S_u
+
+	# Revert to original node indexing.
+	temp_S_heur = {n_ind: S_heur[old_to_new_dict[n_ind]] for n_ind in old_to_new_dict.keys()}
+	S_heur = temp_S_heur
 
 	return round_dict_values(S_heur, round_type)
 
@@ -1000,8 +1032,92 @@ def expected_holding_cost(echelon_S,
 	return holding_cost
 
 
+### HELPER FUNCTIONS ###
 
+def _preprocess_parameters(num_nodes=None, node_order_in_system=None, node_order_in_lists=None,
+								echelon_holding_cost=None, lead_time=None, stockout_cost=None, 
+								demand_mean=None, demand_standard_deviation=None,
+								demand_source=None, network=None):
+	"""Check that appropriate parameters are provided, validate their values, convert to N, ..., 1
+	indexing, and return dict-ified parameters.
 
-#S_star, C_star = optimize_base_stock_levels(instance_2_stage, plots=False)
-#print('S_star = {}, C_star = {}'.format(S_star, C_star))
+	Parameters
+	----------
+	see optimize_base_stock_levels()
 
+	Returns
+	-------
+	old_to_new_dict
+		dict in which keys are old indices of nodes and values are new indices
+	num_nodes
+		Number of nodes in system
+	echelon_holding_cost_dict
+		Dict of echelon holding costs, under new indexing
+	lead_time_dict
+		Dict of lead times, under new indexing
+	stockout_cost
+		Stockout cost
+	demand_source
+		Demand source
+	"""
+
+	# Check for presence of data.
+	if network is None:
+		if (num_nodes is None or echelon_holding_cost is None or \
+			lead_time is None or stockout_cost is None):
+			raise ValueError("You must provide either network or num_nodes, ..., stockout_cost")
+	if network is None and (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
+		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
+
+	# Standardize parameters: Convert node indexing to N, ..., 1 and put all attributes in
+	# separate parameter dicts (if they are not already).
+	if network:
+		# Make local copy.
+		num_nodes = len(network.nodes)
+		local_network = copy.deepcopy(network)
+	else:
+		# Build a network with the specified node order.
+		if node_order_in_system is None:
+			# Make sure num_nodes is provided.
+			if num_nodes is None:
+				raise ValueError("Either num_nodes, node_order_in_system, or network must be provided")
+			node_order_in_system = list(range(num_nodes, 0, -1))
+		else:
+			num_nodes = len(node_order_in_system)
+		if node_order_in_lists is None:
+			# Build node_order_in_lists.
+			node_order_in_lists = node_order_in_system 
+		# Build demand_source, if not provided.
+		if demand_source is None:
+			demand_source = DemandSource(type='N', mean=demand_mean, standard_deviation=demand_standard_deviation)
+		# Build serial system.
+		local_network = serial_system(num_nodes=num_nodes, 
+			node_order_in_system=node_order_in_system,
+			node_order_in_lists=node_order_in_lists,
+			echelon_holding_cost=echelon_holding_cost,
+			shipment_lead_time=lead_time,
+			stockout_cost=stockout_cost,
+			demand_source=demand_source
+		)
+	# Reindex nodes to N, ..., 1.
+	old_to_new_dict = {}
+	k = num_nodes
+	n = local_network.source_nodes[0]
+	for _ in range(num_nodes):
+		old_to_new_dict[n.index] = k
+		k -= 1
+		n = n.get_one_successor()
+	local_network.reindex_nodes(old_to_new_dict)
+	# Build dicts and singletons of parameters.
+	echelon_holding_cost_dict = {node.index: node.echelon_holding_cost for node in local_network.nodes}
+	lead_time_dict = {node.index: node.lead_time for node in local_network.nodes}
+	stockout_cost = local_network.get_node_from_index(1).stockout_cost
+	demand_source = local_network.get_node_from_index(1).demand_source
+	
+	# Validate more parameters.
+	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
+	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
+	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
+	
+	return old_to_new_dict, num_nodes, echelon_holding_cost_dict, lead_time_dict, stockout_cost, demand_source

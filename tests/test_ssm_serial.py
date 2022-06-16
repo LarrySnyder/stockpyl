@@ -82,6 +82,105 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
 		self.assertAlmostEqual(C_star, 47.820555075345887, places=5)
 		
+	def test_example_6_1_alternate_indexing(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes
+		network in Example 6.1 when different indices are provided.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_alternate_indexing()')
+
+		instance = copy.deepcopy(load_instance("example_6_1"))
+		node1 = instance.get_node_from_index(1)
+		node2 = instance.get_node_from_index(2)
+		node3 = instance.get_node_from_index(3)
+		correct_S_star = [0, 6.514438807325977, 12.232248034454390, 22.788203530691469]
+		correct_C_star = 47.820555075345887
+
+		S_star, C_star = optimize_base_stock_levels(num_nodes=3,
+			node_order_in_system=[3, 2, 1],
+			node_order_in_lists=[1, 2, 3],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source],
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
+		self.assertAlmostEqual(C_star, correct_C_star, places=5)
+
+		S_star, C_star = optimize_base_stock_levels(num_nodes=3,
+			node_order_in_lists=[1, 2, 3],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source],
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
+		self.assertAlmostEqual(C_star, correct_C_star, places=5)
+
+		temp_instance = copy.deepcopy(instance)
+		temp_instance.reindex_nodes({1: 3, 2: 2, 3: 1})
+		S_star, C_star = optimize_base_stock_levels(num_nodes=3,
+			node_order_in_system=[1, 2, 3],
+			node_order_in_lists=[3, 2, 1],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source],
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[4-n], places=5)
+		self.assertAlmostEqual(C_star, correct_C_star, places=5)
+
+		temp_instance = copy.deepcopy(instance)
+		temp_instance.reindex_nodes({1: 3, 2: 2, 3: 1})
+		S_star, C_star = optimize_base_stock_levels(num_nodes=3,
+			node_order_in_system=[1, 2, 3],
+			echelon_holding_cost=[node3.echelon_holding_cost, node2.echelon_holding_cost, node1.echelon_holding_cost],
+			lead_time=[node3.lead_time, node2.lead_time, node1.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node3.demand_source, node2.demand_source, node1.demand_source],
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[4-n], places=5)
+		self.assertAlmostEqual(C_star, correct_C_star, places=5)
+
+		temp_instance = copy.deepcopy(instance)
+		temp_instance.reindex_nodes({1: 7, 2: 3, 3: 15})
+		S_star, C_star = optimize_base_stock_levels(num_nodes=3,
+			node_order_in_system=[15, 3, 7],
+			node_order_in_lists=[7, 3, 15],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source],
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		self.assertAlmostEqual(S_star[7], correct_S_star[1], places=5)
+		self.assertAlmostEqual(S_star[3], correct_S_star[2], places=5)
+		self.assertAlmostEqual(S_star[15], correct_S_star[3], places=5)
+		self.assertAlmostEqual(C_star, correct_C_star, places=5)
+
 	def test_problem_6_1(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes network in
 		Problem 6.1.
@@ -347,6 +446,74 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+		
+	def test_example_6_1_alternate_indexing(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes
+		network in Example 6.1 when different indices are provided.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_alternate_indexing()')
+
+		instance = copy.deepcopy(load_instance("example_6_1"))
+		node1 = instance.get_node_from_index(1)
+		node2 = instance.get_node_from_index(2)
+		node3 = instance.get_node_from_index(3)
+		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
+
+		S_heur = newsvendor_heuristic(num_nodes=3,
+			node_order_in_system=[3, 2, 1],
+			node_order_in_lists=[1, 2, 3],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source])
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+		S_heur = newsvendor_heuristic(num_nodes=3,
+			node_order_in_lists=[1, 2, 3],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source])
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+		temp_instance = copy.deepcopy(instance)
+		temp_instance.reindex_nodes({1: 3, 2: 2, 3: 1})
+		S_heur = newsvendor_heuristic(num_nodes=3,
+			node_order_in_system=[1, 2, 3],
+			node_order_in_lists=[3, 2, 1],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source])
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[4-n], places=5)
+
+		temp_instance = copy.deepcopy(instance)
+		temp_instance.reindex_nodes({1: 3, 2: 2, 3: 1})
+		S_heur = newsvendor_heuristic(num_nodes=3,
+			node_order_in_system=[1, 2, 3],
+			echelon_holding_cost=[node3.echelon_holding_cost, node2.echelon_holding_cost, node1.echelon_holding_cost],
+			lead_time=[node3.lead_time, node2.lead_time, node1.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node3.demand_source, node2.demand_source, node1.demand_source])
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[4-n], places=5)
+
+		temp_instance = copy.deepcopy(instance)
+		temp_instance.reindex_nodes({1: 7, 2: 3, 3: 15})
+		S_heur = newsvendor_heuristic(num_nodes=3,
+			node_order_in_system=[15, 3, 7],
+			node_order_in_lists=[7, 3, 15],
+			echelon_holding_cost=[node1.echelon_holding_cost, node3.echelon_holding_cost, node3.echelon_holding_cost],
+			lead_time=[node1.lead_time, node2.lead_time, node3.lead_time],
+			stockout_cost=node1.stockout_cost,
+			demand_source=[node1.demand_source, node2.demand_source, node3.demand_source])
+		self.assertAlmostEqual(S_heur[7], correct_S_heur[1], places=5)
+		self.assertAlmostEqual(S_heur[3], correct_S_heur[2], places=5)
+		self.assertAlmostEqual(S_heur[15], correct_S_heur[3], places=5)
 		
 	def test_problem_6_1(self):
 		"""Test that newsvendor_heuristic() correctly optimizes network in

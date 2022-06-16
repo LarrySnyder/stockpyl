@@ -44,7 +44,7 @@ from stockpyl.supply_chain_node import SupplyChainNode
 from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.disruption_process import DisruptionProcess
-from stockpyl.helpers import is_list, ensure_dict_for_nodes, ensure_list_for_nodes
+from stockpyl.helpers import is_list, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
 from stockpyl.helpers import build_node_data_dict
 
 # ===============================================================================
@@ -754,13 +754,12 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 		* If the parameter is a singleton, then the attribute is set to that value
 		  for all nodes.
 		* If the parameter is a list and ``node_order_in_lists`` is provided, ``node_order_in_lists``
-		  must contain the same indices as the nodes in the edges in ``edges`` (otherwise a ``ValueError``
-		  is raised). The values in the list are
+		  must contain the same indices as ``node_order_in_system`` (if it is provided) or
+		  0, ..., ``num_nodes`` - 1 (if it is not), otherwise a ``ValueError``
+		  is raised. The values in the list are
 		  assumed to correspond to the node indices in the order they are specified in 
 		  ``node_order_in_lists``. That is, the value in slot ``k`` in the parameter list is
-		  assigned to the node with index ``node_order_in_lists[k]``. If a given
-		  node index is contained in the list of edges but is not in ``node_order_in_lists``,
-		  the attribute value is set to ``None`` for that node.
+		  assigned to the node with index ``node_order_in_lists[k]``. 
 		* If the parameter is a list and ``node_order_in_lists`` is not provided, the values 
 		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
 		  (or in ``range(num_nodes)``, if ``node_order_in_system`` is not provided).
@@ -823,25 +822,26 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 	
 	# Make local copy of kwarg dict.
 	local_kwargs = copy.deepcopy(kwargs)
-	# Determine sink node.
-	sink_node = node_order_in_system[-1]
-	# Set demand_source parameter so it only occurs at sink node.
-	if 'demand_source' not in local_kwargs:
-		local_kwargs['demand_source'] = {}
-	for n in node_order_in_system:
-		if n != sink_node:
-			local_kwargs['demand_source'][n] = DemandSource()
 
 	# Determine node_order_in_lists.
 	if node_order_in_lists is None:
 		node_order_in_lists = node_order_in_system
 
 	# Build network.
-	return network_from_edges(
+	network = network_from_edges(
 		edges=edges, 
 		node_order_in_lists=node_order_in_lists, 
 		**local_kwargs
 	)
+
+	# Determine sink node.
+	sink_node = node_order_in_system[-1]
+	# Set demand_source parameter so it only occurs at sink node.
+	for node in network.nodes:
+		if node.index != sink_node:
+			node.demand_source = DemandSource()
+
+	return network
 
 
 def owmr_system(num_retailers, node_order_in_system=None, node_order_in_lists=None, **kwargs):
