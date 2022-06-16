@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Named instances from Shang and Song (2003)
-- More flexible options for node indexing in ``ssm_serial.optimize_base_stock_levels()`` 
+- More flexible options for node indexing in ``ssm_serial.optimize_base_stock_levels()`` and ``ssm_serial.newsvendor_heuristic()`` 
 
 ### Changed
 - Smarter initialization of inventory levels in simulation
