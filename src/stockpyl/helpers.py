@@ -1016,3 +1016,30 @@ def sum_of_discretes_distribution(n, lo, hi, p):
 
 	return distribution
 
+
+def round_dict_values(the_dict, round_type=None):
+	"""Round the values in a dict. Return a new dict.
+
+	Parameters
+	----------
+	the_dict : dict
+		The dict to round
+	round_type : string, optional
+		Set to 'up' to round all values up to next larger integer, 'down' to 
+		round down, 'nearest' to round to nearest integer, or ``None`` to not round at all.
+	"""
+
+	new_dict = {}
+
+	for key, value in the_dict.items():
+		if round_type == 'up':
+			new_dict[key] = math.ceil(value)
+		elif round_type == 'down':
+			new_dict[key] = math.floor(value)
+		elif round_type == 'nearest':
+			new_dict[key] = round(value)
+		else:
+			new_dict[key] = value
+
+	return new_dict
+	

@@ -509,7 +509,7 @@ def optimize_base_stock_levels(num_nodes=None, echelon_holding_cost=None, lead_t
 
 def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=None,
 								stockout_cost=None, demand_mean=None, demand_standard_deviation=None,
-								demand_source=None, network=None, weight=0.5):
+								demand_source=None, network=None, weight=0.5, round=None):
 	"""Shang-Song (2003) heuristic for stochastic serial systems under
 	stochastic service model (SSM), as described in |fosct|.
 
@@ -554,6 +554,9 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		``num_nodes``, ..., ``demand_source`` are ignored.
 	weight : float, optional
 		Weight to use in weighted sum of lower- and upper-bound base-stock levels. 
+	round : string, optional
+		Set to 'up' to always round base-stock levels up to next larger integer, 'down' to 
+		always round down, 'nearest' to round to nearest integer, or ``None`` to not round at all.
 
 	Returns
 	-------
@@ -706,6 +709,8 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 		
 		# Take weighted average.
 		S_heur[j] = weight * S_l + (1 - weight) * S_u
+
+		# Round, if requested.
 
 	return S_heur
 

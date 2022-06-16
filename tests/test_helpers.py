@@ -766,3 +766,31 @@ class TestSumOfDiscretesDistribution(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			helpers.sum_of_discretes_distribution(3, 0, 5, [0.1, 0.7, 0.2])
 
+
+class TestRoundDictValues(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRoundDictValues', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRoundDictValues', 'tear_down_class()')
+
+	def test_round_dict_values(self):
+		"""Test that convolve_many() returns correct result.
+		"""
+		print_status('TestRoundDictValues', 'test_convolve_many()')
+
+		new_dict = helpers.round_dict_values({'a': 5.7, 'b': 0.2, 'c': 3.1, 'd': 7.0}, 'up')
+		self.assertDictEqual(new_dict, {'a': 6, 'b': 1, 'c': 4, 'd': 7})
+
+		new_dict = helpers.round_dict_values({'a': 5.7, 'b': 0.2, 'c': 3.1, 'd': 7.0}, 'down')
+		self.assertDictEqual(new_dict, {'a': 5, 'b': 0, 'c': 3, 'd': 7})
+
+		new_dict = helpers.round_dict_values({'a': 5.7, 'b': 0.2, 'c': 3.1, 'd': 7.0}, 'nearest')
+		self.assertDictEqual(new_dict, {'a': 6, 'b': 0, 'c': 3, 'd': 7})
+
+		new_dict = helpers.round_dict_values({'a': 5.7, 'b': 0.2, 'c': 3.1, 'd': 7.0}, None)
+		self.assertDictEqual(new_dict, {'a': 5.7, 'b': 0.2, 'c': 3.1, 'd': 7.0})
