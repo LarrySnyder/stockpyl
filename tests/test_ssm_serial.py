@@ -435,13 +435,7 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 			n.demand_source = demand_source
 
 		S_heur = newsvendor_heuristic(network=instance)
-			# num_nodes=len(instance.nodes),
-			# echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
-			# lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			# stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			# demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			# demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
-			# demand_source=None)
+
 		correct_S_heur = {1: 6.473020278022186, 2: 12.06630336694632, 3: 22.668511750026827}
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
