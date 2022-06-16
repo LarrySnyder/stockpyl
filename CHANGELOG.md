@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Named instances from Shang and Song (2003)
+
+### Changed
+- Smarter initialization of inventory levels in simulation
+- ``ssm_serial.optimize_base_stock_levels()`` recognizes if demand distribution is discrete 
+  and handles discretization accordingly
 
 ## [0.0.4] -- 2022-06-14
 ### Added
@@ -15,9 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improved flexibility of inputs in ``network_from_edges()``
-- Smarter initialization of inventory levels in simulation
-- ``ssm_serial.optimize_base_stock_levels()`` recognizes if demand distribution is discrete 
-  and handles discretization accordingly
 
 ### Fixed
 - Bug in which ``inbound_order_pipeline`` was initialized incorrectly in simulation
