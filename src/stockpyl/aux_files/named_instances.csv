@@ -63,3 +63,7 @@ rong_atan_snyder_figure_1b,"distribution system from Figure 1(b) in Rong, Atan, 
 rong_atan_snyder_figure_1c,"distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson, and with costs and lead times omitted)"
 example_6_3,Example 6.3 (serial GSM)
 problem_6_8,Problem 6.8 (serial GSM)
+shang_song_1,"serial system in Shang and Song (2003), Table 1, row 1"
+shang_song_9,"serial system in Shang and Song (2003), Table 1, row 8"
+shang_song_17,"serial system in Shang and Song (2003), Table 1, row 17"
+shang_song_25,"serial system in Shang and Song (2003), Table 1, row 25"

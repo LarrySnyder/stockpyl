@@ -743,9 +743,6 @@ class TestLeadTimeDemandDistribution(unittest.TestCase):
 		self.assertEqual(ltd_dist.ppf(0.85), 215)
 		self.assertIsInstance(ltd_dist.dist, scipy.stats._discrete_distns.poisson_gen)
 
-		with self.assertRaises(ValueError):
-			ltd_dist = demand_source.lead_time_demand_distribution(5.5)
-
 	def test_uniform_discrete(self):
 		"""Test lead_time_demand_distribution() for discrete uniform demands.
 		"""

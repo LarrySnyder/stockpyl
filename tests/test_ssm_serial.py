@@ -205,6 +205,37 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		self.assertDictEqual(S_star, correct_S_star)
 		self.assertAlmostEqual(C_star, 72.02506008691718, places=5)
 
+	def test_shang_song_instances(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes
+		Shang-Song instances.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_shang_song_instances()')
+
+		instance = copy.deepcopy(load_instance("shang_song_1"))
+		S_star, C_star = optimize_base_stock_levels(network=instance, S=None, plots=False)
+		correct_S_star = {1: 8, 2: 13, 3: 18, 4: 22}
+		self.assertDictEqual(S_star, correct_S_star)
+		self.assertAlmostEqual(C_star, 12.688, places=1)
+
+		instance = copy.deepcopy(load_instance("shang_song_9"))
+		S_star, C_star = optimize_base_stock_levels(network=instance, S=None, plots=False)
+		correct_S_star = {1: 9, 2: 10, 3: 13, 4: 19}
+		self.assertDictEqual(S_star, correct_S_star)
+		self.assertAlmostEqual(C_star, 53.008, places=1)
+
+		instance = copy.deepcopy(load_instance("shang_song_17"))
+		S_star, C_star = optimize_base_stock_levels(network=instance, S=None, plots=False)
+		correct_S_star = {1: 11, 2: 17, 3: 22, 4: 27}
+		self.assertDictEqual(S_star, correct_S_star)
+		self.assertAlmostEqual(C_star, 16.206, places=1)
+
+		instance = copy.deepcopy(load_instance("shang_song_25"))
+		S_star, C_star = optimize_base_stock_levels(network=instance, S=None, plots=False)
+		correct_S_star = {1: 11, 2: 14, 3: 18, 4: 26}
+		self.assertDictEqual(S_star, correct_S_star)
+		self.assertAlmostEqual(C_star, 74.564, places=1)
+
 	def test_bad_parameters(self):
 		"""Test that optimize_base_stock_levels() correctly raises exceptions if
 		bad parameters are given.
@@ -429,6 +460,39 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		# for n in instance.node_indices:
 		# 	self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
 
+	def test_shang_song_instances(self):
+		"""Test that newsvendor_heuristic() correctly optimizes Shang-Song instances.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_shang_song_instances()')
+
+		instance = copy.deepcopy(load_instance("shang_song_1"))
+		S_heur = newsvendor_heuristic(network=instance, round_type='down')
+		correct_S_heur = {1: 8, 2: 13, 3: 18, 4: 22}
+		self.assertDictEqual(S_heur, correct_S_heur)
+		C_heur = expected_cost(S_heur, network=instance)
+		self.assertAlmostEqual(C_heur, 12.688, places=1)
+
+		instance = copy.deepcopy(load_instance("shang_song_9"))
+		S_heur = newsvendor_heuristic(network=instance, round_type='down')
+		correct_S_heur = {1: 9, 2: 10, 3: 14, 4: 20}
+		self.assertDictEqual(S_heur, correct_S_heur)
+		C_heur = expected_cost(S_heur, network=instance)
+		self.assertAlmostEqual(C_heur, 53.258, places=1)
+
+		instance = copy.deepcopy(load_instance("shang_song_17"))
+		S_heur = newsvendor_heuristic(network=instance, round_type='up')
+		correct_S_heur = {1: 11, 2: 17, 3: 22, 4: 27}
+		self.assertDictEqual(S_heur, correct_S_heur)
+		C_heur = expected_cost(S_heur, network=instance)
+		self.assertAlmostEqual(C_heur, 16.206, places=1)
+
+		instance = copy.deepcopy(load_instance("shang_song_25"))
+		S_heur = newsvendor_heuristic(network=instance, round_type='up')
+		correct_S_heur = {1: 11, 2: 14, 3: 19, 4: 26}
+		self.assertDictEqual(S_heur, correct_S_heur)
+		C_heur = expected_cost(S_heur, network=instance)
+		self.assertAlmostEqual(C_heur, 74.747, places=1)
 
 	def test_bad_parameters(self):
 		"""Test that newsvendor_heuristic() correctly raises exceptions if

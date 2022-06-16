@@ -770,8 +770,8 @@ def get_named_instance(instance_name):
 
 # CHAPTER 6
 
-network = get_named_instance("example_6_1")
-save_instance("example_6_1", network, "Example 6.1 (serial SSM)")
+# network = get_named_instance("example_6_1")
+# save_instance("example_6_1", network, "Example 6.1 (serial SSM)")
 
 # network = get_named_instance("problem_6_1")
 # save_instance("problem_6_1", network, "Problem 6.1 (serial SSM)")
@@ -925,3 +925,53 @@ save_instance("example_6_1", network, "Example 6.1 (serial SSM)")
 
 # network = get_named_instance("rong_atan_snyder_figure_1c")
 # save_instance("rong_atan_snyder_figure_1c", network, "distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017)) (using normal demand instead of Poisson, and with costs and lead times omitted)")
+
+# network = serial_system(
+# 	num_nodes=4,
+# 	node_order_in_system=[4, 3, 2, 1],
+# 	echelon_holding_cost=0.25,
+# 	shipment_lead_time=0.25,
+# 	stockout_cost={1: 9},
+# 	demand_type='P',
+# 	mean=16,
+# 	policy_type='BS'
+# )
+# save_instance("shang_song_1", network, "serial system in Shang and Song (2003), Table 1, row 1")
+
+network = serial_system(
+	num_nodes=4,
+	node_order_in_system=[4, 3, 2, 1],
+	node_order_in_lists=[1, 2, 3, 4],
+	echelon_holding_cost=[0.25, 2.5, 2.5, 0.25],
+	shipment_lead_time=0.25,
+	stockout_cost={1: 9},
+	demand_type='P',
+	mean=16,
+	policy_type='BS'
+)
+save_instance("shang_song_9", network, "serial system in Shang and Song (2003), Table 1, row 9")
+
+network = serial_system(
+	num_nodes=4,
+	node_order_in_system=[4, 3, 2, 1],
+	echelon_holding_cost=0.25,
+	shipment_lead_time=0.25,
+	stockout_cost={1: 99},
+	demand_type='P',
+	mean=16,
+	policy_type='BS'
+)
+save_instance("shang_song_17", network, "serial system in Shang and Song (2003), Table 1, row 17")
+
+network = serial_system(
+	num_nodes=4,
+	node_order_in_system=[4, 3, 2, 1],
+	node_order_in_lists=[1, 2, 3, 4],
+	echelon_holding_cost=[0.25, 2.5, 2.5, 0.25],
+	shipment_lead_time=0.25,
+	stockout_cost={1: 99},
+	demand_type='P',
+	mean=16,
+	policy_type='BS'
+)
+save_instance("shang_song_25", network, "serial system in Shang and Song (2003), Table 1, row 25")

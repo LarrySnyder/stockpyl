@@ -32,9 +32,6 @@ API Reference
 """
 
 
-#   :file: ../../docs/aux_files/named_instances.csv
-
-
 #import copy
 import os
 import json

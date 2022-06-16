@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improved flexibility of inputs in ``network_from_edges()``
-- Smart initialization of inventory levels in simulation
+- Smarter initialization of inventory levels in simulation
+- ``ssm_serial.optimize_base_stock_levels()`` recognizes if demand distribution is discrete 
+  and handles discretization accordingly
 
 ### Fixed
 - Bug in which ``inbound_order_pipeline`` was initialized incorrectly in simulation
