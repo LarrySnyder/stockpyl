@@ -530,6 +530,8 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 	provided (in which case the demand will be assumed to be normally distributed),
 	or ``demand_source`` must be provided, or ``network`` must be provided.
 
+	Rounding is discussed in Shang and Song (2003), p. 625.
+
 
 	Parameters
 	----------
@@ -575,6 +577,11 @@ def newsvendor_heuristic(num_nodes=None, echelon_holding_cost=None, lead_time=No
 	ValueError
 		If ``stockout_cost`` < 0 or if ``lead_time`` < 0 for any node.
 		
+
+	Reference
+	---------
+	K. H. Shang and J.-S. Song. Newsvendor bounds and heuristic for optimal policies in serial supply chains. *Management Science*, 49(5):618-638, 2003.
+	
 
 	**Equation Used** (equation (6.32)): 
 
