@@ -986,6 +986,14 @@ class TestNegativeBinomialLoss(unittest.TestCase):
 		self.assertAlmostEqual(n3, n3a, places=4)
 		self.assertAlmostEqual(n_bar3, n_bar3a, places=4)
 
+		x4 = 10
+		r4 = 6
+		p4 = 0.4
+		n4, n_bar4 = loss_functions.negative_binomial_loss(x4, r4, p4)
+		n4a, n_bar4a = loss_functions.discrete_loss(x4, nbinom(r4, p4))
+		self.assertAlmostEqual(n4, n4a, places=4)
+		self.assertAlmostEqual(n_bar4, n_bar4a, places=4)
+
 	def test_from_mean_sd(self):
 		"""Test that negative_binomial_loss function correctly calculates n and n_bar for
 		a few instances when passed mean and sd as parameters.

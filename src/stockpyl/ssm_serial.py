@@ -460,7 +460,6 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 			for d_ind in range(d.size):
 				# Calculate y - d.
 				y_minus_d = y - d[d_ind]
-#				y_minus_d = y - (mu * L[j] + d[d_ind] * sigma * np.sqrt(L[j]))
 
 				# Calculate cost -- use approximate value of C-hat if y-d is
 				# outside of x-range.

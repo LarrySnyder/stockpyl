@@ -142,6 +142,7 @@ import numpy as np
 from tabulate import tabulate
 import csv
 from copy import deepcopy
+import pandas as pd
 
 #from stockpyl.sim import simulation
 from stockpyl.helpers import sort_dict_by_keys
@@ -150,7 +151,7 @@ from stockpyl.demand_source import DemandSource
 from stockpyl.disruption_process import DisruptionProcess
 
 
-def write_results(network, num_periods, num_periods_to_print=None,
+def write_results(network, num_periods, num_periods_to_print=None, skip_empty_cols=True,
 				  write_csv=False, csv_filename=None):
 	"""
 
@@ -164,8 +165,11 @@ def write_results(network, num_periods, num_periods_to_print=None,
 		Number of periods to print. The middle ``num_periods`` –
 		``num_periods_to_print`` periods will be skipped. If omitted, will
 		print all periods.
+	skip_empty_cols : bool, optional
+		``True`` to omit columns all of whose entries are 0, empty string, or ``None``, ``False`` otherwise.
+		Optional; default = ``True``.
 	write_csv : bool, optional
-		True to write to CSV file, False otherwise. Optional; default = ``False``.
+		``True`` to write to CSV file, ``False`` otherwise. Optional; default = ``False``.
 	csv_filename : str, optional
 		Filename to use for CSV file. Required if ``write_csv`` = ``True``; ignored otherwise.
 
@@ -259,6 +263,9 @@ def write_results(network, num_periods, num_periods_to_print=None,
 		headers += _dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
 		headers += _dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
 		headers += ["HC", "SC", "ITHC", "REV", "TC"]
+
+	# Average row.
+	averages = ["t"]
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))

@@ -1289,9 +1289,6 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 
 	n = -(x - r * beta) * (1 - F) + (x + r) * beta * f
 	n_bar = x - mean + n
-	# formula above does not seem to be working (e.g., if r = 6, p = 0.4, then
-	# returns negative value for n(10). So for now, using generic function:
-#	n, n_bar = discrete_loss(x, nbinom(r, p))
 
 	return n, n_bar
 
