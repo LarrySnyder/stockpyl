@@ -793,7 +793,7 @@ def r_q_poisson_exact(holding_cost, stockout_cost, fixed_cost,
 
 		g(r,Q) = \\frac{K\\lambda + \\sum_{y=r+1}^{r+Q} g(y)}{Q}
 
-	where :math:`g(y)` is the newsvendor cost function for Poisson demand_list.
+	where :math:`g(y)` is the newsvendor cost function for Poisson demands.
 
 
 	References

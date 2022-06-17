@@ -450,7 +450,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 			# Get index of closest element of x to y.
 			the_x = find_nearest(x, y, True)
 
-			# Loop through demand_list and calculate expected cost.
+			# Loop through demands and calculate expected cost.
 			# This method uses the following result (see Problem 6.13):
 			# lim_{y -> -infty} C_j(y) = -(p + h'_{j+1})(y - sum_{i=1}^j E[D_i])
 			# lim_{y -> +infty} C_j(y) = h_j(y - E[D_j]) + C_{j-1}(S*_{j-1})

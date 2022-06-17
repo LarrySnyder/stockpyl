@@ -151,7 +151,7 @@ from stockpyl.demand_source import DemandSource
 from stockpyl.disruption_process import DisruptionProcess
 
 
-def write_results(network, num_periods, num_periods_to_print=None, skip_empty_cols=True,
+def write_results(network, num_periods, num_periods_to_print=None, 
 				  write_csv=False, csv_filename=None):
 	"""
 

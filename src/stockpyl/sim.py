@@ -132,7 +132,7 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 		# Initialize visited dict.
 		visited = {n.index: False for n in network.nodes}
 
-		# Generate demand_list and place orders. Use depth-first search, starting
+		# Generate demands and place orders. Use depth-first search, starting
 		# at nodes with no successors, and propagating orders upstream.
 		for n in network.source_nodes:
 			_generate_downstream_orders(n.index, network, t, visited)
@@ -688,7 +688,7 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		current_on_hand -= (OS - DI_OS + DI)
 
 		# Calculate demand met from stock. (Note: This assumes that if there
-		# are backorders, they get priority over current period's demand_list.)
+		# are backorders, they get priority over current period's demands.)
 		DMFS = max(0, OS - node.state_vars_current.backorders_by_successor[s_index])
 		node.state_vars_current.demand_met_from_stock += DMFS
 		node.state_vars_current.demand_met_from_stock_cumul += DMFS

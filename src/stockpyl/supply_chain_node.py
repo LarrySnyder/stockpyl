@@ -817,7 +817,7 @@ class NodeStateVars(object):
 	demand_met_from_stock : float
 		Demands met from stock at the node in the period.
 	demand_met_from_stock_cumul : float
-		Cumulative demand_list met from stock from period 0 through the current period.
+		Cumulative demands met from stock from period 0 through the current period.
 		(Used for ``fill_rate`` calculation.)
 	fill_rate : float
 		Cumulative fill rate in periods 0, ..., period.

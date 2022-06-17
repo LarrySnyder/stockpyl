@@ -644,7 +644,7 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 			# Build sorted list of demand values.
 			demand_values = list(demand_pmf.keys())
 			demand_values.sort()
-			# Loop through demand_list until cdf exceeds alpha.
+			# Loop through demands until cdf exceeds alpha.
 			i = 0
 			F = 0
 			while F < alpha:
