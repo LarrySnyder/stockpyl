@@ -3,7 +3,7 @@ Stockpyl
 
 ![PyPI](https://img.shields.io/pypi/v/stockpyl)
 [![Documentation Status](https://readthedocs.org/projects/stockpyl/badge/?version=latest)](https://stockpyl.readthedocs.io/en/latest/?badge=latest)
-![Alt text](./coverage_badge.svg)
+![Coverage](https://raw.githubusercontent.com/LarrySnyder/stockpyl/master/coverage_badge.svg)
 ![GitHub](https://img.shields.io/github/license/LarrySnyder/stockpyl)
 ![GitHub issues](https://img.shields.io/github/issues/LarrySnyder/stockpyl)
 ![Twitter Follow](https://img.shields.io/twitter/follow/LarrySnyder610?style=flat)
