@@ -28,26 +28,26 @@ For either type of optimization (exact or heuristic), you may pass the instance 
 or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as individual parameters:
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> S_star, C_star = optimize_base_stock_levels(
 		... 	num_nodes=3, 
-		... 	echelon_holding_cost=[3, 2, 2], 
-		... 	lead_time=[1, 1, 2], 
+		... 	echelon_holding_cost=[2, 2, 3], 
+		... 	lead_time=[2, 1, 1], 
 		... 	stockout_cost=37.12, 
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
 		...	)
 		>>> S_star
-		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
 		>>> C_star
 		47.668653127136345
 
 Here is the same example, first building a |class_network| and then passing that instead:
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> from stockpyl.supply_chain_network import serial_system
@@ -64,33 +64,33 @@ Here is the same example, first building a |class_network| and then passing that
 		... )
 		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
 		>>> S_star
-		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
 		>>> C_star
 		47.668653127136345
 
 Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> from stockpyl.instances import load_instance
 		>>> example_6_1_network = load_instance("example_6_1")
 		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
 		>>> S_star
-		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
 		>>> C_star
 		47.668653127136345
 
 To solve the instance using the newsvendor heuristic:
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import newsvendor_heuristic
 		>>> S_heur = newsvendor_heuristic(network=example_6_1_network)
 		>>> S_heur
-		{1: 6.490880975286938, 2: 12.027434723327854, 3: 22.634032391786285}
+		{3: 22.634032391786285, 2: 12.027434723327854, 1: 6.490880975286938}
 		>>> # Evaluate the (exact) expected cost of the heuristic solution.
 		>>> from stockpyl.ssm_serial import expected_cost
 		>>> expected_cost(S_heur, network=example_6_1_network)
@@ -158,10 +158,10 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 	  ``node_order_in_lists[k]``. 
 	* If the parameter is a list and ``node_order_in_lists`` is not provided, the values
 	  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system``
-	  (or in 1, ..., ``num_nodes``, if ``node_order_in_system`` is not provided).
+	  (or in ``num_nodes``, ..., 1, if ``node_order_in_system`` is not provided).
 	
 	(These are the same requirements as in :func:`stockpyl.supply_chain_network.serial_system`, except
-	that the default node numbering is 1, ..., ``num_nodes`` here.)
+	that the default node numbering is ``num_nodes``, ..., 1 here.)
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed),
@@ -299,18 +299,18 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		from stockpyl.ssm_serial import *
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> S_star, C_star = optimize_base_stock_levels(
 		... 	num_nodes=3, 
-		... 	echelon_holding_cost=[3, 2, 2], 
-		... 	lead_time=[1, 1, 2], 
+		... 	echelon_holding_cost=[2, 2, 3], 
+		... 	lead_time=[2, 1, 1], 
 		... 	stockout_cost=37.12, 
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
 		...	)
 		>>> S_star
-		{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
 		>>> C_star
 		47.668653127136345
 	"""
@@ -547,10 +547,10 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 	  ``node_order_in_lists[k]``. 
 	* If the parameter is a list and ``node_order_in_lists`` is not provided, the values
 	  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system``
-	  (or in 1, ..., ``num_nodes``, if ``node_order_in_system`` is not provided).
+	  (or in  ``num_nodes``, ..., 1, if ``node_order_in_system`` is not provided).
 	
 	(These are the same requirements as in :func:`stockpyl.supply_chain_network.serial_system`, except
-	that the default node numbering is 1, ..., ``num_nodes`` here.)
+	that the default node numbering is  ``num_nodes``, ..., 1 here.)
 
 	Either ``demand_mean`` and ``demand_standard_deviation`` must be
 	provided (in which case the demand will be assumed to be normally distributed),
@@ -636,20 +636,20 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 
 		>>> S_heur = newsvendor_heuristic(
 		...		num_nodes=3, 
-		...		echelon_holding_cost=[3, 2, 2], 
-		...		lead_time=[1, 1, 2], 
+		...		echelon_holding_cost=[2, 2, 3], 
+		...		lead_time=[2, 1, 1], 
 		...		stockout_cost=37.12, 
 		...		demand_mean=5, 
 		...		demand_standard_deviation=1
 		...		)
-		>>> S_heur # (optimal is {1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784})
-		{1: 6.490880975286938, 2: 12.027434723327854, 3: 22.634032391786285}
+		>>> S_heur # (optimal is {3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155})
+		{3: 22.634032391786285, 2: 12.027434723327854, 1: 6.490880975286938}
 		>>> # Calculate expected cost of heuristic solution. (optimal is 47.668653127136345)
 		>>> expected_cost(
 		...		echelon_S=S_heur,
 		...		num_nodes=3, 
-		...		echelon_holding_cost=[3, 2, 2], 
-		...		lead_time=[1, 1, 2], 
+		...		echelon_holding_cost=[2, 2, 3], 
+		...		lead_time=[2, 1, 1], 
 		...		stockout_cost=37.12, 
 		...		demand_mean=5, 
 		...		demand_standard_deviation=1
@@ -776,65 +776,17 @@ def expected_cost(echelon_S,
 					sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
 	"""Calculate expected cost of given solution.
 
-	This is a wrapper function that calls ``optimize_base_stock_levels()``
+	This is a wrapper function that calls :func:`~stockpyl.ssm_serial.optimize_base_stock_levels`
 	without doing any optimization.
 
-	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
-	or in the ``network`` parameter.
-
-	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
-	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
-	a dict, a list, or a singleton, with the following requirements:
-	
-	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
-	  each corresponding to a node index.
-	* If the parameter is a list, it must have length ``num_nodes`` + 1;
-	  the 0th entry will be ignored and the other entries will correspond to the node indices.
-	* If the parameter is a singleton, all nodes will have that parameter set to the
-	  singleton value.
-
-	Either ``demand_mean`` and ``demand_standard_deviation`` must be
-	provided (in which case the demand will be assumed to be normally distributed),
-	or ``demand_source`` must be provided, or ``network`` must be provided.
+	For parameter descriptions, see docstring for :func:`~stockpyl.ssm_serial.optimize_base_stock_levels`.
 
 	Parameters
 	----------
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
-	num_nodes : int, optional
-		Number of nodes in serial system. [:math:`N`]
-	echelon_holding_cost : float, list, or dict, optional
-		Echelon holding cost at each node. [:math:`h`]
-	lead_time : float, list, or dict, optional
-		(Shipment) lead time at each node. [:math:`L`]
-	stockout_cost : float, optional
-		Stockout cost per item per unit time at node 1. [:math:`p`]
-	demand_mean : float, optional
-		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_standard_deviation : float, optional
-		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : |class_demand_source|, optional
-		A |class_demand_source| object describing the demand distribution. Required if
-		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : |class_network|, optional
-		A |class_network| object that provides all of the necessary data. If provided,
-		``num_nodes``, ..., ``demand_source`` are ignored.
-	x_num : int, optional
-		Number of discretization intervals to use for ``x`` range.
-	d_num : int, optional
-		Number of discretization intervals to use for ``d`` range.
-	ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating lead-time demand
-		distribution.
-	ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating lead-time demand
-		distribution.
-	sum_ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
-	sum_ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
+	other parameters :
+		See :func:`~stockpyl.ssm_serial.optimize_base_stock_levels`.
 
 	Returns
 	-------
@@ -868,8 +820,8 @@ def expected_cost(echelon_S,
 		>>> expected_cost(
 		...		echelon_S={1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784},
 		... 	num_nodes=3, 
-		... 	echelon_holding_cost=[3, 2, 2], 
-		... 	lead_time=[1, 1, 2], 
+		... 	echelon_holding_cost=[2, 2, 3], 
+		... 	lead_time=[2, 1, 1], 
 		... 	stockout_cost=37.12, 
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
@@ -908,62 +860,14 @@ def expected_holding_cost(echelon_S,
 	The basic idea is to set the stockout cost to 0 and call 
 	:func:`optimize_base_stock_levels` without doing any optimization.
 
-	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
-	or in the ``network`` parameter.
-
-	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
-	parameters (``echelon_holding_cost`` and ``lead_time``) must be either 
-	a dict, a list, or a singleton, with the following requirements:
-	
-	* If the parameter is a dict, its keys must equal 1,..., ``num_nodes``,
-	  each corresponding to a node index.
-	* If the parameter is a list, it must have length ``num_nodes`` + 1;
-	  the 0th entry will be ignored and the other entries will correspond to the node indices.
-	* If the parameter is a singleton, all nodes will have that parameter set to the
-	  singleton value.
-
-	Either ``demand_mean`` and ``demand_standard_deviation`` must be
-	provided (in which case the demand will be assumed to be normally distributed),
-	or ``demand_source`` must be provided, or ``network`` must be provided.
+	For parameter descriptions, see docstring for :func:`~stockpyl.ssm_serial.optimize_base_stock_levels`.
 
 	Parameters
 	----------
 	echelon_S : dict
 		Dict of echelon base-stock levels to be evaluated.
-	num_nodes : int, optional
-		Number of nodes in serial system. [:math:`N`]
-	echelon_holding_cost : float, list, or dict, optional
-		Echelon holding cost at each node. [:math:`h`]
-	lead_time : float, list, or dict, optional
-		(Shipment) lead time at each node. [:math:`L`]
-	stockout_cost : float, optional
-		Stockout cost per item per unit time at node 1. [:math:`p`]
-	demand_mean : float, optional
-		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_standard_deviation : float, optional
-		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
-	demand_source : |class_demand_source|, optional
-		A |class_demand_source| object describing the demand distribution. Required if
-		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
-	network : |class_network|, optional
-		A |class_network| object that provides all of the necessary data. If provided,
-		``num_nodes``, ..., ``demand_source`` are ignored.
-	x_num : int, optional
-		Number of discretization intervals to use for ``x`` range.
-	d_num : int, optional
-		Number of discretization intervals to use for ``d`` range.
-	ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating lead-time demand
-		distribution.
-	ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating lead-time demand
-		distribution.
-	sum_ltd_lower_tail_prob : float, optional
-		Lower tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
-	sum_ltd_upper_tail_prob : float, optional
-		Upper tail probability to use when truncating "sum-of-lead-times"
-		demand distribution.
+	other parameters :
+		See :func:`~stockpyl.ssm_serial.optimize_base_stock_levels`.
 
 	Returns
 	-------
@@ -997,8 +901,8 @@ def expected_holding_cost(echelon_S,
 		>>> expected_holding_cost(
 		...		echelon_S={1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784},
 		... 	num_nodes=3, 
-		... 	echelon_holding_cost=[3, 2, 2], 
-		... 	lead_time=[1, 1, 2], 
+		... 	echelon_holding_cost=[2, 2, 3], 
+		... 	lead_time=[2, 1, 1], 
 		... 	stockout_cost=37.12, 
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1

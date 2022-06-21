@@ -46,7 +46,7 @@ print(f"avg. cost per period = {total_cost/T}")
 sim_io.write_results(
 	network=serial_3,
 	num_periods=T,
-	num_periods_to_print=100,
+	periods_to_print=100,
 	write_csv=False
 )
 

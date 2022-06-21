@@ -8,3 +8,4 @@ Overview of Stockpyl Features
     overview_seio
     overview_su
     overview_meio
+    overview_sim

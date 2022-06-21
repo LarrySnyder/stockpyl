@@ -90,14 +90,14 @@ Chen-Zheng's (1994) reworking of it):
     >>> from stockpyl.ssm_serial import optimize_base_stock_levels
     >>> S_star, C_star = optimize_base_stock_levels(
     ...     num_nodes=3,
-    ...     echelon_holding_cost=[3, 2, 2],
-    ...     lead_time=[1, 1, 2],
+    ...     echelon_holding_cost=[2, 2, 3],
+    ...     lead_time=[2, 1, 1],
     ...     stockout_cost=37.12,
     ...     demand_mean=5,
     ...     demand_standard_deviation=1
     ... )
     >>> S_star
-    {1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}
+    {3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
     >>> C_star
     47.668653127136345
 

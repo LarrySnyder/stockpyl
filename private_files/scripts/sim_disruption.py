@@ -44,7 +44,7 @@ if False:
 	sim_io.write_results(
 		network=single_stage,
 		num_periods=T,
-		num_periods_to_print=100,
+		periods_to_print=100,
 		write_csv=False
 	#	csv_filename='private_files/debugging_files/ss_disr.csv'
 	)

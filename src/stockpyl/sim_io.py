@@ -145,14 +145,14 @@ from copy import deepcopy
 import pandas as pd
 
 #from stockpyl.sim import simulation
-from stockpyl.helpers import sort_dict_by_keys
+from stockpyl.helpers import sort_dict_by_keys, is_list
 from stockpyl.instances import save_instance, load_instance
 from stockpyl.demand_source import DemandSource
 from stockpyl.disruption_process import DisruptionProcess
 
 
-def write_results(network, num_periods, num_periods_to_print=None, 
-				  write_csv=False, csv_filename=None):
+def write_results(network, num_periods, periods_to_print=None, columns_to_print=None,
+				  print_cost_summary=True, write_csv=False, csv_filename=None):
 	"""
 
 	Parameters
@@ -161,13 +161,21 @@ def write_results(network, num_periods, num_periods_to_print=None,
 		The multi-echelon inventory network.
 	num_periods : int
 		Number of periods in simulation.
-	num_periods_to_print : int, optional
-		Number of periods to print. The middle ``num_periods`` –
-		``num_periods_to_print`` periods will be skipped. If omitted, will
-		print all periods.
-	skip_empty_cols : bool, optional
-		``True`` to omit columns all of whose entries are 0, empty string, or ``None``, ``False`` otherwise.
-		Optional; default = ``True``.
+	periods_to_print : list or int, optional
+		A list of period numbers to print, or the number of periods to print. In the latter case,
+		the middle ``num_periods`` – ``periods_to_print`` periods will be skipped. If omitted, will
+		print all periods (the default).
+	columns_to_print : list or str, optional
+		A list of columns to include in the table of results, each indicated as a string using the
+		abbreviations given in the list above; or a string, one of:
+		
+			* 'minimal': prints 'IO', 'OQ', 'IS', 'OS', 'IL'
+			* 'costs': prints 'IO', 'OQ', 'IS', 'OS', 'IL', 'HC', 'SC', 'TC'
+
+		 If omitted, will print all columns (the default). 
+	print_cost_summary : bool, optional
+		``True`` to print the total cost per period and over the horizon after the state-variable table,
+		``False`` otherwise. Optional; default = ``True``.
 	write_csv : bool, optional
 		``True`` to write to CSV file, ``False`` otherwise. Optional; default = ``False``.
 	csv_filename : str, optional
@@ -205,14 +213,31 @@ def write_results(network, num_periods, num_periods_to_print=None,
 #	results.append([""])
 
 	# Determine periods to print.
-	if num_periods_to_print is None:
-		periods_to_print = list(range(num_periods))
+	if periods_to_print is None:
+		pers_to_print = list(range(num_periods))
+		print_dots = False
+	elif is_list(periods_to_print):
+		pers_to_print = periods_to_print
+		print_dots = False
 	else:
-		periods_to_print = list(range(round(num_periods_to_print / 2))) + \
-						   list(range(num_periods - round(num_periods_to_print / 2), num_periods))
+		pers_to_print = list(range(round(periods_to_print / 2))) + \
+						   list(range(num_periods - round(periods_to_print / 2), num_periods))
+		print_dots = True
+
+	# Determine columns to print.
+	if columns_to_print is None:
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+	elif is_list(columns_to_print):
+		cols_to_print = columns_to_print
+	elif columns_to_print == 'minimal':
+		cols_to_print = ['IO', 'OQ', 'IS', 'OS', 'IL']
+	elif columns_to_print == 'costs':
+		cols_to_print = ['IO', 'OQ', 'IS', 'OS', 'IL', 'HC', 'SC', 'TC']
+	else:
+		raise ValueError("Invalid value for columns_to_print")
 
 	# Period-by-period rows.
-	for t in periods_to_print:
+	for t in pers_to_print:
 		temp = [t]
 		sorted_nodes = sorted(network.node_indices)
 		for ind in sorted_nodes:
@@ -223,46 +248,54 @@ def write_results(network, num_periods, num_periods_to_print=None,
 			ISPL_temp = sort_dict_by_keys(node.state_vars[t].inbound_shipment_pipeline)
 			ISPL = [x[1:] for x in ISPL_temp]
 			# Build row.
-			temp += [''] + [node.state_vars[t].disrupted] \
-					+ sort_dict_by_keys(node.state_vars[t].inbound_order) \
-					+ IOPL \
-					+ sort_dict_by_keys(node.state_vars[t].order_quantity) \
-					+ sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) \
-					+ sort_dict_by_keys(node.state_vars[t].inbound_shipment) \
-					+ ISPL \
-					+ sort_dict_by_keys(node.state_vars[t].raw_material_inventory) \
-					+ sort_dict_by_keys(node.state_vars[t].outbound_shipment) \
-					+ [node.state_vars[t].demand_met_from_stock,
-					node.state_vars[t].fill_rate,
-					node.state_vars[t].inventory_level] \
-					+ sort_dict_by_keys(node.state_vars[t].backorders_by_successor) \
-					+ sort_dict_by_keys(node.state_vars[t].disrupted_items_by_successor ) \
-					+ [node.state_vars[t].holding_cost_incurred,
-					node.state_vars[t].stockout_cost_incurred,
-					node.state_vars[t].in_transit_holding_cost_incurred,
-					node.state_vars[t].revenue_earned,
-					node.state_vars[t].total_cost_incurred]
+			temp += ['']
+			if 'DISR'	in cols_to_print: temp += [node.state_vars[t].disrupted]
+			if 'IO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_order) 
+			if 'IOPL'	in cols_to_print: temp += IOPL
+			if 'OQ'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].order_quantity) 
+			if 'OO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) 
+			if 'IS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_shipment) 
+			if 'ISPL'	in cols_to_print: temp += ISPL
+			if 'RM'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].raw_material_inventory) 
+			if 'OS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_shipment) 
+			if 'DMFS'	in cols_to_print: temp += [node.state_vars[t].demand_met_from_stock]
+			if 'FR'		in cols_to_print: temp += [node.state_vars[t].fill_rate]
+			if 'IL'		in cols_to_print: temp += [node.state_vars[t].inventory_level]
+			if 'BO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].backorders_by_successor) 
+			if 'DI'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].disrupted_items_by_successor) 
+			if 'HC'		in cols_to_print: temp += [node.state_vars[t].holding_cost_incurred]
+			if 'SC'		in cols_to_print: temp += [node.state_vars[t].stockout_cost_incurred]
+			if 'ITHC'	in cols_to_print: temp += [node.state_vars[t].in_transit_holding_cost_incurred]
+			if 'REV'	in cols_to_print: temp += [node.state_vars[t].revenue_earned]
+			if 'TC' 	in cols_to_print: temp += [node.state_vars[t].total_cost_incurred]
 		results.append(temp)
-		if t+1 not in periods_to_print and t < num_periods-1:
+		if print_dots and t+1 not in pers_to_print and t < num_periods-1:
 			results.append(["..."])
 
 	# Header row
 	headers = ["t"]
 	for ind in sorted_nodes:
 		node = network.get_node_from_index(ind)
-		headers = headers + ["i={:d}".format(node.index)] + ["DISR"]
-		headers += _dict_to_header_list(node.state_vars[0].inbound_order, "IO")
-		headers += _dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
-		headers += _dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
-		headers += _dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
-		headers += _dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
-		headers += _dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
-		headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
-		headers += _dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
-		headers += ["DMFS", "FR", "IL"]
-		headers += _dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
-		headers += _dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
-		headers += ["HC", "SC", "ITHC", "REV", "TC"]
+		headers = headers + ["i={:d}".format(node.index)] 
+		if 'DISR'	in cols_to_print: headers += ['DISR']
+		if 'IO'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_order, "IO")
+		if 'IOPL'	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
+		if 'OQ' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
+		if 'OO' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
+		if 'IS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
+		if 'ISPL' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
+		if 'RM' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
+		if 'OS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
+		if 'DMFS' 	in cols_to_print: headers += ["DMFS"]
+		if 'FR'		in cols_to_print: headers += ["FR"]
+		if 'IL'		in cols_to_print: headers += ["IL"]
+		if 'BO' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
+		if 'DI' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
+		if 'HC'		in cols_to_print: headers += ["HC"]
+		if 'SC'		in cols_to_print: headers += ["SC"]
+		if 'ITHC'	in cols_to_print: headers += ["ITHC"]
+		if 'REV'	in cols_to_print: headers += ["REV"]
+		if 'TC'		in cols_to_print: headers += ["TC"]
 
 	# Average row.
 	averages = ["t"]
@@ -271,10 +304,11 @@ def write_results(network, num_periods, num_periods_to_print=None,
 	print(tabulate(results, headers=headers))
 
 	# Average and total cost
-	total_cost = np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
-			for t in range(num_periods)])
-	print("\nTotal avg. cost per period = {:f}".format(1.0 * np.sum(total_cost) / num_periods))
-	print("Total horizon cost = {:f}".format(1.0 * np.sum(total_cost)))
+	if print_cost_summary:
+		total_cost = np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
+				for t in range(num_periods)])
+		print("\nTotal avg. cost per period = {:f}".format(1.0 * np.sum(total_cost) / num_periods))
+		print("Total horizon cost = {:f}".format(1.0 * np.sum(total_cost)))
 
 	# CSV output
 	if write_csv:

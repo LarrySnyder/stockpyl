@@ -44,7 +44,7 @@ evaluate each candidate set of base-stock levels using simulation (3 trials,
 100 periods per trial—a very coarse approximation since the simulation runs are very small):
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.meio_general import meio_by_enumeration
 		>>> from stockpyl.instances import load_instance
@@ -58,13 +58,13 @@ evaluate each candidate set of base-stock levels using simulation (3 trials,
 		...		sim_rand_seed=42
 		...	)
 		>>> best_S
-		{1: 7, 2: 6, 3: 10}
+		{1: 7, 2: 5, 3: 11}
 		>>> best_cost
-		65.0337132520378
+		47.994095842987605
 
-This solution is not good—it is 36.4% worse than the optimal solution—even though we stacked the
-deck by giving the function a pretty narrow range of base-stock levels to test. The solution would improve
-if we used more simulation trials and more periods per trial, but then 
+This solution is quite good—it is only 0.7% worse than the optimal solution—although we stacked the
+deck by giving the function a pretty narrow range of base-stock levels to test. For a fairer
+experiment, we would test a broader range of base-stock levels, but then 
 the execution would be even slower.
 
 Alternately, we can provide an objective function. This is more accurate and faster than
@@ -77,7 +77,7 @@ which requires echelon base-stock levels as inputs. The discretization settings 
 (``x_num=100, d_num=10``) are relatively coarse, producing inaccurate solutions but pretty quickly.
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import expected_cost
 		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
@@ -104,7 +104,7 @@ and not particularly accurate.
 
 	
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> from stockpyl.meio_general import meio_by_coordinate_descent
 		>>> from stockpyl.ssm_serial import expected_cost
@@ -118,12 +118,12 @@ and not particularly accurate.
 		...		sim_rand_seed=762
 		...	)
 		>>> best_S
-		{1: 6.381339837124608, 2: 5.896080179686133, 3: 10.048610642262988}
+		{1: 6.5135882931757045, 2: 5.758375187638261, 3: 10.0631099655841}
 		>>> best_cost
-		65.79707993192646
+		46.90365729191992
 
 	.. doctest::
-		:skipif: True	# set to False to run the test
+		:skipif: False	# set to False to run the test
 
 		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=20, d_num=10)
 		>>> best_S, best_cost = meio_by_coordinate_descent(
