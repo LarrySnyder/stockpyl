@@ -764,7 +764,7 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
 		  (or in ``range(num_nodes)``, if ``node_order_in_system`` is not provided).
 
-	``demand_source`` attribute is only set at the downstream-most node,
+	``demand_source`` and ``stockout_cost`` attributes are only set at the downstream-most node,
 	no matter how (or whether) the corresponding parameter is set. ``supply_type`` attribute is set to 'U'
 	at the upstream-most node and to ``None`` at all other nodes, no matter how (or whether) the
 	corresponding parameter is set.
@@ -836,10 +836,12 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 
 	# Determine sink node.
 	sink_node = node_order_in_system[-1]
-	# Set demand_source parameter so it only occurs at sink node.
+	# Set demand_source and stockout_cost parameters so they only occur at sink node.
 	for node in network.nodes:
 		if node.index != sink_node:
 			node.demand_source = DemandSource()
+			node.stockout_cost = 0
+			node.stockout_cost_function = None
 
 	return network
 

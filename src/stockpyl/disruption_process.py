@@ -93,8 +93,8 @@ class DisruptionProcess(object):
 	disruption_type : str
 		The type of disruption, as a string. Currently supported strings are:
 
-			* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them) (default)
-			* 'OP' (order-pausing: the stage cannot place orders during disruptions)
+			* 'OP' (order-pausing: the stage cannot place orders during disruptions) (default)
+			* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them)
 			* 'TP' (transit-pausing: items in transit to the stage are paused during disruptions)
 			* 'RP' (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
 			  just before the stage and are received when the disruption ends)
@@ -289,7 +289,7 @@ class DisruptionProcess(object):
 		if overwrite or not hasattr(self, '_random_process_type'):
 			self._random_process_type = None
 		if overwrite or not hasattr(self, '_disruption_type'):
-			self._disruption_type = 'SP'
+			self._disruption_type = 'OP'
 		if overwrite or not hasattr(self, '_disruption_probability'):
 			self._disruption_probability = None
 		if overwrite or not hasattr(self, '_recovery_probability'):
