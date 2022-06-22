@@ -44,7 +44,7 @@ evaluate each candidate set of base-stock levels using simulation (3 trials,
 100 periods per trial—a very coarse approximation since the simulation runs are very small):
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.meio_general import meio_by_enumeration
 		>>> from stockpyl.instances import load_instance
@@ -77,7 +77,7 @@ which requires echelon base-stock levels as inputs. The discretization settings 
 (``x_num=100, d_num=10``) are relatively coarse, producing inaccurate solutions but pretty quickly.
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import expected_cost
 		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
@@ -104,7 +104,7 @@ and not particularly accurate.
 
 	
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.meio_general import meio_by_coordinate_descent
 		>>> from stockpyl.ssm_serial import expected_cost
@@ -123,7 +123,7 @@ and not particularly accurate.
 		46.90365729191992
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=20, d_num=10)
 		>>> best_S, best_cost = meio_by_coordinate_descent(

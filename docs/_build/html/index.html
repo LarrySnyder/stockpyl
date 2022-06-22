@@ -143,14 +143,14 @@ Chen-Zheng’s (1994) reworking of it):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.ssm_serial</span> <span class="kn">import</span> <span class="n">optimize_base_stock_levels</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span><span class="p">,</span> <span class="n">C_star</span> <span class="o">=</span> <span class="n">optimize_base_stock_levels</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">num_nodes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">echelon_holding_cost</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">lead_time</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">echelon_holding_cost</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">lead_time</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">37.12</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">demand_mean</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">demand_standard_deviation</span><span class="o">=</span><span class="mi">1</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span>
-<span class="go">{1: 6.5144388073261155, 2: 12.012332294949644, 3: 22.700237234889784}</span>
+<span class="go">{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C_star</span>
 <span class="go">47.668653127136345</span>
 </pre></div>

@@ -28,7 +28,7 @@ For either type of optimization (exact or heuristic), you may pass the instance 
 or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as individual parameters:
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> S_star, C_star = optimize_base_stock_levels(
@@ -47,7 +47,7 @@ or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as i
 Here is the same example, first building a |class_network| and then passing that instead:
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> from stockpyl.supply_chain_network import serial_system
@@ -71,7 +71,7 @@ Here is the same example, first building a |class_network| and then passing that
 Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
 		>>> from stockpyl.instances import load_instance
@@ -85,7 +85,7 @@ Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
 To solve the instance using the newsvendor heuristic:
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> from stockpyl.ssm_serial import newsvendor_heuristic
 		>>> S_heur = newsvendor_heuristic(network=example_6_1_network)
@@ -299,7 +299,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		from stockpyl.ssm_serial import *
 
 	.. doctest::
-		:skipif: False	# set to False to run the test
+		:skipif: True	# set to False to run the test
 
 		>>> S_star, C_star = optimize_base_stock_levels(
 		... 	num_nodes=3, 
