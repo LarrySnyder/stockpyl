@@ -419,7 +419,7 @@ def _initialize_next_period_state_vars(network, period):
 			if n.disrupted and n.disruption_process.disruption_type == 'TP':
 				# Yes; items in shipment pipeline stay where they are.
 				n.state_vars[period+1].inbound_shipment_pipeline[p] = \
-					n.state_vars[period].inbound_shipment_pipeline[p]
+					n.state_vars[period].inbound_shipment_pipeline[p].copy()
 			else:
 				# No; items in shipment pipeline advance by 1 slot.
 				# Copy items from slot 0 in period t to t+1. (Normally, this will equal 0, but it can 

@@ -61,6 +61,10 @@ Interpreting the results:
 
 (In the column headers, ``EXT`` refers to the external supplier and customer.)
 
+.. note:: :func:`~stockpyl.sim.simulation` fills the state variables—the results of the simulation—
+	directly into the |class_network| object that is passed in the ``network`` parameter. This object
+	can then be passed to :func:`~stockpyl.sim.write_results` to pretty-print the results.
+
 
 Data Structures
 --------------------------------
@@ -270,6 +274,10 @@ Supply Disruptions
 To specify that a node is subject to disruptions, set its ``disruption_process`` attribute
 to a |class_disruption_process| object whose ``random_process_type`` attribute is not ``None``. 
 
+**Example::** The following code simulates the instance in Example 9.3, in which the demand
+is deterministic at 2000 per period and disruptions follow a 2-state Markov process with
+disruption probability 0.04 and recovery probability 0.25:
+
 .. testsetup:: *
 
 	from stockpyl.supply_chain_network import single_stage_system
@@ -293,6 +301,113 @@ to a |class_disruption_process| object whose ``random_process_type`` attribute i
 	Total cost per period = 2831.9
 
 
+|sp| supports four types of disruptions, which differ by how the system "pauses" when a disruption occurs:
+
+	* 'OP' (order-pausing: the stage cannot place orders during disruptions) (default)
+	* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them)
+	* 'TP' (transit-pausing: items in transit to the stage are paused during disruptions)
+	* 'RP' (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
+		just before the stage and are received when the disruption ends)
+
+
+**Example:** The code below simulates a 2-node serial system in which the downstream node (node 2) is subject to
+disruptions. First, type-OP disruptions:
+
+.. doctest::
+
+	>>> network = serial_system(
+	...     num_nodes=2,
+	...     node_order_in_system=[1, 2],
+	...     shipment_lead_time=1,
+	...     demand_type='P',
+	...     mean=20,
+	...     policy_type='BS',
+	...     base_stock_level=[25, 25]
+	... )
+	>>> network.get_node_from_index(2).disruption_process = DisruptionProcess(
+	...     random_process_type='M',
+	...     disruption_type='OP',
+	...     disruption_probability=0.1,
+	...     recovery_probability=0.4
+	... )
+	>>> T = 100
+	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'], print_cost_summary=False)
+	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL
+	---  -----  ------  ------  --------  --------  ------  ----  -----  ------  --------  ------  ------  --------  ----
+	  7         False       19        19        14      19     6         False         19      19      14        19     6
+	  8         False       20        20        19      20     5         False         20      20      19        20     5
+	  9         False        0         0        20       0    25         True          21       0      20        21     4
+	 10         False        0         0         0       0    25         True          24       0       0         4   -20
+	 11         False        0         0         0       0    25         True          22       0       0         0   -42
+	 12         False        0         0         0       0    25         True          20       0       0         0   -62
+	 13         False      104       104         0      25   -79         False         17     104       0         0   -79
+	 14         False       20        20       104      99     5         False         20      20      25        25   -74
+	 15         False       21        21        20      21     4         False         21      21      99        95     4
+
+Node 2 is disrupted starting in period 9 (``DISR`` column). Since these are order-pausing disruptions, the node cannot place orders, so its
+order quantity for orders to node 1 (``OQ:1``) is 0, starting in period 9 and continuing until the disruption ends in period 13,
+at which point a large order is placed. At first, that order is mostly backordered upstream at node 1, since node 1 was not aware of the
+upcoming large order. 
+
+Next, type-SP disruptions:
+
+.. doctest::
+
+	>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
+	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'DI'], print_cost_summary=False)
+	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    DI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    DI:EXT
+	---  -----  ------  ------  --------  --------  ------  ----  ------  -----  ------  --------  ------  ------  --------  ----  --------
+	  7         False       19        19        14      19     6       0         False         19      19      14        19     6         0
+	  8         False       20        20        19      20     5       0         False         20      20      19        20     5         0
+	  9         False       21        21        20       0     4      21         True          21      21      20        21     4         0
+	 10         False       24        24        21       0     1      45         True          24      24       0         4   -20         0
+	 11         False       22        22        24       0     3      67         True          22      22       0         0   -42         0
+	 12         False       20        20        22       0     5      87         True          20      20       0         0   -62         0
+	 13         False       17        17        20     104     8       0         False         17      17       0         0   -79         0
+	 14         False       20        20        17      20     5       0         False         20      20     104        99     5         0
+	 15         False       21        21        20      21     4       0         False         21      21      20        21     4         0
+
+In this case, node 2 can still place orders during the disruption, but node 1 cannot ship them. Instead, the items are moved to
+node 1's "disrupted items" category (``DI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
+
+Next, type-TP disruptions:
+
+.. doctest::
+
+	>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
+	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'DI'], print_cost_summary=False)
+	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
+	---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
+	  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
+	  8         False       20        20        19  [20.0]          20     5         False         20      20      19  [20.0]          20     5
+	  9         False       21        21        20  [21.0]          21     4         True          21      21      20  [21.0]          21     4
+	 10         False       24        24        21  [24.0]          24     1         True          24      24       0  [45.0]           4   -20
+	 11         False       22        22        24  [22.0]          22     3         True          22      22       0  [67.0]           0   -42
+	 12         False       20        20        22  [20.0]          20     5         True          20      20       0  [87.0]           0   -62
+	 13         False       17        17        20  [17.0]          17     8         False         17      17       0  [104.0]          0   -79
+	 14         False       20        20        17  [20.0]          20     5         False         20      20     104  [20.0]          99     5
+	 15         False       21        21        20  [21.0]          21     4         False         21      21      20  [21.0]          21     4
+
+The disruption means that items in transit to node 2 are paused. This is evident from the inbound shipment pipeline at node 2 from node 1 (``ISPL:1``),
+which increases as the disruption continues and then is cleared when the disruption ends. 
+
+Finally, 
+
+# TODO: and here to, with type-RP disruptions -- ISPL should be getting bigger:
+  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
+---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
+  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
+  8         False       20        20        19  [20.0]          20     5         False         20      20      19  [20.0]          20     5
+  9         False       21        21        20  [21.0]          21     4         True          21      21       0  [21.0]           5   -16
+ 10         False       24        24        21  [24.0]          24     1         True          24      24       0  [24.0]           0   -40
+ 11         False       22        22        24  [22.0]          22     3         True          22      22       0  [22.0]           0   -62
+ 12         False       20        20        22  [20.0]          20     5         True          20      20       0  [20.0]           0   -82
+ 13         False       17        17        20  [17.0]          17     8         False         17      17     107  [17.0]          99     8
+ 14         False       20        20        17  [20.0]          20     5         False         20      20      17  [20.0]          20     5
+ 15         False       21        21        20  [21.0]          21     4         False         21      21      20  [21.0]          21     4
 
 Converting from Continuous Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

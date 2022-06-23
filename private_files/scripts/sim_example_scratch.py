@@ -42,17 +42,35 @@ from stockpyl.instances import load_instance
 # print(total_cost / 1000)
 
 from stockpyl.disruption_process import DisruptionProcess
-network = single_stage_system(
-	holding_cost=0.25,
-	stockout_cost=3,
-	demand_type='D',		# deterministic demand
-	demand_list=2000,
-	disruption_process=DisruptionProcess(random_process_type='M', disruption_probability=0.04, recovery_probability=0.25),
-	policy_type='BS',		
-	base_stock_level=8000
-)
-T = 10000
-total_cost = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-print(f"Total cost per period = {total_cost / T}")
+# network = single_stage_system(
+# 	holding_cost=0.25,
+# 	stockout_cost=3,
+# 	demand_type='D',		# deterministic demand
+# 	demand_list=2000,
+# 	disruption_process=DisruptionProcess(random_process_type='M', disruption_probability=0.04, recovery_probability=0.25),
+# 	policy_type='BS',		
+# 	base_stock_level=8000
+# )
+# T = 10000
+# total_cost = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+# print(f"Total cost per period = {total_cost / T}")
 #write_results(network=network, num_periods=100, print_cost_summary=False)
 
+network = serial_system(
+	num_nodes=2,
+	node_order_in_system=[1, 2],
+	shipment_lead_time=1,
+	demand_type='P',
+	mean=20,
+	policy_type='BS',
+	base_stock_level=[25, 25]
+)
+network.get_node_from_index(2).disruption_process = DisruptionProcess(
+	random_process_type='M',
+	disruption_type='RP',
+	disruption_probability=0.1,
+	recovery_probability=0.4
+)
+T = 100
+_ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL'], print_cost_summary=False)

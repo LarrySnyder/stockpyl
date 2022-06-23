@@ -171,6 +171,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		
 			* 'minimal': prints 'IO', 'OQ', 'IS', 'OS', 'IL'
 			* 'costs': prints 'IO', 'OQ', 'IS', 'OS', 'IL', 'HC', 'SC', 'TC'
+			* 'all': prints all columns (equivalent to setting ``columns_to_print=None``)
 
 		 If omitted, will print all columns (the default). 
 	print_cost_summary : bool, optional
@@ -225,7 +226,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		print_dots = True
 
 	# Determine columns to print.
-	if columns_to_print is None:
+	if columns_to_print is None or columns_to_print == 'all':
 		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
 	elif is_list(columns_to_print):
 		cols_to_print = columns_to_print
