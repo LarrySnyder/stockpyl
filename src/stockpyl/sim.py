@@ -437,7 +437,7 @@ def _initialize_next_period_state_vars(network, period):
 			n.state_vars[period+1].inbound_order_pipeline[s] = \
 				n.state_vars[period].inbound_order_pipeline[s][1:] + [0]
 
-		# Set next period's starting IL, BO, RM, and OO.
+		# Set next period's starting IL, BO, IDI, ODI, RM, and OO.
 		n.state_vars[period+1].inventory_level = n.state_vars[period].inventory_level
 		for s_index in n.successor_indices(include_external=True):
 			n.state_vars[period+1].backorders_by_successor[s_index] = \
@@ -450,6 +450,8 @@ def _initialize_next_period_state_vars(network, period):
 				n.state_vars[period].on_order_by_predecessor[p_index]
 			n.state_vars[period+1].raw_material_inventory[p_index] = \
 				n.state_vars[period].raw_material_inventory[p_index]
+			n.state_vars[period+1].inbound_disrupted_items[p_index] = \
+				n.state_vars[period].inbound_disrupted_items[p_index]
 
 		# Set demand_met_from_stock_cumul and demand_cumul.
 		n.state_vars[period+1].demand_met_from_stock_cumul = \
@@ -479,7 +481,8 @@ def _calculate_period_costs(network, period):
 		# Raw materials holding cost.
 		for p in n.predecessors(include_external=False):
 			n.state_vars[period].holding_cost_incurred += \
-				(p.local_holding_cost or 0) * n.state_vars[period].raw_material_inventory[p.index]
+				(p.local_holding_cost or 0) * \
+				(n.state_vars[period].raw_material_inventory[p.index] + n.state_vars[period].inbound_disrupted_items[p.index])
 		# Stockout cost.
 		try:
 			n.state_vars[period].stockout_cost_incurred = \
@@ -515,8 +518,8 @@ def _receive_inbound_shipments(node):
 		* Process as many units as possible.
 		* Update IL and OO.
 
-	If node is currently disrupted and disruption type = 'RP' (receipt-pausing), quantity received
-	is forced to 0.
+	If node is currently disrupted and disruption type = 'RP' (receipt-pausing), inbound
+	items are moved to inbound_disrupted_items.
 
 	Parameters
 	----------
@@ -525,20 +528,33 @@ def _receive_inbound_shipments(node):
 	"""
 	# Loop through predecessors.
 	for p_index in node.predecessor_indices(include_external=True):
+		# Determine number of items that will be received from p (if there is no disruption),
+		# not including inbound disrupted items waiting to be received. 
+		ready_to_receive = node.state_vars_current.inbound_shipment_pipeline[p_index][0]
+
 		# Is there a receipt-pausing disruption?
 		if node.disrupted and node.disruption_process.disruption_type == 'RP':
-			inbound_shipment = 0
+			# Yes: Don't receive anything.
+			IS = 0
+			# New inbound disrupted items = the items that would have been received, if
+			# there were no disruption.
+			IDI = ready_to_receive
 		else:
-			# Determine inbound shipment amount from p.
-			inbound_shipment = node.state_vars_current.inbound_shipment_pipeline[p_index][0]
+			# No: Inbound shipment from p = ready_to_receive + IDI from p.
+			IS = ready_to_receive + node.state_vars_current.inbound_disrupted_items[p_index]
+			# No new disrupted items.
+			IDI = 0
+
 		# Set inbound_shipment attribute.
-		node.state_vars_current.inbound_shipment[p_index] = inbound_shipment
+		node.state_vars_current.inbound_shipment[p_index] = IS
 		# Remove shipment from pipeline.
-		node.state_vars_current.inbound_shipment_pipeline[p_index][0] -= inbound_shipment
+		node.state_vars_current.inbound_shipment_pipeline[p_index][0] = 0
 		# Add shipment to raw material inventory.
-		node.state_vars_current.raw_material_inventory[p_index] += inbound_shipment
+		node.state_vars_current.raw_material_inventory[p_index] += IS
 		# Update on-order inventory.
-		node.state_vars_current.on_order_by_predecessor[p_index] -= inbound_shipment
+		node.state_vars_current.on_order_by_predecessor[p_index] -= ready_to_receive
+		# Update inbound_disrupted_items.
+		node.state_vars_current.inbound_disrupted_items[p_index] += IDI
 
 
 def _raw_materials_to_finished_goods(node):
@@ -632,17 +648,6 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 				issued_backorder_warning = True
 			if consistency_checks in ('E', 'EF'):
 				raise ValueError(warning_msg)
-			# warnings.warn(f"Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.")
-			# warnings.warn(f"The instance and simulation data have been written to {filepath}.")
-			# warnings.warn(f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.")
-			# warnings.warn(f"Include the text of this error message as well as the file referenced above.")
-			# warnings.warn(f"Simulation will proceed, but results may be incorrect.")
-
-	# 		# print(f"{textcolor}Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.")
-	# 		# print(f"{textcolor}The instance and simulation data have been written to {filepath}.")
-	# 		# print(f"{textcolor}Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.")
-	# 		# print(f"{textcolor}Include the text of this error message as well as the file referenced above.")
-	# 		# raise ValueError()
 
 	# Determine outbound shipments. (Satisfy demand in order of successor node
 	# index.) Also update EIL and BO, and calculate demand met from stock.
@@ -661,7 +666,8 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		if s is not None and s.disrupted and s.disruption_process.disruption_type == 'SP':
 			# Yes: Don't ship anything out.
 			OS = 0
-			# New disrupted items = the items that would have been shipped out, if there were no disruption.
+			# New outbound disrupted items = the items that would have been shipped out, if 
+			# there were no disruption.
 			DI = ready_to_ship
 			# Decompose DI into new demands that are now disrupted items and previously backordered items 
 			# that are now disrupted items. Assumes backorders are handled first, then new demands.
