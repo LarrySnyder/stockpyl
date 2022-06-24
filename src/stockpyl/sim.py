@@ -536,14 +536,15 @@ def _receive_inbound_shipments(node):
 		if node.disrupted and node.disruption_process.disruption_type == 'RP':
 			# Yes: Don't receive anything.
 			IS = 0
-			# New inbound disrupted items = the items that would have been received, if
+			# Increase inbound disrupted items by the items that would have been received, if
 			# there were no disruption.
 			IDI = ready_to_receive
 		else:
 			# No: Inbound shipment from p = ready_to_receive + IDI from p.
 			IS = ready_to_receive + node.state_vars_current.inbound_disrupted_items[p_index]
-			# No new disrupted items.
-			IDI = 0
+			# Decrease inbound disrupted items by its whole amount. (This will zero out
+			# inbound_disrupted_items below.)
+			IDI = -node.state_vars_current.inbound_disrupted_items[p_index]
 
 		# Set inbound_shipment attribute.
 		node.state_vars_current.inbound_shipment[p_index] = IS

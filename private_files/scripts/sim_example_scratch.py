@@ -68,11 +68,11 @@ network = serial_system(
 #network = load_instance("example_6_1")
 network.get_node_from_index(2).disruption_process = DisruptionProcess(
 	random_process_type='M',
-	disruption_type='SP',
+	disruption_type='RP',
 	disruption_probability=0.1,
 	recovery_probability=0.4
 )
 T = 100
 _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL'], print_cost_summary=False)
+write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'], print_cost_summary=False)
 #write_results(network=network, num_periods=T, print_cost_summary=False, write_csv=True, csv_filename='tests/additional_files/test_sim_disruption_example_6_1_SP.csv')

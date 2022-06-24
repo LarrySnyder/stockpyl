@@ -1006,10 +1006,25 @@ class NodeStateVars(object):
 		else:
 			return total_raw_material / len(self.node.predecessors(include_external=True))
 
+	@property
+	def inbound_disrupted_items_aggregate(self):
+		"""Total inbound disrupted items at the node. Inbound disrupted items
+		are counted using the "units" of the node itself. That is, they are
+		divided by the total number of predecessors. Read only.
+		"""
+		total_raw_material = self.node._get_attribute_total('inbound_disrupted_items',
+															self.period,
+															include_external=True)
+		if total_raw_material == 0:
+			return 0
+		else:
+			return total_raw_material / len(self.node.predecessors(include_external=True))
+
 	def inventory_position(self, predecessor_index=None):
 		"""Current local inventory position at node. Equals inventory level plus
 		on-order inventory. 
-		On-order includes raw material inventory that has not yet been processed.
+		On-order includes raw material inventory that has not yet been processed, as
+		well as inbound disrupted items due to type-RP disruptions.
 		If the node has more than one predecessor (including external supplier),
 		set ``predecessor_index`` for predecessor-specific inventory position, or set to ``None``
 		to use aggregate on-order and raw material inventory (counting such
@@ -1029,10 +1044,12 @@ class NodeStateVars(object):
 		if predecessor_index is not None:
 			return self.inventory_level \
 					+ self.on_order_by_predecessor[predecessor_index] \
-					+ self.raw_material_inventory[predecessor_index]
+					+ self.raw_material_inventory[predecessor_index] \
+					+ self.inbound_disrupted_items[predecessor_index]
 		else:
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0.
-			return self.inventory_level + self.on_order + self.raw_material_aggregate
+			return self.inventory_level + self.on_order + self.raw_material_aggregate \
+					+ self.inbound_disrupted_items_aggregate
 
 	@property
 	def echelon_on_hand_inventory(self):

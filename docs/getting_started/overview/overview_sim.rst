@@ -332,7 +332,7 @@ disruptions. First, type-OP disruptions:
 	... )
 	>>> T = 100
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'], print_cost_summary=False)
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL
 	---  -----  ------  ------  --------  --------  ------  ----  -----  ------  --------  ------  ------  --------  ----
 	  7         False       19        19        14      19     6         False         19      19      14        19     6
@@ -356,18 +356,18 @@ Next, type-SP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'], print_cost_summary=False)
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL   ODI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL   ODI:EXT
-	---  -----  ------  ------  --------  --------  ------  ----  ------  -----  ------  --------  ------  ------  --------  ----  --------
-	  7         False       19        19        14      19     6       0         False         19      19      14        19     6         0
-	  8         False       20        20        19      20     5       0         False         20      20      19        20     5         0
-	  9         False       21        21        20       0     4      21         True          21      21      20        21     4         0
-	 10         False       24        24        21       0     1      45         True          24      24       0         4   -20         0
-	 11         False       22        22        24       0     3      67         True          22      22       0         0   -42         0
-	 12         False       20        20        22       0     5      87         True          20      20       0         0   -62         0
-	 13         False       17        17        20     104     8       0         False         17      17       0         0   -79         0
-	 14         False       20        20        17      20     5       0         False         20      20     104        99     5         0
-	 15         False       21        21        20      21     4       0         False         21      21      20        21     4         0
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'], print_cost_summary=False)
+	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    ODI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    ODI:EXT
+	---  -----  ------  ------  --------  --------  ------  ----  -------  -----  ------  --------  ------  ------  --------  ----  ---------
+	  7         False       19        19        14      19     6        0         False         19      19      14        19     6          0
+	  8         False       20        20        19      20     5        0         False         20      20      19        20     5          0
+	  9         False       21        21        20       0     4       21         True          21      21      20        21     4          0
+	 10         False       24        24        21       0     1       45         True          24      24       0         4   -20          0
+	 11         False       22        22        24       0     3       67         True          22      22       0         0   -42          0
+	 12         False       20        20        22       0     5       87         True          20      20       0         0   -62          0
+	 13         False       17        17        20     104     8        0         False         17      17       0         0   -79          0
+	 14         False       20        20        17      20     5        0         False         20      20     104        99     5          0
+	 15         False       21        21        20      21     4        0         False         21      21      20        21     4          0
 
 In this case, node 2 can still place orders during the disruption, but node 1 cannot ship them. Instead, the items are moved to
 node 1's "outbound disrupted items" category (``ODI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
@@ -378,7 +378,7 @@ Next, type-TP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'], print_cost_summary=False)
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
 	---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
 	  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
@@ -394,20 +394,28 @@ Next, type-TP disruptions:
 The disruption means that items in transit to node 2 are paused. This is evident from the inbound shipment pipeline at node 2 from node 1 (``ISPL:1``),
 which increases as the disruption continues and then is cleared when the disruption ends. 
 
-Finally, 
+Finally, type-RP disruptions:
 
-# TODO: and here to, with type-RP disruptions -- ISPL should be getting bigger:
-  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
----  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
-  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
-  8         False       20        20        19  [20.0]          20     5         False         20      20      19  [20.0]          20     5
-  9         False       21        21        20  [21.0]          21     4         True          21      21       0  [21.0]           5   -16
- 10         False       24        24        21  [24.0]          24     1         True          24      24       0  [24.0]           0   -40
- 11         False       22        22        24  [22.0]          22     3         True          22      22       0  [22.0]           0   -62
- 12         False       20        20        22  [20.0]          20     5         True          20      20       0  [20.0]           0   -82
- 13         False       17        17        20  [17.0]          17     8         False         17      17     107  [17.0]          99     8
- 14         False       20        20        17  [20.0]          20     5         False         20      20      17  [20.0]          20     5
- 15         False       21        21        20  [21.0]          21     4         False         21      21      20  [21.0]          21     4
+.. doctest::
+
+	>>> network.get_node_from_index(2).disruption_process.disruption_type='RP'
+	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'], print_cost_summary=False)
+	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      IDI:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      IDI:1    OS:EXT    IL
+	---  -----  ------  ------  --------  --------  ----------  ---------  ------  ----  -----  ------  --------  ------  ------  --------  -------  --------  ----
+	  7         False       19        19        14  [19.0]              0      19     6         False         19      19      14  [19.0]          0        19     6
+	  8         False       20        20        19  [20.0]              0      20     5         False         20      20      19  [20.0]          0        20     5
+	  9         False       21        21        20  [21.0]              0      21     4         True          21      21       0  [21.0]         20         5   -16
+	 10         False       24        24        21  [24.0]              0      24     1         True          24      24       0  [24.0]         41         0   -40
+	 11         False       22        22        24  [22.0]              0      22     3         True          22      22       0  [22.0]         65         0   -62
+	 12         False       20        20        22  [20.0]              0      20     5         True          20      20       0  [20.0]         87         0   -82
+	 13         False       17        17        20  [17.0]              0      17     8         False         17      17     107  [17.0]          0        99     8
+	 14         False       20        20        17  [20.0]              0      20     5         False         20      20      17  [20.0]          0        20     5
+	 15         False       21        21        20  [21.0]              0      21     4         False         21      21      20  [21.0]          0        21     4
+
+In this case, the disruptions prevent node 2 from receiving items. During the disruption, items that would otherwise have been 
+received by node 2 from node 1 are instead moved to node 2's "inbound disrupted items" category (``IDI:1``). They remain there
+until the disruption ends, at which point they are included in the node's inbound shipment (``IS:1``). 
 
 Converting from Continuous Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

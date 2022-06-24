@@ -612,8 +612,8 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 		If ``stockout_cost`` < 0 or if ``lead_time`` < 0 for any node.
 		
 
-	Reference
-	---------
+	References
+	----------
 	K. H. Shang and J.-S. Song. Newsvendor bounds and heuristic for optimal policies in serial supply chains. *Management Science*, 49(5):618-638, 2003.
 	
 
