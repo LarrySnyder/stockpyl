@@ -169,13 +169,14 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		print all periods (the default).
 	columns_to_print : list or str, optional
 		A list of columns to include in the table of results, each indicated as a string using the
-		abbreviations given in the list above; or a string, one of:
+		abbreviations given in the list above. Alternately, a string or a list of strings, which are shortcuts to
+		groups of columns; currently supported strings are:
 		
-			* 'minimal': prints 'IO', 'OQ', 'IS', 'OS', 'IL'
-			* 'costs': prints 'IO', 'OQ', 'IS', 'OS', 'IL', 'HC', 'SC', 'TC'
+			* 'basic': 'IO', 'OQ', 'IS', 'OS', 'IL'
+			* 'costs': 'HC', 'SC', 'TC'
 			* 'all': prints all columns (equivalent to setting ``columns_to_print=None``)
 
-		 If omitted, will print all columns (the default). 
+		Unrecognized strings are ignored. If omitted, will print all columns (the default). 
 	print_cost_summary : bool, optional
 		``True`` to print the total cost per period and over the horizon after the state-variable table,
 		``False`` otherwise. Optional; default = ``True``.
@@ -228,16 +229,20 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		print_dots = True
 
 	# Determine columns to print.
-	if columns_to_print is None or columns_to_print == 'all':
+	if columns_to_print is None or columns_to_print == 'all' or 'all' in columns_to_print:
 		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
-	elif is_list(columns_to_print):
-		cols_to_print = columns_to_print
-	elif columns_to_print == 'minimal':
-		cols_to_print = ['IO', 'OQ', 'IS', 'OS', 'IL']
-	elif columns_to_print == 'costs':
-		cols_to_print = ['IO', 'OQ', 'IS', 'OS', 'IL', 'HC', 'SC', 'TC']
+	elif not is_list(columns_to_print) and isinstance(columns_to_print, str):
+		# columns_to_print is a string; put it in a list.
+		cols_to_print = [columns_to_print]
 	else:
-		raise ValueError("Invalid value for columns_to_print")
+		cols_to_print = columns_to_print
+	# Now expand any built-in strings in the cols_to_print list.
+	if 'basic' in cols_to_print:
+		cols_to_print.remove('basic')
+		cols_to_print.extend(['IO', 'OQ', 'IS', 'OS', 'IL'])
+	if 'costs' in cols_to_print:
+		cols_to_print.remove('costs')
+		cols_to_print.extend(['HC', 'SC', 'TC'])
 
 	# Period-by-period rows.
 	for t in pers_to_print:

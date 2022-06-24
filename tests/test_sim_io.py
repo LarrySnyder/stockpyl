@@ -135,12 +135,11 @@ class TestWriteResults(unittest.TestCase):
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 		filename = 'tests/additional_files/temp_TestWriteResults_test_example_6_1.csv'
 
-		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
-		sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=cols_to_print, write_csv=True, csv_filename=filename)
+		sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=None, write_csv=True, csv_filename=filename)
 
-		row0 = 't,i=0,DISR,IO:EXT,IOPL:EXT,OQ:1,OO:1,IS:1,ISPL:1,RM:1,OS:EXT,DMFS,FR,IL,BO:EXT,ODI:EXT,HC,SC,ITHC,REV,TC,i=1,DISR,IO:0,IOPL:EXT,IOPL:0,OQ:2,OO:2,IS:2,ISPL:2,RM:2,OS:0,DMFS,FR,IL,BO:0,ODI:0,HC,SC,ITHC,REV,TC,i=2,DISR,IO:1,IOPL:EXT,IOPL:1,OQ:EXT,OO:EXT,IS:EXT,ISPL:EXT,RM:EXT,OS:1,DMFS,FR,IL,BO:1,ODI:1,HC,SC,ITHC,REV,TC'
-		row5 = '4,,False,6.037190468227883,[],6.037190468227885,6.652501757799978,26.06553892254117,[5.066098888673643],0.0,26.06553892254117,5.8746887104279075,0.22398503883788762,-0.16250175779997544,0.16250175779997544,0,0.0,6.032065249535088,0.0,0.0,6.032065249535088,,False,6.037190468227885,[],[],6.037190468227887,7.116402869126333,5.066098888673643,[5.623901111326357],0.0,5.066098888673643,4.450787599101552,0.3050545629127044,-1.5864028691263323,1.5864028691263323,0.0,0.0,0.0,20.264395554694573,0.0,20.264395554694573,,False,6.037190468227887,[],[],6.037190468227889,12.18250175779998,5.623901111326357,[6.145311289572089, 6.037190468227889],0.0,5.623901111326357,4.544688710427908,0.39831291850351647,-1.4925017577999782,1.492501757799979,0.0,0.0,0.0,11.247802222652714,0.0,11.247802222652714'
-		row10 = '98,,False,4.775201280806586,[],4.775201280806585,4.775201280806586,5.855972018122079,[4.775201280806585],0.0,4.775201280806586,4.775201280806586,0.9274469545198983,1.7147987191934133,0.0,0,12.003591034353892,0.0,0.0,0.0,12.003591034353892,,False,4.775201280806585,[],[],4.775201280806586,4.77520128080658,5.3823688379681025,[4.775201280806586],0.0,4.775201280806585,4.775201280806585,0.8746030168684653,0.7547987191934205,0.0,0.0,3.019194876773682,0,19.10080512322634,0.0,22.120000000000022,,False,4.775201280806586,[],[],4.775201280806584,9.156803980142493,5.560039692192106,[4.381602699335919, 4.775201280806584],0.0,4.775201280806586,4.775201280806586,0.888642036779627,1.5331960198575052,0.0,0.0,3.0663920397150104,0,9.550402561613172,0.0,12.616794601328182'
+		row0 = 't,i=0,DISR,IO:EXT,IOPL:EXT,OQ:1,OO:1,IS:1,ISPL:1,IDI:1,RM:1,OS:EXT,DMFS,FR,IL,BO:EXT,ODI:EXT,HC,SC,ITHC,REV,TC,i=1,DISR,IO:0,IOPL:EXT,IOPL:0,OQ:2,OO:2,IS:2,ISPL:2,IDI:2,RM:2,OS:0,DMFS,FR,IL,BO:0,ODI:0,HC,SC,ITHC,REV,TC,i=2,DISR,IO:1,IOPL:EXT,IOPL:1,OQ:EXT,OO:EXT,IS:EXT,ISPL:EXT,IDI:EXT,RM:EXT,OS:1,DMFS,FR,IL,BO:1,ODI:1,HC,SC,ITHC,REV,TC'
+		row5 = '4,,False,6.037190468227883,[],6.037190468227885,6.652501757799978,26.06553892254117,[5.066098888673643],0,0.0,26.06553892254117,5.8746887104279075,0.22398503883788762,-0.16250175779997544,0.16250175779997544,0,0.0,6.032065249535088,0.0,0.0,6.032065249535088,,False,6.037190468227885,[],[],6.037190468227887,7.116402869126333,5.066098888673643,[5.623901111326357],0,0.0,5.066098888673643,4.450787599101552,0.3050545629127044,-1.5864028691263323,1.5864028691263323,0.0,0.0,0.0,20.264395554694573,0.0,20.264395554694573,,False,6.037190468227887,[],[],6.037190468227889,12.18250175779998,5.623901111326357,[6.145311289572089, 6.037190468227889],0,0.0,5.623901111326357,4.544688710427908,0.39831291850351647,-1.4925017577999782,1.492501757799979,0.0,0.0,0.0,11.247802222652714,0.0,11.247802222652714'
+		row10 = '98,,False,4.775201280806586,[],4.775201280806585,4.775201280806586,5.855972018122079,[4.775201280806585],0,0.0,4.775201280806586,4.775201280806586,0.9274469545198983,1.7147987191934133,0.0,0,12.003591034353892,0.0,0.0,0.0,12.003591034353892,,False,4.775201280806585,[],[],4.775201280806586,4.77520128080658,5.3823688379681025,[4.775201280806586],0,0.0,4.775201280806585,4.775201280806585,0.8746030168684653,0.7547987191934205,0.0,0.0,3.019194876773682,0,19.10080512322634,0.0,22.120000000000022,,False,4.775201280806586,[],[],4.775201280806584,9.156803980142493,5.560039692192106,[4.381602699335919, 4.775201280806584],0,0.0,4.775201280806586,4.775201280806586,0.888642036779627,1.5331960198575052,0.0,0.0,3.0663920397150104,0,9.550402561613172,0.0,12.616794601328182'
 		
 		# Load results and check them.
 		with open(filename) as csvfile:
@@ -212,7 +211,7 @@ class TestWriteResults(unittest.TestCase):
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 		filename = 'tests/additional_files/temp_TestWriteResults_test_example_6_1.csv'
 
-		sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print='minimal', write_csv=True, csv_filename=filename)
+		sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print='basic', write_csv=True, csv_filename=filename)
 
 		row0 = 't,i=0,IO:EXT,OQ:1,IS:1,OS:EXT,IL,i=1,IO:0,OQ:2,IS:2,OS:0,IL,i=2,IO:1,OQ:EXT,IS:EXT,OS:1,IL'
 		row5 = '4,,6.037190468227883,6.037190468227885,26.06553892254117,26.06553892254117,-0.16250175779997544,,6.037190468227885,6.037190468227887,5.066098888673643,5.066098888673643,-1.5864028691263323,,6.037190468227887,6.037190468227889,5.623901111326357,5.623901111326357,-1.4925017577999782'
@@ -229,6 +228,84 @@ class TestWriteResults(unittest.TestCase):
 
 			# Delete file.
 			os.remove(filename)
+
+	def test_columns_to_print_list_of_strings(self):
+		"""Test that write_results() function correctly writes results from
+		simulation of Example 6.1 when columns_to_print is specified as a list of strings.
+		"""
+		print_status('TestWriteResults', 'test_columns_to_print_list_of_strings()')
+
+		# Build network.
+		network = load_instance("example_6_1")
+		# reindex nodes to 2 -> 1 -> 0
+		network.reindex_nodes({1: 0, 2: 1, 3: 2})
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
+		# Simulate and write results.
+		simulation(network, 100, rand_seed=17, progress_bar=False)
+		filename = 'tests/additional_files/temp_TestWriteResults_test_example_6_1.csv'
+
+		sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['basic', 'costs'], write_csv=True, csv_filename=filename)
+
+		row0 = 't,i=0,IO:EXT,OQ:1,IS:1,OS:EXT,IL,HC,SC,TC,i=1,IO:0,OQ:2,IS:2,OS:0,IL,HC,SC,TC,i=2,IO:1,OQ:EXT,IS:EXT,OS:1,IL,HC,SC,TC'
+		row5 = '4,,6.037190468227883,6.037190468227885,26.06553892254117,26.06553892254117,-0.16250175779997544,0.0,6.032065249535088,6.032065249535088,,6.037190468227885,6.037190468227887,5.066098888673643,5.066098888673643,-1.5864028691263323,0.0,0.0,20.264395554694573,,6.037190468227887,6.037190468227889,5.623901111326357,5.623901111326357,-1.4925017577999782,0.0,0.0,11.247802222652714'
+		row10 = '98,,4.775201280806586,4.775201280806585,5.855972018122079,4.775201280806586,1.7147987191934133,12.003591034353892,0.0,12.003591034353892,,4.775201280806585,4.775201280806586,5.3823688379681025,4.775201280806585,0.7547987191934205,3.019194876773682,0,22.120000000000022,,4.775201280806586,4.775201280806584,5.560039692192106,4.775201280806586,1.5331960198575052,3.0663920397150104,0,12.616794601328182'
+		
+		# Load results and check them.
+		with open(filename) as csvfile:
+			reader = csv.reader(csvfile)
+			rows = list(reader)
+
+			self.assertEqual(','.join(rows[0]), row0)
+			self.assertEqual(','.join(rows[5]), row5)
+			self.assertEqual(','.join(rows[10]), row10)
+
+			# Delete file.
+			os.remove(filename)
+
+	def test_columns_to_print_mixed(self):
+		"""Test that write_results() function correctly writes results from
+		simulation of Example 6.1 when columns_to_print is specified as a list that contains
+		some column names and some built-in strings.
+		"""
+		print_status('TestWriteResults', 'test_columns_to_print_mixed()')
+
+		# Build network.
+		network = load_instance("example_6_1")
+		# reindex nodes to 2 -> 1 -> 0
+		network.reindex_nodes({1: 0, 2: 1, 3: 2})
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
+		# Simulate and write results.
+		simulation(network, 100, rand_seed=17, progress_bar=False)
+		filename = 'tests/additional_files/temp_TestWriteResults_test_example_6_1.csv'
+
+		sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI'], write_csv=True, csv_filename=filename)
+
+		row0 = 't,i=0,IO:EXT,OQ:1,IS:1,IDI:1,OS:EXT,IL,SC,i=1,IO:0,OQ:2,IS:2,IDI:2,OS:0,IL,SC,i=2,IO:1,OQ:EXT,IS:EXT,IDI:EXT,OS:1,IL,SC'
+		row5 = '4,,6.037190468227883,6.037190468227885,26.06553892254117,0,26.06553892254117,-0.16250175779997544,6.032065249535088,,6.037190468227885,6.037190468227887,5.066098888673643,0,5.066098888673643,-1.5864028691263323,0.0,,6.037190468227887,6.037190468227889,5.623901111326357,0,5.623901111326357,-1.4925017577999782,0.0'
+		row10 = '98,,4.775201280806586,4.775201280806585,5.855972018122079,0,4.775201280806586,1.7147987191934133,0.0,,4.775201280806585,4.775201280806586,5.3823688379681025,0,4.775201280806585,0.7547987191934205,0,,4.775201280806586,4.775201280806584,5.560039692192106,0,4.775201280806586,1.5331960198575052,0'
+		
+		# Load results and check them.
+		with open(filename) as csvfile:
+			reader = csv.reader(csvfile)
+			rows = list(reader)
+
+			self.assertEqual(','.join(rows[0]), row0)
+			self.assertEqual(','.join(rows[5]), row5)
+			self.assertEqual(','.join(rows[10]), row10)
+
+			# Delete file.
+			os.remove(filename)
+
 
 class TestWriteInstanceAndStates(unittest.TestCase):
 	@classmethod

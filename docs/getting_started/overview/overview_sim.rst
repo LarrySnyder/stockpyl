@@ -45,7 +45,7 @@ an order lead time of 0, and a shipment lead time of 1.
 	...     shipment_lead_time=1
 	... )
 	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=4, columns_to_print='minimal', print_cost_summary=False)
+	>>> write_results(network=network, num_periods=4, columns_to_print='basic', print_cost_summary=False)
 	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL
 	---  -----  --------  --------  --------  --------  ----
 	  0               12        12         0        12     1
@@ -258,7 +258,7 @@ Both nodes have a (shipment) lead time of 1.
 	...     shipment_lead_time=[1, 1]
 	... )
 	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=4, columns_to_print='minimal', print_cost_summary=False)
+	>>> write_results(network=network, num_periods=4, columns_to_print='basic', print_cost_summary=False)
 	  t  i=0      IO:1    OQ:EXT    IS:EXT    OS:1    IL  i=1      IO:EXT    OQ:0    IS:0    OS:EXT    IL
 	---  -----  ------  --------  --------  ------  ----  -----  --------  ------  ------  --------  ----
 	  0             42        50         0      42     8               42      42       0        42     8
