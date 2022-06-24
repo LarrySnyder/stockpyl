@@ -308,11 +308,11 @@ disruption probability 0.04 and recovery probability 0.25:
 
 |sp| supports four types of disruptions, which differ by how the system "pauses" when a disruption occurs:
 
-	* 'OP' (order-pausing: the stage cannot place orders during disruptions) (default)
-	* 'SP' (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them)
-	* 'TP' (transit-pausing: items in transit to the stage are paused during disruptions)
-	* 'RP' (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
-		just before the stage and are received when the disruption ends)
+	* ``'OP'`` (order-pausing: the stage cannot place orders during disruptions) (default)
+	* ``'SP'`` (shipment-pausing: the stage can place orders during disruptions but its supplier(s) cannot ship them)
+	* ``'TP'`` (transit-pausing: items in transit to the stage are paused during disruptions)
+	* ``'RP'`` (receipt-pausing: items cannot be received by the disrupted stage; they accumulate 
+	  just before the stage and are received when the disruption ends)
 
 
 **Example:** The code below simulates a 2-node serial system in which the downstream node (node 2) is subject to
@@ -496,7 +496,7 @@ and :math:`(-x)^+` is the backorders).
 	...	)
 	>>> T = 100
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print='costs', print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'], print_cost_summary=False)
 	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL    HC       SC       TC
 	---  -----  --------  --------  --------  --------  ----  ----  -------  -------
 	  0               18        18         0        17    -1   0    10       10

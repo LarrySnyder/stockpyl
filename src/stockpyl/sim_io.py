@@ -68,6 +68,8 @@ displays the results.
 	.. code-block::
 		
 		>>> from stockpyl.supply_chain_network import network_from_edges
+		>>> from stockpyl.sim import simulation
+		>>> from stockpyl.sim_io import write_results
 		>>> network = network_from_edges(
 		...     edges=[(3, 2), (3, 1), (4, 1)],
 		...     node_order_in_lists=[1, 2, 3, 4],
@@ -81,7 +83,7 @@ displays the results.
 		...     base_stock_level=[30, 25, 10, 10]
 		... )
 		>>> simulation(network=network, num_periods=10)
-		>>> write_results(network, num_periods=T)
+		>>> write_results(network, num_periods=10)
 
 The results are shown in the table below. In period 0:
 
@@ -134,6 +136,73 @@ incur node 3's holding cost rate of 1 each. So, the total holding cost (``HC``) 
    
 :download:`Download table in CSV format <../../../src/stockpyl/aux_files/sim_io_example_instance.csv>`
 
+You can control which rows and columns are printed using the ``periods_to_print`` and ``columns_to_print`` parameters,
+respectively. The code below tells :func:`~stockpyl.sim_io.write_results` to print periods 3-8 and only the ``OQ``, ``IL``, and ``TC``
+columns:
+
+	.. testsetup:: *
+
+		from stockpyl.supply_chain_network import network_from_edges
+		from stockpyl.sim import simulation
+		from stockpyl.sim_io import write_results
+		network = network_from_edges(
+		    edges=[(3, 2), (3, 1), (4, 1)],
+		    node_order_in_lists=[1, 2, 3, 4],
+		    local_holding_cost=[2, 2, 1, 1],
+		    stockout_cost=[10, 10, 0, 0],
+		    order_lead_time=[0, 1, 0, 0],   
+		    shipment_lead_time=[2, 1, 0, 1],
+		    demand_type=['P', 'P', None, None],
+		    mean=[10, 10, None, None],
+		    policy_type=['BS', 'BS', 'BS', 'BS'],
+		    base_stock_level=[30, 25, 10, 10]
+		)
+		simulation(network=network, num_periods=10, rand_seed=40)
+		
+	.. doctest::
+
+		>>> write_results(
+		...	network=network, 
+		...	num_periods=10,
+		...	periods_to_print=list(range(3, 9)), 
+		...	columns_to_print=['OQ', 'IL', 'TC'],
+		...	print_cost_summary=False
+		...	)
+		  t  i=1      OQ:3    OQ:4    IL    TC  i=2      OQ:3    IL    TC  i=3      OQ:EXT    IL    TC  i=4      OQ:EXT    IL    TC
+		---  -----  ------  ------  ----  ----  -----  ------  ----  ----  -----  --------  ----  ----  -----  --------  ----  ----
+		  3              6       6    15    30             14    -2    20               19    10    38                6     4    19
+		  4             11      11    13    26             14    -3    30               25    10    41               11    -1    16
+		  5             11      11     8    16              9     2     4               25    10    46               11    -1    21
+		  6             10      10     8    17              8     8    16               19    10    40               10     0    22
+		  7             15      15     4     9              9     8    16               23    10    43               15    -5    21
+		  8             17      17    -2    20             12     4     8               26    10    51               17    -7    25
+
+Certain strings serve as shortcuts for groups of columns. (See the docstring for :func:`~stockpyl.sim_io.write_results` for a list
+of allowable strings.) Shortcuts and column names can be combined in one list:
+
+	.. testsetup:: *
+	
+		from stockpyl.sim_io import write_results
+
+	.. doctest::
+
+		>>> write_results(
+		...	network=network, 
+		...	num_periods=10,
+		...	periods_to_print=list(range(3, 9)), 
+		...	columns_to_print=['OQ', 'IL', 'costs'],
+		...	print_cost_summary=False
+		...	)
+		  t  i=1      OQ:3    OQ:4    IL    HC    SC    TC  i=2      OQ:3    IL    HC    SC    TC  i=3      OQ:EXT    IL    HC    SC    TC  i=4      OQ:EXT    IL    HC    SC    TC
+		---  -----  ------  ------  ----  ----  ----  ----  -----  ------  ----  ----  ----  ----  -----  --------  ----  ----  ----  ----  -----  --------  ----  ----  ----  ----
+		  3              6       6    15    30     0    30             14    -2     0    20    20               19    10    10     0    38                6     4     4     0    19
+		  4             11      11    13    26     0    26             14    -3     0    30    30               25    10    10     0    41               11    -1     0     0    16
+		  5             11      11     8    16     0    16              9     2     4     0     4               25    10    10     0    46               11    -1     0     0    21
+		  6             10      10     8    17     0    17              8     8    16     0    16               19    10    10     0    40               10     0     0     0    22
+		  7             15      15     4     9     0     9              9     8    16     0    16               23    10    10     0    43               15    -5     0     0    21
+		  8             17      17    -2     0    20    20             12     4     8     0     8               26    10    10     0    51               17    -7     0     0    25
+
+
 
 API Reference
 -------------
@@ -155,7 +224,7 @@ from stockpyl.disruption_process import DisruptionProcess
 
 def write_results(network, num_periods, periods_to_print=None, columns_to_print=None,
 				  print_cost_summary=True, write_csv=False, csv_filename=None):
-	"""
+	"""Write the results of a simulation to the console, as well as to a CSV file if requested.
 
 	Parameters
 	----------
@@ -172,9 +241,9 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		abbreviations given in the list above. Alternately, a string or a list of strings, which are shortcuts to
 		groups of columns; currently supported strings are:
 		
-			* 'basic': 'IO', 'OQ', 'IS', 'OS', 'IL'
-			* 'costs': 'HC', 'SC', 'TC'
-			* 'all': prints all columns (equivalent to setting ``columns_to_print=None``)
+			* ``'basic'``: ``'IO'``, ``'OQ'``, ``'IS'``, ``'OS'``, ``'IL'``
+			* ``'costs'``: ``'HC'``, ``'SC'``, ``'TC'``
+			* ``'all'``: prints all columns (equivalent to setting ``columns_to_print=None``)
 
 		Unrecognized strings are ignored. If omitted, will print all columns (the default). 
 	print_cost_summary : bool, optional

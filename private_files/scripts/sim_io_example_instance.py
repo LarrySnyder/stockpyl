@@ -25,3 +25,5 @@ write_results(
 	write_csv=True,
 	csv_filename='private_files/scripts/sim_io_example_instance.csv'
 )
+
+#write_results(network=network, num_periods=T, periods_to_print=list(range(3, 9)), columns_to_print=['OQ', 'IL', 'costs'])
