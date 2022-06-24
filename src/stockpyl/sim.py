@@ -443,8 +443,8 @@ def _initialize_next_period_state_vars(network, period):
 			n.state_vars[period+1].backorders_by_successor[s_index] = \
 				n.state_vars[period].backorders_by_successor[s_index]
 		for s_index in n.successor_indices(include_external=False):
-			n.state_vars[period+1].disrupted_items_by_successor[s_index] = \
-				n.state_vars[period].disrupted_items_by_successor[s_index]
+			n.state_vars[period+1].outbound_disrupted_items[s_index] = \
+				n.state_vars[period].outbound_disrupted_items[s_index]
 		for p_index in n.predecessor_indices(include_external=True):
 			n.state_vars[period+1].on_order_by_predecessor[p_index] = \
 				n.state_vars[period].on_order_by_predecessor[p_index]
@@ -473,7 +473,7 @@ def _calculate_period_costs(network, period):
 
 	for n in network.nodes:
 		# Finished goods holding cost.
-		items_held = max(0, n.state_vars[period].inventory_level) + n._get_attribute_total('disrupted_items_by_successor', period)
+		items_held = max(0, n.state_vars[period].inventory_level) + n._get_attribute_total('outbound_disrupted_items', period)
 		try:
 			n.state_vars[period].holding_cost_incurred = n.local_holding_cost_function(items_held)
 		except TypeError:
@@ -653,7 +653,6 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 	# index.) Also update EIL and BO, and calculate demand met from stock.
 	node.state_vars_current.demand_met_from_stock = 0.0
 	for s in node.successors(include_external=True):
-#	for s_index in node.successor_indices(include_external=True):
 		# Get successor index (for convenience).
 		s_index = None if s is None else s.index
 
@@ -668,30 +667,30 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 			OS = 0
 			# New outbound disrupted items = the items that would have been shipped out, if 
 			# there were no disruption.
-			DI = ready_to_ship
-			# Decompose DI into new demands that are now disrupted items and previously backordered items 
+			ODI = ready_to_ship
+			# Decompose ODI into new demands that are now disrupted items and previously backordered items 
 			# that are now disrupted items. Assumes backorders are handled first, then new demands.
 			BO_to_DI = min(ready_to_ship, node.state_vars_current.backorders_by_successor[s_index])
-			ND_to_DI = DI - BO_to_DI
+			ND_to_DI = ODI - BO_to_DI
 		else:
-			# No: Outbound shipment to s = ready_to_ship + DI for s.
-			OS = ready_to_ship + node.state_vars_current.disrupted_items_by_successor[s_index]
+			# No: Outbound shipment to s = ready_to_ship + ODI for s.
+			OS = ready_to_ship + node.state_vars_current.outbound_disrupted_items[s_index]
 			# No new disrupted items.
-			DI = 0
+			ODI = 0
 			BO_to_DI = 0
 			ND_to_DI = 0
 
 		# How much of outbound shipment was used for previously disrupted items and to clear backorders?
 		# (Assumes disrupted items are cleared first, then backorders, before satisfying current period's
 		# demands.)
-		DI_OS = min(OS, node.state_vars_current.disrupted_items_by_successor[s_index])
+		DI_OS = min(OS, node.state_vars_current.outbound_disrupted_items[s_index])
 		BO_OS = min(OS - DI_OS, node.state_vars_current.backorders_by_successor[s_index])
 		non_BO_DI_OS = OS - BO_OS - DI_OS
 
 		# Update outbound_shipment and current_on_hand. (Outbound items that were previously disrupted
 		# do not get subtracted from current_on_hand because they were not included in it to begin with.)
 		node.state_vars_current.outbound_shipment[s_index] = OS
-		current_on_hand -= (OS - DI_OS + DI)
+		current_on_hand -= (OS - DI_OS + ODI)
 
 		# Calculate demand met from stock. (Note: This assumes that if there
 		# are backorders, they get priority over current period's demands.)
@@ -709,7 +708,7 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 
 		# Update disrupted_items.
 		if s is not None:
-			node.state_vars_current.disrupted_items_by_successor[s_index] += DI - DI_OS
+			node.state_vars_current.outbound_disrupted_items[s_index] += ODI - DI_OS
 
 
 def _calculate_fill_rate(node, period):

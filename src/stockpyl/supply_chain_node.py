@@ -678,7 +678,7 @@ class SupplyChainNode(object):
 		"""Return total of ``attribute`` in the node's ``state_vars`` for the period specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
 		``inbound_shipment``,`` on_order_by_predecessor``, ``inbound_order``, ``outbound_shipment``, 
-		``backorders_by_successor``, ``disrupted_items_by_successor``, ``inbound_disrupted_items``. 
+		``backorders_by_successor``, ``outbound_disrupted_items``, ``inbound_disrupted_items``. 
 		(If another attribute is specified, returns the value of the
 		attribute, without any summation.)
 
@@ -715,7 +715,7 @@ class SupplyChainNode(object):
 			else:
 				return np.sum([self.state_vars[period].__dict__[attribute][p_index]
 							   for p_index in self.predecessor_indices(include_external=True)])
-		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor', 'disrupted_items_by_successor'):
+		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor', 'outbound_disrupted_items'):
 			# These attributes are indexed by successor.
 			if period is None:
 				return np.sum([self.state_vars[t].__dict__[attribute][s_index]
@@ -791,12 +791,12 @@ class NodeStateVars(object):
 	backorders_by_successor : dict
 		``backorders_by_successor[s]`` = number of backorders for successor
 		``s``. If ``s`` is ``None``, refers to external demand.
-	disrupted_items_by_successor : dict
-		``disrupted_items_by_successor[s]`` = number of items held for successor ``s``
+	outbound_disrupted_items : dict
+		``outbound_disrupted_items[s]`` = number of items held for successor ``s``
 		due to a type-SP disruption at ``s``. (Since external demand cannot be
-		disrupted, ``disrupted_items_by_successor[None]`` always = 0.) Items held for successor
+		disrupted, ``outbound_disrupted_items[None]`` always = 0.) Items held for successor
 		are not included in ``backorders_by_successor``.
-		Sum over all successors of ``backorders_by_successor + disrupted_items_by_successor``
+		Sum over all successors of ``backorders_by_successor + outbound_disrupted_items``
 		should always equal max{0, -``inventory_level``}. 
 	inbound_disrupted_items : dict
 		``inbound_disrupted_items[p]`` = number of items from predecessor ``p`` that are
@@ -871,7 +871,7 @@ class NodeStateVars(object):
 			self.outbound_shipment = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.on_order_by_predecessor = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.backorders_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
-			self.disrupted_items_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
+			self.outbound_disrupted_items = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.inbound_disrupted_items = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.order_quantity = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.raw_material_inventory = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
@@ -886,7 +886,7 @@ class NodeStateVars(object):
 			self.outbound_shipment = {}
 			self.on_order_by_predecessor = {}
 			self.backorders_by_successor = {}
-			self.disrupted_items_by_successor = {}
+			self.outbound_disrupted_items = {}
 			self.inbound_disrupted_items = {}
 			self.order_quantity = {}
 			self.raw_material_inventory = {}
@@ -921,7 +921,7 @@ class NodeStateVars(object):
 	@property
 	def backorders(self):
 		"""Current number of backorders. Should always equal sum over all successors ``s``
-		of ``backorders_by_successor[s]`` + ``disrupted_items_by_successor[s]``.  Read only.
+		of ``backorders_by_successor[s]`` + ``outbound_disrupted_items[s]``.  Read only.
 		"""
 		return max(0, -self.inventory_level)
 
@@ -1155,4 +1155,4 @@ class NodeStateVars(object):
 			change_dict_key(self.inbound_order, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.outbound_shipment, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.backorders_by_successor, s.index, old_to_new_dict[s.index])
-			change_dict_key(self.disrupted_items_by_successor, s.index, old_to_new_dict[s.index])
+			change_dict_key(self.outbound_disrupted_items, s.index, old_to_new_dict[s.index])

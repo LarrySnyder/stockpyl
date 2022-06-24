@@ -356,8 +356,8 @@ Next, type-SP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'DI'], print_cost_summary=False)
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    DI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    DI:EXT
+	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'], print_cost_summary=False)
+	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL   ODI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL   ODI:EXT
 	---  -----  ------  ------  --------  --------  ------  ----  ------  -----  ------  --------  ------  ------  --------  ----  --------
 	  7         False       19        19        14      19     6       0         False         19      19      14        19     6         0
 	  8         False       20        20        19      20     5       0         False         20      20      19        20     5         0
@@ -370,7 +370,7 @@ Next, type-SP disruptions:
 	 15         False       21        21        20      21     4       0         False         21      21      20        21     4         0
 
 In this case, node 2 can still place orders during the disruption, but node 1 cannot ship them. Instead, the items are moved to
-node 1's "disrupted items" category (``DI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
+node 1's "outbound disrupted items" category (``ODI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
 
 Next, type-TP disruptions:
 
@@ -378,7 +378,7 @@ Next, type-TP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'DI'], print_cost_summary=False)
+	>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'], print_cost_summary=False)
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
 	---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
 	  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6

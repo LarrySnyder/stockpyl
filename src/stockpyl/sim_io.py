@@ -39,7 +39,7 @@ The table has the following format:
 		- ``FR``: fill rate; cumulative from start of simulation to the current period
 		- ``IL``: inventory level (positive, negative, or zero) at node
 		- ``BO:s``: backorders owed to successor ``s``
-		- ``DI:s``: disrupted items: number of items held for successor ``s`` due to
+		- ``ODI:s``: outbound disrupted items: number of items held for successor ``s`` due to
 		  a type-SP disruption at ``s``
 		- ``HC``: holding cost incurred at the node in the period
 		- ``SC``: stockout cost incurred at the node in the period
@@ -229,7 +229,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Determine columns to print.
 	if columns_to_print is None or columns_to_print == 'all':
-		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
 	elif is_list(columns_to_print):
 		cols_to_print = columns_to_print
 	elif columns_to_print == 'minimal':
@@ -266,7 +266,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			if 'FR'		in cols_to_print: temp += [node.state_vars[t].fill_rate]
 			if 'IL'		in cols_to_print: temp += [node.state_vars[t].inventory_level]
 			if 'BO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].backorders_by_successor) 
-			if 'DI'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].disrupted_items_by_successor) 
+			if 'ODI'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_disrupted_items) 
 			if 'HC'		in cols_to_print: temp += [node.state_vars[t].holding_cost_incurred]
 			if 'SC'		in cols_to_print: temp += [node.state_vars[t].stockout_cost_incurred]
 			if 'ITHC'	in cols_to_print: temp += [node.state_vars[t].in_transit_holding_cost_incurred]
@@ -295,7 +295,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		if 'FR'		in cols_to_print: headers += ["FR"]
 		if 'IL'		in cols_to_print: headers += ["IL"]
 		if 'BO' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
-		if 'DI' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].disrupted_items_by_successor , "DI")
+		if 'ODI' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].outbound_disrupted_items , "ODI")
 		if 'HC'		in cols_to_print: headers += ["HC"]
 		if 'SC'		in cols_to_print: headers += ["SC"]
 		if 'ITHC'	in cols_to_print: headers += ["ITHC"]
