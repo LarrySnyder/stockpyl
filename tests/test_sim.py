@@ -1,8 +1,10 @@
 import unittest
 import random
+import filecmp
 
 from stockpyl.instances import *
 from stockpyl.sim import *
+from stockpyl.sim_io import write_results
 from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
 from stockpyl.policy import *
 from stockpyl.disruption_process import DisruptionProcess
@@ -263,6 +265,204 @@ class TestSimulation(unittest.TestCase):
 
 		with self.assertRaises(ValueError):
 			simulation(instance, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+
+class TestSimulationWithDisruptions(unittest.TestCase):
+	"""Test simulation results for simulation with disruptions.
+	"""
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSimulationWithDisruptions', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSimulationWithDisruptions', 'tear_down_class()')
+
+	def test_example_6_1_OP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-OP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_OP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='OP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_OP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_OP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
+
+				os.remove(test_filename)
+
+	def test_example_6_1_SP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-SP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_SP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='SP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_SP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_SP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
+
+				os.remove(test_filename)
+
+	def test_example_6_1_TP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-TP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_TP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='TP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_TP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_TP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
+
+				os.remove(test_filename)
+
+	def test_example_6_1_RP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-RP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_RP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='RP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_RP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_RP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
+
+				os.remove(test_filename)
 
 
 class TestSerialEchelonVsLocal(unittest.TestCase):

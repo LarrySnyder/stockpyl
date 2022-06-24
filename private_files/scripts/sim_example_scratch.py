@@ -56,15 +56,16 @@ from stockpyl.disruption_process import DisruptionProcess
 # print(f"Total cost per period = {total_cost / T}")
 #write_results(network=network, num_periods=100, print_cost_summary=False)
 
-network = serial_system(
-	num_nodes=2,
-	node_order_in_system=[1, 2],
-	shipment_lead_time=1,
-	demand_type='P',
-	mean=20,
-	policy_type='BS',
-	base_stock_level=[25, 25]
-)
+# network = serial_system(
+# 	num_nodes=2,
+# 	node_order_in_system=[1, 2],
+# 	shipment_lead_time=1,
+# 	demand_type='P',
+# 	mean=20,
+# 	policy_type='BS',
+# 	base_stock_level=[25, 25]
+# )
+network = load_instance("example_6_1")
 network.get_node_from_index(2).disruption_process = DisruptionProcess(
 	random_process_type='M',
 	disruption_type='RP',
@@ -73,4 +74,5 @@ network.get_node_from_index(2).disruption_process = DisruptionProcess(
 )
 T = 100
 _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL'], print_cost_summary=False)
+#write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL'], print_cost_summary=False)
+write_results(network=network, num_periods=T, print_cost_summary=False, write_csv=True, csv_filename='tests/additional_files/test_sim_disruption_example_6_1_RP.csv')
