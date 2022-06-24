@@ -265,6 +265,44 @@ class TestSimulation(unittest.TestCase):
 			simulation(instance, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 
+class TestSimulationWithDisruptions(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSimulationWithDisruptions', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSimulationWithDisruptions', 'tear_down_class()')
+
+	def test_example_6_1_OP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-OP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_OP()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
+		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
+
+		# Compare a few performance measures.
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 4.8883, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -1.08737, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 4.30582, places=4)
+		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[2], 6.97664, places=4)
+		self.assertAlmostEqual(network.nodes[2].state_vars[31].backorders_by_successor[1], 0.148957, places=4)
+		self.assertAlmostEqual(network.nodes[2].state_vars[89].inventory_level, 0.0443519, places=4)
+
+
 class TestSerialEchelonVsLocal(unittest.TestCase):
 	"""Test that simulation results agree for a serial system when run using
 	echelon vs. local base-stock policies.
