@@ -30,6 +30,8 @@ The table has the following format:
 		- ``ISPL:p``: inbound shipment pipeline from predecessor ``p``: a list of
 		  shipment quantities arriving from predecessor ``p`` in ``r`` periods from
 		  the period, for ``r`` = 1, ..., ``shipment_lead_time``
+		- ``IDI:p``: inbound disrupted items: number of items from predecessor ``p``
+		  that cannot be received due to a type-RP disruption at the node
 		- ``RM:p``: number of items from predecessor ``p`` in raw-material inventory
 		  at node
 		- ``OS:s``: outbound shipment to successor ``s``
@@ -227,7 +229,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Determine columns to print.
 	if columns_to_print is None or columns_to_print == 'all':
-		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
 	elif is_list(columns_to_print):
 		cols_to_print = columns_to_print
 	elif columns_to_print == 'minimal':
@@ -257,6 +259,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			if 'OO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) 
 			if 'IS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_shipment) 
 			if 'ISPL'	in cols_to_print: temp += ISPL
+			if 'IDI'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_disrupted_items) 
 			if 'RM'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].raw_material_inventory) 
 			if 'OS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_shipment) 
 			if 'DMFS'	in cols_to_print: temp += [node.state_vars[t].demand_met_from_stock]
@@ -285,6 +288,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		if 'OO' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
 		if 'IS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
 		if 'ISPL' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
+		if 'IDI' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_disrupted_items, "IDI")
 		if 'RM' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
 		if 'OS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
 		if 'DMFS' 	in cols_to_print: headers += ["DMFS"]

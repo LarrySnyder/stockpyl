@@ -298,13 +298,32 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
 
 		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_OP.csv'
-		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True, csv_filename=test_filename)
 
 		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_OP.csv'
 
 		with open(test_filename) as test_csv:
 			with open(cmp_filename) as cmp_csv:
-				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
 
 				os.remove(test_filename)
 
@@ -326,13 +345,32 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
 
 		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_SP.csv'
-		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True, csv_filename=test_filename)
 
 		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_SP.csv'
 
 		with open(test_filename) as test_csv:
 			with open(cmp_filename) as cmp_csv:
-				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
 
 				os.remove(test_filename)
 
@@ -354,13 +392,32 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
 
 		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_TP.csv'
-		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True, csv_filename=test_filename)
 
 		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_TP.csv'
 
 		with open(test_filename) as test_csv:
 			with open(cmp_filename) as cmp_csv:
-				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
 
 				os.remove(test_filename)
 
@@ -382,16 +439,34 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
 
 		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_RP.csv'
-		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'DI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True, csv_filename=test_filename)
 
 		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_RP.csv'
 
 		with open(test_filename) as test_csv:
 			with open(cmp_filename) as cmp_csv:
-				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+				test_reader = csv.reader(test_csv)
+				test_rows = list(test_reader)
+				cmp_reader = csv.reader(cmp_csv)
+				cmp_rows = list(cmp_reader)
+
+				self.assertEqual(len(test_rows), len(cmp_rows))
+				for r in range(len(test_rows)):
+					for c in range(len(test_rows[r])):
+						try:
+							# Everything in the CSV is a string, so convert what we can to floats.
+							test_val = float(test_rows[r][c])
+						except ValueError:
+							test_val = test_rows[r][c]
+						try:
+							cmp_val = float(cmp_rows[r][c])
+							self.assertAlmostEqual(test_val, cmp_val)
+						except ValueError:
+							cmp_val = cmp_rows[r][c]
+							self.assertEqual(test_val, cmp_val)
 
 				os.remove(test_filename)
-
 
 
 class TestSerialEchelonVsLocal(unittest.TestCase):

@@ -678,7 +678,7 @@ class SupplyChainNode(object):
 		"""Return total of ``attribute`` in the node's ``state_vars`` for the period specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
 		``inbound_shipment``,`` on_order_by_predecessor``, ``inbound_order``, ``outbound_shipment``, 
-		``backorders_by_successor``, ``disrupted_items_by_successor``. 
+		``backorders_by_successor``, ``disrupted_items_by_successor``, ``inbound_disrupted_items``. 
 		(If another attribute is specified, returns the value of the
 		attribute, without any summation.)
 
@@ -706,7 +706,7 @@ class SupplyChainNode(object):
 			The total value of the attribute.
 
 		"""
-		if attribute in ('inbound_shipment', 'on_order_by_predecessor', 'raw_material_inventory'):
+		if attribute in ('inbound_shipment', 'on_order_by_predecessor', 'raw_material_inventory', 'inbound_disrupted_items'):
 			# These attributes are indexed by predecessor.
 			if period is None:
 				return np.sum([self.state_vars[t].__dict__[attribute][p_index]
@@ -798,6 +798,9 @@ class NodeStateVars(object):
 		are not included in ``backorders_by_successor``.
 		Sum over all successors of ``backorders_by_successor + disrupted_items_by_successor``
 		should always equal max{0, -``inventory_level``}. 
+	inbound_disrupted_items : dict
+		``inbound_disrupted_items[p]`` = number of items from predecessor ``p`` that are
+		being held before receipt due to a type-RP disruption at the node. 
 	raw_material_inventory : dict
 		``raw_material_inventory[p]`` = number of units of predecessor ``p``'s
 		product in raw-material inventory at node. If ``p`` is ``None``, refers
@@ -869,6 +872,7 @@ class NodeStateVars(object):
 			self.on_order_by_predecessor = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.backorders_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.disrupted_items_by_successor = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
+			self.inbound_disrupted_items = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.order_quantity = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 			self.raw_material_inventory = {p_index: 0 for p_index in self.node.predecessor_indices(include_external=True)}
 
@@ -883,6 +887,7 @@ class NodeStateVars(object):
 			self.on_order_by_predecessor = {}
 			self.backorders_by_successor = {}
 			self.disrupted_items_by_successor = {}
+			self.inbound_disrupted_items = {}
 			self.order_quantity = {}
 			self.raw_material_inventory = {}
 
@@ -1142,6 +1147,7 @@ class NodeStateVars(object):
 			change_dict_key(self.on_order_by_predecessor, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.raw_material_inventory, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.order_quantity, p.index, old_to_new_dict[p.index])
+			change_dict_key(self.inbound_disrupted_items, p.index, old_to_new_dict[p.index])
 
 		# State variables indexed by successor.
 		for s in self.node.successors(include_external=False):
