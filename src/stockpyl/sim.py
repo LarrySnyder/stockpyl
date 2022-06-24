@@ -11,6 +11,12 @@ Code for simulating multi-echelon inventory systems.
 The primary data object is the |class_network| and the |class_node| objects
 that it contains, which contains all of the data for the simulation instance.
 
+.. admonition:: See Also
+
+	For an overview of simulation in |sp|,
+	see the "Overview" page for :ref:`simulation<overview_sim_page>`.
+
+	
 API Reference
 -------------
 
@@ -767,10 +773,10 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 	"""Run ``num_trials`` trials of the simulation, each with  ``num_periods``
 	periods. Return mean and SEM of average cost.
 
-	(To build alpha-confidence interval, use
-	``mean_cost`` +/- z_{1-alpha/2} * ``sem_cost``.)
+	(To build :math:`\\alpha`-confidence interval, use
+	``mean_cost`` :math:`\\pm z_{1-(1-\\alpha)/2} \\times` ``sem_cost``.)
 
-	Note: After trials, ``network`` will contain performance measures for the
+	Note: After trials, ``network`` will contain state variables for the
 	most recent trial.
 
 	Parameters

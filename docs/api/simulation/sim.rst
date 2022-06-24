@@ -3,3 +3,4 @@
 
 .. automodule:: stockpyl.sim
     :members:
+

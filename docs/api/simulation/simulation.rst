@@ -1,3 +1,5 @@
+.. include:: ../../globals.inc
+	
 Simulation
 =====================================
 
@@ -9,3 +11,9 @@ Simulation
 
 	sim
 	sim_io
+
+
+.. admonition:: See Also
+
+	For an overview of simulation in |sp|,
+	see the "Overview" page for :ref:`simulation<overview_sim_page>`.

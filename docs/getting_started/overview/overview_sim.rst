@@ -19,8 +19,12 @@ can include many different features, including:
 
 |fosct_notation|
 
+.. admonition:: See Also
+
+	For more details, see the API documentation for the |mod_sim| and |mod_sim_io| modules.
+
 .. contents::
-    :depth: 2
+    :depth: 3
 
 Basic Example
 -------------
@@ -59,7 +63,8 @@ Interpreting the results:
 	* A backorder occurs in period 3, because the node begins the period with an inventory level of 2, and receives a demand of 14, but
 	  only receives a shipment of 11.
 
-(In the column headers, ``EXT`` refers to the external supplier and customer.)
+(In the column headers, ``EXT`` refers to the external supplier and customer. For more details about the columns in the
+output produced by :func:`~stockpyl.sim_io.write_results`, see the API documentation for the |mod_sim_io| module.)
 
 .. note:: :func:`~stockpyl.sim.simulation` fills the state variables—the results of the simulation—
 	directly into the |class_network| object that is passed in the ``network`` parameter. This object
@@ -456,17 +461,111 @@ in |sp|. Note that the average cost per period reported by the simulation is clo
 Holding and Stockout Cost Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-asdfasdf
+As an alternative to using linear holding and stockout cost functions using coefficients that you provide,
+|sp| allows you to provide arbitrary functions that are used to calculate the holding and stockout costs
+based on the current inventory level. The functions can be standalone functions or lambda functions. 
+
+**Example:** Simulate a single-stage system with Poisson(15) demand, a base-stock level of 17, and
+holding and stockout cost functions given by
+
+.. math::
+
+	h(x) = 0.5(x^+)^2 
+
+	p(x) = 10\sqrt{x^+},
+
+where :math:`a^+ \equiv \max\{a,0\}` and :math:`x` is the inventory level (so :math:`x^+` is the on-hand inventory
+and :math:`(-x)^+` is the backorders).
+
+.. doctest::
+
+	>>> from stockpyl.supply_chain_network import single_stage_system
+	>>> from stockpyl.sim import simulation
+	>>> from stockpyl.sim_io import write_results
+	>>> import math
+	>>> def holding_cost(x):
+	...	return 0.5 * max(x, 0)**2
+	>>> network = single_stage_system(
+	...	local_holding_cost_function=holding_cost,
+	...	stockout_cost_function=lambda x: 10 * math.sqrt(max(-x, 0)),
+	...	demand_type='P',	
+	...	mean=15,
+	...	policy_type='BS',		
+	...	base_stock_level=17,
+	...	lead_time=1
+	...	)
+	>>> T = 100
+	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print='costs', print_cost_summary=False)
+	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL    HC       SC       TC
+	---  -----  --------  --------  --------  --------  ----  ----  -------  -------
+	  0               18        18         0        17    -1   0    10       10
+	  1               10        10        18        11     7  24.5   0       24.5
+	  2               16        16        10        16     1   0.5   0        0.5
+	  3               19        19        16        17    -2   0    14.1421  14.1421
+	  4               11        11        19        13     6  18     0       18
+	  5               13        13        11        13     4   8     0        8
+
+
+
+
 
 Running Multiple Trials
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+The :func:`~stockpyl.sim.run_multiple_trials` function will run the simulation multiple for multiple trials. For each trial,
+the function calculates the average cost per period; it then returns the mean and standard error of the mean (SEM) 
+of the average costs. An :math:`\\alpha`-confidence interval can be constructed using
+``mean_cost`` :math:`\\pm z_{1-(1-\\alpha)/2} \\times` ``sem_cost``.
+This is useful for, e.g., comparing two systems to see whether their costs are statistically different
+according to the simulation.
 
+**Example:** Optimize the serial system in Example 6.1 of |fosct| using both the exact algorithm by Chen and Zheng (1994) and
+the newsvendor heuristic by Shang and Song (2003). Simulate both solutions for 10 trials, 1000 periods per trial, and
+determine whether the heuristic solution is statistically worse than the optimal solution.
 
+.. doctest::
+
+	>>> from stockpyl.ssm_serial import optimize_base_stock_levels, newsvendor_heuristic
+	>>> from stockpyl.supply_chain_network import echelon_to_local_base_stock_levels
+	>>> from stockpyl.sim import run_multiple_trials
+	>>> from stockpyl.instances import load_instance
+	>>> # Load network.
+	>>> network = load_instance("example_6_1")
+	>>> # Set base-stock levels according to optimal solution.
+	>>> S_opt, _ = optimize_base_stock_levels(network=network)
+	>>> S_opt_local = echelon_to_local_base_stock_levels(network, S_opt)
+	>>> for n in network.nodes:
+	...	n.inventory_policy.base_stock_level = S_opt_local[n.index]
+	>>> mean_opt, sem_opt = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
+	>>> print(f"Optimal solution has simulated average cost per period with mean {mean_opt} and SEM {sem_opt}")
+	Optimal solution has simulated average cost per period with mean 47.78528000921442 and SEM 0.26119040852187103
+	>>> # Set base-stock levels according to heuristic solution.
+	>>> S_heur = newsvendor_heuristic(network=network)
+	>>> S_heur_local = echelon_to_local_base_stock_levels(network, S_heur)
+	>>> for n in network.nodes:
+	...	n.inventory_policy.base_stock_level = S_heur_local[n.index]
+	>>> mean_heur, sem_heur = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
+	>>> print(f"Heuristic solution has simulated average cost per period with mean {mean_heur} and SEM {sem_heur}")
+	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.27039814681794694
+	>>> ## Calculate confidence intervals.
+	>>> from scipy.stats import norm
+	>>> z = norm.ppf(1 - (1 - 0.95)/2)
+	>>> lo_opt, hi_opt = mean_opt - z * sem_opt, mean_opt + z * sem_opt
+	>>> lo_heur, hi_heur = mean_heur - z * sem_heur, mean_heur + z * sem_heur
+	>>> print(f"Optimal solution CI = [{lo_opt}, {hi_opt}], heuristic solution CI = [{lo_heur}, {hi_heur}]")
+	Optimal solution CI = [47.27335621540425, 48.29720380302459], heuristic solution CI = [47.2591674214654, 48.31910867996449]
+
+Because the two confidence intervals overlap, we cannot say that the two solutions have statistically different
+average costs. (Of course, the theory tells us that the true expected costs for the two solutions are different.)
 
 
 References
 ----------
+
+F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory systems. *Management Science*, 40(11):1426–1443, 1994.
+
+K. H. Shang and J.-S. Song. Newsvendor bounds and heuristic for optimal policies in serial supply chains. *Management Science*, 49(5):618-638, 2003.
 
 P. H. Zipkin, *Foundations of Inventory Management*, Irwin/McGraw-Hill (2000).
 
