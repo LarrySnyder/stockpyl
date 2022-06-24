@@ -1,8 +1,10 @@
 import unittest
 import random
+import filecmp
 
 from stockpyl.instances import *
 from stockpyl.sim import *
+from stockpyl.sim_io import write_results
 from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
 from stockpyl.policy import *
 from stockpyl.disruption_process import DisruptionProcess
@@ -266,6 +268,8 @@ class TestSimulation(unittest.TestCase):
 
 
 class TestSimulationWithDisruptions(unittest.TestCase):
+	"""Test simulation results for simulation with disruptions.
+	"""
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
@@ -284,23 +288,110 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
-		# changes in code changed the default initial IL.)
-		for node in network.nodes:
-			node.initial_inventory_level = 0
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='OP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
 
-		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
 
-		# Compare total cost.
-		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_OP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
 
-		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 4.8883, places=4)
-		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -1.08737, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 4.30582, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[2], 6.97664, places=4)
-		self.assertAlmostEqual(network.nodes[2].state_vars[31].backorders_by_successor[1], 0.148957, places=4)
-		self.assertAlmostEqual(network.nodes[2].state_vars[89].inventory_level, 0.0443519, places=4)
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_OP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+
+				os.remove(test_filename)
+
+	def test_example_6_1_SP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-SP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_SP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='SP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_SP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_SP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+
+				os.remove(test_filename)
+
+	def test_example_6_1_TP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-TP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_TP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='TP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_TP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_TP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+
+				os.remove(test_filename)
+
+	def test_example_6_1_RP(self):
+		"""Test that simulation() function correctly simulates model from
+		Example 6.1 with type-RP disruptions.
+		"""
+		print_status('TestSimulationWithDisruptions', 'test_example_6_1_RP()')
+
+		network = load_instance("example_6_1")
+
+		network.get_node_from_index(2).disruption_process = DisruptionProcess(
+			random_process_type='M',
+			disruption_type='RP',
+			disruption_probability=0.1,
+			recovery_probability=0.4
+		)
+
+		_ = simulation(network, 100, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_RP.csv'
+		write_results(network=network, num_periods=100, write_csv=True, csv_filename=test_filename)
+
+		cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_RP.csv'
+
+		with open(test_filename) as test_csv:
+			with open(cmp_filename) as cmp_csv:
+				self.assertTrue(filecmp.cmp(test_filename, cmp_filename, shallow=False))
+
+				os.remove(test_filename)
+
 
 
 class TestSerialEchelonVsLocal(unittest.TestCase):
