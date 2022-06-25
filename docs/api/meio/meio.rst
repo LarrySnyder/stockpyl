@@ -18,4 +18,4 @@ Multi-Echelon Inventory Optimization
 .. admonition:: See Also
 
 	For an overview of multi-echelon inventory optimization (MEIO) in |sp|,
-	see the "Overview" page for :ref:`multi-echelon inventory optimization (MEIO) <overview_meio_page>`.
+	see the :ref:`tutorial page for multi-echelon inventory optimization (MEIO) <tutorial_meio_page>`.

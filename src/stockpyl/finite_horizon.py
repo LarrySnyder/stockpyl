@@ -17,40 +17,11 @@ inventory optimization problems, with or without fixed costs, using dynamic prog
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
 
+	For an overview of single-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
 
-If the fixed costs are 0, then a base-stock policy is optimal and the results of the demand_pmf
-indicate the optimal base-stock levels, i.e., order-up-to levels (:math:`S`) in each time period:
-
-.. doctest::
-
-	>>> from stockpyl.finite_horizon import finite_horizon_dp
-	>>> T = 5
-	>>> h = 1
-	>>> p = 20
-	>>> h_terminal = 1
-	>>> p_terminal = 20
-	>>> c = 2
-	>>> K = 0
-	>>> mu = 100
-	>>> sigma = 20
-	>>> s, S, cost, _, _, _ = finite_horizon_dp(T, h, p, h_terminal, p_terminal, c, K, mu, sigma)
-	>>> S # Order-up-to levels
-	[0, 133.0, 133.0, 133.0, 133.0, 126.0]
-	>>> s # Reorder points equal order-up-to levels in a base-stock policy
-	[0, 133, 133, 133, 133, 126]
-
-If the fixed costs are non-zero, then an |ss| policy is optimal, and the results
-give both the reorder points (:math:`s`) and the order-up-to levels (:math:`S`)
-
-.. doctest::
-
-    >>> K = 50
-    >>> s, S, cost, _, _, _ = finite_horizon_dp(T, h, p, h_terminal, p_terminal, c, K, mu, sigma)
-    >>> s # Reorder points
-    [0, 110, 110, 110, 110, 111]
-    >>> S # Order-up-to levels
-    [0, 133.0, 133.0, 133.0, 133.0, 126.0]
 
 API Reference
 -------------
@@ -58,9 +29,7 @@ API Reference
 
 import numpy as np
 from scipy.stats import norm
-#from scipy.optimize import brentq
 import warnings
-from tabulate import tabulate
 
 from stockpyl.helpers import *
 from stockpyl.newsvendor import *

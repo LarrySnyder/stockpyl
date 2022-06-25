@@ -16,4 +16,4 @@ Simulation
 .. admonition:: See Also
 
 	For an overview of simulation in |sp|,
-	see the "Overview" page for :ref:`simulation<overview_sim_page>`.
+	see the :ref:`tutorial page for simulation<tutorial_sim_page>`.

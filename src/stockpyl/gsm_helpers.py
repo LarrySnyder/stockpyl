@@ -12,12 +12,28 @@
 Overview 
 --------
 
-Helper code for dynamic programming (DP) algorithm for guaranteed-service model (GSM)
-for multi-echelon inventory systems with tree structures by Graves and Willems (2000).
+The |mod_gsm_helpers| module contains helper code for the dynamic programming (DP) algorithm 
+to solve the guaranteed-service model (GSM) for multi-echelon inventory systems with tree structures 
+by Graves and Willems (2000, 2003), which is implemented in the |mod_gsm_tree| module.
 
 .. note:: |node_stage|
 
 .. note:: |fosct_notation|
+
+.. admonition:: See Also
+
+	For an overview of multi-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
+
+
+References
+----------
+S. C. Graves and S. P. Willems. Optimizing strategic safety stock placement in supply chains. 
+*Manufacturing and Service Operations Management*, 2(1):68-83, 2000.
+
+S. C. Graves and S. P. Willems. Erratum: Optimizing strategic safety stock placement in supply chains. 
+*Manufacturing and Service Operations Management*, 5(2):176-177, 2003.
+
 
 API Reference
 -------------

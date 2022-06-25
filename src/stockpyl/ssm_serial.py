@@ -23,84 +23,19 @@ function (which implements the newsvendor heuristic by Shang and Song (1996)).
 .. note:: |fosct_notation|
 
 
+.. admonition:: See Also
 
-For either type of optimization (exact or heuristic), you may pass the instance data as individual parameters (costs, demand distribution, etc.) 
-or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as individual parameters:
+	For an overview of multi-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
 
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
-		>>> S_star, C_star = optimize_base_stock_levels(
-		... 	num_nodes=3, 
-		... 	echelon_holding_cost=[2, 2, 3], 
-		... 	lead_time=[2, 1, 1], 
-		... 	stockout_cost=37.12, 
-		... 	demand_mean=5, 
-		... 	demand_standard_deviation=1
-		...	)
-		>>> S_star
-		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
-		>>> C_star
-		47.668653127136345
-
-Here is the same example, first building a |class_network| and then passing that instead:
-
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
-		>>> from stockpyl.supply_chain_network import serial_system
-		>>> example_6_1_network = serial_system(
-		...     num_nodes=3,
-		...     node_order_in_system=[3, 2, 1],
-		...     echelon_holding_cost={1: 3, 2: 2, 3: 2},
-		...     shipment_lead_time={1: 1, 2: 1, 3: 2},
-		...     stockout_cost={1: 37.12, 2: 0, 3: 0},
-		...     demand_type='N',
-		...     mean=5,
-		...     standard_deviation=1,
-		...     policy_type='BS'
-		... )
-		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
-		>>> S_star
-		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
-		>>> C_star
-		47.668653127136345
-
-Example 6.1 is also a built-in instance in |sp|, so you can load it directly:
-
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.ssm_serial import optimize_base_stock_levels
-		>>> from stockpyl.instances import load_instance
-		>>> example_6_1_network = load_instance("example_6_1")
-		>>> S_star, C_star = optimize_base_stock_levels(network=example_6_1_network)
-		>>> S_star
-		{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
-		>>> C_star
-		47.668653127136345
-
-To solve the instance using the newsvendor heuristic:
-
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.ssm_serial import newsvendor_heuristic
-		>>> S_heur = newsvendor_heuristic(network=example_6_1_network)
-		>>> S_heur
-		{3: 22.634032391786285, 2: 12.027434723327854, 1: 6.490880975286938}
-		>>> # Evaluate the (exact) expected cost of the heuristic solution.
-		>>> from stockpyl.ssm_serial import expected_cost
-		>>> expected_cost(S_heur, network=example_6_1_network)
-		47.680099140842174
 
 References
 ----------
 F. Chen and Y. S. Zheng. Lower bounds for multiechelon stochastic inventory systems. *Management Science*, 40(11):1426–1443, 1994.
 
 A. J. Clark and H. Scarf. Optimal policies for a multiechelon inventory problem. *Management Science*, 6(4):475–490, 1960.
+
+K. H. Shang and J.-S. Song. Newsvendor bounds and heuristic for optimal policies in serial supply chains. *Management Science*, 49(5):618-638, 2003.
 
 
 API Reference

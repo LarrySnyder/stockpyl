@@ -16,43 +16,11 @@ The |mod_ss| module contains code for solving the |ss| optimization problem.
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
 
+	For an overview of single-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
 
-The exact problem with Poisson (or other discrete) demands can be solved using 
-the :func:`stockpyl.ss.s_s_discrete_exact` function, which implements Zheng and Federgruen's (1991)
-algorithm:
-
-.. doctest::
-    
-	>>> from stockpyl.ss import s_s_discrete_exact
-	>>> h = 1
-	>>> p = 4
-	>>> K = 5
-	>>> demand_mean = 6
-	>>> r, Q, cost = s_s_discrete_exact(h, p, K, use_poisson=True, demand_mean=demand_mean)
-	>>> r
-	4.0
-	>>> Q
-	10.0
-	>>> cost
-	8.034111561471642
-
-The :func:`stockpyl.ss.s_s_power_approximation` function implements the power approximation
-for normal demands by Ehrhardt and Mosier (1984):
-
-.. doctest::
-
-	>>> from stockpyl.ss import s_s_power_approximation
-	>>> h = 0.18
-	>>> p = 0.70
-	>>> K = 2.5
-	>>> demand_mean = 50
-	>>> demand_sd = 8
-	>>> r, Q = s_s_power_approximation(h, p, K, demand_mean, demand_sd)
-	>>> r
-	40.19461695647407
-	>>> Q
-	74.29017010980579
 
 API Reference
 -------------

@@ -17,61 +17,10 @@ including a number of approximations.
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
 
-
-The :func:`r_q_poisson_exact` function implements Federgruen and Zheng's (1992)
-exact algorithm for the |rq| problem with Poisson demands:
-
-.. doctest::
-    
-	>>> from stockpyl.rq import r_q_poisson_exact
-	>>> r, Q, cost = r_q_poisson_exact(holding_cost=20, stockout_cost=150, fixed_cost=100, demand_mean=1.5, lead_time=2)
-	>>> r
-	3
-	>>> Q
-	5
-	>>> cost
-	107.92358063314975
-
-For normally distributed demands, the module implements the expected-inventory-level (EIL) approximation
-(Whitin (1953), Hadley and Whitin (1963)), the EOQ with backorders (EOQB) approximation (see Zheng (1992)),
-the EOQ plus safety stock (EOQ+SS) approximation, and the loss-function approximation (Hadley and Whitin (1963)):
-
-.. doctest::
-
-	>>> from stockpyl.rq import r_q_eil_approximation, r_q_eoqb_approximation, r_q_eoqss_approximation, r_q_loss_function_approximation
-	>>> h = 0.225
-	>>> p = 7.5
-	>>> K = 8
-	>>> demand_mean = 1300
-	>>> demand_sd = 150
-	>>> L = 1/12
-	>>> r_eil, Q_eil, _ = r_q_eil_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_eil, Q_eil
-	(213.97044213580244, 318.5901810768729)
-	>>> r_eoqb, Q_eoqb = r_q_eoqb_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_eoqb, Q_eoqb
-	(128.63781442427097, 308.5737801203754)
-	>>> r_eoqss, Q_eoqss = r_q_eoqss_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_eoqss, Q_eoqss
-	(190.3369965715624, 304.0467800264368)
-	>>> r_lf, Q_lf = r_q_loss_function_approximation(h, p, K, demand_mean, demand_sd, L)
-	>>> r_lf, Q_lf
-	(126.8670634479628, 328.4491421980451)
-
-We can evaluate these approximate solutions under the exact expected cost function:
-
-.. doctest::
-
-	>>> from stockpyl.rq import r_q_cost
-	>>> r_q_cost(r_eil, Q_eil, h, p, K, demand_mean, demand_sd, L)
-	92.28687665608078
-	>>> r_q_cost(r_eoqb, Q_eoqb, h, p, K, demand_mean, demand_sd, L)
-	78.20243187688158
-	>>> r_q_cost(r_eoqss, Q_eoqss, h, p, K, demand_mean, demand_sd, L)
-	87.04837003438256
-	>>> r_q_cost(r_lf, Q_lf, h, p, K, demand_mean, demand_sd, L)
-	78.07114627035178
+	For an overview of single-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
 
 API Reference
 -------------

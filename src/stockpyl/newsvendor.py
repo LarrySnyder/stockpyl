@@ -19,78 +19,10 @@ problem and some of its variants.
 
 .. note:: |fosct_notation|
 
-The :func:`stockpyl.newsvendor.newsvendor_normal` function 
-implements the basic newsvendor model for normally distributed demands; it returns both the optimal base-stock level (i.e., order quantity)
-and the corresponding expected optimal cost:
+.. admonition:: See Also
 
-.. doctest::
-    
-    >>> from stockpyl.newsvendor import newsvendor_normal
-    >>> S, cost = newsvendor_normal(holding_cost=0.18, stockout_cost=0.70, demand_mean=50, demand_sd=8)
-    >>> S
-    56.60395592743389
-    >>> cost
-    1.9976051931766445
-
-If you only want to calculate the expected cost of a given base-stock level, you can either call
-:func:`stockpyl.newsvendor.newsvendor_normal`, passing it the optional ``base_stock_level`` parameter, or
-call the :func:`stockpyl.newsvendor.newsvendor_normal_cost` function:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_normal, newsvendor_normal_cost
-	>>> newsvendor_normal(holding_cost=0.18, stockout_cost=0.70, demand_mean=50, demand_sd=8, base_stock_level=53)
-	(53, 2.223748044859164)
-	>>> newsvendor_normal_cost(53, holding_cost=0.18, stockout_cost=0.70, demand_mean=50, demand_sd=8)
-	2.223748044859164
-
-These functions use the version of the newsvendor problem based on holding and stockout (overage and
-underage) costs. The :func:`stockpyl.newsvendor.newsvendor_normal_explicit` function uses the "explicit" (or profit-maximization)
-form of the newsvendor problem, whose parameters are the selling revenue, purchase cost, and salvage value:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_normal_explicit
-	>>> newsvendor_normal_explicit(selling_revenue=1.00, purchase_cost=0.30, salvage_value=0.12, demand_mean=50, demand_sd=8)
-	(56.60395592743389, 33.002394806823354)
-
-The module supports probability distributions other than normal; for example, Poisson:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_poisson
-	>>> h, p, mu = 0.18, 0.70, 50
-	>>> newsvendor_poisson(h, p, mu)
-	(56.0, 1.797235211809178)
-
-You can also solve newsvendor problems for arbitrary continuous distributions specified as ``scipy.stats.rv_continuous`` 
-objects:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_continuous
-	>>> from scipy.stats import lognorm
-	>>> from math import exp
-	>>> demand_distrib = lognorm(0.3, 0, exp(6))
-	>>> newsvendor_continuous(holding_cost=1, stockout_cost=4, demand_distrib=demand_distrib)
-	(519.3023987673176, 198.42277610622506)
-
-Or arbitrary discrete distributions specified as either a ``scipy.stats.rv_discrete`` object or
-as a dictionary containing the pmf:
-
-.. doctest::
-
-	>>> from stockpyl.newsvendor import newsvendor_discrete
-	>>> from scipy.stats import geom
-	>>> demand_distrib = geom(0.2)
-	>>> newsvendor_discrete(holding_cost=1, stockout_cost=4, demand_distrib=demand_distrib)
-	(8.0, 7.194304)
-	>>> # or ...
-	>>> d = range(0, 50)
-	>>> f = [geom.pmf(d_val, 0.2) for d_val in d]
-	>>> demand_pmf = dict(zip(d, f))
-	>>> newsvendor_discrete(holding_cost=1, stockout_cost=4, demand_pmf=demand_pmf)
-	(8, 7.19102133030678)
+	For an overview of single-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
 
 
 API Reference

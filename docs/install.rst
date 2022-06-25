@@ -1,4 +1,4 @@
-.. include:: ../globals.inc
+.. include:: globals.inc
 	
 Installing Stockpyl
 ====================

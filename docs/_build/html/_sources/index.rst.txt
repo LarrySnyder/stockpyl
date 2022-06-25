@@ -124,7 +124,8 @@ in acyclical guaranteed-service model (GSM) systems:
     :maxdepth: 3
     :caption: Documentation Contents
 
-    getting_started/getting_started
+    install
+    tutorial/tutorial
     api/api
 
 

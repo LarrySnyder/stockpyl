@@ -12,7 +12,7 @@
 Overview 
 --------
 
-The |mod_gsm_tree| module implements Graves and Willems's (2000) dynamic programming (DP)
+The |mod_gsm_tree| module implements Graves and Willems's (2000, 2003) dynamic programming (DP)
 algorithm for multi-echelon inventory systems with tree structures. 
 
 .. note:: |node_stage|
@@ -22,6 +22,10 @@ for the GSM instance.
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
+
+	For an overview of multi-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
 
 
 References
@@ -32,38 +36,6 @@ S. C. Graves and S. P. Willems. Optimizing strategic safety stock placement in s
 S. C. Graves and S. P. Willems. Erratum: Optimizing strategic safety stock placement in supply chains. 
 *Manufacturing and Service Operations Management*, 5(2):176-177, 2003.
 
-The 
-:func:`~stockpyl.gsm_tree.optimize_committed_service_times` function requires
-a |class_network| containing all of the instance data to be passed as an argument. 
-The code snippet below solves Example 6.5 in |fosct|.
-
-	.. doctest::
-
-		>>> from stockpyl.gsm_tree import optimize_committed_service_times
-		>>> from stockpyl.supply_chain_network import network_from_edges
-		>>> example_6_5_network = network_from_edges(
-		... 	edges=[(1, 3), (3, 2), (3, 4)],
-		... 	node_order_in_lists=[1, 2, 3, 4],
-		... 	processing_time=[2, 1, 1, 1],
-		... 	external_inbound_cst=[1, None, None, None],
-		... 	local_holding_cost=[1, 3, 2, 3],
-		... 	demand_bound_constant=[1, 1, 1, 1],
-		... 	external_outbound_cst=[None, 0, None, 1],
-		... 	demand_type=[None, 'N', None, 'N'],
-		... 	mean=0,
-		... 	standard_deviation=[None, 1, None, 1]
-		... )
-		>>> opt_cst, opt_cost = optimize_committed_service_times(tree=example_6_5_network)
-		>>> opt_cst
-		{1: 0, 3: 0, 2: 0, 4: 1}
-		>>> opt_cost
-		8.277916867529369
-
-Example 6.5 is a built-in instance in |sp|, so it can be loaded directly instead:
-
-		>>> from stockpyl.instances import load_instance
-		>>> optimize_committed_service_times(tree=load_instance("example_6_5"))
-		({1: 0, 3: 0, 2: 0, 4: 1}, 8.277916867529369)
 
 API Reference
 -------------

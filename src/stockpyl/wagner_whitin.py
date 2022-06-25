@@ -17,36 +17,12 @@ problem using dynamic programming.
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
+
+	For an overview of single-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
 
 
-.. doctest::
-
-    >>> from stockpyl.wagner_whitin import wagner_whitin
-    >>> T = 4
-    >>> h = 2
-    >>> K = 500
-    >>> d = [90, 120, 80, 70]
-    >>> Q, cost, theta, s = wagner_whitin(T, h, K, d)
-    >>> Q # Optimal order quantities
-    [0, 210, 0, 150, 0]
-    >>> cost # Optimal cost
-    1380.0
-    >>> theta # Cost-to-go function
-    array([   0., 1380.,  940.,  640.,  500.,    0.])
-    >>> s # Optimal next period to order in
-    [0, 3, 5, 5, 5]
-
-The cost parameters may also vary from period to period:
-
-.. doctest::
-
-	>>> h = [5, 1, 1, 2]
-	>>> K = [300, 500, 300, 500]
-	>>> Q, cost, _, _ = wagner_whitin(T, h, K, d)
-	>>> Q
-	[0, 90, 270, 0, 0]
-	>>> cost
-	1020.0
 
 API Reference
 -------------

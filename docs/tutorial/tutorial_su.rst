@@ -1,7 +1,9 @@
-.. include:: ../../globals.inc
+.. include:: ../globals.inc
+
+.. _tutorial_su_page:
 
 Supply Uncertainty
-==================
+============================
 
 |sp| contains code to solve the following types of single-echelon inventory optimization problems
 in the |mod_supply_uncertainty| module:

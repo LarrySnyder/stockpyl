@@ -4,19 +4,19 @@
 Overview 
 --------
 
-Code for simulating multi-echelon inventory systems.
-
-.. note:: |node_stage|
-
+The |mod_sim| module contains code for simulating multi-echelon inventory systems.
 The primary data object is the |class_network| and the |class_node| objects
 that it contains, which contains all of the data for the simulation instance.
+
+
+.. note:: |node_stage|
 
 .. admonition:: See Also
 
 	For an overview of simulation in |sp|,
-	see the "Overview" page for :ref:`simulation<overview_sim_page>`.
+	see the :ref:`tutorial page for simulation<tutorial_sim_page>`.
 
-	
+
 API Reference
 -------------
 

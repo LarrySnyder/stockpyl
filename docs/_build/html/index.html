@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting Started" href="getting_started/getting_started.html" /> 
+    <link rel="next" title="Installing Stockpyl" href="install.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,7 +40,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/api.html">API Documentation</a></li>
 </ul>
 
@@ -172,13 +173,41 @@ in acyclical guaranteed-service model (GSM) systems:</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Documentation Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started/getting_started.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started/install.html">Installing Stockpyl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started/overview/overview.html">Overview of Stockpyl Features</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_seio.html">Single-Echelon Inventory Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_su.html">Supply Uncertainty</a></li>
-<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_meio.html">Multi-Echelon Inventory Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="getting_started/overview/overview_sim.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Stockpyl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/tutorial_seio.html">Single-Echelon Inventory Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_seio.html#the-eoq-problem">The EOQ Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_seio.html#the-newsvendor-problem">The Newsvendor Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_seio.html#the-rq-optimization-problem">The <span class="math notranslate nohighlight">\((r,Q)\)</span> Optimization Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_seio.html#the-ss-optimization-problem">The <span class="math notranslate nohighlight">\((s,S)\)</span> Optimization Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_seio.html#the-wagner-whitin-problem">The Wagner-Whitin Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_seio.html#finite-horizon-stochastic-problems">Finite-Horizon Stochastic Problems</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/tutorial_su.html">Supply Uncertainty</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_su.html#the-eoq-problem-with-disruptions">The EOQ Problem with Disruptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_su.html#the-eoq-problem-with-yield-uncertainty">The EOQ Problem with Yield Uncertainty</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_su.html#the-newsvendor-problem-with-disruptions">The Newsvendor Problem with Disruptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_su.html#the-newsvendor-problem-with-yield-uncertainty">The Newsvendor Problem with Yield Uncertainty</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/tutorial_meio.html">Multi-Echelon Inventory Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_meio.html#the-class-network-class">The <code class="xref py py-class docutils literal notranslate"><span class="pre">SupplyChainNetwork</span></code> Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_meio.html#serial-ssm-systems">Serial SSM Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_meio.html#serial-or-tree-gsm-systems">Serial or Tree GSM Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_meio.html#general-meio-systems">General MEIO Systems</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/tutorial_sim.html">Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#basic-example">Basic Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#data-structures">Data Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#sequence-of-events">Sequence of Events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#lead-times">Lead Times</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#supply-and-demand">Supply and Demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#inventory-policies">Inventory Policies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#displaying-the-results">Displaying the Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#advanced-features">Advanced Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/tutorial_sim.html#references">References</a></li>
 </ul>
 </li>
 </ul>
@@ -240,7 +269,7 @@ in acyclical guaranteed-service model (GSM) systems:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="getting_started/getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installing Stockpyl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

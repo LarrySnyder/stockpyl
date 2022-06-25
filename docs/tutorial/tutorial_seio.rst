@@ -1,9 +1,9 @@
-.. include:: ../../globals.inc
+.. include:: ../globals.inc
 
-.. _overview_seio_page:
+.. _tutorial_seio_page:
 
 Single-Echelon Inventory Optimization
-=====================================
+===============================================
 
 |sp| contains code to solve the following types of single-echelon inventory optimization problems:
 
@@ -13,7 +13,7 @@ Single-Echelon Inventory Optimization
 * The (s,S) optimization problem (|mod_ss| module)
 * The Wagner-Whitin problem (|mod_wagner_whitin| module)
 * Finite-horizon stochastic problems with or without fixed costs (|mod_finite_horizon| module)
-* Plus a number of single-echelon problems with supply uncertainty
+* Plus a number of single-echelon problems with :ref:`supply uncertainty<tutorial_su_page>`
 
 .. note:: |fosct_notation|
 

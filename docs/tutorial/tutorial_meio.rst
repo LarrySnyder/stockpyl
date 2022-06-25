@@ -1,15 +1,15 @@
-.. include:: ../../globals.inc
+.. include:: ../globals.inc
 
-.. _overview_meio_page:
+.. _tutorial_meio_page:
 
 Multi-Echelon Inventory Optimization
-====================================
+==============================================
 
 |sp| contains code to solve the following types of multi-echelon inventory optimization (MEIO) problems:
 
 * Serial systems under the stochastic-service model (SSM) (|mod_ssm_serial| module)
 * Serial or tree systems under the guaranteed-service model (GSM) (|mod_gsm_serial| and |mod_gsm_tree| modules)
-* Systems with arbitrary topology<overview_meio:General MEIO Systems, optimized using enumeration or coordinate descent (|mod_meio_general| module)
+* Systems with arbitrary topology<tutorial_meio:General MEIO Systems, optimized using enumeration or coordinate descent (|mod_meio_general| module)
 
 .. note:: |node_stage|
 

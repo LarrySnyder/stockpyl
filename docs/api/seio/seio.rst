@@ -18,4 +18,5 @@ Single-Echelon Inventory Optimization
 .. admonition:: See Also
 
 	For an overview of single-echelon inventory optimization in |sp|,
-	see the "Overview" page for :ref:`single-echelon inventory optimization<overview_seio_page>`.
+	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
+

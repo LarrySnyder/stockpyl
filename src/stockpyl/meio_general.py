@@ -12,7 +12,6 @@
 Overview 
 --------
 
-
 For MEIO systems with arbitrary topology (not necessarily serial or tree systems),
 the |mod_meio_general| module can optimize base-stock levels approximately using
 relatively brute-force approaches—either coordinate descent or enumeration. These
@@ -23,119 +22,10 @@ the best methods available for complex systems that are not well solved in the l
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
 
-The primary data object is the |class_network| and the |class_node| objects
-that it contains, which contains all of the data for the optimization instance.
-
-
-
-For either the enumeration or the coordinate descent approache, you may provide an objective function that will be used to evaluate
-each candidate solution, or you may omit the objective function and the algorithm will
-evaluate solutions using simulation. Obviously, evaluating using simulation is typically
-much slower than using an objective function.
-
-The :func:`~stockpyl.meio_general.meio_by_enumeration` function allows you to control
-how the enumeration is performed (i.e., how the search space is truncated and discretized),
-or you can specify the exact base-stock levels to test for each node. 
-
-In the code snippet below, we solve Example 6.1 from |fosct| using enumeration.
-We specify upper and lower bounds on the base-stock levels to test for each node and
-evaluate each candidate set of base-stock levels using simulation (3 trials, 
-100 periods per trial—a very coarse approximation since the simulation runs are very small):
-
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.meio_general import meio_by_enumeration
-		>>> from stockpyl.instances import load_instance
-		>>> example_6_1_network = load_instance("example_6_1")
-		>>> best_S, best_cost = meio_by_enumeration(
-		...		network=example_6_1_network, 
-		...		truncation_lo={1: 5, 2: 4, 3: 10}, 
-		...		truncation_hi={1: 7, 2: 7, 3: 12}, 
-		...		sim_num_trials=3, 
-		...		sim_num_periods=100, 
-		...		sim_rand_seed=42
-		...	)
-		>>> best_S
-		{1: 7, 2: 5, 3: 11}
-		>>> best_cost
-		47.994095842987605
-
-This solution is quite good—it is only 0.7% worse than the optimal solution—although we stacked the
-deck by giving the function a pretty narrow range of base-stock levels to test. For a fairer
-experiment, we would test a broader range of base-stock levels, but then 
-the execution would be even slower.
-
-Alternately, we can provide an objective function. This is more accurate and faster than
-evaluating solutions using simulation, but if the objective function must be evaluated numerically
-(as it does for serial SSM systems), speed and accuracy are still non-trivial issues to consider.
-In the code below, we first define an objective function using a Python lambda function;
-it evaluates each solution by first converting the local base-stock levels to echelon and then 
-passing them to the :func:`~stockpyl.ssm_serial.expected_cost` function for serial SSM systems,
-which requires echelon base-stock levels as inputs. The discretization settings used below
-(``x_num=100, d_num=10``) are relatively coarse, producing inaccurate solutions but pretty quickly.
-
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.ssm_serial import expected_cost
-		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
-		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=100, d_num=10)
-		>>> best_S, best_cost = meio_by_enumeration(
-		...     network=example_6_1_network, 
-		...     truncation_lo={1: 5, 2: 4, 3: 10},
-		...     truncation_hi={1: 7, 2: 7, 3: 12}, 
-		...     objective_function=obj_fcn
-		... )
-		>>> best_S
-		{1: 7, 2: 5, 3: 11}
-		>>> best_cost
-		48.21449789525488
-
-The :func:`~stockpyl.meio_general.meio_by_coordinate_descent` function optimizes (approximately)
-using `coordinate descent <https://en.wikipedia.org/wiki/Coordinate_descent>`_. In principle, 
-coordinate descent will find the globally optimal solution if the objective function is
-jointly convex in the base-stock levels, but if solutions are evaluated using simulation,
-then there are no guarantees. Just as with the :func:`~stockpyl.meio_general.meio_by_enumeration` function,
-:func:`~stockpyl.meio_general.meio_by_coordinate_descent` can evaluate solutions based on either
-simulation or a provided objective function. And like enumeration, coordinate descent can be quite slow
-and not particularly accurate.
-
-	
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> from stockpyl.meio_general import meio_by_coordinate_descent
-		>>> from stockpyl.ssm_serial import expected_cost
-		>>> from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
-		>>> best_S, best_cost = meio_by_coordinate_descent(
-		...		network=example_6_1_network, 
-		...		search_lo={1: 5, 2: 4, 3: 10}, 
-		...		search_hi={1: 7, 2: 7, 3: 12}, 
-		...		sim_num_trials=3, 
-		...		sim_num_periods=100, 
-		...		sim_rand_seed=762
-		...	)
-		>>> best_S
-		{1: 6.5135882931757045, 2: 5.758375187638261, 3: 10.0631099655841}
-		>>> best_cost
-		46.90365729191992
-
-	.. doctest::
-		:skipif: True	# set to False to run the test
-
-		>>> obj_fcn = lambda S: expected_cost(local_to_echelon_base_stock_levels(example_6_1_network, S), network=example_6_1_network, x_num=20, d_num=10)
-		>>> best_S, best_cost = meio_by_coordinate_descent(
-		...		example_6_1_network, 
-		...		search_lo={1: 5, 2: 4, 3: 10},
-		...     search_hi={1: 7, 2: 7, 3: 12}, 
-		...		objective_function=obj_fcn
-		...	)
-		>>> best_S
-		{1: 5.892036436905893, 2: 5.995771265226075, 3: 11.99995914365099}
-		>>> best_cost
-		62.33491040676202
+	For an overview of multi-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
 
 API Reference
 -------------

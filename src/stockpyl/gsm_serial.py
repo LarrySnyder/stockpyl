@@ -12,69 +12,24 @@
 Overview 
 --------
 
-Code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
+The |mod_gsm_serial| module contains code to implement dynamic programming (DP) algorithm for guaranteed-service model (GSM)
 for multi-echelon inventory systems with serial structures by Inderfurth (1991)).
 
 .. note:: |node_stage|
 
 .. note:: |fosct_notation|
 
+.. admonition:: See Also
 
-
-Here is Example 6.4 from |fosct|, passing the data as individual parameters:
-
-	.. doctest::
-
-		>>> from stockpyl.gsm_serial import optimize_committed_service_times
-		>>> opt_cst, opt_cost = optimize_committed_service_times(
-		...		num_nodes=3,
-		...		local_holding_cost=[7, 4, 2],
-		...		processing_time=[1, 0, 1],
-		...		demand_bound_constant=1,
-		...		external_outbound_cst=1,
-		...		external_inbound_cst=1,
-		...		demand_mean=0,
-		...		demand_standard_deviation=1
-		...	)
-		>>> opt_cst
-		{3: 0, 2: 0, 1: 1}
-		>>> opt_cost
-		2.8284271247461903
-
-Or passing a |class_network|:
-
-	.. doctest::
-
-		>>> from stockpyl.gsm_serial import optimize_committed_service_times
-		>>> from stockpyl.supply_chain_network import network_from_edges
-		>>> example_6_3_network = network_from_edges(
-		...     edges=[(3, 2), (2, 1)],
-		...     node_order_in_lists=[1, 2, 3],
-		...     processing_time=[1, 0, 1],
-		...     external_inbound_cst=[None, None, 1],
-		...     local_holding_cost=[7, 4, 2],
-		...     demand_bound_constant=1,
-		...     external_outbound_cst=[1, None, None],
-		...     demand_type=['N', None, None],
-		...     mean=0,
-		...     standard_deviation=[1, 0, 0]
-		... )
-		>>> optimize_committed_service_times(network=example_6_3_network)
-		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
-
-Or loading the instance directly:
-
-	.. doctest::
-
-		>>> from stockpyl.instances import load_instance
-		>>> optimize_committed_service_times(network=load_instance("example_6_3"))
-		({3: 0, 2: 0, 1: 1}, 2.8284271247461903)
+	For an overview of multi-echelon inventory optimization in |sp|,
+	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
 
 
 References
 ----------
 K. Inderfurth. Safety stock optimization in multistage inventory systems. 
 *International Journal of Production Economics*, 24:103-113, 1991.
+
 
 API Reference
 -------------
