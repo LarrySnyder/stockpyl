@@ -6,19 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.0.5] -- 2022-06-25
 ### Added
 - Named instances from Shang and Song (2003)
 - More flexible options for node indexing in ``ssm_serial.optimize_base_stock_levels()`` and ``ssm_serial.newsvendor_heuristic()`` 
 - More flexible options for choosing rows and columns in simulation output in ``write_results()``
+- Better handling of disrupted items for type-RP disruptions
+- Various new unit tests
 
 ### Changed
 - Smarter initialization of inventory levels in simulation
 - ``ssm_serial.optimize_base_stock_levels()`` recognizes if demand distribution is discrete and handles discretization accordingly
 - Default disruption type changed to 'OP'
 
+### Fixed
+- Bug in order quantity with type-RP disruptions
+
 ## [0.0.4] -- 2022-06-14
 ### Added
-- Various new unit tests.
+- Various new unit tests
 - Ability to pass ``kwargs`` to ``SupplyChainNetwork()``
 - ``owmr_system()`` function to build OWMR networks
 
