@@ -4,10 +4,11 @@
 Stockpyl
 ========
 
-|sp| is a Python package for inventory optimization. It implements
+|sp| is a Python package for inventory optimization and simulation. It implements
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions. 
+And, it has extensive features for simulating multi-echelon inventory systems.
 
 .. note:: |fosct_notation|
 

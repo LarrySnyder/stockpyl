@@ -8,10 +8,11 @@ Stockpyl
 ![GitHub issues](https://img.shields.io/github/issues/LarrySnyder/stockpyl)
 ![Twitter Follow](https://img.shields.io/twitter/follow/LarrySnyder610?style=flat)
 
-Stockpyl is a Python package for inventory optimization. It implements
+Stockpyl is a Python package for inventory optimization and simulation. It implements
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions. 
+And, it has extensive features for simulating multi-echelon inventory systems.
 
 Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
 *Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
