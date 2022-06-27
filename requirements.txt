@@ -3,7 +3,6 @@ jsonpickle==2.2.0
 matplotlib==3.5.2
 networkx==2.8.2
 numpy==1.22.4
-pandas==1.4.2
 scipy==1.8.1
 setuptools==61.2.0
 sphinx_rtd_theme==1.0.0

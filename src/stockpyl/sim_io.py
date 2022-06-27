@@ -66,11 +66,9 @@ API Reference
 
 """
 
-import numpy as np
 from tabulate import tabulate
 import csv
 from copy import deepcopy
-import pandas as pd
 
 #from stockpyl.sim import simulation
 from stockpyl.helpers import sort_dict_by_keys, is_list
