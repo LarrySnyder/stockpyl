@@ -553,13 +553,13 @@ class SupplyChainNode(object):
 			isclose(self.revenue or 0, other.revenue or 0, rel_tol=rel_tol) and \
 			self.shipment_lead_time == other.shipment_lead_time and \
 			self.order_lead_time == other.order_lead_time and \
-			self.demand_source == other.demand_source and \
+			((self.demand_source is None and other.demand_source is None) or (self.demand_source == other.demand_source)) and \
 			isclose(self.initial_inventory_level or 0, other.initial_inventory_level or 0, rel_tol=rel_tol) and \
 			isclose(self.initial_orders or 0, other.initial_orders or 0, rel_tol=rel_tol) and \
 			isclose(self.initial_shipments or 0, other.initial_shipments or 0, rel_tol=rel_tol) and \
 			self.inventory_policy == other.inventory_policy and \
 			self.supply_type == other.supply_type and \
-			self.disruption_process == other.disruption_process and \
+			((self.disruption_process is None and other.disruption_process is None) or (self.disruption_process == other.disruption_process)) and \
 			self.processing_time == other.processing_time and \
 			self.external_inbound_cst == other.external_inbound_cst and \
 			isclose(self.demand_bound_constant or 0, other.demand_bound_constant or 0, rel_tol=rel_tol) and \

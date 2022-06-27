@@ -1108,6 +1108,7 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 	"""
 
 	S_local = {}
+	num_nodes = len(network.nodes)
 
 	# Determine indexing of nodes. (node_list[i] = index of i'th node, where
 	# i = 0 means sink node and i = N-1 means source node.)
@@ -1119,11 +1120,14 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 
 	# Calculate S-minus.
 	S_minus = {}
-	j = 0
-	for n in network.nodes:
-		S_minus[n.index] = np.min([S_echelon[node_list[i]]
-							 for i in range(j, len(S_echelon))])
-		j += 1
+	for j in range(num_nodes):
+		S_minus[node_list[j]] = np.min([S_echelon[node_list[i]] for i in range(j, num_nodes)])
+
+	# j = 0
+	# for n in network.nodes:
+	# 	S_minus[n.index] = np.min([S_echelon[node_list[i]]
+	# 						 for i in range(j, len(S_echelon))])
+	# 	j += 1
 
 	# Calculate S_local.
 	for n in network.nodes:

@@ -1590,8 +1590,11 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 
 		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1()')
 
-		instance = load_instance("example_6_1")
-		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance = load_instance("example_6_1") # 3 -> 2 -> 1
+
+		S_local = {3: 10, 2: 6, 1: 6}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {3: 22, 2: 12, 1: 6})
 
 		S_local = {1: 4, 2: 5, 3: 1}
 		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
@@ -1604,6 +1607,33 @@ class TestLocalToEchelonBaseStockLevels(unittest.TestCase):
 		S_local = {1: 3, 2: -4, 3: 5}
 		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
 		self.assertDictEqual(S_echelon, {1: 3, 2: -1, 3: 4})
+
+	def test_example_6_1_renumbered(self):
+		"""Test that local_to_echelon_base_stock_levels() correctly converts
+		a few different sets of BS levels for network in Example 6.1 with 
+		renumbered nodes.
+		"""
+
+		print_status('TestLocalToEchelonBaseStockLevels', 'test_example_6_1_renumbered()')
+
+		instance = load_instance("example_6_1")
+		instance.reindex_nodes({3: 1, 2: 2, 1: 3}) # now 1 -> 2 -> 3
+
+		S_local = {1: 10, 2: 6, 3: 6}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {1: 22, 2: 12, 3: 6})
+
+		S_local = {3: 4, 2: 5, 1: 1}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {3: 4, 2: 9, 1: 10})
+
+		S_local = {3: 10, 2: 0, 1: 2}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {3: 10, 2: 10, 1: 12})
+
+		S_local = {3: 3, 2: -4, 1: 5}
+		S_echelon = local_to_echelon_base_stock_levels(instance, S_local)
+		self.assertDictEqual(S_echelon, {3: 3, 2: -1, 1: 4})
 
 
 class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
@@ -1625,8 +1655,11 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 
 		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1()')
 
-		instance = load_instance("example_6_1")
-	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
+		instance = load_instance("example_6_1") # 3 -> 2 -> 1
+
+		S_echelon = {3: 22, 2: 12, 1: 6}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {3: 10, 2: 6, 1: 6})
 
 		S_echelon = {1: 4, 2: 9, 3: 10}
 		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
@@ -1644,4 +1677,33 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
 		self.assertDictEqual(S_local, {1: 5, 2: 0, 3: 0})
 
+	def test_example_6_1_renumbered(self):
+		"""Test that echelon_to_local_base_stock_levels() correctly converts
+		a few different sets of BS levels for network in Example 6.1 with 
+		renumbered nodes.
+		"""
 
+		print_status('TestEchelonToLocalBaseStockLevels', 'test_example_6_1_renumbered()')
+
+		instance = load_instance("example_6_1")
+		instance.reindex_nodes({3: 1, 2: 2, 1: 3}) # now 1 -> 2 -> 3
+
+		S_echelon = {1: 22, 2: 12, 3: 6}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {1: 10, 2: 6, 3: 6})
+
+		S_echelon = {3: 4, 2: 9, 1: 10}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {3: 4, 2: 5, 1: 1})
+
+		S_echelon = {3: 10, 2: 10, 1: 12}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {3: 10, 2: 0, 1: 2})
+
+		S_echelon = {3: 3, 2: -1, 1: 4}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {3: -1, 2: 0, 1: 5})
+
+		S_echelon = {3: 10, 2: 15, 1: 5}
+		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
+		self.assertDictEqual(S_local, {3: 5, 2: 0, 1: 0})

@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+- Various new unit tests
+### Fixed
+- Bug in ``supply_chain_network.echelon_to_local_base_stock_levels()``
+
 ## [0.0.5] -- 2022-06-25
+
 ### Added
 - Named instances from Shang and Song (2003)
 - More flexible options for node indexing in ``ssm_serial.optimize_base_stock_levels()`` and ``ssm_serial.newsvendor_heuristic()`` 

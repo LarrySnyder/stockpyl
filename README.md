@@ -53,6 +53,10 @@ the stochastic-service model (SSM):
 86.02533221942987
 ```
 
+Simulate the same system using the optimal base-stock levels:
+
+
+
 Optimize committed service times (CSTs) for a tree network under the guaranteed-service model (GSM) 
 using Graves and Willems' (2000) dynamic programming algorithm:
 
@@ -67,6 +71,8 @@ using Graves and Willems' (2000) dynamic programming algorithm:
 >>> opt_cost
 8.277916867529369
 ```
+
+
 
 Resources
 ---------

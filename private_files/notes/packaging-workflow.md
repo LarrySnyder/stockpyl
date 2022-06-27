@@ -25,6 +25,8 @@ Upload to TestPyPI:
 Upload to PyPI:
 ``twine upload --skip-existing dist/*``
 
+Create GitHub release
+
 
 Packaging the Docs
 ==================
@@ -43,3 +45,4 @@ Commit and push to GitHub
 Build on RTD:
 Go to https://readthedocs.org/projects/stockpyl/
 Click "Build Version"
+
