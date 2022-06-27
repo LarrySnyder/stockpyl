@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] -- 2022-06-27
+
 ### Added
 - Various new unit tests
+
 ### Fixed
 - Bug in ``supply_chain_network.echelon_to_local_base_stock_levels()``
 
