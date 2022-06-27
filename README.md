@@ -38,23 +38,42 @@ Use Chen and Zheng's (1994) algorithm (based on Clark and Scarf (1960)) to optim
 the stochastic-service model (SSM):
 
 ```python
+>>> from stockpyl.supply_chain_network import serial_system
 >>> from stockpyl.ssm_serial import optimize_base_stock_levels
->>> S_star, C_star = optimize_base_stock_levels(
+>>> # Build network.
+>>> network = serial_system(
 ...     num_nodes=3,
+...     node_order_in_system=[3, 2, 1],
 ...     echelon_holding_cost=[4, 3, 1],
-...     lead_time=[1, 1, 2],
+...     local_holding_cost=[4, 7, 8],
+...     shipment_lead_time=[1, 1, 2],
 ...     stockout_cost=40,
-...     demand_mean=10,
-...     demand_standard_deviation=2
+...     demand_type='N',
+...     mean=10,
+...     standard_deviation=2
 ... )
->>> S_star
-{1: 12.764978727246302, 2: 23.49686681508743, 3: 46.28013742779933}
->>> C_star
-86.02533221942987
+>>> # Optimize echelon base-stock levels.
+>>> S_star, C_star = optimize_base_stock_levels(network=network)
+>>> print(f"S_star = {S_star}, C_star = {C_star}")
+S_star = {3: 44.1689463285519, 2: 34.93248526934437, 1: 25.69602421013684}, C_star = 227.15328525645054
 ```
 
 Simulate the same system using the optimal base-stock levels:
 
+```python
+>>> from stockpyl.supply_chain_network import echelon_to_local_base_stock_levels
+>>> from stockpyl.sim import simulation
+>>> from stockpyl.policy import Policy
+>>> # Convert to local base-stock levels and set nodes' inventory policies.
+>>> S_star_local = echelon_to_local_base_stock_levels(network, S_star)
+>>> for n in network.nodes:
+...     n.inventory_policy = Policy(type='BS', base_stock_level=S_star_local[n.index], node=n)
+>>> # Simulate the system.
+>>> T = 1000
+>>> total_cost = simulation(network=network, num_periods=T)
+>>> print(f"Average total cost per period = {total_cost/T}")
+Average total cost per period = 224.98879893564296
+```
 
 
 Optimize committed service times (CSTs) for a tree network under the guaranteed-service model (GSM) 

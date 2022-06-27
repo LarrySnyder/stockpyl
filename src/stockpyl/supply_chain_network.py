@@ -1123,12 +1123,6 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 	for j in range(num_nodes):
 		S_minus[node_list[j]] = np.min([S_echelon[node_list[i]] for i in range(j, num_nodes)])
 
-	# j = 0
-	# for n in network.nodes:
-	# 	S_minus[n.index] = np.min([S_echelon[node_list[i]]
-	# 						 for i in range(j, len(S_echelon))])
-	# 	j += 1
-
 	# Calculate S_local.
 	for n in network.nodes:
 		# Get successor.
