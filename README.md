@@ -22,18 +22,19 @@ For lots of details, [read the docs](http://stockpyl.readthedocs.io/).
 Some Examples
 -------------
 
-Solve the EOQ problem with :math:`K=8`, :math:`h=0.225`, and :math:`\lambda=1300` (Example 3.1 in *FoSCT*):
+Solve the EOQ problem with a fixed cost of 8, a holding cost of 0.225, and a demand rate of 1300 (Example 3.1 in *FoSCT*):
 
-```python    
+.. doctest::
+    
     >>> from stockpyl.eoq import economic_order_quantity
     >>> Q, cost = economic_order_quantity(fixed_cost=8, holding_cost=0.225, demand_rate=1300)
     >>> Q
     304.0467800264368
     >>> cost
     68.41052550594829
-```
 
-Or the newsvendor problem with :math:`h=0.18`, :math:`p=0.70`, and :math:`D\sim N(50, 8^2)` (Example 4.3 in *FoSCT*):
+Or the newsvendor problem with a holding cost of 0.18, a stockout cost of 0.70, and demand that is normally
+distributed with mean 50 and standard deviation 8 (Example 4.3 in *FoSCT*):
 
 ```python    
     >>> from stockpyl.newsvendor import newsvendor_normal
