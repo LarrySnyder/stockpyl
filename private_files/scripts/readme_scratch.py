@@ -31,7 +31,7 @@ S_star_local = echelon_to_local_base_stock_levels(network, S_star)
 for n in network.nodes:
 	n.inventory_policy = Policy(type='BS', base_stock_level=S_star_local[n.index], node=n)
 T = 1000
-total_cost = simulation(network=network, num_periods=T)
+total_cost = simulation(network=network, num_periods=T, rand_seed=42)
 print(f"Average total cost per period = {total_cost/T}")
 
 # network = load_instance("example_6_1")

@@ -9,9 +9,7 @@ classical single-node inventory models like the economic order quantity (EOQ), n
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions. 
 
-.. note:: Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
-    Fundamentals of Supply Chain Theory* (|fosct|) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
-    are much older; see |fosct| for references to original sources. 
+.. note:: |fosct_notation|
 
 ----
 
@@ -87,34 +85,62 @@ Chen-Zheng's (1994) reworking of it):
 
 .. doctest::
 
+    >>> from stockpyl.supply_chain_network import serial_system
     >>> from stockpyl.ssm_serial import optimize_base_stock_levels
-    >>> S_star, C_star = optimize_base_stock_levels(
+    >>> # Build network.
+    >>> network = serial_system(
     ...     num_nodes=3,
-    ...     echelon_holding_cost=[2, 2, 3],
-    ...     lead_time=[2, 1, 1],
-    ...     stockout_cost=37.12,
-    ...     demand_mean=5,
-    ...     demand_standard_deviation=1
+    ...     node_order_in_system=[3, 2, 1],
+    ...     echelon_holding_cost=[4, 3, 1],
+    ...     local_holding_cost=[4, 7, 8],
+    ...     shipment_lead_time=[1, 1, 2],
+    ...     stockout_cost=40,
+    ...     demand_type='N',
+    ...     mean=10,
+    ...     standard_deviation=2
     ... )
-    >>> S_star
-    {3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}
-    >>> C_star
-    47.668653127136345
+    >>> # Optimize echelon base-stock levels.
+    >>> S_star, C_star = optimize_base_stock_levels(network=network)
+    >>> print(f"Optimal echelon base-stock levels = {S_star}")
+    Optimal echelon base-stock levels = {3: 44.1689463285519, 2: 34.93248526934437, 1: 25.69602421013684}
+    >>> print(f"Optimal expected cost per period = {C_star}")
+    Optimal expected cost per period = 227.15328525645054
 
-And Graves and Willems' (2000) dynamic programming algorithm for optimizing committed service times (CSTs)
-in acyclical guaranteed-service model (GSM) systems:
+Stockpyl has extensive features for simulating multi-echelon inventory systems. Below, we simulate
+the same serial system, obtaining an average cost per period that is similar to what the theoretical
+model predicted above.
+
+.. doctest::
+
+    >>> from stockpyl.supply_chain_network import echelon_to_local_base_stock_levels
+    >>> from stockpyl.sim import simulation
+    >>> from stockpyl.policy import Policy
+    >>> # Convert to local base-stock levels and set nodes' inventory policies.
+    >>> S_star_local = echelon_to_local_base_stock_levels(network, S_star)
+    >>> for n in network.nodes:
+    ...     n.inventory_policy = Policy(type='BS', base_stock_level=S_star_local[n.index], node=n)
+    >>> # Simulate the system.
+    >>> T = 1000
+    >>> total_cost = simulation(network=network, num_periods=T, rand_seed=42)
+    >>> print(f"Average total cost per period = {total_cost/T}")
+    Average total cost per period = 226.16794575837224
+
+
+Stockpyl also implements Graves and Willems' (2000) dynamic programming algorithm for optimizing 
+committed service times (CSTs) in acyclical guaranteed-service model (GSM) systems:
 
 .. doctest::
 
     >>> from stockpyl.gsm_tree import optimize_committed_service_times
     >>> from stockpyl.instances import load_instance
-    >>> # Load a named instance, Example 6.5 from FoSCT
+    >>> # Load a named instance, Example 6.5 from FoSCT.
     >>> tree = load_instance("example_6_5")
+    >>> # Optimize committed service times.
     >>> opt_cst, opt_cost = optimize_committed_service_times(tree)
-    >>> opt_cst
-    {1: 0, 3: 0, 2: 0, 4: 1}
-    >>> opt_cost
-    8.277916867529369
+    >>> print(f"Optimal CSTs = {opt_cst}")
+    Optimal CSTs = {1: 0, 3: 0, 2: 0, 4: 1}
+    >>> print(f"Optimal expected cost per period = {opt_cost}")
+    Optimal expected cost per period = 8.277916867529369
 
 ----
 

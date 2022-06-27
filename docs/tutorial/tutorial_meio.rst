@@ -13,7 +13,7 @@ Multi-Echelon Inventory Optimization
 
 .. note:: |node_stage|
 
-|fosct_notation|
+.. note:: |fosct_notation|
 
 .. contents::
     :depth: 2

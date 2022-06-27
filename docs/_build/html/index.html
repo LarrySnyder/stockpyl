@@ -77,9 +77,7 @@ and Wagner-Whitin problems. It also contains algorithms for multi-echelon invent
 (MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Most of the models and algorithms implemented in Stockpyl are discussed in the textbook
-Fundamentals of Supply Chain Theory* (<em>FoSCT</em>) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
-are much older; see <em>FoSCT</em> for references to original sources.</p>
+<p>The notation and references (equations, sections, examples, etc.) used below refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>), 2nd edition (2019).</p>
 </div>
 <hr class="docutils" />
 <section id="some-examples">
@@ -141,32 +139,57 @@ rather than the shorter notation assigned to them in textbooks and articles (<co
 </div>
 <p>Stockpyl includes an implementation of the Clark and Scarf (1960) algorithm for stochastic serial systems (more precisely,
 Chen-Zheng’s (1994) reworking of it):</p>
-<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.ssm_serial</span> <span class="kn">import</span> <span class="n">optimize_base_stock_levels</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span><span class="p">,</span> <span class="n">C_star</span> <span class="o">=</span> <span class="n">optimize_base_stock_levels</span><span class="p">(</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_chain_network</span> <span class="kn">import</span> <span class="n">serial_system</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.ssm_serial</span> <span class="kn">import</span> <span class="n">optimize_base_stock_levels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Build network.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">network</span> <span class="o">=</span> <span class="n">serial_system</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">num_nodes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">echelon_holding_cost</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">lead_time</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">37.12</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">demand_mean</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">demand_standard_deviation</span><span class="o">=</span><span class="mi">1</span>
+<span class="gp">... </span>    <span class="n">node_order_in_system</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">echelon_holding_cost</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">local_holding_cost</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">shipment_lead_time</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">stockout_cost</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">demand_type</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">mean</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">standard_deviation</span><span class="o">=</span><span class="mi">2</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span>
-<span class="go">{3: 22.700237234889784, 2: 12.012332294949644, 1: 6.5144388073261155}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">C_star</span>
-<span class="go">47.668653127136345</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Optimize echelon base-stock levels.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S_star</span><span class="p">,</span> <span class="n">C_star</span> <span class="o">=</span> <span class="n">optimize_base_stock_levels</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimal echelon base-stock levels = </span><span class="si">{</span><span class="n">S_star</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Optimal echelon base-stock levels = {3: 44.1689463285519, 2: 34.93248526934437, 1: 25.69602421013684}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimal expected cost per period = </span><span class="si">{</span><span class="n">C_star</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Optimal expected cost per period = 227.15328525645054</span>
 </pre></div>
 </div>
-<p>And Graves and Willems’ (2000) dynamic programming algorithm for optimizing committed service times (CSTs)
-in acyclical guaranteed-service model (GSM) systems:</p>
+<p>Stockpyl has extensive features for simulating multi-echelon inventory systems. Below, we simulate
+the same serial system, obtaining an average cost per period that is similar to what the theoretical
+model predicted above.</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.supply_chain_network</span> <span class="kn">import</span> <span class="n">echelon_to_local_base_stock_levels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.sim</span> <span class="kn">import</span> <span class="n">simulation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.policy</span> <span class="kn">import</span> <span class="n">Policy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Convert to local base-stock levels and set nodes&#39; inventory policies.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S_star_local</span> <span class="o">=</span> <span class="n">echelon_to_local_base_stock_levels</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">S_star</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">network</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">n</span><span class="o">.</span><span class="n">inventory_policy</span> <span class="o">=</span> <span class="n">Policy</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;BS&#39;</span><span class="p">,</span> <span class="n">base_stock_level</span><span class="o">=</span><span class="n">S_star_local</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">node</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Simulate the system.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">total_cost</span> <span class="o">=</span> <span class="n">simulation</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">num_periods</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">rand_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average total cost per period = </span><span class="si">{</span><span class="n">total_cost</span><span class="o">/</span><span class="n">T</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Average total cost per period = 226.16794575837224</span>
+</pre></div>
+</div>
+<p>Stockpyl also implements Graves and Willems’ (2000) dynamic programming algorithm for optimizing
+committed service times (CSTs) in acyclical guaranteed-service model (GSM) systems:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.gsm_tree</span> <span class="kn">import</span> <span class="n">optimize_committed_service_times</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.instances</span> <span class="kn">import</span> <span class="n">load_instance</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a named instance, Example 6.5 from FoSCT</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a named instance, Example 6.5 from FoSCT.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">load_instance</span><span class="p">(</span><span class="s2">&quot;example_6_5&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Optimize committed service times.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cst</span><span class="p">,</span> <span class="n">opt_cost</span> <span class="o">=</span> <span class="n">optimize_committed_service_times</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cst</span>
-<span class="go">{1: 0, 3: 0, 2: 0, 4: 1}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_cost</span>
-<span class="go">8.277916867529369</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimal CSTs = </span><span class="si">{</span><span class="n">opt_cst</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Optimal CSTs = {1: 0, 3: 0, 2: 0, 4: 1}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimal expected cost per period = </span><span class="si">{</span><span class="n">opt_cost</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Optimal expected cost per period = 8.277916867529369</span>
 </pre></div>
 </div>
 <hr class="docutils" />
