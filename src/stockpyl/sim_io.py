@@ -80,7 +80,7 @@ from stockpyl.disruption_process import DisruptionProcess
 
 
 def write_results(network, num_periods, periods_to_print=None, columns_to_print=None,
-				  print_cost_summary=True, write_csv=False, csv_filename=None):
+				  write_csv=False, csv_filename=None):
 	"""Write the results of a simulation to the console, as well as to a CSV file if requested.
 
 	Parameters
@@ -103,9 +103,6 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			* ``'all'``: prints all columns (equivalent to setting ``columns_to_print=None``)
 
 		Unrecognized strings are ignored. If omitted, will print all columns (the default). 
-	print_cost_summary : bool, optional
-		``True`` to print the total cost per period and over the horizon after the state-variable table,
-		``False`` otherwise. Optional; default = ``True``.
 	write_csv : bool, optional
 		``True`` to write to CSV file, ``False`` otherwise. Optional; default = ``False``.
 	csv_filename : str, optional
@@ -238,13 +235,6 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Write results to screen
 	print(tabulate(results, headers=headers))
-
-	# Average and total cost
-	if print_cost_summary:
-		total_cost = np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
-				for t in range(num_periods)])
-		print("\nTotal avg. cost per period = {:f}".format(1.0 * np.sum(total_cost) / num_periods))
-		print("Total horizon cost = {:f}".format(1.0 * np.sum(total_cost)))
 
 	# CSV output
 	if write_csv:

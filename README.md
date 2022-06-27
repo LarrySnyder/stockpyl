@@ -24,8 +24,6 @@ Some Examples
 
 Solve the EOQ problem with a fixed cost of 8, a holding cost of 0.225, and a demand rate of 1300 (Example 3.1 in *FoSCT*):
 
-.. doctest::
-    
     >>> from stockpyl.eoq import economic_order_quantity
     >>> Q, cost = economic_order_quantity(fixed_cost=8, holding_cost=0.225, demand_rate=1300)
     >>> Q

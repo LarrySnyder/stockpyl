@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.8] -- 2022-06-27
+
+### Changed
+- Removed cost summary output and ``print_cost_summary`` option from ``sim_io.write_results()``
+
 ## [0.0.7] -- 2022-06-27
 
 ### Fixed

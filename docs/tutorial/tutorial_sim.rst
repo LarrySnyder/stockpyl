@@ -45,7 +45,7 @@ an order lead time of 0, and a shipment lead time of 1.
 	...     shipment_lead_time=1
 	... )
 	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=4, columns_to_print='basic', print_cost_summary=False)
+	>>> write_results(network=network, num_periods=4, columns_to_print='basic')
 	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL
 	---  -----  --------  --------  --------  --------  ----
 	  0               12        12         0        12     1
@@ -262,7 +262,7 @@ Both nodes have a (shipment) lead time of 1.
 	...     shipment_lead_time=[1, 1]
 	... )
 	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=4, columns_to_print='basic', print_cost_summary=False)
+	>>> write_results(network=network, num_periods=4, columns_to_print='basic')
 	  t  i=0      IO:1    OQ:EXT    IS:EXT    OS:1    IL  i=1      IO:EXT    OQ:0    IS:0    OS:EXT    IL
 	---  -----  ------  --------  --------  ------  ----  -----  --------  ------  ------  --------  ----
 	  0             42        50         0      42     8               42      42       0        42     8
@@ -433,8 +433,7 @@ columns:
 		...	network=network, 
 		...	num_periods=10,
 		...	periods_to_print=list(range(3, 9)), 
-		...	columns_to_print=['OQ', 'IL', 'TC'],
-		...	print_cost_summary=False
+		...	columns_to_print=['OQ', 'IL', 'TC']
 		...	)
 		  t  i=1      OQ:3    OQ:4    IL    TC  i=2      OQ:3    IL    TC  i=3      OQ:EXT    IL    TC  i=4      OQ:EXT    IL    TC
 		---  -----  ------  ------  ----  ----  -----  ------  ----  ----  -----  --------  ----  ----  -----  --------  ----  ----
@@ -473,8 +472,7 @@ of allowable strings.) Shortcuts and column names can be combined in one list:
 		...	network=network, 
 		...	num_periods=10,
 		...	periods_to_print=list(range(3, 9)), 
-		...	columns_to_print=['OQ', 'IL', 'costs'],
-		...	print_cost_summary=False
+		...	columns_to_print=['OQ', 'IL', 'costs']
 		...	)
 		  t  i=1      OQ:3    OQ:4    IL    HC    SC    TC  i=2      OQ:3    IL    HC    SC    TC  i=3      OQ:EXT    IL    HC    SC    TC  i=4      OQ:EXT    IL    HC    SC    TC
 		---  -----  ------  ------  ----  ----  ----  ----  -----  ------  ----  ----  ----  ----  -----  --------  ----  ----  ----  ----  -----  --------  ----  ----  ----  ----
@@ -556,7 +554,7 @@ disruptions. First, type-OP disruptions:
 	... )
 	>>> T = 100
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'])
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL
 	---  -----  ------  ------  --------  --------  ------  ----  -----  ------  --------  ------  ------  --------  ----
 	  7         False       19        19        14      19     6         False         19      19      14        19     6
@@ -580,7 +578,7 @@ Next, type-SP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'])
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    ODI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    ODI:EXT
 	---  -----  ------  ------  --------  --------  ------  ----  -------  -----  ------  --------  ------  ------  --------  ----  ---------
 	  7         False       19        19        14      19     6        0         False         19      19      14        19     6          0
@@ -602,7 +600,7 @@ Next, type-TP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'])
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
 	---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
 	  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
@@ -624,7 +622,7 @@ Finally, type-RP disruptions:
 
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='RP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'])
 	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      IDI:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      IDI:1    OS:EXT    IL
 	---  -----  ------  ------  --------  --------  ----------  ---------  ------  ----  -----  ------  --------  ------  ------  --------  -------  --------  ----
 	  7         False       19        19        14  [19.0]              0      19     6         False         19      19      14  [19.0]          0        19     6
@@ -715,7 +713,7 @@ and :math:`(-x)^+` is the backorders).
 	...	)
 	>>> T = 100
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'], print_cost_summary=False)
+	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'])
 	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL    HC       SC       TC
 	---  -----  --------  --------  --------  --------  ----  ----  -------  -------
 	  0               18        18         0        17    -1   0    10       10
