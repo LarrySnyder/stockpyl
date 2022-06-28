@@ -409,6 +409,62 @@ class TestToDict(unittest.TestCase):
 		self.assertDictEqual(pol_dict, correct_dict)
 
 
+class TestFromDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestFromDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestFromDict', 'tear_down_class()')
+
+	def test_base_stock(self):
+		"""Test that from_dict() correctly converts a base-stock Policy object from a dict.
+		"""
+		print_status('TestFromDict', 'test_base_stock()')
+
+		the_dict = {
+			'type': 'BS',
+			'node': None,
+			'base_stock_level': 100,
+			'order_quantity': None,
+			'reorder_point': None,
+			'order_up_to_level': None
+		}
+		pol = Policy.from_dict(the_dict)
+
+		correct_pol = Policy()
+		correct_pol.type = 'BS'
+		correct_pol.base_stock_level = 100
+
+		self.assertEqual(pol, correct_pol)
+
+	def test_s_S(self):
+		"""Test that from_dict() correctly converts an (s,S) Policy object from a dict.
+		"""
+		print_status('TestFromDict', 'test_s_S()')
+
+		the_dict = {
+			'type': 'sS',
+			'node': None,
+			'base_stock_level': None,
+			'order_quantity': None,
+			'reorder_point': 100,
+			'order_up_to_level': 500
+		}
+		pol = Policy.from_dict(the_dict)
+
+		correct_pol = Policy()
+		correct_pol.type = 'sS'
+		correct_pol.node = None
+		correct_pol.reorder_point = 100
+		correct_pol.order_up_to_level = 500
+
+		self.assertEqual(pol, correct_pol)
+
+
 class TestValidateParameters(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

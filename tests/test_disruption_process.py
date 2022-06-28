@@ -215,6 +215,71 @@ class TestToDict(unittest.TestCase):
 		self.assertDictEqual(dp_dict, correct_dict)
 
 
+class TestFromDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestFromDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestFromDict', 'tear_down_class()')
+
+	def test_markovian(self):
+		"""Test that from_dict() correctly converts a Markovian DisruptionProcess
+		object from a dict.
+		"""
+		print_status('TestFromDict', 'test_markovian()')
+
+		the_dict = {
+			'random_process_type': 'M',
+			'disruption_type': 'OP',
+			'disruption_probability': 0.1,
+			'recovery_probability': 0.25,
+			'disruption_state_list': None,
+			'disrupted': True
+		}
+		dp = DisruptionProcess.from_dict(the_dict)
+
+		correct_dp = DisruptionProcess()
+		correct_dp.random_process_type = 'M'
+		correct_dp.disruption_probability = 0.1
+		correct_dp.recovery_probability = 0.25
+		correct_dp.disrupted = True
+
+		self.assertEqual(dp, correct_dp)
+
+	def test_explicit(self):
+		"""Test that from_dict() correctly converts an explicit DisruptionProcess 
+		object from a dict.
+		"""
+		print_status('TestFromDict', 'test_explicit()')
+
+		disruption_state_list = [True, False, False, True, False]
+
+		the_dict = {
+			'random_process_type': 'E',
+			'disruption_type': 'RP',
+			'disruption_probability': None,
+			'recovery_probability': None,
+			'disruption_state_list': disruption_state_list,
+			'disrupted': False
+		}
+		dp = DisruptionProcess.from_dict(the_dict)
+
+		correct_dp = DisruptionProcess()
+		correct_dp.random_process_type = 'E'
+		correct_dp.disruption_type = 'RP'
+		correct_dp.disruption_state_list = [True, False, False, True, False]
+		
+		self.assertEqual(dp, correct_dp)
+
+		# Modify original list to make sure the dict doesn't change.
+		disruption_state_list.append(True)
+		self.assertEqual(dp, correct_dp)
+
+
 class TestValidateParameters(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

@@ -314,6 +314,8 @@ class DisruptionProcess(object):
 		elif self.random_process_type == 'E':
 			if self.disruption_state_list is None: raise AttributeError("For 'E' (explicit) disruptions, disruption_probability_list must be provided")
 
+	# CONVERTING TO/FROM DICTS
+
 	def to_dict(self):
 		"""Convert the |class_disruption_process| object to a dict. List attributes
 		(``disruption_state_list``) are deep-copied so changes to the original
@@ -336,6 +338,31 @@ class DisruptionProcess(object):
 		dp_dict['disrupted']				= self.disrupted
 
 		return dp_dict
+
+	@classmethod
+	def from_dict(cls, the_dict):
+		"""Return a new |class_disruption_process| object with attributes copied from the
+		values in ``the_dict``. List attributes (``disruption_state_list``) 
+		are deep-copied so changes to the original dict do not get propagated to the object.
+
+		Parameters
+		----------
+		the_dict : dict
+			Dict representation of a |class_disruption_process|, typically created using ``to_dict()``.
+
+		Returns
+		-------
+		DisruptionProcess
+			The object converted from the dict.
+		"""
+		return cls(
+			random_process_type 	= the_dict['random_process_type'],
+			disruption_type			= the_dict['disruption_type'],
+			disruption_probability 	= the_dict['disruption_probability'],
+			recovery_probability	= the_dict['recovery_probability'],
+			disruption_state_list 	= copy.deepcopy(the_dict['disruption_state_list']),
+			disrupted 				= the_dict['disrupted']
+		)
 
 	# DISRUPTION STATE MANAGEMENT
 

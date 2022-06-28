@@ -252,6 +252,99 @@ class TestToDict(unittest.TestCase):
 		self.assertDictEqual(ds_dict, correct_dict)
 
 
+class TestFromDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestFromDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestFromDict', 'tear_down_class()')
+
+	def test_normal(self):
+		"""Test that from_dict() correctly converts a normal DemandSource object from a dict.
+		"""
+		print_status('TestFromDict', 'test_normal()')
+
+		the_dict = {
+			'type': 'N',
+			'round_to_int': True,
+			'mean': 100,
+			'standard_deviation': 20,
+			'demand_list': None,
+			'probabilities': None,
+			'lo': None,
+			'hi': None
+		}
+		ds = DemandSource.from_dict(the_dict)
+
+		correct_ds = DemandSource()
+		correct_ds.type = 'N'
+		correct_ds.mean = 100
+		correct_ds.standard_deviation = 20
+		correct_ds.round_to_int = True
+		
+		self.assertEqual(ds, correct_ds)
+
+	def test_uniform(self):
+		"""Test that from_dict() correctly converts a uniform DemandSource object from a dict.
+		"""
+		print_status('TestFromDict', 'test_uniform()')
+
+		the_dict = {
+			'type': 'UC',
+			'round_to_int': False,
+			'mean': None,
+			'standard_deviation': None,
+			'demand_list': None,
+			'probabilities': None,
+			'lo': 100,
+			'hi': 200
+		}
+		ds = DemandSource.from_dict(the_dict)
+
+		correct_ds = DemandSource()
+		correct_ds.type = 'UC'
+		correct_ds.lo = 100
+		correct_ds.hi = 200
+
+		self.assertEqual(ds, correct_ds)
+
+	def test_custom_discrete(self):
+		"""Test that from_dict() correctly converts a custom-discrete DemandSource object from a dict.
+		"""
+		print_status('TestFromDict', 'test_custom_discrete()')
+
+		demand_list = [0, 1, 2, 3]
+		probabilities = [0.25, 0.1, 0.5, 0.15]
+
+		the_dict = {
+			'type': 'CD',
+			'round_to_int': False,
+			'mean': None,
+			'standard_deviation': None,
+			'demand_list': demand_list,
+			'probabilities': probabilities,
+			'lo': None,
+			'hi': None
+		}
+		ds = DemandSource.from_dict(the_dict)
+
+		correct_ds = DemandSource()
+		correct_ds.type = 'CD'
+		correct_ds.demand_list = [0, 1, 2, 3]
+		correct_ds.probabilities = [0.25, 0.1, 0.5, 0.15]
+
+		self.assertEqual(ds, correct_ds)
+
+		# Modify original lists to make sure the object doesn't change.
+		demand_list = [5, 4, 3, 2]
+		probabilities = [0.25] * 4
+		self.assertEqual(ds, correct_ds)
+
+
 class TestValidateParameters(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

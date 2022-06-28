@@ -381,6 +381,8 @@ class DemandSource(object):
 			if len(self.demand_list) != len(self.probabilities): raise AttributeError("For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths")
 			if np.sum(self.probabilities) != 1: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must sum to 1")
 
+	# CONVERSION TO/FROM DICTS
+
 	def to_dict(self):
 		"""Convert the |class_demand_source| object to a dict. List attributes
 		(``demand_list``, ``probabilities``) are deep-copied so changes to the original
@@ -405,6 +407,33 @@ class DemandSource(object):
 		ds_dict['hi']					= self.hi
 
 		return ds_dict
+
+	@classmethod
+	def from_dict(cls, the_dict):
+		"""Return a new |class_demand_source| object with attributes copied from the
+		values in ``the_dict``. List attributes (``demand_list``, ``probabilities``) 
+		are deep-copied so changes to the original dict do not get propagated to the object.
+
+		Parameters
+		----------
+		the_dict : dict
+			Dict representation of a |class_demand_source|, typically created using ``to_dict()``.
+
+		Returns
+		-------
+		DemandSource
+			The object converted from the dict.
+		"""
+		return cls(
+			type 				= the_dict['type'],
+			round_to_int		= the_dict['round_to_int'],
+			mean 				= the_dict['mean'],
+			standard_deviation	= the_dict['standard_deviation'],
+			demand_list 		= copy.deepcopy(the_dict['demand_list']),
+			probabilities 		= copy.deepcopy(the_dict['probabilities']),
+			lo					= the_dict['lo'],
+			hi					= the_dict['hi']
+		)
 
 	# DEMAND GENERATION
 
