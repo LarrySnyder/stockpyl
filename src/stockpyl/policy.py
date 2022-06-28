@@ -283,6 +283,28 @@ class Policy(object):
 		if self.type == 'BEBS':
 			if self.base_stock_level is None: raise AttributeError("For 'BEBS' (balanced echelon base-stock) policy, base_stock_level must be provided")
 
+	def to_dict(self):
+		"""Convert the |class_policy| object to a dict. The ``node`` attribute is set
+		to the index of the node (if any), rather than to the object.
+
+		Returns
+		-------
+		dict
+			The dict representation of the object.
+		"""
+		# Initialize dict.
+		pol_dict = {}
+
+		# Attributes.
+		pol_dict['type'] 				= self.type
+		pol_dict['node'] 				= None if self.node is None else self.node.index
+		pol_dict['base_stock_level']	= self.base_stock_level
+		pol_dict['order_quantity'] 		= self.order_quantity
+		pol_dict['reorder_point'] 		= self.reorder_point
+		pol_dict['order_up_to_level'] 	= self.order_up_to_level
+
+		return pol_dict
+		
 	# ORDER QUANTITY METHODS
 
 	def get_order_quantity(self, predecessor_index=None, inventory_position=None,

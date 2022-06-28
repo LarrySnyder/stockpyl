@@ -154,6 +154,67 @@ class TestInitialize(unittest.TestCase):
 		self.assertEqual(dp1, dp2)
 
 
+class TestToDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestToDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestToDict', 'tear_down_class()')
+
+	def test_markovian(self):
+		"""Test that to_dict() correctly converts a Markovian DisruptionProcess
+		object to dict.
+		"""
+		print_status('TestToDict', 'test_markovian()')
+
+		disruption_process = DisruptionProcess()
+		disruption_process.random_process_type = 'M'
+		disruption_process.disruption_probability = 0.1
+		disruption_process.recovery_probability = 0.25
+		disruption_process.disrupted = True
+		dp_dict = disruption_process.to_dict()
+		correct_dict = {
+			'random_process_type': 'M',
+			'disruption_type': 'OP',
+			'disruption_probability': 0.1,
+			'recovery_probability': 0.25,
+			'disruption_state_list': None,
+			'disrupted': True
+		}
+		self.assertDictEqual(dp_dict, correct_dict)
+
+	def test_explicit(self):
+		"""Test that to_dict() correctly converts an explicit DisruptionProcess 
+		object to dict.
+		"""
+		print_status('TestToDict', 'test_explicit()')
+
+		disruption_state_list = [True, False, False, True, False]
+
+		disruption_process = DisruptionProcess()
+		disruption_process.random_process_type = 'E'
+		disruption_process.disruption_type = 'RP'
+		disruption_process.disruption_state_list = disruption_state_list
+		dp_dict = disruption_process.to_dict()
+		correct_dict = {
+			'random_process_type': 'E',
+			'disruption_type': 'RP',
+			'disruption_probability': None,
+			'recovery_probability': None,
+			'disruption_state_list': [True, False, False, True, False],
+			'disrupted': False
+		}
+		self.assertDictEqual(dp_dict, correct_dict)
+
+		# Modify original list to make sure the dict doesn't change.
+		disruption_state_list.append(True)
+		self.assertDictEqual(dp_dict, correct_dict)
+
+
 class TestValidateParameters(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

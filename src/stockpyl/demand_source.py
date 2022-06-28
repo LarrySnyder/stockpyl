@@ -47,6 +47,7 @@ API Reference
 
 import numpy as np
 import scipy.stats 
+import copy
 
 from stockpyl.helpers import *
 
@@ -379,6 +380,31 @@ class DemandSource(object):
 			if self.probabilities is None: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must be provided")
 			if len(self.demand_list) != len(self.probabilities): raise AttributeError("For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths")
 			if np.sum(self.probabilities) != 1: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must sum to 1")
+
+	def to_dict(self):
+		"""Convert the |class_demand_source| object to a dict. List attributes
+		(``demand_list``, ``probabilities``) are deep-copied so changes to the original
+		object do not get propagated to the dict.
+
+		Returns
+		-------
+		dict
+			The dict representation of the object.
+		"""
+		# Initialize dict.
+		ds_dict = {}
+
+		# Attributes.
+		ds_dict['type'] 				= self.type
+		ds_dict['round_to_int']			= self.round_to_int
+		ds_dict['mean']					= self.mean
+		ds_dict['standard_deviation']	= self.standard_deviation
+		ds_dict['demand_list']			= copy.deepcopy(self.demand_list)
+		ds_dict['probabilities']		= copy.deepcopy(self.probabilities)
+		ds_dict['lo']					= self.lo
+		ds_dict['hi']					= self.hi
+
+		return ds_dict
 
 	# DEMAND GENERATION
 

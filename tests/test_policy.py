@@ -7,6 +7,7 @@ import unittest
 
 from stockpyl.policy import *
 from stockpyl.instances import load_instance
+from stockpyl.supply_chain_node import SupplyChainNode
 
 
 # Module-level functions.
@@ -331,6 +332,81 @@ class TestInitialize(unittest.TestCase):
 		pol1.initialize(overwrite=False)
 		pol2 = Policy(type=None, base_stock_level=70)
 		self.assertEqual(pol1, pol2)
+
+
+class TestToDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestToDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestToDict', 'tear_down_class()')
+
+	def test_base_stock(self):
+		"""Test that to_dict() correctly converts a base-stock Policy object to dict.
+		"""
+		print_status('TestToDict', 'test_base_stock()')
+
+		pol = Policy()
+		pol.type = 'BS'
+		pol.base_stock_level = 100
+		pol_dict = pol.to_dict()
+		correct_dict = {
+			'type': 'BS',
+			'node': None,
+			'base_stock_level': 100,
+			'order_quantity': None,
+			'reorder_point': None,
+			'order_up_to_level': None
+		}
+		self.assertDictEqual(pol_dict, correct_dict)
+
+	def test_base_stock_with_node(self):
+		"""Test that to_dict() correctly converts a base-stock Policy object to dict
+		when its node attribute is set to a node object.
+		"""
+		print_status('TestToDict', 'test_base_stock_with_node()')
+
+		node = SupplyChainNode(index=5, local_holding_cost=1, stockout_cost=10)
+
+		pol = Policy()
+		pol.type = 'BS'
+		pol.node = node
+		pol.base_stock_level = 100
+		pol_dict = pol.to_dict()
+		correct_dict = {
+			'type': 'BS',
+			'node': 5,
+			'base_stock_level': 100,
+			'order_quantity': None,
+			'reorder_point': None,
+			'order_up_to_level': None
+		}
+		self.assertDictEqual(pol_dict, correct_dict)
+
+	def test_s_S(self):
+		"""Test that to_dict() correctly converts an (s,S) Policy object to dict.
+		"""
+		print_status('TestToDict', 'test_s_S()')
+
+		pol = Policy()
+		pol.type = 'sS'
+		pol.node = None
+		pol.reorder_point = 100
+		pol.order_up_to_level = 500
+		pol_dict = pol.to_dict()
+		correct_dict = {
+			'type': 'sS',
+			'node': None,
+			'base_stock_level': None,
+			'order_quantity': None,
+			'reorder_point': 100,
+			'order_up_to_level': 500
+		}
+		self.assertDictEqual(pol_dict, correct_dict)
 
 
 class TestValidateParameters(unittest.TestCase):

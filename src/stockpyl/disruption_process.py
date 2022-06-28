@@ -59,6 +59,7 @@ API Reference
 # ===============================================================================
 
 import numpy as np
+import copy
 
 from stockpyl.helpers import *
 
@@ -312,6 +313,29 @@ class DisruptionProcess(object):
 			if self.recovery_probability < 0 or self.recovery_probability > 1: raise AttributeError("For 'M' (Markovian) disruptions, recovery_probability must be in [0,1]")
 		elif self.random_process_type == 'E':
 			if self.disruption_state_list is None: raise AttributeError("For 'E' (explicit) disruptions, disruption_probability_list must be provided")
+
+	def to_dict(self):
+		"""Convert the |class_disruption_process| object to a dict. List attributes
+		(``disruption_state_list``) are deep-copied so changes to the original
+		object do not get propagated to the dict.
+
+		Returns
+		-------
+		dict
+			The dict representation of the object.
+		"""
+		# Initialize dict.
+		dp_dict = {}
+
+		# Attributes.
+		dp_dict['random_process_type'] 		= self.random_process_type
+		dp_dict['disruption_type']			= self.disruption_type
+		dp_dict['disruption_probability']	= self.disruption_probability
+		dp_dict['recovery_probability']		= self.recovery_probability
+		dp_dict['disruption_state_list']	= copy.deepcopy(self.disruption_state_list)
+		dp_dict['disrupted']				= self.disrupted
+
+		return dp_dict
 
 	# DISRUPTION STATE MANAGEMENT
 

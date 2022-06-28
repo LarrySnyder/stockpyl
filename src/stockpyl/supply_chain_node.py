@@ -570,6 +570,27 @@ class SupplyChainNode(object):
 			self.larger_adjacent_node == other.larger_adjacent_node and \
 			self.larger_adjacent_node_is_downstream == other.larger_adjacent_node_is_downstream and \
 			self.max_replenishment_time == other.max_replenishment_time
+
+	def to_dict(self):
+		"""Convert the |class_node| object to a dict. Converts the object recursively,
+		calling ``to_dict()`` on each object that is an attribute of the node (|class_demand_source|, etc.).
+
+		Successors and predecessors are stored as their indices only, not |class_node| objects.
+
+		Returns
+		-------
+		dict
+			The dict representation of the node.
+		"""
+		# Initialize dict.
+		node_dict = {}
+
+		# Non-object attributes.
+		node_dict['index']		= self.index
+		node_dict['name']		= self.name
+
+
+		return node_dict
 			
 	# Neighbor management.
 

@@ -244,6 +244,31 @@ class SupplyChainNetwork(object):
 
 		return self._period == other._period and \
 			self.max_max_replenishment_time == other.max_max_replenishment_time
+
+	def to_dict(self):
+		"""Convert the |class_network| object to a dict. Converts the object recursively,
+		calling ``to_dict()`` on each |class_node| in the network.
+
+		Returns
+		-------
+		dict
+			The dict representation of the network.
+		"""
+		# Initialize dict.
+		network_dict = {}
+
+		# Non-object attributes.
+		network_dict['period'] = self.period
+		network_dict['max_max_replenishment_time'] = self.max_max_replenishment_time
+
+		# Nodes.
+		network_dict['nodes'] = []
+		for n in self.nodes:
+			network_dict['nodes'].append(n.to_dict())
+
+		# TODO: need to replicate network structure
+
+		return network_dict
 			
 	# Methods for node handling.
 
