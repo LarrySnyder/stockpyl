@@ -287,6 +287,6 @@ def _stockpyl_instances_json_path():
 		The absolute path, including the filename itself.
 	"""
 	code_file = os.path.abspath(inspect.getsourcefile(_stockpyl_instances_json_path))
-	rtn = os.path.join(os.path.dirname(code_file), "datasets/stockpyl_instances.json")
+	rtn = os.path.join(os.path.dirname(code_file), "datasets", "stockpyl_instances.json")
 	assert os.path.exists(rtn) and os.path.isfile(rtn)
 	return rtn
