@@ -39,14 +39,15 @@ import datetime
 import jsonpickle
 import csv
 from copy import deepcopy
+import inspect
 
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
 
 #: Default path to JSON file containing built-in instances. Relative to 'src' directory.
-DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
+#DEFAULT_JSON_FILEPATH = '../datasets/stockpyl_instances.json'
 
-def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_missing_attributes=True,
+def load_instance(instance_name, filepath=None, initialize_missing_attributes=True,
 	ignore_state_vars=True):
 	"""Load an instance from a JSON file. 
 
@@ -58,7 +59,8 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 	instance_name : str
 		The name of the instance.
 	filepath : str, optional
-		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
+		Path to the JSON file. If ``None``, the function determines the path to 
+		``datasets/stockpyl_instances.json``.
 	initialize_missing_attributes : bool, optional
 		If ``True``, function will ensure that all attributes are present in the instance loaded,
 		initializing any missing attributes to their default values. (Typically this is only set
@@ -79,6 +81,10 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 	ValueError
 		If the JSON file does not exist or the instance cannot be found in the JSON file.
 	"""
+
+	# Determine filepath.
+	if filepath is None:
+		filepath = _stockpyl_instances_json_path()
 
 	# Does JSON file exist?
 	if os.path.exists(filepath):
@@ -135,7 +141,7 @@ def load_instance(instance_name, filepath=DEFAULT_JSON_FILEPATH, initialize_miss
 		return instance
 
 
-def save_instance(instance_name, instance_data, instance_description='', filepath=DEFAULT_JSON_FILEPATH, 
+def save_instance(instance_name, instance_data, instance_description='', filepath=None, 
 	replace=True, create_if_none=True, omit_state_vars=True):
 	"""Save an instance to a JSON file. 
 	
@@ -150,7 +156,8 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	instance_description : str, optional
 		A longer descrtiption of the instance.
 	filepath : str, optional
-		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
+		Path to the JSON file. If ``None``, the function determines the path to 
+		``datasets/stockpyl_instances.json``.
 	replace : bool, optional
 		If an instance with the same ``instance_name`` is already in the file, the function
 		will replace it if ``True`` and will ignore it (and write nothing) if ``False``.
@@ -161,6 +168,10 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 		If ``True``, the function will not save state variables as part of the nodes,
 		even if they are present in the instance. # TODO
 	"""
+
+	# Determine filepath.
+	if filepath is None:
+		filepath = _stockpyl_instances_json_path()
 
 	# Does JSON file exist?
 	if os.path.exists(filepath):
@@ -230,7 +241,7 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	f.close()
 
 
-def _save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
+def _save_summary_to_csv(save_filepath, json_filepath=None):
 	"""Save a CSV file with a summary of the instances in a JSON file.
 
 	Main purpose of this method is to build the CSV file that populates the table
@@ -241,8 +252,13 @@ def _save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
 	save_filepath : str
 		Path to the CSV file to create.
 	json_filepath : str, optional
-		Path to the JSON file. If ``None``, ``DEFAULT_JSON_FILEPATH`` is used.
+		Path to the JSON file. If ``None``, the function determines the path to 
+		``datasets/stockpyl_instances.json``.
 	"""
+
+	# Determine filepath.
+	if filepath is None:
+		filepath = _stockpyl_instances_json_path()
 
 	# Load JSON file.
 	with open(json_filepath) as f:
@@ -259,3 +275,18 @@ def _save_summary_to_csv(save_filepath, json_filepath=DEFAULT_JSON_FILEPATH):
 	f.close()
 	csvfile.close()
 
+
+def _stockpyl_instances_json_path():
+	"""Determine the path to the JSON file containing the instances. 
+
+	See discussion at https://github.com/LarrySnyder/stockpyl/issues/85.
+
+	Returns
+	-------
+	str
+		The absolute path, including the filename itself.
+	"""
+	code_file = os.path.abspath(inspect.getsourcefile(_stockpyl_instances_json_path))
+	rtn = os.path.join(os.path.dirname(code_file), "datasets/stockpyl_instances.json")
+	assert os.path.exists(rtn) and os.path.isfile(rtn)
+	return rtn
