@@ -45,11 +45,12 @@ API Reference
 import numpy as np
 import networkx as nx
 from math import isclose
+import copy
 
 from stockpyl import policy
 from stockpyl import demand_source
 from stockpyl import disruption_process
-from stockpyl.helpers import change_dict_key
+from stockpyl.helpers import change_dict_key, is_integer
 
 # ===============================================================================
 # SupplyChainNode Class
@@ -573,9 +574,12 @@ class SupplyChainNode(object):
 
 	def to_dict(self):
 		"""Convert the |class_node| object to a dict. Converts the object recursively,
-		calling ``to_dict()`` on each object that is an attribute of the node (|class_demand_source|, etc.).
+		calling ``to_dict()`` on each object that is an attribute of the node 
+		(|class_demand_source|, etc.).
 
 		Successors and predecessors are stored as their indices only, not |class_node| objects.
+		``network`` object is not filled, but should be filled with the network object if this
+		function is called recursively from a |class_network|'s ``from_dict()`` method.
 
 		Returns
 		-------
@@ -588,7 +592,39 @@ class SupplyChainNode(object):
 		# Non-object attributes.
 		node_dict['index']		= self.index
 		node_dict['name']		= self.name
+		node_dict['network']	= None
+		node_dict['local_holding_cost']				= self.local_holding_cost
+		node_dict['echelon_holding_cost']			= self.echelon_holding_cost
+		node_dict['local_holding_cost_function']	= self.local_holding_cost_function
+		node_dict['in_transit_holding_cost']		= self.in_transit_holding_cost
+		node_dict['stockout_cost']					= self.stockout_cost
+		node_dict['stockout_cost_function']			= self.stockout_cost_function
+		node_dict['revenue']						= self.revenue
+		node_dict['shipment_lead_time']				= self.shipment_lead_time
+		node_dict['order_lead_time']				= self.order_lead_time
+		node_dict['initial_inventory_level']		= self.initial_inventory_level
+		node_dict['initial_orders']					= self.initial_orders
+		node_dict['initial_shipments']				= self.initial_shipments
+		node_dict['supply_type']					= self.supply_type
+		node_dict['processing_time']				= self.processing_time
+		node_dict['external_inbound_cst']			= self.external_inbound_cst
+		node_dict['external_outbound_cost']			= self.external_outbound_cost
+		node_dict['demand_bound_constant']			= self.demand_bound_constant
+		node_dict['units_required']					= self.units_required
+		node_dict['original_label']					= self.original_label
+		node_dict['net_demand_mean']				= self.net_demand_mean
+		node_dict['net_demand_standard_deviation']	= self.net_demand_standard_deviation
+		node_dict['larger_adjacent_node']			= self.larger_adjacent_node
+		node_dict['larger_adjacent_node_is_downstream']	= self.larger_adjacent_node_is_downstream
+		node_dict['max_replenishment_time']			= self.max_replenishment_time
 
+		# Predecessors and successors.
+
+		# Object attributes.
+		node_dict['demand_source']					= self.demand_source.to_dict()
+		node_dict['inventory_policy']				= self.inventory_policy.to_dict()
+		node_dict['disruption_process']				= self.disruption_process.to_dict()
+		node_dict['state_vars']						= self.state_vars.to_dict()
 
 		return node_dict
 			
@@ -929,6 +965,42 @@ class NodeStateVars(object):
 		self.demand_met_from_stock_cumul = 0
 		self.fill_rate = 0
 
+	# --- Special Methods --- #
+
+	def __eq__(self, other):
+		"""Determine whether ``other`` is equal to the state variables object. Two objects are
+		considered equal if they are deeply-equal to each other.
+
+		Parameters
+		----------
+		other : |class_state_vars|
+			The state variables object to compare to.
+
+		Returns
+		-------
+		bool
+			True if the state variables objects are equal, False otherwise.
+
+		"""
+		return self.deep_equal_to(other)
+
+	def __ne__(self, other):
+		"""Determine whether ``other`` is not equal to the state variables object. Two objects are
+		considered equal if they are deeply-equal to each other.
+
+		Parameters
+		----------
+		other : |class_state_vars|
+			The state variables object to compare to.
+
+		Returns
+		-------
+		bool
+			True if the state variables objects are not equal, False otherwise.
+
+		"""
+		return not self.__eq__(other)
+
 	# --- Calculated State Variables --- #
 	# These are calculated based on the primary state variables.
 
@@ -1166,6 +1238,98 @@ class NodeStateVars(object):
 		# Calculate adjusted echelon inventory position.
 		return self.echelon_inventory_level + in_transit_adjusted
 
+	# --- Conversion to/from Dicts --- #
+
+	def to_dict(self):
+		"""Convert the |class_state_vars| object to a dict. List and dict attributes
+		are deep-copied so changes to the original object do not get propagated to the dict.
+ 		The ``node`` attribute is set to the index of the node (if any), rather than to the object.
+
+		Returns
+		-------
+		dict
+			The dict representation of the object.
+		"""
+		# Initialize dict.
+		sv_dict = {}
+
+		# Attributes.
+		sv_dict['node'] 							= self.node.index
+		sv_dict['period']							= self.period
+		sv_dict['inbound_shipment_pipeline']		= copy.deepcopy(self.inbound_shipment_pipeline)
+		sv_dict['inbound_shipment']					= copy.deepcopy(self.inbound_shipment)
+		sv_dict['inbound_order_pipeline']			= copy.deepcopy(self.inbound_order_pipeline)
+		sv_dict['inbound_order']					= copy.deepcopy(self.inbound_order)
+		sv_dict['outbound_shipment']				= copy.deepcopy(self.outbound_shipment)
+		sv_dict['on_order_by_predecessor']			= copy.deepcopy(self.on_order_by_predecessor)
+		sv_dict['backorders_by_successor']			= copy.deepcopy(self.backorders_by_successor)
+		sv_dict['outbound_disrupted_items']			= copy.deepcopy(self.outbound_disrupted_items)
+		sv_dict['inbound_disrupted_items']			= copy.deepcopy(self.inbound_disrupted_items)
+		sv_dict['order_quantity']					= copy.deepcopy(self.order_quantity)
+		sv_dict['raw_material_inventory']			= copy.deepcopy(self.raw_material_inventory)
+		sv_dict['inventory_level'] 					= self.inventory_level
+		sv_dict['disrupted'] 						= self.disrupted
+		sv_dict['holding_cost_incurred'] 			= self.holding_cost_incurred
+		sv_dict['stockout_cost_incurred'] 			= self.stockout_cost_incurred
+		sv_dict['in_transit_holding_cost_incurred']	= self.in_transit_holding_cost_incurred
+		sv_dict['revenue_earned'] 					= self.revenue_earned
+		sv_dict['total_cost_incurred'] 				= self.total_cost_incurred
+		sv_dict['demand_cumul'] 					= self.demand_cumul
+		sv_dict['demand_met_from_stock'] 			= self.demand_met_from_stock
+		sv_dict['demand_met_from_stock_cumul'] 		= self.demand_met_from_stock_cumul
+		sv_dict['fill_rate'] 						= self.fill_rate
+
+		return sv_dict
+
+	@classmethod
+	def from_dict(cls, the_dict):
+		"""Return a new |class_state_vars| object with attributes copied from the
+		values in ``the_dict``. List and dict attributes 
+		are deep-copied so changes to the original dict do not get propagated to the object.
+		The ``node`` attribute is set to the index of the node,
+		like it is in the dict, but should be converted to a node object if this
+		function is called recursively from a |class_node|'s ``from_dict()`` method.
+
+		Parameters
+		----------
+		the_dict : dict
+			Dict representation of a |class_state_vars|, typically created using ``to_dict()``.
+
+		Returns
+		-------
+		NodeStateVars
+			The object converted from the dict.
+		"""
+		nsv = NodeStateVars()
+
+		nsv.node 								= the_dict['node']
+		nsv.period								= the_dict['period']
+		nsv.inbound_shipment_pipeline			= copy.deepcopy(the_dict['inbound_shipment_pipeline'])
+		nsv.inbound_shipment					= copy.deepcopy(the_dict['inbound_shipment'])
+		nsv.inbound_order_pipeline				= copy.deepcopy(the_dict['inbound_order_pipeline'])
+		nsv.inbound_order						= copy.deepcopy(the_dict['inbound_order'])
+		nsv.outbound_shipment					= copy.deepcopy(the_dict['outbound_shipment'])
+		nsv.on_order_by_predecessor				= copy.deepcopy(the_dict['on_order_by_predecessor'])
+		nsv.backorders_by_successor				= copy.deepcopy(the_dict['backorders_by_successor'])
+		nsv.outbound_disrupted_items			= copy.deepcopy(the_dict['outbound_disrupted_items'])
+		nsv.inbound_disrupted_items				= copy.deepcopy(the_dict['inbound_disrupted_items'])
+		nsv.order_quantity						= copy.deepcopy(the_dict['order_quantity'])
+		nsv.raw_material_inventory				= copy.deepcopy(the_dict['raw_material_inventory'])
+		nsv.inventory_level						= the_dict['inventory_level']
+		nsv.disrupted							= the_dict['disrupted']
+		nsv.holding_cost_incurred				= the_dict['holding_cost_incurred']
+		nsv.stockout_cost_incurred				= the_dict['stockout_cost_incurred']
+		nsv.in_transit_holding_cost_incurred	= the_dict['in_transit_holding_cost_incurred']
+		nsv.revenue_earned						= the_dict['revenue_earned']
+		nsv.total_cost_incurred					= the_dict['total_cost_incurred']
+		nsv.demand_cumul						= the_dict['demand_cumul']
+		nsv.demand_met_from_stock				= the_dict['demand_met_from_stock']
+		nsv.demand_met_from_stock_cumul			= the_dict['demand_met_from_stock_cumul']
+		nsv.fill_rate							= the_dict['fill_rate']
+
+		return nsv
+
+
 	# --- Utility Functions --- #
 
 	def reindex_state_variables(self, old_to_new_dict):
@@ -1193,3 +1357,59 @@ class NodeStateVars(object):
 			change_dict_key(self.outbound_shipment, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.backorders_by_successor, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.outbound_disrupted_items, s.index, old_to_new_dict[s.index])
+
+	def deep_equal_to(self, other, rel_tol=1e-8):
+		"""Check whether object "deeply equals" ``other``, i.e., if all attributes are
+		equal, including attributes that are lists or dicts.
+		
+		Note the following caveats:
+
+		* Checks the equality of ``node.index`` but not the entire ``node`` object.
+
+		Parameters
+		----------
+		other : |class_state_vars|
+			The state variables to compare this one to.
+		rel_tol : float, optional
+			Relative tolerance to use when comparing equality of float attributes.
+
+		Returns
+		-------
+		bool
+			``True`` if the two state variables objects are equal, ``False`` otherwise.
+		"""
+
+		if (self.node is not None and other.node is None) or (self.node is None and other.node is not None): return False
+		if self.node is not None and other.node is not None:
+			if is_integer(self.node) and is_integer(other.node):
+				if self.node != other.node: return False
+			elif not is_integer(self.node) and not is_integer(other.node):
+				if self.node.index != other.node.index: return False
+			else: 
+				return False
+		if self.period != other.period: return False
+		if self.inbound_shipment_pipeline != other.inbound_shipment_pipeline: return False
+		if self.inbound_shipment != other.inbound_shipment: return False
+		if self.inbound_order_pipeline != other.inbound_order_pipeline: return False
+		if self.inbound_order != other.inbound_order: return False
+		if self.outbound_shipment != other.outbound_shipment: return False
+		if self.on_order_by_predecessor != other.on_order_by_predecessor: return False
+		if self.backorders_by_successor != other.backorders_by_successor: return False
+		if self.outbound_disrupted_items != other.outbound_disrupted_items: return False
+		if self.inbound_disrupted_items != other.inbound_disrupted_items: return False
+		if self.order_quantity != other.order_quantity: return False
+		if self.raw_material_inventory != other.raw_material_inventory: return False
+		if self.inventory_level != other.inventory_level: return False
+		if self.disrupted != other.disrupted: return False
+		if self.holding_cost_incurred != other.holding_cost_incurred: return False
+		if self.stockout_cost_incurred != other.stockout_cost_incurred: return False
+		if self.in_transit_holding_cost_incurred != other.in_transit_holding_cost_incurred: return False
+		if self.revenue_earned != other.revenue_earned: return False
+		if self.total_cost_incurred != other.total_cost_incurred: return False
+		if self.demand_cumul != other.demand_cumul: return False
+		if self.demand_met_from_stock != other.demand_met_from_stock: return False
+		if self.demand_met_from_stock_cumul != other.demand_met_from_stock_cumul: return False
+		if self.fill_rate != other.fill_rate: return False
+
+		return True
+

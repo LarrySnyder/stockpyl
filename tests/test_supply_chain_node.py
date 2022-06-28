@@ -946,3 +946,225 @@ class TestInitialize(unittest.TestCase):
 		self.assertTrue(n1.deep_equal_to(n2))
 
 
+class TestNodeStateVarsToFromDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNodeStateVarsToFromDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNodeStateVarsToFromDict', 'tear_down_class()')
+
+	def test_example_6_1_per_22(self):
+		"""Test that to_dict() correctly converts NodeStateVars object to and from dict
+		in Example 6.1 per 22.
+		"""
+		print_status('TestNodeStateVarsToFromDict', 'test_example_6_1_per_22()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, convert state vars
+		# to dict and back, compare to original.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Original NodeStateVars.
+		original_nsv_lists = {n.index: n.state_vars for n in network.nodes}
+
+		# Convert to dicts.
+		nsv_dict_lists = {}
+		for ind, nsv_list in original_nsv_lists.items():
+			nsv_dict_lists[ind] = [nsv.to_dict() for nsv in nsv_list]
+
+		# Convert back.
+		nsv_lists_converted = {}
+		for ind, nsv_dict_list in nsv_dict_lists.items():
+			nsv_lists_converted[ind] = [NodeStateVars.from_dict(nsv_dict) for nsv_dict in nsv_dict_list]
+
+		# Set node attributes to in original_nsv_lists to the node's indices 
+		# (otherwise deep_equal_to() will get confused since from_dict() will only
+		# set node to the node's index).
+		for ind, nsv_list in original_nsv_lists.items():
+			for t in range(len(nsv_list)):
+				nsv_list[t].node = nsv_list[t].node.index
+
+		# Check for equality.
+		for ind, nsv_list in original_nsv_lists.items():
+			self.assertListEqual(nsv_list, nsv_lists_converted[ind])
+
+	def test_assembly_3_stage_per_22(self):
+		"""Test that to_dict() correctly converts NodeStateVars object to and from dict
+		in Example 6.1 per 22.
+		"""
+		print_status('TestNodeStateVarsToFromDict', 'test_assembly_3_stage_per_22()')
+
+		network = load_instance("assembly_3_stage")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variables.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Original NodeStateVars.
+		original_nsv_lists = {n.index: n.state_vars for n in network.nodes}
+
+		# Convert to dicts.
+		nsv_dict_lists = {}
+		for ind, nsv_list in original_nsv_lists.items():
+			nsv_dict_lists[ind] = [nsv.to_dict() for nsv in nsv_list]
+
+		# Convert back.
+		nsv_lists_converted = {}
+		for ind, nsv_dict_list in nsv_dict_lists.items():
+			nsv_lists_converted[ind] = [NodeStateVars.from_dict(nsv_dict) for nsv_dict in nsv_dict_list]
+
+		# Set node attributes to in original_nsv_lists to the node's indices 
+		# (otherwise deep_equal_to() will get confused since from_dict() will only
+		# set node to the node's index).
+		for ind, nsv_list in original_nsv_lists.items():
+			for t in range(len(nsv_list)):
+				nsv_list[t].node = nsv_list[t].node.index
+
+		# Check for equality.
+		for ind, nsv_list in original_nsv_lists.items():
+			self.assertListEqual(nsv_list, nsv_lists_converted[ind])
+
+
+class TestNodeStateVarsEq(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNodeStateVarsEq', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNodeStateVarsEq', 'tear_down_class()')
+
+	def test_equal(self):
+		"""Test that __eq__() and __ne__() work when state variables are equal.
+		"""
+		print_status('TestNodeStateVarsEq', 'test_equal()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, make copies of
+		# state vars, check that they are equal.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Original NodeStateVars.
+		original_nsv_lists = {n.index: n.state_vars for n in network.nodes}
+
+		# Copies
+		copy_nsv_lists = {ind: copy.deepcopy(nsv_list) for ind, nsv_list in original_nsv_lists.items()}
+
+		# Check equality.
+		for ind, nsv_list in original_nsv_lists.items():
+			for t in range(len(nsv_list)):
+				self.assertTrue(copy_nsv_lists[ind][t] == nsv_list[t])
+				self.assertFalse(copy_nsv_lists[ind][t] != nsv_list[t])
+
+	def test_not_equal(self):
+		"""Test that __eq__() and __ne()__ work when state variables are not equal.
+		"""
+		print_status('TestNodeStateVarsEq', 'test_not_equal()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, make copies of
+		# state vars, check that they are equal.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Original NodeStateVars.
+		original_nsv_lists = {n.index: n.state_vars for n in network.nodes}
+
+		# Copies
+		copy_nsv_lists = {ind: copy.deepcopy(nsv_list) for ind, nsv_list in original_nsv_lists.items()}
+
+		# Modify one object.
+		copy_nsv_lists[1][12].inventory_level = 77
+
+		# Check inequality.
+		self.assertTrue(copy_nsv_lists[1][12] != original_nsv_lists[1][12])
+		self.assertFalse(copy_nsv_lists[1][12] == original_nsv_lists[1][12])
+		
+
+class TestNodeStateVarsDeepEqualTo(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNodeStateVarsDeepEqualTo', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNodeStateVarsDeepEqualTo', 'tear_down_class()')
+
+	def test_equal(self):
+		"""Test that deep_equal_to() works when state variables are equal.
+		"""
+		print_status('TestNodeStateVarsDeepEqualTo', 'test_equal()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, make copies of
+		# state vars, check that they are equal.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Original NodeStateVars.
+		original_nsv_lists = {n.index: n.state_vars for n in network.nodes}
+
+		# Copies
+		copy_nsv_lists = {ind: copy.deepcopy(nsv_list) for ind, nsv_list in original_nsv_lists.items()}
+
+		# Check equality.
+		for ind, nsv_list in original_nsv_lists.items():
+			for t in range(len(nsv_list)):
+				self.assertTrue(copy_nsv_lists[ind][t].deep_equal_to(nsv_list[t]))
+
+	def test_not_equal(self):
+		"""Test that deep_equal_to() works when state variables are not equal.
+		"""
+		print_status('TestNodeStateVarsDeepEqualTo', 'test_not_equal()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, make copies of
+		# state vars, check that they are equal.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Original NodeStateVars.
+		original_nsv_lists = {n.index: n.state_vars for n in network.nodes}
+
+		# Copies
+		copy_nsv_lists = {ind: copy.deepcopy(nsv_list) for ind, nsv_list in original_nsv_lists.items()}
+
+		# Modify one object.
+		copy_nsv_lists[1][12].inventory_level = 77
+
+		# Check inequality.
+		self.assertFalse(copy_nsv_lists[1][12].deep_equal_to(original_nsv_lists[1][12]))

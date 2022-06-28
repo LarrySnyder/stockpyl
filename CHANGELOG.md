@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Methods to convert objects to and from dicts
+
 ### Changed
 - Removed dependency on pandas
 

@@ -335,7 +335,7 @@ class TestFromDict(unittest.TestCase):
 		correct_ds = DemandSource()
 		correct_ds.type = 'CD'
 		correct_ds.demand_list = [0, 1, 2, 3]
-		correct_ds.probabilities = [0.25, 0.1, 0.5, 0.15]
+		correct_ds.probabilities = probabilities
 
 		self.assertEqual(ds, correct_ds)
 
