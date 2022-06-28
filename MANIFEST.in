@@ -1,4 +1,4 @@
 include README.md
-include datasets/*.json
+include src/stockpyl/datasets/*.json
 
 exclude private_files/*
