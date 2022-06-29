@@ -1707,3 +1707,101 @@ class TestEchelonToLocalBaseStockLevels(unittest.TestCase):
 		S_echelon = {3: 10, 2: 15, 1: 5}
 		S_local = echelon_to_local_base_stock_levels(instance, S_echelon)
 		self.assertDictEqual(S_local, {3: 5, 2: 0, 1: 0})
+
+
+class TestToFromDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestToFromDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestToFromDict', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNetwork object to and from dict
+		in Example 6.1.
+		"""
+		print_status('TestToFromDict', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+
+		# Convert network to dict.
+		network_dict = network.to_dict()
+
+		# Convert dict back to network.
+		dict_network = SupplyChainNetwork.from_dict(network_dict)
+
+		# Compare.
+		self.assertTrue(network.deep_equal_to(dict_network))
+
+	def test_assembly_3_stage(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNetwork object to and from dict
+		in 3-stage assembly system.
+		"""
+		print_status('TestToFromDict', 'test_assembly_3_stage()')
+
+		network = load_instance("assembly_3_stage")
+
+		# Convert network to dict.
+		network_dict = network.to_dict()
+
+		# Convert dict back to network.
+		dict_network = SupplyChainNetwork.from_dict(network_dict)
+
+		# Compare.
+		self.assertTrue(network.deep_equal_to(dict_network))
+
+	def test_example_6_1_per_22(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNetwork object to and from dict
+		in Example 6.1 per 22.
+		"""
+		print_status('TestToFromDict', 'test_example_6_1_per_22()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, convert nodes
+		# to dict and back, compare to original.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Convert network to dict.
+		network_dict = network.to_dict()
+
+		# Convert dict back to network.
+		dict_network = SupplyChainNetwork.from_dict(network_dict)
+
+		# Compare.
+		self.assertTrue(network.deep_equal_to(dict_network))
+
+	def test_assembly_3_stage_per_22(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNetwork object to and from dict
+		in 3-stage assembly system.
+		"""
+		print_status('TestToFromDict', 'test_assembly_3_stage_per_22()')
+
+		network = load_instance("assembly_3_stage")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, convert nodes
+		# to dict and back, compare to original.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Convert network to dict.
+		network_dict = network.to_dict()
+
+		# Convert dict back to network.
+		dict_network = SupplyChainNetwork.from_dict(network_dict)
+
+		# Compare.
+		self.assertTrue(network.deep_equal_to(dict_network))
+
+			

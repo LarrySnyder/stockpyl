@@ -266,9 +266,51 @@ class SupplyChainNetwork(object):
 		for n in self.nodes:
 			network_dict['nodes'].append(n.to_dict())
 
-		# TODO: need to replicate network structure
-
 		return network_dict
+
+	@classmethod
+	def from_dict(cls, the_dict):
+		"""Return a new |class_network| object with attributes copied from the
+		values in ``the_dict``. 
+
+		Parameters
+		----------
+		the_dict : dict
+			Dict representation of a |class_network|, typically created using ``to_dict()``.
+
+		Returns
+		-------
+		SupplyChainNetwork
+			The object converted from the dict.
+		"""
+		if the_dict is None:
+			network = None
+		else:
+			# Initialize node object.
+			network = SupplyChainNetwork()
+
+		# Non-object attributes.
+		network.period 						= the_dict['period']
+		network.max_max_replenishment_time	= the_dict['max_max_replenishment_time']
+
+		# Nodes.
+		for n_dict in the_dict['nodes']:
+			network.nodes.append(SupplyChainNode.from_dict(n_dict))
+
+		# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
+		# replaces them with indices.)
+		for n in network.nodes:
+			preds = []
+			succs = []
+			for m in network.nodes:
+				if m.index in n.predecessors():
+					preds.append(m)
+				if m.index in n.successors():
+					succs.append(m)
+			n._predecessors = preds
+			n._successors = succs
+
+		return network
 			
 	# Methods for node handling.
 
