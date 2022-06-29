@@ -71,10 +71,11 @@
              
   <section id="stockpyl">
 <h1>Stockpyl<a class="headerlink" href="#stockpyl" title="Permalink to this heading">¶</a></h1>
-<p>Stockpyl is a Python package for inventory optimization. It implements
+<p>Stockpyl is a Python package for inventory optimization and simulation. It implements
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
-(MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions.</p>
+(MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions.
+And, it has extensive features for simulating multi-echelon inventory systems.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The notation and references (equations, sections, examples, etc.) used below refer to Snyder and Shen, <em>Fundamentals of Supply Chain Theory</em> (<em>FoSCT</em>), 2nd edition (2019).</p>
@@ -82,7 +83,7 @@ and Wagner-Whitin problems. It also contains algorithms for multi-echelon invent
 <hr class="docutils" />
 <section id="some-examples">
 <h2>Some Examples<a class="headerlink" href="#some-examples" title="Permalink to this heading">¶</a></h2>
-<p>Solve the EOQ problem with <span class="math notranslate nohighlight">\(K=8\)</span>, <span class="math notranslate nohighlight">\(h=0.225\)</span>, and <span class="math notranslate nohighlight">\(\lambda=1300\)</span> (Example 3.1 in <em>FoSCT</em>):</p>
+<p>Solve the EOQ problem with a fixed cost of 8, a holding cost of 0.225, and a demand rate of 1300 (Example 3.1 in <em>FoSCT</em>):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.eoq</span> <span class="kn">import</span> <span class="n">economic_order_quantity</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">economic_order_quantity</span><span class="p">(</span><span class="n">fixed_cost</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.225</span><span class="p">,</span> <span class="n">demand_rate</span><span class="o">=</span><span class="mi">1300</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span>
@@ -91,7 +92,8 @@ and Wagner-Whitin problems. It also contains algorithms for multi-echelon invent
 <span class="go">68.41052550594829</span>
 </pre></div>
 </div>
-<p>Or the newsvendor problem with <span class="math notranslate nohighlight">\(h=0.18\)</span>, <span class="math notranslate nohighlight">\(p=0.70\)</span>, and <span class="math notranslate nohighlight">\(D\sim N(50, 8^2)\)</span> (Example 4.3 in <em>FoSCT</em>):</p>
+<p>Or the newsvendor problem with a holding cost of 0.18, a stockout cost of 0.70, and demand that is normally
+distributed with mean 50 and standard deviation 8 (Example 4.3 in <em>FoSCT</em>):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">stockpyl.newsvendor</span> <span class="kn">import</span> <span class="n">newsvendor_normal</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">newsvendor_normal</span><span class="p">(</span><span class="n">holding_cost</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">stockout_cost</span><span class="o">=</span><span class="mf">0.70</span><span class="p">,</span> <span class="n">demand_mean</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">demand_sd</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">S</span>

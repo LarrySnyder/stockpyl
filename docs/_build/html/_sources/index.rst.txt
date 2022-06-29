@@ -4,10 +4,11 @@
 Stockpyl
 ========
 
-|sp| is a Python package for inventory optimization. It implements
+|sp| is a Python package for inventory optimization and simulation. It implements
 classical single-node inventory models like the economic order quantity (EOQ), newsvendor,
 and Wagner-Whitin problems. It also contains algorithms for multi-echelon inventory optimization
 (MEIO) under both stochastic-service model (SSM) and guaranteed-service model (GSM) assumptions. 
+And, it has extensive features for simulating multi-echelon inventory systems.
 
 .. note:: |fosct_notation|
 
@@ -16,7 +17,7 @@ and Wagner-Whitin problems. It also contains algorithms for multi-echelon invent
 Some Examples
 -------------
 
-Solve the EOQ problem with :math:`K=8`, :math:`h=0.225`, and :math:`\lambda=1300` (Example 3.1 in *FoSCT*):
+Solve the EOQ problem with a fixed cost of 8, a holding cost of 0.225, and a demand rate of 1300 (Example 3.1 in *FoSCT*):
 
 .. doctest::
     
@@ -27,7 +28,8 @@ Solve the EOQ problem with :math:`K=8`, :math:`h=0.225`, and :math:`\lambda=1300
     >>> cost
     68.41052550594829
 
-Or the newsvendor problem with :math:`h=0.18`, :math:`p=0.70`, and :math:`D\sim N(50, 8^2)` (Example 4.3 in *FoSCT*):
+Or the newsvendor problem with a holding cost of 0.18, a stockout cost of 0.70, and demand that is normally
+distributed with mean 50 and standard deviation 8 (Example 4.3 in *FoSCT*):
 
 .. doctest::
     

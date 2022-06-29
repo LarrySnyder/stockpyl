@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.9] -- 2022-06-28
+
 ### Fixed
-- Bug that prevented named instances from being loaded correctly
+- Bug that prevented named instances from being loaded correctly using ``load_instance()``
 
 ### Added
 - Methods to convert objects to and from dicts
