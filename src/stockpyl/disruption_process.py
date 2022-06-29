@@ -355,14 +355,17 @@ class DisruptionProcess(object):
 		DisruptionProcess
 			The object converted from the dict.
 		"""
-		return cls(
-			random_process_type 	= the_dict['random_process_type'],
-			disruption_type			= the_dict['disruption_type'],
-			disruption_probability 	= the_dict['disruption_probability'],
-			recovery_probability	= the_dict['recovery_probability'],
-			disruption_state_list 	= copy.deepcopy(the_dict['disruption_state_list']),
-			disrupted 				= the_dict['disrupted']
-		)
+		if the_dict is None:
+			return cls()
+		else:
+			return cls(
+				random_process_type 	= the_dict['random_process_type'],
+				disruption_type			= the_dict['disruption_type'],
+				disruption_probability 	= the_dict['disruption_probability'],
+				recovery_probability	= the_dict['recovery_probability'],
+				disruption_state_list 	= copy.deepcopy(the_dict['disruption_state_list']),
+				disrupted 				= the_dict['disrupted']
+			)
 
 	# DISRUPTION STATE MANAGEMENT
 

@@ -578,7 +578,10 @@ class SupplyChainNode(object):
 		(|class_demand_source|, etc.).
 
 		Successors and predecessors are stored as their indices only, not |class_node| objects.
-		``network`` object is not filled, but should be filled with the network object if this
+		They should be replaced with the node objects if this function is called recursively
+		from a |class_network|'s ``from_dict()`` method.
+
+		Similarly, ``network`` object is not filled, but should be filled with the network object if this
 		function is called recursively from a |class_network|'s ``from_dict()`` method.
 
 		Returns
@@ -590,9 +593,9 @@ class SupplyChainNode(object):
 		node_dict = {}
 
 		# Non-object attributes.
-		node_dict['index']		= self.index
-		node_dict['name']		= self.name
-		node_dict['network']	= None
+		node_dict['index']							= self.index
+		node_dict['name']							= self.name
+		node_dict['network']						= None
 		node_dict['local_holding_cost']				= self.local_holding_cost
 		node_dict['echelon_holding_cost']			= self.echelon_holding_cost
 		node_dict['local_holding_cost_function']	= self.local_holding_cost_function
@@ -608,7 +611,7 @@ class SupplyChainNode(object):
 		node_dict['supply_type']					= self.supply_type
 		node_dict['processing_time']				= self.processing_time
 		node_dict['external_inbound_cst']			= self.external_inbound_cst
-		node_dict['external_outbound_cost']			= self.external_outbound_cost
+		node_dict['external_outbound_cst']			= self.external_outbound_cst
 		node_dict['demand_bound_constant']			= self.demand_bound_constant
 		node_dict['units_required']					= self.units_required
 		node_dict['original_label']					= self.original_label
@@ -619,15 +622,101 @@ class SupplyChainNode(object):
 		node_dict['max_replenishment_time']			= self.max_replenishment_time
 
 		# Predecessors and successors.
+		node_dict['_predecessors']					= copy.deepcopy(self.predecessor_indices(include_external=True))
+		node_dict['_successors']					= copy.deepcopy(self.successor_indices(include_external=True))
 
 		# Object attributes.
-		node_dict['demand_source']					= self.demand_source.to_dict()
-		node_dict['inventory_policy']				= self.inventory_policy.to_dict()
-		node_dict['disruption_process']				= self.disruption_process.to_dict()
-		node_dict['state_vars']						= self.state_vars.to_dict()
-
+		node_dict['demand_source']					= None if self.demand_source is None else self.demand_source.to_dict()
+		node_dict['inventory_policy']				= None if self.inventory_policy is None else self.inventory_policy.to_dict()
+		node_dict['disruption_process']				= None if self.disruption_process is None else self.disruption_process.to_dict()
+		node_dict['state_vars'] 					= None if self.state_vars is None else [sv.to_dict() for sv in self.state_vars]
+		
 		return node_dict
 			
+	@classmethod
+	def from_dict(cls, the_dict):
+		"""Return a new |class_node| object with attributes copied from the
+		values in ``the_dict``. List attributes 
+		are deep-copied so changes to the original dict do not get propagated to the object.
+		
+		``_predecessors`` and ``_successors`` attributes are set to the indices of the nodes,
+		like they are in the dict, but should be converted to node objects if this
+		function is called recursively from a |class_network|'s ``from_dict()`` method.
+
+		Similarly, ``network`` object is not filled, but should be filled with the network object if this
+		function is called recursively from a |class_network|'s ``from_dict()`` method.
+
+		Parameters
+		----------
+		the_dict : dict
+			Dict representation of a |class_node|, typically created using ``to_dict()``.
+
+		Returns
+		-------
+		SupplyChainNode
+			The object converted from the dict.
+		"""
+		if the_dict is None:
+			node = None
+		else:
+			# Initialize node object.
+			node = SupplyChainNode(the_dict['index'])
+
+			# Non-object attributes.
+			node.name							= the_dict['name']							
+			node.network						= the_dict['network']
+			node.local_holding_cost				= the_dict['local_holding_cost']				
+			node.echelon_holding_cost			= the_dict['echelon_holding_cost']			
+			node.local_holding_cost_function	= the_dict['local_holding_cost_function']	
+			node.in_transit_holding_cost		= the_dict['in_transit_holding_cost']		
+			node.stockout_cost					= the_dict['stockout_cost']					
+			node.stockout_cost_function			= the_dict['stockout_cost_function']			
+			node.revenue						= the_dict['revenue']						
+			node.shipment_lead_time				= the_dict['shipment_lead_time']				
+			node.order_lead_time				= the_dict['order_lead_time']				
+			node.initial_inventory_level		= the_dict['initial_inventory_level']		
+			node.initial_orders					= the_dict['initial_orders']					
+			node.initial_shipments				= the_dict['initial_shipments']				
+			node.supply_type					= the_dict['supply_type']					
+			node.processing_time				= the_dict['processing_time']				
+			node.external_inbound_cst			= the_dict['external_inbound_cst']			
+			node.external_outbound_cst			= the_dict['external_outbound_cst']			
+			node.demand_bound_constant			= the_dict['demand_bound_constant']			
+			node.units_required					= the_dict['units_required']					
+			node.original_label					= the_dict['original_label']					
+			node.net_demand_mean				= the_dict['net_demand_mean']				
+			node.net_demand_standard_deviation	= the_dict['net_demand_standard_deviation']	
+			node.larger_adjacent_node			= the_dict['larger_adjacent_node']			
+			node.larger_adjacent_node_is_downstream	= the_dict['larger_adjacent_node_is_downstream']	
+			node.max_replenishment_time			= the_dict['max_replenishment_time']			
+
+			# Predecessors and successors.
+			node._predecessors					= copy.deepcopy(the_dict['_predecessors'])
+			node._successors					= copy.deepcopy(the_dict['_successors'])
+
+			# Object attributes.
+			if the_dict['demand_source'] is None:
+				node.demand_source 				= None
+			else:
+				node.demand_source				= demand_source.DemandSource.from_dict(the_dict['demand_source'])
+			if the_dict['inventory_policy'] is None:
+				node.inventory_policy			= None
+			else:
+				node.inventory_policy			= policy.Policy.from_dict(the_dict['inventory_policy'])
+				node.inventory_policy.node		= node
+			if the_dict['disruption_process'] is None:
+				node.disruption_process			= None
+			else:
+				node.disruption_process				= disruption_process.DisruptionProcess.from_dict(the_dict['disruption_process'])
+			if the_dict['state_vars'] is None:
+				node.state_vars					= None
+			else:
+				node.state_vars						= [NodeStateVars.from_dict(sv) for sv in the_dict['state_vars']]
+				for sv in node.state_vars:
+					sv.node							= node
+			
+		return node
+		
 	# Neighbor management.
 
 	def add_successor(self, successor):
@@ -1286,6 +1375,7 @@ class NodeStateVars(object):
 		"""Return a new |class_state_vars| object with attributes copied from the
 		values in ``the_dict``. List and dict attributes 
 		are deep-copied so changes to the original dict do not get propagated to the object.
+		
 		The ``node`` attribute is set to the index of the node,
 		like it is in the dict, but should be converted to a node object if this
 		function is called recursively from a |class_node|'s ``from_dict()`` method.
@@ -1300,32 +1390,35 @@ class NodeStateVars(object):
 		NodeStateVars
 			The object converted from the dict.
 		"""
-		nsv = NodeStateVars()
+		if the_dict is None:
+			nsv = None
+		else:
+			nsv = NodeStateVars()
 
-		nsv.node 								= the_dict['node']
-		nsv.period								= the_dict['period']
-		nsv.inbound_shipment_pipeline			= copy.deepcopy(the_dict['inbound_shipment_pipeline'])
-		nsv.inbound_shipment					= copy.deepcopy(the_dict['inbound_shipment'])
-		nsv.inbound_order_pipeline				= copy.deepcopy(the_dict['inbound_order_pipeline'])
-		nsv.inbound_order						= copy.deepcopy(the_dict['inbound_order'])
-		nsv.outbound_shipment					= copy.deepcopy(the_dict['outbound_shipment'])
-		nsv.on_order_by_predecessor				= copy.deepcopy(the_dict['on_order_by_predecessor'])
-		nsv.backorders_by_successor				= copy.deepcopy(the_dict['backorders_by_successor'])
-		nsv.outbound_disrupted_items			= copy.deepcopy(the_dict['outbound_disrupted_items'])
-		nsv.inbound_disrupted_items				= copy.deepcopy(the_dict['inbound_disrupted_items'])
-		nsv.order_quantity						= copy.deepcopy(the_dict['order_quantity'])
-		nsv.raw_material_inventory				= copy.deepcopy(the_dict['raw_material_inventory'])
-		nsv.inventory_level						= the_dict['inventory_level']
-		nsv.disrupted							= the_dict['disrupted']
-		nsv.holding_cost_incurred				= the_dict['holding_cost_incurred']
-		nsv.stockout_cost_incurred				= the_dict['stockout_cost_incurred']
-		nsv.in_transit_holding_cost_incurred	= the_dict['in_transit_holding_cost_incurred']
-		nsv.revenue_earned						= the_dict['revenue_earned']
-		nsv.total_cost_incurred					= the_dict['total_cost_incurred']
-		nsv.demand_cumul						= the_dict['demand_cumul']
-		nsv.demand_met_from_stock				= the_dict['demand_met_from_stock']
-		nsv.demand_met_from_stock_cumul			= the_dict['demand_met_from_stock_cumul']
-		nsv.fill_rate							= the_dict['fill_rate']
+			nsv.node 								= the_dict['node']
+			nsv.period								= the_dict['period']
+			nsv.inbound_shipment_pipeline			= copy.deepcopy(the_dict['inbound_shipment_pipeline'])
+			nsv.inbound_shipment					= copy.deepcopy(the_dict['inbound_shipment'])
+			nsv.inbound_order_pipeline				= copy.deepcopy(the_dict['inbound_order_pipeline'])
+			nsv.inbound_order						= copy.deepcopy(the_dict['inbound_order'])
+			nsv.outbound_shipment					= copy.deepcopy(the_dict['outbound_shipment'])
+			nsv.on_order_by_predecessor				= copy.deepcopy(the_dict['on_order_by_predecessor'])
+			nsv.backorders_by_successor				= copy.deepcopy(the_dict['backorders_by_successor'])
+			nsv.outbound_disrupted_items			= copy.deepcopy(the_dict['outbound_disrupted_items'])
+			nsv.inbound_disrupted_items				= copy.deepcopy(the_dict['inbound_disrupted_items'])
+			nsv.order_quantity						= copy.deepcopy(the_dict['order_quantity'])
+			nsv.raw_material_inventory				= copy.deepcopy(the_dict['raw_material_inventory'])
+			nsv.inventory_level						= the_dict['inventory_level']
+			nsv.disrupted							= the_dict['disrupted']
+			nsv.holding_cost_incurred				= the_dict['holding_cost_incurred']
+			nsv.stockout_cost_incurred				= the_dict['stockout_cost_incurred']
+			nsv.in_transit_holding_cost_incurred	= the_dict['in_transit_holding_cost_incurred']
+			nsv.revenue_earned						= the_dict['revenue_earned']
+			nsv.total_cost_incurred					= the_dict['total_cost_incurred']
+			nsv.demand_cumul						= the_dict['demand_cumul']
+			nsv.demand_met_from_stock				= the_dict['demand_met_from_stock']
+			nsv.demand_met_from_stock_cumul			= the_dict['demand_met_from_stock_cumul']
+			nsv.fill_rate							= the_dict['fill_rate']
 
 		return nsv
 

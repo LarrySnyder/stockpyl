@@ -424,16 +424,19 @@ class DemandSource(object):
 		DemandSource
 			The object converted from the dict.
 		"""
-		return cls(
-			type 				= the_dict['type'],
-			round_to_int		= the_dict['round_to_int'],
-			mean 				= the_dict['mean'],
-			standard_deviation	= the_dict['standard_deviation'],
-			demand_list 		= copy.deepcopy(the_dict['demand_list']),
-			probabilities 		= copy.deepcopy(the_dict['probabilities']),
-			lo					= the_dict['lo'],
-			hi					= the_dict['hi']
-		)
+		if the_dict is None:
+			return cls()
+		else:
+			return cls(
+				type 				= the_dict['type'],
+				round_to_int		= the_dict['round_to_int'],
+				mean 				= the_dict['mean'],
+				standard_deviation	= the_dict['standard_deviation'],
+				demand_list 		= copy.deepcopy(the_dict['demand_list']),
+				probabilities 		= copy.deepcopy(the_dict['probabilities']),
+				lo					= the_dict['lo'],
+				hi					= the_dict['hi']
+			)
 
 	# DEMAND GENERATION
 

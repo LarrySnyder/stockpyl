@@ -324,14 +324,17 @@ class Policy(object):
 		Policy
 			The object converted from the dict.
 		"""
-		return cls(
-			type 				= the_dict['type'],
-			node				= the_dict['node'],
-			base_stock_level 	= the_dict['base_stock_level'],
-			order_quantity		= the_dict['order_quantity'],
-			reorder_point		= the_dict['reorder_point'],
-			order_up_to_level	= the_dict['order_up_to_level']
-		)
+		if the_dict is None:
+			return cls()
+		else:
+			return cls(
+				type 				= the_dict['type'],
+				node				= the_dict['node'],
+				base_stock_level 	= the_dict['base_stock_level'],
+				order_quantity		= the_dict['order_quantity'],
+				reorder_point		= the_dict['reorder_point'],
+				order_up_to_level	= the_dict['order_up_to_level']
+			)
 
 	# ORDER QUANTITY METHODS
 

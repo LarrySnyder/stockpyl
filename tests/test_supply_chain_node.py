@@ -541,6 +541,154 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
 
 
+class TestNodeToFromDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNodeToFromDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNodeToFromDict', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNode object to and from dict
+		in Example 6.1.
+		"""
+		print_status('TestNodeToFromDict', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+
+		# Convert nodes to dicts.
+		node_dicts = [n.to_dict() for n in network.nodes]
+
+		# Convert dicts back to nodes.
+		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
+
+		# Convert successors and predecessors back to node objects.
+		for n in dict_nodes:
+			preds = []
+			succs = []
+			for m in dict_nodes:
+				if m.index in n.predecessors():
+					preds.append(m)
+				if m.index in n.successors():
+					succs.append(m)
+			n._predecessors = preds
+			n._successors = succs
+
+		# Compare.
+		for i in range(len(network.nodes)):
+			self.assertTrue(network.nodes[i].deep_equal_to(dict_nodes[i]))
+
+	def test_assembly_3_stage(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNode object to and from dict
+		in 3-stage assembly system.
+		"""
+		print_status('TestNodeToFromDict', 'test_assembly_3_stage()')
+
+		network = load_instance("assembly_3_stage")
+
+		# Convert nodes to dicts.
+		node_dicts = [n.to_dict() for n in network.nodes]
+
+		# Convert dicts back to nodes.
+		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
+
+		# Convert successors and predecessors back to node objects.
+		for n in dict_nodes:
+			preds = []
+			succs = []
+			for m in dict_nodes:
+				if m.index in n.predecessors():
+					preds.append(m)
+				if m.index in n.successors():
+					succs.append(m)
+			n._predecessors = preds
+			n._successors = succs
+
+		# Compare.
+		for i in range(len(network.nodes)):
+			self.assertTrue(network.nodes[i].deep_equal_to(dict_nodes[i]))
+
+	def test_example_6_1_per_22(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNode object to and from dict
+		in Example 6.1 per 22.
+		"""
+		print_status('TestNodeToFromDict', 'test_example_6_1_per_22()')
+
+		network = load_instance("example_6_1")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, convert nodes
+		# to dict and back, compare to original.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Convert nodes to dicts.
+		node_dicts = [n.to_dict() for n in network.nodes]
+
+		# Convert dicts back to nodes.
+		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
+
+		# Convert successors and predecessors back to node objects.
+		for n in dict_nodes:
+			preds = []
+			succs = []
+			for m in dict_nodes:
+				if m.index in n.predecessors():
+					preds.append(m)
+				if m.index in n.successors():
+					succs.append(m)
+			n._predecessors = preds
+			n._successors = succs
+
+		# Compare.
+		for i in range(len(network.nodes)):
+			self.assertTrue(network.nodes[i].deep_equal_to(dict_nodes[i]))
+
+	def test_assembly_3_stage_per_22(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNode object to and from dict
+		in 3-stage assembly system.
+		"""
+		print_status('TestNodeToFromDict', 'test_assembly_3_stage_per_22()')
+
+		network = load_instance("assembly_3_stage")
+
+		# Set initial inventory levels to local BS levels.
+		for n in network.nodes:
+			n.initial_inventory_level = n.inventory_policy.base_stock_level
+
+		# Strategy for these tests: run sim for a few periods, convert nodes
+		# to dict and back, compare to original.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		# Convert nodes to dicts.
+		node_dicts = [n.to_dict() for n in network.nodes]
+
+		# Convert dicts back to nodes.
+		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
+
+		# Convert successors and predecessors back to node objects.
+		for n in dict_nodes:
+			preds = []
+			succs = []
+			for m in dict_nodes:
+				if m.index in n.predecessors():
+					preds.append(m)
+				if m.index in n.successors():
+					succs.append(m)
+			n._predecessors = preds
+			n._successors = succs
+
+		# Compare.
+		for i in range(len(network.nodes)):
+			self.assertTrue(network.nodes[i].deep_equal_to(dict_nodes[i]))
+			
+			
 class TestStateVariables(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -958,7 +1106,7 @@ class TestNodeStateVarsToFromDict(unittest.TestCase):
 		print_status('TestNodeStateVarsToFromDict', 'tear_down_class()')
 
 	def test_example_6_1_per_22(self):
-		"""Test that to_dict() correctly converts NodeStateVars object to and from dict
+		"""Test that to_dict() and from_dict() correctly convert NodeStateVars object to and from dict
 		in Example 6.1 per 22.
 		"""
 		print_status('TestNodeStateVarsToFromDict', 'test_example_6_1_per_22()')
@@ -998,7 +1146,7 @@ class TestNodeStateVarsToFromDict(unittest.TestCase):
 			self.assertListEqual(nsv_list, nsv_lists_converted[ind])
 
 	def test_assembly_3_stage_per_22(self):
-		"""Test that to_dict() correctly converts NodeStateVars object to and from dict
+		"""Test that to_dict() and from_dict() correctly convert NodeStateVars object to and from dict
 		in Example 6.1 per 22.
 		"""
 		print_status('TestNodeStateVarsToFromDict', 'test_assembly_3_stage_per_22()')
