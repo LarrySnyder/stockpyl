@@ -1,4 +1,4 @@
-build==0.8.0
+build==0.0.2
 jsonpickle==2.2.0
 matplotlib==3.5.2
 networkx==2.8.2
