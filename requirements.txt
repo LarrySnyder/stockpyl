@@ -7,5 +7,5 @@ scipy==1.6.0
 setuptools==49.6
 sphinx_rtd_theme==1.0.0
 sphinx_toolbox==3.1.2
-tabulate==0.8.0
+tabulate==0.8.7
 tqdm==4.1.0
