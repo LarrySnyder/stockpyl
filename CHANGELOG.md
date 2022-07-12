@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.11] -- 2022-07-11
+## [0.0.12] -- 2022-07-12
 
 ### Changed
-- Much looser dependencies (previous versions required newer than necessary versions of some packages)
+- Looser dependencies (previous versions required newer than necessary versions of some packages)
+
+## [0.0.11] -- 2022-07-11 -- YANKED
 
 ## [0.0.10] -- 2022-07-11 -- YANKED
 

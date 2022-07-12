@@ -7,5 +7,7 @@ Installing Stockpyl
 
 	pip install stockpyl
 
+|sp| requires Python v3.8 or later.
+
 
 
