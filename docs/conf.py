@@ -47,8 +47,15 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx_toolbox',
+    'sphinx_toolbox.github',
+    'sphinx_toolbox.collapse'
 ]
+
+# GitHub info for sidebar.
+github_username = 'LarrySnyder'
+github_repository = 'stockpyl'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

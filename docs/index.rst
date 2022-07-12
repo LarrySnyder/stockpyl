@@ -162,3 +162,8 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+
+
+.. sidebar-links::
+    :github:
+    :pypi: stockpyl
