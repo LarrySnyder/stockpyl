@@ -2,7 +2,7 @@ build==0.0.2
 jsonpickle==2.2.0
 matplotlib==3.5.2
 networkx==2.8.2
-numpy==1.22.4
+numpy==1.22
 scipy==1.8.1
 setuptools==49.6
 sphinx_rtd_theme==1.0.0
