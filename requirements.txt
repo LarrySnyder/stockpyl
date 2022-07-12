@@ -1,7 +1,7 @@
 build==0.0.2
 jsonpickle==1.0
-matplotlib==3.5.2
-networkx==2.8.2
+matplotlib==2.0
+networkx==2.0
 numpy==1.22
 scipy==1.6.0
 setuptools==49.6
