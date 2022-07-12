@@ -4,6 +4,6 @@ matplotlib==2.0
 networkx==2.0
 numpy==1.22
 scipy==1.0
-setuptools==49.6
+setuptools==63.1.0
 tabulate==0.8.0
 tqdm==4.1.0
