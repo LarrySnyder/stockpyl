@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- ``newsvendor.newsvendor_explicit()`` parameter renamed to ``revenue`` from ``selling_revenue`` for consistency
+
 ## [0.0.12] -- 2022-07-12
 
 ### Changed

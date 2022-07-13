@@ -23,6 +23,7 @@ These can be loaded using the :func:`~load_instance` function by providing the i
 A list of the built-in instances is provided below.
 
 
+.. include:: ../../../src/stockpyl/aux_files/stockpyl_instances_metadata.rst
 
 
 .. csv-table:: Built-In Instances
@@ -215,7 +216,8 @@ def save_instance_new(instance_name, instance_data, instance_description='', fil
 		if omit_state_vars:
 			for n in local_copy.nodes:
 				n.state_vars = None
-		data = json.encode(local_copy)
+		# Convert to dict and JSONify.
+		data = json.dumps(local_copy.to_dict())
 
 	# Create dictionary with instance metadata and data.
 	instance_dict = {

@@ -99,7 +99,7 @@ form of the newsvendor problem, whose parameters are the selling revenue, purcha
 .. doctest::
 
 	>>> from stockpyl.newsvendor import newsvendor_normal_explicit
-	>>> newsvendor_normal_explicit(selling_revenue=1.00, purchase_cost=0.30, salvage_value=0.12, demand_mean=50, demand_sd=8)
+	>>> newsvendor_normal_explicit(revenue=1.00, purchase_cost=0.30, salvage_value=0.12, demand_mean=50, demand_sd=8)
 	(56.60395592743389, 33.002394806823354)
 
 The module supports probability distributions other than normal; for example, Poisson:

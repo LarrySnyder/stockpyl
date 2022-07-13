@@ -287,7 +287,7 @@
 			"name": "example_4_2",
 			"description": "Example 4.2 (newsvendor explicit)",
 			"data": {
-				"selling_revenue": 1,
+				"revenue": 1,
 				"purchase_cost": 0.3,
 				"salvage_value": 0.12,
 				"demand_mean": 50,
@@ -323,7 +323,7 @@
 			"name": "problem_4_3b",
 			"description": "Problem 4.3(b) (newsvendor explicit)",
 			"data": {
-				"selling_revenue": 7,
+				"revenue": 7,
 				"purchase_cost": 2.5,
 				"salvage_value": 1.5,
 				"demand_mean": 50,

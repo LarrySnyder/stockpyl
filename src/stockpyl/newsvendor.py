@@ -913,19 +913,19 @@ def set_myopic_cost_to(
 	return base_stock_level
 
 
-def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
+def newsvendor_normal_explicit(revenue, purchase_cost, salvage_value,
 							   demand_mean, demand_sd, holding_cost=0, stockout_cost=0, 
 					  		   lead_time=0, base_stock_level=None):
 	"""Solve the "explicit", profit-maximization version of the newsvendor
 	problem with normal distribution, or (if ``base_stock_level`` is supplied)
 	calculate profit of given solution.
 
-	Assumes ``salvage_value`` < ``purchase_cost`` < ``selling_revenue``
+	Assumes ``salvage_value`` < ``purchase_cost`` < ``revenue``
 	(otherwise the solution is not well-defined).
 
 	Parameters
 	----------
-	selling_revenue : float
+	revenue : float
 		Revenue per unit sold. [:math:`r`]
 	purchase_cost : float
 		Cost per unit purchased. [:math:`c`]
@@ -996,7 +996,7 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
 	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
-	if selling_revenue <= purchase_cost: raise ValueError("selling_revenue must be > purchase_cost")
+	if revenue <= purchase_cost: raise ValueError("revenue must be > purchase_cost")
 	if purchase_cost <= salvage_value: raise ValueError("purchase_cost must be > salvage_value")
 
 	# Calculate lead-time demand parameters.
@@ -1006,22 +1006,22 @@ def newsvendor_normal_explicit(selling_revenue, purchase_cost, salvage_value,
 	# Is S provided?
 	if base_stock_level is None:
 		# Calculate alpha.
-		alpha = (stockout_cost + selling_revenue - purchase_cost) \
-				/ (stockout_cost + holding_cost + selling_revenue - salvage_value)
+		alpha = (stockout_cost + revenue - purchase_cost) \
+				/ (stockout_cost + holding_cost + revenue - salvage_value)
 
 		# Calculate optimal order quantity and cost.
 		base_stock_level = stats.norm.ppf(alpha, ltd_mean, ltd_sd)
-		profit = (selling_revenue - purchase_cost) * ltd_mean \
-			- (selling_revenue - salvage_value + holding_cost + stockout_cost) \
+		profit = (revenue - purchase_cost) * ltd_mean \
+			- (revenue - salvage_value + holding_cost + stockout_cost) \
 			   * stats.norm.pdf(stats.norm.ppf(alpha, 0, 1)) * ltd_sd
 	else:
 		# Calculate loss functions.
 		_, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
 
 		# Calculate profit.
-		profit = (selling_revenue - purchase_cost + stockout_cost) * base_stock_level \
+		profit = (revenue - purchase_cost + stockout_cost) * base_stock_level \
 			- stockout_cost * ltd_mean \
-			+ (salvage_value - selling_revenue - holding_cost - stockout_cost) * n_bar
+			+ (salvage_value - revenue - holding_cost - stockout_cost) * n_bar
 
 	return base_stock_level, profit
 

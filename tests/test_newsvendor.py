@@ -921,18 +921,18 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		print_status('TestNewsvendorNormalExplicit', 'test_example_4_2()')
 
 		instance = load_instance("example_4_2")
-		selling_revenue = instance['selling_revenue']
+		revenue = instance['revenue']
 		purchase_cost = instance['purchase_cost']
 		salvage_value = instance['salvage_value']
 		demand_mean = instance['demand_mean']
 		demand_sd = instance['demand_sd']
 
-		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, \
 									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0)
 		self.assertAlmostEqual(base_stock_level, 56.603955927433887)
 		self.assertAlmostEqual(profit, 33.002394806823354)
 
-		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, \
 									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0, \
 									base_stock_level=40)
 		self.assertAlmostEqual(base_stock_level, 40)
@@ -944,18 +944,18 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		print_status('TestNewsvendorNormalExplicit', 'test_problem_4_3b()')
 
 		instance = load_instance("problem_4_3b")
-		selling_revenue = instance['selling_revenue']
+		revenue = instance['revenue']
 		purchase_cost = instance['purchase_cost']
 		salvage_value = instance['salvage_value']
 		demand_mean = instance['demand_mean']
 		demand_sd = instance['demand_sd']
 
-		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, \
 									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0)
 		self.assertAlmostEqual(base_stock_level, 59.084578685373856)
 		self.assertAlmostEqual(profit, 2.104768082523147e+02)
 
-		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, \
 									purchase_cost, salvage_value, demand_mean, demand_sd, 0, 0, \
 									base_stock_level=62)
 		self.assertAlmostEqual(base_stock_level, 62)
@@ -964,12 +964,12 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		# Add a holding and stockout cost, and test again.
 		holding_cost = 1
 		stockout_cost = 5
-		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, \
 									purchase_cost, salvage_value, demand_mean, demand_sd, holding_cost, stockout_cost)
 		self.assertAlmostEqual(base_stock_level, 59.388143168769034)
 		self.assertAlmostEqual(profit, 1.954729310431908e+02)
 
-		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, \
+		base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, \
 									purchase_cost, salvage_value, demand_mean, demand_sd, holding_cost, stockout_cost, \
 									base_stock_level=62)
 		self.assertAlmostEqual(base_stock_level, 62)
@@ -980,13 +980,13 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalExplicit', 'test_bad_type()')
 
-		selling_revenue = "taco"
+		revenue = "taco"
 		purchase_cost = 0.3
 		salvage_value = 0.12
 		demand_mean = 50
 		demand_sd = 8
 		with self.assertRaises(TypeError):
-			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
+			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, purchase_cost,
 				salvage_value, demand_mean, demand_sd, 0, 0)
 
 	def test_negative_parameter(self):
@@ -994,11 +994,11 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		"""
 		print_status('TestNewsvendorNormalExplicit', 'test_negative_parameter()')
 
-		selling_revenue = -4
+		revenue = -4
 		purchase_cost = 0.3
 		salvage_value = 0.12
 		demand_mean = 50
 		demand_sd = 8
 		with self.assertRaises(ValueError):
-			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(selling_revenue, purchase_cost,
+			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, purchase_cost,
 				salvage_value, demand_mean, demand_sd, 0, 0)
