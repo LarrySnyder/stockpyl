@@ -350,8 +350,8 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	f.close()
 
 
-def _save_instance_metadata_to_rst(instance_name, instance_description='', instance_title=None, code_to_build=None, 
-	filepath=None, create_if_none=True):
+def _save_instance_metadata_to_rst(instance_name, instance_description='', instance_title=None, instance_notes=None,
+	code_to_build=None, filepath=None, create_if_none=True):
 	"""Save an instance metadata to an RST file. 
 
 	Does not check whether the instance already exists in the file; simply appends it to the end.
@@ -400,6 +400,8 @@ def _save_instance_metadata_to_rst(instance_name, instance_description='', insta
 		lines_to_write.append(f"\t| \n")
 		lines_to_write.append(f"\t| **Name:** ``{instance_name}``\n")
 		lines_to_write.append(f"\t| **Description:** {instance_description}\n")
+		if instance_notes is not None:
+			lines_to_write.append(f"\t| **Notes:** {instance_notes}\n")
 		lines_to_write.append(f"\t| **Code to Load Instance:**\n\n\t.. code-block:: python\n\n\t\tinstance = load_instance('{instance_name}')\n\n")
 		lines_to_write.append(f"\t| **Code to Build Manually:**\n\n\t.. code-block:: python\n\n{code_to_build}\n")
 		lines_to_write.append("\n")

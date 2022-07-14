@@ -235,6 +235,27 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
 		self.assertAlmostEqual(C_star, 4.584970628129348e+02, places=4)
 
+	def test_problem_6_2b(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes network in
+		Problem 6.2b.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_problem_6_2b()')
+
+		instance = copy.deepcopy(load_instance("problem_6_2b"))
+#		instance.reindex_nodes({n: n+1 for n in instance.node_indices})
+
+		S_star, C_star = optimize_base_stock_levels(network=instance,
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		correct_S_star = {5: 174, 4: 142, 3: 109, 2: 74, 1: 41}
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
+		self.assertAlmostEqual(C_star, 453.61978213342144, places=4)
+
 	def test_example_6_1_uniform(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes
 		network in Example 6.1 with uniform demands.
@@ -296,6 +317,26 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		correct_S_star = {1: 9, 2: 15, 3: 26}
 		self.assertDictEqual(S_star, correct_S_star)
 		self.assertAlmostEqual(C_star, 72.02506008691718, places=5)
+
+	def test_problem_6_16(self):
+		"""Test that optimize_base_stock_levels() correctly optimizes network in
+		Problem 6.16.
+		"""
+
+		print_status('TestOptimizeBaseStockLevels', 'test_problem_6_16()')
+
+		instance = copy.deepcopy(load_instance("problem_6_16"))
+
+		S_star, C_star = optimize_base_stock_levels(network=instance,
+			S=None, plots=False, x=None, x_num=100, d_num=10,
+			ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			ltd_upper_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
+			sum_ltd_upper_tail_prob=1-stats.norm.cdf(8))
+		correct_S_star = {2: 235.03951973066145, 1: 170.59486475174154}
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
+		self.assertAlmostEqual(C_star, 442.21079081028773, places=4)
 
 	def test_shang_song_instances(self):
 		"""Test that optimize_base_stock_levels() correctly optimizes
@@ -557,6 +598,20 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
 			demand_source=None)
 		correct_S_heur = [0, 40.5867040168793, 74.4580698705858, 109.5962562657559, 142.8985667640439, 175.8329858066735]
+		for n in instance.node_indices:
+			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
+
+	def test_problem_6_2b(self):
+		"""Test that newsvendor_heuristic() correctly optimizes network in
+		Problem 6.2b.
+		"""
+
+		print_status('TestNewsvendorHeuristic', 'test_problem_6_2b()')
+
+		instance = copy.deepcopy(load_instance("problem_6_2b"))
+
+		S_heur = newsvendor_heuristic(network=instance)
+		correct_S_heur = [0, 41, 74.5, 110, 143, 175.5]
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_heur[n], correct_S_heur[n], places=5)
 
