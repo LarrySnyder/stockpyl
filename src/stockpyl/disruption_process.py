@@ -156,12 +156,14 @@ class DisruptionProcess(object):
 		bool
 			``True`` if the |class_disruption_process| objects are equal, ``False`` otherwise.
 		"""
-
-		return self._random_process_type == other._random_process_type and \
-			self._disruption_type == other._disruption_type and \
-			self._disruption_probability == other._disruption_probability and \
-			self._recovery_probability == other._recovery_probability and \
-			self._disruption_state_list == other._disruption_state_list
+		if other is None:
+			return False
+		else:
+			return self._random_process_type == other._random_process_type and \
+				self._disruption_type == other._disruption_type and \
+				self._disruption_probability == other._disruption_probability and \
+				self._recovery_probability == other._recovery_probability and \
+				self._disruption_state_list == other._disruption_state_list
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this |class_disruption_process| object. 

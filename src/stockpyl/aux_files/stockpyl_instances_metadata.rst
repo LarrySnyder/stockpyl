@@ -512,8 +512,12 @@
 		instance = single_stage_system(
 			holding_cost=0.18,
 			stockout_cost=0.7,
+			demand_type='N',
 			mean=50,
-			standard_deviation=8
+			standard_deviation=8,
+			shipment_lead_time=1,
+			policy_type='BS',
+			base_stock_level=56.6
 		)
 
 
@@ -857,7 +861,7 @@
 			"terminal_holding_cost": 1,
 			"terminal_stockout_cost": 25,
 			"purchase_cost": 1,
-			"fixed_cost": 0,
+			"fixed_cost": 40,
 			"demand_mean": 18,
 			"demand_sd": 3,
 			"discount_factor": 0.98,
@@ -1350,6 +1354,7 @@
 		from stockpyl.supply_chain_network import mwor_system
 		instance = mwor_system(
 			num_warehouses=2,
+			node_order_in_lists=[0, 1, 2],
 			local_holding_cost=[2, 1, 1],
 			stockout_cost=[20, 0, 0],
 			demand_type='N',
@@ -1360,7 +1365,7 @@
 			base_stock_level=[7, 13, 11],
 			initial_inventory_level=[7, 13, 11]
 		)
-		instance.nodes[0].demand_source.round_to_int = True
+		instance.get_node_from_index(0).demand_source.round_to_int = True
 
 
 .. collapse:: Assembly system from Figure 1 in Rosling (1989)

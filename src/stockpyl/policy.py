@@ -123,11 +123,14 @@ class Policy(object):
 
 		"""
 
-		return self._type == other._type and \
-			self._base_stock_level == other._base_stock_level and \
-			self._order_quantity == other._order_quantity and \
-			self._reorder_point == other._reorder_point and \
-			self._order_up_to_level == other._order_up_to_level
+		if other is None:
+			return False
+		else:
+			return self._type == other._type and \
+				self._base_stock_level == other._base_stock_level and \
+				self._order_quantity == other._order_quantity and \
+				self._reorder_point == other._reorder_point and \
+				self._order_up_to_level == other._order_up_to_level
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this policy object. 

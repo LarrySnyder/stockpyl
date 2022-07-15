@@ -295,7 +295,7 @@ class SupplyChainNetwork(object):
 
 		# Nodes.
 		for n_dict in the_dict['nodes']:
-			network.nodes.append(SupplyChainNode.from_dict(n_dict))
+			network.add_node(SupplyChainNode.from_dict(n_dict))
 
 		# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
 		# replaces them with indices.)

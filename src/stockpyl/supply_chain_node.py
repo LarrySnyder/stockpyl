@@ -1010,7 +1010,7 @@ class NodeStateVars(object):
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
 			# or its own order lead time.)
-			if node.demand_source is None or node.demand_source.type is not None:
+			if node.demand_source is not None and node.demand_source.type is not None:
 				self.inbound_order_pipeline[None] = [0]
 			self.inbound_order = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}
 			self.outbound_shipment = {s_index: 0 for s_index in self.node.successor_indices(include_external=True)}

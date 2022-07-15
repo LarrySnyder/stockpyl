@@ -147,15 +147,17 @@ class DemandSource(object):
 			True if the demand source objects are equal, False otherwise.
 
 		"""
-
-		return self._type == other._type and \
-			self._mean == other._mean and \
-			self._standard_deviation == other._standard_deviation and \
-			self._demand_list == other._demand_list and \
-			self._probabilities == other._probabilities and \
-			self._lo == other._lo and \
-			self._hi == other._hi and \
-			self._round_to_int == other._round_to_int
+		if other is None:
+			return False
+		else:
+			return self._type == other._type and \
+				self._mean == other._mean and \
+				self._standard_deviation == other._standard_deviation and \
+				self._demand_list == other._demand_list and \
+				self._probabilities == other._probabilities and \
+				self._lo == other._lo and \
+				self._hi == other._hi and \
+				self._round_to_int == other._round_to_int
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this demand source object. 

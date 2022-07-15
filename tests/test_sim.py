@@ -58,13 +58,15 @@ class TestSimulation(unittest.TestCase):
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 6620.352025, places=4)
 
+		nodes = {n.index: n for n in network.nodes}
+
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 4.8883, places=4)
-		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -1.08737, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 4.30582, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[2], 6.97664, places=4)
-		self.assertAlmostEqual(network.nodes[2].state_vars[31].backorders_by_successor[1], 0.148957, places=4)
-		self.assertAlmostEqual(network.nodes[2].state_vars[89].inventory_level, 0.0443519, places=4)
+		self.assertAlmostEqual(nodes[0].state_vars[6].order_quantity[1], 4.8883, places=4)
+		self.assertAlmostEqual(nodes[0].state_vars[95].inventory_level, -1.08737, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[43].inbound_order[0], 4.30582, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[95].inbound_shipment[2], 6.97664, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[31].backorders_by_successor[1], 0.148957, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[89].inventory_level, 0.0443519, places=4)
 
 	def test_problem_6_1(self):
 		"""Test that simulation() function correctly simulates model from
@@ -73,7 +75,7 @@ class TestSimulation(unittest.TestCase):
 		print_status('TestSimulation', 'test_problem_6_1()')
 
 		network = load_instance("problem_6_1")
-
+		
 		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
 		# changes in code changed the default initial IL.)
 		for node in network.nodes:
@@ -84,13 +86,15 @@ class TestSimulation(unittest.TestCase):
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 35794.476254, places=4)
 
+		nodes = {n.index: n for n in network.nodes}
+
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 140.6747130757738, places=4)
-		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, -21.4276, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 98.6768, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[95].inbound_shipment[None], 105.7364470997879, places=4)
-		self.assertAlmostEqual(network.nodes[0].state_vars[31].backorders_by_successor[None], 18.9103, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[89].inventory_level, -28.4205, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[6].order_quantity[2], 140.6747130757738, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[95].inventory_level, -21.4276, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[43].inbound_order[1], 98.6768, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[95].inbound_shipment[None], 105.7364470997879, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[31].backorders_by_successor[None], 18.9103, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[89].inventory_level, -28.4205, places=4)
 
 	def test_problem_6_2a(self):
 		"""Test that simulation() function correctly simulates model from
@@ -99,7 +103,7 @@ class TestSimulation(unittest.TestCase):
 		print_status('TestSimulation', 'test_problem_6_2a()')
 
 		network = load_instance("problem_6_2a_adj")
-
+		
 		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
 		# changes in code changed the default initial IL.)
 		for node in network.nodes:
@@ -110,17 +114,19 @@ class TestSimulation(unittest.TestCase):
 		# Compare total cost.
 		self.assertAlmostEqual(total_cost, 38381.048422, places=4)
 
+		nodes = {n.index: n for n in network.nodes}
+
 		# Compare a few performance measures.
-		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[1], 34.7807, places=4)
-		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 5.60159, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[43].inbound_order[0], 36.0213, places=4)
-		self.assertAlmostEqual(network.nodes[1].state_vars[96].inbound_shipment[2], 34.9884, places=4)
-		self.assertAlmostEqual(network.nodes[2].state_vars[32].backorders_by_successor[1], 2.67911, places=4)
-		self.assertAlmostEqual(network.nodes[2].state_vars[89].inventory_level, -1.76791, places=4)
-		self.assertAlmostEqual(network.nodes[3].state_vars[67].outbound_shipment[2], 30.0597, places=4)
-		self.assertAlmostEqual(network.nodes[3].state_vars[84].fill_rate, 0.843055, places=4)
-		self.assertAlmostEqual(network.nodes[4].state_vars[58].on_order_by_predecessor[None], 26.8160166, places=4)
-		self.assertAlmostEqual(network.nodes[4].state_vars[81].holding_cost_incurred, 2.58384, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[6].order_quantity[2], 34.7807, places=4)
+		self.assertAlmostEqual(nodes[1].state_vars[95].inventory_level, 5.60159, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[43].inbound_order[1], 36.0213, places=4)
+		self.assertAlmostEqual(nodes[2].state_vars[96].inbound_shipment[3], 34.9884, places=4)
+		self.assertAlmostEqual(nodes[3].state_vars[32].backorders_by_successor[2], 2.67911, places=4)
+		self.assertAlmostEqual(nodes[3].state_vars[89].inventory_level, -1.76791, places=4)
+		self.assertAlmostEqual(nodes[4].state_vars[67].outbound_shipment[3], 30.0597, places=4)
+		self.assertAlmostEqual(nodes[4].state_vars[84].fill_rate, 0.843055, places=4)
+		self.assertAlmostEqual(nodes[5].state_vars[58].on_order_by_predecessor[None], 26.8160166, places=4)
+		self.assertAlmostEqual(nodes[5].state_vars[81].holding_cost_incurred, 2.58384, places=4)
 
 	def test_problem_6_16(self):
 		"""Test that simulation() function correctly simulates model from
@@ -177,28 +183,31 @@ class TestSimulation(unittest.TestCase):
 		print_status('TestSimulation', 'test_assembly_3_stage()')
 
 		network = load_instance("assembly_3_stage")
+		#network = load_instance_old("assembly_3_stage", "/Users/larry/Documents/GitHub/stockpyl/src/stockpyl/datasets/stockpyl_instances_old.json")
 
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 		# Compare total cost.
 		self.assertEqual(total_cost, 1884)
 
+		nodes = {n.index: n for n in network.nodes}
+
 		# Compare a few performance measures.
-		self.assertEqual(network.nodes[0].state_vars[6].order_quantity[1], 5)
-		self.assertEqual(network.nodes[0].state_vars[6].order_quantity[2], 5)
-		self.assertEqual(network.nodes[0].state_vars[26].inventory_level, 3)
-		self.assertEqual(network.nodes[1].state_vars[26].inventory_level, 4)
-		self.assertEqual(network.nodes[2].state_vars[26].inventory_level, 2)
-		self.assertEqual(network.nodes[0].state_vars[41].inventory_level, -1)
-		self.assertEqual(network.nodes[1].state_vars[41].inventory_level, 1)
-		self.assertEqual(network.nodes[2].state_vars[41].inventory_level, -1)
-		self.assertEqual(network.nodes[1].state_vars[43].inbound_order[0], 4)
-		self.assertEqual(network.nodes[2].state_vars[43].inbound_order[0], 4)
-		self.assertEqual(network.nodes[0].state_vars[95].inbound_shipment[1], 6)
-		self.assertEqual(network.nodes[0].state_vars[95].inbound_shipment[2], 7)
-		self.assertEqual(network.nodes[1].state_vars[95].inbound_shipment[None], 4)
-		self.assertEqual(network.nodes[2].state_vars[95].inbound_shipment[None], 4)
-		self.assertEqual(network.nodes[2].state_vars[78].backorders_by_successor[0], 2)
+		self.assertEqual(nodes[0].state_vars[6].order_quantity[1], 5)
+		self.assertEqual(nodes[0].state_vars[6].order_quantity[2], 5)
+		self.assertEqual(nodes[0].state_vars[26].inventory_level, 3)
+		self.assertEqual(nodes[1].state_vars[26].inventory_level, 4)
+		self.assertEqual(nodes[2].state_vars[26].inventory_level, 2)
+		self.assertEqual(nodes[0].state_vars[41].inventory_level, -1)
+		self.assertEqual(nodes[1].state_vars[41].inventory_level, 1)
+		self.assertEqual(nodes[2].state_vars[41].inventory_level, -1)
+		self.assertEqual(nodes[1].state_vars[43].inbound_order[0], 4)
+		self.assertEqual(nodes[2].state_vars[43].inbound_order[0], 4)
+		self.assertEqual(nodes[0].state_vars[95].inbound_shipment[1], 6)
+		self.assertEqual(nodes[0].state_vars[95].inbound_shipment[2], 7)
+		self.assertEqual(nodes[1].state_vars[95].inbound_shipment[None], 4)
+		self.assertEqual(nodes[2].state_vars[95].inbound_shipment[None], 4)
+		self.assertEqual(nodes[2].state_vars[78].backorders_by_successor[0], 2)
 
 	def test_rosling_figure_1(self):
 		"""Test that simulation() function correctly simulates model in Rosling (1989),
