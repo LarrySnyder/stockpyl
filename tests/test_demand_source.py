@@ -134,11 +134,6 @@ class TestInitialize(unittest.TestCase):
 		ds1.initialize()
 		self.assertEqual(ds1, ds2)
 
-		ds1 = DemandSource(type='CD', demand_list=[1, 2, 3], probabilities=[0.2, 0.5, 0.3])
-		ds2 = DemandSource()
-		ds1.initialize(overwrite=False)
-		self.assertNotEqual(ds1, ds2)
-
 class TestToDict(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -324,25 +319,20 @@ class TestFromDict(unittest.TestCase):
 		print_status('TestFromDict', 'test_missing_values()')
 
 		# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
-		network1 = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data_TEMP.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestFromDict_data.json", initialize_missing_attributes=False)
 		network2 = load_instance("example_6_1")
 		ds1 = network1.get_node_from_index(1).demand_source
 		ds2 = network2.get_node_from_index(1).demand_source
 		ds2.mean = DemandSource.DEFAULT_VALUES['_mean']
 		self.assertEqual(ds1, ds2)
 		
-		# network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
-		# ds1 = network.get_node_from_index(1).demand_source
-		# ds1.initialize(overwrite=True)
-		# ds2 = DemandSource()
-		# self.assertEqual(ds1, ds2)
-
-		# network = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
-		# ds1 = network.get_node_from_index(3).demand_source
-		# ds1.initialize(overwrite=False)
-		# ds2 = DemandSource() # ds1 is basically blank
-		# self.assertEqual(ds1, ds2)
-
+		# In this instance, demand_source at node 2 is missing the ``demand_list`` attribute.
+		network1 = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestFromDict_data.json", initialize_missing_attributes=False)
+		network2 = load_instance("example_6_1")
+		ds1 = network1.get_node_from_index(2).demand_source
+		ds2 = network2.get_node_from_index(2).demand_source
+		ds2.mean = DemandSource.DEFAULT_VALUES['_demand_list']
+		self.assertEqual(ds1, ds2)
 
 class TestValidateParameters(unittest.TestCase):
 	@classmethod

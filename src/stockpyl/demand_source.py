@@ -325,24 +325,11 @@ class DemandSource(object):
 
 	# ATTRIBUTE HANDLING
 
-	def initialize(self, overwrite=True):
-		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
-		all attributes are reset to their default values, even if they already exist. (This is how the
-		method should be called from the object's ``__init()__`` method.) If it is ``False``,
-		then missing attributes are added to the object but existing attributes are not overwritten. (This
-		is how the method should be called when loading an instance from a file, to make sure that all
-		attributes are present.)
-
-		Parameters
-		----------
-		overwrite : bool, optional
-			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
-			only those attributes that are missing from the object. Default = ``True``.
+	def initialize(self):
+		"""Initialize the parameters in the object to their default values. 
 		"""
-
 		for attr in self.DEFAULT_VALUES.keys():
-			if overwrite or not hasattr(self, attr):
-				setattr(self, attr, self.DEFAULT_VALUES[attr])
+			setattr(self, attr, self.DEFAULT_VALUES[attr])
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given

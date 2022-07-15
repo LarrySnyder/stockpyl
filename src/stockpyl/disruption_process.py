@@ -139,6 +139,15 @@ class DisruptionProcess(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of DisruptionProcess")
 
+	DEFAULT_VALUES = {
+		'_random_process_type': None,
+		'_disruption_type': 'OP',
+		'_disruption_probability': None,
+		'_recovery_probability': None,
+		'_disruption_state_list': None,
+		'_disrupted': False
+	}
+
 	# SPECIAL METHODS
 
 	def __eq__(self, other):
@@ -159,11 +168,10 @@ class DisruptionProcess(object):
 		if other is None:
 			return False
 		else:
-			return self._random_process_type == other._random_process_type and \
-				self._disruption_type == other._disruption_type and \
-				self._disruption_probability == other._disruption_probability and \
-				self._recovery_probability == other._recovery_probability and \
-				self._disruption_state_list == other._disruption_state_list
+			for attr in self.DEFAULT_VALUES.keys():
+				if getattr(self, attr) != getattr(other, attr):
+					return False
+			return True
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this |class_disruption_process| object. 
@@ -274,32 +282,12 @@ class DisruptionProcess(object):
 
 	# ATTRIBUTE HANDLING
 
-	def initialize(self, overwrite=True):
-		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
-		all attributes are reset to their default values, even if they already exist. (This is how the
-		method should be called from the object's ``__init()__`` method.) If it is ``False``,
-		then missing attributes are added to the object but existing attributes are not overwritten. (This
-		is how the method should be called when loading an instance from a file, to make sure that all
-		attributes are present.)
-
-		Parameters
-		----------
-		overwrite : bool, optional
-			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
-			only those attributes that are missing from the object. Default = ``True``.
+	def initialize(self):
+		"""Initialize the parameters in the object to their default values. 
 		"""
-		if overwrite or not hasattr(self, '_random_process_type'):
-			self._random_process_type = None
-		if overwrite or not hasattr(self, '_disruption_type'):
-			self._disruption_type = 'OP'
-		if overwrite or not hasattr(self, '_disruption_probability'):
-			self._disruption_probability = None
-		if overwrite or not hasattr(self, '_recovery_probability'):
-			self._recovery_probability = None
-		if overwrite or not hasattr(self, '_disruption_state_list'):
-			self._disruption_state_list = None
-		if overwrite or not hasattr(self, '_disrupted'):
-			self._disrupted = False
+		for attr in self.DEFAULT_VALUES.keys():
+			setattr(self, attr, self.DEFAULT_VALUES[attr])
+
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
@@ -332,12 +320,13 @@ class DisruptionProcess(object):
 		dp_dict = {}
 
 		# Attributes.
-		dp_dict['random_process_type'] 		= self.random_process_type
-		dp_dict['disruption_type']			= self.disruption_type
-		dp_dict['disruption_probability']	= self.disruption_probability
-		dp_dict['recovery_probability']		= self.recovery_probability
-		dp_dict['disruption_state_list']	= copy.deepcopy(self.disruption_state_list)
-		dp_dict['disrupted']				= self.disrupted
+		for attr in self.DEFAULT_VALUES.keys():
+			# Remove leading '_' to get property names.
+			prop = attr[1:] if attr[0] == '_' else attr
+			if is_list(getattr(self, prop)):
+				dp_dict[prop] = copy.deepcopy(getattr(self, prop))
+			else:
+				dp_dict[prop] = getattr(self, prop)
 
 		return dp_dict
 
@@ -346,6 +335,7 @@ class DisruptionProcess(object):
 		"""Return a new |class_disruption_process| object with attributes copied from the
 		values in ``the_dict``. List attributes (``disruption_state_list``) 
 		are deep-copied so changes to the original dict do not get propagated to the object.
+		Any missing attributes are set to their default values.
 
 		Parameters
 		----------
@@ -358,16 +348,24 @@ class DisruptionProcess(object):
 			The object converted from the dict.
 		"""
 		if the_dict is None:
-			return cls()
+			dp = cls()
 		else:
-			return cls(
-				random_process_type 	= the_dict['random_process_type'],
-				disruption_type			= the_dict['disruption_type'],
-				disruption_probability 	= the_dict['disruption_probability'],
-				recovery_probability	= the_dict['recovery_probability'],
-				disruption_state_list 	= copy.deepcopy(the_dict['disruption_state_list']),
-				disrupted 				= the_dict['disrupted']
-			)
+			# Build empty DisruptionProcess.
+			dp = cls()
+			# Fill attributes.
+			for attr in cls.DEFAULT_VALUES.keys():
+				# Remove leading '_' to get property names.
+				prop = attr[1:] if attr[0] == '_' else attr
+				if prop in the_dict:
+					if is_list(the_dict[prop]):
+						value = copy.deepcopy(the_dict[prop])
+					else:
+						value = the_dict[prop]
+				else:
+					value = cls.DEFAULT_VALUES[attr]
+				setattr(dp, prop, value)
+
+		return dp
 
 	# DISRUPTION STATE MANAGEMENT
 

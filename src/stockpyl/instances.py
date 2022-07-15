@@ -207,13 +207,6 @@ def load_instance(instance_name, filepath=None, initialize_missing_attributes=Tr
 	try:
 		instance = SupplyChainNetwork.from_dict(instance)
 
-		# Replace the instance with a deep copy of it. This is important because if there are 
-		# missing attributes in the saved instance (which can happen if the instance was 
-		# saved under an earlier version of the code and a new field was introduced subsequently),
-		# the deep copy will contain default values for those attributes.
-		if initialize_missing_attributes:
-			instance.initialize(overwrite=False)
-
 		# Delete the state variables and replace with initialized version, 
 		# if ignore_state_variables = True.
 		if ignore_state_vars:
