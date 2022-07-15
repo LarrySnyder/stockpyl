@@ -302,38 +302,6 @@ class TestInitialize(unittest.TestCase):
 		pol1.initialize()
 		self.assertEqual(pol1, pol2)
 
-		pol1 = Policy(type='sS', reorder_point=20, order_up_to_level=70)
-		pol2 = Policy()
-		pol1.initialize(overwrite=False)
-		self.assertNotEqual(pol1, pol2)
-
-	def test_missing_values(self):
-		"""Test that initialize() correctly leaves attributes in place if object already contains
-		those attributes.
-		"""
-		print_status('TestInitialize', 'test_missing_values()')
-
-		# In this instance, disruption process at node 3 is missing the ``base_stock_level`` attribute.
-		network = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestInitialize_data.json", initialize_missing_attributes=False)
-		pol1 = network.get_node_from_index(3).inventory_policy
-		pol1.initialize(overwrite=False)
-		pol2 = Policy(type='BS', base_stock_level=None)
-		self.assertEqual(pol1, pol2)
-
-		network = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestInitialize_data.json", initialize_missing_attributes=False)
-		pol1 = network.get_node_from_index(3).inventory_policy
-		pol1.initialize(overwrite=True)
-		pol2 = Policy()
-		self.assertEqual(pol1, pol2)
-
-		# In this instance, disruption process at node 1 is missing the ``type`` attribute.
-		network = load_instance("missing_type", "tests/additional_files/test_policy_TestInitialize_data.json")
-		pol1 = network.get_node_from_index(1).inventory_policy
-		pol1.initialize(overwrite=False)
-		pol2 = Policy(type=None, base_stock_level=70)
-		self.assertEqual(pol1, pol2)
-
-
 class TestToDict(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -463,6 +431,29 @@ class TestFromDict(unittest.TestCase):
 		correct_pol.order_up_to_level = 500
 
 		self.assertEqual(pol, correct_pol)
+
+	def test_missing_values(self):
+		"""Test that initialize() correctly leaves attributes in place if object already contains
+		those attributes.
+		"""
+		print_status('TestInitialize', 'test_missing_values()')
+
+		# In this instance, policy at node 3 is missing the ``base_stock_level`` attribute.
+		network1 = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestFromDict_data.json", initialize_missing_attributes=False)
+		network2 = load_instance("example_6_1")
+		pol1 = network1.get_node_from_index(3).inventory_policy
+		pol2 = network2.get_node_from_index(3).inventory_policy
+		pol2.base_stock_level = Policy.DEFAULT_VALUES['_base_stock_level']
+		self.assertEqual(pol1, pol2)
+
+		# In this instance, policy at node 1 is missing the ``type`` attribute.
+		network1 = load_instance("missing_type", "tests/additional_files/test_policy_TestFromDict_data.json", initialize_missing_attributes=False)
+		network2 = load_instance("example_6_1")
+		pol1 = network1.get_node_from_index(1).inventory_policy
+		pol2 = network2.get_node_from_index(1).inventory_policy
+		pol2.type = Policy.DEFAULT_VALUES['_type']
+		self.assertEqual(pol1, pol2)
+
 
 
 class TestValidateParameters(unittest.TestCase):

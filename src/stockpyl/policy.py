@@ -100,6 +100,15 @@ class Policy(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of Policy")
 
+	DEFAULT_VALUES = {
+		'_type': None,
+		'_node': None,
+		'_base_stock_level': None,
+		'_order_quantity': None,
+		'_reorder_point': None,
+		'_order_up_to_level': None
+	}
+
 	# SPECIAL METHODS
 
 	def __eq__(self, other):
@@ -126,11 +135,10 @@ class Policy(object):
 		if other is None:
 			return False
 		else:
-			return self._type == other._type and \
-				self._base_stock_level == other._base_stock_level and \
-				self._order_quantity == other._order_quantity and \
-				self._reorder_point == other._reorder_point and \
-				self._order_up_to_level == other._order_up_to_level
+			for attr in self.DEFAULT_VALUES.keys():
+				if getattr(self, attr) != getattr(other, attr):
+					return False
+			return True
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this policy object. 
@@ -239,32 +247,11 @@ class Policy(object):
 
 	# ATTRIBUTE HANDLING
 
-	def initialize(self, overwrite=True):
-		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
-		all attributes are reset to their default values, even if they already exist. (This is how the
-		method should be called from the object's ``__init()__`` method.) If it is ``False``,
-		then missing attributes are added to the object but existing attributes are not overwritten. (This
-		is how the method should be called when loading an instance from a file, to make sure that all
-		attributes are present.)
-
-		Parameters
-		----------
-		overwrite : bool, optional
-			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
-			only those attributes that are missing from the object. Default = ``True``.
+	def initialize(self):
+		"""Initialize the parameters in the object to their default values. 
 		"""
-		if overwrite or not hasattr(self, '_type'):
-			self._type = None
-		if overwrite or not hasattr(self, '_node'):
-			self._node = None
-		if overwrite or not hasattr(self, '_base_stock_level'):
-			self._base_stock_level = None
-		if overwrite or not hasattr(self, '_order_quantity'):
-			self._order_quantity = None
-		if overwrite or not hasattr(self, '_reorder_point'):
-			self._reorder_point = None
-		if overwrite or not hasattr(self, '_order_up_to_level'):
-			self._order_up_to_level = None
+		for attr in self.DEFAULT_VALUES.keys():
+			setattr(self, attr, self.DEFAULT_VALUES[attr])
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
@@ -301,12 +288,14 @@ class Policy(object):
 		pol_dict = {}
 
 		# Attributes.
-		pol_dict['type'] 				= self.type
-		pol_dict['node'] 				= None if self.node is None else self.node.index
-		pol_dict['base_stock_level']	= self.base_stock_level
-		pol_dict['order_quantity'] 		= self.order_quantity
-		pol_dict['reorder_point'] 		= self.reorder_point
-		pol_dict['order_up_to_level'] 	= self.order_up_to_level
+		for attr in self.DEFAULT_VALUES.keys():
+			if attr == '_node':
+				# Use index only.
+				pol_dict['node'] = None if self.node is None else self.node.index
+			else:
+				# Remove leading '_' to get property names.
+				prop = attr[1:] if attr[0] == '_' else attr
+				pol_dict[prop] = getattr(self, prop)
 
 		return pol_dict
 
@@ -328,16 +317,21 @@ class Policy(object):
 			The object converted from the dict.
 		"""
 		if the_dict is None:
-			return cls()
+			pol = cls()
 		else:
-			return cls(
-				type 				= the_dict['type'],
-				node				= the_dict['node'],
-				base_stock_level 	= the_dict['base_stock_level'],
-				order_quantity		= the_dict['order_quantity'],
-				reorder_point		= the_dict['reorder_point'],
-				order_up_to_level	= the_dict['order_up_to_level']
-			)
+			# Build empty Policy.
+			pol = cls()
+			# Fill attributes.
+			for attr in cls.DEFAULT_VALUES.keys():
+				# Remove leading '_' to get property names.
+				prop = attr[1:] if attr[0] == '_' else attr
+				if prop in the_dict:
+					value = the_dict[prop]
+				else:
+					value = cls.DEFAULT_VALUES[attr]
+				setattr(pol, prop, value)
+
+		return pol
 
 	# ORDER QUANTITY METHODS
 
