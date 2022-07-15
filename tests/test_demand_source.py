@@ -139,32 +139,6 @@ class TestInitialize(unittest.TestCase):
 		ds1.initialize(overwrite=False)
 		self.assertNotEqual(ds1, ds2)
 
-	def test_missing_values(self):
-		"""Test that initialize() correctly leaves attributes in place if object already contains
-		those attributes.
-		"""
-		print_status('TestInitialize', 'test_missing_values()')
-
-		# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
-		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
-		ds1 = network.get_node_from_index(1).demand_source
-		ds1.initialize(overwrite=False)
-		ds2 = DemandSource(type='N', mean=None, standard_deviation=1, round_to_int=False)
-		self.assertEqual(ds1, ds2)
-		
-		network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
-		ds1 = network.get_node_from_index(1).demand_source
-		ds1.initialize(overwrite=True)
-		ds2 = DemandSource()
-		self.assertEqual(ds1, ds2)
-
-		network = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
-		ds1 = network.get_node_from_index(3).demand_source
-		ds1.initialize(overwrite=False)
-		ds2 = DemandSource() # ds1 is basically blank
-		self.assertEqual(ds1, ds2)
-
-
 class TestToDict(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -211,7 +185,7 @@ class TestToDict(unittest.TestCase):
 		ds_dict = demand_source.to_dict()
 		correct_dict = {
 			'type': 'UC',
-			'round_to_int': False,
+			'round_to_int': None,
 			'mean': None,
 			'standard_deviation': None,
 			'demand_list': None,
@@ -236,7 +210,7 @@ class TestToDict(unittest.TestCase):
 		ds_dict = demand_source.to_dict()
 		correct_dict = {
 			'type': 'CD',
-			'round_to_int': False,
+			'round_to_int': None,
 			'mean': None,
 			'standard_deviation': None,
 			'demand_list': [0, 1, 2, 3],
@@ -295,7 +269,7 @@ class TestFromDict(unittest.TestCase):
 
 		the_dict = {
 			'type': 'UC',
-			'round_to_int': False,
+			'round_to_int': None,
 			'mean': None,
 			'standard_deviation': None,
 			'demand_list': None,
@@ -322,7 +296,7 @@ class TestFromDict(unittest.TestCase):
 
 		the_dict = {
 			'type': 'CD',
-			'round_to_int': False,
+			'round_to_int': None,
 			'mean': None,
 			'standard_deviation': None,
 			'demand_list': demand_list,
@@ -343,6 +317,31 @@ class TestFromDict(unittest.TestCase):
 		demand_list = [5, 4, 3, 2]
 		probabilities = [0.25] * 4
 		self.assertEqual(ds, correct_ds)
+
+	def test_missing_values(self):
+		"""Test that from_dict() correctly fills missing attribute values to their defaults.
+		"""
+		print_status('TestFromDict', 'test_missing_values()')
+
+		# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
+		network1 = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data_TEMP.json", initialize_missing_attributes=False)
+		network2 = load_instance("example_6_1")
+		ds1 = network1.get_node_from_index(1).demand_source
+		ds2 = network2.get_node_from_index(1).demand_source
+		ds2.mean = DemandSource.DEFAULT_VALUES['_mean']
+		self.assertEqual(ds1, ds2)
+		
+		# network = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
+		# ds1 = network.get_node_from_index(1).demand_source
+		# ds1.initialize(overwrite=True)
+		# ds2 = DemandSource()
+		# self.assertEqual(ds1, ds2)
+
+		# network = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestInitialize_data.json", initialize_missing_attributes=False)
+		# ds1 = network.get_node_from_index(3).demand_source
+		# ds1.initialize(overwrite=False)
+		# ds2 = DemandSource() # ds1 is basically blank
+		# self.assertEqual(ds1, ds2)
 
 
 class TestValidateParameters(unittest.TestCase):

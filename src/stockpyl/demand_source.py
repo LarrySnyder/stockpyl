@@ -129,6 +129,17 @@ class DemandSource(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of DemandSource")
 
+	DEFAULT_VALUES = {
+		'_type': None,
+		'_mean': None,
+		'_standard_deviation': None,
+		'_demand_list': None,
+		'_probabilities': None,
+		'_lo': None,
+		'_hi': None,
+		'_round_to_int': None
+	}
+
 	# SPECIAL METHODS
 
 	def __eq__(self, other):
@@ -150,14 +161,10 @@ class DemandSource(object):
 		if other is None:
 			return False
 		else:
-			return self._type == other._type and \
-				self._mean == other._mean and \
-				self._standard_deviation == other._standard_deviation and \
-				self._demand_list == other._demand_list and \
-				self._probabilities == other._probabilities and \
-				self._lo == other._lo and \
-				self._hi == other._hi and \
-				self._round_to_int == other._round_to_int
+			for attr in self.DEFAULT_VALUES.keys():
+				if getattr(self, attr) != getattr(other, attr):
+					return False
+			return True
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this demand source object. 
@@ -332,22 +339,10 @@ class DemandSource(object):
 			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
 			only those attributes that are missing from the object. Default = ``True``.
 		"""
-		if overwrite or not hasattr(self, '_type'):
-			self._type = None
-		if overwrite or not hasattr(self, '_mean'):
-			self._mean = None
-		if overwrite or not hasattr(self, '_standard_deviation'):
-			self._standard_deviation = None
-		if overwrite or not hasattr(self, '_demand_list'):
-			self._demand_list = None
-		if overwrite or not hasattr(self, '_probabilities'):
-			self._probabilities = None
-		if overwrite or not hasattr(self, '_lo'):
-			self._lo = None
-		if overwrite or not hasattr(self, '_hi'):
-			self._hi = None
-		if overwrite or not hasattr(self, '_round_to_int'):
-			self._round_to_int = False
+
+		for attr in self.DEFAULT_VALUES.keys():
+			if overwrite or not hasattr(self, attr):
+				setattr(self, attr, self.DEFAULT_VALUES[attr])
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
@@ -399,14 +394,10 @@ class DemandSource(object):
 		ds_dict = {}
 
 		# Attributes.
-		ds_dict['type'] 				= self.type
-		ds_dict['round_to_int']			= self.round_to_int
-		ds_dict['mean']					= self.mean
-		ds_dict['standard_deviation']	= self.standard_deviation
-		ds_dict['demand_list']			= copy.deepcopy(self.demand_list)
-		ds_dict['probabilities']		= copy.deepcopy(self.probabilities)
-		ds_dict['lo']					= self.lo
-		ds_dict['hi']					= self.hi
+		for attr in self.DEFAULT_VALUES.keys():
+			# Remove leading '_' to get property names.
+			prop = attr[1:] if attr[0] == '_' else attr
+			ds_dict[prop] = getattr(self, prop)
 
 		return ds_dict
 
@@ -415,6 +406,7 @@ class DemandSource(object):
 		"""Return a new |class_demand_source| object with attributes copied from the
 		values in ``the_dict``. List attributes (``demand_list``, ``probabilities``) 
 		are deep-copied so changes to the original dict do not get propagated to the object.
+		Any missing attributes are set to their default values.
 
 		Parameters
 		----------
@@ -427,18 +419,21 @@ class DemandSource(object):
 			The object converted from the dict.
 		"""
 		if the_dict is None:
-			return cls()
+			ds = cls()
 		else:
-			return cls(
-				type 				= the_dict['type'],
-				round_to_int		= the_dict['round_to_int'],
-				mean 				= the_dict['mean'],
-				standard_deviation	= the_dict['standard_deviation'],
-				demand_list 		= copy.deepcopy(the_dict['demand_list']),
-				probabilities 		= copy.deepcopy(the_dict['probabilities']),
-				lo					= the_dict['lo'],
-				hi					= the_dict['hi']
-			)
+			# Build empty DemandSource.
+			ds = cls()
+			# Fill attributes.
+			for attr in cls.DEFAULT_VALUES.keys():
+				# Remove leading '_' to get property names.
+				prop = attr[1:] if attr[0] == '_' else attr
+				if prop in the_dict:
+					value = the_dict[prop]
+				else:
+					value = cls.DEFAULT_VALUES[attr]
+				setattr(ds, prop, value)
+
+		return ds
 
 	# DEMAND GENERATION
 

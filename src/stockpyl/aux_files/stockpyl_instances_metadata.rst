@@ -1209,6 +1209,7 @@
 			node_order_in_system=[2, 1],
 			node_order_in_lists=[1, 2],
 			local_holding_cost=[7, 2],
+			echelon_holding_cost=[5, 2],
 			stockout_cost=[24, 0],
 			demand_type='N',
 			mean=20,
