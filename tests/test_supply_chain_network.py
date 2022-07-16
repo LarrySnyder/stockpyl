@@ -1037,6 +1037,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			supply_type='U'
 		)
 		correct_network.add_predecessor(node1, node4)
+		for n in correct_network.nodes:
+			n.inventory_policy.node = n
 
 		return correct_network
 
@@ -1161,6 +1163,9 @@ class TestNetworkFromEdges(unittest.TestCase):
 			shipment_lead_time=[0, 2, 6, 1],
 			order_lead_time=5
 		)
+		# for n in network.nodes:
+		# 	if n.inventory_policy is not None:
+		# 		n.inventory_policy.node = n
 		self.assertTrue(network.deep_equal_to(correct_network))
 
 	def test_single_node(self):

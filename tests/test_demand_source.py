@@ -323,7 +323,7 @@ class TestFromDict(unittest.TestCase):
 		network2 = load_instance("example_6_1")
 		ds1 = network1.get_node_from_index(1).demand_source
 		ds2 = network2.get_node_from_index(1).demand_source
-		ds2.mean = DemandSource.DEFAULT_VALUES['_mean']
+		ds2.mean = DemandSource._DEFAULT_VALUES['_mean']
 		self.assertEqual(ds1, ds2)
 		
 		# In this instance, demand_source at node 2 is missing the ``demand_list`` attribute.
@@ -331,7 +331,7 @@ class TestFromDict(unittest.TestCase):
 		network2 = load_instance("example_6_1")
 		ds1 = network1.get_node_from_index(2).demand_source
 		ds2 = network2.get_node_from_index(2).demand_source
-		ds2.mean = DemandSource.DEFAULT_VALUES['_demand_list']
+		ds2.mean = DemandSource._DEFAULT_VALUES['_demand_list']
 		self.assertEqual(ds1, ds2)
 
 class TestValidateParameters(unittest.TestCase):

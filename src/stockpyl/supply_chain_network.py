@@ -693,6 +693,7 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 		# Inventory policy.
 		if data_dict[n.index].get('inventory_policy') is not None:
 			n.inventory_policy = data_dict[n.index]['inventory_policy']
+			n.inventory_policy.node = n
 		else:
 			# Create Policy object.
 			pol = Policy()

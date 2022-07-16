@@ -139,7 +139,7 @@ class DisruptionProcess(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of DisruptionProcess")
 
-	DEFAULT_VALUES = {
+	_DEFAULT_VALUES = {
 		'_random_process_type': None,
 		'_disruption_type': 'OP',
 		'_disruption_probability': None,
@@ -168,7 +168,7 @@ class DisruptionProcess(object):
 		if other is None:
 			return False
 		else:
-			for attr in self.DEFAULT_VALUES.keys():
+			for attr in self._DEFAULT_VALUES.keys():
 				if getattr(self, attr) != getattr(other, attr):
 					return False
 			return True
@@ -285,8 +285,8 @@ class DisruptionProcess(object):
 	def initialize(self):
 		"""Initialize the parameters in the object to their default values. 
 		"""
-		for attr in self.DEFAULT_VALUES.keys():
-			setattr(self, attr, self.DEFAULT_VALUES[attr])
+		for attr in self._DEFAULT_VALUES.keys():
+			setattr(self, attr, self._DEFAULT_VALUES[attr])
 
 
 	def validate_parameters(self):
@@ -320,7 +320,7 @@ class DisruptionProcess(object):
 		dp_dict = {}
 
 		# Attributes.
-		for attr in self.DEFAULT_VALUES.keys():
+		for attr in self._DEFAULT_VALUES.keys():
 			# Remove leading '_' to get property names.
 			prop = attr[1:] if attr[0] == '_' else attr
 			if is_list(getattr(self, prop)):
@@ -353,7 +353,7 @@ class DisruptionProcess(object):
 			# Build empty DisruptionProcess.
 			dp = cls()
 			# Fill attributes.
-			for attr in cls.DEFAULT_VALUES.keys():
+			for attr in cls._DEFAULT_VALUES.keys():
 				# Remove leading '_' to get property names.
 				prop = attr[1:] if attr[0] == '_' else attr
 				if prop in the_dict:
@@ -362,7 +362,7 @@ class DisruptionProcess(object):
 					else:
 						value = the_dict[prop]
 				else:
-					value = cls.DEFAULT_VALUES[attr]
+					value = cls._DEFAULT_VALUES[attr]
 				setattr(dp, prop, value)
 
 		return dp

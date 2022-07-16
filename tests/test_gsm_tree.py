@@ -47,7 +47,11 @@ class TestRelabelNodes(unittest.TestCase):
 
 		print_status('TestRelabelNodes', 'test_figure_6_12()')
 
-		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
+		instance = load_instance("figure_6_12")
+		from stockpyl.instances import load_instance_old
+		instance_old = load_instance_old("figure_6_12", filepath="/Users/larry/Documents/GitHub/stockpyl/src/stockpyl/datasets/stockpyl_instances_old.json")
+
+		new_G = gsm_tree.relabel_nodes(instance, start_index=1)
 
 		# Build correct relabeled network, and list of correct labels.
 		correct_G = SupplyChainNetwork()
@@ -858,9 +862,7 @@ class TestPreprocessTree(unittest.TestCase):
 							local_holding_cost=2,
 							demand_bound_constant=4,
 							external_inbound_cst=1,
-							supply_type='U',
 							external_outbound_cst=gsm_tree.BIG_INT,
-#							original_label=3,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
 							max_replenishment_time=2))
@@ -870,11 +872,8 @@ class TestPreprocessTree(unittest.TestCase):
 							demand_bound_constant=4,
 							external_inbound_cst=0,
 							external_outbound_cst=gsm_tree.BIG_INT,
-#							original_label=2,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
-#							larger_adjacent_node=3,
-#							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=3))
 		correct_tree.add_node(SupplyChainNode(1, 'Glazing', network=correct_tree,
 							processing_time=2,
@@ -883,11 +882,8 @@ class TestPreprocessTree(unittest.TestCase):
 							external_inbound_cst=0,
 							external_outbound_cst=0,
 							demand_source=DemandSource(type='N', mean=45, standard_deviation=10),
-#							original_label=1,
 							net_demand_mean=45,
 						  	net_demand_standard_deviation=10,
-#							larger_adjacent_node=2,
-#							larger_adjacent_node_is_downstream=False,
 							max_replenishment_time=5))
 		correct_tree.add_edges_from_list([(2, 1), (3, 2)])
 

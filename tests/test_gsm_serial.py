@@ -63,7 +63,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_7')
 
 		network = load_instance("problem_6_7")
-
+		
 		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
 

@@ -47,7 +47,6 @@ API Reference
 
 import numpy as np
 import scipy.stats 
-import copy
 
 from stockpyl.helpers import *
 
@@ -129,7 +128,7 @@ class DemandSource(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of DemandSource")
 
-	DEFAULT_VALUES = {
+	_DEFAULT_VALUES = {
 		'_type': None,
 		'_mean': None,
 		'_standard_deviation': None,
@@ -161,7 +160,7 @@ class DemandSource(object):
 		if other is None:
 			return False
 		else:
-			for attr in self.DEFAULT_VALUES.keys():
+			for attr in self._DEFAULT_VALUES.keys():
 				if getattr(self, attr) != getattr(other, attr):
 					return False
 			return True
@@ -328,8 +327,8 @@ class DemandSource(object):
 	def initialize(self):
 		"""Initialize the parameters in the object to their default values. 
 		"""
-		for attr in self.DEFAULT_VALUES.keys():
-			setattr(self, attr, self.DEFAULT_VALUES[attr])
+		for attr in self._DEFAULT_VALUES.keys():
+			setattr(self, attr, self._DEFAULT_VALUES[attr])
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
@@ -381,7 +380,7 @@ class DemandSource(object):
 		ds_dict = {}
 
 		# Attributes.
-		for attr in self.DEFAULT_VALUES.keys():
+		for attr in self._DEFAULT_VALUES.keys():
 			# Remove leading '_' to get property names.
 			prop = attr[1:] if attr[0] == '_' else attr
 			ds_dict[prop] = getattr(self, prop)
@@ -411,13 +410,13 @@ class DemandSource(object):
 			# Build empty DemandSource.
 			ds = cls()
 			# Fill attributes.
-			for attr in cls.DEFAULT_VALUES.keys():
+			for attr in cls._DEFAULT_VALUES.keys():
 				# Remove leading '_' to get property names.
 				prop = attr[1:] if attr[0] == '_' else attr
 				if prop in the_dict:
 					value = the_dict[prop]
 				else:
-					value = cls.DEFAULT_VALUES[attr]
+					value = cls._DEFAULT_VALUES[attr]
 				setattr(ds, prop, value)
 
 		return ds

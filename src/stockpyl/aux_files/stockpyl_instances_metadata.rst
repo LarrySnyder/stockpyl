@@ -1576,8 +1576,8 @@
 		from stockpyl.supply_chain_node import SupplyChainNode
 		from stockpyl.demand_source import DemandSource
 		instance = SupplyChainNetwork()
-		instance.add_node(SupplyChainNode(3, name='Forming', network=instance, processing_time=1, local_holding_cost=2, external_inbound_cst=1))
-		instance.add_node(SupplyChainNode(2, name='Firing', network=instance, processing_time=1, local_holding_cost=3))
+		instance.add_node(SupplyChainNode(3, name='Forming', network=instance, processing_time=1, local_holding_cost=2, external_inbound_cst=1, demand_bound_constant=4))
+		instance.add_node(SupplyChainNode(2, name='Firing', network=instance, processing_time=1, local_holding_cost=3, demand_bound_constant=4))
 		instance.add_node(SupplyChainNode(1, name='Glazing', network=instance, processing_time=2, local_holding_cost=4, external_outbound_cst=0, demand_source=DemandSource(type='N', mean=45, standard_deviation=10), demand_bound_constant=4))
 		instance.add_edges_from_list([(3, 2), (2, 1)])
 
@@ -1666,7 +1666,7 @@
 			demand_bound_constant=[1, 1, 1, 1],
 			external_outbound_cst=[None, 0, None, 1],
 			demand_type=[None, 'N', None, 'N'],
-			mean=0,
+			mean=[None, 0, None, 0],
 			standard_deviation=[None, 1, None, 1]
 		)
 
@@ -1723,8 +1723,9 @@
 		instance.add_node(SupplyChainNode(8, 'Circuit_Board', instance, processing_time=4, local_holding_cost=0.08))
 		instance.add_node(SupplyChainNode(9, 'Other_Parts', instance, processing_time=3, local_holding_cost=0.04))
 		instance.add_node(SupplyChainNode(10, 'Build_Test_Pack', instance, processing_time=2, local_holding_cost=0.50, \
-			external_outbound_cst=2, demand_source=DemandSource(type='N', mean=0, standard_deviation=10),
-			demand_bound_constant=stats.norm.ppf(0.95)))
+			external_outbound_cst=2, demand_source=DemandSource(type='N', mean=0, standard_deviation=10)))
+		for n in instance.nodes:
+			n.demand_bound_constant = stats.norm.ppf(0.95)
 		instance.add_edges_from_list([(1, 2), (2, 3), (3, 5), (4, 5), (5, 6), (7, 10), (6, 10), (8, 10), (9, 10)])
 
 

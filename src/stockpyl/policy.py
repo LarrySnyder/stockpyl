@@ -100,7 +100,7 @@ class Policy(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of Policy")
 
-	DEFAULT_VALUES = {
+	_DEFAULT_VALUES = {
 		'_type': None,
 		'_node': None,
 		'_base_stock_level': None,
@@ -135,7 +135,7 @@ class Policy(object):
 		if other is None:
 			return False
 		else:
-			for attr in self.DEFAULT_VALUES.keys():
+			for attr in self._DEFAULT_VALUES.keys():
 				if getattr(self, attr) != getattr(other, attr):
 					return False
 			return True
@@ -250,8 +250,8 @@ class Policy(object):
 	def initialize(self):
 		"""Initialize the parameters in the object to their default values. 
 		"""
-		for attr in self.DEFAULT_VALUES.keys():
-			setattr(self, attr, self.DEFAULT_VALUES[attr])
+		for attr in self._DEFAULT_VALUES.keys():
+			setattr(self, attr, self._DEFAULT_VALUES[attr])
 
 	def validate_parameters(self):
 		"""Check that appropriate parameters have been provided for the given
@@ -288,7 +288,7 @@ class Policy(object):
 		pol_dict = {}
 
 		# Attributes.
-		for attr in self.DEFAULT_VALUES.keys():
+		for attr in self._DEFAULT_VALUES.keys():
 			if attr == '_node':
 				# Use index only.
 				pol_dict['node'] = None if self.node is None else self.node.index
@@ -322,13 +322,13 @@ class Policy(object):
 			# Build empty Policy.
 			pol = cls()
 			# Fill attributes.
-			for attr in cls.DEFAULT_VALUES.keys():
+			for attr in cls._DEFAULT_VALUES.keys():
 				# Remove leading '_' to get property names.
 				prop = attr[1:] if attr[0] == '_' else attr
 				if prop in the_dict:
 					value = the_dict[prop]
 				else:
-					value = cls.DEFAULT_VALUES[attr]
+					value = cls._DEFAULT_VALUES[attr]
 				setattr(pol, prop, value)
 
 		return pol
