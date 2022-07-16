@@ -216,7 +216,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 													 sim_num_periods=500, sim_rand_seed=762,
 													 progress_bar=False, print_solutions=False)
 
-		self.assertDictEqual(best_S, {1: 7, 2: 5, 3: 11})
+		self.assertDictEqual(best_S, {3: 11, 2: 5, 1: 7})
 		self.assertAlmostEqual(best_cost, 51.736651092915224)
 
 	def test_example_6_1_obj_fcn(self):
@@ -234,7 +234,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 												truncation_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn,
 												progress_bar=False, print_solutions=False)
 
-		self.assertDictEqual(best_S, {1: 7, 2: 5, 3: 11})
+		self.assertDictEqual(best_S, {3: 11, 2: 5, 1: 7})
 		self.assertAlmostEqual(best_cost, 48.214497895254894)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByEnumeration.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
@@ -330,8 +330,10 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 													 search_hi={1: 7, 2: 7, 3: 12}, sim_num_trials=5,
 													 sim_num_periods=500, sim_rand_seed=762)
 
-		self.assertDictEqual(best_S, {1: 6.442728744867265, 2: 5.713943482508711, 3: 10.59579104356543})
-		self.assertAlmostEqual(best_cost, 51.3500177930988)
+		self.assertAlmostEqual(best_S[1], 6.48114753085059)
+		self.assertAlmostEqual(best_S[2], 5.733907579533881)
+		self.assertAlmostEqual(best_S[3], 10.498834186884864)
+		self.assertAlmostEqual(best_cost, 51.35469251096947)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_example_6_1 skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_example_6_1_obj_fcn(self):
@@ -347,7 +349,9 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, search_lo={1: 5, 2: 4, 3: 10},
 													 search_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn)
 
-		self.assertDictEqual(best_S, {1: 6.73426038452249, 2: 5.278098969007219, 3: 10.995733389307562})
+		self.assertAlmostEqual(best_S[1], 6.443930591893573)
+		self.assertAlmostEqual(best_S[2], 6.008174455535286)
+		self.assertAlmostEqual(best_S[3], 10.55598769540841)
 		self.assertAlmostEqual(best_cost, 47.820555289455875)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
