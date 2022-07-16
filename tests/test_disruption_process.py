@@ -249,13 +249,12 @@ class TestFromDict(unittest.TestCase):
 		self.assertEqual(dp, correct_dp)
 
 	def test_missing_values(self):
-		"""Test that initialize() correctly leaves attributes in place if object already contains
-		those attributes.
+		"""Test that from_dict() correctly fills attributes with defaults if missing.
 		"""
 		print_status('TestFromDict', 'test_missing_values()')
 
 		# In this instance, disruption process at node 1 is missing the ``disruption_probability`` attribute.
-		network1 = load_instance("missing_disruption_probability", "tests/additional_files/test_disruption_process_TestFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_disruption_probability", "tests/additional_files/test_disruption_process_TestFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		dp1 = network1.get_node_from_index(1).disruption_process
 		dp2 = network2.get_node_from_index(1).disruption_process
@@ -263,7 +262,7 @@ class TestFromDict(unittest.TestCase):
 		self.assertEqual(dp1, dp2)
 
 		# In this instance, disruption process at node 1 is missing the ``disruption_state_list`` attribute.
-		network1 = load_instance("missing_disruption_state_list", "tests/additional_files/test_disruption_process_TestFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_disruption_state_list", "tests/additional_files/test_disruption_process_TestFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		dp1 = network1.get_node_from_index(1).disruption_process
 		dp2 = network2.get_node_from_index(1).disruption_process

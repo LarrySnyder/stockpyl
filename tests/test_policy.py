@@ -433,13 +433,12 @@ class TestFromDict(unittest.TestCase):
 		self.assertEqual(pol, correct_pol)
 
 	def test_missing_values(self):
-		"""Test that initialize() correctly leaves attributes in place if object already contains
-		those attributes.
+		"""Test that from_dict() correctly fills attributes with defaults if missing.
 		"""
 		print_status('TestFromDict', 'test_missing_values()')
 
 		# In this instance, policy at node 3 is missing the ``base_stock_level`` attribute.
-		network1 = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		pol1 = network1.get_node_from_index(3).inventory_policy
 		pol2 = network2.get_node_from_index(3).inventory_policy
@@ -447,7 +446,7 @@ class TestFromDict(unittest.TestCase):
 		self.assertEqual(pol1, pol2)
 
 		# In this instance, policy at node 1 is missing the ``type`` attribute.
-		network1 = load_instance("missing_type", "tests/additional_files/test_policy_TestFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_type", "tests/additional_files/test_policy_TestFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		pol1 = network1.get_node_from_index(1).inventory_policy
 		pol2 = network2.get_node_from_index(1).inventory_policy

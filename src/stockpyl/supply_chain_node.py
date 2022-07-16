@@ -462,91 +462,6 @@ class SupplyChainNode(object):
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])
 
-		# # Initialize
-		# # --- Index and Name --- #
-		# if overwrite or not hasattr(self, 'index'):
-		# 	self.index = None
-		# if overwrite or not hasattr(self, 'name'):
-		# 	self.name = None
-
-		# # --- Attributes Related to Network Structure --- #
-		# if overwrite or not hasattr(self, 'network'):
-		# 	self.network = None
-		# if overwrite or not hasattr(self, '_predecessors'): 
-		# 	self._predecessors = []
-		# if overwrite or not hasattr(self, '_successors'):
-		# 	self._successors = []
-
-		# # --- Data/Inputs --- #
-		# if overwrite or not hasattr(self, 'local_holding_cost'):
-		# 	self.local_holding_cost = None
-		# if overwrite or not hasattr(self, 'echelon_holding_cost'):
-		# 	self.echelon_holding_cost = None
-		# if overwrite or not hasattr(self, 'local_holding_cost_function'):
-		# 	self.local_holding_cost_function = None
-		# if overwrite or not hasattr(self, 'in_transit_holding_cost'):
-		# 	self.in_transit_holding_cost = None
-		# if overwrite or not hasattr(self, 'stockout_cost'):
-		# 	self.stockout_cost = None
-		# if overwrite or not hasattr(self, 'stockout_cost_function'):
-		# 	self.stockout_cost_function = None
-		# if overwrite or not hasattr(self, 'revenue'):
-		# 	self.revenue = None
-		# if overwrite or not hasattr(self, 'shipment_lead_time'):
-		# 	self.shipment_lead_time = None
-		# if overwrite or not hasattr(self, 'order_lead_time'):
-		# 	self.order_lead_time = None
-		# if overwrite or not hasattr(self, 'demand_source'):
-		# 	self.demand_source = demand_source.DemandSource()
-		# elif self.demand_source is not None:
-		# 	self.demand_source.initialize(overwrite=False)
-		# if overwrite or not hasattr(self, 'initial_inventory_level'):
-		# 	self.initial_inventory_level = None
-		# if overwrite or not hasattr(self, 'initial_orders'):
-		# 	self.initial_orders = None
-		# if overwrite or not hasattr(self, 'initial_shipments'):
-		# 	self.initial_shipments = None
-		# if overwrite or not hasattr(self, 'inventory_policy'):
-		# 	self.inventory_policy = policy.Policy(node=self)
-		# elif self.inventory_policy is not None:
-		# 	self.inventory_policy.initialize(overwrite=False)
-		# if overwrite or not hasattr(self, 'supply_type'):
-		# 	self.supply_type = None 
-		# if overwrite or not hasattr(self, 'disruption_process'):
-		# 	self.disruption_process = disruption_process.DisruptionProcess()
-		# elif self.disruption_process is not None:
-		# 	self.disruption_process.initialize(overwrite=False)
-
-		# # --- Data/Inputs for GSM Problems --- #
-		# if overwrite or not hasattr(self, 'processing_time'):
-		# 	self.processing_time = None
-		# if overwrite or not hasattr(self, 'external_inbound_cst'):
-		# 	self.external_inbound_cst = None
-		# if overwrite or not hasattr(self, 'external_outbound_cst'):
-		# 	self.external_outbound_cst = None
-		# if overwrite or not hasattr(self, 'demand_bound_constant'):
-		# 	self.demand_bound_constant = None
-		# if overwrite or not hasattr(self, 'units_required'):
-		# 	self.units_required = None
-
-		# # --- Intermediate Calculations for GSM Problems --- #
-		# if overwrite or not hasattr(self, 'original_label'):
-		# 	self.original_label = None
-		# if overwrite or not hasattr(self, 'net_demand_mean'):
-		# 	self.net_demand_mean = None
-		# if overwrite or not hasattr(self, 'net_demand_standard_deviation'):
-		# 	self.net_demand_standard_deviation = None
-		# if overwrite or not hasattr(self, 'larger_adjacent_node'):
-		# 	self.larger_adjacent_node = None
-		# if overwrite or not hasattr(self, 'larger_adjacent_node_is_downstream'):
-		# 	self.larger_adjacent_node_is_downstream = None
-		# if overwrite or not hasattr(self, 'max_replenishment_time'):
-		# 	self.max_replenishment_time = None
-
-		# # --- State Variables --- #
-		# if overwrite or not hasattr(self, 'state_vars'):
-		# 	self.state_vars = []			
-
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are
 		equal, including attributes that are themselves objects.
@@ -614,35 +529,6 @@ class SupplyChainNode(object):
 
 		return eq
 
-		# return self.index == other.index and \
-		# 	self.name == other.name and \
-		# 	sorted(self.predecessor_indices()) == sorted(other.predecessor_indices()) and \
-		# 	sorted(self.successor_indices()) == sorted(other.successor_indices()) and \
-		# 	isclose(self.local_holding_cost or 0, other.local_holding_cost or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.echelon_holding_cost or 0, other.echelon_holding_cost or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.in_transit_holding_cost or 0, other.in_transit_holding_cost or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.stockout_cost or 0, other.stockout_cost or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.revenue or 0, other.revenue or 0, rel_tol=rel_tol) and \
-		# 	self.shipment_lead_time == other.shipment_lead_time and \
-		# 	self.order_lead_time == other.order_lead_time and \
-		# 	((self.demand_source is None and other.demand_source is None) or (self.demand_source == other.demand_source)) and \
-		# 	isclose(self.initial_inventory_level or 0, other.initial_inventory_level or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.initial_orders or 0, other.initial_orders or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.initial_shipments or 0, other.initial_shipments or 0, rel_tol=rel_tol) and \
-		# 	((self.inventory_policy is None and other.inventory_policy is None) or (self.inventory_policy == other.inventory_policy)) and \
-		# 	self.supply_type == other.supply_type and \
-		# 	((self.disruption_process is None and other.disruption_process is None) or (self.disruption_process == other.disruption_process)) and \
-		# 	self.processing_time == other.processing_time and \
-		# 	self.external_inbound_cst == other.external_inbound_cst and \
-		# 	isclose(self.demand_bound_constant or 0, other.demand_bound_constant or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.units_required or 0, other.units_required or 0, rel_tol=rel_tol) and \
-		# 	self.original_label == other.original_label and \
-		# 	isclose(self.net_demand_mean or 0, other.net_demand_mean or 0, rel_tol=rel_tol) and \
-		# 	isclose(self.net_demand_standard_deviation or 0, other.net_demand_standard_deviation or 0, rel_tol=rel_tol) and \
-		# 	self.larger_adjacent_node == other.larger_adjacent_node and \
-		# 	self.larger_adjacent_node_is_downstream == other.larger_adjacent_node_is_downstream and \
-		# 	self.max_replenishment_time == other.max_replenishment_time
-
 	def to_dict(self):
 		"""Convert the |class_node| object to a dict. Converts the object recursively,
 		calling ``to_dict()`` on each object that is an attribute of the node 
@@ -680,47 +566,6 @@ class SupplyChainNode(object):
 				node_dict[attr] = getattr(self, attr)
 
 		return node_dict
-		
-		# # Non-object attributes.
-		# node_dict['index']							= self.index
-		# node_dict['name']							= self.name
-		# node_dict['network']						= None
-		# node_dict['local_holding_cost']				= self.local_holding_cost
-		# node_dict['echelon_holding_cost']			= self.echelon_holding_cost
-		# node_dict['local_holding_cost_function']	= self.local_holding_cost_function
-		# node_dict['in_transit_holding_cost']		= self.in_transit_holding_cost
-		# node_dict['stockout_cost']					= self.stockout_cost
-		# node_dict['stockout_cost_function']			= self.stockout_cost_function
-		# node_dict['revenue']						= self.revenue
-		# node_dict['shipment_lead_time']				= self.shipment_lead_time
-		# node_dict['order_lead_time']				= self.order_lead_time
-		# node_dict['initial_inventory_level']		= self.initial_inventory_level
-		# node_dict['initial_orders']					= self.initial_orders
-		# node_dict['initial_shipments']				= self.initial_shipments
-		# node_dict['supply_type']					= self.supply_type
-		# node_dict['processing_time']				= self.processing_time
-		# node_dict['external_inbound_cst']			= self.external_inbound_cst
-		# node_dict['external_outbound_cst']			= self.external_outbound_cst
-		# node_dict['demand_bound_constant']			= self.demand_bound_constant
-		# node_dict['units_required']					= self.units_required
-		# node_dict['original_label']					= self.original_label
-		# node_dict['net_demand_mean']				= self.net_demand_mean
-		# node_dict['net_demand_standard_deviation']	= self.net_demand_standard_deviation
-		# node_dict['larger_adjacent_node']			= self.larger_adjacent_node
-		# node_dict['larger_adjacent_node_is_downstream']	= self.larger_adjacent_node_is_downstream
-		# node_dict['max_replenishment_time']			= self.max_replenishment_time
-
-		# # Predecessors and successors.
-		# node_dict['_predecessors']					= copy.deepcopy(self.predecessor_indices(include_external=True))
-		# node_dict['_successors']					= copy.deepcopy(self.successor_indices(include_external=True))
-
-		# # Object attributes.
-		# node_dict['demand_source']					= None if self.demand_source is None else self.demand_source.to_dict()
-		# node_dict['inventory_policy']				= None if self.inventory_policy is None else self.inventory_policy.to_dict()
-		# node_dict['disruption_process']				= None if self.disruption_process is None else self.disruption_process.to_dict()
-		# node_dict['state_vars'] 					= None if self.state_vars is None else [sv.to_dict() for sv in self.state_vars]
-		
-		# return node_dict
 			
 	@classmethod
 	def from_dict(cls, the_dict):
@@ -752,8 +597,6 @@ class SupplyChainNode(object):
 			node = cls(the_dict['index'])
 			# Fill attributes.
 			for attr in cls._DEFAULT_VALUES.keys():
-				# Remove leading '_' to get property names.
-	#			attr = attr[1:] if attr[0] == '_' else attr
 				# Some attributes require special handling.
 				if attr in ('_predecessors', '_successors'):
 					if attr in the_dict:
@@ -794,67 +637,6 @@ class SupplyChainNode(object):
 				setattr(node, attr, value)
 		
 		return node
-
-
-
-
-		# 	# Initialize node object.
-		# 	node = SupplyChainNode(the_dict['index'])
-
-		# 	# Non-object attributes.
-		# 	node.name							= the_dict['name']							
-		# 	node.network						= the_dict['network']
-		# 	node.local_holding_cost				= the_dict['local_holding_cost']				
-		# 	node.echelon_holding_cost			= the_dict['echelon_holding_cost']			
-		# 	node.local_holding_cost_function	= the_dict['local_holding_cost_function']	
-		# 	node.in_transit_holding_cost		= the_dict['in_transit_holding_cost']		
-		# 	node.stockout_cost					= the_dict['stockout_cost']					
-		# 	node.stockout_cost_function			= the_dict['stockout_cost_function']			
-		# 	node.revenue						= the_dict['revenue']						
-		# 	node.shipment_lead_time				= the_dict['shipment_lead_time']				
-		# 	node.order_lead_time				= the_dict['order_lead_time']				
-		# 	node.initial_inventory_level		= the_dict['initial_inventory_level']		
-		# 	node.initial_orders					= the_dict['initial_orders']					
-		# 	node.initial_shipments				= the_dict['initial_shipments']				
-		# 	node.supply_type					= the_dict['supply_type']					
-		# 	node.processing_time				= the_dict['processing_time']				
-		# 	node.external_inbound_cst			= the_dict['external_inbound_cst']			
-		# 	node.external_outbound_cst			= the_dict['external_outbound_cst']			
-		# 	node.demand_bound_constant			= the_dict['demand_bound_constant']			
-		# 	node.units_required					= the_dict['units_required']					
-		# 	node.original_label					= the_dict['original_label']					
-		# 	node.net_demand_mean				= the_dict['net_demand_mean']				
-		# 	node.net_demand_standard_deviation	= the_dict['net_demand_standard_deviation']	
-		# 	node.larger_adjacent_node			= the_dict['larger_adjacent_node']			
-		# 	node.larger_adjacent_node_is_downstream	= the_dict['larger_adjacent_node_is_downstream']	
-		# 	node.max_replenishment_time			= the_dict['max_replenishment_time']			
-
-		# 	# Predecessors and successors.
-		# 	node._predecessors					= copy.deepcopy(the_dict['_predecessors'])
-		# 	node._successors					= copy.deepcopy(the_dict['_successors'])
-
-		# 	# Object attributes.
-		# 	if the_dict['demand_source'] is None:
-		# 		node.demand_source 				= None
-		# 	else:
-		# 		node.demand_source				= demand_source.DemandSource.from_dict(the_dict['demand_source'])
-		# 	if the_dict['inventory_policy'] is None:
-		# 		node.inventory_policy			= None
-		# 	else:
-		# 		node.inventory_policy			= policy.Policy.from_dict(the_dict['inventory_policy'])
-		# 		node.inventory_policy.node		= node
-		# 	if the_dict['disruption_process'] is None:
-		# 		node.disruption_process			= None
-		# 	else:
-		# 		node.disruption_process				= disruption_process.DisruptionProcess.from_dict(the_dict['disruption_process'])
-		# 	if the_dict['state_vars'] is None:
-		# 		node.state_vars					= None
-		# 	else:
-		# 		node.state_vars						= [NodeStateVars.from_dict(sv) for sv in the_dict['state_vars']]
-		# 		for sv in node.state_vars:
-		# 			sv.node							= node
-			
-		# return node
 		
 	# Neighbor management.
 

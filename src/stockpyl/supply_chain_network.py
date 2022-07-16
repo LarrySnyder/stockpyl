@@ -92,6 +92,12 @@ class SupplyChainNetwork(object):
 			else:
 				raise AttributeError(f"{key} is not an attribute of SupplyChainNetwork")
 
+	_DEFAULT_VALUES = {
+		'_nodes': [],
+		'_period': 0,
+		'max_max_replenishment_time': None
+	}
+
 	@property
 	def nodes(self):
 		"""List of all nodes in the network, as |class_node| objects. Read only.
@@ -174,46 +180,28 @@ class SupplyChainNetwork(object):
 
 	# Attribute management.
 
-	def initialize(self, overwrite=True):
-		"""Initialize the parameters in the object to their default values. If ``overwrite`` is ``True``,
-		all attributes are reset to their default values, even if they already exist. (This is how the
-		method should be called from the object's ``__init()__`` method.) If it is ``False``,
-		then missing attributes are added to the object but existing attributes are not overwritten. (This
-		is how the method should be called when loading an instance from a file, to make sure that all
-		attributes are present.)
-
-		Handles ``_nodes`` list as follows:
-
-			* If ``overwrite`` is ``True``, replaces ``_nodes`` with an empty list.
-			* If ``overwrite`` is ``False`` and ``_nodes`` does not exist, creates the ``_nodes`` attribute 
-			  and fills it with an empty list.
-			* If ``overwrite`` is ``False`` and ``_nodes`` exists but is ``None`` or an empty list, does nothing.
-			* If ``overwrite`` is ``False`` and ``_nodes`` exists and contains at least one |class_node| 
-			  object, calls the ``initialize()`` method for each node with ``overwrite=False`` to ensure all attributes are present (as well as all attributes in its object attributes such as ``demand_source``, etc.).
-
-
-		Parameters
-		----------
-		overwrite : bool, optional
-			``True`` to overwrite all attributes to their initial values, ``False`` to initialize
-			only those attributes that are missing from the object. Default = ``True``.
-
+	def initialize(self):
+		"""Initialize the parameters in the object to their default values. 
 		"""
+		# Loop through attributes. Special handling for list attributes.
+		for attr in self._DEFAULT_VALUES.keys():
+			if is_list(self._DEFAULT_VALUES[attr]):
+				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
+			else:
+				setattr(self, attr, self._DEFAULT_VALUES[attr])
 
-		# NOTE: If the attribute list changes, deep_equal_to() must be updated accordingly.
+		# # --- Nodes and Period --- #
+		# if overwrite or not hasattr(self, '_nodes'):
+		# 	self._nodes = []
+		# elif is_list(self._nodes):
+		# 	for n in self._nodes:
+		# 		n.initialize(overwrite=False)
+		# if overwrite or not hasattr(self, '_period'):
+		# 	self._period = 0
 
-		# --- Nodes and Period --- #
-		if overwrite or not hasattr(self, '_nodes'):
-			self._nodes = []
-		elif is_list(self._nodes):
-			for n in self._nodes:
-				n.initialize(overwrite=False)
-		if overwrite or not hasattr(self, '_period'):
-			self._period = 0
-
-		# --- Intermediate Calculations for GSM Problems --- #
-		if overwrite or not hasattr(self, 'max_max_replenishment_time'):
-			self.max_max_replenishment_time = None
+		# # --- Intermediate Calculations for GSM Problems --- #
+		# if overwrite or not hasattr(self, 'max_max_replenishment_time'):
+		# 	self.max_max_replenishment_time = None
 			
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether network "deeply equals" ``other``, i.e., if all attributes are
@@ -232,18 +220,25 @@ class SupplyChainNetwork(object):
 			``True`` if the two networks are equal, ``False`` otherwise.
 		"""
 
+		eq = True
+
 		if sorted(self.node_indices) != sorted(other.node_indices):
-			return False
+			eq = False
+		else:
+			# Special handling for some attributes.
+			for attr in self._DEFAULT_VALUES.keys():
+				if attr == '_nodes':
+					for n_ind in sorted(self.node_indices):
+						other_node = other.get_node_from_index(n_ind)
+						if other_node is None:
+							eq = False
+						elif not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
+							eq = False
+				else:
+					if getattr(self, attr) != getattr(other, attr):
+						eq = False
 
-		for n_ind in sorted(self.node_indices):
-			other_node = other.get_node_from_index(n_ind)
-			if other_node is None:
-				return False
-			if not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
-				return False
-
-		return self._period == other._period and \
-			self.max_max_replenishment_time == other.max_max_replenishment_time
+		return eq
 
 	def to_dict(self):
 		"""Convert the |class_network| object to a dict. Converts the object recursively,
@@ -257,14 +252,25 @@ class SupplyChainNetwork(object):
 		# Initialize dict.
 		network_dict = {}
 
-		# Non-object attributes.
-		network_dict['period'] = self.period
-		network_dict['max_max_replenishment_time'] = self.max_max_replenishment_time
+		# Attributes.
+		for attr in self._DEFAULT_VALUES.keys():
+			# Remove leading '_' to get property names.
+			prop = attr[1:] if attr[0] == '_' else attr
+			if attr == '_nodes':
+				network_dict['nodes'] = []
+				for n in self.nodes:
+					network_dict['nodes'].append(n.to_dict())
+			else:
+				network_dict[prop] = getattr(self, prop)
 
-		# Nodes.
-		network_dict['nodes'] = []
-		for n in self.nodes:
-			network_dict['nodes'].append(n.to_dict())
+		# # Non-object attributes.
+		# network_dict['period'] = self.period
+		# network_dict['max_max_replenishment_time'] = self.max_max_replenishment_time
+
+		# # Nodes.
+		# network_dict['nodes'] = []
+		# for n in self.nodes:
+		# 	network_dict['nodes'].append(n.to_dict())
 
 		return network_dict
 
@@ -284,33 +290,63 @@ class SupplyChainNetwork(object):
 			The object converted from the dict.
 		"""
 		if the_dict is None:
-			network = None
+			network = cls()
 		else:
-			# Initialize node object.
-			network = SupplyChainNetwork()
-
-		# Non-object attributes.
-		network.period 						= the_dict['period']
-		network.max_max_replenishment_time	= the_dict['max_max_replenishment_time']
-
-		# Nodes.
-		for n_dict in the_dict['nodes']:
-			network.add_node(SupplyChainNode.from_dict(n_dict))
-
-		# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
-		# replaces them with indices.)
-		for n in network.nodes:
-			preds = []
-			succs = []
-			for m in network.nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
+			# Build empty SupplyChainNetwork.
+			network = cls()
+			# Fill attributes.
+			for attr in cls._DEFAULT_VALUES.keys():
+				if attr == '_nodes':
+					if 'nodes' not in the_dict:
+						network._nodes = copy.deepcopy(cls._DEFAULT_VALUES['_nodes'])
+					else:
+						for n_dict in the_dict['nodes']:
+							network.add_node(SupplyChainNode.from_dict(n_dict))
+						# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
+						# replaces them with indices.)
+						for n in network.nodes:
+							preds = []
+							succs = []
+							for m in network.nodes:
+								if m.index in n.predecessors():
+									preds.append(m)
+								if m.index in n.successors():
+									succs.append(m)
+							n._predecessors = preds
+							n._successors = succs
+				else:
+					# Remove leading '_' to get property names.
+					prop = attr[1:] if attr[0] == '_' else attr
+					if prop in the_dict:
+						value = the_dict[prop]
+					else:
+						value = cls._DEFAULT_VALUES[attr]
+					setattr(network, attr, value)
 
 		return network
+
+		# # Non-object attributes.
+		# network.period 						= the_dict['period']
+		# network.max_max_replenishment_time	= the_dict['max_max_replenishment_time']
+
+		# # Nodes.
+		# for n_dict in the_dict['nodes']:
+		# 	network.add_node(SupplyChainNode.from_dict(n_dict))
+
+		# # Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
+		# # replaces them with indices.)
+		# for n in network.nodes:
+		# 	preds = []
+		# 	succs = []
+		# 	for m in network.nodes:
+		# 		if m.index in n.predecessors():
+		# 			preds.append(m)
+		# 		if m.index in n.successors():
+		# 			succs.append(m)
+		# 	n._predecessors = preds
+		# 	n._successors = succs
+
+		# return network
 			
 	# Methods for node handling.
 

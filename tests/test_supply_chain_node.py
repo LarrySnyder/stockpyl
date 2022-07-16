@@ -691,13 +691,12 @@ class TestNodeToFromDict(unittest.TestCase):
 			self.assertTrue(network.nodes[i].deep_equal_to(dict_nodes[i]))
 
 	def test_missing_values(self):
-		"""Test that initialize() correctly leaves attributes in place if object already contains
-		those attributes.
+		"""Test that from_dict() correctly fills attributes with defaults if missing.
 		"""
 		print_status('TestNodeToFromDict', 'test_missing_values()')
 
 		# In this instance, node 3 is missing the ``local_holding_cost`` attribute.
-		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		n1 = network1.get_node_from_index(3)
 		n2 = network2.get_node_from_index(3)
@@ -705,7 +704,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		self.assertTrue(n1.deep_equal_to(n2))
 
 		# In this instance, node 1 is missing the ``demand_source`` attribute.
-		network1 = load_instance("missing_demand_source_node_1", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_demand_source_node_1", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		n1 = network1.get_node_from_index(1)
 		n2 = network2.get_node_from_index(1)
@@ -713,7 +712,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		self.assertTrue(n1.deep_equal_to(n2))
 
 		# In this instance, the ``disruption_process`` attribute at node 1 is missing the ``recovery_probability`` attribute.
-		network1 = load_instance("missing_recovery_probability_node_1", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json", initialize_missing_attributes=False)
+		network1 = load_instance("missing_recovery_probability_node_1", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json")
 		network2 = load_instance("example_6_1")
 		n1 = network1.get_node_from_index(1)
 		n2 = network2.get_node_from_index(1)
