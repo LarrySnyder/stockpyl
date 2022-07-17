@@ -539,6 +539,88 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
 
 
+
+class TestDeepEqualTo(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestDeepEqualTo', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestDeepEqualTo', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test deep_equal_to() for nodes in in Example 6.1.
+		"""
+		print_status('TestDeepEqualTo', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+
+		node1 = network.get_node_from_index(1)
+		node2 = network.get_node_from_index(2)
+		node3 = network.get_node_from_index(3)
+
+		# Equal nodes.
+		node1copy = copy.deepcopy(node1)
+		self.assertTrue(node1copy.deep_equal_to(node1))
+		self.assertTrue(node1.deep_equal_to(node1copy))
+		node2copy = copy.deepcopy(node2)
+		self.assertTrue(node2copy.deep_equal_to(node2))
+		self.assertTrue(node2.deep_equal_to(node2copy))
+		node3copy = copy.deepcopy(node3)
+		self.assertTrue(node3copy.deep_equal_to(node3))
+		self.assertTrue(node3.deep_equal_to(node3copy))
+
+		# Unequal nodes due to parameters.
+		node1copy.local_holding_cost = 99
+		self.assertFalse(node1copy.deep_equal_to(node1))
+		self.assertFalse(node1.deep_equal_to(node1copy))
+		node2copy.demand_source.standard_deviation = 99
+		self.assertFalse(node2copy.deep_equal_to(node2))
+		self.assertFalse(node2.deep_equal_to(node2copy))
+
+		# Unequal networks due to missing policy.
+		node3copy.inventory_policy = None
+		self.assertFalse(node3copy.deep_equal_to(node3))
+		self.assertFalse(node3.deep_equal_to(node3copy))
+
+	def test_rong_atan_snyder_figure_1a(self):
+		"""Test deep_equal_to() for nodes in in rong_atan_snyder_figure_1a.
+		"""
+		print_status('TestDeepEqualTo', 'test_rong_atan_snyder_figure_1a()')
+
+		network = load_instance("rong_atan_snyder_figure_1a")
+
+		node0 = network.get_node_from_index(0)
+		node2 = network.get_node_from_index(2)
+		node6 = network.get_node_from_index(6)
+
+		# Equal nodes.
+		node0copy = copy.deepcopy(node0)
+		self.assertTrue(node0copy.deep_equal_to(node0))
+		self.assertTrue(node0.deep_equal_to(node0copy))
+		node2copy = copy.deepcopy(node2)
+		self.assertTrue(node2copy.deep_equal_to(node2))
+		self.assertTrue(node2.deep_equal_to(node2copy))
+		node6copy = copy.deepcopy(node6)
+		self.assertTrue(node6copy.deep_equal_to(node6))
+		self.assertTrue(node6.deep_equal_to(node6copy))
+
+		# Unequal nodes due to parameters.
+		node0copy.local_holding_cost = 99
+		self.assertFalse(node0copy.deep_equal_to(node0))
+		self.assertFalse(node0.deep_equal_to(node0copy))
+		node2copy.demand_source.standard_deviation = 99
+		self.assertFalse(node2copy.deep_equal_to(node2))
+		self.assertFalse(node2.deep_equal_to(node2copy))
+
+		# Unequal networks due to missing policy.
+		node6copy.inventory_policy = None
+		self.assertFalse(node6copy.deep_equal_to(node6))
+		self.assertFalse(node6.deep_equal_to(node6copy))
+			
 class TestNodeToFromDict(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

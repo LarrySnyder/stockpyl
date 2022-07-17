@@ -26,6 +26,8 @@ A list of the built-in instances is provided below.
 .. include:: ../../../src/stockpyl/aux_files/stockpyl_instances_metadata.rst
 
 
+|
+
 API Reference
 -------------
 

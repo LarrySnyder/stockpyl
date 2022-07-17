@@ -1,0 +1,18 @@
+{
+	"_id": "",
+	"instances": [
+		{
+			"name": "test_example_9_5",
+			"description": "this is test_example_9_5",
+			"data": {
+				"holding_cost": 0.06,
+				"fixed_cost": 18500,
+				"demand_rate": 75000,
+				"yield_mean": 0.8333333333333334,
+				"yield_sd": 0.14085904245475275
+			},
+			"type": "dict"
+		}
+	],
+	"last_updated": "2022-07-16 21:33:28.923480"
+}
