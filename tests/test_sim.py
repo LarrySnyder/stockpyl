@@ -746,3 +746,145 @@ class TestConsistencyChecks(unittest.TestCase):
 		self.try_multiple_disruption_processes("rong_atan_snyder_figure_1a")
 
 
+class TestCalculatePeriodCosts(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCalculatePeriodCosts', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCalculatePeriodCosts', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of model from
+		Example 6.1.
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
+
+	def test_problem_6_1(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of model from
+		Problem 6.1.
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_problem_6_1()')
+
+		network = load_instance("problem_6_1")
+		
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
+
+	def test_problem_6_2a(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of model from
+		Problem 6.2(a).
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_problem_6_2a()')
+
+		network = load_instance("problem_6_2a_adj")
+		
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
+
+	def test_problem_6_16(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of model from
+		Problem 6.16.
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_problem_6_16()')
+
+		network = load_instance("problem_6_16")
+
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
+
+	def test_single_stage(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of single-stage
+		model with base-stock policy.
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_single_stage()')
+
+		network = load_instance("example_4_1_network")
+
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
+
+	def test_assembly_3_stage(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of 3-stage assembly model.
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_assembly_3_stage()')
+
+		network = load_instance("assembly_3_stage")
+		
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
+
+	def test_rosling_figure_1(self):
+		"""Test that _calculate_period_costs() correct calculates cost for simulation of model in Rosling (1989),
+		Figure 1.
+		"""
+		print_status('TestCalculatePeriodCosts', 'test_rosling_figure_1()')
+
+		network = load_instance("rosling_figure_1")
+		
+		_ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Check costs in a few periods.
+		for t in [0, 2, 17, 52, 80]:
+			for n in network.nodes:
+				self.assertEqual(
+					n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+						+ n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+					n.state_vars[t].total_cost_incurred
+				)
