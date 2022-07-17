@@ -9,6 +9,7 @@ from scipy.stats import expon
 from scipy.stats import gamma
 from scipy.stats import nbinom
 from scipy.stats import uniform
+import math
 
 import stockpyl.loss_functions as loss_functions
 
@@ -1157,7 +1158,7 @@ class TestNegativeBinomialSecondLoss(unittest.TestCase):
 
 		x1 = 14
 		mean1 = 16
-		sd1 = np.sqrt(80)
+		sd1 = math.sqrt(80)
 		n1, n_bar1 = loss_functions.negative_binomial_second_loss(x1, mean=mean1, sd=sd1)
 		n1a, n_bar1a = (30.877804945158992, 10.122195054841001)
 		self.assertAlmostEqual(n1, n1a, places=4)

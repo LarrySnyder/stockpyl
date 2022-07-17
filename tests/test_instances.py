@@ -350,16 +350,54 @@ class SaveInstance(unittest.TestCase):
 		)
 
 		# Load saved JSON and correct JSON.
-		# correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_correct.json'
-		# with open(temp_filename) as f:
-		# 	saved_json = json.load(f)
-		# 	os.remove(temp_filename)
-		# with open(correct_contents_filename) as f:
-		# 	correct_json = json.load(f)
+		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_correct.json'
+		with open(temp_filename) as f:
+			saved_json = json.load(f)
+			os.remove(temp_filename)
+		with open(correct_contents_filename) as f:
+			correct_json = json.load(f)
 
-		# # Remove the timestamp entry.
-		# del saved_json['last_updated']
-		# del correct_json['last_updated']
+		# Remove the timestamp entry.
+		del saved_json['last_updated']
+		del correct_json['last_updated']
 
-		# # Compare.
-		# self.assertDictEqual(saved_json, correct_json)
+		# Compare.
+		self.assertDictEqual(saved_json, correct_json)
+
+	def test_omit_state_vars_false_rosling(self):
+		"""Test that save_instance() correctly saves rosling_figure_1 with 
+		omit_state_vars set to False.
+		"""
+		print_status('SaveInstance', 'test_omit_state_vars_false_rosling()')
+
+		# Load.
+		instance = instances.load_instance('rosling_figure_1')
+
+		# Simulate for a bit.
+		_ = simulation(instance, num_periods=25, rand_seed=42, progress_bar=False, consistency_checks='E')
+
+		# Save with omit_state_vars=False.
+		temp_filename = 'tests/additional_files/temp_TestSaveInstance_omit_state_vars_false_rosling.json'
+		instances.save_instance(
+			instance_name='test_omit_state_vars_rosling_false',
+			instance_data=instance,
+			instance_description='this is test_omit_state_vars_rosling_false',
+			filepath=temp_filename,
+			omit_state_vars=False
+		)
+
+		# Load saved JSON and correct JSON.
+		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_rosling_correct.json'
+		with open(temp_filename) as f:
+			saved_json = json.load(f)
+#			os.remove(temp_filename)
+		with open(correct_contents_filename) as f:
+			correct_json = json.load(f)
+
+		# Remove the timestamp entry.
+		del saved_json['last_updated']
+		del correct_json['last_updated']
+
+		# Compare.
+		self.assertDictEqual(saved_json, correct_json)
+

@@ -115,7 +115,7 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
-	ltd_sd = demand_sd * np.sqrt(lead_time + 1)
+	ltd_sd = demand_sd * math.sqrt(lead_time + 1)
 
 	# Is S provided?
 	if base_stock_level is None:
@@ -198,7 +198,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
-	ltd_sd = demand_sd * np.sqrt(lead_time + 1)
+	ltd_sd = demand_sd * math.sqrt(lead_time + 1)
 
 	# Calculate loss functions.
 	n, n_bar = lf.normal_loss(base_stock_level, ltd_mean, ltd_sd)
@@ -1001,7 +1001,7 @@ def newsvendor_normal_explicit(revenue, purchase_cost, salvage_value,
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
-	ltd_sd = demand_sd * np.sqrt(lead_time + 1)
+	ltd_sd = demand_sd * math.sqrt(lead_time + 1)
 
 	# Is S provided?
 	if base_stock_level is None:

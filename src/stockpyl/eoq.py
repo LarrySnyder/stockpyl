@@ -27,6 +27,7 @@ API Reference
 """
 
 import numpy as np
+import math
 
 
 def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantity=None):
@@ -89,7 +90,7 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantit
 	# Is Q provided?
 	if order_quantity is None:
 		# Calculate optimal order quantity and cost.
-		order_quantity = np.sqrt(2 * fixed_cost * demand_rate / holding_cost)
+		order_quantity = math.sqrt(2 * fixed_cost * demand_rate / holding_cost)
 		cost = order_quantity * holding_cost
 	else:
 		# Calculate cost.
@@ -171,7 +172,7 @@ def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_c
 	# Is Q provided?
 	if order_quantity is None:
 		# Calculate optimal order quantity, stockout fraction, and cost.
-		order_quantity = np.sqrt(2 * fixed_cost * demand_rate * (holding_cost + stockout_cost)
+		order_quantity = math.sqrt(2 * fixed_cost * demand_rate * (holding_cost + stockout_cost)
 									/ (holding_cost * stockout_cost))
 		stockout_fraction = holding_cost / (holding_cost + stockout_cost)
 		cost = order_quantity * (holding_cost * stockout_cost) / (holding_cost + stockout_cost)
@@ -253,7 +254,7 @@ def economic_production_quantity(fixed_cost, holding_cost, demand_rate, producti
 	# Is Q provided?
 	if order_quantity is None:
 		# Calculate optimal order quantity and cost.
-		order_quantity = np.sqrt(
+		order_quantity = math.sqrt(
 			2 * fixed_cost * demand_rate / (holding_cost * (1 - rho)))
 		cost = order_quantity * holding_cost * (1 - rho)
 	else:
@@ -351,19 +352,19 @@ def joint_replenishment_problem_silver_heuristic(shared_fixed_cost,
 		if n == min_ratio_prod:
 			m = 1
 		else:
-			m = np.sqrt((individual_fixed_costs[n] / (holding_costs[n] * demand_rates[n])) * const)
+			m = math.sqrt((individual_fixed_costs[n] / (holding_costs[n] * demand_rates[n])) * const)
 			m = max(1, int(round(m)))
 
 		order_multiples.append(m)
 
 	# Calculate a few terms we'll need below.
-	term1 = shared_fixed_cost + np.sum(np.divide(individual_fixed_costs, order_multiples))
-	term2 = np.sum([holding_costs[n] * order_multiples[n] * demand_rates[n] for n in range(num_prod)])
+	term1 = shared_fixed_cost + float(np.sum(np.divide(individual_fixed_costs, order_multiples)))
+	term2 = float(np.sum([holding_costs[n] * order_multiples[n] * demand_rates[n] for n in range(num_prod)]))
 
 	# Calculate base cycle time.
 	numer = 2 * term1
 	denom = term2
-	base_cycle_time = np.sqrt(numer / denom)
+	base_cycle_time = math.sqrt(numer / denom)
 
 	# Calculate order quantities.
 	order_quantities = [base_cycle_time * order_multiples[n] * demand_rates[n] for n in range(num_prod)]

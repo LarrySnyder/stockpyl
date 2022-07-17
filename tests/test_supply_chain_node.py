@@ -495,13 +495,13 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
-		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(32))
-		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(16))
-		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, np.sqrt(16))
-		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, math.sqrt(32))
+		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, math.sqrt(16))
+		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, math.sqrt(16))
+		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, math.sqrt(8))
 
 	def test_rong_atan_snyder_figure_1b(self):
 		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
@@ -511,17 +511,17 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1b")
 
-		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(64))
-		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(40))
-		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, np.sqrt(24))
-		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(7).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(8).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(9).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(10).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, math.sqrt(64))
+		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, math.sqrt(40))
+		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, math.sqrt(24))
+		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(7).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(8).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(9).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(10).derived_demand_standard_deviation, math.sqrt(8))
 
 	def test_rong_atan_snyder_figure_1c(self):
 		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
@@ -531,12 +531,12 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1c")
 
-		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, np.sqrt(32))
-		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, np.sqrt(24))
-		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, np.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, np.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, math.sqrt(32))
+		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, math.sqrt(24))
+		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, math.sqrt(8))
 
 
 

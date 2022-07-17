@@ -154,7 +154,7 @@ def eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 	psi_approx = (disruption_rate / (disruption_rate + recovery_rate))
 
 	# Calculate approximate Q^*.
-	order_quantity_approx = (np.sqrt((psi_approx * demand_rate * holding_cost) ** 2 + 2 * holding_cost * recovery_rate * (
+	order_quantity_approx = (math.sqrt((psi_approx * demand_rate * holding_cost) ** 2 + 2 * holding_cost * recovery_rate * (
 				fixed_cost * demand_rate * recovery_rate + demand_rate ** 2 * stockout_cost * psi_approx)) - psi_approx * demand_rate * holding_cost) / (
 								 holding_cost * recovery_rate)
 
@@ -484,7 +484,7 @@ def eoq_with_additive_yield_uncertainty(fixed_cost, holding_cost, demand_rate, y
 
 	# Is Q provided?
 	if order_quantity is None:
-		order_quantity = np.sqrt((2 * fixed_cost * demand_rate / holding_cost) + yield_sd**2) - yield_mean
+		order_quantity = math.sqrt((2 * fixed_cost * demand_rate / holding_cost) + yield_sd**2) - yield_mean
 
 	# Calculate cost.
 	term1 = (2 * fixed_cost * demand_rate + holding_cost * yield_sd**2) / (2 * (order_quantity + yield_mean))
@@ -551,9 +551,9 @@ def eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_r
 
 	.. doctest::
 
-		>>> eoq_with_multiplicative_yield_uncertainty(18500, 0.06, 75000, 0.8333, np.sqrt(0.0198))
+		>>> eoq_with_multiplicative_yield_uncertainty(18500, 0.06, 75000, 0.8333, math.sqrt(0.0198))
 		(254477.46130342316, 13086.16169098594)
-		>>> eoq_with_multiplicative_yield_uncertainty(18500, 0.06, 75000, 0.8333, np.sqrt(0.0198), order_quantity=300000)
+		>>> eoq_with_multiplicative_yield_uncertainty(18500, 0.06, 75000, 0.8333, math.sqrt(0.0198), order_quantity=300000)
 		(300000, 13263.770562822512)
 	"""
 
@@ -565,7 +565,7 @@ def eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_r
 
 	# Is Q provided?
 	if order_quantity is None:
-		order_quantity = np.sqrt((2 * fixed_cost * demand_rate) / (holding_cost * (yield_sd**2 + yield_mean**2)))
+		order_quantity = math.sqrt((2 * fixed_cost * demand_rate) / (holding_cost * (yield_sd**2 + yield_mean**2)))
 
 	# Calculate cost.
 	term1 = fixed_cost * demand_rate / (order_quantity * yield_mean)

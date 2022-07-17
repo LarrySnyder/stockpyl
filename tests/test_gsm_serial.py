@@ -1,7 +1,7 @@
 from random import randint
 import unittest
 import numpy as np
-import copy
+import math
 
 from stockpyl.demand_source import DemandSource
 import stockpyl.gsm_serial as gsm_serial
@@ -52,7 +52,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
 
-		self.assertEqual(opt_cost, 2 * np.sqrt(2))
+		self.assertEqual(opt_cost, 2 * math.sqrt(2))
 		self.assertDictEqual(opt_cst, {1: 1, 2: 0, 3: 0})
 
 	def test_problem_6_7(self):
@@ -67,7 +67,7 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
 
-		self.assertAlmostEqual(opt_cost, 160 * np.sqrt(5))
+		self.assertAlmostEqual(opt_cost, 160 * math.sqrt(5))
 		self.assertDictEqual(opt_cst, {1: 0, 2: 3, 3: 2})
 
 	def test_problem_6_8(self):

@@ -46,6 +46,7 @@ import numpy as np
 import networkx as nx
 from math import isclose
 import copy
+import math
 
 from stockpyl import policy
 from stockpyl import demand_source
@@ -365,7 +366,7 @@ class SupplyChainNode(object):
 		for d in self.descendants:
 			if d.demand_source is not None and d.demand_source.type == 'N':
 				DDV += d.demand_source.standard_deviation ** 2
-		return np.sqrt(DDV)
+		return math.sqrt(DDV)
 
 	# Properties related to state variables.
 
@@ -775,21 +776,21 @@ class SupplyChainNode(object):
 		if attribute in ('inbound_shipment', 'on_order_by_predecessor', 'raw_material_inventory', 'inbound_disrupted_items'):
 			# These attributes are indexed by predecessor.
 			if period is None:
-				return np.sum([self.state_vars[t].__dict__[attribute][p_index]
+				return float(np.sum([self.state_vars[t].__dict__[attribute][p_index]
 							   for t in range(len(self.state_vars))
-							   for p_index in self.predecessor_indices(include_external=True)])
+							   for p_index in self.predecessor_indices(include_external=True)]))
 			else:
-				return np.sum([self.state_vars[period].__dict__[attribute][p_index]
-							   for p_index in self.predecessor_indices(include_external=True)])
+				return float(np.sum([self.state_vars[period].__dict__[attribute][p_index]
+							   for p_index in self.predecessor_indices(include_external=True)]))
 		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor', 'outbound_disrupted_items'):
 			# These attributes are indexed by successor.
 			if period is None:
-				return np.sum([self.state_vars[t].__dict__[attribute][s_index]
+				return float(np.sum([self.state_vars[t].__dict__[attribute][s_index]
 							   for t in range(len(self.state_vars))
-							   for s_index in self.successor_indices(include_external=True)])
+							   for s_index in self.successor_indices(include_external=True)]))
 			else:
-				return np.sum([self.state_vars[period].__dict__[attribute][s_index]
-							   for s_index in self.successor_indices(include_external=True)])
+				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index]
+							   for s_index in self.successor_indices(include_external=True)]))
 		else:
 			if period is None:
 				return np.sum([self.state_vars[:].__dict__[attribute]])

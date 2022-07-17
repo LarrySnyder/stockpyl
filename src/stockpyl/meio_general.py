@@ -250,7 +250,7 @@ def base_stock_level_bisection_search(network, node_to_optimize, lo=None, hi=Non
 	if lo is None:
 		lo = 0
 	if hi is None:
-		hi = 3 * np.sum([s.demand_source.mean for s in network.sink_nodes])
+		hi = 3 * float(np.sum([s.demand_source.mean for s in network.sink_nodes]))
 
 	# Determine initial lo, hi, and midpoint for bisection search.
 	S_lo = lo
@@ -336,13 +336,13 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 			nto_lo[n_ind] = 0
 		if nto_hi[n_ind] is None:
 			n = network.get_node_from_index(n_ind)
-			nto_hi[n_ind] = 3 * n.lead_time * np.sum([s.demand_source.mean for s in network.sink_nodes])
+			nto_hi[n_ind] = 3 * n.lead_time * float(np.sum([s.demand_source.mean for s in network.sink_nodes]))
 
 	# Determine initial solution.
 	if initial_solution is None:
 		nto_initial_solution = {}
 		for n in nodes_to_optimize:
-			nto_initial_solution[n] = np.sum([s.demand_source.mean for s in network.sink_nodes])
+			nto_initial_solution[n] = float(np.sum([s.demand_source.mean for s in network.sink_nodes]))
 	else:
 		nto_initial_solution = {n_ind: initial_solution[n_ind] for n_ind in nodes_to_optimize}
 

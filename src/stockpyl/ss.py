@@ -434,7 +434,7 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 	# Calculate Q and z.
 	Q = 1.30 * (demand_mean**0.494) * (fixed_cost / holding_cost)**0.506 \
 		* (1 + (demand_sd / demand_mean)**2)**0.116
-	z = np.sqrt((Q / demand_sd) * (holding_cost / stockout_cost))
+	z = math.sqrt((Q / demand_sd) * (holding_cost / stockout_cost))
 
 	# Calculate s and S.
 	s = 0.973 * demand_mean + demand_sd * ((0.183 / z) + 1.063 - 2.192*z)

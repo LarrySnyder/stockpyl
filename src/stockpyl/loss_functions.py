@@ -41,6 +41,7 @@ from scipy.stats import nbinom
 from scipy.stats import gamma
 #from scipy.integrate import quad
 from types import *
+import math
 
 from stockpyl.helpers import *
 
@@ -302,11 +303,11 @@ def lognormal_loss(x, mu, sigma):
 		(0.28364973888106326, 2.5544912009711833)
 	"""
 	# Calculate E[X].
-	E = np.exp(mu + sigma**2/2)
+	E = math.exp(mu + sigma**2/2)
 
 	if x > 0:
-		n = E * norm.cdf((mu + sigma**2 - np.log(x)) / sigma) \
-			- x * (1 - norm.cdf((np.log(x) - mu) / sigma))
+		n = E * norm.cdf((mu + sigma**2 - math.log(x)) / sigma) \
+			- x * (1 - norm.cdf((math.log(x) - mu) / sigma))
 		n_bar = x - E + n
 	else:
 		n = E - x
@@ -374,7 +375,7 @@ def exponential_loss(x, mu):
 	# Calculate E[X].
 	E = 1.0 / mu
 
-	n = np.exp(-mu * x) / mu
+	n = math.exp(-mu * x) / mu
 	n_bar = x - E + n
 
 	return n, n_bar
@@ -442,7 +443,7 @@ def exponential_second_loss(x, mu):
 	E = 1.0 / mu
 	V = 1.0 / mu**2
 
-	n = np.exp(-mu * x) / mu**2
+	n = math.exp(-mu * x) / mu**2
 	n_bar = 0.5 * ((x - E)**2 + V) - n
 
 	return n, n_bar
@@ -1274,7 +1275,7 @@ def negative_binomial_loss(x, r=None, p = None, mean=None, sd=None):
 		p = 1 - (sd ** 2 - mean) / (sd ** 2)
 	else:
 		mean = (1 - p) * r / p
-		sd = np.sqrt((1 - p) * r) / p
+		sd = math.sqrt((1 - p) * r) / p
 
 	# Check that mean < sigma^2.
 	if not mean < sd ** 2:
@@ -1397,7 +1398,7 @@ def negative_binomial_second_loss(x, r=None, p=None, mean=None, sd=None):
 		p = 1 - (sd ** 2 - mean) / (sd ** 2)
 	else:
 		mean = (1 - p) * r / p
-		sd = np.sqrt((1 - p) * r) / p
+		sd = math.sqrt((1 - p) * r) / p
 
 	# Check that mean < sigma^2.
 	if not mean < sd ** 2:
@@ -1498,7 +1499,7 @@ def discrete_loss(x, distrib=None, pmf=None):
 
 	if distrib is not None:
 		# rv_discrete object has been provided.
-		n_bar = np.sum([distrib.cdf(range(int(x)))])
+		n_bar = float(np.sum([distrib.cdf(range(int(x)))]))
 		n = n_bar - x + distrib.mean()
 
 		# Old (slower) method:
@@ -1517,8 +1518,8 @@ def discrete_loss(x, distrib=None, pmf=None):
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
-		n = np.sum([(y - x) * pmf[y] for y in x_values if y >= x])
-		n_bar = np.sum([(x - y) * pmf[y] for y in x_values if y <= x])
+		n = float(np.sum([(y - x) * pmf[y] for y in x_values if y >= x]))
+		n_bar = float(np.sum([(x - y) * pmf[y] for y in x_values if y <= x]))
 
 	return n, n_bar
 
@@ -1614,18 +1615,17 @@ def discrete_second_loss(x, distrib=None, pmf=None):
 		E, V = distrib.stats(moments='mv')
 
 		# Calculate loss functions.
-		n2_bar = np.dot([np.subtract(x, range(int(x)))], distrib.cdf(range(int(x))))
+		n2_bar = float(np.dot([np.subtract(x, range(int(x)))], distrib.cdf(range(int(x)))))
 		n2 = 0.5 * ((x - E)**2 + (x - E) + V) - n2_bar
 
 	else:
 		# pmf dict has been provided.
 		x_values = list(pmf.keys())
 		x_values.sort()
-		n2 = 0.5 * np.sum([(y - x) * (y - x - 1) * pmf[y] for y in x_values if y >= x])
-		n2_bar = 0.5 * np.sum([(x - y) * (x + 1 - y) * pmf[y] for y in x_values if y <= x])
+		n2 = 0.5 * float(np.sum([(y - x) * (y - x - 1) * pmf[y] for y in x_values if y >= x]))
+		n2_bar = 0.5 * float(np.sum([(x - y) * (x + 1 - y) * pmf[y] for y in x_values if y <= x]))
 
-	# .item() removes singleton from ndarray.
-	return n2.item(), n2_bar.item()
+	return n2, n2_bar
 
 
 

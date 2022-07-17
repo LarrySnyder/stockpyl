@@ -104,7 +104,7 @@ def r_q_cost(reorder_point, order_quantity, holding_cost, stockout_cost,
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
-	sigma = demand_sd * np.sqrt(lead_time)
+	sigma = demand_sd * math.sqrt(lead_time)
 
 	# Build newsvendor cost function. (Note: lead_time=0 in newsvendor even
 	# though LT in (r,Q) <> 0.)
@@ -190,7 +190,7 @@ def r_q_optimal_r_for_q(order_quantity, holding_cost, stockout_cost,
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
-	sigma = demand_sd * np.sqrt(lead_time)
+	sigma = demand_sd * math.sqrt(lead_time)
 
 	# Find S^* (= minimizer of g(.)).
 	S, _ = newsvendor_normal(holding_cost, stockout_cost, mu, sigma)
@@ -311,7 +311,7 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
-	sigma = demand_sd * np.sqrt(lead_time)
+	sigma = demand_sd * math.sqrt(lead_time)
 
 	# Initialize: Q = EOQ, r = 0.
 	Q, _ = economic_order_quantity(fixed_cost, holding_cost, demand_mean)
@@ -332,7 +332,7 @@ def r_q_eil_approximation(holding_cost, stockout_cost, fixed_cost,
 
 		# Solve for Q.
 		loss, _ = lf.normal_loss(r, mu, sigma)
-		Q = np.sqrt(2 * demand_mean * (fixed_cost + stockout_cost * loss) / holding_cost)
+		Q = math.sqrt(2 * demand_mean * (fixed_cost + stockout_cost * loss) / holding_cost)
 
 	# Calculate approximate expected cost per unit time.
 	loss, _ = lf.normal_loss(r, mu, sigma)
@@ -496,7 +496,7 @@ def r_q_eoqss_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
-	sigma = demand_sd * np.sqrt(lead_time)
+	sigma = demand_sd * math.sqrt(lead_time)
 
 	# Calculate EOQ.
 	Q, _ = economic_order_quantity(fixed_cost, holding_cost, demand_mean)
@@ -588,7 +588,7 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	# Calculate mu and sigma (mean and SD of lead-time demand).
 	mu = demand_mean * lead_time
-	sigma = demand_sd * np.sqrt(lead_time)
+	sigma = demand_sd * math.sqrt(lead_time)
 
 	# Initialize: Q = EOQ, r = 0.
 	Q, _ = economic_order_quantity(fixed_cost, holding_cost, demand_mean)
@@ -610,7 +610,7 @@ def r_q_loss_function_approximation(holding_cost, stockout_cost, fixed_cost,
 
 		# Solve for Q.
 		loss2, _ = lf.normal_second_loss(r, mu, sigma)
-		Q = np.sqrt(2 * (fixed_cost * demand_mean +
+		Q = math.sqrt(2 * (fixed_cost * demand_mean +
 						 (holding_cost + stockout_cost) * loss2) / holding_cost)
 
 	return r, Q

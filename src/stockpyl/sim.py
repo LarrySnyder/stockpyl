@@ -165,8 +165,8 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 	pbar.close()
 
 	# Return total cost.
-	return np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
-			for t in range(num_periods)])
+	return float(np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
+			for t in range(num_periods)]))
 
 
 # -------------------
@@ -502,11 +502,11 @@ def _calculate_period_costs(network, period):
 		else:
 			h = n.in_transit_holding_cost or 0
 		n.state_vars[period].in_transit_holding_cost_incurred = \
-			h * np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()])
+			h * float(np.sum([n.state_vars[period].in_transit_to(s) for s in n.successors()]))
 		# Revenue.
 		n.state_vars[period].revenue_earned = (n.revenue or 0) * \
-			np.sum([n.state_vars[period].outbound_shipment[s_index] \
-					for s_index in n.successor_indices(include_external=True)])
+			float(np.sum([n.state_vars[period].outbound_shipment[s_index] \
+					for s_index in n.successor_indices(include_external=True)]))
 
 		# Total cost.
 		n.state_vars[period].total_cost_incurred = \
@@ -582,8 +582,8 @@ def _raw_materials_to_finished_goods(node):
 
 	"""
 	# Determine number of units that can be processed.
-	new_finished_goods = np.min([node.state_vars_current.raw_material_inventory[p_index]
-						for p_index in node.predecessor_indices(include_external=True)])
+	new_finished_goods = float(np.min([node.state_vars_current.raw_material_inventory[p_index]
+						for p_index in node.predecessor_indices(include_external=True)]))
 
 	# Process units: remove from raw material inventory and add to finished goods.
 	for p_index in node.predecessor_indices(include_external=True):
@@ -825,8 +825,8 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 	pbar.close()
 
 	# Calculate mean and SEM of average cost.
-	mean_cost = np.mean(average_costs)
-	sem_cost = stats.sem(average_costs, ddof=0)
+	mean_cost = float(np.mean(average_costs))
+	sem_cost = float(stats.sem(average_costs, ddof=0))
 
 	return mean_cost, sem_cost
 

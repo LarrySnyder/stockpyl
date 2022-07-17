@@ -250,7 +250,7 @@ def _cst_dp_serial(network):
 				# Calculate theta(1, SI) using (6.43). Ensure argument to sqrt is non-negative
 				# (could be negative if S > T, in which case just treat NLT as 0).
 				theta[k_index][SI] = k.local_holding_cost * k.demand_bound_constant \
-					* sigma * np.sqrt(max(0, SI + k.processing_time - k.external_outbound_cst))
+					* sigma * math.sqrt(max(0, SI + k.processing_time - k.external_outbound_cst))
 				best_S[k_index][SI] = k.external_outbound_cst
 
 			else:
@@ -260,7 +260,7 @@ def _cst_dp_serial(network):
 				for S in range(SI + k.processing_time + 1):
 					# Calculate cost for this S.
 					cost = k.local_holding_cost * k.demand_bound_constant \
-						* sigma * np.sqrt(SI + k.processing_time - S) \
+						* sigma * math.sqrt(SI + k.processing_time - S) \
 						+ theta[k_index-1][S]
 					# Compare to best.
 					if cost < min_cost:

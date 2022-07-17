@@ -268,8 +268,8 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			if n.index == 1:
 				demand_source = DemandSource()
 				demand_source.type = 'UC'
-				demand_source.lo = 5 - np.sqrt(12) / 2
-				demand_source.hi = 5 + np.sqrt(12) / 2
+				demand_source.lo = 5 - math.sqrt(12) / 2
+				demand_source.hi = 5 + math.sqrt(12) / 2
 			else:
 				demand_source = None
 			n.demand_source = demand_source
@@ -645,8 +645,8 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 			if n.index == 1:
 				demand_source = DemandSource()
 				demand_source.type = 'UC'
-				demand_source.lo = 5 - np.sqrt(12) / 2
-				demand_source.hi = 5 + np.sqrt(12) / 2
+				demand_source.lo = 5 - math.sqrt(12) / 2
+				demand_source.hi = 5 + math.sqrt(12) / 2
 			else:
 				demand_source = None
 			n.demand_source = demand_source

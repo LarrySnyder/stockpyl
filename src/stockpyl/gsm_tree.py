@@ -148,8 +148,8 @@ def _cst_dp_tree(tree):
 	theta_out = {k_index: {} for k_index in tree.node_indices}
 
 	# Get min and max node indices (for convenience).
-	min_k_index = np.min(tree.node_indices)
-	max_k_index = np.max(tree.node_indices)
+	min_k_index = int(np.min(tree.node_indices))
+	max_k_index = int(np.max(tree.node_indices))
 
 	# Initialize best_cst_adjacent.
 	# best_cst_adjacent[k_index][S][i] = CST chosen for stage i when calculating
@@ -527,7 +527,7 @@ def _calculate_c(tree, k_index, S, SI, theta_in_partial, theta_out_partial):
 	# Calculate safety stock.
 	safety_stock = k.demand_bound_constant * \
 					k.net_demand_standard_deviation * \
-					np.sqrt(SI + k.processing_time - S)
+					math.sqrt(SI + k.processing_time - S)
 
 	# Set stage_cost equal to holding cost at node k.
 	stage_cost = k.holding_cost * safety_stock
@@ -897,7 +897,7 @@ def _net_demand(tree):
 				net_variances[i] += net_variances[k.index]
 			temp_tree.remove_node(k) 
 
-	net_standard_deviations = {k.index: np.sqrt(net_variances[k.index]) for k in tree.nodes}
+	net_standard_deviations = {k.index: math.sqrt(net_variances[k.index]) for k in tree.nodes}
 	return net_means, net_standard_deviations
 
 

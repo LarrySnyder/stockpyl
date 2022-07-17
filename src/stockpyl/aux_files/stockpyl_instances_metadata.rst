@@ -1149,7 +1149,7 @@
 			stockout_cost=list(np.array([24, 0, 0, 0, 0]) / 2),
 			demand_type='N',
 			mean=64 / 2,
-			standard_deviation=8 / np.sqrt(2),
+			standard_deviation=8 / math.sqrt(2),
 			shipment_lead_time=[1, 1, 1, 1, 1],
 			policy_type='BS',
 			base_stock_level=[40.59, 33.87, 35.14, 33.30, 32.93]

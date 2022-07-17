@@ -263,15 +263,6 @@ class SupplyChainNetwork(object):
 			else:
 				network_dict[prop] = getattr(self, prop)
 
-		# # Non-object attributes.
-		# network_dict['period'] = self.period
-		# network_dict['max_max_replenishment_time'] = self.max_max_replenishment_time
-
-		# # Nodes.
-		# network_dict['nodes'] = []
-		# for n in self.nodes:
-		# 	network_dict['nodes'].append(n.to_dict())
-
 		return network_dict
 
 	@classmethod

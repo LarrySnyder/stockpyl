@@ -435,7 +435,7 @@ class TestDemandDistribution(unittest.TestCase):
 #		self.assertEqual(a, 50)
 #		self.assertEqual(b, 100)
 		self.assertEqual(mu, 75)
-		self.assertAlmostEqual(sigma, 50 / np.sqrt(12))
+		self.assertAlmostEqual(sigma, 50 / math.sqrt(12))
 		self.assertEqual(z, 92.5)
 
 

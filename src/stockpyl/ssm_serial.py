@@ -659,7 +659,7 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 			# Normal.
 			# Calculate parameters of LTD distribution.
 			mu_ltd = mu * np.sum(L[1:j+1])
-			sigma_ltd = sigma * np.sqrt(np.sum(L[1:j+1]))
+			sigma_ltd = sigma * math.sqrt(np.sum(L[1:j+1]))
 			# Calculate newsvendor quantities.
 			S_u, _ = newsvendor_normal(h_eff_u, p_eff, mu_ltd, sigma_ltd)
 			S_l, _ = newsvendor_normal(h_eff_l, p_eff, mu_ltd, sigma_ltd)

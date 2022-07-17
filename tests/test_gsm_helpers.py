@@ -47,7 +47,7 @@ class TestSolutionCostFromCST(unittest.TestCase):
 		# Optimal solution: S = (0,0,0,1).
 		cst = {1: 0, 2: 0, 3: 0, 4: 1}
 		cost = gsm_tree.solution_cost_from_cst(tree, cst)
-		self.assertAlmostEqual(cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
+		self.assertAlmostEqual(cost, 2 * math.sqrt(2) + math.sqrt(6) + 3.0)
 
 		# Sub-optimal solution: S = (2,0,2,1).
 		cst = {1: 2, 2: 0, 3: 2, 4: 1}
@@ -66,22 +66,22 @@ class TestSolutionCostFromCST(unittest.TestCase):
 		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).
 		cst = {1: 0, 2: 3, 3: 5, 4: 4, 5: 7, 6: 0, 7: 0, 8: 0, 9: 0, 10: 2}
 		cost = gsm_helpers.solution_cost_from_cst(tree, cst)
-		correct_cost = 1.6448536269514722 * 10 * (0.01 * np.sqrt(2) + 0.13 * np.sqrt(10) + 0.2 * np.sqrt(6) + 0.08 * np.sqrt(4) + 0.04 * np.sqrt(3))
+		correct_cost = 1.6448536269514722 * 10 * (0.01 * math.sqrt(2) + 0.13 * math.sqrt(10) + 0.2 * math.sqrt(6) + 0.08 * math.sqrt(4) + 0.04 * math.sqrt(3))
 		self.assertAlmostEqual(cost, correct_cost)
 
 		# Sub-optimal solution: S = (2,3,3,0,3,1,5,1,0,2).
 		cst = {1: 2, 2: 3, 3: 3, 4: 0, 5: 3, 6: 5, 7: 1, 8: 1, 9: 0, 10: 2}
 		cost = gsm_helpers.solution_cost_from_cst(tree, cst)
 		correct_cost = 1.6448536269514722 * 10 * (
-			0.03 * np.sqrt(2) + # 2
-			0.04 * np.sqrt(2) + # 3
-			0.06 * np.sqrt(4) + # 4
-			0.12 * np.sqrt(2) + # 5
-			0.13 * np.sqrt(1) + # 6
-			0.20 * np.sqrt(5) + # 7
-			0.08 * np.sqrt(3) + # 8
-			0.04 * np.sqrt(3) + # 9
-			0.50 * np.sqrt(5)	# 10
+			0.03 * math.sqrt(2) + # 2
+			0.04 * math.sqrt(2) + # 3
+			0.06 * math.sqrt(4) + # 4
+			0.12 * math.sqrt(2) + # 5
+			0.13 * math.sqrt(1) + # 6
+			0.20 * math.sqrt(5) + # 7
+			0.08 * math.sqrt(3) + # 8
+			0.04 * math.sqrt(3) + # 9
+			0.50 * math.sqrt(5)	# 10
 		)
 		self.assertAlmostEqual(cost, correct_cost)
 
@@ -107,9 +107,9 @@ class TestSolutionCostFromBaseStockLevels(unittest.TestCase):
 		tree = gsm_tree.preprocess_tree(load_instance("example_6_5"))
 
 		# Optimal solution.
-		bsl = {1: np.sqrt(2) * np.sqrt(3), 2: 1.00, 3: np.sqrt(2), 4: 0.00}
+		bsl = {1: math.sqrt(2) * math.sqrt(3), 2: 1.00, 3: math.sqrt(2), 4: 0.00}
 		cost = gsm_tree.solution_cost_from_base_stock_levels(tree, bsl)
-		self.assertAlmostEqual(cost, 2 * np.sqrt(2) + np.sqrt(6) + 3.0)
+		self.assertAlmostEqual(cost, 2 * math.sqrt(2) + math.sqrt(6) + 3.0)
 
 		# Sub-optimal solution.
 		bsl = {1: 3, 2: 0, 3: 2, 4: 0}
@@ -153,15 +153,15 @@ class TestSolutionCostFromBaseStockLevels(unittest.TestCase):
 			10: 36.7800452290057}
 		cost = gsm_helpers.solution_cost_from_base_stock_levels(tree, bsl)
 		correct_cost = 1.6448536269514722 * 10 * (
-			0.03 * np.sqrt(2) + # 2
-			0.04 * np.sqrt(2) + # 3
-			0.06 * np.sqrt(4) + # 4
-			0.12 * np.sqrt(2) + # 5
-			0.13 * np.sqrt(1) + # 6
-			0.20 * np.sqrt(5) + # 7
-			0.08 * np.sqrt(3) + # 8
-			0.04 * np.sqrt(3) + # 9
-			0.50 * np.sqrt(5)	# 10
+			0.03 * math.sqrt(2) + # 2
+			0.04 * math.sqrt(2) + # 3
+			0.06 * math.sqrt(4) + # 4
+			0.12 * math.sqrt(2) + # 5
+			0.13 * math.sqrt(1) + # 6
+			0.20 * math.sqrt(5) + # 7
+			0.08 * math.sqrt(3) + # 8
+			0.04 * math.sqrt(3) + # 9
+			0.50 * math.sqrt(5)	# 10
 		)
 		self.assertAlmostEqual(cost, correct_cost)
 

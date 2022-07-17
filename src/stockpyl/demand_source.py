@@ -472,7 +472,7 @@ class DemandSource(object):
 			The demand value.
 
 		"""
-		return max(0, np.random.normal(self.mean, self.standard_deviation))
+		return max(0, float(np.random.normal(self.mean, self.standard_deviation)))
 
 	def _generate_demand_poisson(self):
 		"""Generate demand from Poisson distribution.
@@ -483,7 +483,7 @@ class DemandSource(object):
 			The demand value.
 
 		"""
-		return np.random.poisson(self.mean)
+		return int(np.random.poisson(self.mean))
 
 	def _generate_demand_uniform_discrete(self):
 		"""Generate demand from discrete uniform distribution.
@@ -494,7 +494,7 @@ class DemandSource(object):
 			The demand value.
 
 		"""
-		return np.random.randint(int(self.lo), int(self.hi) + 1)
+		return int(np.random.randint(int(self.lo), int(self.hi) + 1))
 
 	def _generate_demand_uniform_continuous(self):
 		"""Generate demand from continuous uniform distribution.
@@ -505,7 +505,7 @@ class DemandSource(object):
 			The demand value.
 
 		"""
-		return np.random.uniform(self.lo, self.hi - self.lo)
+		return float(np.random.uniform(self.lo, self.hi - self.lo))
 
 	def _generate_demand_deterministic(self, period=None):
 		"""Generate deterministic demand.
@@ -637,7 +637,7 @@ class DemandSource(object):
 
 		# Get distribution object.
 		if self.type == 'N':
-			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * np.sqrt(lead_time))
+			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * math.sqrt(lead_time))
 		elif self.type == 'P':
 			return scipy.stats.poisson(self.mean * lead_time)
 		elif self.type == 'UC':

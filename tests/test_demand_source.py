@@ -703,7 +703,7 @@ class TestDemandDistribution(unittest.TestCase):
 		z = distribution.ppf(0.85)
 
 		self.assertEqual(mu, 50)
-		self.assertAlmostEqual(sigma, np.sqrt(50))
+		self.assertAlmostEqual(sigma, math.sqrt(50))
 		self.assertEqual(z, 57)
 
 	def test_uniform_discrete(self):
@@ -722,7 +722,7 @@ class TestDemandDistribution(unittest.TestCase):
 		z = distribution.ppf(0.85)
 
 		self.assertEqual(mu, 75)
-		self.assertAlmostEqual(sigma, np.sqrt((51**2 - 1) / 12))
+		self.assertAlmostEqual(sigma, math.sqrt((51**2 - 1) / 12))
 		self.assertEqual(z, 93)
 
 	def test_uniform_continuous(self):
@@ -741,7 +741,7 @@ class TestDemandDistribution(unittest.TestCase):
 		z = distribution.ppf(0.85)
 
 		self.assertEqual(mu, 75)
-		self.assertAlmostEqual(sigma, 50 / np.sqrt(12))
+		self.assertAlmostEqual(sigma, 50 / math.sqrt(12))
 		self.assertEqual(z, 92.5)
 
 	def test_custom_discrete(self):
@@ -763,7 +763,7 @@ class TestDemandDistribution(unittest.TestCase):
 		z = distribution.ppf(0.85)
 
 		self.assertEqual(mu, np.dot(d, p))
-		self.assertAlmostEqual(sigma, np.sqrt(np.dot(np.square(d), p) - mu**2))
+		self.assertAlmostEqual(sigma, math.sqrt(np.dot(np.square(d), p) - mu**2))
 		self.assertEqual(z, 10)
 
 
@@ -893,7 +893,7 @@ class TestLeadTimeDemandDistribution(unittest.TestCase):
 
 		ltd_dist = demand_source.lead_time_demand_distribution(5.5)
 		self.assertEqual(ltd_dist.mean(), 50 * 5.5)
-		self.assertEqual(ltd_dist.std(), 8 * np.sqrt(5.5))
+		self.assertEqual(ltd_dist.std(), 8 * math.sqrt(5.5))
 		self.assertAlmostEqual(ltd_dist.ppf(0.85), 294.44521401635552)
 		self.assertIsInstance(ltd_dist.dist, scipy.stats._continuous_distns.norm_gen)
 
@@ -908,7 +908,7 @@ class TestLeadTimeDemandDistribution(unittest.TestCase):
 
 		ltd_dist = demand_source.lead_time_demand_distribution(4)
 		self.assertEqual(ltd_dist.mean(), 200)
-		self.assertAlmostEqual(ltd_dist.std(), np.sqrt(200))
+		self.assertAlmostEqual(ltd_dist.std(), math.sqrt(200))
 		self.assertEqual(ltd_dist.ppf(0.85), 215)
 		self.assertIsInstance(ltd_dist.dist, scipy.stats._discrete_distns.poisson_gen)
 

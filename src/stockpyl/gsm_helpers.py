@@ -87,7 +87,7 @@ def solution_cost_from_cst(tree, cst):
 		# Calculate safety stock and holding cost.
 		safety_stock = k.demand_bound_constant * \
 					   k.net_demand_standard_deviation * \
-					   np.sqrt(nlt[k.index])
+					   math.sqrt(nlt[k.index])
 		holding_cost = k.holding_cost * safety_stock
 
 		# Set stage_cost equal to holding cost at node_k k.
@@ -368,7 +368,7 @@ def safety_stock_levels(tree, node_index, cst):
 		node_k = tree.get_node_from_index(k)
 		safety_stock_level[k] = node_k.demand_bound_constant * \
 						  node_k.net_demand_standard_deviation * \
-						  np.sqrt(nlt[k])
+						  math.sqrt(nlt[k])
 
 	if n_is_iterable:
 		return safety_stock_level
