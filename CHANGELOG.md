@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- State variables are stored as int and float instead of int64 and float64 so they can be JSON serialized when saving
+- Bug that created spurious entries in ``inbound_order_pipeline``
+
 ### Changed
+- New format for storing and loading named instances, and better documentation
 - ``newsvendor.newsvendor_explicit()`` parameter renamed to ``revenue`` from ``selling_revenue`` for consistency
+
+### Added
+- Various unit tests
+- More robust attribute handling for various objects
 
 ## [0.0.12] -- 2022-07-12
 
