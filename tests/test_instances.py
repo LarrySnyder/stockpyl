@@ -390,7 +390,7 @@ class SaveInstance(unittest.TestCase):
 		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_rosling_correct.json'
 		with open(temp_filename) as f:
 			saved_json = json.load(f)
-#			os.remove(temp_filename)
+			os.remove(temp_filename)
 		with open(correct_contents_filename) as f:
 			correct_json = json.load(f)
 
