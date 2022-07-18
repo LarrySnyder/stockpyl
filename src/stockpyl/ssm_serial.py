@@ -596,43 +596,12 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 		= _preprocess_parameters(num_nodes, node_order_in_system, node_order_in_lists, echelon_holding_cost,
 		lead_time, stockout_cost, demand_mean, demand_standard_deviation, demand_source, network)
 
-	# # Check for presence of data.
-	# if network is None and (num_nodes is None or echelon_holding_cost is None or \
-	# 	lead_time is None or stockout_cost is None):
-	# 	raise ValueError("You must provide either network or num_nodes, ..., stockout_cost")
-
-	# # Convert network to parameters, if network provided.
-	# if network:
-	# 	num_nodes = len(network.nodes)
-	# 	echelon_holding_cost = {node.index: node.echelon_holding_cost for node in network.nodes}
-	# 	lead_time = {node.index: node.lead_time for node in network.nodes}
-	# 	stockout_cost = network.get_node_from_index(1).stockout_cost
-	# 	demand_source = network.get_node_from_index(1).demand_source
-
-	# # Build dicts of parameters.
-	# indices = list(range(1, num_nodes+1))
-	# echelon_holding_cost_dict = ensure_dict_for_nodes(echelon_holding_cost, indices)
-	# lead_time_dict = ensure_dict_for_nodes(lead_time, indices, 0)
-	# stockout_cost_dict = {n: stockout_cost if n == 1 else 0 for n in indices}
-	
-	# # Validate parameters.
-	# if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
-	# if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
-	# if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
-	# if stockout_cost is None: raise ValueError("stockout_cost cannot be None")
-	# elif stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
-	# if (demand_mean is None or demand_standard_deviation is None) and demand_source is None:
-	# 	raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
-
 	# Get shortcuts to some parameters (for convenience).
 	N = num_nodes
 	indices = list(range(1, num_nodes+1))
-	if demand_source is None:
-		mu = demand_mean
-		sigma = demand_standard_deviation
-	else:
-		mu = demand_source.demand_distribution.mean()
-		sigma = demand_source.demand_distribution.std()
+	# demand_source is filled by _preprocess_parameters() if not specified as parameters.
+	mu = demand_source.demand_distribution.mean()
+	sigma = demand_source.demand_distribution.std()
 	L = [0] + [lead_time_dict[j] for j in range(1, N+1)]
 	h = [0] + [echelon_holding_cost_dict[j] for j in range(1, N+1)]
 	p = stockout_cost
@@ -640,11 +609,6 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 	# Build "sum of lead-time demand" distributions (LTD distribution in
 	# which L = sum of lead times of stages 1, ..., j) for j = 1, ..., N.
 	sum_ltd_dist = {}
-	if demand_source is None:
-		demand_source = DemandSource()
-		demand_source.type = 'N'
-		demand_source.mean = demand_mean
-		demand_source.standard_deviation = demand_standard_deviation
 	for j in indices:
 		sum_ltd_dist[j] = demand_source.lead_time_demand_distribution(float(np.sum(L[1:(j+1)])))
 	

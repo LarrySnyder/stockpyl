@@ -249,15 +249,3 @@ def _stockpyl_instances_json_path():
 	assert os.path.exists(rtn) and os.path.isfile(rtn)
 	return rtn
 
-def _stockpyl_instances_metadata_path():
-	"""Determine the path to the RST file containing the instance metadata. 
-
-	Returns
-	-------
-	str
-		The absolute path, including the filename itself.
-	"""
-	code_file = os.path.abspath(inspect.getsourcefile(_stockpyl_instances_metadata_path))
-	rtn = os.path.join(os.path.dirname(code_file), "aux_files", "stockpyl_instances_metadata.rst")
-	assert os.path.exists(rtn) and os.path.isfile(rtn)
-	return rtn

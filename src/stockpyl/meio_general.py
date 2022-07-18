@@ -204,62 +204,6 @@ def meio_by_enumeration(network, base_stock_levels=None, truncation_lo=None,
 
 # COORDINATE DESCENT
 
-def base_stock_level_bisection_search(network, node_to_optimize, lo=None, hi=None,
-						objective_function=None,
-						sim_num_trials=10, sim_num_periods=1000, sim_rand_seed=None,
-						tolerance=1e-2):
-	"""Optimize the base-stock level for one node using bisection search.
-	Evaluate each solution using the provided objective function, or simulation if not provided.
-	Can be called as a standalone function, but usually used as a subroutine for
-	:func:`stockpyl.meio_general.meio_by_coordinate_descent`.
-	
-	Parameters
-	----------
-	network : |class_network|
-		The supply chain network.
-	node_to_optimize : |class_node|
-		The supply chain node to optimize.
-	lo : float, optional
-		The low end of the search range. If omitted, it is set automatically.
-	hi : float, optional
-		The high end of the search range. If omitted, it is set automatically.
-	objective_function : function, optional
-		The function to use to evaluate a given solution. If omitted, simulation
-		will be used.
-	sim_num_trials : int, optional
-		Number of trials to run in each simulation. Ignored if ``objective_function``
-		is provided.
-	sim_num_periods : int, optional
-		Number of periods per trial in each simulation. Ignored if ``objective_function``
-		is provided.
-	sim_rand_seed : int, optional
-		Rand seed to use for simulation. Ignored if ``objective_function`` is provided.
-	tolerance : float, optional
-		Absolute tolerance to use for convergence. The algorithm terminates when
-		the absolute difference between the current bounds is less than the tolerance.
-
-	Returns
-	-------
-	base_stock_level : float
-		Best base-stock level found for the node.
-	cost : float
-		Cost of best solution found.
-	"""
-
-	# Determine bounds, if not provided.
-	if lo is None:
-		lo = 0
-	if hi is None:
-		hi = 3 * float(np.sum([s.demand_source.mean for s in network.sink_nodes]))
-
-	# Determine initial lo, hi, and midpoint for bisection search.
-	S_lo = lo
-	S_hi = hi
-	S = (S_lo + S_hi) / 2
-
-	# Calculate cost at
-
-
 def meio_by_coordinate_descent(network, initial_solution=None,
 							   search_lo=None, search_hi=None,
 							   groups=None, objective_function=None,
