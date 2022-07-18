@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - State variables are stored as int and float instead of int64 and float64 so they can be JSON serialized when saving
 - Bug that created spurious entries in ``inbound_order_pipeline``
+- Bug in which only order LT was respected in simulation if both order and shipment LTs are nonzero
 
 ### Changed
 - New format for storing and loading named instances, and better documentation
