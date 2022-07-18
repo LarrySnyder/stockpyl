@@ -764,7 +764,7 @@ determine whether the heuristic solution is statistically worse than the optimal
 	...	n.inventory_policy.base_stock_level = S_heur_local[n.index]
 	>>> mean_heur, sem_heur = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
 	>>> print(f"Heuristic solution has simulated average cost per period with mean {mean_heur} and SEM {sem_heur}")
-	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.27039814681794694
+	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.27039814681794644
 	>>> ## Calculate confidence intervals.
 	>>> from scipy.stats import norm
 	>>> z = norm.ppf(1 - (1 - 0.95)/2)

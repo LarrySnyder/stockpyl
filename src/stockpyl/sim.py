@@ -265,7 +265,7 @@ def _generate_downstream_orders(node_index, network, period, visited):
 				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
 			# Place order to external supplier.
 			# (For now, this just means adding to inbound shipment pipeline.)
-			node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time or 0 + shipment_lead_time or 0] += \
+			node.state_vars_current.inbound_shipment_pipeline[None][(order_lead_time or 0) + (shipment_lead_time or 0)] += \
 				order_quantity
 			p_index = None
 
