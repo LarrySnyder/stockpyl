@@ -48,8 +48,6 @@ class TestRelabelNodes(unittest.TestCase):
 		print_status('TestRelabelNodes', 'test_figure_6_12()')
 
 		instance = load_instance("figure_6_12")
-		from stockpyl.instances import _load_instance_old
-		instance_old = _load_instance_old("figure_6_12", filepath="/Users/larry/Documents/GitHub/stockpyl/src/stockpyl/datasets/stockpyl_instances_old.json")
 
 		new_G = gsm_tree.relabel_nodes(instance, start_index=1)
 

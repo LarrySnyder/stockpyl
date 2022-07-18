@@ -547,40 +547,6 @@ class DemandSource(object):
 
 	# OTHER METHODS
 
-	def validate_parameters(self):
-		"""Check that appropriate parameters have been provided for the given
-		demand type. Raise an exception if not.
-		"""
-		if self.type not in (None, 'N', 'UD', 'UC', 'D', 'CD'): raise AttributeError("Valid type in (None, 'N', 'UD', 'UC', 'D', 'CD') must be provided")
-
-		if self.type == 'N':
-			if self.mean is None: raise AttributeError("For 'N' (normal) demand, mean must be provided")
-			if self.mean < 0: raise AttributeError("For 'N' (normal) demand, mean must be non-negative")
-			if self.standard_deviation is None: raise AttributeError("For 'N' (normal) demand, standard_deviation must be provided")
-			if self.standard_deviation < 0: raise AttributeError("For 'N' (normal) demand, standard_deviation must be non-negative")
-		elif self.type == 'P':
-			if self.mean is None: raise AttributeError("For 'P' (Poisson) demand, mean must be provided")
-			if self.mean < 0: raise AttributeError("For 'P' (Poisson) demand, mean must be non-negative")
-		elif self.type == 'UD':
-			if self.lo is None: raise AttributeError("For 'UD' (uniform discrete) demand, lo must be provided")
-			if self.lo < 0 or not is_integer(self.lo): raise AttributeError("For 'UD' (uniform discrete) demand, lo must be a non-negative integer")
-			if self.hi is  None: raise AttributeError("For 'UD' (uniform discrete) demand, hi must be provided")
-			if self.hi < 0 or not is_integer(self.hi): raise AttributeError("For 'UD' (uniform discrete) demand, hi must be a non-negative integer")
-			if self.lo > self.hi: raise AttributeError("For 'UD' (uniform discrete) demand, lo must be <= hi")
-		elif self.type == 'UC':
-			if self.lo is None: raise AttributeError("For 'UC' (uniform continuous) demand, lo must be provided")
-			if self.lo < 0: raise AttributeError("For 'UC' (uniform continuous) demand, lo must be non-negative")
-			if self.hi is None: raise AttributeError("For 'UC' (uniform continuous) demand, hi must be provided")
-			if self.hi < 0: raise AttributeError("For 'UC' (uniform continuous) demand, hi must be non-negative")
-			if self.lo > self.hi: raise AttributeError("For 'UC' (uniform continuous) demand, lo must be <= hi")
-		elif self.type == 'D':
-			if self.demand_list is None: raise AttributeError("For 'D' (deterministic) demand, demand_list must be provided")
-		elif self.type == 'CD':
-			if self.demand_list is None: raise AttributeError("For 'CD' (custom discrete) demand, demand_list must be provided")
-			if self.probabilities is None: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must be provided")
-			if len(self.demand_list) != len(self.probabilities): raise AttributeError("For 'CD' (custom discrete) demand, demand_list and probabilities must have equal lengths")
-			if np.sum(self.probabilities) != 1: raise AttributeError("For 'CD' (custom discrete) demand, probabilities must sum to 1")
-
 	def cdf(self, x):
 		"""Cumulative distribution function of demand distribution.
 

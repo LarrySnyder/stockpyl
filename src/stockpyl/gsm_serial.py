@@ -57,7 +57,8 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	Problem instance may either be provided in the individual parameters ``num_nodes``, ..., ``demand_source``,
 	or in the ``network`` parameter.
 
-	The nodes must be indexed :math:`N, \\ldots, 1`. The node-specific
+	If the instance is specified in the individual parameters, the nodes must be indexed :math:`N, \\ldots, 1`. 
+	(If the instance is specified in the ``network`` parameter, the nodes may be indexed in any way.) The node-specific
 	parameters (``local_holding_cost``, ``processing_time``, and ``demand_bound_constant``) must be either 
 	a dict, a list, or a singleton, with the following requirements:
 	

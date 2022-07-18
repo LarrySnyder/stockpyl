@@ -2,6 +2,7 @@ from random import randint
 import unittest
 import numpy as np
 import math
+from scipy import stats
 
 from stockpyl.demand_source import DemandSource
 import stockpyl.gsm_serial as gsm_serial
@@ -55,6 +56,28 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 		self.assertEqual(opt_cost, 2 * math.sqrt(2))
 		self.assertDictEqual(opt_cst, {1: 1, 2: 0, 3: 0})
 
+	def test_example_6_3_from_parameters(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Example 6.3 when specified as parameters instead of network.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_example_6_3_from_parameters')
+
+		opt_cst, opt_cost = \
+			gsm_serial.optimize_committed_service_times(
+				num_nodes=3,
+				local_holding_cost=[7, 4, 2],
+				processing_time=[1, 0, 1],
+				demand_bound_constant=1,
+				external_inbound_cst=1,
+				external_outbound_cst=1,
+				demand_mean=0,
+				demand_standard_deviation=1
+			)
+
+		self.assertEqual(opt_cost, 2 * math.sqrt(2))
+		self.assertDictEqual(opt_cst, {1: 1, 2: 0, 3: 0})
+
 	def test_problem_6_7(self):
 		"""Test that optimize_committed_service_times() works for network in
 		Problem 6.7.
@@ -81,6 +104,28 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		opt_cst, opt_cost = \
 			gsm_serial.optimize_committed_service_times(network=network)
+
+		self.assertAlmostEqual(opt_cost, 1378.31, 1)
+		self.assertDictEqual(opt_cst, {1: 3, 2: 10, 3: 0, 4: 28, 5: 13, 6: 5, 7: 0, 8: 18, 9: 13, 10: 12})
+
+	def test_problem_6_8_from_parameters(self):
+		"""Test that optimize_committed_service_times() works for network in
+		Problem 6.8 when specified as parameters instead of network.
+		"""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_problem_6_8_from_parameters')
+
+		opt_cst, opt_cost = \
+			gsm_serial.optimize_committed_service_times(
+				num_nodes=10,
+				local_holding_cost=[5.73, 4.56, 3.04, 2.93, 2.47, 2.37, 1.15, 1.1, 0.98, 0.87],
+				processing_time=[5, 10, 2, 15, 8, 5, 9, 5, 1, 5],
+				demand_bound_constant=stats.norm.ppf(0.98),
+				external_inbound_cst=7,
+				external_outbound_cst=3,
+				demand_mean=0,
+				demand_standard_deviation=15.8
+			)
 
 		self.assertAlmostEqual(opt_cost, 1378.31, 1)
 		self.assertDictEqual(opt_cst, {1: 3, 2: 10, 3: 0, 4: 28, 5: 13, 6: 5, 7: 0, 8: 18, 9: 13, 10: 12})
