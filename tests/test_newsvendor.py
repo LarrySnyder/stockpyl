@@ -916,7 +916,7 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		print_status('TestNewsvendorNormalExplicit', 'tear_down_class()')
 
 	def test_example_4_2(self):
-		"""Test that newsvendor_normal function correctly solves Example 4.2.
+		"""Test that newsvendor_normal_explicit function correctly solves Example 4.2.
 		"""
 		print_status('TestNewsvendorNormalExplicit', 'test_example_4_2()')
 
@@ -939,7 +939,7 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		self.assertAlmostEqual(profit, 27.643868447129613)
 
 	def test_problem_4_3b(self):
-		"""Test that newsvendor_normal function correctly solves Problem 4.3(b).
+		"""Test that newsvendor_normal_explicit function correctly solves Problem 4.3(b).
 		"""
 		print_status('TestNewsvendorNormalExplicit', 'test_problem_4_3b()')
 
@@ -1002,3 +1002,104 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, purchase_cost,
 				salvage_value, demand_mean, demand_sd, 0, 0)
+
+
+class TestNewsvendorPoissonExplicit(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNewsvendorPoissonExplicit', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNewsvendorPoissonExplicit', 'tear_down_class()')
+
+	def test_example_4_2(self):
+		"""Test that newsvendor_poisson_explicit function correctly solves Example 4.2
+		with Poisson demand.
+		"""
+		print_status('TestNewsvendorPoissonExplicit', 'test_example_4_2()')
+
+		instance = load_instance("example_4_2")
+		revenue = instance['revenue']
+		purchase_cost = instance['purchase_cost']
+		salvage_value = instance['salvage_value']
+		demand_mean = instance['demand_mean']
+
+		base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, \
+									purchase_cost, salvage_value, demand_mean, 0, 0)
+		self.assertEqual(base_stock_level, 56)
+		self.assertAlmostEqual(profit, 33.20276478819082)
+
+		base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, \
+									purchase_cost, salvage_value, demand_mean, 0, 0, \
+									base_stock_level=40)
+		self.assertEqual(base_stock_level, 40)
+		self.assertAlmostEqual(profit, 27.811432228377633)
+
+		
+
+	def test_problem_4_3b(self):
+		"""Test that newsvendor_poisson_explicit function correctly solves Problem 4.3(b) 
+		with Poisson demand.
+		"""
+		print_status('TestNewsvendorPoissonExplicit', 'test_problem_4_3b()')
+
+		instance = load_instance("problem_4_3b")
+		revenue = instance['revenue']
+		purchase_cost = instance['purchase_cost']
+		salvage_value = instance['salvage_value']
+		demand_mean = instance['demand_mean']
+
+		base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, \
+									purchase_cost, salvage_value, demand_mean, 0, 0)
+		self.assertEqual(base_stock_level, 56)
+		self.assertAlmostEqual(profit, 214.51727992619263)
+
+		base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, \
+									purchase_cost, salvage_value, demand_mean, 0, 0, \
+									base_stock_level=62)
+		self.assertEqual(base_stock_level, 62)
+		self.assertAlmostEqual(profit, 212.1430953089244)
+
+		# Add a holding and stockout cost, and test again.
+		holding_cost = 1
+		stockout_cost = 5
+		base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, \
+									purchase_cost, salvage_value, demand_mean, holding_cost, stockout_cost)
+		self.assertEqual(base_stock_level, 57)
+		self.assertAlmostEqual(profit, 203.67269269293658)
+
+		base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, \
+									purchase_cost, salvage_value, demand_mean, holding_cost, stockout_cost, \
+									base_stock_level=62)
+		self.assertEqual(base_stock_level, 62)
+		self.assertAlmostEqual(profit, 199.20829019138736)
+
+	def test_bad_type(self):
+		"""Test that newsvendor_poisson_explicit function raises exception on bad type.
+		"""
+		print_status('TestNewsvendorPoissonExplicit', 'test_bad_type()')
+
+		revenue = "taco"
+		purchase_cost = 0.3
+		salvage_value = 0.12
+		demand_mean = 50
+		with self.assertRaises(TypeError):
+			base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, purchase_cost,
+				salvage_value, demand_mean, 0, 0)
+
+	def test_negative_parameter(self):
+		"""Test that newsvendor_poisson_explicit function raises exception on negative parameter.
+		"""
+		print_status('TestNewsvendorPoissonExplicit', 'test_negative_parameter()')
+
+		revenue = -4
+		purchase_cost = 0.3
+		salvage_value = 0.12
+		demand_mean = 50
+		demand_sd = 8
+		with self.assertRaises(ValueError):
+			base_stock_level, profit = newsvendor.newsvendor_poisson_explicit(revenue, purchase_cost,
+				salvage_value, demand_mean, 0, 0)

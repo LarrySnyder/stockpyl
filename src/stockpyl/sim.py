@@ -50,7 +50,7 @@ issued_backorder_warning = False
 
 # SIMULATION
 
-def simulation(network, num_periods, rand_seed=None, progress_bar=True, consistency_checks='warn'):
+def simulation(network, num_periods, rand_seed=None, progress_bar=True, consistency_checks='W'):
 	"""Perform the simulation for ``num_periods`` periods. Fills performance
 	measures directly into ``network``.
 

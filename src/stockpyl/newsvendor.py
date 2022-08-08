@@ -1026,3 +1026,104 @@ def newsvendor_normal_explicit(revenue, purchase_cost, salvage_value,
 	return base_stock_level, profit
 
 
+def newsvendor_poisson_explicit(revenue, purchase_cost, salvage_value,
+							   demand_mean, holding_cost=0, stockout_cost=0, 
+					  		   lead_time=0, base_stock_level=None):
+	"""Solve the "explicit", profit-maximization version of the newsvendor
+	problem with Poisson distribution, or (if ``base_stock_level`` is supplied)
+	calculate profit of given solution.
+
+	Assumes ``salvage_value`` < ``purchase_cost`` < ``revenue``
+	(otherwise the solution is not well-defined).
+
+	Parameters
+	----------
+	revenue : float
+		Revenue per unit sold. [:math:`r`]
+	purchase_cost : float
+		Cost per unit purchased. [:math:`c`]
+	salvage_value : float
+		Revenue per unit unsold. [:math:`v`]
+	demand_mean : float
+		Mean demand per period. [:math:`\\mu`]
+	holding_cost : float, optional
+		Holding cost per item per period, over and above any costs and revenues from
+		buying, selling, or salvaging items. [:math:`h`]
+	stockout_cost : float, optional
+		Stockout cost per item per period, over and above any costs and revenues from
+		buying, selling, or salvaging items. [:math:`p`]
+	lead_time : int, optional
+		Lead time. Default = 0. [:math:`L`]
+	base_stock_level : float, optional
+		Base-stock level for profit evaluation. If supplied, no
+		optimization will be performed. [:math:`S`]
+
+	Returns
+	-------
+	base_stock_level : float
+		Optimal base-stock level (or base-stock level supplied). [:math:`S^*`]
+	profit : float
+		Profit per period attained by ``base_stock_level``. [:math:`\\pi^*`]
+
+	Raises
+	------
+	ValueError
+		If ``r`` < ``c`` or ``c`` < ``v``.
+	ValueError
+		If ``holding_cost`` < 0 or ``stockout_cost`` < 0.
+
+
+	**Equations Used**:
+
+	.. math::
+
+		S^* = \\text{smallest } S \\text{ such that } F(S) \\ge \\frac{p+r-c}{h+p+r-v}
+
+		\\pi(S) = (r-c+p)S - p\\mu + (v-r-h-p)\\bar{n}(S),
+
+	where :math:`\\mu` is the lead-time demand mean
+	and :math:`\\bar{n}(\\cdot)` is the Poisson complementary loss function.
+
+	**Example** (Example 4.2 but with Poisson demand):
+
+	.. testsetup:: *
+
+		from stockpyl.newsvendor import *
+
+	.. doctest::
+
+		>>> newsvendor_poisson_explicit(1, 0.3, 0.12, 50)
+		(56.60395592743389, 33.002394806823354)
+
+	"""
+
+	# Check that parameters are positive/non-negative.
+	if holding_cost < 0: raise ValueError("holding_cost must be non-negative")
+	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
+	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if revenue <= purchase_cost: raise ValueError("revenue must be > purchase_cost")
+	if purchase_cost <= salvage_value: raise ValueError("purchase_cost must be > salvage_value")
+
+	# Calculate lead-time demand parameters.
+	ltd_mean = demand_mean * (lead_time + 1)
+
+	# Is S provided?
+	if base_stock_level is None:
+		# Calculate alpha.
+		alpha = (stockout_cost + revenue - purchase_cost) \
+				/ (stockout_cost + holding_cost + revenue - salvage_value)
+
+		# Calculate optimal order quantity.
+		base_stock_level = stats.poisson.ppf(alpha, ltd_mean)
+
+	# Calculate loss functions.
+	_, n_bar = lf.poisson_loss(base_stock_level, ltd_mean)
+
+	# Calculate profit.
+	profit = (revenue - purchase_cost + stockout_cost) * base_stock_level \
+		- stockout_cost * ltd_mean \
+		+ (salvage_value - revenue - holding_cost - stockout_cost) * n_bar
+
+	return base_stock_level, profit
+
+
