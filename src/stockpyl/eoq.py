@@ -28,29 +28,30 @@ API Reference
 
 import numpy as np
 import math
+from typing import Tuple
 
 
-def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantity=None):
+def economic_order_quantity(fixed_cost: float, holding_cost: float, demand_rate: float, order_quantity: float = None) -> Tuple[float, float]:
 	"""Solve the economic order quantity (EOQ) problem, or (if
 	``order_quantity`` is supplied) calculate cost of given solution.
 
 	Parameters
 	----------
-	fixed_cost : float
+	fixed_cost
 		Fixed cost per order. [:math:`K`]
-	holding_cost : float
+	holding_cost
 		Holding cost per item per unit time. [:math:`h`]
-	demand_rate : float
+	demand_rate
 		Demand (items) per unit time. [:math:`\\lambda`]
-	order_quantity : float, optional
+	order_quantity
 		Order quantity for cost evaluation. If supplied, no
 		optimization will be performed. [:math:`Q`]
 
 	Returns
 	-------
-	order_quantity : float
+	order_quantity
 		Optimal order quantity (or order quantity supplied) (items). [:math:`Q^*`]
-	cost : float
+	cost
 		Cost per unit time attained by ``order_quantity``. [:math:`g^*`]
 
 

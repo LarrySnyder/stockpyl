@@ -48,6 +48,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.autosummary',
+    # "sphinx_autodoc_typehints",
     'sphinx_toolbox',
     'sphinx_toolbox.github',
     'sphinx_toolbox.collapse'
