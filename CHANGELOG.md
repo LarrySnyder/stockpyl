@@ -7,20 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- State variables are stored as int and float instead of int64 and float64 so they can be JSON serialized when saving
-- Bug that created spurious entries in ``inbound_order_pipeline``
-- Bug in which only order LT was respected in simulation if both order and shipment LTs are nonzero
-- Bug in default value for ``consistency_checks`` in ``simulation()``
+### Added
+- Features to run simulation period-by-period instead of all at once (useful for 
+using in a reinforcement learning (RL) context)
+- ``newsvendor.newsvendor_poisson_explicit()`` function added, for explicit-form newsvendor problem with Poisson demands
+- Various unit tests
+- More robust attribute handling for various objects
 
 ### Changed
 - New format for storing and loading named instances, and better documentation
 - ``newsvendor.newsvendor_explicit()`` parameter renamed to ``revenue`` from ``selling_revenue`` for consistency
 
-### Added
-- ``newsvendor.newsvendor_poisson_explicit()`` function added, for explicit-form newsvendor problem with Poisson demands
-- Various unit tests
-- More robust attribute handling for various objects
+### Fixed
+- State variables are stored as int and float instead of int64 and float64 so they can be JSON serialized when saving
+- Bug that created spurious entries in ``inbound_order_pipeline``
+- Bug in which only order LT was respected in simulation if both order and shipment LTs are nonzero
+- Bug in default value for ``consistency_checks`` in ``simulation()``
 
 ## [0.0.12] -- 2022-07-12
 
@@ -33,14 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.9] -- 2022-06-28
 
-### Fixed
-- Bug that prevented named instances from being loaded correctly using ``load_instance()``
-
 ### Added
 - Methods to convert objects to and from dicts
 
 ### Changed
 - Removed dependency on pandas
+
+### Fixed
+- Bug that prevented named instances from being loaded correctly using ``load_instance()``
 
 ## [0.0.8] -- 2022-06-27
 
@@ -78,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug in order quantity with type-RP disruptions
 
 ## [0.0.4] -- 2022-06-14
+
 ### Added
 - Various new unit tests
 - Ability to pass ``kwargs`` to ``SupplyChainNetwork()``

@@ -278,6 +278,130 @@ class TestSimulation(unittest.TestCase):
 			simulation(instance, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
 
+class TestStepByStepSimulation(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestStepByStepSimulation', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestStepByStepSimulation', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test that initialize() + step() + close() match the results from simulation()
+		for Example 6.1.
+		"""
+		print_status('TestStepByStepSimulation', 'test_example_6_1()')
+
+		network1 = load_instance("example_6_1")
+		network2 = load_instance("example_6_1")
+		T = 100
+
+		# Via simulation().
+		total_cost1 = simulation(network1, num_periods=T, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Via initialize() + step() + close().
+		initialize(network2, num_periods=T, rand_seed=17)
+		for _ in range(T):
+			step(network2, consistency_checks='E')
+		total_cost2 = close(network2)
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost1, total_cost2)
+
+		# Compare networks (in particular, state variables).
+		self.assertTrue(network1.deep_equal_to(network2))
+
+	def test_problem_6_2a(self):
+		"""Test that initialize() + step() + close() match the results from simulation() for
+		Problem 6.2(a).
+		"""
+		print_status('TestStepByStepSimulation', 'test_problem_6_2a()')
+
+		network1 = load_instance("problem_6_2a_adj")
+		network2 = load_instance("problem_6_2a_adj")
+		T = 100
+
+		# Via simulation().
+		total_cost1 = simulation(network1, num_periods=T, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Via initialize() + step() + close().
+		initialize(network2, num_periods=T, rand_seed=17)
+		for _ in range(T):
+			step(network2, consistency_checks='E')
+		total_cost2 = close(network2)
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost1, total_cost2)
+
+		# Compare networks (in particular, state variables).
+		self.assertTrue(network1.deep_equal_to(network2))
+
+	def test_assembly_3_stage(self):
+		"""Test that initialize() + step() + close() match the results from simulation() for
+		3-stage assembly model.
+		"""
+		print_status('TestStepByStepSimulation', 'test_assembly_3_stage()')
+
+		network1 = load_instance("assembly_3_stage")
+		network2 = load_instance("assembly_3_stage")
+		T = 100
+
+		# Via simulation().
+		total_cost1 = simulation(network1, num_periods=T, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Via initialize() + step() + close().
+		initialize(network2, num_periods=T, rand_seed=17)
+		for _ in range(T):
+			step(network2, consistency_checks='E')
+		total_cost2 = close(network2)
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost1, total_cost2)
+
+		# Compare networks (in particular, state variables).
+		self.assertTrue(network1.deep_equal_to(network2))
+
+	def test_rosling_figure_1(self):
+		"""Test that initialize() + step() + close() match the results from simulation() for Rosling (1989),
+		Figure 1.
+		"""
+		print_status('TestStepByStepSimulation', 'test_rosling_figure_1()')
+
+		network1 = load_instance("rosling_figure_1")
+		network2 = load_instance("rosling_figure_1")
+		T = 100
+
+		# Via simulation().
+		total_cost1 = simulation(network1, num_periods=T, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Via initialize() + step() + close().
+		initialize(network2, num_periods=T, rand_seed=17)
+		for _ in range(T):
+			step(network2, consistency_checks='E')
+		total_cost2 = close(network2)
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost1, total_cost2)
+
+		# Compare networks (in particular, state variables).
+		self.assertTrue(network1.deep_equal_to(network2))
+
+	def test_directed_cycle(self):
+		"""Test that initialize() function correctly raises a ValueError if network contains a 
+		directed cycle.
+		"""
+		print_status('TestStepByStepSimulation', 'test_directed_cycle()')
+
+		instance = load_instance("example_6_1")
+		instance.add_edge(1, 3)
+
+		with self.assertRaises(ValueError):
+			initialize(instance, 100, rand_seed=17)
+
+
 class TestSimulationWithDisruptions(unittest.TestCase):
 	"""Test simulation results for simulation with disruptions.
 	"""

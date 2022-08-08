@@ -88,6 +88,138 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 		If network contains a directed cycle.
 	"""
 
+	# Initialize the simulation:
+	# 	* Check validity of the network
+	# 	* Initialize state and decision variables at each node
+	# 	* Set the numpy PRNG seed
+	#	* Set network.period to None
+	# NOTE: State variables are indexed up to num_periods+extra_periods; the
+	# additional slots are to allow calculations past the last period.
+	initialize(network=network, num_periods=num_periods, rand_seed=rand_seed)
+
+	# # CONSTANTS
+
+	# # Number of extra periods to allow for calculations past the last period.
+	# extra_periods = int(round(np.max([n.order_lead_time or 0 for n in network.nodes]) \
+	# 				+ np.max([n.shipment_lead_time or 0 for n in network.nodes]))) + 2
+
+	# # INITIALIZATION
+
+	# # Check that the network doesn't contain a directed cycle.
+	# if network.has_directed_cycle():
+	# 	raise ValueError("network may not contain a directed cycle")
+
+	# # Initialize state and decision variables at each node.
+
+	# # NOTE: State variables are indexed up to num_periods+extra_periods; the
+	# # additional slots are to allow calculations past the last period.
+
+	# for n in network.nodes:
+
+	# 	# Initialize state variable objects for state-variable history list.
+	# 	n.state_vars = [NodeStateVars(n, t) for t in range(num_periods+extra_periods)]
+
+	# # Initialize random number generator.
+	# np.random.seed(rand_seed)
+
+	# # Initialize state variables.
+	# _initialize_state_vars(network)
+
+	# Initialize progress bar. (If not requested, then this will disable it.)
+	pbar = tqdm(total=num_periods, disable=not progress_bar)
+
+	# MAIN LOOP
+
+	for _ in range(num_periods):
+
+		# Update progress bar.
+		pbar.update()
+
+		# Execute one time period:
+		# 	* Update disruption states
+		# 	* Generate demands and orders
+		# 	* Generate shipments
+		# 	* Update costs, pipelines, etc.
+		# 	* Increment ``network.period`` by 1
+		step(network=network, consistency_checks=consistency_checks)
+
+		# # Update period counter for network.
+		# network.period = t
+
+		# # UPDATE DISRUPTION STATES
+
+		# _update_disruption_states(network, t)
+
+		# # GENERATE DEMANDS AND ORDERS
+
+		# # Initialize visited dict.
+		# visited = {n.index: False for n in network.nodes}
+
+		# # Generate demands and place orders. Use depth-first search, starting
+		# # at nodes with no successors, and propagating orders upstream.
+		# for n in network.source_nodes:
+		# 	_generate_downstream_orders(n.index, network, t, visited)
+
+		# # GENERATE SHIPMENTS
+
+		# # Reset visited dict.
+		# visited = {n.index: False for n in network.nodes}
+
+		# # Generate shipments. Use depth-first search, starting at nodes with
+		# # no predecessors, and propagating shipments downstream.
+		# for n in network.source_nodes:
+		# 	_generate_downstream_shipments(n.index, network, t, visited, consistency_checks=consistency_checks)
+
+		# # UPDATE COSTS, PIPELINES, ETC.
+
+		# # Set initial values for period t+1 state variables.
+		# _initialize_next_period_state_vars(network, t)
+
+		# # Calculate costs.
+		# _calculate_period_costs(network, t)
+
+	# Close progress bar.
+	pbar.close()
+
+	# Close down simulation:
+	# 	* Calculate the total cost over all nodes and periods.
+	total_cost = close(network=network)
+
+	# Return total cost.
+	# return float(np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
+	# 		for t in range(num_periods)]))
+	return total_cost
+
+
+def initialize(network, num_periods, rand_seed=None):
+	"""Initialize the simulation:
+
+		* Check validity of the network
+		* Initialize ``network.period`` to 0
+		* Initialize state and decision variables at each node
+		* Set the numpy PRNG seed
+		* Set network.period to None (will be set to 0 in first call to :func:`stockpyl.sim.step`)
+
+	.. note:: Calling :func:`~stockpyl.sim.initialize` function, then :func:`stockpyl.sim.step` function once per
+		period, then :func:`~stockpyl.sim.close` function is equivalent to calling 
+		:func:`~stockpyl.sim.simulate` function (aside from progress bar, which :func:`~stockpyl.sim.simulate`
+		displays but the individual functions do not).
+
+	Parameters
+	----------
+	network : |class_network|
+		The multi-echelon inventory network.
+	num_periods : int
+		Number of periods to simulate.
+	rand_seed : int, optional
+		Random number generator seed.
+
+	Raises
+	------
+	ValueError
+		If network contains a directed cycle.
+	"""
+
 	# CONSTANTS
 
 	# Number of extra periods to allow for calculations past the last period.
@@ -95,6 +227,9 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 					+ np.max([n.shipment_lead_time or 0 for n in network.nodes]))) + 2
 
 	# INITIALIZATION
+
+	# Initialize time period.
+	network.period = 0
 
 	# Check that the network doesn't contain a directed cycle.
 	if network.has_directed_cycle():
@@ -113,60 +248,102 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 	# Initialize random number generator.
 	np.random.seed(rand_seed)
 
-	# Initialize progress bar. (If not requested, then this will disable it.)
-	pbar = tqdm(total=num_periods, disable=not progress_bar)
-
 	# Initialize state variables.
 	_initialize_state_vars(network)
 
-	# MAIN LOOP
+	# Set network.period to None (will be set to 0 in first call to step()).
+	network.period = None
 
-	for t in range(num_periods):
 
-		# Update period counter for network.
-		network.period = t
+def step(network, consistency_checks='W'):
+	"""Execute one time period of the simulation:
 
-		# Update progress bar.
-		pbar.update()
+		* Increment ``network.period`` by 1
+		* Update disruption states
+		* Generate demands and orders
+		* Generate shipments
+		* Update costs, pipelines, etc.
 
-		# UPDATE DISRUPTION STATES
+	.. note:: Calling :func:`~stockpyl.sim.initialize` function, then :func:`stockpyl.sim.step` function once per
+		period, then :func:`~stockpyl.sim.close` function is equivalent to calling 
+		:func:`~stockpyl.sim.simulate` function (aside from progress bar, which :func:`~stockpyl.sim.simulate`
+		displays but the individual functions do not).
 
-		_update_disruption_states(network, t)
+	Parameters
+	----------
+	network : |class_network|
+		The multi-echelon inventory network.
+	consistency_checks : str, optional
+		String indicating whether to run consistency checks (backorder calculations) and what to do
+		if check fails. See docstring for :func:`~stockpyl.sim.simulation` for list of currently supported strings.
+	"""
 
-		# GENERATE DEMANDS AND ORDERS
+	# Update period counter for network.
+	if network.period is None:
+		network.period = 0
+	else:
+		network.period += 1
 
-		# Initialize visited dict.
-		visited = {n.index: False for n in network.nodes}
+	# Get shortcut to current period.
+	t = network.period
 
-		# Generate demands and place orders. Use depth-first search, starting
-		# at nodes with no successors, and propagating orders upstream.
-		for n in network.source_nodes:
-			_generate_downstream_orders(n.index, network, t, visited)
+	# UPDATE DISRUPTION STATES
 
-		# GENERATE SHIPMENTS
+	_update_disruption_states(network, t)
 
-		# Reset visited dict.
-		visited = {n.index: False for n in network.nodes}
+	# GENERATE DEMANDS AND ORDERS
 
-		# Generate shipments. Use depth-first search, starting at nodes with
-		# no predecessors, and propagating shipments downstream.
-		for n in network.source_nodes:
-			_generate_downstream_shipments(n.index, network, t, visited, consistency_checks=consistency_checks)
+	# Initialize visited dict.
+	visited = {n.index: False for n in network.nodes}
 
-		# UPDATE COSTS, PIPELINES, ETC.
+	# Generate demands and place orders. Use depth-first search, starting
+	# at nodes with no successors, and propagating orders upstream.
+	for n in network.source_nodes:
+		_generate_downstream_orders(n.index, network, t, visited)
 
-		# Set initial values for period t+1 state variables.
-		_initialize_next_period_state_vars(network, t)
+	# GENERATE SHIPMENTS
 
-		# Calculate costs.
-		_calculate_period_costs(network, t)
+	# Reset visited dict.
+	visited = {n.index: False for n in network.nodes}
 
-	# Close progress bar.
-	pbar.close()
+	# Generate shipments. Use depth-first search, starting at nodes with
+	# no predecessors, and propagating shipments downstream.
+	for n in network.source_nodes:
+		_generate_downstream_shipments(n.index, network, t, visited, consistency_checks=consistency_checks)
+
+	# UPDATE COSTS, PIPELINES, ETC.
+
+	# Set initial values for period t+1 state variables.
+	_initialize_next_period_state_vars(network, t)
+
+	# Calculate costs.
+	_calculate_period_costs(network, t)
+
+
+def close(network):
+	"""Close down the simulation:
+
+		* Calculate and return the total cost over all nodes and periods.
+
+	.. note:: Calling :func:`~stockpyl.sim.initialize` function, then :func:`stockpyl.sim.step` function once per
+		period, then :func:`~stockpyl.sim.close` function is equivalent to calling 
+		:func:`~stockpyl.sim.simulate` function (aside from progress bar, which :func:`~stockpyl.sim.simulate`
+		displays but the individual functions do not).
+
+	Parameters
+	----------
+	network : |class_network|
+		The multi-echelon inventory network.
+
+	Returns
+	-------
+	float
+		Total cost over all nodes and periods.
+	"""
 
 	# Return total cost.
 	return float(np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
-			for t in range(num_periods)]))
+			for t in range(len(n.state_vars))]))
 
 
 # -------------------
