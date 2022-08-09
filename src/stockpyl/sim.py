@@ -97,34 +97,6 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 	# additional slots are to allow calculations past the last period.
 	initialize(network=network, num_periods=num_periods, rand_seed=rand_seed)
 
-	# # CONSTANTS
-
-	# # Number of extra periods to allow for calculations past the last period.
-	# extra_periods = int(round(np.max([n.order_lead_time or 0 for n in network.nodes]) \
-	# 				+ np.max([n.shipment_lead_time or 0 for n in network.nodes]))) + 2
-
-	# # INITIALIZATION
-
-	# # Check that the network doesn't contain a directed cycle.
-	# if network.has_directed_cycle():
-	# 	raise ValueError("network may not contain a directed cycle")
-
-	# # Initialize state and decision variables at each node.
-
-	# # NOTE: State variables are indexed up to num_periods+extra_periods; the
-	# # additional slots are to allow calculations past the last period.
-
-	# for n in network.nodes:
-
-	# 	# Initialize state variable objects for state-variable history list.
-	# 	n.state_vars = [NodeStateVars(n, t) for t in range(num_periods+extra_periods)]
-
-	# # Initialize random number generator.
-	# np.random.seed(rand_seed)
-
-	# # Initialize state variables.
-	# _initialize_state_vars(network)
-
 	# Initialize progress bar. (If not requested, then this will disable it.)
 	pbar = tqdm(total=num_periods, disable=not progress_bar)
 
@@ -143,41 +115,6 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 		# 	* Increment ``network.period`` by 1
 		step(network=network, consistency_checks=consistency_checks)
 
-		# # Update period counter for network.
-		# network.period = t
-
-		# # UPDATE DISRUPTION STATES
-
-		# _update_disruption_states(network, t)
-
-		# # GENERATE DEMANDS AND ORDERS
-
-		# # Initialize visited dict.
-		# visited = {n.index: False for n in network.nodes}
-
-		# # Generate demands and place orders. Use depth-first search, starting
-		# # at nodes with no successors, and propagating orders upstream.
-		# for n in network.source_nodes:
-		# 	_generate_downstream_orders(n.index, network, t, visited)
-
-		# # GENERATE SHIPMENTS
-
-		# # Reset visited dict.
-		# visited = {n.index: False for n in network.nodes}
-
-		# # Generate shipments. Use depth-first search, starting at nodes with
-		# # no predecessors, and propagating shipments downstream.
-		# for n in network.source_nodes:
-		# 	_generate_downstream_shipments(n.index, network, t, visited, consistency_checks=consistency_checks)
-
-		# # UPDATE COSTS, PIPELINES, ETC.
-
-		# # Set initial values for period t+1 state variables.
-		# _initialize_next_period_state_vars(network, t)
-
-		# # Calculate costs.
-		# _calculate_period_costs(network, t)
-
 	# Close progress bar.
 	pbar.close()
 
@@ -186,8 +123,6 @@ def simulation(network, num_periods, rand_seed=None, progress_bar=True, consiste
 	total_cost = close(network=network)
 
 	# Return total cost.
-	# return float(np.sum([n.state_vars[t].total_cost_incurred for n in network.nodes
-	# 		for t in range(num_periods)]))
 	return total_cost
 
 
@@ -255,7 +190,7 @@ def initialize(network, num_periods, rand_seed=None):
 	network.period = None
 
 
-def step(network, consistency_checks='W'):
+def step(network, order_quantity_override=None, consistency_checks='W'):
 	"""Execute one time period of the simulation:
 
 		* Increment ``network.period`` by 1
@@ -276,6 +211,13 @@ def step(network, consistency_checks='W'):
 	consistency_checks : str, optional
 		String indicating whether to run consistency checks (backorder calculations) and what to do
 		if check fails. See docstring for :func:`~stockpyl.sim.simulation` for list of currently supported strings.
+	order_quantity_override : dict, optional
+		Dictionary indicating an order quantity (or ``None``) for each node in network (specified as |class_node| objects).
+		If provided, these order quantity will override the order quantities that would otherwise be calculated for
+		the nodes. If ``order_quantity_override`` is provided but its value is ``None`` for a given
+		node, an order quantity will be calculated for that node as usual. (This option is mostly used
+		when running the simulation from outside the package, e.g., in a reinforcement learning environment; 
+		it is analogous to setting the action for the current time period.) 
 	"""
 
 	# Update period counter for network.
@@ -299,7 +241,7 @@ def step(network, consistency_checks='W'):
 	# Generate demands and place orders. Use depth-first search, starting
 	# at nodes with no successors, and propagating orders upstream.
 	for n in network.source_nodes:
-		_generate_downstream_orders(n.index, network, t, visited)
+		_generate_downstream_orders(n.index, network, t, visited, order_quantity_override=order_quantity_override)
 
 	# GENERATE SHIPMENTS
 
@@ -371,7 +313,7 @@ def _update_disruption_states(network, period):
 		n.state_vars_current.disrupted = n.disrupted
 
 
-def _generate_downstream_orders(node_index, network, period, visited):
+def _generate_downstream_orders(node_index, network, period, visited, order_quantity_override=None):
 	"""Generate demands and orders for all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
 
@@ -389,6 +331,12 @@ def _generate_downstream_orders(node_index, network, period, visited):
 	visited : dict
 		Dictionary indicating whether each node in network has already been
 		visited by the depth-first search.
+	order_quantity_override : dict, optional
+		Dictionary indicating an order quantity (or ``None``) for each node in network (specified as |class_node| objects).
+		If provided, these order quantity will override the order quantities that would otherwise be calculated for
+		the nodes. If ``order_quantity_override`` is provided but its value is ``None`` for a given
+		node, an order quantity will be calculated for that node as usual. (This option is mostly used
+		when running the simulation from outside the package, e.g., in a reinforcement learning environment.) 
 
 	"""
 	# Did we already visit this node?
@@ -411,7 +359,7 @@ def _generate_downstream_orders(node_index, network, period, visited):
 	# Call generate_downstream_orders() for all non-visited successors.
 	for s in node.successors():
 		if not visited[s.index]:
-			_generate_downstream_orders(s.index, network, period, visited)
+			_generate_downstream_orders(s.index, network, period, visited, order_quantity_override=order_quantity_override)
 
 	# Receive inbound orders.
 	_receive_inbound_orders(node)
@@ -423,8 +371,11 @@ def _generate_downstream_orders(node_index, network, period, visited):
 	# Place orders to all predecessors.
 	for p in node.predecessors(include_external=True):
 		if p is not None:
+			# Was an override order quantity provided?
+			if order_quantity_override is not None and order_quantity_override[node] is not None:
+				order_quantity = order_quantity_override[node]
 			# Is there an order-pausing disruption?
-			if node.disrupted and node.disruption_process.disruption_type == 'OP':
+			elif node.disrupted and node.disruption_process.disruption_type == 'OP':
 				order_quantity = 0
 			else:
 				# Calculate order quantity.
@@ -434,8 +385,11 @@ def _generate_downstream_orders(node_index, network, period, visited):
 				order_quantity
 			p_index = p.index
 		else:
+			# Was an override order quantity provided?
+			if order_quantity_override is not None and order_quantity_override[node] is not None:
+				order_quantity = order_quantity_override[node]
 			# Is there an order-pausing disruption?
-			if node.disrupted and node.disruption_process.disruption_type == 'OP':
+			elif node.disrupted and node.disruption_process.disruption_type == 'OP':
 				order_quantity = 0
 			else:
 				# Calculate order quantity.
@@ -644,7 +598,7 @@ def _initialize_next_period_state_vars(network, period):
 
 
 def _calculate_period_costs(network, period):
-	"""Calculate costs and revenues for one period.
+	"""Calculate costs and revenues for one period and store them in n.state_vars[period].
 
 	Parameters
 	----------
