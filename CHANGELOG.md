@@ -15,6 +15,7 @@ using in a reinforcement learning (RL) context)
 - More robust attribute handling for various objects
 
 ### Changed
+- Allow earlier version of numpy (v1.21 insead of v1.22), which in turn allows Python 3.7 instead of 3.8
 - New format for storing and loading named instances, and better documentation
 - ``newsvendor.newsvendor_explicit()`` parameter renamed to ``revenue`` from ``selling_revenue`` for consistency
 
