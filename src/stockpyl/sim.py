@@ -130,7 +130,6 @@ def initialize(network, num_periods, rand_seed=None):
 	"""Initialize the simulation:
 
 		* Check validity of the network
-		* Initialize ``network.period`` to 0
 		* Initialize state and decision variables at each node
 		* Set the numpy PRNG seed
 		* Set network.period to None (will be set to 0 in first call to :func:`stockpyl.sim.step`)
@@ -162,9 +161,6 @@ def initialize(network, num_periods, rand_seed=None):
 					+ np.max([n.shipment_lead_time or 0 for n in network.nodes]))) + 2
 
 	# INITIALIZATION
-
-	# Initialize time period.
-	network.period = 0
 
 	# Check that the network doesn't contain a directed cycle.
 	if network.has_directed_cycle():
