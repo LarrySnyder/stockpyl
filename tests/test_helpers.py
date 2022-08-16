@@ -507,15 +507,17 @@ class TestBuildNodeDataDict(unittest.TestCase):
 		attribute_dict['local_holding_cost'] = 1
 		attribute_dict['stockout_cost'] = [10, 8, 0]
 		attribute_dict['demand_mean'] = {1: 0, 3: 50}
+		attribute_dict['demand_list'] = [0, 1, 2, 3]
+		attribute_dict['probabilities'] = [0.25, 0.25, 0.4, 0.1]
 		attribute_dict['lead_time'] = None
 		attribute_dict['processing_time'] = None
 		node_indices = [3, 2, 1]
 		default_values = {'lead_time': 0, 'demand_mean': 99}
 		data_dict = helpers.build_node_data_dict(attribute_dict, node_indices, default_values)
 
-		self.assertDictEqual(data_dict[1], {'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None})
-		self.assertDictEqual(data_dict[2], {'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'lead_time': 0, 'processing_time': None})
-		self.assertDictEqual(data_dict[3], {'local_holding_cost': 1, 'stockout_cost': 10, 'demand_mean': 50, 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[1], {'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'demand_list': [0, 1, 2, 3], 'probabilities': [0.25, 0.25, 0.4, 0.1], 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[2], {'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'demand_list': [0, 1, 2, 3], 'probabilities': [0.25, 0.25, 0.4, 0.1], 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[3], {'local_holding_cost': 1, 'stockout_cost': 10, 'demand_mean': 50, 'demand_list': [0, 1, 2, 3], 'probabilities': [0.25, 0.25, 0.4, 0.1], 'lead_time': 0, 'processing_time': None})
 
 	def test_bad_attribute_value(self):
 		"""Test that build_node_data_dict() correctly raises exception if attribute_values[a] is bad.

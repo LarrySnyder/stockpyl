@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Bug in feature that allows overriding order quantities in simulation
+
+## [0.0.13] -- 2022-08-10
+
 ### Added
 - Features to run simulation period-by-period instead of all at once (useful for 
 using in a reinforcement learning (RL) context)

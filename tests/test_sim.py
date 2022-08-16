@@ -314,6 +314,37 @@ class TestStepByStepSimulation(unittest.TestCase):
 		# Compare networks (in particular, state variables).
 		self.assertTrue(network1.deep_equal_to(network2))
 
+	def test_example_6_1_order_quantity_override(self):
+		"""Test that initialize() + step() + close() match the results from simulation()
+		for Example 6.1 with an order quantity override.
+		"""
+		print_status('TestStepByStepSimulation', 'test_example_6_1()')
+
+		network1 = load_instance("example_6_1")
+		network2 = load_instance("example_6_1")
+		T = 100
+
+		# Via simulation().
+		total_cost1 = simulation(network1, num_periods=T, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+		# Via initialize() + step() + close().
+		initialize(network2, num_periods=T, rand_seed=17)
+		for t in range(T):
+			if t == 40:
+				step(network2, consistency_checks='E', order_quantity_override={
+					network2.get_node_from_index(2): 33,
+					network2.get_node_from_index(3): 77,
+				})
+			else:
+				step(network2, consistency_checks='E')
+		total_cost2 = close(network2)
+
+		# Compare order quantities in period 40.
+		self.assertEqual(network2.get_node_from_index(2).state_vars[40].order_quantity[3], 33.0)
+		self.assertEqual(network2.get_node_from_index(3).state_vars[40].order_quantity[None], 77.0)
+		self.assertAlmostEqual(network2.get_node_from_index(1).state_vars[40].order_quantity[2], 
+			network1.get_node_from_index(1).state_vars[40].order_quantity[2])
+
 	def test_problem_6_2a(self):
 		"""Test that initialize() + step() + close() match the results from simulation() for
 		Problem 6.2(a).

@@ -368,7 +368,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	for p in node.predecessors(include_external=True):
 		if p is not None:
 			# Was an override order quantity provided?
-			if order_quantity_override is not None and order_quantity_override[node] is not None:
+			if order_quantity_override is not None and node in order_quantity_override \
+				and order_quantity_override[node] is not None:
 				order_quantity = order_quantity_override[node]
 			# Is there an order-pausing disruption?
 			elif node.disrupted and node.disruption_process.disruption_type == 'OP':
@@ -382,7 +383,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			p_index = p.index
 		else:
 			# Was an override order quantity provided?
-			if order_quantity_override is not None and order_quantity_override[node] is not None:
+			if order_quantity_override is not None and node in order_quantity_override \
+				and order_quantity_override[node] is not None:
 				order_quantity = order_quantity_override[node]
 			# Is there an order-pausing disruption?
 			elif node.disrupted and node.disruption_process.disruption_type == 'OP':

@@ -580,6 +580,9 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 		  the edge list. That is, the value in slot ``k`` in the parameter list is assigned
 		  to the node in slot ``k`` when the nodes in the edge list are sorted.
 
+	(Exception: ``demand_list`` and ``probabilities`` attributes of |class_demand_source| may be
+	lists; these lists are treated as singletons for the purpose of the rules above.)
+
 	If ``edges`` is ``None`` or ``[]``, a single-node network is returned. The index of the node
 	is set to 0, unless ``node_order_in_lists`` is provided, in which case the node's index is set to
 	``node_order_in_lists[0]``. The rules for ``kwargs`` above also apply to the single-node case.
@@ -858,10 +861,13 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 		  in the list are assumed to correspond to nodes in the same order as ``node_order_in_system`` 
 		  (or in ``range(num_nodes)``, if ``node_order_in_system`` is not provided).
 
+	(Exception: ``demand_list`` and ``probabilities`` attributes of |class_demand_source| may be
+	lists; these lists are treated as singletons for the purpose of the rules above.)
+
 	``demand_source`` and ``stockout_cost`` attributes are only set at the downstream-most node,
 	no matter how (or whether) the corresponding parameter is set. ``supply_type`` attribute is set to 'U'
 	at the upstream-most node and to ``None`` at all other nodes, no matter how (or whether) the
-	corresponding parameter is set.
+	corresponding parameter is set.  
 
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
 	*or* the individual attributes of the demand source (``mean``, ``round_to_int``, etc.).

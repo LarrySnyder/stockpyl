@@ -799,7 +799,7 @@ class TestSerialSystem(unittest.TestCase):
 		"""Test serial_system_new() to build 3-node serial system, indexed 0,...,2
 		with downstream node = 0.
 		"""
-		print_status('TestSerialSystem', 'test_3_node_serial_upstream_0()')
+		print_status('TestSerialSystem', 'test_3_node_serial_downstream_0()')
 
 		network = serial_system(
 			3,
@@ -931,6 +931,56 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(source_node.local_holding_cost, 2)
 		self.assertEqual(middle_node.local_holding_cost, 4)
 		self.assertEqual(sink_node.local_holding_cost, 7)
+
+	def test_3_node_serial_list_params(self):
+		"""Test serial_system_new() to build 3-node serial system, indexed 0,...,2
+		with downstream node = 0, with 'CD' demand (which requires parameters that are
+		passed as lists).
+		"""
+		print_status('TestSerialSystem', 'test_3_node_serial_list_params()')
+
+		network = serial_system(
+			3,
+			node_order_in_system=[2, 1, 0],
+			node_order_in_lists=[0, 1, 2],
+			local_holding_cost=[7, 4, 2],
+			demand_type='CD',
+			demand_list=[0, 1, 2, 3],
+			probabilities=[0.25, 0.25, 0.4, 0.1],
+			policy_type='BS',
+			base_stock_level=5
+		)
+
+		# Get nodes, in order from upstream to downstream.
+		source_node = network.source_nodes[0]
+		middle_node = source_node.successors()[0]
+		sink_node = middle_node.successors()[0]
+
+		# Get successors and predecessors.
+		source_node_succ = source_node.successor_indices()
+		middle_node_succ = middle_node.successor_indices()
+		sink_node_succ = sink_node.successor_indices()
+		source_node_pred = source_node.predecessor_indices()
+		middle_node_pred = middle_node.predecessor_indices()
+		sink_node_pred = sink_node.predecessor_indices()
+
+		self.assertEqual(source_node.index, 2)
+		self.assertEqual(middle_node.index, 1)
+		self.assertEqual(sink_node.index, 0)
+
+		self.assertEqual(source_node_succ, [1])
+		self.assertEqual(middle_node_succ, [0])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [2])
+		self.assertEqual(sink_node_pred, [1])
+
+		self.assertEqual(source_node.local_holding_cost, 2)
+		self.assertEqual(middle_node.local_holding_cost, 4)
+		self.assertEqual(sink_node.local_holding_cost, 7)
+
+		correct_ds = DemandSource(type='CD', demand_list=[0, 1, 2, 3], probabilities=[0.25, 0.25, 0.4, 0.1])
+		self.assertEqual(sink_node.demand_source, correct_ds)
 
 
 
@@ -1152,6 +1202,40 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
 
+	def test_list_params(self):
+		"""Test that network_from_edges() correctly builds the network defined in
+		get_correct_network() when built using all lists.
+		"""
+		# Correct network.
+		correct_network = self.get_correct_network()
+		correct_network.get_node_from_index(1).demand_source = DemandSource(
+			type='CD',
+			demand_list=[0, 1, 2, 3],
+			probabilities=[0.25, 0.25, 0.4, 0.1]
+		)
+		correct_network.get_node_from_index(2).demand_source = DemandSource(
+			type='CD',
+			demand_list=[0, 1, 2, 3],
+			probabilities=[0.25, 0.25, 0.4, 0.1]
+		)
+
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='CD',
+			demand_list=[[0, 1, 2, 3], [0, 1, 2, 3], None, None],
+			probabilities=[[0.25, 0.25, 0.4, 0.1], [0.25, 0.25, 0.4, 0.1], None, None],
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
 
 class TestMWORSystem(unittest.TestCase):
 	@classmethod
