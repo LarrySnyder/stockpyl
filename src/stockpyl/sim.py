@@ -900,7 +900,7 @@ def _propagate_shipment_downstream(node):
 
 def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progress_bar=True):
 	"""Run ``num_trials`` trials of the simulation, each with  ``num_periods``
-	periods. Return mean and SEM of average cost.
+	periods. Return mean and SEM of average cost per period across all trials.
 
 	(To build :math:`\\alpha`-confidence interval, use
 	``mean_cost`` :math:`\\pm z_{1-(1-\\alpha)/2} \\times` ``sem_cost``.)
@@ -924,9 +924,9 @@ def run_multiple_trials(network, num_trials, num_periods, rand_seed=None, progre
 	Returns
 	-------
 	mean_cost : float
-		Mean of average costs across all trials.
+		Mean of average cost per period across all trials.
 	sem_cost : float
-		Standard error of average costs across all trials.
+		Standard error of average cost per period across all trials.
 	"""
 
 	# Initialize list of average costs.
