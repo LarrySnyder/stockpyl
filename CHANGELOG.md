@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.14] -- 2022-08-17
+
 ### Fixed
 - Bug in feature that allows overriding order quantities in simulation
 
