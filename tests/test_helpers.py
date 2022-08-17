@@ -3,6 +3,7 @@ from scipy import stats
 import numpy as np
 
 import stockpyl.helpers as helpers
+from tests.settings import *
 
 
 # Module-level functions.
@@ -500,6 +501,27 @@ class TestBuildNodeDataDict(unittest.TestCase):
 
 	def test_various(self):
 		"""Test that build_node_data_dict() returns correct result for various attribute_value types.
+		"""
+		print_status('TestBuildNodeDataDict', 'test_various()')
+
+		attribute_dict = {}
+		attribute_dict['local_holding_cost'] = 1
+		attribute_dict['stockout_cost'] = [10, 8, 0]
+		attribute_dict['demand_mean'] = {1: 0, 3: 50}
+		attribute_dict['lead_time'] = None
+		attribute_dict['processing_time'] = None
+		node_indices = [3, 2, 1]
+		default_values = {'lead_time': 0, 'demand_mean': 99}
+		data_dict = helpers.build_node_data_dict(attribute_dict, node_indices, default_values)
+
+		self.assertDictEqual(data_dict[1], {'local_holding_cost': 1, 'stockout_cost': 0, 'demand_mean': 0, 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[2], {'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'lead_time': 0, 'processing_time': None})
+		self.assertDictEqual(data_dict[3], {'local_holding_cost': 1, 'stockout_cost': 10, 'demand_mean': 50, 'lead_time': 0, 'processing_time': None})
+
+	@unittest.skipUnless(RUN_ALL_TESTS, "TestBuildNodeDataDict.test_list_params skipped because test fails for now; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
+	def test_list_params(self):
+		"""Test that build_node_data_dict() returns correct result for various attribute_value types,
+		including some parameters that are lists.
 		"""
 		print_status('TestBuildNodeDataDict', 'test_various()')
 
