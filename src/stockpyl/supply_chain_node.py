@@ -151,13 +151,13 @@ class SupplyChainNode(object):
 		for key, value in kwargs.items():
 			if key in vars(self):
 				# The key refers to an attribute of the object.
-				vars(self)[key] = value
+				setattr(self, key, value)
 			elif key in dir(self.__class__) and isinstance(getattr(self.__class__, key), property):
-				# The key refers to a property of the object.
-				setattr(self.__class__, key, value)
+				# The key refers to a property of the object. (We can still set it using setattr().)
+				setattr(self, key, value)
 			elif f"_{key}" in vars(self):
 				# The key refers to an attribute that has "_" prepended to it.
-				vars(self)[f"_{key}"] = value
+				setattr(self, f"_{key}", value)
 			else:
 				raise AttributeError(f"{key} is not an attribute of Policy")
 
@@ -469,6 +469,7 @@ class SupplyChainNode(object):
 		"""Initialize the parameters in the object to their default values. 
 		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``_inventory_policy``):
 		"""
+
 		# Loop through attributes. Special handling for list and object attributes.
 		for attr in self._DEFAULT_VALUES.keys():
 			if attr == 'demand_source':
@@ -644,6 +645,8 @@ class SupplyChainNode(object):
 					else:
 						value = policy.Policy.from_dict(None)
 					value.node = node
+					# Remove "_" from attr so we are setting the property, not the attribute.
+					attr = 'inventory_policy'
 				elif attr == 'state_vars':
 					if attr in the_dict:
 						if the_dict[attr] is None:

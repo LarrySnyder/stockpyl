@@ -177,6 +177,38 @@ class TestSimulation(unittest.TestCase):
 		self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None], 6.7125153, places=4)
 		self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level, -2.09415258242449, places=4)
 
+	def test_no_policy_node(self):
+		"""Test that simulation still works if we don't set the node attribute of the inventory policy.
+		(node should be set by the property setter.)
+		"""
+		print_status('TestGetOrderQuantity', 'test_no_policy_node()')
+
+		network = load_instance("example_4_1_network")
+
+		# Replace inventory policy with a new one.
+		pol = Policy()
+		pol.type = 'BS'
+		pol.base_stock_level = network.nodes[0].inventory_policy.base_stock_level
+		network.nodes[0].inventory_policy = pol
+
+		# Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
+		# changes in code changed the default initial IL.)
+		for node in network.nodes:
+			node.initial_inventory_level = 0
+
+		total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False, consistency_checks='E')
+
+		# Compare total cost.
+		self.assertAlmostEqual(total_cost, 255.2472033, places=4)
+
+		# Compare a few performance measures.
+		self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[None], 57.103320, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 9.9564105, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[43].inbound_order[None], 32.00584965, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[95].inbound_shipment[None], 52.9079333, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None], 6.7125153, places=4)
+		self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level, -2.09415258242449, places=4)
+
 	def test_assembly_3_stage(self):
 		"""Test that simulation() function correctly simulates 3-stage assembly model.
 		"""
