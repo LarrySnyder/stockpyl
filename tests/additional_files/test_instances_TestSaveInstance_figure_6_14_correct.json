@@ -36,7 +36,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 1,
 							"base_stock_level": null,
@@ -98,7 +98,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 2,
 							"base_stock_level": null,
@@ -160,7 +160,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 3,
 							"base_stock_level": null,
@@ -220,7 +220,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 4,
 							"base_stock_level": null,
@@ -283,7 +283,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 5,
 							"base_stock_level": null,
@@ -345,7 +345,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 6,
 							"base_stock_level": null,
@@ -405,7 +405,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 7,
 							"base_stock_level": null,
@@ -465,7 +465,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 8,
 							"base_stock_level": null,
@@ -525,7 +525,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 9,
 							"base_stock_level": null,
@@ -590,7 +590,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": null,
 							"node": 10,
 							"base_stock_level": null,

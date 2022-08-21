@@ -38,7 +38,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": "BS",
 							"node": 5,
 							"base_stock_level": 32.93,
@@ -100,7 +100,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": "BS",
 							"node": 4,
 							"base_stock_level": 33.3,
@@ -162,7 +162,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": "BS",
 							"node": 3,
 							"base_stock_level": 35.14,
@@ -224,7 +224,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": "BS",
 							"node": 2,
 							"base_stock_level": 33.87,
@@ -286,7 +286,7 @@
 						"initial_inventory_level": null,
 						"initial_orders": null,
 						"initial_shipments": null,
-						"inventory_policy": {
+						"_inventory_policy": {
 							"type": "BS",
 							"node": 1,
 							"base_stock_level": 40.59,

@@ -376,6 +376,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 				order_quantity = 0
 			else:
 				# Calculate order quantity.
+				if node.inventory_policy is None:
+					raise AttributeError(f"The inventory_policy attribute for {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.")
 				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=p.index)
 			# Place order in predecessor's order pipeline.
 			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = \
@@ -392,11 +394,19 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			else:
 				# Calculate order quantity.
 				order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
+
 			# Place order to external supplier.
 			# (For now, this just means adding to inbound shipment pipeline.)
 			node.state_vars_current.inbound_shipment_pipeline[None][(order_lead_time or 0) + (shipment_lead_time or 0)] += \
 				order_quantity
 			p_index = None
+
+
+
+		if order_quantity is None:
+			order_quantity = None
+
+
 
 		# Record order quantity.
 		node.state_vars_current.order_quantity[p_index] = order_quantity

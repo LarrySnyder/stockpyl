@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.14] -- 2022-08-17
 
+### Added
+- Check to make sure that a node's ``inventory_policy`` attribute is set, and that the ``Policy`` object's ``node`` attribute is set to the node.
+ 
 ### Fixed
 - Bug in feature that allows overriding order quantities in simulation
 

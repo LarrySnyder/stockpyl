@@ -617,7 +617,7 @@ class TestReindexNodes(unittest.TestCase):
 	def test_rosling_figure_1(self):
 		"""Test reindex_nodes() on system from Rosling (1989) Figure 1.
 		"""
-		print_status('TestAddSuccessor', 'test_rosling_figure_1()')
+		print_status('TestReindexNodes', 'test_rosling_figure_1()')
 
 		network = load_instance("rosling_figure_1")
 
@@ -629,7 +629,7 @@ class TestReindexNodes(unittest.TestCase):
 	def test_rosling_figure_1_with_names(self):
 		"""Test reindex_nodes() on system from Rosling (1989) Figure 1.
 		"""
-		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_names()')
+		print_status('TestReindexNodes', 'test_rosling_figure_1_with_names()')
 
 		network = load_instance("rosling_figure_1")
 		# Name the nodes "a"-"g".
@@ -647,7 +647,7 @@ class TestReindexNodes(unittest.TestCase):
 		"""Test reindex_nodes() on system from Rosling (1989) Figure 1 using
 		simulation to test state variable reindexing that occurs before simulation.
 		"""
-		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_state_vars()')
+		print_status('TestReindexNodes', 'test_rosling_figure_1_with_state_vars()')
 
 		network = load_instance("rosling_figure_1")
 		# Make the BS levels a little smaller so there are some stockouts.
@@ -702,7 +702,7 @@ class TestReindexNodes(unittest.TestCase):
 		"""Test reindex_nodes() on system from Rosling (1989) Figure 1 using
 		simulation to test state variable reindexing that occurs after simulation.
 		"""
-		print_status('TestAddSuccessor', 'test_rosling_figure_1_with_state_vars()')
+		print_status('TestReindexNodes', 'test_rosling_figure_1_with_state_vars()')
 
 		network = load_instance("rosling_figure_1")
 		# Make the BS levels a little smaller so there are some stockouts.

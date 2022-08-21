@@ -149,9 +149,17 @@ class SupplyChainNode(object):
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
-			if key not in vars(self):
-				raise AttributeError(f"{key} is not an attribute of SupplyChainNode")
-			vars(self)[key] = value
+			if key in vars(self):
+				# The key refers to an attribute of the object.
+				vars(self)[key] = value
+			elif key in dir(self.__class__) and isinstance(getattr(self.__class__, key), property):
+				# The key refers to a property of the object.
+				setattr(self.__class__, key, value)
+			elif f"_{key}" in vars(self):
+				# The key refers to an attribute that has "_" prepended to it.
+				vars(self)[f"_{key}"] = value
+			else:
+				raise AttributeError(f"{key} is not an attribute of Policy")
 
 	_DEFAULT_VALUES = {
 		'index': None,
@@ -172,7 +180,7 @@ class SupplyChainNode(object):
 		'initial_inventory_level': None,
 		'initial_orders': None,
 		'initial_shipments': None,
-		'inventory_policy': None,
+		'_inventory_policy': None,
 		'supply_type': None,
 		'disruption_process': None,
 		'processing_time': None,
@@ -308,6 +316,17 @@ class SupplyChainNode(object):
 	@lead_time.setter
 	def lead_time(self, value):
 		self.shipment_lead_time = value
+
+	@property
+	def inventory_policy(self):
+		return self._inventory_policy
+
+	@inventory_policy.setter
+	def inventory_policy(self, value):
+		# Set _inventory_policy, and also set _inventory_policy's node attribute to self.
+		self._inventory_policy = value
+		if self._inventory_policy is not None:
+			self._inventory_policy.node = self
 
 	@property
 	def forward_echelon_lead_time(self):
@@ -448,7 +467,7 @@ class SupplyChainNode(object):
 
 	def initialize(self):
 		"""Initialize the parameters in the object to their default values. 
-		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``inventory_policy``):
+		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``_inventory_policy``):
 		"""
 		# Loop through attributes. Special handling for list and object attributes.
 		for attr in self._DEFAULT_VALUES.keys():
@@ -456,7 +475,7 @@ class SupplyChainNode(object):
 				self.demand_source = demand_source.DemandSource()
 			elif attr == 'disruption_process':
 				self.disruption_process = disruption_process.DisruptionProcess()
-			elif attr == 'inventory_policy':
+			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy(node=self)
 			elif is_list(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
@@ -509,6 +528,11 @@ class SupplyChainNode(object):
 					if sorted(self.successor_indices()) != sorted(other.successor_indices()):
 						viol_attr = attr
 						eq = False
+				elif attr == '_inventory_policy':
+					# Compare inventory policies.
+					if self.inventory_policy != other.inventory_policy:
+						viol_attr = attr
+						eq = False
 				elif attr in ('local_holding_cost', 'echelon_holding_cost', 'in_transit_holding_cost', \
 					'stockout_cost', 'revenue', 'initial_inventory_level', 'initial_orders', 'initial_shipments' \
 					'demand_bound_constant', 'units_required', 'net_demand_mean', 'net_demand_standard_deviation'):
@@ -516,7 +540,7 @@ class SupplyChainNode(object):
 					if not isclose(getattr(self, attr) or 0, getattr(other, attr) or 0, rel_tol=rel_tol):
 						viol_attr = attr
 						eq = False
-				elif attr in ('demand_source', 'disruption_process', 'inventory_policy'):
+				elif attr in ('demand_source', 'disruption_process'):
 					# Check for None in object or object type.
 					if (getattr(self, attr) is None and getattr(other, attr) is not None) or \
 						(getattr(self, attr) is not None and getattr(other, attr) is None) or \
@@ -559,7 +583,7 @@ class SupplyChainNode(object):
 				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=True))
 			elif attr == '_successors':
 				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=True))
-			elif attr in ('demand_source', 'disruption_process', 'inventory_policy'):
+			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
 				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).to_dict()
 			elif attr == 'state_vars':
 				node_dict[attr] = None if self.state_vars is None else [sv.to_dict() for sv in self.state_vars]
@@ -614,7 +638,7 @@ class SupplyChainNode(object):
 						value = disruption_process.DisruptionProcess.from_dict(the_dict[attr])
 					else:
 						value = disruption_process.DisruptionProcess.from_dict(None)
-				elif attr == 'inventory_policy':
+				elif attr == '_inventory_policy':
 					if attr in the_dict:
 						value = policy.Policy.from_dict(the_dict[attr])
 					else:

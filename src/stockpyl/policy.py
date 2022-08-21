@@ -370,6 +370,12 @@ class Policy(object):
 		-------
 		order_quantity : float
 			The order quantity.
+
+		Raises
+		------
+		AttributeError
+			If the policy's ``node`` attribute is ``None`` and ``inventory_position`` or other required
+			state variables are ``None``.
 		"""
 		if self.type is None:
 			return None
@@ -382,6 +388,10 @@ class Policy(object):
 				# Fixed-quantity policy does not need inventory position.
 				IP = None
 			else:
+				# Make sure node attribute is set or inventory_position is provided.
+				if self.node is None and inventory_position is None:
+					raise AttributeError("You must either provide inventory_position or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
+
 				# Calculate total demand (inbound orders), including successor nodes and
 				# external demand.
 				demand = self.node._get_attribute_total('inbound_order', self.node.network.period)
@@ -409,6 +419,10 @@ class Policy(object):
 		elif self.type == 'EBS':
 			return self._get_order_quantity_echelon_base_stock(IP)
 		elif self.type == 'BEBS':
+			# Make sure node attribute is set or inventory_position is provided.
+			if self.node is None and echelon_inventory_position_adjusted is None:
+				raise AttributeError("You must either provide echelon_inventory_position_adjusted or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
+
 			# Was EIPA provided?
 			if echelon_inventory_position_adjusted is not None:
 				EIPA = echelon_inventory_position_adjusted

@@ -277,6 +277,28 @@ class TestSimulation(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			simulation(instance, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
+	def test_no_policy(self):
+		"""Test that simulation() function correctly raises an exception if a node has no inventory_policy.
+		"""
+		print_status('TestSimulation', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+		network.nodes[1].inventory_policy = None
+
+		with self.assertRaises(AttributeError):
+			total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+	def test_node_not_set(self):
+		"""Test that policy correctly raises an exception if a node's inventory_policy has no node attribute.
+		"""
+		print_status('TestSimulation', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+		network.nodes[1].inventory_policy.node = None
+
+		with self.assertRaises(AttributeError):
+			total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
 
 class TestStepByStepSimulation(unittest.TestCase):
 	@classmethod
