@@ -245,11 +245,12 @@ def is_continuous_distribution(distribution):
 		return isinstance(distribution, rv_continuous)
 
 
-def find_nearest(array, values, sorted=False):
+def find_nearest(array, values, sorted=False, index=dict()):
 	"""Determine entries in ``array`` that are closest to each of the
 	entries in ``values`` and return their indices. Neither array needs to be sorted,
-	but if ``array`` is sorted and ``sorted`` is set to ``True``, execution will be faster.
-	``array`` and ``values`` need not be the same length.
+	but if ``array`` is sorted and ``sorted`` is set to ``True``, execution will be faster. In dictionary ``index`` a
+	map to desired indices can be provided, in which case execution will be even faster for specified values. ``array``
+	and ``values`` need not be the same length.
 
 	Parameters
 	----------
@@ -257,9 +258,11 @@ def find_nearest(array, values, sorted=False):
 		The array to search for values in.
 	values : ndarray
 		The array whose values should be searched for in the other array.
-	sorted : Boolean
-		If ``True``, treats array as sorted, which will make the function execute
-		faster.
+	sorted : bool, optional
+		If ``True``, treats array as sorted, which will make the function execute faster.
+	index : dict, optional
+		A dictionary from values to indices, which will make the function execute even faster for
+		given values.
 
 	Returns
 	-------
@@ -270,18 +273,20 @@ def find_nearest(array, values, sorted=False):
 	values = np.array(values, ndmin=1, copy=False)
 	ind = np.zeros(values.shape)
 	for v in range(values.size):
-		if sorted:
-			# https://stackoverflow.com/a/26026189/3453768
-			idx = np.searchsorted(array, values[v], side="left")
-			if idx > 0 and (idx == len(array) or math.fabs(values[v] - array[idx-1])
-					< math.fabs(values[v] - array[idx])):
-				ind[v] = idx-1
+		ind[v] = index.get(values[v])
+		if np.isnan(ind[v]):
+			if sorted:
+				# https://stackoverflow.com/a/26026189/3453768
+				idx = np.searchsorted(array, values[v], side="left")
+				if idx > 0 and (idx == len(array) or math.fabs(values[v] - array[idx-1])
+						< math.fabs(values[v] - array[idx])):
+					ind[v] = idx-1
+				else:
+					ind[v] = idx
 			else:
+				# https://stackoverflow.com/a/2566508/3453768
+				idx = (np.abs(array - values[v])).argmin()
 				ind[v] = idx
-		else:
-			# https://stackoverflow.com/a/2566508/3453768
-			idx = (np.abs(array - values[v])).argmin()
-			ind[v] = idx
 
 	return ind.astype(int)
 
