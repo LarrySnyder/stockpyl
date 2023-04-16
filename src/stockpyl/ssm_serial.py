@@ -376,17 +376,15 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		# Get truncation bounds for lead-time demand distribution.
 		# If support is finite, use support; otherwise, use F^{-1}(.).
 		if ltd_dist.a == float("-inf"):
-			ltd_lo = ltd_dist.ppf(ltd_lower_tail_prob)
+			d_lo = max(ltd_dist.ppf(ltd_lower_tail_prob), float())
 		else:
-			ltd_lo = ltd_dist.interval(1)[0]
+			d_lo = max(ltd_dist.interval(1)[0], float())
 		if ltd_dist.b == float("inf"):
-			ltd_hi = ltd_dist.ppf(1 - ltd_upper_tail_prob)
+			d_hi = max(ltd_dist.ppf(float(1)-ltd_upper_tail_prob), d_lo)
 		else:
-			ltd_hi = ltd_dist.interval(1)[1]
+			d_hi = max(ltd_dist.interval(1)[1], d_lo)
 
 		# Determine d (lead-time demand) array (truncated and discretized).
-		d_lo = ltd_lo
-		d_hi = ltd_hi
 		if discrete_distribution:
 			d_lo    = round(d_lo)
 			d_hi    = round(d_hi)
@@ -431,6 +429,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 					the_cost[d_ind] = \
 						C_hat_lim1[j, find_nearest(x_ext, y_minus_d, True, index_x_ext)]
 				elif y_minus_d > x_hi: # THIS SHOULD NEVER HAPPEN
+					print('WARNING: y > x + d', flush=True)
 					the_cost[d_ind] = \
 						C_hat_lim2[j, find_nearest(x_ext, y_minus_d, True, index_x_ext)]
 				else:
