@@ -263,7 +263,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 
 	# Build "sum of lead-time demand" distribution (LTD distribution in
 	# which L = sum of all lead times)
-	sum_ltd_dist = demand_source.lead_time_demand_distribution(float(np.sum(L)))
+	sum_ltd_dist = demand_source.lead_time_demand_distribution(sum(L))
 
 	# Get truncation bounds for sum-of-lead-time demand distribution.
 	# If support is finite, use support; otherwise, use F^{-1}(.).
