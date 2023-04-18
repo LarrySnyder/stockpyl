@@ -301,18 +301,16 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		if discrete_distribution:
 			# x_lo and h_hi should already be integers, but cast them anyway.
 			x_lo    = round(x_lo)
-			x_hi    = round(x_hi)
 			x_delta = int(1)
-			x_num   = x_hi-x_lo
+			x_num   = round(x_hi-x_lo)
 		elif x_num and x_hi > x_lo:
 			x_lo    = float(x_lo)
-			x_hi    = float(x_hi)
-			x_delta = (x_hi-x_lo)/x_num
+			x_delta = float((x_hi-x_lo)/x_num)
 		else:
 			x_lo    = float((x_lo+x_hi)*0.5)
-			x_hi    = x_lo
 			x_delta = float(1)
 			x_num   = int()
+		x_hi = x_num*x_delta+x_lo
 		x = np.array([x_ind*x_delta+x_lo for x_ind in range(x_num+1)])
 	elif x.size > 1:
 		x_lo    = np.min(x)
@@ -387,19 +385,17 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		# Determine d (lead-time demand) array (truncated and discretized).
 		if discrete_distribution:
 			d_lo    = round(d_lo)
-			d_hi    = round(d_hi)
 			d_delta = int(1)
-			num     = d_hi-d_lo
+			num     = round(d_hi-d_lo)
 		elif d_num and d_hi > d_lo:
 			d_lo    = float(d_lo)
-			d_hi    = float(d_hi)
-			d_delta = (d_hi-d_lo)/d_num
+			d_delta = float((d_hi-d_lo)/d_num)
 			num     = d_num
 		else:
 			d_lo    = float((d_lo+d_hi)*0.5)
-			d_hi    = d_lo
 			d_delta = float(1)
 			num     = int()
+		d_hi = num*d_delta+d_lo
 		d = np.array([d_ind*d_delta+d_lo for d_ind in range(num+1) if (ltd_dist.cdf((d_ind+0.5)*d_delta+d_lo) if d_ind != num else float(1)) > (ltd_dist.cdf((d_ind-0.5)*d_delta+d_lo) if d_ind else float())])
 
 		# Calculate discretized cdf array.
