@@ -941,7 +941,7 @@ def _preprocess_parameters(num_nodes=None, node_order_in_system=None, node_order
 	demand_source = local_network.get_node_from_index(1).demand_source
 	
 	# Validate more parameters.
-	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
+	if any(c is None for c in echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
 	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
 	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
 	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
