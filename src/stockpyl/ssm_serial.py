@@ -15,7 +15,7 @@ The |mod_ssm_serial| module contains code to solve serial systems under the stoc
 model (SSM), either exactly, using the :func:`~stockpyl.ssm_serial.optimize_base_stock_levels` function
 (which implements the algorithm by Chen and Zheng (1994), which in turn is
 based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic` 
-function (which implements the newsvendor heuristic by Shang and Song (1996)).
+function (which implements the newsvendor heuristic by Shang and Song (2003)).
 
 .. note:: |node_stage|
 
@@ -65,7 +65,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 								ltd_lower_tail_prob=1-stats.norm.cdf(4),
 								ltd_upper_tail_prob=1-stats.norm.cdf(4),
 								sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
-								sum_ltd_upper_tail_prob=1-stats.norm.cdf(8)):
+								sum_ltd_upper_tail_prob=1-stats.norm.cdf(4)):
 	"""Chen-Zheng (1994) algorithm for stochastic serial systems under the stochastic service model (SSM), which in 
 	turn is based on Clark and Scarf (1960). 
 
@@ -125,7 +125,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 	demand_mean : float, optional
 		Mean demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
 	demand_standard_deviation : float, optional
-		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
+		Standard deviation of demand per unit time at node 1. Ignored if ``demand_source`` is not ``None``. [:math:`\\sigma`]
 	demand_source : |class_demand_source|, optional
 		A |class_demand_source| object describing the demand distribution. Required if
 		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
@@ -292,7 +292,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 	# use x_num to determine granularity.
 	if x is None:
 		# x-range = [sum_ltd_lo-sum_ltd_mean, sum_ltd_hi].
-		x_lo = sum_ltd_lo - sum_ltd_dist.mean()
+		x_lo = sum_ltd_lo - sum_ltd_hi # originally used sum_ltd_dist.mean() here but I think sum_ltd_hi is more accurate
 		x_hi = sum_ltd_hi
 		# Ensure x >= largest echelon BS level, if provided.
 		if S is not None:

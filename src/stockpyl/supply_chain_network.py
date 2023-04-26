@@ -584,7 +584,7 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 	is set to 0, unless ``node_order_in_lists`` is provided, in which case the node's index is set to
 	``node_order_in_lists[0]``. The rules for ``kwargs`` above also apply to the single-node case.
 
-	``supply_type`` attribute is set to 'U' at all nodes that have no predecessors and to
+	The ``supply_type`` attribute is set to 'U' at all nodes that have no predecessors and to
 	 ``None`` at all other nodes, no matter how (or whether) the corresponding parameter is set.
 
 	For the ``demand_source`` attribute, you may pass a |class_demand_source| object
@@ -825,6 +825,24 @@ def single_stage_system(index=0, **kwargs):
 	AttributeError
 		If ``kwargs`` contains a parameter that is not an attribute of |class_node|.
 
+
+	**Example** (a |class_network| object containing the data from Example 4.1):
+
+	.. testsetup:: *
+
+		from stockpyl.supply_chain_network import *
+
+	.. doctest::
+
+		>>> network = single_stage_system(holding_cost=0.18,
+				stockout_cost=0.70,
+				demand_type='N',
+				mean=50, standard_deviation=8,
+				policy_type='BS',
+				base_stock_level=56.6)
+		>>> network.nodes[0].stockout_cost
+		0.7
+
 	"""
 
 	return network_from_edges(
@@ -910,6 +928,31 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 	------
 	AttributeError
 		If ``kwargs`` contains a parameter that is not an attribute of |class_node|.
+
+
+	**Example** (a |class_network| object containing the data from Example 4.1):
+
+	.. testsetup:: *
+
+		from stockpyl.supply_chain_network import *
+
+	.. doctest::
+
+		>>> network = single_stage_system(holding_cost=0.18,
+				stockout_cost=0.70,
+				demand_type='N',
+				mean=50, standard_deviation=8,
+				policy_type='BS',
+				base_stock_level=56.6)
+		>>> network.nodes[0].stockout_cost
+		0.7
+
+
+	return network_from_edges(
+		edges=[],
+		node_order_in_lists=[index],
+		**kwargs
+	)
 	"""
 
 	# (Exception: ``demand_list`` and ``probabilities`` attributes of |class_demand_source| may be

@@ -125,7 +125,7 @@ def eoq_with_disruptions(fixed_cost, holding_cost, stockout_cost, demand_rate,
 
 	L. V. Snyder. A tight approximation for a continuousreview inventory model with supplier disruptions. *International Journal of Production Economics*, 155:91–108, 2014.
 
-	**Example** (Example 3.1):
+	**Example** (Example 9.1-9.2):
 
 	.. testsetup:: *
 
@@ -543,7 +543,7 @@ def eoq_with_multiplicative_yield_uncertainty(fixed_cost, holding_cost, demand_r
 
 		g(Q) = \\frac{Kd}{QE[Z]} + \\frac{hQ(\\text{Var}[Z] + E[Z]^2)}{2E[Z]}
 
-	**Example** (Example 9.4):
+	**Example** (Example 9.5):
 
 	.. testsetup:: *
 
@@ -603,7 +603,7 @@ def newsvendor_with_additive_yield_uncertainty(holding_cost, stockout_cost, dema
 	yield_distribution : rv_continuous or rv_discrete, optional
 		Yield distribution. Required if ``yield_mean`` or ``yield_sd`` is ``None``.
 	loss_function : function, optional
-		Function that takes a single argument and returns the a tuple consisting
+		Function that takes a single argument and returns a tuple consisting
 		of the loss function and complementary loss function value of that argument.
 		Ignored if ``yield_distribution`` is ``None``.
 	base_stock_level : float, optional
@@ -636,7 +636,7 @@ def newsvendor_with_additive_yield_uncertainty(holding_cost, stockout_cost, dema
 
 	.. math::
 
-		g(S) = p\\bar{n}(S) + hn(S),
+		g(S) = p\\bar{n}(d-S) + hn(d-S),
 
 	where :math:`n(\\cdot)` and :math:`\\bar{n}(\\cdot)` are the loss function
 	and complementary loss function, respectively, of the yield distribution.

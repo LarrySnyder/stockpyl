@@ -537,12 +537,12 @@ def newsvendor_discrete(holding_cost, stockout_cost, demand_distrib=None,
 
 	.. doctest::
 
-		>>> from scipy.stats import poisson
-		>>> demand_distrib = poisson(6)
-		>>> newsvendor_discrete(1, 4, demand_distrib)
-		(8.0, 3.5701069457709416)
-		>>> newsvendor_discrete(1, 4, demand_distrib, base_stock_level=5)
-		(5, 6.590296024616343)
+			>>> from scipy.stats import poisson
+			>>> demand_distrib = poisson(6)
+			>>> newsvendor_discrete(1, 4, demand_distrib)
+			(8.0, 3.5701069457709416)
+			>>> newsvendor_discrete(1, 4, demand_distrib, base_stock_level=5)
+			(5, 6.590296024616343)
 
 	.. doctest::
 

@@ -252,6 +252,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 		Tolerance to use for line search (golden section search) component of algorithm.
 	verbose: bool, optional
 		Set to True to print messages at each iteration.
+		
 	Returns
 	-------
 	best_S : dict

@@ -9,7 +9,7 @@ Multi-Echelon Inventory Optimization
 
 * Serial systems under the stochastic-service model (SSM) (|mod_ssm_serial| module)
 * Serial or tree systems under the guaranteed-service model (GSM) (|mod_gsm_serial| and |mod_gsm_tree| modules)
-* Systems with arbitrary topology<tutorial_meio:General MEIO Systems, optimized using enumeration or coordinate descent (|mod_meio_general| module)
+* SSM systems with arbitrary topology<tutorial_meio:General MEIO Systems>, optimized using enumeration or coordinate descent (|mod_meio_general| module)
 
 .. note:: |node_stage|
 
@@ -25,7 +25,7 @@ The |class_network| Class
 
 All of the MEIO code in |sp| makes use of the |class_network| class, which contains all of the data for 
 an MEIO instance. For some functions, you provide data in the form of lists, dicts, or singletons and the
-function builds the |class_network| object for you, while other functions require you to pass an |class_network| 
+function builds the |class_network| object for you, while other functions require you to pass a |class_network| 
 object directly.
 
 A |class_network|, in turn, consists of one or more |class_node| objects. When you create a |class_node|,
@@ -94,7 +94,7 @@ The |mod_ssm_serial| module contains code to solve serial systems under the stoc
 model (SSM), either exactly, using the :func:`~stockpyl.ssm_serial.optimize_base_stock_levels` function
 (which implements the algorithm by Chen and Zheng (1994), which in turn is
 based on the algorithm by Clark and Scarf (1960)), or approximately, using the :func:`~stockpyl.ssm_serial.newsvendor_heuristic`
-function (which implements the newsvendor heuristic by Shang and Song (1996)).
+function (which implements the newsvendor heuristic by Shang and Song (2003)).
 
 For either function, you may pass the instance data as individual parameters (costs, demand distribution, etc.) 
 or a |class_network|. Here is Example 6.1 from |fosct| with the data passed as individual parameters:

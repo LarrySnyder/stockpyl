@@ -52,7 +52,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 		1, ..., ``num_periods`` in elements 1, ..., ``num_periods``, and the
 		0th element is ignored.
 
-	The parameters may be mixed, some scalars and some lists.
+	The parameters may be mixed, some singletons and some lists.
 
 	Parameters
 	----------
@@ -72,7 +72,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 	order_quantities : list
 		List of order quantities in each time period. [:math:`Q^*`]
 	cost : float
-		Optimal cost for entire horizon. [:math:`g^*`]
+		Optimal cost for entire horizon. [:math:`\\theta_1`]
 	costs_to_go : list
 		List of "costs to go". [:math:`\\theta`]
 	next_order_periods : list
@@ -92,7 +92,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 
 	**Algorithm Used:** Wagner-Whitin algorithm (Algorithm 3.1)
 
-	**Example** (Example 3.9):
+	**Example** (a Example 3.9):
 
 	.. testsetup:: *
 
