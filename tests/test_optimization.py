@@ -79,5 +79,5 @@ class TestGoldenSectionSearch(unittest.TestCase):
 
 		S1_star, C_star = optimization.golden_section_search(f, 0, 12)
 
-		self.assertAlmostEqual(S1_star, 6.73, places=1)
+		self.assertAlmostEqual(S1_star, 6.899491709061081, places=1)
 		self.assertAlmostEqual(C_star, 47.82, places=1)

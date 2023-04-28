@@ -491,6 +491,12 @@ def build_node_data_dict(attribute_dict, node_order_in_lists, default_values={})
 		  ``data_dict[n][a]`` is set to ``None``.
 		* If ``attribute_dict[a]`` is a list that does *not* have the same length as ``node_order_in_lists``, a ``ValueError`` is raised.
 
+	(Exception: The ``demand_list`` and ``probabilities`` attributes of |class_demand_source| are lists,
+	and are treated as singletons for the purposes of the rules above, unless they contain other lists, in which 
+	case they are treated as normal. For example, ``attribute_dict['demand_list'] = [0, 1, 2, 3]`` will set the ``demand_list`` to
+	``[0, 1, 2, 3]`` for all nodes. But ``demand_list=[[0, 1, 2, 3], [0, 1, 2, 3], None, None]`` will set the ``demand_list`` to 
+	``[0, 1, 2, 3]`` for nodes 0 and 1 but to ``None`` for nodes 2 and 3.)
+
 
 	Parameters
 	----------
@@ -542,9 +548,6 @@ def build_node_data_dict(attribute_dict, node_order_in_lists, default_values={})
 
 	"""
 
-	# (Exception: The ``demand_list`` and ``probabilities`` attributes of |class_demand_source| are lists,
-	# and are treated as singletons for the purposes of the rules above.)
-
 	# Initialize data_dict.
 	data_dict = {n: {} for n in node_order_in_lists}
 
@@ -575,7 +578,10 @@ def build_node_data_dict(attribute_dict, node_order_in_lists, default_values={})
 					# No, and no default value is provided; use None.
 					data_dict[n][a] = None
 		
-		elif is_iterable(attribute_dict[a]): # and a not in ('demand_list', 'probabilities'):
+		# If it's a list and a = 'demand_list' or 'probabilities', treat it as a list if any of its elements
+		# and as a singleton othwerwise.
+		elif is_iterable(attribute_dict[a]) and \
+			(a not in ('demand_list', 'probabilities') or any([is_iterable(e) for e in attribute_dict[a]])):
 
 			# attribute_dict[a] is a list; check its length.
 			if len(list(attribute_dict[a])) == len(node_order_in_lists):

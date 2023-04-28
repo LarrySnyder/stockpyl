@@ -1221,6 +1221,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			demand_list=[0, 1, 2, 3],
 			probabilities=[0.25, 0.25, 0.4, 0.1]
 		)
+		correct_network.get_node_from_index(3).demand_source = DemandSource(type='CD')
+		correct_network.get_node_from_index(4).demand_source = DemandSource(type='CD')
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],

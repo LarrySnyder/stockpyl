@@ -541,6 +541,7 @@ class TestBuildNodeDataDict(unittest.TestCase):
 		self.assertDictEqual(data_dict[2], {'local_holding_cost': 1, 'stockout_cost': 8, 'demand_mean': 99, 'demand_list': [0, 1, 2, 3], 'probabilities': [0.25, 0.25, 0.4, 0.1], 'lead_time': 0, 'processing_time': None})
 		self.assertDictEqual(data_dict[3], {'local_holding_cost': 1, 'stockout_cost': 10, 'demand_mean': 50, 'demand_list': [0, 1, 2, 3], 'probabilities': [0.25, 0.25, 0.4, 0.1], 'lead_time': 0, 'processing_time': None})
 
+
 	def test_bad_attribute_value(self):
 		"""Test that build_node_data_dict() correctly raises exception if attribute_values[a] is bad.
 		"""		

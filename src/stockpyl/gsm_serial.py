@@ -80,9 +80,9 @@ def optimize_committed_service_times(num_nodes=None, local_holding_cost=None, pr
 	local_holding_cost : float, list, or dict, optional
 		Local holding cost at each node. [:math:`h`]
 	processing_time : float, list, or dict, optional
-		Processing time at each node. [:math:`L`]
+		Processing time at each node. [:math:`T`]
 	demand_bound_constant : float, optional
-		The constant to use in setting the demand bound. 
+		The constant to use in setting the demand bound. [:math:`z_\\alpha`]
 	external_outbound_cst : int, optional
 		Outbound CST to external customer at node 1.
 	external_inbound_cst : int, optional

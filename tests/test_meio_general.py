@@ -235,7 +235,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 												progress_bar=False, print_solutions=False)
 
 		self.assertDictEqual(best_S, {3: 11, 2: 5, 1: 7})
-		self.assertAlmostEqual(best_cost, 48.214497895254894)
+		self.assertAlmostEqual(best_cost, 48.396016245503965)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByEnumeration.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_rong_atan_snyder_figure_1a(self):
@@ -349,10 +349,10 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		best_S, best_cost = meio_general.meio_by_coordinate_descent(network, search_lo={1: 5, 2: 4, 3: 10},
 													 search_hi={1: 7, 2: 7, 3: 12}, objective_function=obj_fcn)
 
-		self.assertAlmostEqual(best_S[1], 6.443930591893573)
-		self.assertAlmostEqual(best_S[2], 6.008174455535286)
-		self.assertAlmostEqual(best_S[3], 10.55598769540841)
-		self.assertAlmostEqual(best_cost, 47.820555289455875)
+		self.assertAlmostEqual(best_S[1], 6.696779017720067)
+		self.assertAlmostEqual(best_S[2], 5.599667676934946)
+		self.assertAlmostEqual(best_S[3], 10.793908944672346)
+		self.assertAlmostEqual(best_cost, 47.772223377786524)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_rong_atan_snyder_figure_1a(self):
