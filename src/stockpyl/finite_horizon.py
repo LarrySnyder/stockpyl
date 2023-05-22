@@ -650,7 +650,7 @@ def finite_horizon_dp_temp(
 		order quantity from the EOQB problem. 
 
 		4. ``s_spread``:math:`\\sigma` is subtracted from :math:`s` and added to :math:`S`
-		to provide desired buffer, and :math:`\\mu + \\sigma` ``d_spread`` is subtracted 
+		to provide desired buffer, and :math:`\\mu + \\sigma` ``d_spread`` is further subtracted 
 		from :math:`s` to account for demand, accounting conservatively for the 
 		variations in demand parameters across periods, and adjusting the final period
 		to account for terminal costs.

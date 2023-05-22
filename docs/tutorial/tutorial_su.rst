@@ -62,11 +62,11 @@ additive yield uncertainty:
 
 	>>> from stockpyl.supply_uncertainty import eoq_with_additive_yield_uncertainty
 	>>> K = 18500
-	>>> p = 0.06
+	>>> h = 0.06
 	>>> demand_rate = 75000
 	>>> yield_mean = -15000
 	>>> yield_sd = 9000
-	>>> Q, cost = eoq_with_additive_yield_uncertainty(K, p, demand_rate, yield_mean, yield_sd)
+	>>> Q, cost = eoq_with_additive_yield_uncertainty(K, h, demand_rate, yield_mean, yield_sd)
 	>>> Q
 	230246.37046881882
 	>>> cost
@@ -80,7 +80,7 @@ and multiplicative yield uncertainty:
 	>>> from math import sqrt
 	>>> yield_mean = 0.8333
 	>>> yield_sd = sqrt(0.0198)
-	>>> Q, cost = eoq_with_multiplicative_yield_uncertainty(K, p, demand_rate, yield_mean, yield_sd)
+	>>> Q, cost = eoq_with_multiplicative_yield_uncertainty(K, h, demand_rate, yield_mean, yield_sd)
 	>>> Q
 	254477.46130342316
 	>>> cost
@@ -102,11 +102,11 @@ returns both the optimal base-stock level and the optimal expected cost.
 	>>> d = 2000
 	>>> alpha = 0.04
 	>>> beta = 0.25
-	>>> S, cost = newsvendor_with_disruptions(h, p, K, alpha, beta)
+	>>> S, cost = newsvendor_with_disruptions(h, p, d, alpha, beta)
 	>>> S
-	74000
+	8000
 	>>> cost
-	25317.887604785075
+	2737.0689302470355
 
 
 The Newsvendor Problem with Yield Uncertainty
