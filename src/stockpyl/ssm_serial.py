@@ -300,35 +300,36 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		# Build x range. Is demand distribution discrete?
 		if discrete_distribution:
 			# x_lo and h_hi should already be integers, but cast them anyway.
-			x = np.arange(int(x_lo), int(x_hi) + 1)
-			x_delta = 1
+			x_lo    = round(x_lo)
+			x_delta = int(1)
+			x_num   = round(x_hi-x_lo)
 		elif x_num and x_hi > x_lo:
-			# x_num was provided, and the tail probabilities ==> x_hi > x_lo.
-			x_delta = (x_hi - x_lo) / x_num
-			x = np.arange(x_lo, x_hi + x_delta, x_delta)
+			x_lo    = float(x_lo)
+			x_delta = float((x_hi-x_lo)/x_num)
 		else:
-			# Either x_num wasn't provided or the tail probabilities ==> x_hi <= x_lo;
-			# just set x to a singleton equal to the mean of x_lo and x_hi.
-			x = np.array((x_lo + x_hi) / 2)
+			x_lo    = float((x_lo+x_hi)*0.5)
+			x_delta = float(1)
+			x_num   = int()
+		x_hi = x_num*x_delta+x_lo
+		x = np.array([x_ind*x_delta+x_lo for x_ind in range(x_num+1)])
 	elif x.size > 1:
-		# x has multiple elements.
-		x_lo = np.min(x)
-		x_hi = np.max(x)
-		x_delta = abs(x[1] - x[0])
+		x_lo    = np.min(x)
+		x_hi    = np.max(x)
+		x_delta = abs(x[1]-x[0])
+		x_num   = int((x_hi-x_lo)/x_delta)
 	else:
-		# x is a singleton.
-		x_lo = x[0]
-		x_hi = x_lo
+		x_lo    = x[0]
+		x_hi    = x_lo
 		x_delta = int(1)
+		x_num   = int()
 
 	# Extended x array (used for approximate C-hat function).
-	x_ext_lo = np.min(x) - sum_ltd_hi
-	x_ext_hi = np.max(x) + sum_ltd_hi
+	x_ext_num = math.ceil(sum_ltd_hi/x_delta)
 	# x_ext_lo = np.min(x) - (mu * sum(L) +
 	# 						d.max() * sigma * np.sqrt(sum(L)))
 	# x_ext_hi = np.max(x) + (mu * sum(L) +
 	# 						d.max() * sigma * np.sqrt(sum(L)))
-	x_ext = np.arange(x_ext_lo, x_ext_hi, x_delta)
+	x_ext = np.array([x_ext_ind*x_delta+x_lo for x_ext_ind in range(-x_ext_num, x_num+x_ext_num+1)])
 
 	# Index dictionaries to find nearest entry for matching value faster
 	index_x     = {x    [ind]: ind for ind in range(x    .size)}
@@ -373,30 +374,33 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		# Get truncation bounds for lead-time demand distribution.
 		# If support is finite, use support; otherwise, use F^{-1}(.).
 		if ltd_dist.a == float("-inf"):
-			ltd_lo = max(ltd_dist.ppf(ltd_lower_tail_prob), float())
+			d_lo = max(ltd_dist.ppf(ltd_lower_tail_prob), float())
 		else:
-			ltd_lo = max(ltd_dist.interval(1)[0], float())
+			d_lo = max(ltd_dist.interval(1)[0], float())
 		if ltd_dist.b == float("inf"):
-			ltd_hi = max(ltd_dist.ppf(float(1)-ltd_upper_tail_prob), ltd_lo)
+			d_hi = max(ltd_dist.ppf(float(1)-ltd_upper_tail_prob), d_lo)
 		else:
-			ltd_hi = max(ltd_dist.interval(1)[1], ltd_lo)
+			d_hi = max(ltd_dist.interval(1)[1], d_lo)
 
 		# Determine d (lead-time demand) array (truncated and discretized).
 		if discrete_distribution:
-			# Discrete distribution was provided.
-			d = np.arange(int(ltd_lo), int(ltd_hi) + 1)
-			d_delta = 1
-		elif d_num and ltd_hi > ltd_lo:
-			# d_num was provided, and the tail probabilities ==> ltd_hi > ltd_lo.
-			d_delta = (ltd_hi - ltd_lo) / d_num
-			d = np.arange(ltd_lo, ltd_hi + d_delta, d_delta)
+			d_lo    = round(d_lo)
+			d_delta = int(1)
+			num     = round(d_hi-d_lo)
+		elif d_num and d_hi > d_lo:
+			d_lo    = float(d_lo)
+			d_delta = float((d_hi-d_lo)/d_num)
+			num     = d_num
 		else:
-			# Either d_num wasn't provided or the tail probabilities ==> ltd_hi <= ltd_lo;
-			# just set d to a singleton equal to the mean LTD.
-			d = np.array((ltd_lo + ltd_hi) / 2)
+			d_lo    = float((d_lo+d_hi)*0.5)
+			d_delta = float(1)
+			num     = int()
+		d_hi = num*d_delta+d_lo
+		d = np.array([d_ind*d_delta+d_lo for d_ind in range(num+1) if (ltd_dist.cdf((d_ind+0.5)*d_delta+d_lo) if d_ind != num else float(1)) > (ltd_dist.cdf((d_ind-0.5)*d_delta+d_lo) if d_ind else float())])
 
 		# Calculate discretized cdf array.
-		fd = np.array([ltd_dist.cdf(d_val+d_delta/2) - ltd_dist.cdf(d_val-d_delta/2) for d_val in d])
+		fd = np.array([(ltd_dist.cdf(d[ind]+d_delta*float(0.5)) if ind+1 != d.size else float(1))-(ltd_dist.cdf(d[ind]-d_delta*float(0.5)) if ind else float()) for ind in range(d.size)])
+		#fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
 
 		# Calculate C.
 		for y in x:

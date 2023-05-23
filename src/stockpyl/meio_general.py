@@ -444,14 +444,15 @@ def truncate_and_discretize(node_indices, values=None, truncation_lo=None,
 			hi = hi_dict[n_ind] or DEFAULT_HI
 			if step_dict[n_ind] is not None:
 				step = step_dict[n_ind]
+				num  = int((hi-lo)/step)
 			elif num_dict[n_ind] is not None:
 				num  = num_dict[n_ind]
-				step = (hi - lo) / (num - 1) if hi > lo else int(1)
+				step = (hi-lo)/num if num and hi > lo else int(1)
 			else:
 				step = DEFAULT_STEP
 				num  = int((hi-lo)/step)
 
-			truncated_discretized_values[n_ind] = np.arange(lo, hi+1, step).tolist()
+			truncated_discretized_values[n_ind] = [ind*step+lo for ind in range(num+1)]
 
 	return truncated_discretized_values
 
