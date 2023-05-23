@@ -263,7 +263,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 
 	# Build "sum of lead-time demand" distribution (LTD distribution in
 	# which L = sum of all lead times)
-	sum_ltd_dist = demand_source.lead_time_demand_distribution(float(np.sum(L)))
+	sum_ltd_dist = demand_source.lead_time_demand_distribution(sum(L))
 
 	# Get truncation bounds for sum-of-lead-time demand distribution.
 	# If support is finite, use support; otherwise, use F^{-1}(.).
@@ -296,26 +296,44 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		x_hi = sum_ltd_hi
 		# Ensure x >= largest echelon BS level, if provided.
 		if S is not None:
-			x_hi = max(x_hi, max(S, key=S.get))
+			x_hi = max(x_hi, max(S.values()))
 		# Build x range. Is demand distribution discrete?
 		if discrete_distribution:
 			# x_lo and h_hi should already be integers, but cast them anyway.
-			x = np.arange(int(x_lo), int(x_hi) + 1)
-			x_delta = 1
+			x_lo    = round(x_lo)
+			x_delta = int(1)
+			x_num   = round(x_hi-x_lo)
+		elif x_num and x_hi > x_lo:
+			x_lo    = float(x_lo)
+			x_delta = float((x_hi-x_lo)/x_num)
 		else:
-			x_delta = (x_hi - x_lo) / x_num
-			x = np.arange(x_lo, x_hi + x_delta, x_delta)
+			x_lo    = float((x_lo+x_hi)*0.5)
+			x_delta = float(1)
+			x_num   = int()
+		x_hi = x_num*x_delta+x_lo
+		x = np.array([x_ind*x_delta+x_lo for x_ind in range(x_num+1)])
+	elif x.size > 1:
+		x_lo    = np.min(x)
+		x_hi    = np.max(x)
+		x_delta = abs(x[1]-x[0])
+		x_num   = int((x_hi-x_lo)/x_delta)
 	else:
-		x_delta = x[1] - x[0]
+		x_lo    = x[0]
+		x_hi    = x_lo
+		x_delta = int(1)
+		x_num   = int()
 
 	# Extended x array (used for approximate C-hat function).
-	x_ext_lo = np.min(x) - sum_ltd_hi
-	x_ext_hi = np.max(x) + sum_ltd_hi
+	x_ext_num = math.ceil(sum_ltd_hi/x_delta)
 	# x_ext_lo = np.min(x) - (mu * sum(L) +
 	# 						d.max() * sigma * np.sqrt(sum(L)))
 	# x_ext_hi = np.max(x) + (mu * sum(L) +
 	# 						d.max() * sigma * np.sqrt(sum(L)))
-	x_ext = np.arange(x_ext_lo, x_ext_hi, x_delta)
+	x_ext = np.array([x_ext_ind*x_delta+x_lo for x_ext_ind in range(-x_ext_num, x_num+x_ext_num+1)])
+
+	# Index dictionaries to find nearest entry for matching value faster
+	index_x     = {x    [ind]: ind for ind in range(x    .size)}
+	index_x_ext = {x_ext[ind]: ind for ind in range(x_ext.size)}
 
 	# Initialize arrays. (0th element is ignored since we are assuming stages
 	# are numbered starting at 1. C_bar is an exception since C_bar[0] is
@@ -346,7 +364,7 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		# C_hat_lim2 is never used since y-d is never greater than the y range;
 		# however, it is here so it can be plotted.
 		if j > 1:
-			C_hat_lim2[j, :] = h[j] * x_ext + C[j-1, find_nearest(x, S_star[j-1], True)]
+			C_hat_lim2[j, :] = h[j] * x_ext + C[j-1, find_nearest(x, S_star[j-1], True, index_x)]
 		else:
 			C_hat_lim2[j, :] = h[j] * x_ext
 
@@ -356,33 +374,39 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		# Get truncation bounds for lead-time demand distribution.
 		# If support is finite, use support; otherwise, use F^{-1}(.).
 		if ltd_dist.a == float("-inf"):
-			ltd_lo = ltd_dist.ppf(ltd_lower_tail_prob)
+			d_lo = max(ltd_dist.ppf(ltd_lower_tail_prob), float())
 		else:
-			ltd_lo = ltd_dist.interval(1)[0]
+			d_lo = max(ltd_dist.interval(1)[0], float())
 		if ltd_dist.b == float("inf"):
-			ltd_hi = ltd_dist.ppf(1 - ltd_upper_tail_prob)
+			d_hi = max(ltd_dist.ppf(float(1)-ltd_upper_tail_prob), d_lo)
 		else:
-			ltd_hi = ltd_dist.interval(1)[1]
+			d_hi = max(ltd_dist.interval(1)[1], d_lo)
 
 		# Determine d (lead-time demand) array (truncated and discretized).
-		d_lo = ltd_lo
-		d_hi = ltd_hi
 		if discrete_distribution:
-			d = np.arange(int(d_lo), int(d_hi) + 1)
-			d_delta = 1
+			d_lo    = round(d_lo)
+			d_delta = int(1)
+			num     = round(d_hi-d_lo)
+		elif d_num and d_hi > d_lo:
+			d_lo    = float(d_lo)
+			d_delta = float((d_hi-d_lo)/d_num)
+			num     = d_num
 		else:
-			d_delta = (d_hi - d_lo) / d_num
-			d = np.arange(d_lo, d_hi + d_delta, d_delta)
+			d_lo    = float((d_lo+d_hi)*0.5)
+			d_delta = float(1)
+			num     = int()
+		d_hi = num*d_delta+d_lo
+		d = np.array([d_ind*d_delta+d_lo for d_ind in range(num+1) if (ltd_dist.cdf((d_ind+0.5)*d_delta+d_lo) if d_ind != num else float(1)) > (ltd_dist.cdf((d_ind-0.5)*d_delta+d_lo) if d_ind else float())])
 
 		# Calculate discretized cdf array.
-		fd = np.array([ltd_dist.cdf(d_val+d_delta/2) - ltd_dist.cdf(d_val-d_delta/2) for d_val in d])
-#		fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
+		fd = np.array([(ltd_dist.cdf(d[ind]+d_delta*float(0.5)) if ind+1 != d.size else float(1))-(ltd_dist.cdf(d[ind]-d_delta*float(0.5)) if ind else float()) for ind in range(d.size)])
+		#fd = ltd_dist.cdf(d+d_delta/2) - ltd_dist.cdf(d-d_delta/2)
 
 		# Calculate C.
 		for y in x:
 
 			# Get index of closest element of x to y.
-			the_x = find_nearest(x, y, True)
+			the_x = index_x[y]
 
 			# Loop through demands and calculate expected cost.
 			# This method uses the following result (see Problem 6.13):
@@ -397,15 +421,16 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 
 				# Calculate cost -- use approximate value of C-hat if y-d is
 				# outside of x-range.
-				if y_minus_d < np.min(x):
+				if y_minus_d < x_lo:
 					the_cost[d_ind] = \
-						C_hat_lim1[j, find_nearest(x_ext, y_minus_d, True)]
-				elif y_minus_d > np.max(x): # THIS SHOULD NEVER HAPPEN
+						C_hat_lim1[j, find_nearest(x_ext, y_minus_d, True, index_x_ext)]
+				elif y_minus_d > x_hi: # THIS SHOULD NEVER HAPPEN
+					print('WARNING: y > x + d', flush=True)
 					the_cost[d_ind] = \
-						C_hat_lim2[j, find_nearest(x_ext, y_minus_d, True)]
+						C_hat_lim2[j, find_nearest(x_ext, y_minus_d, True, index_x_ext)]
 				else:
 					the_cost[d_ind] = \
-						C_hat[j, find_nearest(x, y_minus_d, True)]
+						C_hat[j, find_nearest(x, y_minus_d, True, index_x)]
 
 			# Calculate expected cost.
 			C[j, the_x] = np.dot(fd, the_cost)
@@ -418,10 +443,10 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		else:
 			# Yes -- use specified S.
 			S_star[j] = S[j]
-		C_star[j] = C[j, find_nearest(x, S_star[j], True)]
+		C_star[j] = C[j, find_nearest(x, S_star[j], True, index_x)]
 
 		# Calculate C_bar
-		C_bar[j, :] = C[j, find_nearest(x, np.minimum(S_star[j], x), True)]
+		C_bar[j, :] = C[j, find_nearest(x, np.minimum(S_star[j], x), True, index_x)]
 
 	# Plot functions.
 	if plots:
@@ -431,8 +456,8 @@ def optimize_base_stock_levels(num_nodes=None, node_order_in_system=None, node_o
 		axes[0, 0].set_title('C-hat')
 		axes[0, 0].legend(list(map(str, range(1, N+1))))
 		k = N
-		axes[0, 0].plot(x, C_hat_lim1[k, find_nearest(x_ext, x)], ':')
-		axes[0, 0].plot(x, C_hat_lim2[k, find_nearest(x_ext, x)], ':')
+		axes[0, 0].plot(x, C_hat_lim1[k, find_nearest(x_ext, x, True, index_x_ext)], ':')
+		axes[0, 0].plot(x, C_hat_lim2[k, find_nearest(x_ext, x, True, index_x_ext)], ':')
 		# C_bar.
 		axes[0, 1].plot(x, np.transpose(C_bar))
 		axes[0, 1].set_title('C-bar')
@@ -916,7 +941,7 @@ def _preprocess_parameters(num_nodes=None, node_order_in_system=None, node_order
 	demand_source = local_network.get_node_from_index(1).demand_source
 	
 	# Validate more parameters.
-	if not all(echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
+	if any(c is None for c in echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")
 	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
 	if not all(lead_time_dict.values()): raise ValueError("lead_time cannot be None for any node")
 	if any(l < 0 for l in lead_time_dict.values()): raise ValueError("lead_time must be non-negative for every node")
