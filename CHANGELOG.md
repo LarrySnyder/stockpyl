@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check to make sure that a node's ``inventory_policy`` attribute is set, and that the ``Policy`` object's ``node`` attribute is set to the node
 - Set the ``Policy`` object's ``node`` attribute automatically when setting the node's ``inventory_policy`` to it 
 
+### Changed
+- Changes to ``optimize_base_stock_levels()`` in ``ssm_serial`` that result in large speedups in some cases (via @DominikKamp)
+- Minor edits to documentation
+
 ## [0.0.14] -- 2022-08-17
 
 ### Fixed

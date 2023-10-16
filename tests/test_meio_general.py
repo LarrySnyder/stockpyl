@@ -235,7 +235,7 @@ class TestMEIOByEnumeration(unittest.TestCase):
 												progress_bar=False, print_solutions=False)
 
 		self.assertDictEqual(best_S, {3: 11, 2: 5, 1: 7})
-		self.assertAlmostEqual(best_cost, 48.396016245503965)
+		self.assertAlmostEqual(best_cost, 48.39840066304044)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByEnumeration.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_rong_atan_snyder_figure_1a(self):
@@ -352,7 +352,7 @@ class TestMEIOByCoordinateDescent(unittest.TestCase):
 		self.assertAlmostEqual(best_S[1], 6.696779017720067)
 		self.assertAlmostEqual(best_S[2], 5.599667676934946)
 		self.assertAlmostEqual(best_S[3], 10.793908944672346)
-		self.assertAlmostEqual(best_cost, 47.772223377786524)
+		self.assertAlmostEqual(best_cost, 47.77466134840843)
 
 	@unittest.skipUnless(RUN_ALL_TESTS, "TestMEIOByCoordinateDescent.test_rong_atan_snyder_figure_1a skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_rong_atan_snyder_figure_1a(self):

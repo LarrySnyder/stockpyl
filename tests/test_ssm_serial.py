@@ -60,7 +60,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 #		correct_S_star = [0, 6.514438807325977, 12.232248034454390, 22.788203530691469]	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
-		self.assertAlmostEqual(C_star, 47.772223377786524, places=5)
+		self.assertAlmostEqual(C_star, 47.77466134840843, places=5)
 #		self.assertAlmostEqual(C_star, 47.820555075345887, places=5)
 
 	def test_example_6_1_from_network(self):
@@ -83,7 +83,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 #		correct_S_star = [0, 6.514438807325977, 12.232248034454390, 22.788203530691469]	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
-		self.assertAlmostEqual(C_star, 47.772223377786524, places=5)
+		self.assertAlmostEqual(C_star, 47.77466134840843, places=5)
 #		self.assertAlmostEqual(C_star, 47.820555075345887, places=5)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		
 	def test_example_6_1_alternate_indexing(self):
@@ -99,7 +99,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		node3 = instance.get_node_from_index(3)
 		correct_S_star = [0, 6.599662958019763, 11.99662958019757, 22.790562824553184]
 #		correct_S_star = [0, 6.514438807325977, 12.232248034454390, 22.788203530691469]	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
-		correct_C_star = 47.772223377786524
+		correct_C_star = 47.77466134840843
 #		correct_C_star = 47.820555075345887
 
 		S_star, C_star = optimize_base_stock_levels(num_nodes=3,
@@ -212,7 +212,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 #		correct_S_star = [0, 1.241618472110342e2, 2.286691776877441e2]	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=5)
-		self.assertAlmostEqual(C_star,170.27601527100376, places=5)
+		self.assertAlmostEqual(C_star, 170.28476581233167, places=5)
 #		self.assertAlmostEqual(C_star, 1.676947889401860e+02, places=5)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_problem_6_2a(self):
@@ -240,7 +240,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 #		correct_S_star = [0, 39.7915536774345, 77.1934831561084, 111.478585178226, 142.646859743788, 173.815134309349]	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
-		self.assertAlmostEqual(C_star, 457.5605855475695, places=4)
+		self.assertAlmostEqual(C_star, 457.58007479275113, places=4)
 #		self.assertAlmostEqual(C_star, 4.584970628129348e+02, places=4)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_problem_6_2b(self):
@@ -262,7 +262,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		correct_S_star = {5: 174, 4: 142, 3: 109, 2: 74, 1: 41}
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
-		self.assertAlmostEqual(C_star, 453.61978213342144, places=4)
+		self.assertAlmostEqual(C_star, 453.6855978910213, places=4)
 #		self.assertAlmostEqual(C_star, 453.61978213342144, places=4)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_example_6_1_uniform(self):
@@ -327,7 +327,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			S=None, plots=False)
 		correct_S_star = {1: 9, 2: 15, 3: 26}
 		self.assertDictEqual(S_star, correct_S_star)
-		self.assertAlmostEqual(C_star, 72.02506008691718, places=5)
+		self.assertAlmostEqual(C_star, 72.0435433050749, places=5)
 #		self.assertAlmostEqual(C_star, 72.02506008691718, places=5)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_problem_6_16(self):
@@ -349,7 +349,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 #		correct_S_star = {2: 235.03951973066145, 1: 170.59486475174154}	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		for n in instance.node_indices:
 			self.assertAlmostEqual(S_star[n], correct_S_star[n], places=4)
-		self.assertAlmostEqual(C_star, 451.64228299196367, places=4)
+		self.assertAlmostEqual(C_star, 451.6549665069653, places=4)
 #		self.assertAlmostEqual(C_star, 442.21079081028773, places=4)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_shang_song_instances(self):
@@ -810,7 +810,7 @@ class TestExpectedCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 402.3283701599232)
+		self.assertAlmostEqual(cost, 402.3432419162113)
 #		self.assertAlmostEqual(cost, 4.025320847013973e+02)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
@@ -819,7 +819,7 @@ class TestExpectedCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 320.67009464329567)
+		self.assertAlmostEqual(cost, 320.6804885397852)
 #		self.assertAlmostEqual(cost, 3.227131745107600e+02)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
@@ -828,7 +828,7 @@ class TestExpectedCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 633.4081507257811)
+		self.assertAlmostEqual(cost, 631.0057613782569)
 #		self.assertAlmostEqual(cost, 6.292579915269251e+02)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_problem_6_1(self):
@@ -846,7 +846,7 @@ class TestExpectedCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 168.52358458292704)
+		self.assertAlmostEqual(cost, 168.53138639129807)
 #		self.assertAlmostEqual(cost, 1.693611203524711e+02)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 50, 2: 125}
@@ -855,7 +855,7 @@ class TestExpectedCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 1219.2457187248913)
+		self.assertAlmostEqual(cost, 1219.2749858854334)
 #		self.assertAlmostEqual(cost, 1.218952430250280e+03)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 75, 2: 50}
@@ -864,7 +864,7 @@ class TestExpectedCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 2372.702236149203)
+		self.assertAlmostEqual(cost, 2372.8522046052517)
 #		self.assertAlmostEqual(cost, 2.378816200366911e+03)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 
@@ -896,7 +896,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 29.9480207213747)
+		self.assertAlmostEqual(cost, 29.94926804079309)
 #		self.assertAlmostEqual(cost, 29.979059977933002)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 10, 2: 10, 3: 12}
@@ -905,7 +905,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 29.948524467106076)
+		self.assertAlmostEqual(cost, 29.94946588408094)
 #		self.assertAlmostEqual(cost, 30.013403869820511)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 3, 2: -1, 3: 4}
@@ -914,7 +914,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 30.18420664526969)
+		self.assertAlmostEqual(cost, 29.949464010124)
 #		self.assertAlmostEqual(cost, 29.986925977144374)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 	def test_problem_6_1(self):
@@ -932,7 +932,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 153.5297367534663)
+		self.assertAlmostEqual(cost, 153.53208747149978)
 #		self.assertAlmostEqual(cost, 1.526476024969551e+02)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 50, 2: 125}
@@ -941,7 +941,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 100.34756744651914)
+		self.assertAlmostEqual(cost, 100.34966244137183)
 #		self.assertAlmostEqual(cost, 1.002946042252444e+02)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 		S_echelon = {1: 75, 2: 50}
@@ -950,7 +950,7 @@ class TestExpectedHoldingCost(unittest.TestCase):
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			sum_ltd_upper_tail_prob=1-stats.norm.cdf(4))
-		self.assertAlmostEqual(cost, 99.99400689760522)
+		self.assertAlmostEqual(cost, 100.00285706997458)
 #		self.assertAlmostEqual(cost, 99.997129696149514)	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 
 

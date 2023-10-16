@@ -31,4 +31,5 @@ python:
       path: .
 #      extra_requirements:
 #        - docs
-  system_packages: true
+# Removed 10/16/23, see https://blog.readthedocs.com/drop-support-system-packages/
+#  system_packages: true
