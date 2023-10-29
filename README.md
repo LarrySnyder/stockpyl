@@ -17,6 +17,8 @@ Most of the models and algorithms implemented in Stockpyl are discussed in the t
 *Fundamentals of Supply Chain Theory* (*FoSCT*) by Snyder and Shen, Wiley, 2019, 2nd ed. Most of them
 are much older; see *FoSCT* for references to original sources. 
 
+For a tutorial, see Snyder, L. V., "[Stockpyl: A Python Package for Inventory Optimization and Simulation](https://pubsonline.informs.org/doi/10.1287/educ.2023.0256)," in: Bish, E. K. and H. Balasubramanian, INFORMS TutORials in Operations Research, 156–197, 2023. The associated Jupyter notebooks are at [`notebooks/`](https://github.com/LarrySnyder/stockpyl/blob/c41103ca2055138f8f9844d29b3ab8ac67c847d5/notebooks).
+
 For lots of details, [read the docs](http://stockpyl.readthedocs.io/).
 
 Some Examples
@@ -102,7 +104,7 @@ If you'd like to cite the Stockpyl package, you can use the following BibTeX ent
 @misc{stockpyl,
     title={Stockpyl},
     author={Snyder, Lawrence V.},
-    year={2022},
+    year={2023},
     url={https://github.com/LarrySnyder/stockpyl}
 }
 ```

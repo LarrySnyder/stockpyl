@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Check to make sure that a node's ``inventory_policy`` attribute is set, and that the ``Policy`` object's ``node`` attribute is set to the node
 - Set the ``Policy`` object's ``node`` attribute automatically when setting the node's ``inventory_policy`` to it 
+- Tutorial, in Jupyter notebook form, to accompany Snyder, L. V., "[Stockpyl: A Python Package for Inventory Optimization and Simulation](https://pubsonline.informs.org/doi/10.1287/educ.2023.0256)," in: Bish, E. K. and H. Balasubramanian, INFORMS TutORials in Operations Research, 156–197, 2023
 
 ### Changed
 - Changes to ``optimize_base_stock_levels()`` in ``ssm_serial`` that result in large speedups in some cases (via @DominikKamp)
-- Minor edits to documentation
+- Minor edits to documentation and README
+
+### Fixed
+- Error in unit tests for ``meio_general.truncate_and_discretize()``
 
 ## [0.0.14] -- 2022-08-17
 
