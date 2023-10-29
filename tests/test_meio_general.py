@@ -98,7 +98,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		print_status('TestTruncateAndDiscretize', 'test_num_as_dict()')
 
 		network = load_instance("example_6_1")
-		num = {1: 11, 2: 51, 3: 101}
+		num = {1: 10, 2: 50, 3: 100}
 
 		td_dict = meio_general.truncate_and_discretize(network.node_indices, discretization_num=num)
 
@@ -111,7 +111,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		print_status('TestTruncateAndDiscretize', 'test_num_as_int()')
 
 		network = load_instance("example_6_1")
-		num = 26
+		num = 25
 
 		td_dict = meio_general.truncate_and_discretize(network.node_indices, discretization_num=num)
 
@@ -125,7 +125,7 @@ class TestTruncateAndDiscretize(unittest.TestCase):
 		print_status('TestTruncateAndDiscretize', 'test_dict_of_nones()')
 
 		network = load_instance("example_6_1")
-		num = 26
+		num = 25
 		values = {i: None for i in network.node_indices}
 
 		td_dict = meio_general.truncate_and_discretize(network.node_indices, values=values, discretization_num=num)
