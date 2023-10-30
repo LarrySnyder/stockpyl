@@ -117,7 +117,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	"""
 
-	# Build list of results strings
+	# Build lists of results strings.
 	results = []
 
 	# Determine periods to print.
@@ -160,7 +160,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			ISPL_temp = sort_dict_by_keys(node.state_vars[t].inbound_shipment_pipeline)
 			ISPL = [x[1:] for x in ISPL_temp]
 			# Build row.
-			temp += ['']
+			temp += ['|']
 			if 'DISR'	in cols_to_print: temp += [node.state_vars[t].disrupted]
 			if 'IO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_order) 
 			if 'IOPL'	in cols_to_print: temp += IOPL
@@ -189,7 +189,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 	headers = ["t"]
 	for ind in sorted_nodes:
 		node = network.get_node_from_index(ind)
-		headers = headers + ["i={:d}".format(node.index)] 
+		headers = headers + ["| i={:d}".format(node.index)] 
 		if 'DISR'	in cols_to_print: headers += ['DISR']
 		if 'IO'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_order, "IO")
 		if 'IOPL'	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
@@ -224,6 +224,15 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Write results to CSV file, if requested.
 	if write_csv:
+		# Remove vertical bars -- these look good in the txt but not the csv.
+		for i in range(len(headers)):
+			headers[i] = headers[i].replace('| ', '') # has no effect if '| ' is not in the entry
+		for r in results:
+			for i in range(len(r)):
+				if r[i] == '|':
+					r[i] = ''
+
+		# Write file.
 		with open(csv_filename, 'w') as csvFile:
 			writer = csv.writer(csvFile)
 			writer.writerow(headers)
