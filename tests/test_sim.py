@@ -2,12 +2,12 @@ import unittest
 import random
 import filecmp
 
-from instances_T import *
-from sim_T import *
-from sim_io_T import write_results
-from supply_chain_network_T import local_to_echelon_base_stock_levels
-from policy import *
-from disruption_process import DisruptionProcess
+from stockpyl.instances import *
+from stockpyl.sim import *
+from stockpyl.sim_io import write_results
+from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
+from stockpyl.policy import *
+from stockpyl.disruption_process import DisruptionProcess
 
 class MyTestCase(unittest.TestCase):
     def test_addition(self):
