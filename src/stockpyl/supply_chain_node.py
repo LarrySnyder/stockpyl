@@ -51,8 +51,7 @@ import math
 from stockpyl import policy
 from stockpyl import demand_source
 from stockpyl import disruption_process
-
-from helpers_IC import *
+from stockpyl.helpers import change_dict_key, is_integer, is_list
 
 
 # ===============================================================================
