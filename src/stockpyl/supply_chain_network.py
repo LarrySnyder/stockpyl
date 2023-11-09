@@ -38,13 +38,13 @@ import numpy as np
 # import json
 import copy
 
-# import supply_chain_node
-from supply_chain_node_T import SupplyChainNode
-from demand_source_T import DemandSource
-from policy_T import Policy
-from disruption_process_T import DisruptionProcess
-from helpers_T import is_list, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
-from helpers_T import build_node_data_dict
+#import supply_chain_node
+from stockpyl.supply_chain_node import SupplyChainNode
+from stockpyl.demand_source import DemandSource
+from stockpyl.policy import Policy
+from stockpyl.disruption_process import DisruptionProcess
+from stockpyl.helpers import is_list, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
+from stockpyl.helpers import build_node_data_dict
 
 
 # ===============================================================================
