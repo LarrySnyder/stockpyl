@@ -9,16 +9,6 @@ from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
 from stockpyl.policy import *
 from stockpyl.disruption_process import DisruptionProcess
 
-class MyTestCase(unittest.TestCase):
-    def test_addition(self):
-        self.assertEqual(2 + 2, 4)
-
-    def test_subtraction(self):
-        self.assertEqual(5 - 3, 2)
-
-    def test_multiplication(self):
-        self.assertEqual(5*7, 35)
-
 # Module-level functions.
 
 def print_status(class_name, function_name):
