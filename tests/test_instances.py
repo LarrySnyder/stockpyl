@@ -248,6 +248,40 @@ class SaveInstance(unittest.TestCase):
 		# Compare.
 		self.assertDictEqual(saved_json, correct_json)
 
+	def test_example_6_1_with_order_capacity(self):
+		"""Test that save_instance() correctly saves Example 6.1 with a few order capacities.
+		"""
+		print_status('SaveInstance', 'test_example_6_1_with_order_capacity()')
+
+		# Load.
+		instance = instances.load_instance('example_6_1')
+		instance.get_node_from_index(1).order_capacity = 40
+		instance.get_node_from_index(3).order_capacity = 25
+
+		# Save.
+		temp_filename = 'tests/additional_files/temp_TestSaveInstance_example_6_1_with_order_capacity.json'
+		instances.save_instance(
+			instance_name='test_example_6_1_with_order_capacity',
+			instance_data=instance,
+			instance_description='this is test_example_6_1_with_order_capacity',
+			filepath=temp_filename
+		)
+
+		# Load saved JSON and correct JSON.
+		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_with_order_capacity_correct.json'
+		with open(temp_filename) as f:
+			saved_json = json.load(f)
+			os.remove(temp_filename)
+		with open(correct_contents_filename) as f:
+			correct_json = json.load(f)
+
+		# Remove the timestamp entry.
+		del saved_json['last_updated']
+		del correct_json['last_updated']
+
+		# Compare.
+		self.assertDictEqual(saved_json, correct_json)
+
 	def test_figure_6_14(self):
 		"""Test that save_instance() correctly saves Figure 6.14.
 		"""

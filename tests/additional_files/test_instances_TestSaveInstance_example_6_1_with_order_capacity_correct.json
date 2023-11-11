@@ -2,154 +2,28 @@
 	"_id": "",
 	"instances": [
 		{
-			"name": "test_omit_state_vars_true",
-			"description": "this is test_omit_state_vars_true",
+			"name": "test_example_6_1_with_order_capacity",
+			"description": "this is test_example_6_1_with_order_capacity",
 			"data": {
 				"nodes": [
 					{
-						"index": 5,
+						"index": 3,
 						"name": null,
 						"network": null,
 						"_predecessors": [
 							null
 						],
 						"_successors": [
-							4
-						],
-						"local_holding_cost": 3.5,
-						"echelon_holding_cost": null,
-						"local_holding_cost_function": null,
-						"in_transit_holding_cost": null,
-						"stockout_cost": 0,
-						"stockout_cost_function": null,
-						"revenue": null,
-						"shipment_lead_time": 1,
-						"order_lead_time": null,
-						"demand_source": {
-							"type": null,
-							"mean": null,
-							"standard_deviation": null,
-							"demand_list": null,
-							"probabilities": null,
-							"lo": null,
-							"hi": null,
-							"round_to_int": null
-						},
-						"initial_inventory_level": null,
-						"initial_orders": null,
-						"initial_shipments": null,
-						"_inventory_policy": {
-							"type": "BS",
-							"node": 5,
-							"base_stock_level": 32.93,
-							"order_quantity": null,
-							"reorder_point": null,
-							"order_up_to_level": null
-						},
-						"supply_type": "U",
-						"order_capacity": null,
-						"disruption_process": {
-							"random_process_type": null,
-							"disruption_type": "OP",
-							"disruption_probability": null,
-							"recovery_probability": null,
-							"disruption_state_list": null,
-							"disrupted": false
-						},
-						"processing_time": null,
-						"external_inbound_cst": null,
-						"external_outbound_cst": null,
-						"demand_bound_constant": null,
-						"units_required": null,
-						"original_label": null,
-						"net_demand_mean": null,
-						"net_demand_standard_deviation": null,
-						"larger_adjacent_node": null,
-						"larger_adjacent_node_is_downstream": null,
-						"max_replenishment_time": null,
-						"state_vars": null
-					},
-					{
-						"index": 4,
-						"name": null,
-						"network": null,
-						"_predecessors": [
-							5
-						],
-						"_successors": [
-							3
-						],
-						"local_holding_cost": 2.5,
-						"echelon_holding_cost": null,
-						"local_holding_cost_function": null,
-						"in_transit_holding_cost": null,
-						"stockout_cost": 0,
-						"stockout_cost_function": null,
-						"revenue": null,
-						"shipment_lead_time": 1,
-						"order_lead_time": null,
-						"demand_source": {
-							"type": null,
-							"mean": null,
-							"standard_deviation": null,
-							"demand_list": null,
-							"probabilities": null,
-							"lo": null,
-							"hi": null,
-							"round_to_int": null
-						},
-						"initial_inventory_level": null,
-						"initial_orders": null,
-						"initial_shipments": null,
-						"_inventory_policy": {
-							"type": "BS",
-							"node": 4,
-							"base_stock_level": 33.3,
-							"order_quantity": null,
-							"reorder_point": null,
-							"order_up_to_level": null
-						},
-						"supply_type": null,
-						"order_capacity": null,
-						"disruption_process": {
-							"random_process_type": null,
-							"disruption_type": "OP",
-							"disruption_probability": null,
-							"recovery_probability": null,
-							"disruption_state_list": null,
-							"disrupted": false
-						},
-						"processing_time": null,
-						"external_inbound_cst": null,
-						"external_outbound_cst": null,
-						"demand_bound_constant": null,
-						"units_required": null,
-						"original_label": null,
-						"net_demand_mean": null,
-						"net_demand_standard_deviation": null,
-						"larger_adjacent_node": null,
-						"larger_adjacent_node_is_downstream": null,
-						"max_replenishment_time": null,
-						"state_vars": null
-					},
-					{
-						"index": 3,
-						"name": null,
-						"network": null,
-						"_predecessors": [
-							4
-						],
-						"_successors": [
 							2
 						],
-						"local_holding_cost": 1.5,
-						"echelon_holding_cost": null,
+						"local_holding_cost": 2,
+						"echelon_holding_cost": 2,
 						"local_holding_cost_function": null,
 						"in_transit_holding_cost": null,
 						"stockout_cost": 0,
 						"stockout_cost_function": null,
 						"revenue": null,
-						"shipment_lead_time": 1,
+						"shipment_lead_time": 2,
 						"order_lead_time": null,
 						"demand_source": {
 							"type": null,
@@ -167,13 +41,13 @@
 						"_inventory_policy": {
 							"type": "BS",
 							"node": 3,
-							"base_stock_level": 35.14,
+							"base_stock_level": 10.69,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
-						"supply_type": null,
-						"order_capacity": null,
+						"supply_type": "U",
+						"order_capacity": 25,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -205,8 +79,8 @@
 						"_successors": [
 							1
 						],
-						"local_holding_cost": 1.0,
-						"echelon_holding_cost": null,
+						"local_holding_cost": 4,
+						"echelon_holding_cost": 2,
 						"local_holding_cost_function": null,
 						"in_transit_holding_cost": null,
 						"stockout_cost": 0,
@@ -230,7 +104,7 @@
 						"_inventory_policy": {
 							"type": "BS",
 							"node": 2,
-							"base_stock_level": 33.87,
+							"base_stock_level": 5.53,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
@@ -268,19 +142,19 @@
 						"_successors": [
 							null
 						],
-						"local_holding_cost": 0.5,
-						"echelon_holding_cost": null,
+						"local_holding_cost": 7,
+						"echelon_holding_cost": 3,
 						"local_holding_cost_function": null,
 						"in_transit_holding_cost": null,
-						"stockout_cost": 12.0,
+						"stockout_cost": 37.12,
 						"stockout_cost_function": null,
 						"revenue": null,
 						"shipment_lead_time": 1,
 						"order_lead_time": null,
 						"demand_source": {
-							"type": "P",
-							"mean": 32.0,
-							"standard_deviation": null,
+							"type": "N",
+							"mean": 5,
+							"standard_deviation": 1,
 							"demand_list": null,
 							"probabilities": null,
 							"lo": null,
@@ -293,13 +167,13 @@
 						"_inventory_policy": {
 							"type": "BS",
 							"node": 1,
-							"base_stock_level": 40.59,
+							"base_stock_level": 6.49,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
 						"supply_type": null,
-						"order_capacity": null,
+						"order_capacity": 40,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -322,7 +196,7 @@
 						"state_vars": null
 					}
 				],
-				"period": 24,
+				"period": 0,
 				"max_max_replenishment_time": null
 			},
 			"type": "network"

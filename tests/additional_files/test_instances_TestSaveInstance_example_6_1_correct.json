@@ -47,6 +47,7 @@
 							"order_up_to_level": null
 						},
 						"supply_type": "U",
+						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -109,6 +110,7 @@
 							"order_up_to_level": null
 						},
 						"supply_type": null,
+						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -171,6 +173,7 @@
 							"order_up_to_level": null
 						},
 						"supply_type": null,
+						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
