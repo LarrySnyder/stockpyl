@@ -12,9 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check to make sure that a node's ``inventory_policy`` attribute is set, and that the ``Policy`` object's ``node`` attribute is set to the node
 - Set the ``Policy`` object's ``node`` attribute automatically when setting the node's ``inventory_policy`` to it 
 - Ability to print simulation output table to text file (in addition to CSV option)
+- ``order_capacity`` attribute for ``SupplyChainNode``, which is respected in simulation
 
 ### Changed
 - Changes to ``optimize_base_stock_levels()`` in ``ssm_serial`` that result in large speedups in some cases (via @DominikKamp)
+- Add vertical line between nodes in simulation output to make it easier to separate nodes visually
 - Minor edits to documentation and README
 
 ### Fixed
