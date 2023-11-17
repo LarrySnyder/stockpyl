@@ -400,7 +400,11 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
                 order_quantity = 0
             else:
                 # Calculate order quantity.
-                order_quantity = node.inventory_policy.get_order_quantity(predecessor_index=None)
+		if node.order_capacity is None:
+                    order_capac = 1.0e300
+                else:
+                    order_capac = node.order_capacity
+                order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=None))
 
             # Place order to external supplier.
             # (For now, this just means adding to inbound shipment pipeline.)
