@@ -385,8 +385,6 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
                     order_capac = node.order_capacity
                 order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=p.index))
 
-
-                #print(node.order_capacity)
             # Place order in predecessor's order pipeline.
             p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = order_quantity
             p_index = p.index
@@ -400,7 +398,7 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
                 order_quantity = 0
             else:
                 # Calculate order quantity.
-		if node.order_capacity is None:
+                if node.order_capacity is None:
                     order_capac = 1.0e300
                 else:
                     order_capac = node.order_capacity
