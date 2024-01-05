@@ -146,6 +146,28 @@ class TestsSOptimalsS(unittest.TestCase):
 		self.assertEqual(S, 7)
 		self.assertAlmostEqual(g, 2.235748295669688e+02)
 
+	def test_problem_4_31_custom_pmf(self):
+		"""Test that s_s_discrete_exact() function solves Problem 4.31 when demand distribution
+		is provided as a demand_pmf object. (There was a bug that made this break; see https://github.com/LarrySnyder/stockpyl/issues/132.)
+		"""
+		print_status('TestsSOptimalsS', 'test_problem_4_31_custom_pmf()')
+
+		instance = load_instance("problem_4_31")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+
+		# Build demand_pmf.
+		demand_hi = 50
+		demand_pmf = [poisson.pmf(n, demand_mean) for n in range(demand_hi+1)]
+		s, S, g = s_s_discrete_exact(holding_cost, stockout_cost,
+									fixed_cost, use_poisson=False, demand_hi=demand_hi, demand_pmf=demand_pmf)
+		
+		self.assertEqual(s, 2)
+		self.assertEqual(S, 7)
+		self.assertAlmostEqual(g, 2.235748295669688e+02)
+
 #	@unittest.skipUnless(RUN_ALL_TESTS, "TestsSOptimaltest_fz_instances skipped for speed; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_fz_instances(self):
 		"""Test Zheng and Federgruen (1991) instances.

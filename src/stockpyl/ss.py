@@ -290,8 +290,8 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 	S_hat = S0
 	s_hat = s0
 	g_hat = s_s_cost_discrete(s_hat, S_hat, holding_cost, stockout_cost,
-							  fixed_cost, use_poisson, demand_mean,
-							  demand_pmf_dict)
+							  fixed_cost, use_poisson, demand_mean, demand_hi,
+							  demand_pmf)
 
 	# Choose next order-up-to level to consider.
 	S = S_hat + 1
