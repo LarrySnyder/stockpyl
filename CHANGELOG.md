@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor edits to documentation and README
 
 ### Fixed
+- Incorrect handling of custom demand distributions in ``ss.s_s_discrete_exact()``
 - Error in unit tests for ``meio_general.truncate_and_discretize()``
 
 ## [0.0.14] -- 2022-08-17

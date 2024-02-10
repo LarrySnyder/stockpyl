@@ -111,6 +111,8 @@ class SupplyChainNode(object):
             * None
             * 'U': unlimited
 
+    order_capacity : float
+        Maximum size of an order.
     disruption_process : |class_disruption_process|
         Disruption process object (if any).
     state_vars : list of |class_state_vars|
