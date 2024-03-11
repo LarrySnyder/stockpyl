@@ -70,6 +70,9 @@ class Policy(object):
 
 	node : |class_node|
 		The node the policy refers to.
+	product : |class_product|, optional
+		The product the policy refers to. The product must be handled by ``node``. Set to ``None``
+		for single-product models.
 	base_stock_level : float, optional
 		The base-stock level used by the policy, if applicable. Required if ``type`` == 'BS',
 		'EBS', or 'BEBS'.
@@ -103,6 +106,7 @@ class Policy(object):
 	_DEFAULT_VALUES = {
 		'_type': None,
 		'_node': None,
+		'_product': None,
 		'_base_stock_level': None,
 		'_order_quantity': None,
 		'_reorder_point': None,
@@ -173,6 +177,14 @@ class Policy(object):
 	@node.setter
 	def node(self, value):
 		self._node = value
+	
+	@property
+	def product(self):
+		return self._product
+
+	@product.setter
+	def product(self, value):
+		self._product = value
 
 	@property
 	def base_stock_level(self):
@@ -276,8 +288,8 @@ class Policy(object):
 	# CONVERTING TO/FROM DICTS
 
 	def to_dict(self):
-		"""Convert the |class_policy| object to a dict. The ``node`` attribute is set
-		to the index of the node (if any), rather than to the object.
+		"""Convert the |class_policy| object to a dict. The ``node`` and ``product`` attributes are set
+		to the indices of the node and product (if any), rather than to the objects.
 
 		Returns
 		-------
@@ -292,6 +304,9 @@ class Policy(object):
 			if attr == '_node':
 				# Use index only.
 				pol_dict['node'] = None if self.node is None else self.node.index
+			elif attr == '_product':
+				# Use index only.
+				pol_dict['product'] = None if self.product is None else self.product.index
 			else:
 				# Remove leading '_' to get property names.
 				prop = attr[1:] if attr[0] == '_' else attr
@@ -302,9 +317,10 @@ class Policy(object):
 	@classmethod
 	def from_dict(cls, the_dict):
 		"""Return a new |class_policy| object with attributes copied from the
-		values in ``the_dict``. The ``node`` attribute is set to the index of the node,
-		like it is in the dict, but should be converted to a node object if this
-		function is called recursively from a |class_node|'s ``from_dict()`` method.
+		values in ``the_dict``. The ``node`` and ``product'' attributes are set to the indices
+		of the node and product, like they are in the dict, but should be converted to |class_node|
+		and |class_product| objects if this function is called recursively from a |class_node|'s 
+		``from_dict()`` method.
 
 		Parameters
 		----------
@@ -316,11 +332,9 @@ class Policy(object):
 		Policy
 			The object converted from the dict.
 		"""
-		if the_dict is None:
-			pol = cls()
-		else:
-			# Build empty Policy.
-			pol = cls()
+		# Build empty Policy.
+		pol = cls()
+		if the_dict is not None:
 			# Fill attributes.
 			for attr in cls._DEFAULT_VALUES.keys():
 				# Remove leading '_' to get property names.
@@ -335,18 +349,19 @@ class Policy(object):
 
 	# ORDER QUANTITY METHODS
 
-	def get_order_quantity(self, predecessor_index=None, inventory_position=None,
+	def get_order_quantity(self, predecessor_index=None, predecessor_product_index=None, inventory_position=None,
 						   echelon_inventory_position_adjusted=None):
 		"""Calculate order quantity using the policy type specified in ``type``.
 		If ``type`` is ``None``, return ``None``.
 
 		The method obtains the necessary state variables (typically inventory position,
-		and sometimes others) from ``self.node.network``.
+		and sometimes others) from ``self.node.network``. The order quantity is set using the
+		bill of materials structure for the node/product.
 
 		If ``inventory_position`` (and ``echelon_inventory_position_adjusted``, for
 		balanced echelon base-stock policies) are provided, they will override the
 		values indicated by the node's current state variables. This allows the
-		policy to be queried for an order quantity even if no node or network are
+		policy to be queried for an order quantity even if no node/product or network are
 		provided or have no state variables objects. If ``inventory_position``
 		and ``echelon_inventory_position_adjusted`` are omitted
 		(which is the typical use case), the current state variables will be used.
@@ -357,6 +372,11 @@ class Policy(object):
 			The predecessor for which the order quantity should be calculated.
 			Use ``None`` for external supplier, or if node has only one predecessor
 			(including external supplier).
+		predecessor_product_index : int, optional
+			The product at the predecessor for which the order quantity should be calculated.
+			Use ``None`` if the predecessor is the external supplier. If the predecessor
+			has only one product, ``predecessor_product_index`` can be set to ``None`` or to the
+			index of that product.
 		inventory_position : float, optional
 			Inventory position immediately before order is placed (after demand is subtracted).
 			If provided, the policy will use this IP instead of the IP indicated by the
@@ -374,8 +394,8 @@ class Policy(object):
 		Raises
 		------
 		AttributeError
-			If the policy's ``node`` attribute is ``None`` and ``inventory_position`` or other required
-			state variables are ``None``.
+			If the policy's ``node`` attribute (or ``product`` attribute, if ``node`` is multi-product)
+			is ``None`` and ``inventory_position`` or other required state variables are ``None``.
 		"""
 		if self.type is None:
 			return None
@@ -389,8 +409,12 @@ class Policy(object):
 				IP = None
 			else:
 				# Make sure node attribute is set or inventory_position is provided.
-				if self.node is None and inventory_position is None:
+				# TODO: adjust error message for multi-product?
+				if self.node is None:
 					raise AttributeError("You must either provide inventory_position or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
+				if self.node.is_multproduct and self.product is None:
+					raise AttributeError("You must either provide inventory_position or set the product attribute of the Policy object to the product that it refers to (since the node is multi-product). (Usually this shoudl be done when you first creat the Policy object.)")
+# TODO: stopped here
 
 				# Calculate total demand (inbound orders), including successor nodes and
 				# external demand.

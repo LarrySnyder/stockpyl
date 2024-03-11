@@ -30,6 +30,7 @@
 
 .. |class_network| replace:: :class:`~stockpyl.supply_chain_network.SupplyChainNetwork`
 .. |class_node| replace:: :class:`~stockpyl.supply_chain_node.SupplyChainNode`
+.. |class_product| replace:: :class:`~stockpyl.supply_chain_node.SupplyChainProduct`
 .. |class_state_vars| replace:: :class:`~stockpyl.supply_chain_network.NodeStateVars`
 .. |class_demand_source| replace:: :class:`~stockpyl.demand_source.DemandSource`
 .. |class_disruption_process| replace:: :class:`~stockpyl.disruption_process.DisruptionProcess`

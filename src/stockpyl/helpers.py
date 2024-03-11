@@ -150,9 +150,26 @@ def is_list(x):
 	return isinstance(x, list)
 
 
+def is_dict(x):
+	"""Determine whether x is a dict.
+
+	Parameters
+	----------
+	x : any
+		Object to test for dict-ness.
+
+	Returns
+	-------
+	bool
+		``True`` if ``x`` is a dict, ``False`` otherwise.
+
+	"""
+	return isinstance(x, dict)
+
+
 def is_integer(x):
-	"""Determine whether ``x`` is an integer. Return ``False`` if ``x`` is not a float,
-	or is a non-integer float, or is an int.
+	"""Determine whether ``x`` is an integer. Return ``True`` if ``x`` is an int,
+	or a float that evaluates to an integer, ``False`` otherwise.
 
 	Parameters
 	----------
@@ -177,6 +194,31 @@ def is_integer(x):
 			return False
 	else:
 		return False
+
+
+def is_numeric_string(s):
+	"""Determine whether ``s`` is a string that represents a number. 
+
+	Parameters
+	----------
+	s : str
+		String to check for integrality.
+
+	Returns
+	-------
+	bool
+		``True`` if ``s`` represents a number, ``False`` otherwise.
+
+	"""
+	if not isinstance(s, str):
+		return False
+	else:
+		# https://stackoverflow.com/q/354038/3453768
+		try:
+			float(s)
+			return True
+		except ValueError:
+			return False
 
 
 def is_discrete_distribution(distribution):
@@ -746,6 +788,41 @@ def change_dict_key(dict_to_change, old_key, new_key):
 	# Change key.
 	# See https://stackoverflow.com/a/4406521/3453768.
 	dict_to_change[new_key] = dict_to_change.pop(old_key)
+
+
+def replace_dict_numeric_string_keys(dict_to_change):
+	"""Replace any key in ``dict_to_change`` that is a string representing an integer.
+	Return a new dict.
+	Works recursively to replace numeric-string keys in any values in ``dict_to_change``, etc.
+
+	Parameters
+	----------
+	dict_to_change : dict
+		The dict.
+
+	Returns
+	-------
+	dict
+		The new dict.
+	"""
+	new_dict = {}
+	for old_key, v in dict_to_change.items():
+
+		# If v is a dict, call this function recursively on it.
+		if is_dict(v):
+			v = replace_dict_numeric_string_keys(v)
+			
+		# Determine new key, if any.
+		if is_numeric_string(old_key):
+			# Change key.
+			new_key = float(old_key)
+			if is_integer(new_key):
+				new_key = int(old_key)
+		else:
+			new_key = old_key
+		# Add item to dict.
+		new_dict[new_key] = v
+
 
 
 ### STATS FUNCTIONS ###

@@ -7,6 +7,7 @@ import unittest
 
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
+from stockpyl.supply_chain_product import *
 from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.instances import *
@@ -265,6 +266,249 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[2], [nodes[0]])
 		self.assertEqual(anc[3], [nodes[0]])
 
+
+class TestIsMultiProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsMultiProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsMultiProduct', 'tear_down_class()')
+
+	def test_empty_list(self):
+		"""Test that is_multiproduct correctly returns ``False`` if ``products = []``.
+		"""
+		print_status('TestIsMultiProduct', 'test_empty_list()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].products = []
+
+		self.assertFalse(network.nodes[0].is_multiproduct)
+
+	def test_none(self):
+		"""Test that is_multiproduct correctly returns ``False`` if ``products is None``.
+		"""
+		print_status('TestIsMultiProduct', 'test_none()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].products = None
+
+		self.assertFalse(network.nodes[0].is_multiproduct)
+
+	def test_singleton(self):
+		"""Test that is_multiproduct correctly returns ``False`` if ``products`` is a list with one element.
+		"""
+		print_status('TestIsMultiProduct', 'test_singleton()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].products = [0]
+		network.nodes[1].products = [SupplyChainProduct(0)]
+
+		self.assertFalse(network.nodes[0].is_multiproduct)
+		self.assertFalse(network.nodes[1].is_multiproduct)
+
+	def test_multi(self):
+		"""Test that is_multiproduct correctly returns ``False`` if ``products`` is a list with multiple elements.
+		"""
+		print_status('TestIsMultiProduct', 'test_multi()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].products = [0, 1]
+		network.nodes[1].products = [SupplyChainProduct(0), SupplyChainProduct(1)]
+
+		self.assertTrue(network.nodes[0].is_multiproduct)
+		self.assertTrue(network.nodes[1].is_multiproduct)
+
+		
+class TestGetProductFromIndex(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestGetProductFromIndex', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetProductFromIndex', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test.
+		"""
+		print_status('TestGetProductFromIndex', 'test_basic()')
+
+		prod1 = SupplyChainProduct(index=0, local_holding_cost=1, stockout_cost=10)
+		prod2 = SupplyChainProduct(index=1, local_holding_cost=2, stockout_cost=50)
+		node = SupplyChainNode(index=0, products=[prod1, prod2])
+
+		self.assertEqual(node.get_product_from_index(0).index, 0)
+		self.assertEqual(node.get_product_from_index(1).index, 1)
+
+
+class TestSetGetBillOfMaterials(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSetGetBillOfMaterials', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSetGetBillOfMaterials', 'tear_down_class()')
+
+	def test_single_product(self):
+		"""Test that set_ and get_bill_of_materials() work correctly when the node is single-product.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_single_product()')
+
+		network = mwor_system(3)
+
+		network.nodes[1].products = [SupplyChainProduct(1), SupplyChainProduct(2)]
+		network.nodes[2].products = [SupplyChainProduct(2), SupplyChainProduct(3)]
+		network.nodes[3].products = [SupplyChainProduct(4), SupplyChainProduct(5)]
+
+		network.nodes[0].set_bill_of_materials( 5, None, 1, 1)
+		network.nodes[0].set_bill_of_materials( 7, None, 1, 2)
+		network.nodes[0].set_bill_of_materials( 3, None, 2, 2)
+		network.nodes[0].set_bill_of_materials(15, None, 2, 3)
+		network.nodes[0].set_bill_of_materials( 6, None, 3, 4)
+		network.nodes[0].set_bill_of_materials(16, None, 3, 5)
+
+		self.assertEqual(network.nodes[0].get_bill_of_materials(None, 1, 1), 5)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(None, 1, 2), 7)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(None, 2, 2), 3)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(None, 2, 3), 15)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(None, 3, 4), 6)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(None, 3, 5), 16)
+
+	def test_multi_product(self):
+		"""Test that set_ and get_bill_of_materials() work correctly when the node is multi-product.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_multi_product()')
+
+		network = mwor_system(3)
+
+		network.nodes[0].products = [SupplyChainProduct(10), SupplyChainProduct(11)]
+		network.nodes[1].products = [SupplyChainProduct(1), SupplyChainProduct(2)]
+		network.nodes[2].products = [SupplyChainProduct(2), SupplyChainProduct(3)]
+		network.nodes[3].products = [SupplyChainProduct(4), SupplyChainProduct(5)]
+
+		network.nodes[0].set_bill_of_materials(5, 10, 1, 1)
+		network.nodes[0].set_bill_of_materials(7, 10, 1, 2)
+		network.nodes[0].set_bill_of_materials(3, 11, 2, 2)
+		network.nodes[0].set_bill_of_materials(15, 10, 2, 3)
+		network.nodes[0].set_bill_of_materials(6, 11, 3, 4)
+		network.nodes[0].set_bill_of_materials(16, 11, 3, 5)
+
+		self.assertEqual(network.nodes[0].get_bill_of_materials(10, 1, 1), 5)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(10, 1, 2), 7)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(11, 2, 2), 3)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(10, 2, 3), 15)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(11, 3, 4), 6)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(11, 3, 5), 16)
+
+	def test_default_value_1node(self):
+		"""Test that get_bill_of_materials() works correctly in a single-node system
+		with a single product, in which case the BOM number for the node and the external
+		supplier defaults to 1.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_default_value()')
+
+		network = single_stage_system()
+
+		self.assertEqual(network.nodes[0].get_bill_of_materials(), 1)
+
+		# Now set BOM number explicitly.
+		network.nodes[0].set_bill_of_materials(num_needed=6.3)
+		self.assertEqual(network.nodes[0].get_bill_of_materials(), 6.3)
+
+	def test_default_value_2node(self):
+		"""Test that get_bill_of_materials() works correctly in a 2-node system
+		when both the node and its predecessor are single product, in which case the 
+		BOM number defaults to 1.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_default_value()')
+
+		network = serial_system(2)
+
+		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(predecessor_index=0), 1)
+
+		# Now set BOM number explicitly.
+		network.get_node_from_index(1).set_bill_of_materials(predecessor_index=0, num_needed=6.3)
+		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(predecessor_index=0), 6.3)
+
+	def test_default_value_mwor(self):
+		"""Test that get_bill_of_materials() works correctly in a MWOR system
+		when both the downstream node and one of its predecessors are single product, in which case the 
+		BOM number defaults to 1.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_default_value()')
+
+		network = mwor_system(3)
+
+		network.get_node_from_index(1).products = [SupplyChainProduct(1), SupplyChainProduct(2)]
+		network.get_node_from_index(2).products = [SupplyChainProduct(2)]
+
+		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(predecessor_index=1), 0)
+		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(predecessor_index=2), 1)
+		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(predecessor_index=3), 1)
+
+
+class TestBillOfMaterialsList(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestBillOfMaterialsList', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestBillOfMaterialsList', 'tear_down_class()')
+
+	def test_mwor(self):
+		"""Test that bill_of_materials works correctly on MWOR network.
+		"""
+		print_status('TestBillOfMaterialsList', 'test_mwor()')
+
+		network = mwor_system(3)
+
+		network.get_node_from_index(1).products = [SupplyChainProduct(1), SupplyChainProduct(2)]
+		network.get_node_from_index(2).products = [SupplyChainProduct(2), SupplyChainProduct(3)]
+		network.get_node_from_index(3).products = [SupplyChainProduct(4), SupplyChainProduct(5)]
+
+		node0 = network.get_node_from_index(0)
+
+		node0.set_bill_of_materials( 5, None, 1, 1)
+		node0.set_bill_of_materials( 7, None, 1, 2)
+		node0.set_bill_of_materials( 3, None, 2, 2)
+		node0.set_bill_of_materials(15, None, 2, 3)
+		node0.set_bill_of_materials( 6, None, 3, 4)
+		node0.set_bill_of_materials(16, None, 3, 5)
+
+		bom = node0.bill_of_materials
+		self.assertListEqual(bom, [(5, 0, None, 1, 1), (7, 0, None, 1, 2), (3, 0, None, 2, 2), (15, 0, None, 2, 3), (6, 0, None, 3, 4), (16, 0, None, 3, 5)])
+
+	def test_multi_product_network7(self):
+		"""Test that bill_of_materials works correctly on 7-node network.
+		"""
+		print_status('TestBillOfMaterialsList', 'test_multi_product()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		self.assertSetEqual(
+			set(network.get_node_from_index(0).bill_of_materials),
+			{(1, 0, None, 4, None), (4, 0, None, 3, None)}
+		)
+		self.assertListEqual(
+			network.get_node_from_index(1).bill_of_materials,
+			[(1, 1, 1, 4, None), (2.6, 1, 1, 5, 4), (5.1, 1, 1, 5, 5)]
+		)
 
 class TestLeadTime(unittest.TestCase):
 	@classmethod
