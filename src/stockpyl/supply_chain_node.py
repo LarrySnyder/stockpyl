@@ -62,7 +62,7 @@ from stockpyl import policy
 from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl import demand_source
 from stockpyl import disruption_process
-from stockpyl.helpers import change_dict_key, is_integer, is_list, is_dict, is_numeric_string
+from stockpyl.helpers import change_dict_key, is_integer, is_list, is_dict, replace_dict_null_keys, replace_dict_numeric_string_keys
 
 
 # ===============================================================================
@@ -314,7 +314,15 @@ class SupplyChainNode(object):
 		list
 			List of all predecessors, as |class_node| objects.
 		"""
-		if include_external and self.supply_type is not None:
+		# Set supply_type to not None if the node or any products have it set to not None.
+		# TODO: handle this more elegantly (node supply_type property sets based on products too)
+		supply_type = self.supply_type
+		if not supply_type:
+			for prod in self.products:
+				if prod is not None and prod.supply_type is not None:
+					supply_type = prod.supply_type
+		# Include external supplier if include_external and supply_type is not None.
+		if include_external and supply_type is not None:
 			return self._predecessors + [None]
 		else:
 			return self._predecessors
@@ -449,9 +457,9 @@ class SupplyChainNode(object):
 		If ``num_needed = 0`` or ``None`` and a BOM relationship does not already exist for the specified product, 
 		predecessory, and raw material, does nothing.
 
-		**Note:** If a node and its predecessor are both single-product (or if the predecessor is the external supplier),
-		their BOM number is assumed to equal 1, even if it is not set using this function. If the BOM number is something 
-		other than 1, it must be set using this function.
+		**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier
+		and the node's ``supply_type`` is not ``None``), their BOM number is assumed to equal 1, even if it has not been 
+		set explicitly. If the BOM number is something other than 1, it must be set using ``set_bill_of_materials()``.
 
 		Parameters
 		----------
@@ -496,11 +504,11 @@ class SupplyChainNode(object):
 		If the predecessor is the external supplier, set ``predecessor_index`` to ``None``. If the predecessor is a
 		single-product node, set ``rm_index`` to ``None``.
 
-		Returns 1 if the node and its predecessor are both single-product (or the predecessor is the external supplier)
-		and there is no BOM relationship specified for this pair. Node pairs are assumed to have a BOM number of 1 if 
-		both are single-product (or the predecessor is the external supplier), unless specified otherwise in the BOM.
+		Returns 1 if the node and the predecessor are both single-product (or the predecessor is the external supplier and the node 
+		does not have ``supply_type`` ``None``) and there is no BOM relationship specified for this pair. Node(/product) pairs are 
+		assumed to have a BOM number of 1 in this case, unless specified otherwise in the BOM.
 
-		Returns 0 if there is no BOM relationship for this product, predecessor, and raw material.
+		Otherwise, returns 0 if there is no BOM relationship for this product, predecessor, and raw material.
 
 		Parameters
 		----------
@@ -516,11 +524,15 @@ class SupplyChainNode(object):
 			# Return BOM number, if BOM entry exists.
 			return self._bill_of_materials[product_index][predecessor_index][rm_index]
 		except:
-			if not self.is_multiproduct and predecessor_index is None:
-				# Node is single-product and predecessor is external supplier; return default BOM number of 1.
-				return 1
-			elif not self.is_multiproduct and not self.network.get_node_from_index(predecessor_index).is_multiproduct:
-				# Both nodes are single-product; return default BOM number of 1.
+			# Treat supply_type as not None if it's not None in either the node or the product.
+			supply_type = self.supply_type 
+			if product_index in self.product_indices:
+				if product_index is not None:
+					supply_type = supply_type or self.get_product_from_index(product_index).supply_type
+			# Default to 1 if predecessor is external and supply_type is not None, or if
+			# node and predecessor are both single-product.
+			if (predecessor_index is None and supply_type is not None) \
+	   			or (not self.is_multiproduct and not self.network.get_node_from_index(predecessor_index).is_multiproduct):
 				return 1
 			else:
 				# No BOM relationship exists; return 0.
@@ -535,8 +547,9 @@ class SupplyChainNode(object):
 		``p`` is the index of a predecessor node (or ``None`` for external supplier), and ``rm`` is the index
 		of a product at ``p`` (or ``None`` if ``p`` is single-product or the external supplier).
 
-		**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier),
-		their BOM number is assumed to equal 1, even if it has not been set explicitly. If the BOM number is something 
+		**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier
+		and the node's ``supply_type`` is not ``None``), their BOM number is assumed to equal 1, 
+		even if it has not been set explicitly. If the BOM number is something 
 		other than 1, it must be set using ``set_bill_of_materials()``.
 
 		Read only.
@@ -630,8 +643,8 @@ class SupplyChainNode(object):
 				for prod, _ in value.items():
 					self._inventory_policy[prod].node = self
 					self._inventory_policy[prod].product = prod
-		else:
-			self._inventory_policy.node = self
+			else:
+				self._inventory_policy.node = self
 
 	@property
 	def forward_echelon_lead_time(self):
@@ -940,10 +953,11 @@ class SupplyChainNode(object):
 				elif attr == 'products':
 					# TODO: why isn't this handled by setting `value` like others?
 					if attr not in the_dict:
-						node.products = copy.deepcopy(cls._DEFAULT_VALUES['products'])
+						value = copy.deepcopy(cls._DEFAULT_VALUES['products'])
 					else:
+						value = []
 						for prod_dict in (the_dict['products'] or []):
-							node.products.append(SupplyChainProduct.from_dict(prod_dict))
+							value.append(SupplyChainProduct.from_dict(prod_dict))
 				elif attr == '_bill_of_materials':
 					if attr in the_dict:
 						bom = copy.deepcopy(the_dict[attr])
@@ -952,16 +966,7 @@ class SupplyChainNode(object):
 					# Convert 'null' to None and string-wrapped ints to ints in dictionary keys. 
 					# (Note that JSON encoding/decoding onverts correctly between None and 'null' 
 					# for dictionary values but not keys. Similarly, it leaves ints as strings.)
-					# TODO: repalce numeric strings
-
-					if 'null' in value:
-						value[None] = value.pop('null')
-					for prod in value:
-						if 'null' in value[prod]:
-							value[prod][None] = value[prod].pop('null')
-						for p in value[prod]:
-							if 'null' in value[prod][p]:
-								value[prod][p][None] = value[prod][p].pop('null')
+					value = replace_dict_numeric_string_keys(replace_dict_null_keys(bom))
 				elif attr == 'demand_source':
 					if attr in the_dict:
 						value = demand_source.DemandSource.from_dict(the_dict[attr])

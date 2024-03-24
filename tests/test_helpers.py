@@ -432,6 +432,30 @@ class TestIsDiscreteDistribution(unittest.TestCase):
 		self.assertEqual(is_discrete, False)
 
 
+class TestNearestDictValue(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNearestDictValue', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNearestDictValue', 'tear_down_class()')
+
+	def test(self):
+		"""Test nearest_dict_value().
+		"""
+		print_status('TestNearestDictValue', 'nearest_dict_value()')
+
+		the_dict = {0: 5, 0.1: 6.2, 0.2: 'foo', 0.3: None}
+
+		self.assertEqual(helpers.nearest_dict_value(0.1, the_dict), 6.2)
+		self.assertEqual(helpers.nearest_dict_value(0.09, the_dict), 6.2)
+		self.assertEqual(helpers.nearest_dict_value(-40, the_dict), 5)
+		self.assertEqual(helpers.nearest_dict_value(0.23, the_dict), 'foo')
+		self.assertIsNone(helpers.nearest_dict_value(6, the_dict))
+
 class TestIsContinuousDistribution(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -602,6 +626,24 @@ class TestEnsureListForTimePeriods(unittest.TestCase):
 		print_status('TestEnsureListForTimePeriods', 'test_list_with_0()')
 
 		x = helpers.ensure_list_for_time_periods([-1, 3.14, 3.14, 3.14, 3.14, 3.14], 5)
+		self.assertEqual(x, [-1, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_ndarray_without_0(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		an ndarray of length num_periods.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_ndarray_without_0()')
+
+		x = helpers.ensure_list_for_time_periods(np.array([3.14, 3.14, 3.14, 3.14, 3.14]), 5)
+		self.assertEqual(x, [0, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_ndarray_with_0(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		an ndarray of length num_periods+1.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_ndarray_with_0()')
+
+		x = helpers.ensure_list_for_time_periods(np.array([-1, 3.14, 3.14, 3.14, 3.14, 3.14]), 5)
 		self.assertEqual(x, [-1, 3.14, 3.14, 3.14, 3.14, 3.14])
 
 	def test_bad_list(self):
@@ -912,13 +954,79 @@ class TestReplaceDictNumericStringKeys(unittest.TestCase):
 		b = {"c": -5, "4": 2, "d": None, 6: "foo"}
 		c = {"0": 5, 3: "hello", 2: -1, 9: None, None: "bar"}
 
-		helpers.replace_dict_numeric_string_keys(a)
-		helpers.replace_dict_numeric_string_keys(b)
-		helpers.replace_dict_numeric_string_keys(c)
+		a_new = helpers.replace_dict_numeric_string_keys(a)
+		b_new = helpers.replace_dict_numeric_string_keys(b)
+		c_new = helpers.replace_dict_numeric_string_keys(c)
 
-		self.assertDictEqual(a, {0: 5, 3: "hello", 2: -1, 9: None})
-		self.assertDictEqual(b, {"c": -5, 4: 2, "d": None, 6: "foo"})
-		self.assertDictEqual(c, {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"})
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", 2: -1, 9: None})
+		self.assertDictEqual(b_new, {"c": -5, 4: 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"})
+
+	def test_nesting(self):
+		"""Test that replace_dict_numeric_string_keys() returns correct result
+		when dict contains nested dicts.
+		"""
+		print_status('TestReplaceDictNumericStringKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", 2: -1, "9": None}
+		b = {"c": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: a, None: b}
+
+		a_new = helpers.replace_dict_numeric_string_keys(a)
+		b_new = helpers.replace_dict_numeric_string_keys(b)
+		c_new = helpers.replace_dict_numeric_string_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", 2: -1, 9: None})
+		self.assertDictEqual(b_new, {"c": -5, 4: 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {0: 5, 3: "hello", 2: -1, 9: {0: 5, 3: "hello", 2: -1, 9: None}, None: {"c": -5, 4: 2, "d": None, 6: "foo"}})
+
+
+class TestReplaceDictNullKeys(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestReplaceDictNullKeys', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestReplaceDictNullKeys', 'tear_down_class()')
+
+	def test_no_nesting(self):
+		"""Test that replace_dict_null_keys() returns correct result
+		when dict doesn't have any nested dicts.
+		"""
+		print_status('TestReplaceDictNullKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", "null": -1, "9": None}
+		b = {"null": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_new = helpers.replace_dict_null_keys(a)
+		b_new = helpers.replace_dict_null_keys(b)
+		c_new = helpers.replace_dict_null_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", None: -1, "9": None})
+		self.assertDictEqual(b_new, {None: -5, "4": 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {"0": 5, 3: "hello", 2: -1, 9: None, None: "bar"})
+
+	def test_nesting(self):
+		"""Test that replace_dict_null_keys() returns correct result
+		when dict contains nested dicts.
+		"""
+		print_status('TestReplaceDictNullKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", "null": -1, "9": None}
+		b = {"null": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: a, None: b}
+
+		a_new = helpers.replace_dict_null_keys(a)
+		b_new = helpers.replace_dict_null_keys(b)
+		c_new = helpers.replace_dict_null_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", None: -1, "9": None})
+		self.assertDictEqual(b_new, {None: -5, "4": 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {"0": 5, 3: "hello", 2: -1, 9: {0: 5, 3: "hello", None: -1, "9": None}, None: {None: -5, "4": 2, "d": None, 6: "foo"}})
 
 
 class TestConvolveMany(unittest.TestCase):

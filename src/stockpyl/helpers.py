@@ -287,6 +287,22 @@ def is_continuous_distribution(distribution):
 		return isinstance(distribution, rv_continuous)
 
 
+def nearest_dict_value(key_to_search, the_dict):
+	"""Return the value in ``the_dict`` corresponding to the key that is closest
+	to ``key_to_search``.
+
+	Parameters
+	----------
+	key_to_search : float
+		The number to search for among the keys.
+	the_dict : dict
+		The dictionary to search.
+	"""
+
+	# https://stackoverflow.com/a/7934624/3453768
+	return the_dict.get(key_to_search, the_dict[min(the_dict.keys(), key=lambda k: abs(k-key_to_search))])
+
+
 def find_nearest(array, values, sorted=False, index=dict()):
 	"""Determine entries in ``array`` that are closest to each of the
 	entries in ``values`` and return their indices. Neither array needs to be sorted,
@@ -383,6 +399,7 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	* If ``x`` is a list of length ``num_periods``+1, return ``x``.
 	* If ``x`` is a list of length ``num_periods``, shift elements to the right by 1 slot, 
 	  fill the 0th element with 0, and return new list.
+	* If ``x`` is a numpy array, convert to list first, then follow above rules.
 	* Otherwise, raise a ``ValueError``.
 
 	**Examples:**
@@ -426,6 +443,10 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	ValueError
 		If ``x`` is not a singleton or a list of length ``num_periods`` or ``num_periods`` + 1.
 	"""
+	# If numpy array, convert to list.
+	if isinstance(x, np.ndarray):
+		x = x.tolist()
+
 	# Determine whether x is singleton or iterable.
 	if is_iterable(x):
 		if len(x) == num_periods+1:
@@ -791,8 +812,8 @@ def change_dict_key(dict_to_change, old_key, new_key):
 
 
 def replace_dict_numeric_string_keys(dict_to_change):
-	"""Replace any key in ``dict_to_change`` that is a string representing an integer.
-	Return a new dict.
+	"""Replace any key in ``dict_to_change`` that is a string representing an integer with 
+	the integer itself. Return a new dict.
 	Works recursively to replace numeric-string keys in any values in ``dict_to_change``, etc.
 
 	Parameters
@@ -823,6 +844,40 @@ def replace_dict_numeric_string_keys(dict_to_change):
 		# Add item to dict.
 		new_dict[new_key] = v
 
+	return new_dict
+
+
+def replace_dict_null_keys(dict_to_change):
+	"""Replace any key in ``dict_to_change`` that equals the string ``'null'`` with ``None``.
+	Return a new dict.
+	Works recursively to replace ``'null'``'`` keys in any values in ``dict_to_change``, etc.
+
+	Parameters
+	----------
+	dict_to_change : dict
+		The dict.
+
+	Returns
+	-------
+	dict
+		The new dict.
+	"""
+	new_dict = {}
+	for old_key, v in dict_to_change.items():
+
+		# If v is a dict, call this function recursively on it.
+		if is_dict(v):
+			v = replace_dict_null_keys(v)
+			
+		# Determine new key, if any.
+		if old_key == 'null':
+			new_key = None
+		else:
+			new_key = old_key
+		# Add item to dict.
+		new_dict[new_key] = v
+
+	return new_dict
 
 
 ### STATS FUNCTIONS ###

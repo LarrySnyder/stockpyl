@@ -192,7 +192,7 @@ class SupplyChainProduct(object):
 		'initial_orders': None,
 		'initial_shipments': None,
 		'_inventory_policy': None,
-#		'supply_type': None,
+		'supply_type': None,
 #		'disruption_process': None,
 		'order_capacity': None,
 		'state_vars': []

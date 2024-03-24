@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-(none so far)
+### Added
+- ``helpers.nearest_dict_value()`` function, to find key in a dictionary that's nearest to
+a given number and return the corresponding value.
+- ``loss_functions.standard_normal_loss_dict()`` function, to build a dictionary of loss-function values.
+
+### Fixed
+- Bug in ``helpers.ensure_list_for_time_period()`` that caused it to handle numpy arrays improperly.
 
 ## [0.0.15] -- 2024-02-10
 

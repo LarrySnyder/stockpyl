@@ -491,8 +491,14 @@ class TestBillOfMaterialsList(unittest.TestCase):
 		node0.set_bill_of_materials( 6, None, 3, 4)
 		node0.set_bill_of_materials(16, None, 3, 5)
 
-		bom = node0.bill_of_materials
-		self.assertListEqual(bom, [(5, 0, None, 1, 1), (7, 0, None, 1, 2), (3, 0, None, 2, 2), (15, 0, None, 2, 3), (6, 0, None, 3, 4), (16, 0, None, 3, 5)])
+		bom0 = node0.bill_of_materials
+		self.assertListEqual(bom0, [(5, 0, None, 1, 1), (7, 0, None, 1, 2), (3, 0, None, 2, 2), (15, 0, None, 2, 3), (6, 0, None, 3, 4), (16, 0, None, 3, 5)])
+		bom1 = network.get_node_from_index(1).bill_of_materials
+		self.assertListEqual(bom1, [(1, 1, 1, None, None), (1, 1, 2, None, None)])
+		bom2 = network.get_node_from_index(2).bill_of_materials
+		self.assertListEqual(bom2, [(1, 2, 2, None, None), (1, 2, 3, None, None)])
+		bom3 = network.get_node_from_index(3).bill_of_materials
+		self.assertListEqual(bom3, [(1, 3, 4, None, None), (1, 3, 5, None, None)])
 
 	def test_multi_product_network7(self):
 		"""Test that bill_of_materials works correctly on 7-node network.
@@ -505,9 +511,30 @@ class TestBillOfMaterialsList(unittest.TestCase):
 			set(network.get_node_from_index(0).bill_of_materials),
 			{(1, 0, None, 4, None), (4, 0, None, 3, None)}
 		)
-		self.assertListEqual(
-			network.get_node_from_index(1).bill_of_materials,
-			[(1, 1, 1, 4, None), (2.6, 1, 1, 5, 4), (5.1, 1, 1, 5, 5)]
+		self.assertSetEqual(
+			set(network.get_node_from_index(1).bill_of_materials),
+			{(1, 1, 1, 4, None), (2.6, 1, 1, 5, 4), (5.1, 1, 1, 5, 5)}
+		)
+		self.assertSetEqual(
+			set(network.get_node_from_index(2).bill_of_materials),
+			{(3.8, 2, 2, 5, 5), (6, 2, 3, 5, 5), (1, 2, 3, 6, None), (5, 2, 3, None, None)}
+		)
+		# TODO: is it right that network_from_edges() sets supply_type to 'U' if there are no predecessors?
+		self.assertSetEqual(
+			set(network.get_node_from_index(3).bill_of_materials),
+			set()
+		)
+		self.assertSetEqual(
+			set(network.get_node_from_index(4).bill_of_materials),
+			{(3, 4, None, None, None)}
+		)
+		self.assertSetEqual(
+			set(network.get_node_from_index(5).bill_of_materials),
+			{(16, 5, 5, None, None)}
+		)
+		self.assertSetEqual(
+			set(network.get_node_from_index(6).bill_of_materials),
+			set()
 		)
 
 class TestLeadTime(unittest.TestCase):
@@ -1045,6 +1072,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		n2.disruption_process.recovery_probability = DisruptionProcess._DEFAULT_VALUES['_recovery_probability']
 		self.assertTrue(n1.deep_equal_to(n2))
 
+	# TODO: test with multi-product instance
 			
 class TestStateVariables(unittest.TestCase):
 	@classmethod

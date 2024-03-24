@@ -328,6 +328,11 @@ def finite_horizon_dp(
 	# - to get index from x value, use x - x_min
 	# Example: x_range = 10:20; then x_range[3] = 13 and 13 - x_min = 3.
 
+	# Pre-calculate standard normal loss function values.
+	min_z, max_z, step_z = -4, 4, 0.01
+	loss_table = lf.standard_normal_loss_dict(start=min_z, stop=max_z, step=step_z)
+	comp_table = lf.standard_normal_loss_dict(start=min_z, stop=max_z, step=step_z, complementary=True)
+
 	# Start with initial truncation range; abort, expand, and re-try if necessary.
 	done = False
 	while not done:
@@ -364,11 +369,25 @@ def finite_horizon_dp(
 				# Initialize cost.
 				cost = 0.0
 
-				# Calculate n(y) and \bar{n}(y).
-				n, n_bar = lf.normal_loss(y, demand_mean[t], demand_sd[t])
+# TODO: this needs to be an option; and add tests for it
+				
+				# Calculate n(y) and \bar{n}(y). 
+				# if False:
+				z = (y - demand_mean[t]) / demand_sd[t]
+				if z < min_z:
+					n = demand_mean[t] - y
+					n_bar = 0
+				elif z > max_z:
+					n = 0
+					n_bar = y - demand_mean[t]
+				else:
+					n = nearest_dict_value(z, loss_table) * demand_sd[t]
+					n_bar = nearest_dict_value(z, comp_table) * demand_sd[t]
+				# else:
+#				n, n_bar = lf.normal_loss(y, demand_mean[t], demand_sd[t])
 
 				# Calculate current-period (newsvendor) cost.
-				cost += holding_cost[t] * n_bar + stockout_cost[t] * n;
+				cost += holding_cost[t] * n_bar + stockout_cost[t] * n
 
 				# Truncate demand range to avoid y-d exceeding x bounds.
 				# Need x_min <= y - d <= x_max.
