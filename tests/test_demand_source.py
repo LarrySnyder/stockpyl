@@ -4,7 +4,7 @@ import unittest
 # import numpy as np
 # from scipy.stats import norm
 # from scipy.stats import poisson
-# from scipy.stats import lognorm
+from scipy.stats import nbinom
 
 from stockpyl.demand_source import *
 from stockpyl.instances import load_instance
@@ -73,6 +73,11 @@ class TestDemandSourceEq(unittest.TestCase):
 		eq = ds1 == ds2
 		self.assertTrue(eq)
 
+		ds1 = DemandSource(type='NB', n=50, p=0.2)
+		ds2 = DemandSource(type='NB', n=50, p=0.2)
+		eq = ds1 == ds2
+		self.assertTrue(eq)
+
 	def test_false(self):
 		"""Test that DemandSource.__eq__() correctly returns False when objects are not equal.
 		"""
@@ -108,6 +113,11 @@ class TestDemandSourceEq(unittest.TestCase):
 		eq = ds1 == ds2
 		self.assertFalse(eq)
 
+		ds1 = DemandSource(type='NB', n=50, p=0.2)
+		ds2 = DemandSource(type='NB', n=50, p=0.3)
+		eq = ds1 == ds2
+		self.assertFalse(eq)
+
 class TestInitialize(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -133,6 +143,84 @@ class TestInitialize(unittest.TestCase):
 		ds2 = DemandSource()
 		ds1.initialize()
 		self.assertEqual(ds1, ds2)
+
+		ds1 = DemandSource(type='NB', n=10, p=0.1)
+		ds2 = DemandSource()
+		ds1.initialize()
+		self.assertEqual(ds1, ds2)
+
+class TestMean(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestMean', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestMean', 'tear_down_class()')
+
+	def test_set_explicitly(self):
+		"""Test that standard_deviation property correctly returns mean if it is set explicitly.
+		"""
+		print_status('TestMean', 'test_copy()')
+
+		ds = DemandSource(type='N', mean=50, standard_deviation=2)
+		self.assertEqual(ds.mean, 50)
+
+	def test_set_implicitly(self):
+		"""Test that standard_deviation property correctly returns mean if it is set implicitly via 
+		the demand distribution.
+		"""
+		print_status('TestMean', 'test_copy()')
+
+		ds = DemandSource(type='NB', n=20, p=0.1)
+		self.assertEqual(ds.mean, 20 * 0.9 / 0.1)
+
+		ds = DemandSource(type='UC', lo=0, hi=10)
+		self.assertEqual(ds.mean, 5)
+
+		ds = DemandSource(type='CD', demand_list=[0, 1, 2, 3], probabilities=[0.25, 0.25, 0.25, 0.25])
+		self.assertEqual(ds.mean, 1.5)
+
+
+class TestStandardDeviation(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestStandardDeviation', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestStandardDeviation', 'tear_down_class()')
+
+	def test_set_explicitly(self):
+		"""Test that standard_deviation property correctly returns SD if it is set explicitly.
+		"""
+		print_status('TestStandardDeviation', 'test_copy()')
+
+		ds = DemandSource(type='N', mean=50, standard_deviation=2)
+		self.assertEqual(ds.standard_deviation, 2)
+
+	def test_set_implicitly(self):
+		"""Test that standard_deviation property correctly returns SD if it is set implicitly via 
+		the demand distribution.
+		"""
+		print_status('TestStandardDeviation', 'test_copy()')
+
+		ds = DemandSource(type='P', mean=100)
+		self.assertEqual(ds.standard_deviation, 10)
+
+		ds = DemandSource(type='NB', n=20, p=0.1)
+		self.assertAlmostEqual(ds.standard_deviation, np.sqrt(20 * 0.9 / (0.1**2)))
+
+		ds = DemandSource(type='UC', lo=0, hi=10)
+		self.assertAlmostEqual(ds.standard_deviation, np.sqrt(100 / 12))
+
+		ds = DemandSource(type='CD', demand_list=[0, 1, 2, 3], probabilities=[0.25, 0.25, 0.25, 0.25])
+		self.assertAlmostEqual(ds.standard_deviation, np.sqrt(15/12))
+
 
 class TestToDict(unittest.TestCase):
 	@classmethod
@@ -164,7 +252,9 @@ class TestToDict(unittest.TestCase):
 			'demand_list': None,
 			'probabilities': None,
 			'lo': None,
-			'hi': None
+			'hi': None,
+			'n': None,
+			'p': None
 		}
 		self.assertDictEqual(ds_dict, correct_dict)
 
@@ -186,7 +276,9 @@ class TestToDict(unittest.TestCase):
 			'demand_list': None,
 			'probabilities': None,
 			'lo': 100,
-			'hi': 200
+			'hi': 200,
+			'n': None,
+			'p': None
 		}
 		self.assertDictEqual(ds_dict, correct_dict)
 
@@ -211,7 +303,9 @@ class TestToDict(unittest.TestCase):
 			'demand_list': [0, 1, 2, 3],
 			'probabilities': [0.25, 0.1, 0.5, 0.15],
 			'lo': None,
-			'hi': None
+			'hi': None,
+			'n': None,
+			'p': None
 		}
 		self.assertDictEqual(ds_dict, correct_dict)
 
@@ -219,6 +313,31 @@ class TestToDict(unittest.TestCase):
 		demand_list = [5, 4, 3, 2]
 		probabilities = [0.25] * 4
 		self.assertDictEqual(ds_dict, correct_dict)
+
+	def test_negative_binomial(self):
+		"""Test that to_dict() correctly converts a negative binomial DemandSource object to dict.
+		"""
+		print_status('TestToDict', 'test_negative_binomial()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 20
+		demand_source.p = 0.1
+		ds_dict = demand_source.to_dict()
+		correct_dict = {
+			'type': 'NB',
+			'round_to_int': None,
+			'mean': None,
+			'standard_deviation': None,
+			'demand_list': None,
+			'probabilities': None,
+			'lo': None,
+			'hi': None,
+			'n': 20,
+			'p': 0.1
+		}
+		self.assertDictEqual(ds_dict, correct_dict)
+
 
 
 class TestFromDict(unittest.TestCase):
@@ -245,7 +364,9 @@ class TestFromDict(unittest.TestCase):
 			'demand_list': None,
 			'probabilities': None,
 			'lo': None,
-			'hi': None
+			'hi': None,
+			'n': None,
+			'p': None
 		}
 		ds = DemandSource.from_dict(the_dict)
 
@@ -270,7 +391,9 @@ class TestFromDict(unittest.TestCase):
 			'demand_list': None,
 			'probabilities': None,
 			'lo': 100,
-			'hi': 200
+			'hi': 200,
+			'n': None,
+			'p': None
 		}
 		ds = DemandSource.from_dict(the_dict)
 
@@ -297,7 +420,9 @@ class TestFromDict(unittest.TestCase):
 			'demand_list': demand_list,
 			'probabilities': probabilities,
 			'lo': None,
-			'hi': None
+			'hi': None,
+			'n': None,
+			'p': None
 		}
 		ds = DemandSource.from_dict(the_dict)
 
@@ -313,7 +438,34 @@ class TestFromDict(unittest.TestCase):
 		probabilities = [0.25] * 4
 		self.assertEqual(ds, correct_ds)
 
-	def test_missing_values(self):
+	def test_negative_binomial(self):
+		"""Test that from_dict() correctly converts a negative binomial DemandSource object from a dict.
+		"""
+		print_status('TestFromDict', 'test_negative_binomial()')
+
+		the_dict = {
+			'type': 'NB',
+			'round_to_int': None,
+			'mean': None,
+			'standard_deviation': None,
+			'demand_list': None,
+			'probabilities': None,
+			'lo': None,
+			'hi': None,
+			'n': 20,
+			'p': 0.1
+		}
+		ds = DemandSource.from_dict(the_dict)
+
+		correct_ds = DemandSource()
+		correct_ds.type = 'NB'
+		correct_ds.n = 20
+		correct_ds.p = 0.1
+
+		self.assertEqual(ds, correct_ds)
+
+		
+def test_missing_values(self):
 		"""Test that from_dict() correctly fills missing attribute values to their defaults.
 		"""
 		print_status('TestFromDict', 'test_missing_values()')
@@ -443,6 +595,33 @@ class TestValidateParameters(unittest.TestCase):
 		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
 
+	def test_negative_binomial(self):
+		"""Test that TestValidateParameters correctly raises errors on invalid parameters
+		for negative binomial distribution.
+		"""
+		print_status('TestValidateParameters', 'test_negative_binomial()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = -100
+		demand_source.p = 0.1
+		with self.assertRaises(AttributeError):
+			demand_source.validate_parameters()
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 20
+		demand_source.p = -0.1
+		with self.assertRaises(AttributeError):
+			demand_source.validate_parameters()
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 20
+		demand_source.p = 2.1
+		with self.assertRaises(AttributeError):
+			demand_source.validate_parameters()
+
 	def test_deterministic(self):
 		"""Test that TestValidateParameters correctly raises errors on invalid parameters
 		for deterministic distribution.
@@ -567,6 +746,20 @@ class TestDemandSourceRepr(unittest.TestCase):
 
 		demand_source_str = demand_source.__repr__()
 		self.assertEqual(demand_source_str, "DemandSource(UC: lo=50.00, hi=80.00)")
+
+	def test_negative_binomial(self):
+		"""Test that DemandSource.__repr__() correctly returns demand source string
+		when type is 'NB'.
+		"""
+		print_status('TestDemandSourceRepr', 'test_negative_binomial()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 20
+		demand_source.p = 0.1
+
+		demand_source_str = demand_source.__repr__()
+		self.assertEqual(demand_source_str, "DemandSource(NB: n=20, p=0.10)")
 
 	def test_deterministic(self):
 		"""Test that DemandSource.__repr__() correctly returns demand source string
@@ -744,6 +937,25 @@ class TestDemandDistribution(unittest.TestCase):
 		self.assertAlmostEqual(sigma, 50 / math.sqrt(12))
 		self.assertEqual(z, 92.5)
 
+	def test_negative_binomial(self):
+		"""Test demand_distribution() for negative binomial demands.
+		"""
+		print_status('TestDemandDistribution', 'test_negative_binomial()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 5
+		demand_source.p = 0.1
+
+		distribution = demand_source.demand_distribution
+		mu = distribution.mean()
+		sigma = distribution.std()
+		z = distribution.ppf(0.85)
+
+		self.assertEqual(mu, 45)
+		self.assertAlmostEqual(sigma, np.sqrt(5 * 0.9 / (0.1**2)))
+		self.assertEqual(z, 67)
+
 	def test_custom_discrete(self):
 		"""Test demand_distribution() for custom discrete demands.
 		"""
@@ -842,6 +1054,22 @@ class TestCDF(unittest.TestCase):
 
 		F = demand_source.cdf(80)
 		self.assertEqual(F, 0.6078431372549019)
+
+	def test_negative_binomial(self):
+		"""Test that cdf() returns correct values for negative binomial demands.
+		"""
+		print_status('TestCDF', 'test_negative_binomial()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 5
+		demand_source.p = 0.1
+
+		F = demand_source.cdf(55)
+		self.assertEqual(F, 0.7290417418745389)
+
+		F = demand_source.cdf(80)
+		self.assertEqual(F, 0.935675210417672)
 
 	def test_custom_discrete(self):
 		"""Test that cdf() returns correct values for custom discrete
@@ -948,6 +1176,30 @@ class TestLeadTimeDemandDistribution(unittest.TestCase):
 		self.assertAlmostEqual(ltd_dist.ppf(0.85), 330.70733093427583)
 		self.assertAlmostEqual(ltd_dist.ppf(0.0000000000001), 200, places=0) # Not super accurate
 		self.assertAlmostEqual(ltd_dist.ppf(0.9999999999999), 400, places=0) 
+
+		with self.assertRaises(ValueError):
+			ltd_dist = demand_source.lead_time_demand_distribution(5.5)
+
+	def test_negative_binomial(self):
+		"""Test lead_time_demand_distribution() for negative binomial demands.
+		"""
+		print_status('TestLeadTimeDemandDistribution', 'test_negative_binomial()')
+
+		demand_source = DemandSource()
+		demand_source.type = 'NB'
+		demand_source.n = 5
+		demand_source.p = 0.1
+
+		min_demand = 0
+		max_demand = int(nbinom(5, 0.1).ppf(0.9999))
+		prob = [nbinom(5, 0.1).pmf(d) for d in range(min_demand, max_demand + 1)]
+		prob = [prob[d] / sum(prob) for d in range(min_demand, max_demand + 1)]
+		the_distribution = sum_of_discretes_distribution(4, min_demand, max_demand, prob)
+
+		ltd_dist = demand_source.lead_time_demand_distribution(4)
+		self.assertAlmostEqual(ltd_dist.mean(), the_distribution.mean())
+		self.assertAlmostEqual(ltd_dist.std(), the_distribution.std())
+		self.assertEqual(ltd_dist.ppf(0.85), the_distribution.ppf(0.85))
 
 		with self.assertRaises(ValueError):
 			ltd_dist = demand_source.lead_time_demand_distribution(5.5)

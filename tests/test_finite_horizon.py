@@ -106,6 +106,7 @@ class TestFiniteHorizon(unittest.TestCase):
 				instance['fixed_cost'], 
 				instance['demand_mean'], 
 				instance['demand_sd'], 
+				None,
 				instance['discount_factor'], 
 				instance['initial_inventory_level']
 			)
@@ -136,7 +137,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
 			stockout_cost, instance['terminal_holding_cost'], instance['terminal_stockout_cost'],
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+			purchase_cost, fixed_cost, demand_mean, demand_sd, None, discount_factor,
 			instance['initial_inventory_level'])
 
 		# Test against MATLAB solution.
@@ -165,7 +166,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
 			stockout_cost, instance['terminal_holding_cost'], instance['terminal_stockout_cost'],
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+			purchase_cost, fixed_cost, demand_mean, demand_sd, None, discount_factor,
 			instance['initial_inventory_level'])
 
 		# Test against MATLAB solution.
@@ -193,7 +194,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
 			stockout_cost, instance['terminal_holding_cost'], instance['terminal_stockout_cost'],
-			instance['purchase_cost'], instance['fixed_cost'], demand_mean, demand_sd, discount_factor,
+			instance['purchase_cost'], instance['fixed_cost'], demand_mean, demand_sd, None, discount_factor,
 			instance['initial_inventory_level'])
 
 		# Test against MATLAB solution.
@@ -220,6 +221,7 @@ class TestFiniteHorizon(unittest.TestCase):
 				instance['fixed_cost'], 
 				instance['demand_mean'], 
 				instance['demand_sd'], 
+				None,
 				instance['discount_factor'], 
 				instance['initial_inventory_level']
 			)
@@ -248,6 +250,7 @@ class TestFiniteHorizon(unittest.TestCase):
 					instance['fixed_cost'], 
 					instance['demand_mean'], 
 					instance['demand_sd'], 
+					None,
 					instance['discount_factor'], 
 					instance['initial_inventory_level']
 				)
@@ -264,6 +267,7 @@ class TestFiniteHorizon(unittest.TestCase):
 					instance['fixed_cost'], 
 					instance['demand_mean'], 
 					instance['demand_sd'], 
+					None,
 					instance['discount_factor'], 
 					instance['initial_inventory_level']
 				)
@@ -280,6 +284,7 @@ class TestFiniteHorizon(unittest.TestCase):
 					instance['fixed_cost'], 
 					instance['demand_mean'], 
 					instance['demand_sd'], 
+					None,
 					instance['discount_factor'], 
 					instance['initial_inventory_level']
 				)
@@ -298,6 +303,7 @@ class TestFiniteHorizon(unittest.TestCase):
 					instance['fixed_cost'], 
 					instance['demand_mean'], 
 					instance['demand_sd'], 
+					None,
 					instance['discount_factor'], 
 					instance['initial_inventory_level']
 				)
@@ -316,6 +322,7 @@ class TestFiniteHorizon(unittest.TestCase):
 					instance['fixed_cost'], 
 					instance['demand_mean'], 
 					instance['demand_sd'], 
+					None,
 					discount_factor, 
 					instance['initial_inventory_level']
 				)
@@ -344,7 +351,7 @@ class TestFiniteHorizon(unittest.TestCase):
 		reorder_points, order_up_to_levels, total_cost, cost_matrix, oul_matrix, \
 			x_range = finite_horizon.finite_horizon_dp(num_periods, holding_cost,
 			stockout_cost, terminal_holding_cost, terminal_stockout_cost,
-			purchase_cost, fixed_cost, demand_mean, demand_sd, discount_factor,
+			purchase_cost, fixed_cost, demand_mean, demand_sd, None, discount_factor,
 			initial_inventory_level)
 
 		# Test against MATLAB solution.
