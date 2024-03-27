@@ -416,7 +416,7 @@ class SupplyChainNode(object):
 	@property
 	def is_multiproduct(self):
 		"""Returns ``True`` if the node handles multiple products, ``False`` otherwise. Read only."""
-		return (self.products and (len(self.products) > 1))
+		return (self.products is not None and (len(self.products) > 1))
 
 	@property
 	def product_indices(self):

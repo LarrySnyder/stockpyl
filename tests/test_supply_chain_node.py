@@ -214,6 +214,23 @@ class TestDescendants(unittest.TestCase):
 		self.assertEqual(desc[2], [])
 		self.assertEqual(desc[3], [])
 
+	def test_multi_product_network7(self):
+		"""Test descendants for 7-node multi-product system.
+		"""
+		print_status('TestDescendants', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		desc = {i: network.get_node_from_index(i).descendants for i in network.node_indices}
+
+		self.assertEqual(desc[0], [])
+		self.assertEqual(desc[1], [])
+		self.assertEqual(desc[2], [])
+		self.assertEqual(desc[3], [network.get_node_from_index(0)])
+		self.assertEqual(desc[4], [network.get_node_from_index(0), network.get_node_from_index(1)])
+		self.assertEqual(desc[5], [network.get_node_from_index(1), network.get_node_from_index(2)])
+		self.assertEqual(desc[6], [network.get_node_from_index(2)])
+
 
 class TestAncestors(unittest.TestCase):
 	@classmethod
@@ -265,6 +282,23 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[1], [nodes[0]])
 		self.assertEqual(anc[2], [nodes[0]])
 		self.assertEqual(anc[3], [nodes[0]])
+
+	def test_multi_product_network7(self):
+		"""Test ancestors for 7-node multi-product system.
+		"""
+		print_status('TestAncestors', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		anc = {i: network.get_node_from_index(i).ancestors for i in network.node_indices}
+
+		self.assertEqual(anc[0], [network.get_node_from_index(3), network.get_node_from_index(4)])
+		self.assertEqual(anc[1], [network.get_node_from_index(4), network.get_node_from_index(5)])
+		self.assertEqual(anc[2], [network.get_node_from_index(5), network.get_node_from_index(6)])
+		self.assertEqual(anc[3], [])
+		self.assertEqual(anc[4], [])
+		self.assertEqual(anc[5], [])
+		self.assertEqual(anc[6], [])
 
 
 class TestIsMultiProduct(unittest.TestCase):
@@ -326,6 +360,24 @@ class TestIsMultiProduct(unittest.TestCase):
 		self.assertTrue(network.nodes[0].is_multiproduct)
 		self.assertTrue(network.nodes[1].is_multiproduct)
 
+	def test_multi_product_network7(self):
+		"""Test that is_multiproduct works correctly for 7-node multi-product instance.
+		"""
+		print_status('TestIsMultiProduct', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		self.assertFalse(network.get_node_from_index(0).is_multiproduct)
+		self.assertFalse(network.get_node_from_index(1).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(2).is_multiproduct)
+		self.assertFalse(network.get_node_from_index(3).is_multiproduct)
+		self.assertFalse(network.get_node_from_index(4).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(5).is_multiproduct)
+		self.assertFalse(network.get_node_from_index(6).is_multiproduct)
+
+
+## STOPPED
+		
 		
 class TestGetProductFromIndex(unittest.TestCase):
 	@classmethod
@@ -349,6 +401,20 @@ class TestGetProductFromIndex(unittest.TestCase):
 
 		self.assertEqual(node.get_product_from_index(0).index, 0)
 		self.assertEqual(node.get_product_from_index(1).index, 1)
+
+	def test_multi_product_network7(self):
+		"""Test 7-node multiproduct instance.
+		"""
+		print_status('TestGetProductFromIndex', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		self.assertIsNone(network.get_node_from_index(0).get_product_from_index(None))
+		self.assertIsNone(network.get_node_from_index(0).get_product_from_index(44))
+		self.assertEqual(network.get_node_from_index(1).get_product_from_index(1).index, 1)
+		self.assertEqual(network.get_node_from_index(2).get_product_from_index(2).index, 2)
+		self.assertEqual(network.get_node_from_index(2).get_product_from_index(3).index, 3)
+		self.assertIsNone(network.get_node_from_index(2).get_product_from_index(44))
 
 
 class TestSetGetBillOfMaterials(unittest.TestCase):
@@ -412,6 +478,30 @@ class TestSetGetBillOfMaterials(unittest.TestCase):
 		self.assertEqual(network.nodes[0].get_bill_of_materials(10, 2, 3), 15)
 		self.assertEqual(network.nodes[0].get_bill_of_materials(11, 3, 4), 6)
 		self.assertEqual(network.nodes[0].get_bill_of_materials(11, 3, 5), 16)
+
+	def test_multi_product_network7(self):
+		"""Test that set_ and get_bill_of_materials() work correctly on 7-node multi-product instance.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(None, 3, None), 4)
+		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(1, 4, None), 1)
+		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(1, 5, 4), 2.6)
+		self.assertEqual(network.get_node_from_index(2).get_bill_of_materials(3, 5, 5), 6)
+		self.assertEqual(network.get_node_from_index(2).get_bill_of_materials(3, None, None), 5)
+		self.assertEqual(network.get_node_from_index(6).get_bill_of_materials(None, None, None), 1)
+		
+		network.get_node_from_index(0).set_bill_of_materials(500, None, 6, None)
+		network.get_node_from_index(0).set_bill_of_materials(600, None, 5, 4)
+		network.get_node_from_index(1).set_bill_of_materials(700, 1, 6, None)
+		network.get_node_from_index(1).set_bill_of_materials(800, 1, None, None)
+
+		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(None, 6, None), 500)
+		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(None, 5, 4), 600)
+		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(1, 6, None), 700)
+		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(1, None, None), 800)
 
 	def test_default_value_1node(self):
 		"""Test that get_bill_of_materials() works correctly in a single-node system
@@ -519,10 +609,9 @@ class TestBillOfMaterialsList(unittest.TestCase):
 			set(network.get_node_from_index(2).bill_of_materials),
 			{(3.8, 2, 2, 5, 5), (6, 2, 3, 5, 5), (1, 2, 3, 6, None), (5, 2, 3, None, None)}
 		)
-		# TODO: is it right that network_from_edges() sets supply_type to 'U' if there are no predecessors?
 		self.assertSetEqual(
 			set(network.get_node_from_index(3).bill_of_materials),
-			set()
+			{(1, 3, None, None, None)}
 		)
 		self.assertSetEqual(
 			set(network.get_node_from_index(4).bill_of_materials),
@@ -530,11 +619,11 @@ class TestBillOfMaterialsList(unittest.TestCase):
 		)
 		self.assertSetEqual(
 			set(network.get_node_from_index(5).bill_of_materials),
-			{(16, 5, 5, None, None)}
+			{(16, 5, 5, None, None), (1, 5, 4, None, None)}
 		)
 		self.assertSetEqual(
 			set(network.get_node_from_index(6).bill_of_materials),
-			set()
+			{(1, 6, None, None, None)}
 		)
 
 class TestLeadTime(unittest.TestCase):
@@ -892,6 +981,34 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(node6copy.deep_equal_to(node6))
 		self.assertFalse(node6.deep_equal_to(node6copy))
 			
+	def test_multi_product_network7(self):
+		"""Test deep_equal_to() for nodes in 7-node multi-product network.
+		"""
+		print_status('TestDeepEqualTo', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		node_copies = [copy.deepcopy(n) for n in network.nodes]
+
+		# Equal nodes.
+		for i in range(len(network.nodes)):
+			self.assertTrue(node_copies[i].deep_equal_to(network.nodes[i]))
+			self.assertTrue(network.nodes[i].deep_equal_to(node_copies[i]))
+
+		# Unequal nodes due to parameters.
+		network.nodes[0].local_holding_cost = 99
+		self.assertFalse(node_copies[0].deep_equal_to(network.nodes[0]))
+		self.assertFalse(network.nodes[0].deep_equal_to(node_copies[0]))
+		network.nodes[2].demand_source.standard_deviation = 99
+		self.assertFalse(node_copies[2].deep_equal_to(network.nodes[2]))
+		self.assertFalse(network.nodes[2].deep_equal_to(node_copies[2]))
+
+		# Unequal networks due to missing policy.
+		node_copies[6].inventory_policy = None
+		self.assertFalse(node_copies[6].deep_equal_to(network.nodes[6]))
+		self.assertFalse(network.nodes[6].deep_equal_to(node_copies[6]))
+			
+
 class TestNodeToFromDict(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -1072,8 +1189,38 @@ class TestNodeToFromDict(unittest.TestCase):
 		n2.disruption_process.recovery_probability = DisruptionProcess._DEFAULT_VALUES['_recovery_probability']
 		self.assertTrue(n1.deep_equal_to(n2))
 
-	# TODO: test with multi-product instance
-			
+	def test_multi_product_network7(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNode object to and from dict
+		in 7-stage multi-product network.
+		"""
+		print_status('TestNodeToFromDict', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		# Convert nodes to dicts.
+		node_dicts = [n.to_dict() for n in network.nodes]
+
+		# Convert dicts back to nodes.
+		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
+
+		# Convert successors and predecessors back to node objects. Replace network objects.
+		for n in dict_nodes:
+			preds = []
+			succs = []
+			for m in dict_nodes:
+				if m.index in n.predecessors():
+					preds.append(m)
+				if m.index in n.successors():
+					succs.append(m)
+			n._predecessors = preds
+			n._successors = succs
+			n.network = network
+
+		# Compare.
+		for i in range(len(network.nodes)):
+			self.assertTrue(network.nodes[i].deep_equal_to(dict_nodes[i]))
+
+
 class TestStateVariables(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
