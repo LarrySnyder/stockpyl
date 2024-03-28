@@ -41,6 +41,10 @@ indices and whose values are the attribute values). In particular:
 	for the attribute is used.
 	* Else the node's value of the attribute is used. (It should be a singleton in this case.)
 
+To add a product to the node, use :func:`add_product`. To retrieve the products at the node, use
+the ``products`` property, which is a dict whose keys are product indices and whose values are the
+corresponding |class_product| objects. (For example, ``node.products[4]`` is the product at ``node`` with index 4.)
+
 
 API Reference
 -------------
@@ -77,10 +81,6 @@ class SupplyChainNode(object):
 	----------
 	network : |class_network|
 		The network that contains the node.
-	products : list
-		A list of |class_product| objects for products that are handled at the node.
-		For single-product nodes, set this list to ``[]``, or to a list
-		containing the single |class_product| handled at the node.
 	local_holding_cost : float
 		Local holding cost, per unit per period. [:math:`h'`]
 	echelon_holding_cost : float
@@ -130,35 +130,6 @@ class SupplyChainNode(object):
 		Disruption process object (if any).
 	order_capacity : float
 		Maximum size of an order.
-
-	# TODO: DELETE
-	# bill_of_materials : dict
-	# 	Dict whose keys are predecessor indices (or ``None`` for external supplier) 
-	# 	and whose values are the number of units of required from that predecessor 
-	# 	to make one unit of the product at this node. If not specified, default
-	# 	is 1. If this node is multi-product, this attribute
-	# 	must be a dict of dicts, with the keys of the outer dict representing the products
-	# 	handled at this node, and the keys in the inner dict representing the predecessor nodes.
-	# 	If the predecessor node is multi-product, the values of the (inner) dict should themselves
-	# 	be dicts, whose keys are predecessor products and whose values are the number of units required
-	# 	of that product from that predecessor node to make one unit at this node. 
-
-	# 	Examples:
-
-	# 		* ``bill_of_materials[None] = None``: to make 1 unit of the (single) product at this node
-	# 		requires 1 unit from external supplier.
-	# 		* ``bill_of_materials[None] = 2``: to make 1 unit of the (single) product at this node
-	# 		requires 2 units from external supplier.
-	# 		* ``bill_of_materials[None] = 2``, ``bill_of_materials[4] = 5``: to make 1 unit of the (single)
-	# 		product at this node requires 2 units from external supplier and 5 units of the (single) product from predecessor 4.
-	# 		* ``bill_of_materials[11][None] = 6``: to make 1 unit of product 11 at this node requires 6 units
-	# 		from external supplier.
-	# 		* ``bill_of_materials[11][None] = 6``, ``bill_of_materials[11][4] = 5``: to make 1 unit of product 11
-	# 		at this node requires 6 units from external supplier and 5 units of the (single) product from predecessor 4.
-	# 		* ``bill_of_materials[11][None] = 6``, ``bill_of_materials[11][4][0] = 5``, ``bill_of_materials[11][4][19] = 8``: 
-	# 		to make 1 unit of product 11 at this node requires 6 units from external supplier, 5 units of the product 0 from predecessor 4,
-	# 		and 8 units of product 19 from predecessor 4.
-
 	state_vars : list of |class_state_vars|
 		List of |class_state_vars|, one for each period in a simulation.
 	problem_specific_data : object
@@ -166,7 +137,7 @@ class SupplyChainNode(object):
 		problem types.
 	"""
 
-	def __init__(self, index, name=None, network=None, products=[], **kwargs):
+	def __init__(self, index, name=None, network=None, **kwargs):
 		"""SupplyChainNode constructor method.
 
 		Parameters
@@ -178,10 +149,6 @@ class SupplyChainNode(object):
 			A string to identify the node.
 		network : |class_network|, optional
 			The network that contains the node.
-		products : list, optional
-			A list of |class_product| objects for products that are handled at the node.
-			For single-product nodes, set this list to ``[]``, or to a list
-			containing the single |class_product| handled at the node.
 		kwargs : optional
 			Optional keyword arguments to specify node attributes. These arguments may be
             dicts to specify product-specific value of the attributes.
@@ -198,7 +165,6 @@ class SupplyChainNode(object):
 		self.index = index
 		self.name = name
 		self.network = network
-		self.products = products
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
@@ -218,7 +184,7 @@ class SupplyChainNode(object):
 		'index': None,
 		'name': None,
 		'network': None,
-		'products': [],
+		'_products_by_index': {},
 		'_predecessors': [],
 		'_successors': [],
 		'_bill_of_materials': {},
@@ -287,7 +253,7 @@ class SupplyChainNode(object):
 			product_obj = product
 			product_ind = product.index
 		else:
-			product_obj = self.get_product_from_index(product)
+			product_obj = self.products[product]
 			product_ind = product
 
 		# Is self.attr a dict?
@@ -414,6 +380,80 @@ class SupplyChainNode(object):
 	# Properties and functions related to products and bill of materials.
 
 	@property
+	def products(self):
+		"""A list containing products handled by the node. Read only. """
+		return list(self._products_by_index.values())
+
+	@property
+	def products_by_index(self):
+		"""A dict containing products handled by the node. The keys of the dict are
+		product indices and the values are the corresponding |class_product| objects.
+		For example, ``self.products_by_index[4]`` returns a |class_product| object for the product 
+		with index 4. Read only. """
+		return self._products_by_index
+
+	def add_product(self, product):
+		"""Add ``product`` to the node. If ``product`` is already in the node (as determined by the index),
+		do nothing.
+
+		Parameters
+		----------
+		product : |class_product|
+			The product to add to the node.
+		"""
+
+		# Check whether product is already in node.
+		if product not in self.products:
+			self._products_by_index[product.index] = product
+
+	def add_products(self, list_of_products):
+		"""Add each product in ``list_of_products`` to the node. If a given product is already in the 
+		node (as determined by the index), do not add it.
+
+		Parameters
+		----------
+		list_of_products : list of |class_product| objects
+			The list of products to add to the node.
+		"""
+
+		for prod in list_of_products:
+			self.add_product(prod)
+
+	def remove_product(self, product):
+		"""Remove ``product`` from the node. ``product`` may be either a |class_product| object or
+		the index of the product. If ``product`` is not in the node (as determined by the index),
+		do nothing.
+
+		Parameters
+		----------
+		product : |class_product| or int
+			The product to remove from the node.
+		"""
+		if isinstance(product, SupplyChainProduct):
+			self._products_by_index.pop(product.index, None)
+		else:
+			self._products_by_index.pop(product, None)
+
+	def remove_products(self, list_of_products):
+		"""Remove each product in ``list_of_products`` from the node. Products in ``list_of_products``
+		may be either |class_product| objects or product indices, or a mix. Alternatively, set ``list_of_products`` to
+		the string ``'all'`` to remove all products. If a given product is not in the 
+		node (as determined by the index), do not remove it.
+
+		Parameters
+		----------
+		list_of_products : list of |class_product| objects
+			The list of products to remove from the node.
+		"""
+
+		if list_of_products == 'all':
+			for prod in self.products:
+				self.remove_product(prod)
+		else:
+			for prod in list_of_products:
+				self.remove_product(prod)
+		
+	@property
 	def is_multiproduct(self):
 		"""Returns ``True`` if the node handles multiple products, ``False`` otherwise. Read only."""
 		return (self.products is not None and (len(self.products) > 1))
@@ -423,29 +463,29 @@ class SupplyChainNode(object):
 		"""A list of indices of all products handled at the node. Always returns a list, even if the
 		node is single-product. (In that case, the list equals ``[None]``.) Read only."""
 		if self.products:
-			return [prod.index for prod in self.products]
+			return list(self._products_by_index.keys())
 		else:
 			return [None]
 	
-	def get_product_from_index(self, index):
-		"""Return  |class_product| object from ``self.products`` with the specified index,
-		or ``None`` if no matching product is found.
+	# def get_product_from_index(self, index):
+	# 	"""Return  |class_product| object from ``self.products`` with the specified index,
+	# 	or ``None`` if no matching product is found.
 
-		Parameters
-		----------
-		index : int
-			Index of product to find.
+	# 	Parameters
+	# 	----------
+	# 	index : int
+	# 		Index of product to find.
 
-		Returns
-		-------
-		|class_product|
-			The product whose index is ``index``, or ``None`` if none.
-		"""
-		for product in self.products:
-			if product.index == index:
-				return product
+	# 	Returns
+	# 	-------
+	# 	|class_product|
+	# 		The product whose index is ``index``, or ``None`` if none.
+	# 	"""
+	# 	for product in self.products:
+	# 		if product.index == index:
+	# 			return product
 			
-		return None
+	# 	return None
 	
 	def set_bill_of_materials(self, num_needed=1.0, product_index=None, predecessor_index=None, rm_index=None):
 		"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required from ``predecessor_index`` in order
@@ -528,7 +568,7 @@ class SupplyChainNode(object):
 			supply_type = self.supply_type 
 			if product_index in self.product_indices:
 				if product_index is not None:
-					supply_type = supply_type or self.get_product_from_index(product_index).supply_type
+					supply_type = supply_type or self.products_by_index[product_index].supply_type
 			# Default to 1 if predecessor is external and supply_type is not None, or if
 			# node and predecessor are both single-product.
 			if (predecessor_index is None and supply_type is not None) \
@@ -575,7 +615,6 @@ class SupplyChainNode(object):
 						bom.append((bom_value, self.index, prod, p_ind, rm))
 
 		return bom
-					
 		
 	def raw_material_supplier_indices(self, product_index=None):
 		"""Return a list of all indices of predecessors from which a raw material must be ordered in order to
@@ -823,6 +862,8 @@ class SupplyChainNode(object):
 		-------
 		bool
 			``True`` if the two nodes are equal, ``False`` otherwise.
+
+		# TODO: check products
 		"""
 
 		# Initialize name of violating attribute (used for debugging) and equality flag.
@@ -903,8 +944,8 @@ class SupplyChainNode(object):
 				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=True))
 			elif attr == '_successors':
 				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=True))
-			elif attr == 'products':
-				node_dict[attr] = [prod.to_dict() for prod in self.products]
+			elif attr == '_products_by_index':
+				node_dict[attr] = {prod.index: prod.to_dict() for prod in self.products}
 			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
 				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).to_dict()
 			elif attr == 'state_vars':
@@ -950,14 +991,13 @@ class SupplyChainNode(object):
 						value = copy.deepcopy(the_dict[attr])
 					else:
 						value = copy.deepcopy(cls._DEFAULT_VALUES[attr])
-				elif attr == 'products':
-					# TODO: why isn't this handled by setting `value` like others?
+				elif attr == '_products_by_index':
 					if attr not in the_dict:
-						value = copy.deepcopy(cls._DEFAULT_VALUES['products'])
+						value = copy.deepcopy(cls._DEFAULT_VALUES['_products_by_index'])
 					else:
-						value = []
-						for prod_dict in (the_dict['products'] or []):
-							value.append(SupplyChainProduct.from_dict(prod_dict))
+						value = {}
+						for prod_dict in (the_dict['_products_by_index'].values() or []):
+							value[prod_dict['index']] = SupplyChainProduct.from_dict(prod_dict)
 				elif attr == '_bill_of_materials':
 					if attr in the_dict:
 						bom = copy.deepcopy(the_dict[attr])

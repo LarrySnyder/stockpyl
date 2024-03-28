@@ -319,7 +319,8 @@ class TestIsMultiProduct(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		network.nodes[0].products = []
+		# Make sure node 0 has no products.
+		network.nodes[0].remove_products('all')
 
 		self.assertFalse(network.nodes[0].is_multiproduct)
 
@@ -330,35 +331,32 @@ class TestIsMultiProduct(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		network.nodes[0].products = None
+		# Make sure node 0 has no products.
+		network.nodes[0].remove_products('all')
 
 		self.assertFalse(network.nodes[0].is_multiproduct)
 
 	def test_singleton(self):
-		"""Test that is_multiproduct correctly returns ``False`` if ``products`` is a list with one element.
+		"""Test that is_multiproduct correctly returns ``False`` if ``products`` has one element.
 		"""
 		print_status('TestIsMultiProduct', 'test_singleton()')
 
 		network = load_instance("example_6_1")
 
-		network.nodes[0].products = [0]
-		network.nodes[1].products = [SupplyChainProduct(0)]
+		network.nodes[0].add_product(SupplyChainProduct(0))
 
 		self.assertFalse(network.nodes[0].is_multiproduct)
-		self.assertFalse(network.nodes[1].is_multiproduct)
 
 	def test_multi(self):
-		"""Test that is_multiproduct correctly returns ``False`` if ``products`` is a list with multiple elements.
+		"""Test that is_multiproduct correctly returns ``False`` if ``products`` contains multiple elements.
 		"""
 		print_status('TestIsMultiProduct', 'test_multi()')
 
 		network = load_instance("example_6_1")
 
-		network.nodes[0].products = [0, 1]
-		network.nodes[1].products = [SupplyChainProduct(0), SupplyChainProduct(1)]
+		network.nodes[0].add_products([SupplyChainProduct(0), SupplyChainProduct(1)])
 
 		self.assertTrue(network.nodes[0].is_multiproduct)
-		self.assertTrue(network.nodes[1].is_multiproduct)
 
 	def test_multi_product_network7(self):
 		"""Test that is_multiproduct works correctly for 7-node multi-product instance.
@@ -376,45 +374,42 @@ class TestIsMultiProduct(unittest.TestCase):
 		self.assertFalse(network.get_node_from_index(6).is_multiproduct)
 
 
-## STOPPED
-		
-		
-class TestGetProductFromIndex(unittest.TestCase):
-	@classmethod
-	def set_up_class(cls):
-		"""Called once, before any tests."""
-		print_status('TestGetProductFromIndex', 'set_up_class()')
+# class TestGetProductFromIndex(unittest.TestCase):
+# 	@classmethod
+# 	def set_up_class(cls):
+# 		"""Called once, before any tests."""
+# 		print_status('TestGetProductFromIndex', 'set_up_class()')
 
-	@classmethod
-	def tear_down_class(cls):
-		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestGetProductFromIndex', 'tear_down_class()')
+# 	@classmethod
+# 	def tear_down_class(cls):
+# 		"""Called once, after all tests, if set_up_class successful."""
+# 		print_status('TestGetProductFromIndex', 'tear_down_class()')
 
-	def test_basic(self):
-		"""Basic test.
-		"""
-		print_status('TestGetProductFromIndex', 'test_basic()')
+# 	def test_basic(self):
+# 		"""Basic test.
+# 		"""
+# 		print_status('TestGetProductFromIndex', 'test_basic()')
 
-		prod1 = SupplyChainProduct(index=0, local_holding_cost=1, stockout_cost=10)
-		prod2 = SupplyChainProduct(index=1, local_holding_cost=2, stockout_cost=50)
-		node = SupplyChainNode(index=0, products=[prod1, prod2])
+# 		prod1 = SupplyChainProduct(index=0, local_holding_cost=1, stockout_cost=10)
+# 		prod2 = SupplyChainProduct(index=1, local_holding_cost=2, stockout_cost=50)
+# 		node = SupplyChainNode(index=0, products=[prod1, prod2])
 
-		self.assertEqual(node.get_product_from_index(0).index, 0)
-		self.assertEqual(node.get_product_from_index(1).index, 1)
+# 		self.assertEqual(node.products[0].index, 0)
+# 		self.assertEqual(node.products[1].index, 1)
 
-	def test_multi_product_network7(self):
-		"""Test 7-node multiproduct instance.
-		"""
-		print_status('TestGetProductFromIndex', 'test_multi_product_network7()')
+# 	def test_multi_product_network7(self):
+# 		"""Test 7-node multiproduct instance.
+# 		"""
+# 		print_status('TestGetProductFromIndex', 'test_multi_product_network7()')
 
-		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+# 		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
 
-		self.assertIsNone(network.get_node_from_index(0).get_product_from_index(None))
-		self.assertIsNone(network.get_node_from_index(0).get_product_from_index(44))
-		self.assertEqual(network.get_node_from_index(1).get_product_from_index(1).index, 1)
-		self.assertEqual(network.get_node_from_index(2).get_product_from_index(2).index, 2)
-		self.assertEqual(network.get_node_from_index(2).get_product_from_index(3).index, 3)
-		self.assertIsNone(network.get_node_from_index(2).get_product_from_index(44))
+# 		self.assertIsNone(network.get_node_from_index(0).products[None])
+# 		self.assertIsNone(network.get_node_from_index(0).products[44])
+# 		self.assertEqual(network.get_node_from_index(1).products[1].index, 1)
+# 		self.assertEqual(network.get_node_from_index(2).products[2].index, 2)
+# 		self.assertEqual(network.get_node_from_index(2).products[3].index, 3)
+# 		self.assertIsNone(network.get_node_from_index(2).products[44])
 
 
 class TestSetGetBillOfMaterials(unittest.TestCase):
@@ -435,9 +430,9 @@ class TestSetGetBillOfMaterials(unittest.TestCase):
 
 		network = mwor_system(3)
 
-		network.nodes[1].products = [SupplyChainProduct(1), SupplyChainProduct(2)]
-		network.nodes[2].products = [SupplyChainProduct(2), SupplyChainProduct(3)]
-		network.nodes[3].products = [SupplyChainProduct(4), SupplyChainProduct(5)]
+		network.nodes[1].add_products([SupplyChainProduct(1), SupplyChainProduct(2)])
+		network.nodes[2].add_products([SupplyChainProduct(2), SupplyChainProduct(3)])
+		network.nodes[3].add_products([SupplyChainProduct(4), SupplyChainProduct(5)])
 
 		network.nodes[0].set_bill_of_materials( 5, None, 1, 1)
 		network.nodes[0].set_bill_of_materials( 7, None, 1, 2)
@@ -460,10 +455,10 @@ class TestSetGetBillOfMaterials(unittest.TestCase):
 
 		network = mwor_system(3)
 
-		network.nodes[0].products = [SupplyChainProduct(10), SupplyChainProduct(11)]
-		network.nodes[1].products = [SupplyChainProduct(1), SupplyChainProduct(2)]
-		network.nodes[2].products = [SupplyChainProduct(2), SupplyChainProduct(3)]
-		network.nodes[3].products = [SupplyChainProduct(4), SupplyChainProduct(5)]
+		network.nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11)])
+		network.nodes[1].add_products([SupplyChainProduct(1), SupplyChainProduct(2)])
+		network.nodes[2].add_products([SupplyChainProduct(2), SupplyChainProduct(3)])
+		network.nodes[3].add_products([SupplyChainProduct(4), SupplyChainProduct(5)])
 
 		network.nodes[0].set_bill_of_materials(5, 10, 1, 1)
 		network.nodes[0].set_bill_of_materials(7, 10, 1, 2)
@@ -542,8 +537,8 @@ class TestSetGetBillOfMaterials(unittest.TestCase):
 
 		network = mwor_system(3)
 
-		network.get_node_from_index(1).products = [SupplyChainProduct(1), SupplyChainProduct(2)]
-		network.get_node_from_index(2).products = [SupplyChainProduct(2)]
+		network.get_node_from_index(1).add_products([SupplyChainProduct(1), SupplyChainProduct(2)])
+		network.get_node_from_index(2).add_products([SupplyChainProduct(2)])
 
 		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(predecessor_index=1), 0)
 		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(predecessor_index=2), 1)
@@ -568,9 +563,9 @@ class TestBillOfMaterialsList(unittest.TestCase):
 
 		network = mwor_system(3)
 
-		network.get_node_from_index(1).products = [SupplyChainProduct(1), SupplyChainProduct(2)]
-		network.get_node_from_index(2).products = [SupplyChainProduct(2), SupplyChainProduct(3)]
-		network.get_node_from_index(3).products = [SupplyChainProduct(4), SupplyChainProduct(5)]
+		network.get_node_from_index(1).add_products([SupplyChainProduct(1), SupplyChainProduct(2)])
+		network.get_node_from_index(2).add_products([SupplyChainProduct(2), SupplyChainProduct(3)])
+		network.get_node_from_index(3).add_products([SupplyChainProduct(4), SupplyChainProduct(5)])
 
 		node0 = network.get_node_from_index(0)
 
