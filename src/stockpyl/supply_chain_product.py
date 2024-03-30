@@ -123,8 +123,6 @@ class SupplyChainProduct(object):
 		Disruption process object (if any).
 	order_capacity : float
 		Maximum size of an order.
-	bill_of_materials : dict
-		# TODO: write description and figure out how this will be handled
 	state_vars : list of |class_state_vars|
 		List of |class_state_vars|, one for each period in a simulation.
 	problem_specific_data : object
@@ -366,7 +364,6 @@ class SupplyChainProduct(object):
 					if not isclose(getattr(self, attr) or 0, getattr(other, attr) or 0, rel_tol=rel_tol):
 						viol_attr = attr
 						eq = False
-# TODO: bill_of_materials
 				elif attr in ('demand_source', 'disruption_process'):
 					# Check for None in object or object type.
 					if (getattr(self, attr) is None and getattr(other, attr) is not None) or \

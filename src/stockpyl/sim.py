@@ -343,11 +343,14 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	# Get the node.
 	node = network.get_node_from_index(node_index)
 
-	# Does node have external demand?
-	if node.demand_source is not None and node.demand_source.type is not None:
-		# Generate demand and fill it in inbound_order_pipeline.
-		node.state_vars_current.inbound_order_pipeline[None][0] = \
-			node.demand_source.generate_demand(period)
+	# Loop through products (including None).
+	for prod_index in node.product_indices:
+		# Does node/product have external demand?
+		dem_src = node.get_attribute('demand_source', prod_index)
+		if dem_src is not None and dem_src.type is not None:
+			# Generate demand and fill it in inbound_order_pipeline.
+			node.state_vars_current.inbound_order_pipeline[None][prod_index][0] = \
+				dem_src.generate_demand(period)
 
 	# Call generate_downstream_orders() for all non-visited successors.
 	for s in node.successors():
@@ -358,58 +361,61 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	# Receive inbound orders.
 	_receive_inbound_orders(node)
 
-	# Get lead times (for convenience).
-	order_lead_time = node.order_lead_time or 0
-	shipment_lead_time = node.shipment_lead_time or 0
+	# Loop through products at this node.
+	for prod in node.products:
+		
+		# Get lead times (for convenience).
+		order_lead_time = node.get_attribute('order_lead_time', prod) or 0
+		shipment_lead_time = node.get_attribute('shipment_lead_time', prod) or 0
 
-	# Place orders to all predecessors.
-	for p in node.predecessors(include_external=True):
-		if p is not None:
-			# Was an override order quantity provided?
-			if order_quantity_override is not None and node in order_quantity_override \
-					and order_quantity_override[node] is not None:
-				order_quantity = order_quantity_override[node]
-			# Is there an order-pausing disruption?
-			elif node.disrupted and node.disruption_process.disruption_type == 'OP':
-				order_quantity = 0
-			else:
-				# Calculate order quantity.
-				if node.inventory_policy is None:
-					raise AttributeError(
-						f"The inventory_policy attribute for {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.")
-
-				# Apply node's order capacity if there is one (NEW - 11/9/23):
-				if node.order_capacity is None:
-					order_capac = 1.0e300
+		# Place orders to all predecessors.
+		for p in node.predecessors(include_external=True):
+			if p is not None:
+				# Was an override order quantity provided?
+				if order_quantity_override is not None and node in order_quantity_override \
+						and order_quantity_override[node] is not None:
+					order_quantity = order_quantity_override[node]
+				# Is there an order-pausing disruption?
+				elif node.disrupted and node.disruption_process.disruption_type == 'OP':
+					order_quantity = 0
 				else:
-					order_capac = node.order_capacity
-				order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=p.index))
+					# Calculate order quantity.
+					if node.inventory_policy is None:
+						raise AttributeError(
+							f"The inventory_policy attribute for {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.")
 
-			# Place order in predecessor's order pipeline.
-			p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = order_quantity
-			p_index = p.index
-		else:
-			# Was an override order quantity provided?
-			if order_quantity_override is not None and node in order_quantity_override \
-					and order_quantity_override[node] is not None:
-				order_quantity = order_quantity_override[node]
-			# Is there an order-pausing disruption?
-			elif node.disrupted and node.disruption_process.disruption_type == 'OP':
-				order_quantity = 0
+					# Apply node's order capacity if there is one (NEW - 11/9/23):
+					if node.order_capacity is None:
+						order_capac = 1.0e300
+					else:
+						order_capac = node.order_capacity
+					order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=p.index))
+
+				# Place order in predecessor's order pipeline.
+				p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = order_quantity
+				p_index = p.index
 			else:
-				# Calculate order quantity.
-				if node.order_capacity is None:
-					order_capac = 1.0e300
+				# Was an override order quantity provided?
+				if order_quantity_override is not None and node in order_quantity_override \
+						and order_quantity_override[node] is not None:
+					order_quantity = order_quantity_override[node]
+				# Is there an order-pausing disruption?
+				elif node.disrupted and node.disruption_process.disruption_type == 'OP':
+					order_quantity = 0
 				else:
-					order_capac = node.order_capacity
-				order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=None))
+					# Calculate order quantity.
+					if node.order_capacity is None:
+						order_capac = 1.0e300
+					else:
+						order_capac = node.order_capacity
+					order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=None))
 
-			# Place order to external supplier.
-			# (For now, this just means adding to inbound shipment pipeline.)
-			node.state_vars_current.inbound_shipment_pipeline[None][
-				(order_lead_time or 0) + (shipment_lead_time or 0)] += \
-				order_quantity
-			p_index = None
+				# Place order to external supplier.
+				# (For now, this just means adding to inbound shipment pipeline.)
+				node.state_vars_current.inbound_shipment_pipeline[None][
+					(order_lead_time or 0) + (shipment_lead_time or 0)] += \
+					order_quantity
+				p_index = None
 
 		if order_quantity is None:
 			order_quantity = None

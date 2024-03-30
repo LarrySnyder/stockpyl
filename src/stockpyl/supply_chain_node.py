@@ -219,66 +219,40 @@ class SupplyChainNode(object):
 		'state_vars': []
 	}
 
-	def get_attribute(self, attr, product=None):
-		"""Return the value of the attribute ``attr`` for ``product``. This is a way to
-		easily access an attribute without knowing ahead of time whether it is a singleton
-		or a product-keyed dict. ``product`` may be either a |class_product| object or the index of the product.
-		
-			* If ``self.attr`` is a dict and contains the key ``product``, returns ``self.attr[product]``. 
-			(This returns a (node, product)-specific value of the attribute.)
-			* Else if ``self.attr`` equals its default value (e.g., ``None``), 
-			or is a dict but does not contain the key ``product``, returns
-			``self.products[product].attr``. (This returns a product-specific value of the attribute.)
-			* Else (``self.attr`` is a singleton), returns ``self.attr``. (This returns a node-specific value
-			of the attribute.)
 
-		(Here, we are assuming ``product`` is an index. If it is a |class_product| object, replace ``product``
-		with ``product.index``.)
+	# Properties related to input parameters.
 
-		Parameters
-		----------
-		attr : str
-			The name of the attribute to get.
-		product : |class_product| or int, optional
-			The product to get the attribute for, either as a |class_product| object or as an index.
-			Set to ``None`` or omit for single-product models.
-
-		Returns
-		-------
-		any
-			The value of the attribute for the product (if any).
+	@property
+	def holding_cost(self):
+		"""An alias for ``local_holding_cost``. Read only.
 		"""
-		# Get self.attr and the product and index.
-		self_attr = getattr(self, attr)
-		if isinstance(product, SupplyChainProduct):
-			product_obj = product
-			product_ind = product.index
-		else:
-			product_obj = self.products[product]
-			product_ind = product
+		return self.local_holding_cost
 
-		# Is self.attr a dict?
-		if is_dict(self_attr):
-			if product_ind in self_attr:
-				return self_attr[product_ind]
+	@property
+	def lead_time(self):
+		return self.shipment_lead_time
+
+	@lead_time.setter
+	def lead_time(self, value):
+		self.shipment_lead_time = value
+
+	@property
+	def inventory_policy(self):
+		return self._inventory_policy
+
+	@inventory_policy.setter
+	def inventory_policy(self, value):
+		# Set ``_inventory_policy``, and also set ``_inventory_policy``'s ``node`` attribute to self.
+		# If ``value`` is a dict (for multi-product), set ``node`` and ``product`` attributes of the policy 
+		# for each product in the dict.
+		self._inventory_policy = value
+		if self._inventory_policy is not None:
+			if is_dict(value):
+				for prod, _ in value.items():
+					self._inventory_policy[prod].node = self
+					self._inventory_policy[prod].product = prod
 			else:
-				return getattr(product_obj, attr)
-		else:
-			# Determine whether attr is set to its default value; if so, try to use product attribute.
-			# Settable properties that are aliases for attributes require special handling since there's no
-			# default value for properties.
-			# if attr == 'holding_cost':
-			# 	default_val = self.local_holding_cost
-			if attr == 'lead_time':
-				default_val = self.shipment_lead_time
-			elif attr == 'inventory_policy':
-				default_val = self.inventory_policy
-			else:
-				default_val = self._DEFAULT_VALUES[attr]
-			if (default_val is None and self_attr is None) or (self_attr == default_val):
-				return getattr(product_obj, attr)
-			else:
-				return self_attr
+				self._inventory_policy.node = self
 
 	# Properties and functions related to network structure.
 
@@ -396,8 +370,12 @@ class SupplyChainNode(object):
 
 	@property
 	def products(self):
-		"""A list containing products handled by the node. Read only. """
-		return list(self._products_by_index.values())
+		"""A list containing products handled by the node. Always returns a list, even if the
+		node is single-product. (In that case, the list equals ``[None]``.) Read only. """
+		if self._products_by_index:
+			return list(self._products_by_index.values())
+		else:
+			return [None]
 
 	@property
 	def products_by_index(self):
@@ -407,6 +385,20 @@ class SupplyChainNode(object):
 		with index 4. Read only. """
 		return self._products_by_index
 
+	@property
+	def is_multiproduct(self):
+		"""Returns ``True`` if the node handles multiple products, ``False`` otherwise. Read only."""
+		return (self.products is not None and (len(self.products) > 1))
+
+	@property
+	def product_indices(self):
+		"""A list of indices of all products handled at the node. Always returns a list, even if the
+		node is single-product. (In that case, the list equals ``[None]``.) Read only."""
+		if self.products:
+			return list(self._products_by_index.keys())
+		else:
+			return [None]
+	
 	def add_product(self, product):
 		"""Add ``product`` to the node. If ``product`` is already in the node (as determined by the index),
 		do nothing.
@@ -468,40 +460,6 @@ class SupplyChainNode(object):
 			for prod in list_of_products:
 				self.remove_product(prod)
 		
-	@property
-	def is_multiproduct(self):
-		"""Returns ``True`` if the node handles multiple products, ``False`` otherwise. Read only."""
-		return (self.products is not None and (len(self.products) > 1))
-
-	@property
-	def product_indices(self):
-		"""A list of indices of all products handled at the node. Always returns a list, even if the
-		node is single-product. (In that case, the list equals ``[None]``.) Read only."""
-		if self.products:
-			return list(self._products_by_index.keys())
-		else:
-			return [None]
-	
-	# def get_product_from_index(self, index):
-	# 	"""Return  |class_product| object from ``self.products`` with the specified index,
-	# 	or ``None`` if no matching product is found.
-
-	# 	Parameters
-	# 	----------
-	# 	index : int
-	# 		Index of product to find.
-
-	# 	Returns
-	# 	-------
-	# 	|class_product|
-	# 		The product whose index is ``index``, or ``None`` if none.
-	# 	"""
-	# 	for product in self.products:
-	# 		if product.index == index:
-	# 			return product
-			
-	# 	return None
-	
 	def set_bill_of_materials(self, num_needed=1.0, product_index=None, predecessor_index=None, rm_index=None):
 		"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required from ``predecessor_index`` in order
 		to make one unit of ``product_index`` at this node. If this is a single-product node, set ``product_index`` to ``None``.
@@ -607,6 +565,8 @@ class SupplyChainNode(object):
 		even if it has not been set explicitly. If the BOM number is something 
 		other than 1, it must be set using ``set_bill_of_materials()``.
 
+		It is normally easier to access the bill of materials using :func:`get_bill_of_materials`.
+
 		Read only.
 		"""
 		bom = []
@@ -665,40 +625,7 @@ class SupplyChainNode(object):
 		
 		return supplier_indices
 
-
-	# Properties related to input parameters.
-
-	@property
-	def holding_cost(self):
-		"""An alias for ``local_holding_cost``. Read only.
-		"""
-		return self.local_holding_cost
-
-	@property
-	def lead_time(self):
-		return self.shipment_lead_time
-
-	@lead_time.setter
-	def lead_time(self, value):
-		self.shipment_lead_time = value
-
-	@property
-	def inventory_policy(self):
-		return self._inventory_policy
-
-	@inventory_policy.setter
-	def inventory_policy(self, value):
-		# Set ``_inventory_policy``, and also set ``_inventory_policy``'s ``node`` attribute to self.
-		# If ``value`` is a dict (for multi-product), set ``node`` and ``product`` attributes of the policy 
-		# for each product in the dict.
-		self._inventory_policy = value
-		if self._inventory_policy is not None:
-			if is_dict(value):
-				for prod, _ in value.items():
-					self._inventory_policy[prod].node = self
-					self._inventory_policy[prod].product = prod
-			else:
-				self._inventory_policy.node = self
+	# Properties related to lead times.
 
 	@property
 	def forward_echelon_lead_time(self):
@@ -1160,6 +1087,67 @@ class SupplyChainNode(object):
 			return self._predecessors[0]
 
 	# Attribute management.
+
+	def get_attribute(self, attr, product=None):
+		"""Return the value of the attribute ``attr`` for ``product``. This is a way to
+		easily access an attribute without knowing ahead of time whether it is a singleton
+		or a product-keyed dict. ``product`` may be either a |class_product| object or the index of the product.
+		
+			* If ``self.attr`` is a dict and contains the key ``product``, returns ``self.attr[product]``. 
+			(This returns a (node, product)-specific value of the attribute.)
+			* Else if ``self.attr`` equals its default value (e.g., ``None``), 
+			or is a dict but does not contain the key ``product``, returns
+			``self.products[product].attr``. (This returns a product-specific value of the attribute.)
+			* Else (``self.attr`` is a singleton), returns ``self.attr``. (This returns a node-specific value
+			of the attribute.)
+
+		(Here, we are assuming ``product`` is an index. If it is a |class_product| object, replace ``product``
+		with ``product.index``.)
+
+		Parameters
+		----------
+		attr : str
+			The name of the attribute to get.
+		product : |class_product| or int, optional
+			The product to get the attribute for, either as a |class_product| object or as an index.
+			Set to ``None`` or omit for single-product models.
+
+		Returns
+		-------
+		any
+			The value of the attribute for the product (if any).
+		"""
+		# Get self.attr and the product and index.
+		self_attr = getattr(self, attr)
+		if isinstance(product, SupplyChainProduct):
+			product_obj = product
+			product_ind = product.index
+		else:
+			product_obj = self.products[product]
+			product_ind = product
+
+		# Is self.attr a dict?
+		if is_dict(self_attr):
+			if product_ind in self_attr:
+				return self_attr[product_ind]
+			else:
+				return getattr(product_obj, attr)
+		else:
+			# Determine whether attr is set to its default value; if so, try to use product attribute.
+			# Settable properties that are aliases for attributes require special handling since there's no
+			# default value for properties.
+			# if attr == 'holding_cost':
+			# 	default_val = self.local_holding_cost
+			if attr == 'lead_time':
+				default_val = self.shipment_lead_time
+			elif attr == 'inventory_policy':
+				default_val = self.inventory_policy
+			else:
+				default_val = self._DEFAULT_VALUES[attr]
+			if (default_val is None and self_attr is None) or (self_attr == default_val):
+				return getattr(product_obj, attr)
+			else:
+				return self_attr
 
 	def _get_attribute_total(self, attribute, period, product_index=None, include_external=True):
 		"""Return total of ``attribute`` in the node's ``state_vars`` for the period and product specified, for an
