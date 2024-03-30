@@ -457,7 +457,7 @@ class TestRemoveProduct(unittest.TestCase):
 	def test_multi_product_7node(self):
 		"""Test remove_product() for 7-node multi-product instance.
 		"""
-		print_status('TestIsMultiProduct', 'test_multi_product_7node()')
+		print_status('TestRemoveProduct', 'test_multi_product_7node()')
 
 		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
 
@@ -471,7 +471,7 @@ class TestRemoveProduct(unittest.TestCase):
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
 		"""
-		print_status('TestIsMultiProduct', 'test_product_does_not_exist()')
+		print_status('TestRemoveProduct', 'test_product_does_not_exist()')
 
 		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
 
@@ -515,7 +515,7 @@ class TestRemoveProducts(unittest.TestCase):
 	def test_multi_product_7node(self):
 		"""Test remove_product() for 7-node multi-product instance.
 		"""
-		print_status('TestIsMultiProduct', 'test_multi_product_7node()')
+		print_status('TestRemoveProducts', 'test_multi_product_7node()')
 
 		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
 
@@ -529,7 +529,7 @@ class TestRemoveProducts(unittest.TestCase):
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
 		"""
-		print_status('TestIsMultiProduct', 'test_product_does_not_exist()')
+		print_status('TestRemoveProducts', 'test_product_does_not_exist()')
 
 		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
 
@@ -613,6 +613,77 @@ class TestIsMultiProduct(unittest.TestCase):
 		self.assertFalse(network.get_node_from_index(6).is_multiproduct)
 
 
+class TestIsSingleProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsSingleProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsSingleProduct', 'tear_down_class()')
+
+	def test_empty_list(self):
+		"""Test that is_singleproduct correctly returns ``True`` if ``products = []``.
+		"""
+		print_status('TestIsSingleProduct', 'test_empty_list()')
+
+		network = load_instance("example_6_1")
+
+		# Make sure node 0 has no products.
+		network.nodes[0].remove_products('all')
+
+		self.assertTrue(network.nodes[0].is_singleproduct)
+
+	def test_none(self):
+		"""Test that is_singleproduct correctly returns ``True`` if ``products is None``.
+		"""
+		print_status('TestIsSingleProduct', 'test_none()')
+
+		network = load_instance("example_6_1")
+
+		# Make sure node 0 has no products.
+		network.nodes[0].remove_products('all')
+
+		self.assertTrue(network.nodes[0].is_singleproduct)
+
+	def test_singleton(self):
+		"""Test that is_singleproduct correctly returns ``True`` if ``products`` has one element.
+		"""
+		print_status('TestIsSingleProduct', 'test_singleton()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].add_product(SupplyChainProduct(0))
+
+		self.assertTrue(network.nodes[0].is_singleproduct)
+
+	def test_multi(self):
+		"""Test that is_singleproduct correctly returns ``False`` if ``products`` contains multiple elements.
+		"""
+		print_status('TestIsSingleProduct', 'test_multi()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].add_products([SupplyChainProduct(0), SupplyChainProduct(1)])
+
+		self.assertFalse(network.nodes[0].is_singleproduct)
+
+	def test_multi_product_network7(self):
+		"""Test that is_singleproduct works correctly for 7-node multi-product instance.
+		"""
+		print_status('TestIsSingleProduct', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		self.assertTrue(network.get_node_from_index(0).is_singleproduct)
+		self.assertTrue(network.get_node_from_index(1).is_singleproduct)
+		self.assertFalse(network.get_node_from_index(2).is_singleproduct)
+		self.assertTrue(network.get_node_from_index(3).is_singleproduct)
+		self.assertTrue(network.get_node_from_index(4).is_singleproduct)
+		self.assertFalse(network.get_node_from_index(5).is_singleproduct)
+		self.assertTrue(network.get_node_from_index(6).is_singleproduct)
 # class TestGetProductFromIndex(unittest.TestCase):
 # 	@classmethod
 # 	def set_up_class(cls):
