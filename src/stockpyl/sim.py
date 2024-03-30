@@ -361,8 +361,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	# Receive inbound orders.
 	_receive_inbound_orders(node)
 
-	# Loop through products at this node.
-	for prod in node.products:
+	# Loop through products at this node. (If no products, use None.)
+	for prod in node.products or [None]:
 		
 		# Get lead times (for convenience).
 		order_lead_time = node.get_attribute('order_lead_time', prod) or 0

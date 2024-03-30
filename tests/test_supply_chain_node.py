@@ -172,10 +172,24 @@ class TestGetAttribute(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestGetAttribute', 'tear_down_class()')
 
-	def test_single_node(self):
+	def test_singleproduct_node(self):
+		"""Test get_attribute() for single node with single product.
+		"""
+		print_status('TestGetAttribute', 'test_singleproduct_node()')
+
+		node = SupplyChainNode(index=0, local_holding_cost=2, lead_time=1, revenue=100)
+
+		self.assertEqual(node.get_attribute('local_holding_cost'), 2)
+		self.assertEqual(node.get_attribute('holding_cost', None), 2)
+		self.assertEqual(node.get_attribute('lead_time'), 1)
+		self.assertEqual(node.get_attribute('revenue'), 100)
+		self.assertEqual(node.get_attribute('stockout_cost', None), None)
+		self.assertEqual(node.get_attribute('stockout_cost'), None)
+		
+	def test_multiproduct_node(self):
 		"""Test get_attribute() for single node with multiple products.
 		"""
-		print_status('TestGetAttribute', 'test_single_node()')
+		print_status('TestGetAttribute', 'test_multiproduct_node()')
 
 		node = SupplyChainNode(index=0, local_holding_cost=2)
 		prod0 = SupplyChainProduct(index=0, lead_time=1, revenue=100)
@@ -207,9 +221,9 @@ class TestGetAttribute(unittest.TestCase):
 		self.assertEqual(node.get_attribute('initial_inventory_level', 0), 50)
 		self.assertEqual(node.get_attribute('initial_inventory_level', prod1), 70)
 		self.assertEqual(node.get_attribute('initial_inventory_level', 2), 90)
-		self.assertEqual(node.get_attribute('revenue', prod0), 100)
-		self.assertEqual(node.get_attribute('revenue', 1), 200)
-		self.assertEqual(node.get_attribute('revenue', prod2), 300)
+		self.assertEqual(node.get_attribute('stockout_cost', prod0), None)
+		self.assertEqual(node.get_attribute('stockout_cost', 1), None)
+		self.assertEqual(node.get_attribute('stockout_cost', prod2), None)
 
 
 		
@@ -436,8 +450,8 @@ class TestRemoveProduct(unittest.TestCase):
 		network.nodes[1].remove_product(1)
 		network.nodes[2].remove_product(network.nodes[2].products_by_index[2])
 
-		self.assertEqual(network.nodes[0].product_indices, [None])
-		self.assertEqual(network.nodes[1].product_indices, [None])
+		self.assertEqual(network.nodes[0].product_indices, [])
+		self.assertEqual(network.nodes[1].product_indices, [])
 		self.assertEqual(network.nodes[2].product_indices, [3])
 
 	def test_multi_product_7node(self):
@@ -450,8 +464,8 @@ class TestRemoveProduct(unittest.TestCase):
 		network.get_node_from_index(1).remove_product(1)
 		network.get_node_from_index(2).remove_product(network.get_node_from_index(2).products_by_index[2])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [])
 		self.assertEqual(network.get_node_from_index(2).product_indices, [3])
 
 	def test_product_does_not_exist(self):
@@ -464,7 +478,7 @@ class TestRemoveProduct(unittest.TestCase):
 		network.get_node_from_index(0).remove_product(7)
 		network.get_node_from_index(1).remove_product(7)
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [])
 		self.assertEqual(network.get_node_from_index(1).product_indices, [1])
 
 class TestRemoveProducts(unittest.TestCase):
@@ -494,9 +508,9 @@ class TestRemoveProducts(unittest.TestCase):
 		network.nodes[1].remove_products([1])
 		network.nodes[2].remove_products([network.nodes[2].products_by_index[2], 3])
 
-		self.assertEqual(network.nodes[0].product_indices, [None])
-		self.assertEqual(network.nodes[1].product_indices, [None])
-		self.assertEqual(network.nodes[2].product_indices, [None])
+		self.assertEqual(network.nodes[0].product_indices, [])
+		self.assertEqual(network.nodes[1].product_indices, [])
+		self.assertEqual(network.nodes[2].product_indices, [])
 
 	def test_multi_product_7node(self):
 		"""Test remove_product() for 7-node multi-product instance.
@@ -508,9 +522,9 @@ class TestRemoveProducts(unittest.TestCase):
 		network.get_node_from_index(1).remove_products([1])
 		network.get_node_from_index(2).remove_products([3, network.get_node_from_index(2).products_by_index[2]])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [None])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
@@ -522,7 +536,7 @@ class TestRemoveProducts(unittest.TestCase):
 		network.get_node_from_index(0).remove_products([7])
 		network.get_node_from_index(2).remove_products([3, 7])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [])
 		self.assertEqual(network.get_node_from_index(2).product_indices, [2])
 
 		
@@ -845,6 +859,232 @@ class TestBillOfMaterialsList(unittest.TestCase):
 			set(network.get_node_from_index(6).bill_of_materials),
 			{(1, 6, None, None, None)}
 		)
+
+class TestRawMaterialSuppliers(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRawMaterialSuppliers', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRawMaterialSuppliers', 'tear_down_class()')
+
+	def test_mwor_no_product(self):
+		"""Test that raw_material_suppliers works correctly on MWOR network with no product added at retailer.
+		"""
+		print_status('TestRawMaterialSuppliers', 'test_mwor_no_product()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		nodes[1].add_products([prods[1], prods[2]])
+		nodes[2].add_products([prods[2], prods[3]])
+		nodes[3].add_products([prods[4], prods[5]])
+
+		nodes[0].set_bill_of_materials( 5, None, 1, 1)
+		nodes[0].set_bill_of_materials( 7, None, 1, 2)
+		nodes[0].set_bill_of_materials( 3, None, 2, 2)
+		nodes[0].set_bill_of_materials(15, None, 2, 3)
+		nodes[0].set_bill_of_materials( 6, None, 3, 4)
+		nodes[0].set_bill_of_materials(16, None, 3, 5)
+
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=None), [nodes[1], nodes[2], nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_suppliers(product_index=77)
+
+	def test_mwor_one_product(self):
+		"""Test that raw_material_suppliers works correctly on MWOR network with one product added at retailer.
+		"""
+		print_status('TestRawMaterialSuppliers', 'test_mwor_one_product()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		nodes[1].add_products([prods[1], prods[2]])
+		nodes[2].add_products([prods[2], prods[3]])
+		nodes[3].add_products([prods[4], prods[5]])
+
+		nodes[0].add_product(SupplyChainProduct(10))
+
+		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
+		nodes[0].set_bill_of_materials( 7, 10, 1, 2)
+		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
+		nodes[0].set_bill_of_materials(15, 10, 2, 3)
+		nodes[0].set_bill_of_materials( 6, 10, 3, 4)
+		nodes[0].set_bill_of_materials(16, 10, 3, 5)
+
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10), [nodes[1], nodes[2], nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_suppliers(product_index=None)
+			_ = nodes[0].raw_material_suppliers(product_index=77)
+
+	def test_mwor_multiple_products(self):
+		"""Test that raw_material_suppliers works correctly on MWOR network with multiple products added at retailer.
+		"""
+		print_status('TestRawMaterialSuppliers', 'test_mwor_multiple_products()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		network.get_node_from_index(1).add_products([prods[1], prods[2]])
+		network.get_node_from_index(2).add_products([prods[2], prods[3]])
+		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+
+		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
+
+		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
+		nodes[0].set_bill_of_materials( 7, 11, 1, 2)
+		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
+		nodes[0].set_bill_of_materials(15, 10, 2, 3)
+		nodes[0].set_bill_of_materials( 6, 12, 3, 4)
+		nodes[0].set_bill_of_materials(16, 12, 3, 5)
+
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=11), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=12), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_suppliers(product_index=None)
+			_ = nodes[0].raw_material_suppliers(product_index=77)
+
+	def test_multi_product_network7(self):
+		"""Test that bill_of_materials works correctly on 7-node network.
+		"""
+		print_status('TestRawMaterialSuppliers', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=None), [nodes[3], nodes[4]])
+		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=1), [nodes[4], nodes[5]])
+		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=2), [nodes[5]])
+		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=3), [nodes[5], nodes[6], None])
+		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=None), [None])
+		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=None), [None])
+		self.assertListEqual(nodes[5].raw_material_suppliers(product_index=4), [None])
+		self.assertListEqual(nodes[5].raw_material_suppliers(product_index=5), [None])
+		self.assertListEqual(nodes[6].raw_material_suppliers(product_index=None), [None])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_suppliers(product_index=None)
+			_ = nodes[0].raw_material_suppliers(product_index=77)
+		
+
+class TestRawMaterialSupplierIndices(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRawMaterialSupplierIndices', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRawMaterialSupplierIndices', 'tear_down_class()')
+
+	def test_mwor_no_product(self):
+		"""Test that raw_material_supplier_indices works correctly on MWOR network with no product added at retailer.
+		"""
+		print_status('TestRawMaterialSupplierIndices', 'test_mwor_no_product()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		nodes[1].add_products([prods[1], prods[2]])
+		nodes[2].add_products([prods[2], prods[3]])
+		nodes[3].add_products([prods[4], prods[5]])
+
+		nodes[0].set_bill_of_materials( 5, None, 1, 1)
+		nodes[0].set_bill_of_materials( 7, None, 1, 2)
+		nodes[0].set_bill_of_materials( 3, None, 2, 2)
+		nodes[0].set_bill_of_materials(15, None, 2, 3)
+		nodes[0].set_bill_of_materials( 6, None, 3, 4)
+		nodes[0].set_bill_of_materials(16, None, 3, 5)
+
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=None), [1, 2, 3])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+
+	def test_mwor_one_product(self):
+		"""Test that raw_material_supplier_indices works correctly on MWOR network with one product added at retailer.
+		"""
+		print_status('TestRawMaterialSupplierIndices', 'test_mwor_one_product()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		nodes[1].add_products([prods[1], prods[2]])
+		nodes[2].add_products([prods[2], prods[3]])
+		nodes[3].add_products([prods[4], prods[5]])
+
+		nodes[0].add_product(SupplyChainProduct(10))
+
+		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
+		nodes[0].set_bill_of_materials( 7, 10, 1, 2)
+		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
+		nodes[0].set_bill_of_materials(15, 10, 2, 3)
+		nodes[0].set_bill_of_materials( 6, 10, 3, 4)
+		nodes[0].set_bill_of_materials(16, 10, 3, 5)
+
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2, 3])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+
+	def test_mwor_multiple_products(self):
+		"""Test that raw_material_supplier_indices works correctly on MWOR network with multiple products added at retailer.
+		"""
+		print_status('TestRawMaterialSupplierIndices', 'test_mwor_multiple_products()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		network.get_node_from_index(1).add_products([prods[1], prods[2]])
+		network.get_node_from_index(2).add_products([prods[2], prods[3]])
+		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+
+		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
+
+		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
+		nodes[0].set_bill_of_materials( 7, 11, 1, 2)
+		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
+		nodes[0].set_bill_of_materials(15, 10, 2, 3)
+		nodes[0].set_bill_of_materials( 6, 12, 3, 4)
+		nodes[0].set_bill_of_materials(16, 12, 3, 5)
+
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=11), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=12), [3])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+
+	def test_multi_product_network7(self):
+		"""Test that bill_of_materials works correctly on 7-node network.
+		"""
+		print_status('TestRawMaterialSupplierIndices', 'test_multi_product_network7()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=None), [3, 4])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=1), [4, 5])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=2), [5])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=3), [5, 6, None])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=None), [None])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=None), [None])
+		self.assertListEqual(nodes[5].raw_material_supplier_indices(product_index=4), [None])
+		self.assertListEqual(nodes[5].raw_material_supplier_indices(product_index=5), [None])
+		self.assertListEqual(nodes[6].raw_material_supplier_indices(product_index=None), [None])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+		
 
 class TestLeadTime(unittest.TestCase):
 	@classmethod
