@@ -161,6 +161,58 @@ class TestSupplyChainNodeEq(unittest.TestCase):
 		self.assertEqual(contains5, True)
 
 
+class TestGetAttribute(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestGetAttribute', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetAttribute', 'tear_down_class()')
+
+	def test_single_node(self):
+		"""Test get_attribute() for single node with multiple products.
+		"""
+		print_status('TestGetAttribute', 'test_single_node()')
+
+		node = SupplyChainNode(index=0, local_holding_cost=2)
+		prod0 = SupplyChainProduct(index=0, lead_time=1, revenue=100)
+		prod1 = SupplyChainProduct(index=1, lead_time=2, order_lead_time=4)
+		prod2 = SupplyChainProduct(index=2, lead_time=3, initial_orders=33)
+		node.add_products([prod0, prod1, prod2])
+		node.initial_inventory_level = {0: 50, 1: 70, 2: 90}
+		node.revenue = {1: 200, 2: 300}
+		node.order_lead_time = {0: 5}
+
+		self.assertEqual(node.get_attribute('local_holding_cost', 0), 2)
+		self.assertEqual(node.get_attribute('local_holding_cost', prod1), 2)
+		self.assertEqual(node.get_attribute('local_holding_cost', prod2), 2)
+		self.assertEqual(node.get_attribute('holding_cost', 0), 2)
+		self.assertEqual(node.get_attribute('holding_cost', prod1), 2)
+		self.assertEqual(node.get_attribute('holding_cost', prod2), 2)
+		self.assertEqual(node.get_attribute('lead_time', 0), 1)
+		self.assertEqual(node.get_attribute('lead_time', 1), 2)
+		self.assertEqual(node.get_attribute('lead_time', prod2), 3)
+		self.assertEqual(node.get_attribute('revenue', prod0), 100)
+		self.assertEqual(node.get_attribute('revenue', 1), 200)
+		self.assertEqual(node.get_attribute('revenue', 2), 300)
+		self.assertEqual(node.get_attribute('order_lead_time', prod0), 5)
+		self.assertEqual(node.get_attribute('order_lead_time', 1), 4)
+		self.assertEqual(node.get_attribute('order_lead_time', prod2), None)
+		self.assertEqual(node.get_attribute('initial_orders', 0), None)
+		self.assertEqual(node.get_attribute('initial_orders', 1), None)
+		self.assertEqual(node.get_attribute('initial_orders', 2), 33)
+		self.assertEqual(node.get_attribute('initial_inventory_level', 0), 50)
+		self.assertEqual(node.get_attribute('initial_inventory_level', prod1), 70)
+		self.assertEqual(node.get_attribute('initial_inventory_level', 2), 90)
+		self.assertEqual(node.get_attribute('revenue', prod0), 100)
+		self.assertEqual(node.get_attribute('revenue', 1), 200)
+		self.assertEqual(node.get_attribute('revenue', prod2), 300)
+
+
+		
 class TestDescendants(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -301,6 +353,179 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[6], [])
 
 
+class TestAddProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddProduct', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test.
+		"""
+		print_status('TestAddProduct', 'test_basic()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].add_product(SupplyChainProduct(0))
+		network.nodes[1].add_product(SupplyChainProduct(1))
+		network.nodes[2].add_product(SupplyChainProduct(2))
+		network.nodes[2].add_product(SupplyChainProduct(3))
+
+		self.assertEqual(network.nodes[0].product_indices, [0])
+		self.assertEqual(network.nodes[1].product_indices, [1])
+		self.assertEqual(network.nodes[2].product_indices, [2, 3])
+
+		
+class TestAddProducts(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddProducts', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddProducts', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test.
+		"""
+		print_status('TestAddProducts', 'test_basic()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].add_products([SupplyChainProduct(0)])
+		network.nodes[1].add_products([SupplyChainProduct(1)])
+		network.nodes[2].add_products([SupplyChainProduct(2)])
+		network.nodes[2].add_products([SupplyChainProduct(3)])
+
+		self.assertEqual(network.nodes[0].product_indices, [0])
+		self.assertEqual(network.nodes[1].product_indices, [1])
+		self.assertEqual(network.nodes[2].product_indices, [2, 3])
+
+
+class TestRemoveProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRemoveProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRemoveProduct', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test.
+		"""
+		print_status('TestRemoveProduct', 'test_basic()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].add_product(SupplyChainProduct(0))
+		network.nodes[1].add_product(SupplyChainProduct(1))
+		network.nodes[2].add_product(SupplyChainProduct(2))
+		network.nodes[2].add_product(SupplyChainProduct(3))
+
+		network.nodes[0].remove_product(0)
+		network.nodes[1].remove_product(1)
+		network.nodes[2].remove_product(network.nodes[2].products_by_index[2])
+
+		self.assertEqual(network.nodes[0].product_indices, [None])
+		self.assertEqual(network.nodes[1].product_indices, [None])
+		self.assertEqual(network.nodes[2].product_indices, [3])
+
+	def test_multi_product_7node(self):
+		"""Test remove_product() for 7-node multi-product instance.
+		"""
+		print_status('TestIsMultiProduct', 'test_multi_product_7node()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		network.get_node_from_index(1).remove_product(1)
+		network.get_node_from_index(2).remove_product(network.get_node_from_index(2).products_by_index[2])
+
+		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [3])
+
+	def test_product_does_not_exist(self):
+		"""Test that remove_product() correctly does nothing if product doesn't exist.
+		"""
+		print_status('TestIsMultiProduct', 'test_product_does_not_exist()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		network.get_node_from_index(0).remove_product(7)
+		network.get_node_from_index(1).remove_product(7)
+
+		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [1])
+
+class TestRemoveProducts(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRemoveProducts', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRemoveProducts', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test.
+		"""
+		print_status('TestRemoveProducts', 'test_basic()')
+
+		network = load_instance("example_6_1")
+
+		network.nodes[0].add_product(SupplyChainProduct(0))
+		network.nodes[1].add_product(SupplyChainProduct(1))
+		network.nodes[2].add_product(SupplyChainProduct(2))
+		network.nodes[2].add_product(SupplyChainProduct(3))
+
+		network.nodes[0].remove_products([0])
+		network.nodes[1].remove_products([1])
+		network.nodes[2].remove_products([network.nodes[2].products_by_index[2], 3])
+
+		self.assertEqual(network.nodes[0].product_indices, [None])
+		self.assertEqual(network.nodes[1].product_indices, [None])
+		self.assertEqual(network.nodes[2].product_indices, [None])
+
+	def test_multi_product_7node(self):
+		"""Test remove_product() for 7-node multi-product instance.
+		"""
+		print_status('TestIsMultiProduct', 'test_multi_product_7node()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		network.get_node_from_index(1).remove_products([1])
+		network.get_node_from_index(2).remove_products([3, network.get_node_from_index(2).products_by_index[2]])
+
+		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [None])
+
+	def test_product_does_not_exist(self):
+		"""Test that remove_product() correctly does nothing if product doesn't exist.
+		"""
+		print_status('TestIsMultiProduct', 'test_product_does_not_exist()')
+
+		network = load_instance("bom_structure", "/Users/larry/Documents/GitHub/stockpyl/tests/additional_files/multi_product_instance.json")
+
+		network.get_node_from_index(0).remove_products([7])
+		network.get_node_from_index(2).remove_products([3, 7])
+
+		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [2])
+
+		
 class TestIsMultiProduct(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

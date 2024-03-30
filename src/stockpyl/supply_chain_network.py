@@ -316,29 +316,6 @@ class SupplyChainNetwork(object):
 
 		return network
 
-	# # Non-object attributes.
-	# network.period 						= the_dict['period']
-	# network.max_max_replenishment_time	= the_dict['max_max_replenishment_time']
-
-	# # Nodes.
-	# for n_dict in the_dict['nodes']:
-	# 	network.add_node(SupplyChainNode.from_dict(n_dict))
-
-	# # Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
-	# # replaces them with indices.)
-	# for n in network.nodes:
-	# 	preds = []
-	# 	succs = []
-	# 	for m in network.nodes:
-	# 		if m.index in n.predecessors():
-	# 			preds.append(m)
-	# 		if m.index in n.successors():
-	# 			succs.append(m)
-	# 	n._predecessors = preds
-	# 	n._successors = succs
-
-	# return network
-
 	# Methods for node handling.
 
 	def get_node_from_index(self, index):

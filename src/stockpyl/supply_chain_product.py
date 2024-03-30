@@ -172,7 +172,7 @@ class SupplyChainProduct(object):
 				# The key refers to an attribute that has "_" prepended to it.
 				setattr(self, f"_{key}", value)
 			else:
-				raise AttributeError(f"{key} is not an attribute of Policy")
+				raise AttributeError(f"{key} is not an attribute of SupplyChainProduct")
 
 	_DEFAULT_VALUES = {
 		'index': None,

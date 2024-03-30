@@ -38,7 +38,7 @@ indices and whose values are the attribute values). In particular:
 
 	* If the attribute is a dict, the node will first attempt to access the value of ``<attribute>[<product id>]``.
 	* Else, if the attribute is a dict but does not contain a value for a given product, the product's value
-	for the attribute is used.
+	for the attribute is used, if it exists.
 	* Else the node's value of the attribute is used. (It should be a singleton in this case.)
 
 To add a product to the node, use :func:`add_product`. To retrieve the products at the node, use
@@ -226,7 +226,8 @@ class SupplyChainNode(object):
 		
 			* If ``self.attr`` is a dict and contains the key ``product``, returns ``self.attr[product]``. 
 			(This returns a (node, product)-specific value of the attribute.)
-			* Else if ``self.attr`` is a dict but does not contain the key ``product``, returns
+			* Else if ``self.attr`` equals its default value (e.g., ``None``), 
+			or is a dict but does not contain the key ``product``, returns
 			``self.products[product].attr``. (This returns a product-specific value of the attribute.)
 			* Else (``self.attr`` is a singleton), returns ``self.attr``. (This returns a node-specific value
 			of the attribute.)
@@ -263,7 +264,21 @@ class SupplyChainNode(object):
 			else:
 				return getattr(product_obj, attr)
 		else:
-			return self_attr
+			# Determine whether attr is set to its default value; if so, try to use product attribute.
+			# Settable properties that are aliases for attributes require special handling since there's no
+			# default value for properties.
+			# if attr == 'holding_cost':
+			# 	default_val = self.local_holding_cost
+			if attr == 'lead_time':
+				default_val = self.shipment_lead_time
+			elif attr == 'inventory_policy':
+				default_val = self.inventory_policy
+			else:
+				default_val = self._DEFAULT_VALUES[attr]
+			if (default_val is None and self_attr is None) or (self_attr == default_val):
+				return getattr(product_obj, attr)
+			else:
+				return self_attr
 
 	# Properties and functions related to network structure.
 
