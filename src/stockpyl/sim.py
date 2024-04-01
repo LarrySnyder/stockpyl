@@ -33,7 +33,7 @@ import datetime
 #from stockpyl.supply_chain_network import SupplyChainNetwork
 from stockpyl.supply_chain_node import NodeStateVars
 from stockpyl.sim_io import write_instance_and_states
-from stockpyl import helpers
+from stockpyl.helpers import BIG_FLOAT
 #from tests.instances_ssm_serial import *
 from stockpyl.instances import load_instance
 
@@ -325,7 +325,9 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 		Dictionary indicating whether each node in network has already been
 		visited by the depth-first search.
 	order_quantity_override : dict, optional
-		Dictionary indicating an order quantity (or ``None``) for each node in network (specified as |class_node| objects).
+		Dictionary indicating an order quantity (or ``None``) for each node and product in network 
+		(specified as |class_node| and |class_product| objects, or ``None`` for single-product nodes).
+		e.g., ``order_quantity_override[node][product]`` is the order quantity to use for ``product`` at ``node``.
 		If provided, these order quantity will override the order quantities that would otherwise be calculated for
 		the nodes. If ``order_quantity_override`` is provided but its value is ``None`` for a given
 		node, an order quantity will be calculated for that node as usual. (This option is mostly used
@@ -364,68 +366,64 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	# Loop through products at this node. (If no products, use None.)
 	for prod in node.products or [None]:
 		
-		# Get lead times (for convenience).
+		# Get lead times and product index (for convenience).
 		order_lead_time = node.get_attribute('order_lead_time', prod) or 0
 		shipment_lead_time = node.get_attribute('shipment_lead_time', prod) or 0
+		prod_index = prod.index if prod is not None else None
 
-		# Place orders to all predecessors.
-		for p in node.predecessors(include_external=True):
-			if p is not None:
-				# Was an override order quantity provided?
-				if order_quantity_override is not None and node in order_quantity_override \
-						and order_quantity_override[node] is not None:
-					order_quantity = order_quantity_override[node]
-				# Is there an order-pausing disruption?
-				elif node.disrupted and node.disruption_process.disruption_type == 'OP':
-					order_quantity = 0
+		# Determine order quantity.
+		# Was an override order quantity provided?
+		try:
+			qty_override = order_quantity_override[node][prod]
+		except:
+			qty_override = None
+		if qty_override is not None:
+			order_quantity = qty_override
+		# if order_quantity_override is not None and node in order_quantity_override \
+		# 		and order_quantity_override[node] is not None :
+		# 	order_quantity = order_quantity_override[node]
+		# Is there an order-pausing disruption?
+		elif node.disrupted and node.disruption_process.disruption_type == 'OP':
+			order_quantity = 0
+		else:
+			# Calculate order quantity.
+			policy = node.get_attribute('inventory_policy', product=prod)
+			if policy is None:
+				if prod_index:
+					err_str = f'The inventory_policy attribute for node {node.index} and product {prod_index} is None. You must provide a Policy object in one or both objects in order for the simulation to set order quantities.'
 				else:
-					# Calculate order quantity.
-					if node.inventory_policy is None:
-						raise AttributeError(
-							f"The inventory_policy attribute for {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.")
+					err_str = f'The inventory_policy attribute for node {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.'
+				raise AttributeError(err_str)
 
-					# Apply node's order capacity if there is one (NEW - 11/9/23):
-					if node.order_capacity is None:
-						order_capac = 1.0e300
-					else:
-						order_capac = node.order_capacity
-					order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=p.index))
+			# Determine node/product's order capacity.
+			order_capac = node.get_attribute('order_capacity', product=prod) or BIG_FLOAT
+
+			# Place orders to all raw material suppliers (predecessors that provide this product/node with
+			# a raw material).
+			for p in node.raw_material_suppliers(product_index=prod_index):
+				p_index = p.index if p is not None else None
+
+				# Calculate order quantity from policy.
+				order_quantity = min(order_capac, policy.get_order_quantity(predecessor_index=p_index))
 
 				# Place order in predecessor's order pipeline.
-				p.state_vars_current.inbound_order_pipeline[node_index][order_lead_time] = order_quantity
-				p_index = p.index
-			else:
-				# Was an override order quantity provided?
-				if order_quantity_override is not None and node in order_quantity_override \
-						and order_quantity_override[node] is not None:
-					order_quantity = order_quantity_override[node]
-				# Is there an order-pausing disruption?
-				elif node.disrupted and node.disruption_process.disruption_type == 'OP':
-					order_quantity = 0
+				if p is not None:
+					p.state_vars_current.inbound_order_pipeline[node_index][prod_index][order_lead_time] = order_quantity
 				else:
-					# Calculate order quantity.
-					if node.order_capacity is None:
-						order_capac = 1.0e300
-					else:
-						order_capac = node.order_capacity
-					order_quantity = min(order_capac, node.inventory_policy.get_order_quantity(predecessor_index=None))
+					# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
+					node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time + shipment_lead_time] += order_quantity
 
-				# Place order to external supplier.
-				# (For now, this just means adding to inbound shipment pipeline.)
-				node.state_vars_current.inbound_shipment_pipeline[None][
-					(order_lead_time or 0) + (shipment_lead_time or 0)] += \
-					order_quantity
-				p_index = None
-
-		if order_quantity is None:
-			order_quantity = None
+		# if order_quantity is None:
+		# 	order_quantity = None
 
 		# Record order quantity.
-		node.state_vars_current.order_quantity[p_index] = order_quantity
+		node.state_vars_current.order_quantity[p_index][prod_index] = order_quantity
 		# Add order to on_order_by_predecessor.
-		node.state_vars_current.on_order_by_predecessor[p_index] += order_quantity
+		node.state_vars_current.on_order_by_predecessor[p_index][prod_index] += order_quantity
 
 
+## STOPPED
+		
 def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks='W'):
 	"""Generate shipments to all downstream nodes using depth-first-search.
 	Ignore nodes for which visited=True.
