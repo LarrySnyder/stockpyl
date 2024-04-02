@@ -1250,6 +1250,8 @@ class SupplyChainNode(object):
 		inbound shipment, from all predecessor nodes (including the external
 		supply, if any), in period 5.
 
+		# TODO: rename this to _get_state_var_total ?
+
 		Parameters
 		----------
 		attribute : str
@@ -1271,26 +1273,33 @@ class SupplyChainNode(object):
 		if attribute in ('inbound_shipment', 'on_order_by_predecessor', 'raw_material_inventory', 'inbound_disrupted_items'):
 			# These attributes are indexed by predecessor.
 			if period is None:
-				return float(np.sum([self.state_vars[t].__dict__[attribute][p_index]
+				return float(np.sum([self.state_vars[t].__dict__[attribute][p_index][product_index]
 									 for t in range(len(self.state_vars))
 									 for p_index in self.predecessor_indices(include_external=include_external)]))
 			else:
-				return float(np.sum([self.state_vars[period].__dict__[attribute][p_index]
+				return float(np.sum([self.state_vars[period].__dict__[attribute][p_index][product_index]
 									 for p_index in self.predecessor_indices(include_external=include_external)]))
 		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor', 'outbound_disrupted_items'):
 			# These attributes are indexed by successor.
 			if period is None:
-				return float(np.sum([self.state_vars[t].__dict__[attribute][s_index]
+				return float(np.sum([self.state_vars[t].__dict__[attribute][s_index][product_index]
 									 for t in range(len(self.state_vars))
 									 for s_index in self.successor_indices(include_external=include_external)]))
 			else:
-				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index]
+				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index][product_index]
 									 for s_index in self.successor_indices(include_external=include_external)]))
-		else:
+		elif attribute in ('disrupted', 'holding_cost_incurred', 'stockout_cost_incurred', 'in_transit_holding_cost_incurred',
+			'revenue_earned', 'total_cost_incurred'):
+			# These attributes are not indexed by product.
 			if period is None:
 				return np.sum([self.state_vars[:].__dict__[attribute]])
 			else:
 				return self.state_vars[period].__dict__[attribute]
+		else:
+			if period is None:
+				return np.sum([self.state_vars[:].__dict__[attribute][product_index]])
+			else:
+				return self.state_vars[period].__dict__[attribute][product_index]
 
 	def reindex_all_state_variables(self, old_to_new_dict):
 		"""Change indices of all keys in all state variables using ``old_to_new_dict``.
