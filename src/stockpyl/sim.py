@@ -662,10 +662,10 @@ def _calculate_period_costs(network, period):
 		# Loop through products at node.
 		for prod_index in n.product_indices:
 			# Finished goods holding cost.
-			items_held = max(0, n.state_vars[period].inventory_level[prod_index]) + 
+			items_held = max(0, n.state_vars[period].inventory_level[prod_index]) + \
 							n._get_attribute_total('outbound_disrupted_items', period, product_index=prod_index)
 			try:
-				n.state_vars[period].holding_cost_incurred += n.get_attribute('local_holding_cost_function', prod_index).(items_held)
+				n.state_vars[period].holding_cost_incurred += n.get_attribute('local_holding_cost_function', prod_index)(items_held)
 			except TypeError:
 				n.state_vars[period].holding_cost_incurred += (n.get_attribute('local_holding_cost', prod_index) or 0) * items_held
 			# Raw materials holding cost.
@@ -780,9 +780,10 @@ def _raw_materials_to_finished_goods(node):
 		for p in node.raw_material_suppliers(prod_index):
 			p_index = p.index if p is not None else None
 			for rm_index in p.products:
-				avail_rm[p_index] = node.state_vars_current.raw_material_inventory[p_index][]
-	new_finished_goods = float(np.min([node.state_vars_current.raw_material_inventory[p_index]
-									   for p_index in node.predecessor_indices(include_external=True)]))
+				pass ## STOPPED
+	# 			avail_rm[p_index] = node.state_vars_current.raw_material_inventory[p_index][]
+	# new_finished_goods = float(np.min([node.state_vars_current.raw_material_inventory[p_index]
+	# 								   for p_index in node.predecessor_indices(include_external=True)]))
 
 	# Process units: remove from raw material inventory and add to finished goods.
 	for p_index in node.predecessor_indices(include_external=True):

@@ -12,7 +12,8 @@ Overview
 --------
 
 This module contains the |class_network| class, which is a network consisting of
-one or more nodes. The network and nodes together specify a problem instance.
+one or more nodes and, optionally, one or more products. The network, nodes, and
+products together specify a problem instance.
 
 .. note:: |node_stage|
 
@@ -20,7 +21,7 @@ one or more nodes. The network and nodes together specify a problem instance.
 
 A |class_network| is used primarily for :ref:`multi-echelon inventory optimization (MEIO) <meio_page>`
 or :ref:`simulation <sim_page>`. Most data for the problem instance is specified
-in the |class_node| objects contained within the |class_network|, rather than in
+in the |class_node| and |class_product| objects contained within the |class_network|, rather than in
 the network itself.
 
 
@@ -40,10 +41,11 @@ import copy
 
 #import supply_chain_node
 from stockpyl.supply_chain_node import SupplyChainNode
+from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.disruption_process import DisruptionProcess
-from stockpyl.helpers import is_list, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
+from stockpyl.helpers import is_list, is_dict, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
 from stockpyl.helpers import build_node_data_dict
 
 
@@ -95,6 +97,7 @@ class SupplyChainNetwork(object):
 
 	_DEFAULT_VALUES = {
 		'_nodes': [],
+		'_products': [],
 		'_period': 0,
 		'max_max_replenishment_time': None
 	}
@@ -113,6 +116,41 @@ class SupplyChainNetwork(object):
 		"""List of indices of all nodes in the network. Read only.
 		"""
 		return [node.index for node in self.nodes]
+
+	@property
+	def products(self):
+		"""List of all products in the network, as |class_product| objects. Includes products
+		that have been explicitly added to the network via :func:`add_product` as well as products
+		that are handled by the nodes in the network. Read only.
+		"""
+		product_set = set(self._products)
+		for node in self.nodes:
+			product_set |= set(node.products)
+		return list(product_set)
+
+	@property
+	def product_indices(self):
+		"""List of indices of all products in the network. Includes products
+		that have been explicitly added to the network via :func:`add_product` as well as products
+		that are handled by the nodes in the network. Read only.
+		"""
+		return [prod.index for prod in self.products]
+
+	@property
+	def products_by_index(self):
+		"""A dict containing products in the network. Includes products that have been explicitly
+		added to the network via :func:`add_product` as well as products that are handled by the nodes
+		in the network.
+		
+		The keys of the dict are
+		product indices and the values are the corresponding |class_product| objects.
+		For example, ``self.products_by_index[4]`` returns a |class_product| object for the product 
+		with index 4. 
+	
+		Read only. 
+		"""
+		# Include all products in network (including in nodes).
+		return {prod.index: prod for prod in self.products}
 
 	@property
 	def period(self):
@@ -185,7 +223,7 @@ class SupplyChainNetwork(object):
 		"""
 		# Loop through attributes. Special handling for list attributes.
 		for attr in self._DEFAULT_VALUES.keys():
-			if is_list(self._DEFAULT_VALUES[attr]):
+			if is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])
@@ -224,6 +262,8 @@ class SupplyChainNetwork(object):
 
 		if sorted(self.node_indices) != sorted(other.node_indices):
 			eq = False
+		elif sorted(self.product_indices) != sorted(other.product_indices):
+			eq = False
 		else:
 			# Special handling for some attributes.
 			for attr in self._DEFAULT_VALUES.keys():
@@ -233,6 +273,13 @@ class SupplyChainNetwork(object):
 						if other_node is None:
 							eq = False
 						elif not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
+							eq = False
+				elif attr == '_products':
+					for prod_ind in sorted(self.product_indices):
+						other_product = other.products_by_index[prod_ind]
+						if other_product is None:
+							eq = False
+						elif not self.products_by_index[prod_ind].deep_equal_to(other_product, rel_tol=rel_tol):
 							eq = False
 				else:
 					if getattr(self, attr) != getattr(other, attr):
@@ -260,6 +307,8 @@ class SupplyChainNetwork(object):
 				network_dict['nodes'] = []
 				for n in self.nodes:
 					network_dict['nodes'].append(n.to_dict())
+			elif attr == '_products':
+				network_dict[attr] = [prod.to_dict() for prod in self.products]
 			else:
 				network_dict[prop] = getattr(self, prop)
 
@@ -305,6 +354,9 @@ class SupplyChainNetwork(object):
 									succs.append(m)
 							n._predecessors = preds
 							n._successors = succs
+				elif attr == '_products':
+					if attr not in the_dict:
+						value = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
 				else:
 					# Remove leading '_' to get property names.
 					prop = attr[1:] if attr[0] == '_' else attr
@@ -525,6 +577,49 @@ class SupplyChainNetwork(object):
 				digraph.add_edge(p.index, n.index)
 
 		return digraph
+	
+	# Functions related to product management.
+
+	def add_product(self, product):
+		"""Add ``product`` to the network. ``product`` will not automatically be contained in any
+		nodes that might be in the network already. 
+		If ``product`` is already in the network (as determined by the index),
+		do nothing.
+
+		It is not necessary to add products using this function if they are handled by nodes
+		in the network. The only reason to use this function is to add a product to a network
+		that is not handled by any node in the network, which is not typical.
+
+		Parameters
+		----------
+		product : |class_product|
+			The product to add to the network.
+		"""
+
+		# Check whether product is already in network.
+		if product not in self._products:
+			self._products.append(product)
+			product.network = self
+
+	def remove_product(self, product):
+		"""Remove a product from the network. If ``product`` is not in the network (as 
+		determined by the index), do nothing.
+		
+		The product is removed from the network itself
+		but is not removed from any nodes within the network. If the product is handled by
+		any of those nodes, it will still be included in ``self.products``.
+
+
+		Parameters
+		----------
+		product : |class_product|
+			The product to remove.
+		"""
+
+		# Check whether product is in network.
+		if product in self._products:
+			# Remove product from network.
+			self._products.remove(product)
 
 
 # ===============================================================================

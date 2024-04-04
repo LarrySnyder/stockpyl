@@ -8,6 +8,7 @@ import copy
 
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
+from stockpyl.supply_chain_product import *
 from stockpyl.supply_chain_node import SupplyChainNode
 from stockpyl.demand_source import DemandSource
 from stockpyl.instances import *
@@ -87,9 +88,15 @@ class TestDeepEqualTo(unittest.TestCase):
 		node1 = SupplyChainNode(1)
 		node2 = SupplyChainNode(2)
 
+		prod0 = SupplyChainProduct(0)
+		prod1 = SupplyChainProduct(1)
+
 		network.add_node(node2)
 		network.add_successor(node2, node1)
 		network.add_successor(node1, node0)
+
+		network.add_product(prod0)
+		network.add_product(prod1)
 
 		# Equal networks.
 		network2 = copy.deepcopy(network)
@@ -104,10 +111,20 @@ class TestDeepEqualTo(unittest.TestCase):
 		network2.max_max_replenishment_time = 99
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
+		network2 = copy.deepcopy(network)
+		network2.products[0].stockout_cost = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
 
 		# Unequal networks due to missing node.
 		network2 = copy.deepcopy(network)
 		network2.remove_node(network2.nodes[0])
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing product.
+		network2 = copy.deepcopy(network)
+		network2.remove_product(network2.products[0])
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 
@@ -148,6 +165,38 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 
+	def test_multiproduct_5_7(self):
+		"""Test deep_equal_to() on 5-node, 7-product system.
+		"""
+		print_status('TestDeepEqualTo', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+
+		# Equal networks.
+		network2 = copy.deepcopy(network)
+		self.assertTrue(network.deep_equal_to(network2))
+		self.assertTrue(network2.deep_equal_to(network))
+		
+		# Unequal networks due to parameter.
+		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+		network2 = copy.deepcopy(network)
+		network2.max_max_replenishment_time = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing node.
+		network2 = copy.deepcopy(network)
+		network2.remove_node(network2.nodes[2])
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing product.
+		network2 = copy.deepcopy(network)
+		network2.get_node_from_index(0).remove_product(0)
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
 
 class TestInitialize(unittest.TestCase):
 	@classmethod
@@ -601,6 +650,92 @@ class TestRemoveNode(unittest.TestCase):
 		self.assertEqual(node0succ, [1, 3])
 		self.assertEqual(node1succ, [])
 		self.assertEqual(node3succ, [])
+
+
+class TestAddRemoveProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddRemoveProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddRemoveProduct', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test remove_product() on product-only system.
+		"""
+		print_status('TestAddRemoveProduct', 'test_basic()')
+
+		network = SupplyChainNetwork()
+
+		prod0 = SupplyChainProduct(0)
+		prod1 = SupplyChainProduct(1)
+
+		network.add_product(prod0)
+		network.add_product(prod1)
+
+		network.remove_product(network.products_by_index[1])
+
+		self.assertEqual(network.product_indices, [0])
+
+	def test_multiproduct_5_7(self):
+		"""Test remove_product() on 5-node, 7-product system.
+		"""
+		print_status('TestAddRemoveProduct', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		network.add_product(SupplyChainProduct(10))
+		network.add_product(SupplyChainProduct(11))
+
+		network.remove_product(network.products_by_index[10])
+
+		self.assertEqual(network.product_indices, [0, 1, 2, 3, 4, 5, 6, 11])
+
+
+class TestProductLists(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestProductLists', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestProductLists', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test product-only system.
+		"""
+		print_status('TestProductLists', 'test_basic()')
+
+		network = SupplyChainNetwork()
+
+		prod0 = SupplyChainProduct(0)
+		prod1 = SupplyChainProduct(1)
+
+		network.add_product(prod0)
+		network.add_product(prod1)
+
+		self.assertEqual(network.products, [prod0, prod1])
+		self.assertEqual(network.product_indices, [0, 1])
+		self.assertDictEqual(network.products_by_index, {0: prod0, 1: prod1})
+
+	def test_multiproduct_5_7(self):
+		"""Test 5-node, 7-product system.
+		"""
+		print_status('TestProductLists', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		network.add_product(SupplyChainProduct(10))
+		network.add_product(SupplyChainProduct(11))
+		products = {i: network.products_by_index[i] for i in [0, 1, 2, 3, 4, 5, 6, 10, 11]}
+
+		self.assertEqual(network.products, products)
+		self.assertEqual(network.product_indices, [0, 1, 2, 3, 4, 5, 6, 10, 11])
+		self.assertDictEqual(network.products_by_index, {i: products[i] for i in products.keys()})
+	
 
 
 class TestReindexNodes(unittest.TestCase):
@@ -1783,6 +1918,23 @@ class TestToFromDict(unittest.TestCase):
 		print_status('TestToFromDict', 'test_assembly_3_stage()')
 
 		network = load_instance("assembly_3_stage")
+
+		# Convert network to dict.
+		network_dict = network.to_dict()
+
+		# Convert dict back to network.
+		dict_network = SupplyChainNetwork.from_dict(network_dict)
+
+		# Compare.
+		self.assertTrue(network.deep_equal_to(dict_network))
+
+	def test_multiproduct_5_7(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNetwork object to and from dict
+		in 5-node, 7-product system.
+		"""
+		print_status('TestToFromDict', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		# Convert network to dict.
 		network_dict = network.to_dict()

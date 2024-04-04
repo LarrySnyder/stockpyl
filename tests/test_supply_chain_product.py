@@ -6,6 +6,7 @@ from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.instances import *
 from stockpyl.sim import *
+from tests.settings import RUN_ALL_TESTS
 
 
 # Module-level functions.
@@ -73,6 +74,80 @@ class TestSupplyChainProductInit(unittest.TestCase):
 
 		with self.assertRaises(AttributeError):
 			_ = SupplyChainProduct(index=4, foo=7)
+
+
+class TestSetGetBillOfMaterials(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSetGetBillOfMaterials', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSetGetBillOfMaterials', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test that set_ and get_bill_of_materials() work correctly.
+		"""
+		print_status('TestSetGetBillOfMaterials', 'test_basic()')
+
+		prod = {i: SupplyChainProduct(index=i) for i in range(7)}
+
+		prod[0].set_bill_of_materials(2.5, 2)
+		prod[0].set_bill_of_materials(7, 3)
+		prod[1].set_bill_of_materials(10, 3)
+		prod[1].set_bill_of_materials(3.8, 4)
+		prod[2].set_bill_of_materials(0.2, 5)
+		prod[3].set_bill_of_materials(2, 5)
+		prod[4].set_bill_of_materials(50, 6)
+		
+		self.assertEqual(prod[0].get_bill_of_materials(2), 2.5)
+		self.assertEqual(prod[0].get_bill_of_materials(3), 7)
+		self.assertEqual(prod[1].get_bill_of_materials(3), 10)
+		self.assertEqual(prod[1].get_bill_of_materials(4), 3.8)
+		self.assertEqual(prod[2].get_bill_of_materials(5), 0.2)
+		self.assertEqual(prod[3].get_bill_of_materials(5), 2)
+		self.assertEqual(prod[4].get_bill_of_materials(6), 50)
+
+		self.assertEqual(prod[0].get_bill_of_materials(5), 0)
+		self.assertEqual(prod[4].get_bill_of_materials(655), 0)
+
+
+class TestBillOfMaterialsDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestBillOfMaterialsDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestBillOfMaterialsDict', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test that bill_of_materials works correctly on MWOR network.
+		"""
+		print_status('TestBillOfMaterialsDict', 'test_basic()')
+
+		prod = {i: SupplyChainProduct(index=i) for i in range(7)}
+
+		prod[0].set_bill_of_materials(2.5, 2)
+		prod[0].set_bill_of_materials(7, 3)
+		prod[1].set_bill_of_materials(10, 3)
+		prod[1].set_bill_of_materials(3.8, 4)
+		prod[2].set_bill_of_materials(0.2, 5)
+		prod[3].set_bill_of_materials(2, 5)
+		prod[4].set_bill_of_materials(50, 6)
+
+		self.assertDictEqual(prod[0].bill_of_materials_dict, {2: 2.5, 3: 7})
+		self.assertDictEqual(prod[1].bill_of_materials_dict, {3: 10, 4: 3.8})
+		self.assertDictEqual(prod[2].bill_of_materials_dict, {5: 0.2})
+		self.assertDictEqual(prod[3].bill_of_materials_dict, {5: 2})
+		self.assertDictEqual(prod[4].bill_of_materials_dict, {6: 50})
+		self.assertDictEqual(prod[5].bill_of_materials_dict, {})
+		self.assertDictEqual(prod[6].bill_of_materials_dict, {})
+
 
 
 class TestSupplyChainProductEq(unittest.TestCase):
@@ -155,6 +230,8 @@ class TestSupplyChainProductEq(unittest.TestCase):
 		self.assertEqual(contains5, True)
 
 
+## STOPPED 
+		
 class TestDeepEqualTo(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

@@ -187,7 +187,6 @@ class SupplyChainNode(object):
 		'_products_by_index': {},
 		'_predecessors': [],
 		'_successors': [],
-		'_bill_of_materials': {},
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
@@ -465,143 +464,143 @@ class SupplyChainNode(object):
 			for prod in list_of_products:
 				self.remove_product(prod)
 		
-	def set_bill_of_materials(self, num_needed=1.0, product_index=None, predecessor_index=None, rm_index=None):
-		"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required from ``predecessor_index`` in order
-		to make one unit of ``product_index`` at this node. 
+	# def set_bill_of_materials(self, num_needed=1.0, product_index=None, rm_index=None):
+	# 	"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required from ``predecessor_index`` in order
+	# 	to make one unit of ``product_index`` at this node. 
 		
-		* If this is a single-product node and a |class_product| object has been added to the node,
-		set ``product_index`` to the index of the product; if no product has been added, set ``product_index`` to ``None``.
-		* If the predecessor is the external supplier, set ``predecessor_index`` to ``None``. 
-		* If the predecessor is a single-product node, set ``rm_index`` to ``None``.
+	# 	* If this is a single-product node and a |class_product| object has been added to the node,
+	# 	set ``product_index`` to the index of the product; if no product has been added, set ``product_index`` to ``None``.
+	# 	* If the predecessor is the external supplier, set ``predecessor_index`` to ``None``. 
+	# 	* If the predecessor is a single-product node, set ``rm_index`` to ``None``.
 
-		To remove a BOM relationship, call this function again, setting ``num_needed = 0`` or ``num_needed = None``.
-		If ``num_needed = 0`` or ``None`` and a BOM relationship does not already exist for the specified product, 
-		predecessory, and raw material, does nothing.
+	# 	To remove a BOM relationship, call this function again, setting ``num_needed = 0`` or ``num_needed = None``.
+	# 	If ``num_needed = 0`` or ``None`` and a BOM relationship does not already exist for the specified product, 
+	# 	predecessory, and raw material, does nothing.
 
-		**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier
-		and the node's ``supply_type`` is not ``None``), their BOM number is assumed to equal 1, even if it has not been 
-		set explicitly. If the BOM number is something other than 1, it must be set using ``set_bill_of_materials()``.
+	# 	**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier
+	# 	and the node's ``supply_type`` is not ``None``), their BOM number is assumed to equal 1, even if it has not been 
+	# 	set explicitly. If the BOM number is something other than 1, it must be set using ``set_bill_of_materials()``.
 
-		Parameters
-		----------
-		product_index : int, optional
-			Index of product at this node, or ``None`` if this is a single-product node and no |class_product| object
-			has been added to the node.
-		predecessor_index : int, optional
-			Index of predecessor node, or ``None`` if the predecessor is the external supplier.
-		rm_index : int, optional
-			Index of raw material product, or ``None`` if the predecessor is the external supplier or
-			is single-product.
-		num_needed : float, optional
-			The number of units required. Set to 0 or ``None`` to remove the BOM relationship.
-		"""
+	# 	Parameters
+	# 	----------
+	# 	product_index : int, optional
+	# 		Index of product at this node, or ``None`` if this is a single-product node and no |class_product| object
+	# 		has been added to the node.
+	# 	predecessor_index : int, optional
+	# 		Index of predecessor node, or ``None`` if the predecessor is the external supplier.
+	# 	rm_index : int, optional
+	# 		Index of raw material product, or ``None`` if the predecessor is the external supplier or
+	# 		is single-product.
+	# 	num_needed : float, optional
+	# 		The number of units required. Set to 0 or ``None`` to remove the BOM relationship.
+	# 	"""
 
-		# Are we adding a BOM relationship?
-		if num_needed:
-			# Does self._bill_of_materials[product_index] already exist?
-			if product_index not in self._bill_of_materials:
-				self._bill_of_materials[product_index] = {}
-			# Does self._bill_of_materials[product_index][predecessor_index] already exist?
-			if predecessor_index not in self._bill_of_materials[product_index]:
-				self._bill_of_materials[product_index][predecessor_index] = {}
-			# Set self._bill_of_materials[product_index][predecessor_index][rm_index].
-			self._bill_of_materials[product_index][predecessor_index][rm_index] = num_needed
-		else:
-			# We are removing a BOM relationship.
-			if product_index in self._bill_of_materials:
-				if predecessor_index in self._bill_of_materials[product_index]:
-					if rm_index in self._bill_of_materials[product_index][predecessor_index]:
-						del self._bill_of_materials[product_index][predecessor_index][rm_index]
-						# If there are now no raw materials from predecessor_index, remove predecessor_index from
-						# self._bill_of_materials[product_index].
-						if not self._bill_of_materials[product_index][predecessor_index]:
-							del self._bill_of_materials[product_index][predecessor_index]
-						# If there are now no predecessors for this product, remove product_index from self._bill_of_materials.
-						if not self._bill_of_materials[product_index]:
-							del self._bill_of_materials[product_index]
+	# 	# Are we adding a BOM relationship?
+	# 	if num_needed:
+	# 		# Does self._bill_of_materials[product_index] already exist?
+	# 		if product_index not in self._bill_of_materials:
+	# 			self._bill_of_materials[product_index] = {}
+	# 		# Does self._bill_of_materials[product_index][predecessor_index] already exist?
+	# 		if predecessor_index not in self._bill_of_materials[product_index]:
+	# 			self._bill_of_materials[product_index][predecessor_index] = {}
+	# 		# Set self._bill_of_materials[product_index][predecessor_index][rm_index].
+	# 		self._bill_of_materials[product_index][predecessor_index][rm_index] = num_needed
+	# 	else:
+	# 		# We are removing a BOM relationship.
+	# 		if product_index in self._bill_of_materials:
+	# 			if predecessor_index in self._bill_of_materials[product_index]:
+	# 				if rm_index in self._bill_of_materials[product_index][predecessor_index]:
+	# 					del self._bill_of_materials[product_index][predecessor_index][rm_index]
+	# 					# If there are now no raw materials from predecessor_index, remove predecessor_index from
+	# 					# self._bill_of_materials[product_index].
+	# 					if not self._bill_of_materials[product_index][predecessor_index]:
+	# 						del self._bill_of_materials[product_index][predecessor_index]
+	# 					# If there are now no predecessors for this product, remove product_index from self._bill_of_materials.
+	# 					if not self._bill_of_materials[product_index]:
+	# 						del self._bill_of_materials[product_index]
 	
-	def get_bill_of_materials(self, product_index=None, predecessor_index=None, rm_index=None):
-		"""Get the number of units of raw material product ``rm_index`` that are required from ``predecessor_index`` in order
-		to make one unit of ``product_index`` at this node. 
+	# def get_bill_of_materials(self, product_index=None, predecessor_index=None, rm_index=None):
+	# 	"""Get the number of units of raw material product ``rm_index`` that are required from ``predecessor_index`` in order
+	# 	to make one unit of ``product_index`` at this node. 
 		
-		* If this is a single-product node and a |class_product| object has been added to the node,
-		set ``product_index`` to the index of the product; if no product has been added, set ``product_index`` to ``None``.
-		* If the predecessor is the external supplier, set ``predecessor_index`` to ``None``. 
-		* If the predecessor is a single-product node, set ``rm_index`` to ``None``.
+	# 	* If this is a single-product node and a |class_product| object has been added to the node,
+	# 	set ``product_index`` to the index of the product; if no product has been added, set ``product_index`` to ``None``.
+	# 	* If the predecessor is the external supplier, set ``predecessor_index`` to ``None``. 
+	# 	* If the predecessor is a single-product node, set ``rm_index`` to ``None``.
 
-		Returns 1 if the node and the predecessor are both single-product (or the predecessor is the external supplier and the node 
-		does not have ``supply_type`` ``None``) and there is no BOM relationship specified for this pair. Node(/product) pairs are 
-		assumed to have a BOM number of 1 in this case, unless specified otherwise in the BOM.
+	# 	Returns 1 if the node and the predecessor are both single-product (or the predecessor is the external supplier and the node 
+	# 	does not have ``supply_type`` ``None``) and there is no BOM relationship specified for this pair. Node(/product) pairs are 
+	# 	assumed to have a BOM number of 1 in this case, unless specified otherwise in the BOM.
 
-		Otherwise, returns 0 if there is no BOM relationship for this product, predecessor, and raw material.
+	# 	Otherwise, returns 0 if there is no BOM relationship for this product, predecessor, and raw material.
 
-		Parameters
-		----------
-		product_index : int, optional
-			Index of product at this node, or ``None`` if this is a single-product node.
-		predecessor_index : int, optional
-			Index of predecessor node, or ``None`` if the predecessor is the external supplier.
-		rm_index : int, optional
-			Index of raw material product, or ``None`` if the predecessor is the external supplier or
-			is single-product.
-		"""
-		try:
-			# Return BOM number, if BOM entry exists.
-			return self._bill_of_materials[product_index][predecessor_index][rm_index]
-		except:
-			# Treat supply_type as not None if it's not None in either the node or the product.
-			supply_type = self.supply_type 
-			if product_index in self.product_indices:
-				if product_index is not None:
-					supply_type = supply_type or self.products_by_index[product_index].supply_type
-			# Default to 1 if predecessor is external and supply_type is not None, or if
-			# node and predecessor are both single-product.
-			if (predecessor_index is None and supply_type is not None) \
-	   			or (not self.is_multiproduct and not self.network.get_node_from_index(predecessor_index).is_multiproduct):
-				return 1
-			else:
-				# No BOM relationship exists; return 0.
-				return 0
+	# 	Parameters
+	# 	----------
+	# 	product_index : int, optional
+	# 		Index of product at this node, or ``None`` if this is a single-product node.
+	# 	predecessor_index : int, optional
+	# 		Index of predecessor node, or ``None`` if the predecessor is the external supplier.
+	# 	rm_index : int, optional
+	# 		Index of raw material product, or ``None`` if the predecessor is the external supplier or
+	# 		is single-product.
+	# 	"""
+	# 	try:
+	# 		# Return BOM number, if BOM entry exists.
+	# 		return self._bill_of_materials[product_index][predecessor_index][rm_index]
+	# 	except:
+	# 		# Treat supply_type as not None if it's not None in either the node or the product.
+	# 		supply_type = self.supply_type 
+	# 		if product_index in self.product_indices:
+	# 			if product_index is not None:
+	# 				supply_type = supply_type or self.products_by_index[product_index].supply_type
+	# 		# Default to 1 if predecessor is external and supply_type is not None, or if
+	# 		# node and predecessor are both single-product.
+	# 		if (predecessor_index is None and supply_type is not None) \
+	#    			or (not self.is_multiproduct and not self.network.get_node_from_index(predecessor_index).is_multiproduct):
+	# 			return 1
+	# 		else:
+	# 			# No BOM relationship exists; return 0.
+	# 			return 0
 
-	@property
-	def bill_of_materials(self):
-		"""A list of all non-zero bill-of-materials relationships for products at this node.
-		Relationships are represented as tuples ``(num, n, prod, p, rm)``, where ``num`` is the
-		number of units required, ``n`` is the index of this node,
-		``prod`` is the index of a product (or ``None`` if ``n`` is single-product), 
-		``p`` is the index of a predecessor node (or ``None`` for external supplier), and ``rm`` is the index
-		of a product at ``p`` (or ``None`` if ``p`` is single-product or the external supplier).
+	# @property
+	# def bill_of_materials(self):
+	# 	"""A list of all non-zero bill-of-materials relationships for products at this node.
+	# 	Relationships are represented as tuples ``(num, n, prod, p, rm)``, where ``num`` is the
+	# 	number of units required, ``n`` is the index of this node,
+	# 	``prod`` is the index of a product (or ``None`` if ``n`` is single-product), 
+	# 	``p`` is the index of a predecessor node (or ``None`` for external supplier), and ``rm`` is the index
+	# 	of a product at ``p`` (or ``None`` if ``p`` is single-product or the external supplier).
 
-		**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier
-		and the node's ``supply_type`` is not ``None``), their BOM number is assumed to equal 1, 
-		even if it has not been set explicitly. If the BOM number is something 
-		other than 1, it must be set using ``set_bill_of_materials()``.
+	# 	**Note:** If the node and a predecessor are both single-product (or if the predecessor is the external supplier
+	# 	and the node's ``supply_type`` is not ``None``), their BOM number is assumed to equal 1, 
+	# 	even if it has not been set explicitly. If the BOM number is something 
+	# 	other than 1, it must be set using ``set_bill_of_materials()``.
 
-		It is normally easier to access the bill of materials using :func:`get_bill_of_materials`.
+	# 	It is normally easier to access the bill of materials using :func:`get_bill_of_materials`.
 
-		Read only.
-		"""
-		bom = []
+	# 	Read only.
+	# 	"""
+	# 	bom = []
 
-		# Build list of product indices, including None if single-product.
-		prod_indices = self.product_indices or [None]
+	# 	# Build list of product indices, including None if single-product.
+	# 	prod_indices = self.product_indices or [None]
 
-		# Loop through products, predecessors, and raw materials.
-		for prod in prod_indices:
-			for p in self.predecessors(include_external=True):
-				# Build list of raw materials, including None if single-product
-				if p:
-					rm_indices = p.product_indices or [None]
-					p_ind = p.index
-				else:
-					rm_indices = [None]
-					p_ind = None
-				for rm in rm_indices:
-					bom_value = self.get_bill_of_materials(product_index=prod, predecessor_index=p_ind, rm_index=rm)
-					if bom_value > 0:
-						bom.append((bom_value, self.index, prod, p_ind, rm))
+	# 	# Loop through products, predecessors, and raw materials.
+	# 	for prod in prod_indices:
+	# 		for p in self.predecessors(include_external=True):
+	# 			# Build list of raw materials, including None if single-product
+	# 			if p:
+	# 				rm_indices = p.product_indices or [None]
+	# 				p_ind = p.index
+	# 			else:
+	# 				rm_indices = [None]
+	# 				p_ind = None
+	# 			for rm in rm_indices:
+	# 				bom_value = self.get_bill_of_materials(product_index=prod, predecessor_index=p_ind, rm_index=rm)
+	# 				if bom_value > 0:
+	# 					bom.append((bom_value, self.index, prod, p_ind, rm))
 
-		return bom
+	# 	return bom
 		
 	def raw_material_suppliers(self, product_index=None):
 		"""Return a list of all predecessors, from which a raw material must be ordered in order to
@@ -1016,15 +1015,15 @@ class SupplyChainNode(object):
 						value = {}
 						for prod_dict in (the_dict['_products_by_index'].values() or []):
 							value[prod_dict['index']] = SupplyChainProduct.from_dict(prod_dict)
-				elif attr == '_bill_of_materials':
-					if attr in the_dict:
-						bom = copy.deepcopy(the_dict[attr])
-					else:
-						bom = copy.deepcopy(cls._DEFAULT_VALUES[attr])
-					# Convert 'null' to None and string-wrapped ints to ints in dictionary keys. 
-					# (Note that JSON encoding/decoding onverts correctly between None and 'null' 
-					# for dictionary values but not keys. Similarly, it leaves ints as strings.)
-					value = replace_dict_numeric_string_keys(replace_dict_null_keys(bom))
+				# elif attr == '_bill_of_materials':
+				# 	if attr in the_dict:
+				# 		bom = copy.deepcopy(the_dict[attr])
+				# 	else:
+				# 		bom = copy.deepcopy(cls._DEFAULT_VALUES[attr])
+				# 	# Convert 'null' to None and string-wrapped ints to ints in dictionary keys. 
+				# 	# (Note that JSON encoding/decoding onverts correctly between None and 'null' 
+				# 	# for dictionary values but not keys. Similarly, it leaves ints as strings.)
+				# 	value = replace_dict_numeric_string_keys(replace_dict_null_keys(bom))
 				elif attr == 'demand_source':
 					if attr in the_dict:
 						value = demand_source.DemandSource.from_dict(the_dict[attr])

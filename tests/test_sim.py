@@ -270,7 +270,6 @@ class TestSimulation(unittest.TestCase):
         print_status('TestSimulation', 'test_assembly_3_stage()')
 
         network = load_instance("assembly_3_stage")
-        # network = load_instance_old("assembly_3_stage", "/Users/larry/Documents/GitHub/stockpyl/src/stockpyl/datasets/stockpyl_instances_old.json")
 
         total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 

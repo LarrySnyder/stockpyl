@@ -30,6 +30,30 @@ Therefore, to determine which attributes are needed, refer to the documentation 
 you are using.
 
 
+Game plan for BOM:
+# TODO: delete this later
+- BOM lives at product level, and does not indicate node for either product or raw material
+- If a node has no product, a dummy product gets added automatically before the simulation runs
+- If a node and a predecessor each have a single product but no BOM relationship is specified for
+	the two products, a BOM number of 1 is assigned to the product/RM pair before the simulation runs. 
+	This is true whether the node or predecessor have an actual product loaded, or a dummy product. 
+- To set the BOM number to something other than 1, both nodes must have an actual product loaded and the
+	BOM needs to be set for that product/RM.
+- If a node or its predecessor has more than one product, a BOM relationship must be specified for
+	at least one product at the node and at least one RM at the predecessor.
+- If a node has supply_type 'U', the external supplier is assumed to provide a dummy raw material,
+	which is not loaded into the external supplier (since a node doesn't exist for that supplier),
+	but raw material inventory is allocated at the node for the external supplier's dummy product at 
+	the start of the simulation.
+	The BOM number is 1 in this case. If there are multiple products at the node, they each order
+	1 unit of the dummy product.
+- To have an external supplier with a BOM number other than 1, you have to create a node to represent
+	the external supplier. It can have zero costs and LT, etc., but must have the RM product loaded.
+- _bill_of_materials[rm_index] = # of units of raw material rm_index required to make 1 unit of product.
+- In general, I'm ensuring that everything works if _all_ nodes have products loaded or _no_ nodes have
+	products loaded, but I'm less sure about the case in which some do and some don't.
+
+
 API Reference
 -------------
 
@@ -49,7 +73,7 @@ import math
 from stockpyl import policy
 from stockpyl import demand_source
 from stockpyl import disruption_process
-from stockpyl.helpers import change_dict_key, is_integer, is_list
+from stockpyl.helpers import is_list, is_dict
 
 
 # ===============================================================================
@@ -72,7 +96,7 @@ class SupplyChainProduct(object):
 	name : str
 		A string to identify the product.
 	network : |class_network|
-		The network that contains node(s) that handle this product.
+		The network that contains this product.
 	local_holding_cost : float
 		Local holding cost, per unit per period. [:math:`h'`]
 	echelon_holding_cost : float
@@ -141,7 +165,7 @@ class SupplyChainProduct(object):
 		name : str, optional
 			A string to identify the product.
 		network : |class_network|, optional
-			The network that contains node(s) that handle this product.
+			The network that contains this product.
 		kwargs : optional
 			Optional keyword arguments to specify node attributes.
 
@@ -176,6 +200,7 @@ class SupplyChainProduct(object):
 		'index': None,
 		'name': None,
 		'network': None,
+		'_bill_of_materials': {},
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
@@ -196,6 +221,69 @@ class SupplyChainProduct(object):
 		'state_vars': []
 	}
 	
+
+	# Properties and functions related to bill of materials.
+
+	def set_bill_of_materials(self, num_needed=1.0, rm_index=None):
+		"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required in order
+		to make one unit of this product.
+		
+		To remove a BOM relationship, call this function again, setting ``num_needed = 0`` or ``num_needed = None``.
+		If ``num_needed = 0`` or ``None`` and a BOM relationship does not already exist for the specified product 
+		and raw material, does nothing.
+
+		Parameters
+		----------
+		num_needed : float, optional
+			The number of units required, by default 1.0. Set to 0 or ``None`` to remove the BOM relationship.
+		rm_index : int, optional
+			Index of raw material product, or ``None`` (the default) if the predecessor is the external supplier or
+			is single-product.
+		"""
+
+		# Are we adding a BOM relationship?
+		if num_needed:
+			# Set self._bill_of_materials[rm_index].
+			self._bill_of_materials[rm_index] = num_needed
+		else:
+			# We are removing a BOM relationship.
+			self._bill_of_materials.pop(rm_index, None)
+	
+	def get_bill_of_materials(self, rm_index):
+		"""Get the number of units of raw material product ``rm_index`` that are required in order
+		to make one unit of this product.
+		
+		Returns 0 if there is no BOM relationship for this product and ``rm_index``.
+
+		Parameters
+		----------
+		rm_index : int
+			Index of raw material product.
+		"""
+		try:
+			# Return BOM number, if BOM entry exists.
+			return self._bill_of_materials[rm_index]
+		except:
+			# No BOM relationship exists; return 0.
+			return 0
+		
+	def BOM(self, rm_index):
+		"""A shortcut to :func:`~get_bill_of_materials`."""
+		return self.get_bill_of_materials(rm_index)
+
+	@property
+	def bill_of_materials_dict(self):
+		"""A dict containing all non-zero bill-of-materials relationships for this product.
+		``bill_of_materials_dict[rm_index]`` is the number of units of raw material ``rm_index`` 
+		required to make one unit of this product.
+
+		It is normally easier to access the bill of materials using :func:`get_bill_of_materials` 
+		(or the shortcut :func:`BOM`).
+
+		Read only.
+		"""
+		return self._bill_of_materials
+
 
 	# Properties and functions related to network structure.
 
@@ -241,7 +329,6 @@ class SupplyChainProduct(object):
 		# Set _inventory_policy, and also set _inventory_policy's product
 		self._inventory_policy = value
 		# TODO: handle setting product and node attributes
-
 
 
 	# Special methods.
@@ -313,7 +400,7 @@ class SupplyChainProduct(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy(node=self)
-			elif is_list(self._DEFAULT_VALUES[attr]):
+			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])

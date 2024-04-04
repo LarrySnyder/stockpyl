@@ -44,7 +44,7 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-#		network = load_instance_old("example_6_1", "/Users/larry/Documents/GitHub/stockpyl/src/stockpyl/datasets/stockpyl_instances_old.json")
+
 		# reindex nodes to 2 -> 1 -> 0
 		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
