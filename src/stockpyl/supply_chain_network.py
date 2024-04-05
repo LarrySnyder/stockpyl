@@ -262,28 +262,39 @@ class SupplyChainNetwork(object):
 
 		if sorted(self.node_indices) != sorted(other.node_indices):
 			eq = False
-		elif sorted(self.product_indices) != sorted(other.product_indices):
+		elif (None in self.product_indices and None not in other.product_indices) or \
+			(None not in self.product_indices and None  in other.product_indices):
+			# None is in one node's product indices but not the other's.
 			eq = False
 		else:
-			# Special handling for some attributes.
-			for attr in self._DEFAULT_VALUES.keys():
-				if attr == '_nodes':
-					for n_ind in sorted(self.node_indices):
-						other_node = other.get_node_from_index(n_ind)
-						if other_node is None:
+			# Replace None with -1 in both node's product indices because None can't be sorted.
+			self_indices = [prod_ind if prod_ind is not None else -1  for prod_ind in self.product_indices]
+			other_indices = [prod_ind if prod_ind is not None else -1  for prod_ind in other.product_indices]
+			if sorted(self_indices) != sorted(other_indices):
+				eq = False
+			else:
+				# Special handling for some attributes.
+				for attr in self._DEFAULT_VALUES.keys():
+					if attr == '_nodes':
+						for n_ind in sorted(self.node_indices):
+							other_node = other.get_node_from_index(n_ind)
+							if other_node is None:
+								eq = False
+							elif not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
+								eq = False
+					elif attr == '_products':
+						for prod_ind in sorted(self_indices):
+							if prod_ind == -1:
+								# Replace -1 with None again.
+								prod_ind = None
+							other_product = other.products_by_index[prod_ind]
+							if other_product is None:
+								eq = False
+							elif not self.products_by_index[prod_ind].deep_equal_to(other_product, rel_tol=rel_tol):
+								eq = False
+					else:
+						if getattr(self, attr) != getattr(other, attr):
 							eq = False
-						elif not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
-							eq = False
-				elif attr == '_products':
-					for prod_ind in sorted(self.product_indices):
-						other_product = other.products_by_index[prod_ind]
-						if other_product is None:
-							eq = False
-						elif not self.products_by_index[prod_ind].deep_equal_to(other_product, rel_tol=rel_tol):
-							eq = False
-				else:
-					if getattr(self, attr) != getattr(other, attr):
-						eq = False
 
 		return eq
 

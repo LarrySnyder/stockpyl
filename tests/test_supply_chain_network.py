@@ -13,8 +13,8 @@ from stockpyl.supply_chain_node import SupplyChainNode
 from stockpyl.demand_source import DemandSource
 from stockpyl.instances import *
 from stockpyl.sim import *
-from tests.settings import *
-
+#from tests.settings import *
+RUN_ALL_TESTS = False
 
 # Module-level functions.
 
@@ -732,11 +732,10 @@ class TestProductLists(unittest.TestCase):
 		network.add_product(SupplyChainProduct(11))
 		products = {i: network.products_by_index[i] for i in [0, 1, 2, 3, 4, 5, 6, 10, 11]}
 
-		self.assertEqual(network.products, products)
+		self.assertEqual(network.products, list(products.values()))
 		self.assertEqual(network.product_indices, [0, 1, 2, 3, 4, 5, 6, 10, 11])
 		self.assertDictEqual(network.products_by_index, {i: products[i] for i in products.keys()})
 	
-
 
 class TestReindexNodes(unittest.TestCase):
 	@classmethod

@@ -94,13 +94,13 @@ class TestSetGetBillOfMaterials(unittest.TestCase):
 
 		prod = {i: SupplyChainProduct(index=i) for i in range(7)}
 
-		prod[0].set_bill_of_materials(2.5, 2)
-		prod[0].set_bill_of_materials(7, 3)
-		prod[1].set_bill_of_materials(10, 3)
-		prod[1].set_bill_of_materials(3.8, 4)
-		prod[2].set_bill_of_materials(0.2, 5)
-		prod[3].set_bill_of_materials(2, 5)
-		prod[4].set_bill_of_materials(50, 6)
+		prod[0].set_bill_of_materials(2, 2.5)
+		prod[0].set_bill_of_materials(3, 7)
+		prod[1].set_bill_of_materials(3, 10)
+		prod[1].set_bill_of_materials(4, 3.8)
+		prod[2].set_bill_of_materials(5, 0.2)
+		prod[3].set_bill_of_materials(5, 2)
+		prod[4].set_bill_of_materials(6, 50)
 		
 		self.assertEqual(prod[0].get_bill_of_materials(2), 2.5)
 		self.assertEqual(prod[0].get_bill_of_materials(3), 7)
@@ -132,13 +132,14 @@ class TestBillOfMaterialsDict(unittest.TestCase):
 
 		prod = {i: SupplyChainProduct(index=i) for i in range(7)}
 
-		prod[0].set_bill_of_materials(2.5, 2)
-		prod[0].set_bill_of_materials(7, 3)
-		prod[1].set_bill_of_materials(10, 3)
-		prod[1].set_bill_of_materials(3.8, 4)
-		prod[2].set_bill_of_materials(0.2, 5)
-		prod[3].set_bill_of_materials(2, 5)
-		prod[4].set_bill_of_materials(50, 6)
+		prod[0].set_bill_of_materials(2, 2.5)
+		prod[0].set_bill_of_materials(3, 7)
+		prod[1].set_bill_of_materials(3, 10)
+		prod[1].set_bill_of_materials(4, 3.8)
+		prod[2].set_bill_of_materials(5, 0.2)
+		prod[3].set_bill_of_materials(5, 2)
+		prod[4].set_bill_of_materials(6, 50)
+
 
 		self.assertDictEqual(prod[0].bill_of_materials_dict, {2: 2.5, 3: 7})
 		self.assertDictEqual(prod[1].bill_of_materials_dict, {3: 10, 4: 3.8})

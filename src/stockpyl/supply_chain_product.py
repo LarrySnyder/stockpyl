@@ -33,14 +33,20 @@ you are using.
 Game plan for BOM:
 # TODO: delete this later
 - BOM lives at product level, and does not indicate node for either product or raw material
-- If a node has no product, a dummy product gets added automatically before the simulation runs
+- Every node has a dummy product with index None when it is created. When a product is loaded into the 
+	node, the dummy product is removed. If all "real" products are unloaded, a dummy product is added back.
+- A dummy product is always assumed to have a BOM number of 1 with every product at every predecessor and
+	successor, including both dummy and real products. product.get_bill_of_materials(None) returns 1 for every
+	product, and product.get_bill_of_materials(rm_index) returns 1 if product is a dummy product, regardless of what 
+	rm_index is.
 - If a node and a predecessor each have a single product but no BOM relationship is specified for
-	the two products, a BOM number of 1 is assigned to the product/RM pair before the simulation runs. 
+	the two products, a BOM number of 1 is assumed for the product/RM pair. 
 	This is true whether the node or predecessor have an actual product loaded, or a dummy product. 
-- To set the BOM number to something other than 1, both nodes must have an actual product loaded and the
-	BOM needs to be set for that product/RM.
+- To set the BOM number to something other than 1, both the product and the RM must be actual products, 
+	not dummy.
 - If a node or its predecessor has more than one product, a BOM relationship must be specified for
-	at least one product at the node and at least one RM at the predecessor.
+	at least one product at the node and at least one RM at the predecessor (otherwise no items will be
+	ordered/shipped even though there is an edge between the nodes)
 - If a node has supply_type 'U', the external supplier is assumed to provide a dummy raw material,
 	which is not loaded into the external supplier (since a node doesn't exist for that supplier),
 	but raw material inventory is allocated at the node for the external supplier's dummy product at 
@@ -224,7 +230,7 @@ class SupplyChainProduct(object):
 
 	# Properties and functions related to bill of materials.
 
-	def set_bill_of_materials(self, num_needed=1.0, rm_index=None):
+	def set_bill_of_materials(self, rm_index, num_needed=1.0):
 		"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required in order
 		to make one unit of this product.
 		
@@ -232,15 +238,25 @@ class SupplyChainProduct(object):
 		If ``num_needed = 0`` or ``None`` and a BOM relationship does not already exist for the specified product 
 		and raw material, does nothing.
 
+		Raises an exception if the product's index is ``None`` or rm_index is ``None``, since 
+		dummy products always have a BOM number of 1 with every other product.
+
 		Parameters
 		----------
+		rm_index : int
+			Index of raw material product.
 		num_needed : float, optional
 			The number of units required, by default 1.0. Set to 0 or ``None`` to remove the BOM relationship.
-		rm_index : int, optional
-			Index of raw material product, or ``None`` (the default) if the predecessor is the external supplier or
-			is single-product.
+		
+		Raises
+		------
+		ValueError
+			If ``self.index is None`` or ``rm_index is None``.
 		"""
 
+		if self.index is None or rm_index is None:
+			raise ValueError('You cannot set the BOM for dummy products (products with index=None).')
+		
 		# Are we adding a BOM relationship?
 		if num_needed:
 			# Set self._bill_of_materials[rm_index].
@@ -253,6 +269,8 @@ class SupplyChainProduct(object):
 		"""Get the number of units of raw material product ``rm_index`` that are required in order
 		to make one unit of this product.
 		
+		Returns 1 if ``self.index is None`` or ``rm_index is None``, because dummy products always have
+		a BOM number of 1 with every other product.
 		Returns 0 if there is no BOM relationship for this product and ``rm_index``.
 
 		Parameters
@@ -260,6 +278,9 @@ class SupplyChainProduct(object):
 		rm_index : int
 			Index of raw material product.
 		"""
+		if self.index is None or rm_index is None:
+			return 1
+   
 		try:
 			# Return BOM number, if BOM entry exists.
 			return self._bill_of_materials[rm_index]
@@ -276,6 +297,9 @@ class SupplyChainProduct(object):
 		"""A dict containing all non-zero bill-of-materials relationships for this product.
 		``bill_of_materials_dict[rm_index]`` is the number of units of raw material ``rm_index`` 
 		required to make one unit of this product.
+
+		Dummy products always have a BOM number of 1 with every other product, but this is not
+		reflected in the dict returned; the dict does not have entries for dummy products.
 
 		It is normally easier to access the bill of materials using :func:`get_bill_of_materials` 
 		(or the shortcut :func:`BOM`).
@@ -369,10 +393,10 @@ class SupplyChainProduct(object):
 
 	def __hash__(self):
 		"""
-		Return the hash for the product, which equals its index.
+		Return the hash for the product, which equals its index, or -1 if its index is ``None``.
 
 		"""
-		return self.index
+		return self.index or -1
 
 	def __repr__(self):
 		"""
@@ -540,6 +564,12 @@ class SupplyChainProduct(object):
 						value = policy.Policy.from_dict(None)
 					# Remove "_" from attr so we are setting the property, not the attribute.
 					attr = 'inventory_policy'
+				elif attr == '_bill_of_materials':
+					# If keys are integers as strings (this happens if loading from a file), replace with integers.
+					if attr in the_dict:
+						value = {int(k): v for k, v in the_dict[attr].items()}
+					else:
+						value = copy.deepcopy(cls._DEFAULT_VALUES[attr])
 				else:
 					if attr in the_dict:
 						value = the_dict[attr]

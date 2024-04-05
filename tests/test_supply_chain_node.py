@@ -280,22 +280,21 @@ class TestDescendants(unittest.TestCase):
 		self.assertEqual(desc[2], [])
 		self.assertEqual(desc[3], [])
 
-	def test_multi_product_network7(self):
+	def test_multiproduct_5_7(self):
 		"""Test descendants for 7-node multi-product system.
 		"""
-		print_status('TestDescendants', 'test_multi_product_network7()')
+		print_status('TestDescendants', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		desc = {i: network.get_node_from_index(i).descendants for i in network.node_indices}
 
 		self.assertEqual(desc[0], [])
 		self.assertEqual(desc[1], [])
-		self.assertEqual(desc[2], [])
-		self.assertEqual(desc[3], [network.get_node_from_index(0)])
-		self.assertEqual(desc[4], [network.get_node_from_index(0), network.get_node_from_index(1)])
-		self.assertEqual(desc[5], [network.get_node_from_index(1), network.get_node_from_index(2)])
-		self.assertEqual(desc[6], [network.get_node_from_index(2)])
+		self.assertEqual(desc[2], [network.get_node_from_index(0), network.get_node_from_index(1)])
+		self.assertEqual(desc[3], [network.get_node_from_index(1)])
+		self.assertEqual(desc[4], [network.get_node_from_index(0), network.get_node_from_index(1), network.get_node_from_index(2), network.get_node_from_index(3)])
+
 
 
 class TestAncestors(unittest.TestCase):
@@ -349,22 +348,20 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[2], [nodes[0]])
 		self.assertEqual(anc[3], [nodes[0]])
 
-	def test_multi_product_network7(self):
-		"""Test ancestors for 7-node multi-product system.
+	def test_multiproduct_5_7(self):
+		"""Test ancestors for 5-node, 7-product system.
 		"""
-		print_status('TestAncestors', 'test_multi_product_network7()')
+		print_status('TestAncestors', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		anc = {i: network.get_node_from_index(i).ancestors for i in network.node_indices}
 
-		self.assertEqual(anc[0], [network.get_node_from_index(3), network.get_node_from_index(4)])
-		self.assertEqual(anc[1], [network.get_node_from_index(4), network.get_node_from_index(5)])
-		self.assertEqual(anc[2], [network.get_node_from_index(5), network.get_node_from_index(6)])
-		self.assertEqual(anc[3], [])
+		self.assertEqual(anc[0], [network.get_node_from_index(2), network.get_node_from_index(4)])
+		self.assertEqual(anc[1], [network.get_node_from_index(2), network.get_node_from_index(3), network.get_node_from_index(4)])
+		self.assertEqual(anc[2], [network.get_node_from_index(4)])
+		self.assertEqual(anc[3], [network.get_node_from_index(4)])
 		self.assertEqual(anc[4], [])
-		self.assertEqual(anc[5], [])
-		self.assertEqual(anc[6], [])
 
 
 class TestAddProduct(unittest.TestCase):
@@ -450,36 +447,58 @@ class TestRemoveProduct(unittest.TestCase):
 		network.nodes[1].remove_product(1)
 		network.nodes[2].remove_product(network.nodes[2].products_by_index[2])
 
-		self.assertEqual(network.nodes[0].product_indices, [])
-		self.assertEqual(network.nodes[1].product_indices, [])
+		self.assertEqual(network.nodes[0].product_indices, [None])
+		self.assertEqual(network.nodes[1].product_indices, [None])
 		self.assertEqual(network.nodes[2].product_indices, [3])
 
-	def test_multi_product_7node(self):
-		"""Test remove_product() for 7-node multi-product instance.
+	def test_multiproduct_5_7(self):
+		"""Test remove_product() for 5-node 7-product instance.
 		"""
-		print_status('TestRemoveProduct', 'test_multi_product_7node()')
+		print_status('TestRemoveProduct', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
+		network.get_node_from_index(0).remove_product(network.get_node_from_index(0).products_by_index[0])
 		network.get_node_from_index(1).remove_product(1)
 		network.get_node_from_index(2).remove_product(network.get_node_from_index(2).products_by_index[2])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [3])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [0])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [3, 4])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
 		"""
 		print_status('TestRemoveProduct', 'test_product_does_not_exist()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		network.get_node_from_index(0).remove_product(7)
 		network.get_node_from_index(1).remove_product(7)
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [1])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [0])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [0, 1])
+
+
+class TestAddRemoveDummyProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddRemoveDummyProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddRemoveDummyProduct', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test.
+		"""
+		print_status('TestAddRemoveDummyProduct', 'test_basic()')
+
+		node = SupplyChainNode(0)
+		self.assertEqual(node.product_indices, [None])
+
 
 class TestRemoveProducts(unittest.TestCase):
 	@classmethod
@@ -508,39 +527,40 @@ class TestRemoveProducts(unittest.TestCase):
 		network.nodes[1].remove_products([1])
 		network.nodes[2].remove_products([network.nodes[2].products_by_index[2], 3])
 
-		self.assertEqual(network.nodes[0].product_indices, [])
-		self.assertEqual(network.nodes[1].product_indices, [])
-		self.assertEqual(network.nodes[2].product_indices, [])
+		self.assertEqual(network.nodes[0].product_indices, [None])
+		self.assertEqual(network.nodes[1].product_indices, [None])
+		self.assertEqual(network.nodes[2].product_indices, [None])
 
-	def test_multi_product_7node(self):
-		"""Test remove_product() for 7-node multi-product instance.
+	def test_multiproduct_5_7(self):
+		"""Test remove_product() for 5-node 7-product instance.
 		"""
-		print_status('TestRemoveProducts', 'test_multi_product_7node()')
+		print_status('TestRemoveProducts', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
+		network.get_node_from_index(0).remove_products([network.get_node_from_index(0).products_by_index[0]])
 		network.get_node_from_index(1).remove_products([1])
 		network.get_node_from_index(2).remove_products([3, network.get_node_from_index(2).products_by_index[2]])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(1).product_indices, [0])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [4])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
 		"""
 		print_status('TestRemoveProducts', 'test_product_does_not_exist()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		network.get_node_from_index(0).remove_products([7])
 		network.get_node_from_index(2).remove_products([3, 7])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [2])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [0])
+		self.assertEqual(network.get_node_from_index(2).product_indices, [2, 4])
 
 		
-class TestIsMultiProduct(unittest.TestCase):
+class TestIsSingleMultiProduct(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
@@ -551,10 +571,10 @@ class TestIsMultiProduct(unittest.TestCase):
 		"""Called once, after all tests, if set_up_class successful."""
 		print_status('TestIsMultiProduct', 'tear_down_class()')
 
-	def test_empty_list(self):
-		"""Test that is_multiproduct correctly returns ``False`` if ``products = []``.
+	def test_dummy(self):
+		"""Test that is_multiproduct and is_singleproduct return correct results if node only has dummy product.
 		"""
-		print_status('TestIsMultiProduct', 'test_empty_list()')
+		print_status('TestIsMultiProduct', 'test_dummy()')
 
 		network = load_instance("example_6_1")
 
@@ -562,21 +582,10 @@ class TestIsMultiProduct(unittest.TestCase):
 		network.nodes[0].remove_products('all')
 
 		self.assertFalse(network.nodes[0].is_multiproduct)
-
-	def test_none(self):
-		"""Test that is_multiproduct correctly returns ``False`` if ``products is None``.
-		"""
-		print_status('TestIsMultiProduct', 'test_none()')
-
-		network = load_instance("example_6_1")
-
-		# Make sure node 0 has no products.
-		network.nodes[0].remove_products('all')
-
-		self.assertFalse(network.nodes[0].is_multiproduct)
+		self.assertTrue(network.nodes[0].is_singleproduct)
 
 	def test_singleton(self):
-		"""Test that is_multiproduct correctly returns ``False`` if ``products`` has one element.
+		"""Test that is_multiproduct and is_singleproduct return correct results if node has one real product.
 		"""
 		print_status('TestIsMultiProduct', 'test_singleton()')
 
@@ -585,9 +594,10 @@ class TestIsMultiProduct(unittest.TestCase):
 		network.nodes[0].add_product(SupplyChainProduct(0))
 
 		self.assertFalse(network.nodes[0].is_multiproduct)
+		self.assertTrue(network.nodes[0].is_singleproduct)
 
 	def test_multi(self):
-		"""Test that is_multiproduct correctly returns ``False`` if ``products`` contains multiple elements.
+		"""Test that is_multiproduct and is_singleproduct return correct results if node has multiple products.
 		"""
 		print_status('TestIsMultiProduct', 'test_multi()')
 
@@ -596,94 +606,36 @@ class TestIsMultiProduct(unittest.TestCase):
 		network.nodes[0].add_products([SupplyChainProduct(0), SupplyChainProduct(1)])
 
 		self.assertTrue(network.nodes[0].is_multiproduct)
-
-	def test_multi_product_network7(self):
-		"""Test that is_multiproduct works correctly for 7-node multi-product instance.
-		"""
-		print_status('TestIsMultiProduct', 'test_multi_product_network7()')
-
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
-
-		self.assertFalse(network.get_node_from_index(0).is_multiproduct)
-		self.assertFalse(network.get_node_from_index(1).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(2).is_multiproduct)
-		self.assertFalse(network.get_node_from_index(3).is_multiproduct)
-		self.assertFalse(network.get_node_from_index(4).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(5).is_multiproduct)
-		self.assertFalse(network.get_node_from_index(6).is_multiproduct)
-
-
-class TestIsSingleProduct(unittest.TestCase):
-	@classmethod
-	def set_up_class(cls):
-		"""Called once, before any tests."""
-		print_status('TestIsSingleProduct', 'set_up_class()')
-
-	@classmethod
-	def tear_down_class(cls):
-		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestIsSingleProduct', 'tear_down_class()')
-
-	def test_empty_list(self):
-		"""Test that is_singleproduct correctly returns ``True`` if ``products = []``.
-		"""
-		print_status('TestIsSingleProduct', 'test_empty_list()')
-
-		network = load_instance("example_6_1")
-
-		# Make sure node 0 has no products.
-		network.nodes[0].remove_products('all')
-
-		self.assertTrue(network.nodes[0].is_singleproduct)
-
-	def test_none(self):
-		"""Test that is_singleproduct correctly returns ``True`` if ``products is None``.
-		"""
-		print_status('TestIsSingleProduct', 'test_none()')
-
-		network = load_instance("example_6_1")
-
-		# Make sure node 0 has no products.
-		network.nodes[0].remove_products('all')
-
-		self.assertTrue(network.nodes[0].is_singleproduct)
-
-	def test_singleton(self):
-		"""Test that is_singleproduct correctly returns ``True`` if ``products`` has one element.
-		"""
-		print_status('TestIsSingleProduct', 'test_singleton()')
-
-		network = load_instance("example_6_1")
-
-		network.nodes[0].add_product(SupplyChainProduct(0))
-
-		self.assertTrue(network.nodes[0].is_singleproduct)
-
-	def test_multi(self):
-		"""Test that is_singleproduct correctly returns ``False`` if ``products`` contains multiple elements.
-		"""
-		print_status('TestIsSingleProduct', 'test_multi()')
-
-		network = load_instance("example_6_1")
-
-		network.nodes[0].add_products([SupplyChainProduct(0), SupplyChainProduct(1)])
-
 		self.assertFalse(network.nodes[0].is_singleproduct)
 
-	def test_multi_product_network7(self):
-		"""Test that is_singleproduct works correctly for 7-node multi-product instance.
+	def test_multiproduct_5_7(self):
+		"""Test that is_multiproduct and is_singleproduct work correctly for 5-node, 7-product instance.
 		"""
-		print_status('TestIsSingleProduct', 'test_multi_product_network7()')
+		print_status('TestIsMultiProduct', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+
+		self.assertFalse(network.get_node_from_index(0).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(1).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(2).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(3).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(4).is_multiproduct)
 
 		self.assertTrue(network.get_node_from_index(0).is_singleproduct)
-		self.assertTrue(network.get_node_from_index(1).is_singleproduct)
+		self.assertFalse(network.get_node_from_index(1).is_singleproduct)
 		self.assertFalse(network.get_node_from_index(2).is_singleproduct)
-		self.assertTrue(network.get_node_from_index(3).is_singleproduct)
-		self.assertTrue(network.get_node_from_index(4).is_singleproduct)
-		self.assertFalse(network.get_node_from_index(5).is_singleproduct)
-		self.assertTrue(network.get_node_from_index(6).is_singleproduct)
+		self.assertFalse(network.get_node_from_index(3).is_singleproduct)
+		self.assertFalse(network.get_node_from_index(4).is_singleproduct)
+
+		# Add a node with no product loaded.
+		network.add_node(SupplyChainNode(20))
+		self.assertFalse(network.get_node_from_index(20).is_multiproduct)
+		self.assertTrue(network.get_node_from_index(20).is_singleproduct)
+
+
+
+		
+		
 # class TestGetProductFromIndex(unittest.TestCase):
 # 	@classmethod
 # 	def set_up_class(cls):
@@ -712,7 +664,7 @@ class TestIsSingleProduct(unittest.TestCase):
 # 		"""
 # 		print_status('TestGetProductFromIndex', 'test_multi_product_network7()')
 
-# 		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+# 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 # 		self.assertIsNone(network.get_node_from_index(0).products[None])
 # 		self.assertIsNone(network.get_node_from_index(0).products[44])
@@ -789,7 +741,7 @@ class TestIsSingleProduct(unittest.TestCase):
 # 		"""
 # 		print_status('TestSetGetBillOfMaterials', 'test_multi_product_network7()')
 
-# 		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+# 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 # 		self.assertEqual(network.get_node_from_index(0).get_bill_of_materials(None, 3, None), 4)
 # 		self.assertEqual(network.get_node_from_index(1).get_bill_of_materials(1, 4, None), 1)
@@ -896,11 +848,11 @@ class TestIsSingleProduct(unittest.TestCase):
 # 		self.assertListEqual(bom3, [(1, 3, 4, None, None), (1, 3, 5, None, None)])
 
 # 	def test_multi_product_network7(self):
-# 		"""Test that bill_of_materials works correctly on 7-node network.
+# 		"""Test that bill_of_materials works correctly on 5-node, 7-product network.
 # 		"""
 # 		print_status('TestBillOfMaterialsList', 'test_multi_product()')
 
-# 		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+# 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 # 		self.assertSetEqual(
 # 			set(network.get_node_from_index(0).bill_of_materials),
@@ -931,6 +883,7 @@ class TestIsSingleProduct(unittest.TestCase):
 # 			{(1, 6, None, None, None)}
 # 		)
 
+
 class TestRawMaterialSuppliers(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -943,7 +896,7 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		print_status('TestRawMaterialSuppliers', 'tear_down_class()')
 
 	def test_mwor_no_product(self):
-		"""Test that raw_material_suppliers works correctly on MWOR network with no product added at retailer.
+		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on MWOR network with no product added at retailer.
 		"""
 		print_status('TestRawMaterialSuppliers', 'test_mwor_no_product()')
 
@@ -955,19 +908,14 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		nodes[2].add_products([prods[2], prods[3]])
 		nodes[3].add_products([prods[4], prods[5]])
 
-		nodes[0].set_bill_of_materials( 5, None, 1, 1)
-		nodes[0].set_bill_of_materials( 7, None, 1, 2)
-		nodes[0].set_bill_of_materials( 3, None, 2, 2)
-		nodes[0].set_bill_of_materials(15, None, 2, 3)
-		nodes[0].set_bill_of_materials( 6, None, 3, 4)
-		nodes[0].set_bill_of_materials(16, None, 3, 5)
-
 		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=None), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=None), [1, 2, 3])
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_material_suppliers(product_index=77)
+			_ = nodes[0].raw_material_supplier_indices(product_index=77)
 
 	def test_mwor_one_product(self):
-		"""Test that raw_material_suppliers works correctly on MWOR network with one product added at retailer.
+		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on MWOR network with one product added at retailer.
 		"""
 		print_status('TestRawMaterialSuppliers', 'test_mwor_one_product()')
 
@@ -980,21 +928,22 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		nodes[3].add_products([prods[4], prods[5]])
 
 		nodes[0].add_product(SupplyChainProduct(10))
-
-		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
-		nodes[0].set_bill_of_materials( 7, 10, 1, 2)
-		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
-		nodes[0].set_bill_of_materials(15, 10, 2, 3)
-		nodes[0].set_bill_of_materials( 6, 10, 3, 4)
-		nodes[0].set_bill_of_materials(16, 10, 3, 5)
+		nodes[0].products[0].set_bill_of_materials(1, 5)
+		nodes[0].products[0].set_bill_of_materials(2, 7)
+		nodes[0].products[0].set_bill_of_materials(3, 3)
+		nodes[0].products[0].set_bill_of_materials(4, 15)
+		nodes[0].products[0].set_bill_of_materials(5, 6)
 
 		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2, 3])
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_material_suppliers(product_index=None)
 			_ = nodes[0].raw_material_suppliers(product_index=77)
+			_ = nodes[0].raw_material_supplier_indices(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices(product_index=77)
 
 	def test_mwor_multiple_products(self):
-		"""Test that raw_material_suppliers works correctly on MWOR network with multiple products added at retailer.
+		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on MWOR network with multiple products added at retailer.
 		"""
 		print_status('TestRawMaterialSuppliers', 'test_mwor_multiple_products()')
 
@@ -1008,151 +957,55 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 
 		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
 
-		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
-		nodes[0].set_bill_of_materials( 7, 11, 1, 2)
-		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
-		nodes[0].set_bill_of_materials(15, 10, 2, 3)
-		nodes[0].set_bill_of_materials( 6, 12, 3, 4)
-		nodes[0].set_bill_of_materials(16, 12, 3, 5)
+		nodes[0].products_by_index[10].set_bill_of_materials(1, 5)
+		nodes[0].products_by_index[10].set_bill_of_materials(2, 7)
+		nodes[0].products_by_index[11].set_bill_of_materials(3, 3)
+		nodes[0].products_by_index[11].set_bill_of_materials(4, 15)
+		nodes[0].products_by_index[12].set_bill_of_materials(5, 6)
 
 		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10), [nodes[1], nodes[2]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=11), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=11), [nodes[2], nodes[3]])
 		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=12), [nodes[3]])
-		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-
-	def test_multi_product_network7(self):
-		"""Test that bill_of_materials works correctly on 7-node network.
-		"""
-		print_status('TestRawMaterialSuppliers', 'test_multi_product_network7()')
-
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
-
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=None), [nodes[3], nodes[4]])
-		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=1), [nodes[4], nodes[5]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=2), [nodes[5]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=3), [nodes[5], nodes[6], None])
-		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=None), [None])
-		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=None), [None])
-		self.assertListEqual(nodes[5].raw_material_suppliers(product_index=4), [None])
-		self.assertListEqual(nodes[5].raw_material_suppliers(product_index=5), [None])
-		self.assertListEqual(nodes[6].raw_material_suppliers(product_index=None), [None])
-		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-		
-
-class TestRawMaterialSupplierIndices(unittest.TestCase):
-	@classmethod
-	def set_up_class(cls):
-		"""Called once, before any tests."""
-		print_status('TestRawMaterialSupplierIndices', 'set_up_class()')
-
-	@classmethod
-	def tear_down_class(cls):
-		"""Called once, after all tests, if set_up_class successful."""
-		print_status('TestRawMaterialSupplierIndices', 'tear_down_class()')
-
-	def test_mwor_no_product(self):
-		"""Test that raw_material_supplier_indices works correctly on MWOR network with no product added at retailer.
-		"""
-		print_status('TestRawMaterialSupplierIndices', 'test_mwor_no_product()')
-
-		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
-
-		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		nodes[1].add_products([prods[1], prods[2]])
-		nodes[2].add_products([prods[2], prods[3]])
-		nodes[3].add_products([prods[4], prods[5]])
-
-		nodes[0].set_bill_of_materials( 5, None, 1, 1)
-		nodes[0].set_bill_of_materials( 7, None, 1, 2)
-		nodes[0].set_bill_of_materials( 3, None, 2, 2)
-		nodes[0].set_bill_of_materials(15, None, 2, 3)
-		nodes[0].set_bill_of_materials( 6, None, 3, 4)
-		nodes[0].set_bill_of_materials(16, None, 3, 5)
-
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=None), [1, 2, 3])
-		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
-
-	def test_mwor_one_product(self):
-		"""Test that raw_material_supplier_indices works correctly on MWOR network with one product added at retailer.
-		"""
-		print_status('TestRawMaterialSupplierIndices', 'test_mwor_one_product()')
-
-		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
-
-		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		nodes[1].add_products([prods[1], prods[2]])
-		nodes[2].add_products([prods[2], prods[3]])
-		nodes[3].add_products([prods[4], prods[5]])
-
-		nodes[0].add_product(SupplyChainProduct(10))
-
-		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
-		nodes[0].set_bill_of_materials( 7, 10, 1, 2)
-		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
-		nodes[0].set_bill_of_materials(15, 10, 2, 3)
-		nodes[0].set_bill_of_materials( 6, 10, 3, 4)
-		nodes[0].set_bill_of_materials(16, 10, 3, 5)
-
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2, 3])
-		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
-
-	def test_mwor_multiple_products(self):
-		"""Test that raw_material_supplier_indices works correctly on MWOR network with multiple products added at retailer.
-		"""
-		print_status('TestRawMaterialSupplierIndices', 'test_mwor_multiple_products()')
-
-		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
-
-		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
-
-		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
-
-		nodes[0].set_bill_of_materials( 5, 10, 1, 1)
-		nodes[0].set_bill_of_materials( 7, 11, 1, 2)
-		nodes[0].set_bill_of_materials( 3, 10, 2, 2)
-		nodes[0].set_bill_of_materials(15, 10, 2, 3)
-		nodes[0].set_bill_of_materials( 6, 12, 3, 4)
-		nodes[0].set_bill_of_materials(16, 12, 3, 5)
-
 		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=11), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=11), [2, 3])
 		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=12), [3])
 		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_suppliers(product_index=None)
+			_ = nodes[0].raw_material_suppliers(product_index=77)
 			_ = nodes[0].raw_material_supplier_indices(product_index=None)
 			_ = nodes[0].raw_material_supplier_indices(product_index=77)
 
-	def test_multi_product_network7(self):
-		"""Test that bill_of_materials works correctly on 7-node network.
+	def test_multiproduct_5_7(self):
+		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on 5-node, 7-product network.
 		"""
-		print_status('TestRawMaterialSupplierIndices', 'test_multi_product_network7()')
+		print_status('TestRawMaterialSuppliers', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
 
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=None), [3, 4])
-		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=1), [4, 5])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=2), [5])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=3), [5, 6, None])
-		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=None), [None])
-		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=None), [None])
-		self.assertListEqual(nodes[5].raw_material_supplier_indices(product_index=4), [None])
-		self.assertListEqual(nodes[5].raw_material_supplier_indices(product_index=5), [None])
-		self.assertListEqual(nodes[6].raw_material_supplier_indices(product_index=None), [None])
+		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=0), [nodes[2]])
+		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=0), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=1), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=2), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=3), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=4), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=2), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=4), [nodes[4]])
+		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=5), [None])
+		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=6), [None])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=0), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=0), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=1), [2, 3])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=2), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=3), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=4), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=2), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=4), [4])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=5), [None])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=6), [None])
 		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_suppliers(product_index=None)
+			_ = nodes[0].raw_material_suppliers(product_index=77)
 			_ = nodes[0].raw_material_supplier_indices(product_index=None)
 			_ = nodes[0].raw_material_supplier_indices(product_index=77)
 		
@@ -1512,12 +1365,12 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(node6copy.deep_equal_to(node6))
 		self.assertFalse(node6.deep_equal_to(node6copy))
 			
-	def test_multi_product_network7(self):
-		"""Test deep_equal_to() for nodes in 7-node multi-product network.
+	def test_multiproduct_5_7(self):
+		"""Test deep_equal_to() for nodes in 5-node, 7-product network.
 		"""
-		print_status('TestDeepEqualTo', 'test_multi_product_network7()')
+		print_status('TestDeepEqualTo', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		node_copies = [copy.deepcopy(n) for n in network.nodes]
 
@@ -1535,9 +1388,9 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(network.nodes[2].deep_equal_to(node_copies[2]))
 
 		# Unequal networks due to missing policy.
-		node_copies[6].inventory_policy = None
-		self.assertFalse(node_copies[6].deep_equal_to(network.nodes[6]))
-		self.assertFalse(network.nodes[6].deep_equal_to(node_copies[6]))
+		node_copies[2].inventory_policy = None
+		self.assertFalse(node_copies[2].deep_equal_to(network.nodes[2]))
+		self.assertFalse(network.nodes[2].deep_equal_to(node_copies[2]))
 			
 
 class TestNodeToFromDict(unittest.TestCase):
@@ -2110,11 +1963,13 @@ class TestInitialize(unittest.TestCase):
 		n2 = SupplyChainNode(index=None)
 		n1.initialize()
 		self.assertTrue(n1.deep_equal_to(n2))
+		self.assertEqual(n1.products, [None])
 
 		n1 = SupplyChainNode(index=None, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
 		n2 = SupplyChainNode(index=None)
 		n1.initialize()
 		self.assertTrue(n1.deep_equal_to(n2))
+		self.assertEqual(n1.products, [None])
 
 
 class TestNodeStateVarsToFromDict(unittest.TestCase):
