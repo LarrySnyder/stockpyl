@@ -707,7 +707,6 @@ class SupplyChainNode(object):
 		list
 			List of all indices of predecessors from which a raw material must be ordered in order to
 			make ``product_index`` at this node, according to the bill of materials.
-			# TODO: unit tests
 
 		Raises
 		------
