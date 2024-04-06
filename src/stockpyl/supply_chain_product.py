@@ -39,14 +39,16 @@ Game plan for BOM:
 	successor, including both dummy and real products. product.get_bill_of_materials(None) returns 1 for every
 	product, and product.get_bill_of_materials(rm_index) returns 1 if product is a dummy product, regardless of what 
 	rm_index is.
-- If a node and a predecessor each have a single product but no BOM relationship is specified for
-	the two products, a BOM number of 1 is assumed for the product/RM pair. 
+- If a node and a predecessor have no BOM relationship specified for all (rm, product) pairs,
+	a BOM number of 1 is assumed for every product/RM pair. 
 	This is true whether the node or predecessor have an actual product loaded, or a dummy product. 
+	# TODO: how to implement this?
 - To set the BOM number to something other than 1, both the product and the RM must be actual products, 
 	not dummy.
 - If a node or its predecessor has more than one product, a BOM relationship must be specified for
 	at least one product at the node and at least one RM at the predecessor (otherwise no items will be
 	ordered/shipped even though there is an edge between the nodes)
+	# TODO: add a check and warning for this
 - If a node has supply_type 'U', the external supplier is assumed to provide a dummy raw material,
 	which is not loaded into the external supplier (since a node doesn't exist for that supplier),
 	but raw material inventory is allocated at the node for the external supplier's dummy product at 
@@ -266,17 +268,24 @@ class SupplyChainProduct(object):
 			self._bill_of_materials.pop(rm_index, None)
 	
 	def get_bill_of_materials(self, rm_index):
-		"""Get the number of units of raw material product ``rm_index`` that are required in order
+		"""Return the number of units of raw material product ``rm_index`` that are required in order
 		to make one unit of this product.
 		
 		Returns 1 if ``self.index is None`` or ``rm_index is None``, because dummy products always have
 		a BOM number of 1 with every other product.
 		Returns 0 if there is no BOM relationship for this product and ``rm_index``.
 
+		:func:`BOM` is a shortcut to this function.
+		
 		Parameters
 		----------
 		rm_index : int
 			Index of raw material product.
+		
+		Returns
+		-------
+		int
+			The BOM number for the (raw material, product) pair.
 		"""
 		if self.index is None or rm_index is None:
 			return 1
@@ -308,6 +317,17 @@ class SupplyChainProduct(object):
 		"""
 		return self._bill_of_materials
 
+	@property
+	def raw_materials(self):
+		"""A list of all raw materials required to make this product. Read only."""
+		if self.network is None:
+			raise ValueError('self.network cannot be None when calling raw_materials.')
+		return [self.network.products_by_index[rm_index] for rm_index in self.bill_of_materials_dict.keys() if self.BOM(rm_index) > 0 ]
+
+	@property
+	def raw_material_indices(self):
+		"""A list of the indices of all raw materials required to make this product. Read only."""
+		return [rm.index for rm in self.raw_materials]
 
 	# Properties and functions related to network structure.
 
@@ -372,7 +392,7 @@ class SupplyChainProduct(object):
 			True if the products are equal, False otherwise.
 
 		"""
-		return self.index == other.index
+		return self.index == (other.index if other is not None else None)
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to the product. Two products are

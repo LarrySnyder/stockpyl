@@ -413,7 +413,7 @@ class SupplyChainNode(object):
 			The product to add to the node.
 		"""
 
-		# Check whether product is already in node.
+		product.network = self.network
 		if product.index is None:
 			self._products_by_index[None] = product
 		elif product not in self.products:
@@ -483,10 +483,152 @@ class SupplyChainNode(object):
 		to the node.
 		"""
 		self.remove_product(None)
+
+	def get_network_bill_of_materials(self, product=None, predecessor=None, raw_material=None):
+		"""Return the "network bill of materials," i.e., the number of units of ``raw_material`` 
+		from ``predecessor`` that are required to make one unit of ``product`` at this node,
+		accounting for network structure. In particular, if _no_ raw materials at the predecessor
+		have a BOM relationship with _any_ product at the node, then _every_ raw material at the predecessor is assigned a BOM
+		number of 1 for _every_ product at the node. (In particular, this allows single-product networks to
+		be constructed without adding any products to the network.)
+
+		``product``, ``predecessor``, and ``raw_material`` may be indices or objects.
+			
+		Raises a ``ValueError`` if ``product`` is not a product at the node, ``raw_material`` is
+		not a product at ``predecessor``, or ``predecessor`` is not a predecessor of the node.
+
+		:func:`NBOM` is a shortcut to this function.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			The product to get the BOM for, as a |class_object| or index. Set to ``None`` (the default) for
+			the dummy product.
+		predecessor : |class_node| or int, optional
+			The predecessor to get the BOM for, as a |class_node| object or index. Set to
+			``None`` (the default) for the external supplier.
+		raw_material : |class_product| or int, optional
+			The raw material to get the BOM for, as a |class_object| or index. Set to ``None`` (the default) for
+			the dummy product.
+
+		Returns
+		-------
+		int
+			The network BOM number for the (raw material, product) pair at these nodes.
+
+		Raises
+		------
+		ValueError
+			If ``product`` is not a product at the node or ``raw_material`` is
+			not a product at ``predecessor``.
+		ValueError
+			If ``predecessor`` is not a predecessor of the node.
+		"""
+
+		# TODO: would be better to pre-build this, plus raw_materials, raw_material_suppliers, etc.,
+		# in SCNode and SCProduct. Rebuild it each time the product or node structure changes.
+
+		# Get objects and indices for parameters.
+		if isinstance(product, SupplyChainProduct):
+			prod = product
+			prod_ind = product.index
+		else:
+			prod = None if product is None else self.network.products_by_index[product]
+			prod_ind = product
+		if isinstance(predecessor, SupplyChainNode):
+			pred = predecessor
+			pred_ind = predecessor.index
+		else:
+			pred = None if predecessor is None else self.network.get_node_from_index(predecessor)
+			pred_ind = predecessor
+		if isinstance(raw_material, SupplyChainProduct):
+			rm = raw_material
+			rm_ind = raw_material.index
+		else:
+			rm = None if raw_material is None else self.network.products_by_index[raw_material]
+			rm_ind = raw_material
+
+		# Validate parameters.
+		if prod_ind not in self.product_indices:
+			raise ValueError(f'Product {prod_ind} is not a product in node {self.index}.')
+		if (rm_ind is not None or pred is not None) and (rm_ind not in pred.product_indices):
+			raise ValueError(f'Product {rm_ind} is not a product in node {pred_ind}.')
+		if pred_ind not in self.predecessor_indices(include_external=True):
+			raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
 		
-	def raw_material_suppliers(self, product_index=None):
-		"""Return a list of all predecessors, from which a raw material must be ordered in order to
-		make ``product_index`` at this node, according to the bill of materials. Suppliers in list are
+		# Do any raw materials at predecessor have a BOM relationship with any products at the node?
+		found = False
+		for prod1 in self.products:
+			for prod2 in prod1.raw_materials:
+				if prod2 in pred.products:
+					found = True
+					break
+		
+		# Were any BOM relationships found?
+		if found:
+			# Yes--return BOM relationship for this (product, raw material) pair (even if it's 0).
+			return prod.BOM(rm_ind)
+		else:
+			# No--return 1, regardless of the product and raw material.
+			return 1
+		
+	def NBOM(self, product=None, predecessor=None, raw_material=None):
+		"""A shortcut to :func:`~get_network_bill_of_materials`."""
+		return self.get_network_bill_of_materials(product, predecessor, raw_material)
+
+	def raw_materials(self, network_BOM=True):
+		"""A list of all raw materials required to make all products at the node. 
+		If ``network_BOM`` is ``True``, includes raw materials that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) Read only.
+
+		Parameters
+		----------
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+
+		Returns
+		-------
+		list
+			List of all raw materials required to make all products at the node.
+		"""
+		rms = set()
+		for prod in self.products:
+			if network_BOM:
+				for pred in self.predecessors(include_external=True):
+					for rm in pred.products:
+						if self.NBOM(product=prod, predecessor=pred, raw_material=rm) > 0:
+							rms.add(rm)
+			else:
+				rms |= set(prod.raw_materials)
+		return list(rms)
+
+	def raw_material_indices(self, network_BOM=True):
+		"""A list of indices of all raw materials required to make all products at the node. 
+		If ``network_BOM`` is ``True``, includes raw materials that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) Read only.
+
+		Parameters
+		----------
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+
+		Returns
+		-------
+		list
+			List of indices of all raw materials required to make all products at the node.
+		"""
+		return [rm.index for rm in self.raw_materials(network_BOM=network_BOM)]
+
+	def raw_material_suppliers(self, product_index=None, network_BOM=True):
+		"""Return a list of all predecessors from which a raw material must be ordered in order to
+		make ``product_index`` at this node, according to the bill of materials. 
+		If ``network_BOM`` is ``True``, includes raw material suppliers that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) Read only.
+			
+		Suppliers in list are
 		|class_node| objects, plus ``None`` for the external supplier, if appropriate. 
 
 		Set ``product_index`` to ``None``
@@ -496,6 +638,8 @@ class SupplyChainNode(object):
 		----------
 		product_index : int, optional
 			Index of product at this node, or ``None`` if this is a single-product node with no |class_product| object added.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
 
 		Returns
 		-------
@@ -518,19 +662,25 @@ class SupplyChainNode(object):
 		suppliers = []
 		for p in self.predecessors(include_external=True):
 			# Determine whether p provides a raw material for the product.
-			if product_index is None:
-				# Every product has a BOM number of 1 with a dummy product, so predecessor is
-				# automatically a raw material supplier.
-				provides_rm = True
-			elif p is None:
-				# Predecessor is external supplier, which is automatically a raw material supplier.
-				provides_rm = True
-			else:
-				provides_rm = False
-				for rm_ind in p.product_indices:
-					if prod.get_bill_of_materials(rm_ind) > 0:
-						# rm_ind is a raw material for product.
-						provides_rm = True
+			provides_rm = False
+			for rm in p.products if p is not None else [None]:
+				if (network_BOM and self.NBOM(product=prod, predecessor=p, raw_material=rm) > 0) \
+				or (not network_BOM and prod.BOM(rm.index if rm is not None else None) > 0):
+					provides_rm = True
+					break
+
+			# if product_index is None:
+			# 	# Every product has a BOM number of 1 with a dummy product, so predecessor is
+			# 	# automatically a raw material supplier.
+			# 	provides_rm = True
+			# elif p is None:
+			# 	# Predecessor is external supplier, which is automatically a raw material supplier.
+			# 	provides_rm = True
+			# else:
+			# 	for rm_ind in p.product_indices:
+			# 		if prod.get_bill_of_materials(rm_ind) > 0:
+			# 			# rm_ind is a raw material for product.
+			# 			provides_rm = True
 				
 			# Add p to list if it provides a raw material.
 			if provides_rm:
@@ -538,14 +688,19 @@ class SupplyChainNode(object):
 		
 		return suppliers
 
-	def raw_material_supplier_indices(self, product_index=None):
+	def raw_material_supplier_indices(self, product_index=None, network_BOM=True):
 		"""Return a list of all indices of predecessors from which a raw material must be ordered in order to
 		make ``product_index`` at this node, according to the bill of materials. 
-
+		If ``network_BOM`` is ``True``, includes raw material suppliers that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) Read only.
+			
 		Parameters
 		----------
 		product_index : int, optional
 			Index of product at this node, or ``None`` if this is a single-product node.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
 
 		Returns
 		-------
@@ -560,7 +715,7 @@ class SupplyChainNode(object):
 			If ``product_index`` is not found among the node's products, and it's not the case that this is a single-product
 			node with no |class_product| added.
 		"""
-		return [(s.index if s is not None else None) for s in self.raw_material_suppliers(product_index=product_index)]
+		return [(s.index if s is not None else None) for s in self.raw_material_suppliers(product_index=product_index, network_BOM=network_BOM)]
 		# supplier_indices = []
 		# for p in self.predecessors:
 		# 	# Determine whether p provides a raw material for the product.
@@ -1262,9 +1417,8 @@ class NodeStateVars(object):
 		being held before receipt due to a type-RP disruption at the node. If ``p`` is external supplier or 
 		single-product, ``prod=None``.
 	raw_material_inventory : dict
-		``raw_material_inventory[p][prod]`` = number of units of product ``prod`` from predecessor ``p``
-		in raw-material inventory at node. If ``p`` is ``None``, refers to external supply. If ``p`` is external
-		supplier or single-product, ``prod=None``.
+		``raw_material_inventory[prod]`` = number of units of product ``prod`` from _all_ predecessors 
+		in raw-material inventory at node. 
 	disrupted : bool
 		``True`` if the node was disrupted in the period, ``False`` otherwise.
 	holding_cost_incurred : float
@@ -1525,6 +1679,7 @@ class NodeStateVars(object):
 				return 0
 			else:
 				return total_in_transit / len(self.node.predecessors(include_external=True))
+	# TODO: this should be by rm, not by predecessor
 
 	@property
 	def on_order(self):
@@ -1540,6 +1695,7 @@ class NodeStateVars(object):
 			return 0
 		else:
 			return total_on_order / len(self.node.predecessors(include_external=True))
+	# TODO: this should be by rm, not by predecessor
 
 	@property
 	def raw_material_aggregate(self):
@@ -1554,6 +1710,7 @@ class NodeStateVars(object):
 			return 0
 		else:
 			return total_raw_material / len(self.node.predecessors(include_external=True))
+	# TODO: this should be by rm, not by predecessor
 
 	@property
 	def inbound_disrupted_items_aggregate(self):
@@ -1568,6 +1725,7 @@ class NodeStateVars(object):
 			return 0
 		else:
 			return total_raw_material / len(self.node.predecessors(include_external=True))
+	# TODO: this should be by rm, not by predecessor
 
 	def inventory_position(self, predecessor_index=None):
 		"""Current local inventory position at node. Equals inventory level plus

@@ -446,6 +446,8 @@ class SupplyChainNetwork(object):
 		if node not in self.nodes:
 			self.nodes.append(node)
 			node.network = self
+			for prod in node.products:
+				prod.network = self
 
 	def add_edge(self, from_index, to_index):
 		"""Add an edge to the network to and from the nodes with the specified indices.

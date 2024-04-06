@@ -403,23 +403,24 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			for p in node.raw_material_suppliers(product_index=prod_index):
 				p_index = p.index if p is not None else None
 
-				# Calculate order quantity from policy.
-				order_quantity = min(order_capac, policy.get_order_quantity(predecessor_index=p_index))
+				# Loop through products at predecessor and determine which ones are raw materials for prod.
+				for rm_index in(p.product_indices if p is not None else [None]):
+					if prod.BOM(rm_index) > 0:
 
-				# Place order in predecessor's order pipeline.
-				if p is not None:
-					p.state_vars_current.inbound_order_pipeline[node_index][prod_index][order_lead_time] = order_quantity
-				else:
-					# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
-					node.state_vars_current.inbound_shipment_pipeline[None][order_lead_time + shipment_lead_time] += order_quantity
+						# Calculate order quantity from policy.
+						order_quantity = min(order_capac, policy.get_order_quantity(predecessor_index=p_index, predecessor_product_index=rm_index))
 
-		# if order_quantity is None:
-		# 	order_quantity = None
+						# Place order in predecessor's order pipeline.
+						if p is not None:
+							p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] = order_quantity
+						else:
+							# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
+							node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += order_quantity
 
-		# Record order quantity.
-		node.state_vars_current.order_quantity[p_index][prod_index] = order_quantity
-		# Add order to on_order_by_predecessor.
-		node.state_vars_current.on_order_by_predecessor[p_index][prod_index] += order_quantity
+						# Record order quantity.
+						node.state_vars_current.order_quantity[p_index][rm_index] = order_quantity
+						# Add order to on_order_by_predecessor.
+						node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += order_quantity
 
 		
 def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks='W'):
@@ -525,8 +526,10 @@ def _initialize_state_vars(network):
 					n.state_vars[0].inbound_order_pipeline[s.index][prod_index][l] = s.get_attribute('initial_orders', prod) or 0
 
 			# Initialize raw material inventory.
-			for p_index in n.predecessor_indices(include_external=True):
-				n.state_vars[0].raw_material_inventory[p_index][prod_index] = 0
+			for rm_index in n.raw_material_indices:
+				n.state_vars[0].raw_material_inventory[rm_index] = 0
+			# for p_index in n.predecessor_indices(include_external=True):
+			# 	n.state_vars[0].raw_material_inventory[p_index][prod_index] = 0
 
 
 def _receive_inbound_orders(node):
@@ -583,24 +586,24 @@ def _initialize_next_period_state_vars(network, period):
 		for p in n.predecessors(include_external=True):
 			# Shortcut to predecessor index.
 			p_index = p.index if p is not None else None
-			# Loop through products at predecessor.
-			for prod_index in (p.products if p is not None else [None]):
+			# Loop through raw materials at predecessor.
+			for rm_index in (p.products if p is not None else [None]):
 			
 				# Is there a transit-pausing disruption?
-				if n.disrupted and n.get_attribute('disruption_process', prod_index).disruption_type == 'TP':
+				if n.disrupted and n.get_attribute('disruption_process', rm_index).disruption_type == 'TP':
 					# Yes; items in shipment pipeline stay where they are.
-					n.state_vars[period + 1].inbound_shipment_pipeline[p_index][prod_index] = \
-						n.state_vars[period].inbound_shipment_pipeline[p_index][prod_index].copy()
+					n.state_vars[period + 1].inbound_shipment_pipeline[p_index][rm_index] = \
+						n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index].copy()
 				else:
 					# No; items in shipment pipeline advance by 1 slot.
 					# Copy items from slot 0 in period t to t+1. (Normally, this will equal 0, but it can
 					# be non-zero if there was a type-RP disruption.)
-					n.state_vars[period + 1].inbound_shipment_pipeline[p_index][prod_index][0] = \
-						n.state_vars[period].inbound_shipment_pipeline[p_index][prod_index][0]
+					n.state_vars[period + 1].inbound_shipment_pipeline[p_index][rm_index][0] = \
+						n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index][0]
 					# Add items from slot s+1 in period t to slot s in period t+1.
 					for s in range(len(n.state_vars[period].inbound_shipment_pipeline[p]) - 1):
-						n.state_vars[period + 1].inbound_shipment_pipeline[p_index][prod_index][s] += \
-							n.state_vars[period].inbound_shipment_pipeline[p_index][prod_index][s + 1]
+						n.state_vars[period + 1].inbound_shipment_pipeline[p_index][rm_index][s] += \
+							n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index][s + 1]
 				
 		# Loop through successors.
 		for s in n.successor_indices(include_external=True):
@@ -623,14 +626,14 @@ def _initialize_next_period_state_vars(network, period):
 		# Loop through predecessors.
 		for p in n.predecessors(include_external=True):
 			p_index = p.index if p is not None else None
-			# Loop through products at predecessor.
-			for prod_index in (p.products if p is not None else [None]):
-				n.state_vars[period + 1].on_order_by_predecessor[p_index][prod_index] = \
-					n.state_vars[period].on_order_by_predecessor[p_index][prod_index]
-				n.state_vars[period + 1].raw_material_inventory[p_index][prod_index] = \
-					n.state_vars[period].raw_material_inventory[p_index][prod_index]
-				n.state_vars[period + 1].inbound_disrupted_items[p_index][prod_index] = \
-					n.state_vars[period].inbound_disrupted_items[p_index][prod_index]
+			# Loop through raw materials at predecessor.
+			for rm_index in (p.products if p is not None else [None]):
+				n.state_vars[period + 1].on_order_by_predecessor[p_index][rm_index] = \
+					n.state_vars[period].on_order_by_predecessor[p_index][rm_index]
+				n.state_vars[period + 1].raw_material_inventory[p_index][rm_index] = \
+					n.state_vars[period].raw_material_inventory[p_index][rm_index]
+				n.state_vars[period + 1].inbound_disrupted_items[p_index][rm_index] = \
+					n.state_vars[period].inbound_disrupted_items[p_index][rm_index]
 
 		# Set demand_met_from_stock_cumul and demand_cumul.
 		for prod_index in n.product_indices:
@@ -722,14 +725,14 @@ def _receive_inbound_shipments(node):
 		# Shortcut to predecessor index.
 		p_index = p.index if p is not None else None
 
-		# Loop through products at predecessor.
-		for prod_index in (p.products if p is not None else [None]):
+		# Loop through raw materials at predecessor.
+		for rm_index in (p.products if p is not None else [None]):
 			# Determine number of items that will be received from p (if there is no disruption),
 			# not including inbound disrupted items waiting to be received.
-			ready_to_receive = node.state_vars_current.inbound_shipment_pipeline[p_index][prod_index][0]
+			ready_to_receive = node.state_vars_current.inbound_shipment_pipeline[p_index][rm_index][0]
 
 			# Is there a receipt-pausing disruption?
-			if node.disrupted and node.get_attribute('disruption_process', prod_index).disruption_type == 'RP':
+			if node.disrupted and node.get_attribute('disruption_process', rm_index).disruption_type == 'RP':
 				# Yes: Don't receive anything.
 				IS = 0
 				# Increase inbound disrupted items by the items that would have been received, if
@@ -737,21 +740,21 @@ def _receive_inbound_shipments(node):
 				IDI = ready_to_receive
 			else:
 				# No: Inbound shipment from p = ready_to_receive + IDI from p.
-				IS = ready_to_receive + node.state_vars_current.inbound_disrupted_items[p_index][prod_index]
+				IS = ready_to_receive + node.state_vars_current.inbound_disrupted_items[p_index][rm_index]
 				# Decrease inbound disrupted items by its whole amount. (This will zero out
 				# inbound_disrupted_items below.)
-				IDI = -node.state_vars_current.inbound_disrupted_items[p_index][prod_index]
+				IDI = -node.state_vars_current.inbound_disrupted_items[p_index][rm_index]
 
 			# Set inbound_shipment attribute.
-			node.state_vars_current.inbound_shipment[p_index][prod_index] = IS
+			node.state_vars_current.inbound_shipment[p_index][rm_index] = IS
 			# Remove shipment from pipeline.
-			node.state_vars_current.inbound_shipment_pipeline[p_index][prod_index][0] = 0
+			node.state_vars_current.inbound_shipment_pipeline[p_index][rm_index][0] = 0
 			# Add shipment to raw material inventory.
-			node.state_vars_current.raw_material_inventory[p_index][prod_index] += IS
+			node.state_vars_current.raw_material_inventory[p_index][rm_index] += IS
 			# Update on-order inventory.
-			node.state_vars_current.on_order_by_predecessor[p_index][prod_index] -= ready_to_receive
+			node.state_vars_current.on_order_by_predecessor[p_index][rm_index] -= ready_to_receive
 			# Update inbound_disrupted_items.
-			node.state_vars_current.inbound_disrupted_items[p_index][prod_index] += IDI
+			node.state_vars_current.inbound_disrupted_items[p_index][rm_index] += IDI
 
 
 def _raw_materials_to_finished_goods(node):
