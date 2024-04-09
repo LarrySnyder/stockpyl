@@ -1095,12 +1095,19 @@ class SupplyChainNode(object):
 		if the_dict is None:
 			node = cls()
 		else:
+			# Determine index for new node. The attribute could be stored in the dict as 
+			# index or _index: Older saved files use index, but the attribute was changed
+			# to _index subsequently. Allow exception to be raised if neither is in the dict.
+			index = the_dict['index'] if 'index' in the_dict else the_dict['_index']
 			# Build empty SupplyChainNode.
-			node = cls(the_dict['index'])
+			node = cls(index)
 			# Fill attributes.
 			for attr in cls._DEFAULT_VALUES.keys():
 				# Some attributes require special handling.
-				if attr in ('_products_by_index', '_predecessors', '_successors'):
+				if attr == '_index':
+					# This has no effect--we already set the index--but is needed for setattr() below.
+					value = index
+				elif attr in ('_products_by_index', '_predecessors', '_successors'):
 					if attr in the_dict:
 						value = copy.deepcopy(the_dict[attr])
 					else:

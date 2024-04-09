@@ -221,7 +221,7 @@ class SupplyChainNetwork(object):
 	def initialize(self):
 		"""Initialize the parameters in the object to their default values.
 		"""
-		# Loop through attributes. Special handling for list attributes.
+		# Loop through attributes. Special handling for list and dict attributes.
 		for attr in self._DEFAULT_VALUES.keys():
 			if is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
@@ -377,6 +377,9 @@ class SupplyChainNetwork(object):
 				# 		network._products = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
 				# 	else:
 				# 		network._products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_products']]
+				elif attr == '_products':
+					# Already set this--do nothing.
+					pass
 				else:
 					# Remove leading '_' to get property names.
 					prop = attr[1:] if attr[0] == '_' else attr
