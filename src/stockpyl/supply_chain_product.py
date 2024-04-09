@@ -103,7 +103,7 @@ class SupplyChainProduct(object):
 	Attributes
 	----------
 	index : int
-		A numeric identifier for the product. Must be non-negative.
+		A numeric identifier for the product. Must be a non-negative integer.
 	name : str
 		A string to identify the product.
 	network : |class_network|
@@ -212,7 +212,7 @@ class SupplyChainProduct(object):
 				raise AttributeError(f"{key} is not an attribute of SupplyChainProduct")
 
 	_DEFAULT_VALUES = {
-		'_index': None,
+		'_index': 0,
 		'name': None,
 		'network': None,
 		'is_dummy': False,
@@ -244,7 +244,7 @@ class SupplyChainProduct(object):
 	@index.setter
 	def index(self, value):
 		# Raise error if index is non-integer, or if it is negative and this is not a dummy product.
-		if (value < 0 and not self.is_dummy) or not is_integer(value):
+		if not is_integer(value) or (value < 0 and not self.is_dummy):
 			raise ValueError('Product index must be a non-negative integer.')
 		self._index = value
 

@@ -372,11 +372,6 @@ class SupplyChainNetwork(object):
 									succs.append(m)
 							n._predecessors = preds
 							n._successors = succs
-				# elif attr == '_products':
-				# 	if attr not in the_dict:
-				# 		network._products = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
-				# 	else:
-				# 		network._products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_products']]
 				elif attr == '_products':
 					# Already set this--do nothing.
 					pass
@@ -388,15 +383,6 @@ class SupplyChainNetwork(object):
 					else:
 						value = cls._DEFAULT_VALUES[attr]
 					setattr(network, attr, value)
-
-			# # Convert nodes' products back to node objects by adding the products. This
-			# # also replaces each node's _products_by_index attribute with a dict.
-			# # (SupplyChainNode.to_dict() replaces it with a list of indices.)
-			# # (This has to be done at the end, to ensure that products have already been
-			# # filled into network object.)
-			# for n in network.nodes:
-			# 	for k in n._products_by_index.keys():
-			# 		n._products_by_index[k] = network.products_by_index[k]
 						
 		return network
 

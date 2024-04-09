@@ -673,9 +673,9 @@ class SupplyChainNode(object):
 			If ``product_index`` is not found among the node's products, and it's not the case that ``product_index is None`` and
 			this is a single-product node with no |class_product| added.
 		"""
-		# If product index is not in product indices for node, AND it's not the case that this is a single-prdouct node without
-		# a product object and product_index is None, raise exception.
-		if not (self.is_singleproduct and len(self.products) == 0 and product_index is None) and product_index not in self.product_indices:
+		# If product index is not in product indices for node, AND it's not the case that this is a single-product node without
+		# a product object (i.e., with a dummy product) and product_index is None, raise exception.
+		if not (self.is_singleproduct and self._dummy_product is not None and product_index is None) and product_index not in self.product_indices:
 			raise ValueError(f'{product_index} is not a product index in this SupplyChainNode')
 		
 		if product_index is None:

@@ -518,13 +518,13 @@ class TestInitialize(unittest.TestCase):
 		"""
 		print_status('TestInitialize', 'test_copy()')
 
-		prod1 = SupplyChainProduct(index=None)
-		prod2 = SupplyChainProduct(index=None)
+		prod1 = SupplyChainProduct(index=0)
+		prod2 = SupplyChainProduct(index=0)
 		prod1.initialize()
 		self.assertTrue(prod1.deep_equal_to(prod2))
 
-		prod1 = SupplyChainProduct(index=None, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
-		prod2 = SupplyChainProduct(index=None)
+		prod1 = SupplyChainProduct(index=0, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
+		prod2 = SupplyChainProduct(index=0)
 		prod1.initialize()
 		self.assertTrue(prod1.deep_equal_to(prod2))
 

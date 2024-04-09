@@ -597,7 +597,7 @@ class TestRemoveProducts(unittest.TestCase):
 		network.get_node_from_index(1).remove_products([1])
 		network.get_node_from_index(2).remove_products([3, network.get_node_from_index(2).products_by_index[2]])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [-_INDEX_BUMP])
 		self.assertEqual(network.get_node_from_index(1).product_indices, [0])
 		self.assertEqual(network.get_node_from_index(2).product_indices, [4])
 
@@ -1948,13 +1948,13 @@ class TestNodeToFromDict(unittest.TestCase):
 		n2.disruption_process.recovery_probability = DisruptionProcess._DEFAULT_VALUES['_recovery_probability']
 		self.assertTrue(n1.deep_equal_to(n2))
 
-	def test_multi_product_network7(self):
+	def test_multiproduct_5_7(self):
 		"""Test that to_dict() and from_dict() correctly convert SupplyChainNode object to and from dict
-		in 7-stage multi-product network.
+		in 5-stage 7-product network.
 		"""
-		print_status('TestNodeToFromDict', 'test_multi_product_network7()')
+		print_status('TestNodeToFromDict', 'test_multiproduct_5_7()')
 
-		network = load_instance("bom_structure", "tests/additional_files/multi_product_instance.json")
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		# Convert nodes to dicts.
 		node_dicts = [n.to_dict() for n in network.nodes]
@@ -1963,6 +1963,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
 		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Fill products.
 		for n in dict_nodes:
 			preds = []
 			succs = []
@@ -1974,6 +1975,11 @@ class TestNodeToFromDict(unittest.TestCase):
 			n._predecessors = preds
 			n._successors = succs
 			n.network = network
+			
+			prods = n.products
+			n.remove_products('all')
+			for prod in prods:
+				n.add_product(network.products_by_index[prod])
 
 		# Compare.
 		for i in range(len(network.nodes)):
