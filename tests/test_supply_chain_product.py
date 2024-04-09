@@ -76,6 +76,30 @@ class TestSupplyChainProductInit(unittest.TestCase):
 			_ = SupplyChainProduct(index=4, foo=7)
 
 
+class TestIndex(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIndex', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIndex', 'tear_down_class()')
+
+	def test_bad_index(self):
+		"""Test that index property correctly raises error when appropriate.
+		"""
+		print_status('TestIndex', 'test_bad_index()')
+
+		with self.assertRaises(ValueError):
+			_ = SupplyChainProduct(index=5.5)
+			_ = SupplyChainProduct(index=-10)
+
+		# Make sure no error raised here.
+		_ = SupplyChainProduct(index=-10, is_dummy=True)	
+		
+		
 class TestSetGetBillOfMaterials(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

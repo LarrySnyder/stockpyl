@@ -45,7 +45,7 @@ from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.disruption_process import DisruptionProcess
-from stockpyl.helpers import is_list, is_dict, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
+from stockpyl.helpers import is_list, is_dict, is_integer, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
 from stockpyl.helpers import build_node_data_dict
 
 
@@ -262,15 +262,10 @@ class SupplyChainNetwork(object):
 
 		if sorted(self.node_indices) != sorted(other.node_indices):
 			eq = False
-		elif (None in self.product_indices and None not in other.product_indices) or \
-			(None not in self.product_indices and None  in other.product_indices):
-			# None is in one node's product indices but not the other's.
-			eq = False
 		else:
 			# Replace None with -1 in both node's product indices because None can't be sorted.
 			self_indices = [prod_ind if prod_ind is not None else -1  for prod_ind in self.product_indices]
-			other_indices = [prod_ind if prod_ind is not None else -1  for prod_ind in other.product_indices]
-			if sorted(self_indices) != sorted(other_indices):
+			if sorted(self.product_indices) != sorted(other.product_indices):
 				eq = False
 			else:
 				# Special handling for some attributes.
@@ -283,10 +278,7 @@ class SupplyChainNetwork(object):
 							elif not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
 								eq = False
 					elif attr == '_products':
-						for prod_ind in sorted(self_indices):
-							if prod_ind == -1:
-								# Replace -1 with None again.
-								prod_ind = None
+						for prod_ind in sorted(self.product_indices):
 							other_product = other.products_by_index[prod_ind]
 							if other_product is None:
 								eq = False
@@ -345,17 +337,32 @@ class SupplyChainNetwork(object):
 		else:
 			# Build empty SupplyChainNetwork.
 			network = cls()
-			# Fill attributes.
+			# Fill products first, since these will be needed when filling nodes.
+			if '_products' not in the_dict:
+				network._products = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
+			else:
+				network._products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_products']]
+
+			# Fill attributes. 
 			for attr in cls._DEFAULT_VALUES.keys():
 				if attr == '_nodes':
 					if 'nodes' not in the_dict:
 						network._nodes = copy.deepcopy(cls._DEFAULT_VALUES['_nodes'])
 					else:
 						for n_dict in the_dict['nodes']:
-							network.add_node(SupplyChainNode.from_dict(n_dict))
-						# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
-						# replaces them with indices.)
+							# Create node.
+							node = SupplyChainNode.from_dict(n_dict)
+							# Add products to node. This also replaces _products_by_index values with product objects.
+							# (SupplyChainNode.to_dict() stores them as ints.)
+							prod_indices = [int(k) for k in node._products_by_index.keys()]
+							node._products_by_index = {}
+							for prod_ind in prod_indices:
+								node.add_product(network.products_by_index[prod_ind])
+							# Add node to network.
+							network.add_node(node)
 						for n in network.nodes:
+							# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
+							# replaces them with indices.)
 							preds = []
 							succs = []
 							for m in network.nodes:
@@ -365,9 +372,11 @@ class SupplyChainNetwork(object):
 									succs.append(m)
 							n._predecessors = preds
 							n._successors = succs
-				elif attr == '_products':
-					if attr not in the_dict:
-						value = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
+				# elif attr == '_products':
+				# 	if attr not in the_dict:
+				# 		network._products = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
+				# 	else:
+				# 		network._products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_products']]
 				else:
 					# Remove leading '_' to get property names.
 					prop = attr[1:] if attr[0] == '_' else attr
@@ -377,6 +386,15 @@ class SupplyChainNetwork(object):
 						value = cls._DEFAULT_VALUES[attr]
 					setattr(network, attr, value)
 
+			# # Convert nodes' products back to node objects by adding the products. This
+			# # also replaces each node's _products_by_index attribute with a dict.
+			# # (SupplyChainNode.to_dict() replaces it with a list of indices.)
+			# # (This has to be done at the end, to ensure that products have already been
+			# # filled into network object.)
+			# for n in network.nodes:
+			# 	for k in n._products_by_index.keys():
+			# 		n._products_by_index[k] = network.products_by_index[k]
+						
 		return network
 
 	# Methods for node handling.
@@ -447,7 +465,11 @@ class SupplyChainNetwork(object):
 			self.nodes.append(node)
 			node.network = self
 			for prod in node.products:
-				prod.network = self
+				# Fill network attribute, unless prod is an integer. 
+				# (This can happen when building a network using from_dict(), because
+				# _product_by_index values are replaced with ints in to_dict().)
+				if not is_integer(prod):		
+					prod.network = self
 
 	def add_edge(self, from_index, to_index):
 		"""Add an edge to the network to and from the nodes with the specified indices.

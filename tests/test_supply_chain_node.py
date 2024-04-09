@@ -13,6 +13,7 @@ from stockpyl.policy import Policy
 from stockpyl.instances import *
 from stockpyl.sim import *
 
+from stockpyl.supply_chain_node import _INDEX_BUMP
 
 # Module-level functions.
 
@@ -80,6 +81,38 @@ class TestSupplyChainNodeInit(unittest.TestCase):
 		with self.assertRaises(AttributeError):
 			_ = SupplyChainNode(index=4, foo=7)
 
+
+class TestIndex(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIndex', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIndex', 'tear_down_class()')
+
+	def test_update_dummy(self):
+		"""Test that changing index also changes the dummy product.
+		"""
+		print_status('TestIndex', 'test_bad_index()')
+
+		node = SupplyChainNode(index=5)
+		self.assertEqual(node._dummy_product.index, -5)
+
+		node.index = 10
+		self.assertEqual(node._dummy_product.index, -10)
+
+	def test_bad_index(self):
+		"""Test that index property correctly raises error when appropriate.
+		"""
+		print_status('TestIndex', 'test_bad_index()')
+
+		with self.assertRaises(ValueError):
+			_ = SupplyChainNode(index=5.5)
+			_ = SupplyChainProduct(index=-10)	
+	
 
 class TestSupplyChainNodeEq(unittest.TestCase):
 	@classmethod
@@ -437,19 +470,20 @@ class TestRemoveProduct(unittest.TestCase):
 		print_status('TestRemoveProduct', 'test_basic()')
 
 		network = load_instance("example_6_1")
+		nodes = {n.index: n for n in network.nodes}
 
-		network.nodes[0].add_product(SupplyChainProduct(0))
-		network.nodes[1].add_product(SupplyChainProduct(1))
-		network.nodes[2].add_product(SupplyChainProduct(2))
-		network.nodes[2].add_product(SupplyChainProduct(3))
+		nodes[1].add_product(SupplyChainProduct(0))
+		nodes[2].add_product(SupplyChainProduct(1))
+		nodes[3].add_product(SupplyChainProduct(2))
+		nodes[3].add_product(SupplyChainProduct(3))
 
-		network.nodes[0].remove_product(0)
-		network.nodes[1].remove_product(1)
-		network.nodes[2].remove_product(network.nodes[2].products_by_index[2])
+		nodes[1].remove_product(0)
+		nodes[2].remove_product(1)
+		nodes[3].remove_product(nodes[3].products_by_index[2])
 
-		self.assertEqual(network.nodes[0].product_indices, [None])
-		self.assertEqual(network.nodes[1].product_indices, [None])
-		self.assertEqual(network.nodes[2].product_indices, [3])
+		self.assertEqual(nodes[1].product_indices, [-1])
+		self.assertEqual(nodes[2].product_indices, [-2])
+		self.assertEqual(nodes[3].product_indices, [3])
 
 	def test_multiproduct_5_7(self):
 		"""Test remove_product() for 5-node 7-product instance.
@@ -462,7 +496,7 @@ class TestRemoveProduct(unittest.TestCase):
 		network.get_node_from_index(1).remove_product(1)
 		network.get_node_from_index(2).remove_product(network.get_node_from_index(2).products_by_index[2])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [None])
+		self.assertEqual(network.get_node_from_index(0).product_indices, [-_INDEX_BUMP])
 		self.assertEqual(network.get_node_from_index(1).product_indices, [0])
 		self.assertEqual(network.get_node_from_index(2).product_indices, [3, 4])
 
@@ -496,9 +530,29 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		"""
 		print_status('TestAddRemoveDummyProduct', 'test_basic()')
 
-		node = SupplyChainNode(0)
-		self.assertEqual(node.product_indices, [None])
+		node = SupplyChainNode(4)
+		self.assertEqual(node.product_indices, [-4])
+		self.assertTrue(node.products[0].is_dummy)
 
+	def test_add_remove(self):
+		"""Basic test.
+		"""
+		print_status('TestAddRemoveDummyProduct', 'test_add_remove()')
+
+		node = SupplyChainNode(4)
+		self.assertEqual(node.product_indices, [-4])
+		self.assertTrue(node.products[0].is_dummy)
+		self.assertEqual(node._dummy_product, node.products[0])
+
+		node.add_product(SupplyChainProduct(5))
+		self.assertNotIn(-4, node.product_indices)
+		self.assertFalse(node.products[0].is_dummy)
+		self.assertIsNone(node._dummy_product)
+
+		node.remove_product(5)
+		self.assertEqual(node.product_indices, [-4])
+		self.assertTrue(node.products[0].is_dummy)
+		self.assertEqual(node._dummy_product, node.products[0])
 
 class TestRemoveProducts(unittest.TestCase):
 	@classmethod
@@ -517,19 +571,20 @@ class TestRemoveProducts(unittest.TestCase):
 		print_status('TestRemoveProducts', 'test_basic()')
 
 		network = load_instance("example_6_1")
+		nodes = {n.index: n for n in network.nodes}
 
-		network.nodes[0].add_product(SupplyChainProduct(0))
-		network.nodes[1].add_product(SupplyChainProduct(1))
-		network.nodes[2].add_product(SupplyChainProduct(2))
-		network.nodes[2].add_product(SupplyChainProduct(3))
+		nodes[1].add_product(SupplyChainProduct(0))
+		nodes[2].add_product(SupplyChainProduct(1))
+		nodes[3].add_product(SupplyChainProduct(2))
+		nodes[3].add_product(SupplyChainProduct(3))
 
-		network.nodes[0].remove_products([0])
-		network.nodes[1].remove_products([1])
-		network.nodes[2].remove_products([network.nodes[2].products_by_index[2], 3])
+		nodes[1].remove_products([0])
+		nodes[2].remove_products([1])
+		nodes[3].remove_products([nodes[3].products_by_index[2], 3])
 
-		self.assertEqual(network.nodes[0].product_indices, [None])
-		self.assertEqual(network.nodes[1].product_indices, [None])
-		self.assertEqual(network.nodes[2].product_indices, [None])
+		self.assertEqual(nodes[1].product_indices, [-1])
+		self.assertEqual(nodes[2].product_indices, [-2])
+		self.assertEqual(nodes[3].product_indices, [-3])
 
 	def test_multiproduct_5_7(self):
 		"""Test remove_product() for 5-node 7-product instance.
@@ -2279,17 +2334,22 @@ class TestInitialize(unittest.TestCase):
 		"""
 		print_status('TestInitialize', 'test_copy()')
 
-		n1 = SupplyChainNode(index=None)
-		n2 = SupplyChainNode(index=None)
-		n1.initialize()
+		n1 = SupplyChainNode(index=1)
+		n2 = SupplyChainNode(index=1)
+		n1.initialize(index=None)
 		self.assertTrue(n1.deep_equal_to(n2))
-		self.assertEqual(n1.products, [None])
+		self.assertEqual(n1.products, [n1._dummy_product])
 
-		n1 = SupplyChainNode(index=None, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
-		n2 = SupplyChainNode(index=None)
+		n1 = SupplyChainNode(index=1, local_holding_cost=2, stockout_cost=50, shipment_lead_time=3)
+		n2 = SupplyChainNode(index=1)
 		n1.initialize()
 		self.assertTrue(n1.deep_equal_to(n2))
-		self.assertEqual(n1.products, [None])
+		self.assertEqual(n1.products, [n1._dummy_product])
+
+		with self.assertRaises(ValueError):
+			n1.initialize(index=-5)
+			n1.index = None
+			n1.initialize(index=None)
 
 
 class TestNodeStateVarsToFromDict(unittest.TestCase):
