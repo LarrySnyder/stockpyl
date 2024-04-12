@@ -290,9 +290,6 @@ class SupplyChainProduct(object):
 		"""Return the number of units of raw material product ``rm_index`` that are required in order
 		to make one unit of this product. Returns 0 if there is no BOM relationship for this product and ``rm_index``.
 
-		Returns 1 if ``self.index`` or ``rm_index`` is negative, because negative indices indicate
-		dummy products, which always have a BOM number of 1 with every other product.
-
 		:func:`BOM` is a shortcut to this function.
 		
 		Parameters
@@ -305,8 +302,8 @@ class SupplyChainProduct(object):
 		int
 			The BOM number for the (raw material, product) pair.
 		"""
-		if self.index < 0 or rm_index < 0:
-			return 1
+		# if self.index < 0 or rm_index < 0:
+		# 	return 1
    
 		try:
 			# Return BOM number, if BOM entry exists.
@@ -337,7 +334,7 @@ class SupplyChainProduct(object):
 
 	@property
 	def raw_materials(self):
-		"""A list of all raw materials required to make this product. Read only."""
+		"""A list of all raw materials required to make this product, as |class_prod| objects. Read only."""
 		if self.network is None:
 			raise ValueError('self.network cannot be None when calling raw_materials.')
 		return [self.network.products_by_index[rm_index] for rm_index in self.bill_of_materials_dict.keys() if self.BOM(rm_index) > 0 ]

@@ -78,8 +78,6 @@ def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 
 # TODO: convert 'null' to None
 		
-
-		
 	# Determine filepath.
 	if filepath is None:
 		filepath = _stockpyl_instances_json_path()
@@ -121,8 +119,6 @@ def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 		if ignore_state_vars:
 			for n in instance.nodes:
 				n.state_vars = []
-
-		return instance
 	else:
 		# As a dict. Leave in place. But:
 		# If the instance contains any dicts with integer keys, they will have
@@ -131,7 +127,23 @@ def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 		if 'demand_pmf' in instance.keys():
 			instance['demand_pmf'] = {int(k): v for k, v in instance['demand_pmf'].items()}
 
-		return instance
+	# Ensure that all nodes have dummy product fields set correctly. This is to maintain backward
+	# compatitbility with earlier versions, which did not save product info (including dummy products).
+	for n in instance.nodes:
+		# Does node already have dummy product?
+		if n._dummy_product is None:
+			# Add a dummy product, whether or not it needs one (mainly to assign the index).
+			n._add_dummy_product()
+		# Assign external supplier dummy product.
+		n._external_supplier_dummy_product = SupplyChainProduct(n._dummy_product.index - 1, is_dummy=True)
+		# Does node have "real" products? (This will probably never happen, since products were introduced
+  		# in the same version as dummy products--so if a node has products, it probably has dummy products
+		# correctly handled already.)
+		if len(n.products_by_index) > 1:
+			# Remove dummy product.
+			n._remove_dummy_product()
+ 
+	return instance
 
 def save_instance(instance_name, instance_data, instance_description='', filepath=None, 
 	replace=True, create_if_none=True, omit_state_vars=True):

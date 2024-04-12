@@ -412,7 +412,7 @@ class Policy(object):
 				# TODO: adjust error message for multi-product?
 				if self.node is None:
 					raise AttributeError("You must either provide inventory_position or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
-				if self.node.is_multproduct and self.product is None:
+				if self.node.is_multiproduct and self.product is None:
 					raise AttributeError("You must either provide inventory_position or set the product attribute of the Policy object to the product that it refers to (since the node is multi-product). (Usually this shoudl be done when you first creat the Policy object.)")
 # TODO: stopped here
 

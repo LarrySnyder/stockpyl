@@ -1247,6 +1247,8 @@ class TestGetNetworkBillOfMaterials(unittest.TestCase):
 			_ = nodes[0].get_network_bill_of_materials(0, 2, 77)
 		
 class TestRawMaterials(unittest.TestCase):
+	"""This class tests all of the various raw material functions for SupplyChainNode.
+	"""
 	@classmethod
 	def set_up_class(cls):
 		"""Called once, before any tests."""
@@ -1258,7 +1260,7 @@ class TestRawMaterials(unittest.TestCase):
 		print_status('TestRawMaterials', 'tear_down_class()')
 
 	def test_mwor_no_product(self):
-		"""Test that raw_materials and raw_material_indices work correctly on MWOR network with no product added at retailer.
+		"""Test that raw_materials_by_product and raw_material_indices_by_product work correctly on MWOR network with no product added at retailer.
 		"""
 		print_status('TestRawMaterials', 'test_mwor_no_product()')
 
@@ -1270,14 +1272,78 @@ class TestRawMaterials(unittest.TestCase):
 		nodes[2].add_products([prods[2], prods[3]])
 		nodes[3].add_products([prods[4], prods[5]])
 
-		self.assertListEqual(nodes[0].raw_materials(network_BOM=True), list(prods.values()))
-		self.assertListEqual(nodes[0].raw_material_indices(network_BOM=True), [prod.index for prod in prods.values()])
+		# Raw materials by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(network_BOM=True), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=True), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(network_BOM=True), list(prods.values()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), list(prods.values()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=True), list(prods.values()))
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[0].raw_materials_by_product(product_index=77, network_BOM=True)
 
-		self.assertListEqual(nodes[0].raw_materials(network_BOM=False), [])
-		self.assertListEqual(nodes[0].raw_material_indices(network_BOM=False), [])
+		# Raw materials by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_materials_by_product(network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=False), [])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[0].raw_materials_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(network_BOM=True), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(network_BOM=True), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), [nodes[1], nodes[2], nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77, network_BOM=True)
+
+		# Raw material suppliers by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), [])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by raw_material, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=1, network_BOM=True), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=True), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=True), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=1, network_BOM=True), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=2, network_BOM=True), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=3, network_BOM=True), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=4, network_BOM=True), [nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=5, network_BOM=True), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=True)
+
+		# Raw material suppliers by raw_material, network_BOM=False.
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=1, network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=1, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=2, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=3, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=4, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=5, network_BOM=False)
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=False), [])
 
 	def test_mwor_one_product(self):
-		"""Test that raw_materials and raw_material_indices work correctly on MWOR network with one product added at retailer.
+		"""Test that raw_materials_by_product and raw_material_indices_by_product work correctly on MWOR network with one product added at retailer.
 		"""
 		print_status('TestRawMaterials', 'test_mwor_one_product()')
 
@@ -1296,20 +1362,78 @@ class TestRawMaterials(unittest.TestCase):
 		nodes[0].products[0].set_bill_of_materials(4, 15)
 		nodes[0].products[0].set_bill_of_materials(5, 6)
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10, network_BOM=True), [nodes[1], nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10, network_BOM=True), [1, 2, 3])
-
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10, network_BOM=False), [nodes[1], nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10, network_BOM=False), [1, 2, 3])
-
+		# Raw materials by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(network_BOM=True), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=True), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(network_BOM=True), list(prods.values()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), list(prods.values()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=True), list(prods.values()))
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[0].raw_material_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[0].raw_materials_by_product(product_index=77, network_BOM=True)
+
+		# Raw materials by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(network_BOM=False), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=False), list(prods.keys()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(network_BOM=False), list(prods.values()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), list(prods.values()))
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=False), list(prods.values()))
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[0].raw_materials_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(network_BOM=True), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(network_BOM=True), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=nodes[0].product_indices[0], network_BOM=True), [nodes[1], nodes[2], nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77, network_BOM=True)
+
+		# Raw material suppliers by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(network_BOM=False), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(network_BOM=False), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=nodes[0].product_indices[0], network_BOM=False), [nodes[1], nodes[2], nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by raw_material, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=1, network_BOM=True), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=True), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=True), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=1, network_BOM=True), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=2, network_BOM=True), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=3, network_BOM=True), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=4, network_BOM=True), [nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=5, network_BOM=True), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=True)
+
+		# Raw material suppliers by raw_material, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=1, network_BOM=False), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=False), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=False), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=False), [3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=False), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=1, network_BOM=False), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=2, network_BOM=False), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=3, network_BOM=False), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=4, network_BOM=False), [nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=5, network_BOM=False), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=False)
 
 	def test_mwor_multiple_products(self):
-		"""Test that raw_materials and raw_material_indices work correctly on MWOR network with multiple products added at retailer.
+		"""Test that raw_materials_by_product and raw_material_indices_by_product work correctly on MWOR network with multiple products added at retailer.
 		"""
 		print_status('TestRawMaterials', 'test_mwor_multiple_products()')
 
@@ -1329,60 +1453,272 @@ class TestRawMaterials(unittest.TestCase):
 		nodes[0].products_by_index[11].set_bill_of_materials(4, 15)
 		nodes[0].products_by_index[12].set_bill_of_materials(5, 6)
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10, network_BOM=True), [nodes[1], nodes[2]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=11, network_BOM=True), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=12, network_BOM=True), [nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10, network_BOM=True), [1, 2])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=11, network_BOM=True), [2, 3])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=12, network_BOM=True), [3])
-
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10, network_BOM=False), [nodes[1], nodes[2]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=11, network_BOM=False), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=12, network_BOM=False), [nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10, network_BOM=False), [1, 2])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=11, network_BOM=False), [2, 3])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=12, network_BOM=False), [3])
-
+		# Raw materials by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=10, network_BOM=True), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=11, network_BOM=True), [3, 4])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=12, network_BOM=True), [5])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=True), [1, 2, 3, 4, 5])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=10, network_BOM=True), [prods[1], prods[2]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=11, network_BOM=True), [prods[3], prods[4]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=12, network_BOM=True), [prods[5]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=True), [prods[1], prods[2], prods[3], prods[4], prods[5]])
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[0].raw_material_indices_by_product(network_BOM=True)
+			_ = nodes[0].raw_materials_by_product(network_BOM=True)
+			_ = nodes[0].raw_material_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[0].raw_materials_by_product(product_index=77, network_BOM=True)
+
+		# Raw materials by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=10, network_BOM=False), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=11, network_BOM=False), [3, 4])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=12, network_BOM=False), [5])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=False), [1, 2, 3, 4, 5])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=10, network_BOM=False), [prods[1], prods[2]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=11, network_BOM=False), [prods[3], prods[4]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=12, network_BOM=False), [prods[5]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=False), [prods[1], prods[2], prods[3], prods[4], prods[5]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_indices_by_product(network_BOM=False)
+			_ = nodes[0].raw_materials_by_product(network_BOM=False)
+			_ = nodes[0].raw_material_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[0].raw_materials_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=10, network_BOM=True), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=11, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=12, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=10, network_BOM=True), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=11, network_BOM=True), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=12, network_BOM=True), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_product(network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_product(network_BOM=True)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77, network_BOM=True)
+
+		# Raw material suppliers by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=10, network_BOM=False), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=11, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=12, network_BOM=False), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=10, network_BOM=False), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=11, network_BOM=False), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=12, network_BOM=False), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_product(network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_product(network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by raw_material, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=1, network_BOM=True), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=True), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=True), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=True), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=1, network_BOM=True), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=2, network_BOM=True), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=3, network_BOM=True), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=4, network_BOM=True), [nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=5, network_BOM=True), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=True)
+
+		# Raw material suppliers by raw_material, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=1, network_BOM=False), [1])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=False), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=False), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=False), [3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=False), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=1, network_BOM=False), [nodes[1]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=2, network_BOM=False), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=3, network_BOM=False), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=4, network_BOM=False), [nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_raw_material(rm_index=5, network_BOM=False), [nodes[3]])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=False)
 
 	def test_multiproduct_5_7(self):
-		"""Test that raw_materials and raw_material_indices work correctly on 5-node, 7-product network.
+		"""Test that raw_materials_by_product and raw_material_indices_by_product work correctly on 5-node, 7-product network.
 		"""
 		print_status('TestRawMaterials', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		prods = network.products_by_index
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=0), [nodes[2]])
-		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=0), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=1), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=2), [nodes[4]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=3), [nodes[4]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=4), [nodes[4]])
-		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=2), [nodes[4]])
-		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=4), [nodes[4]])
-		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=5), [None])
-		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=6), [None])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=0), [2])
-		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=0), [2, 3])
-		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=1), [2, 3])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=2), [4])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=3), [4])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=4), [4])
-		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=2), [4])
-		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=4), [4])
-		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=5), [None])
-		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=6), [None])
-		
+		# Raw materials by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=0, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_indices_by_product(product_index=0, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_indices_by_product(product_index=1, network_BOM=True), [3, 4])
+		self.assertListEqual(nodes[1].raw_material_indices_by_product(product_index='all', network_BOM=True), [2, 3, 4])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index=2, network_BOM=True), [5])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index=3, network_BOM=True), [5])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index=4, network_BOM=True), [6])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index='all', network_BOM=True), [5, 6])
+		self.assertListEqual(nodes[3].raw_material_indices_by_product(product_index=2, network_BOM=True), [5])
+		self.assertListEqual(nodes[3].raw_material_indices_by_product(product_index=4, network_BOM=True), [6])
+		self.assertListEqual(nodes[3].raw_material_indices_by_product(product_index='all', network_BOM=True), [5, 6])
+		self.assertListEqual(nodes[4].raw_material_indices_by_product(product_index=5, network_BOM=True), [nodes[4]._external_supplier_dummy_product.index])
+		self.assertListEqual(nodes[4].raw_material_indices_by_product(product_index=6, network_BOM=True), [nodes[4]._external_supplier_dummy_product.index])
+		self.assertListEqual(nodes[4].raw_material_indices_by_product(product_index='all', network_BOM=True), [nodes[4]._external_supplier_dummy_product.index])
+		self.assertListEqual(nodes[0].raw_materials_by_product(network_BOM=True), [prods[2], prods[3]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=0, network_BOM=True), [prods[2], prods[3]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=True), [prods[2], prods[3]])
+		self.assertListEqual(nodes[1].raw_materials_by_product(product_index=0, network_BOM=True), [prods[2], prods[3]])
+		self.assertListEqual(nodes[1].raw_materials_by_product(product_index=1, network_BOM=True), [prods[3], prods[4]])
+		self.assertListEqual(nodes[1].raw_materials_by_product(product_index='all', network_BOM=True), [prods[2], prods[3], prods[4]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index=2, network_BOM=True), [prods[5]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index=3, network_BOM=True), [prods[5]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index=4, network_BOM=True), [prods[6]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index='all', network_BOM=True), [prods[5], prods[6]])
+		self.assertListEqual(nodes[3].raw_materials_by_product(product_index=2, network_BOM=True), [prods[5]])
+		self.assertListEqual(nodes[3].raw_materials_by_product(product_index=4, network_BOM=True), [prods[6]])
+		self.assertListEqual(nodes[3].raw_materials_by_product(product_index='all', network_BOM=True), [prods[5], prods[6]])
+		self.assertListEqual(nodes[4].raw_materials_by_product(product_index=5, network_BOM=True), [nodes[4]._external_supplier_dummy_product])
+		self.assertListEqual(nodes[4].raw_materials_by_product(product_index=6, network_BOM=True), [nodes[4]._external_supplier_dummy_product])
+		self.assertListEqual(nodes[4].raw_materials_by_product(product_index='all', network_BOM=True), [nodes[4]._external_supplier_dummy_product])
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[1].raw_material_indices_by_product(network_BOM=True)
+			_ = nodes[1].raw_materials_by_product(network_BOM=True)
+			_ = nodes[1].raw_material_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[1].raw_materials_by_product(product_index=77, network_BOM=True)
+
+		# Raw materials by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index=0, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_indices_by_product(product_index='all', network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_indices_by_product(product_index=0, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_indices_by_product(product_index=1, network_BOM=False), [3, 4])
+		self.assertListEqual(nodes[1].raw_material_indices_by_product(product_index='all', network_BOM=False), [2, 3, 4])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index=2, network_BOM=False), [5])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index=3, network_BOM=False), [5])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index=4, network_BOM=False), [6])
+		self.assertListEqual(nodes[2].raw_material_indices_by_product(product_index='all', network_BOM=False), [5, 6])
+		self.assertListEqual(nodes[3].raw_material_indices_by_product(product_index=2, network_BOM=False), [5])
+		self.assertListEqual(nodes[3].raw_material_indices_by_product(product_index=4, network_BOM=False), [6])
+		self.assertListEqual(nodes[3].raw_material_indices_by_product(product_index='all', network_BOM=False), [5, 6])
+		self.assertListEqual(nodes[0].raw_materials_by_product(network_BOM=False), [prods[2], prods[3]])
+		self.assertListEqual(nodes[4].raw_material_indices_by_product(product_index=5, network_BOM=False), [])
+		self.assertListEqual(nodes[4].raw_material_indices_by_product(product_index=6, network_BOM=False), [])
+		self.assertListEqual(nodes[4].raw_material_indices_by_product(product_index='all', network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index=0, network_BOM=False), [prods[2], prods[3]])
+		self.assertListEqual(nodes[0].raw_materials_by_product(product_index='all', network_BOM=False), [prods[2], prods[3]])
+		self.assertListEqual(nodes[1].raw_materials_by_product(product_index=0, network_BOM=False), [prods[2], prods[3]])
+		self.assertListEqual(nodes[1].raw_materials_by_product(product_index=1, network_BOM=False), [prods[3], prods[4]])
+		self.assertListEqual(nodes[1].raw_materials_by_product(product_index='all', network_BOM=False), [prods[2], prods[3], prods[4]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index=2, network_BOM=False), [prods[5]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index=3, network_BOM=False), [prods[5]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index=4, network_BOM=False), [prods[6]])
+		self.assertListEqual(nodes[2].raw_materials_by_product(product_index='all', network_BOM=False), [prods[5], prods[6]])
+		self.assertListEqual(nodes[3].raw_materials_by_product(product_index=2, network_BOM=False), [prods[5]])
+		self.assertListEqual(nodes[3].raw_materials_by_product(product_index=4, network_BOM=False), [prods[6]])
+		self.assertListEqual(nodes[3].raw_materials_by_product(product_index='all', network_BOM=False), [prods[5], prods[6]])
+		self.assertListEqual(nodes[4].raw_materials_by_product(product_index=5, network_BOM=False), [])
+		self.assertListEqual(nodes[4].raw_materials_by_product(product_index=6, network_BOM=False), [])
+		self.assertListEqual(nodes[4].raw_materials_by_product(product_index='all', network_BOM=False), [])
+		with self.assertRaises(ValueError):
+			_ = nodes[1].raw_material_indices_by_product(network_BOM=False)
+			_ = nodes[1].raw_materials_by_product(network_BOM=False)
+			_ = nodes[1].raw_material_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[1].raw_materials_by_product(product_index=77, network_BOM=False)
+
+		# Raw material suppliers by product, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(network_BOM=True), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=0, network_BOM=True), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_product(product_index=0, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_product(product_index=1, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=2, network_BOM=True), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=3, network_BOM=True), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=4, network_BOM=True), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_product(product_index=2, network_BOM=True), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_product(product_index=4, network_BOM=True), [4])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_product(product_index=5, network_BOM=True), [None])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_product(product_index=6, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(network_BOM=True), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=0, network_BOM=True), [nodes[2]])
+		self.assertListEqual(nodes[1].raw_material_suppliers_by_product(product_index=0, network_BOM=True), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[1].raw_material_suppliers_by_product(product_index=1, network_BOM=True), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=2, network_BOM=True), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=3, network_BOM=True), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=4, network_BOM=True), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers_by_product(product_index=2, network_BOM=True), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers_by_product(product_index=4, network_BOM=True), [nodes[4]])
+		self.assertListEqual(nodes[4].raw_material_suppliers_by_product(product_index=5, network_BOM=True), [None])
+		self.assertListEqual(nodes[4].raw_material_suppliers_by_product(product_index=6, network_BOM=True), [None])
+		with self.assertRaises(ValueError):
+			_ = nodes[1].raw_material_supplier_indices_by_product(network_BOM=True)
+			_ = nodes[1].raw_material_suppliers_by_product(network_BOM=True)
+			_ = nodes[1].raw_material_supplier_indices_by_product(product_index=77, network_BOM=True)
+			_ = nodes[1].raw_material_suppliers_by_product(product_index=77, network_BOM=True)
+
+		# # Raw material suppliers by product, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(network_BOM=False), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=0, network_BOM=False), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_product(product_index=0, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_product(product_index=1, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=2, network_BOM=False), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=3, network_BOM=False), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=4, network_BOM=False), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_product(product_index=2, network_BOM=False), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_product(product_index=4, network_BOM=False), [4])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_product(product_index=5, network_BOM=False), [])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_product(product_index=6, network_BOM=False), [])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(network_BOM=False), [nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=0, network_BOM=False), [nodes[2]])
+		self.assertListEqual(nodes[1].raw_material_suppliers_by_product(product_index=0, network_BOM=False), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[1].raw_material_suppliers_by_product(product_index=1, network_BOM=False), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=2, network_BOM=False), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=3, network_BOM=False), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=4, network_BOM=False), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers_by_product(product_index=2, network_BOM=False), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers_by_product(product_index=4, network_BOM=False), [nodes[4]])
+		self.assertListEqual(nodes[4].raw_material_suppliers_by_product(product_index=5, network_BOM=False), [])
+		self.assertListEqual(nodes[4].raw_material_suppliers_by_product(product_index=6, network_BOM=False), [])
+		with self.assertRaises(ValueError):
+			_ = nodes[1].raw_material_supplier_indices_by_product(network_BOM=False)
+			_ = nodes[1].raw_material_suppliers_by_product(network_BOM=False)
+			_ = nodes[1].raw_material_supplier_indices_by_product(product_index=77, network_BOM=False)
+			_ = nodes[1].raw_material_suppliers_by_product(product_index=77, network_BOM=False)
+
+		# # Raw material suppliers by raw_material, network_BOM=True.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=True), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=True), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=True), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=True), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_raw_material(rm_index=6, network_BOM=True), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=True), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_raw_material(rm_index=6, network_BOM=True), [4])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_raw_material(rm_index=nodes[4]._external_supplier_dummy_product.index, network_BOM=True), [None])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=True)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=True)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=77, network_BOM=True)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=77, network_BOM=True)
+
+		# # Raw material suppliers by raw_material, network_BOM=False.
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=False), [2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=False), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_raw_material(rm_index=2, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_raw_material(rm_index=3, network_BOM=False), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=False), [2, 3])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=False), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_raw_material(rm_index=6, network_BOM=False), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_raw_material(rm_index=5, network_BOM=False), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_raw_material(rm_index=6, network_BOM=False), [4])
+		with self.assertRaises(ValueError):
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=4, network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=None, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=None, network_BOM=False)
+			_ = nodes[0].raw_material_supplier_indices_by_raw_material(rm_index=77, network_BOM=False)
+			_ = nodes[0].raw_material_suppliers_by_raw_material(rm_index=77, network_BOM=False)
+			_ = nodes[4].raw_material_supplier_indices_by_raw_material(rm_index=nodes[4]._external_supplier_dummy_product.index, network_BOM=False)
 		
 		
 class TestLeadTime(unittest.TestCase):

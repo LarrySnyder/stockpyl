@@ -146,6 +146,9 @@ class SupplyChainNetwork(object):
 		product indices and the values are the corresponding |class_product| objects.
 		For example, ``self.products_by_index[4]`` returns a |class_product| object for the product 
 		with index 4. 
+
+		Includes "dummy products" that are added internally to nodes that do not have a |class_product|
+		object added. Dummy products are identifiable by their index, which is always negative.
 	
 		Read only. 
 		"""

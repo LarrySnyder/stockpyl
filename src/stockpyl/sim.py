@@ -345,7 +345,7 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	# Get the node.
 	node = network.get_node_from_index(node_index)
 
-	# Loop through products (including None).
+	# Loop through products (including dummy product).
 	for prod_index in node.product_indices:
 		# Does node/product have external demand?
 		dem_src = node.get_attribute('demand_source', prod_index)
@@ -363,14 +363,13 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	# Receive inbound orders.
 	_receive_inbound_orders(node)
 
-	# Loop through products at this node. (If no products, use None.)
-	for prod in node.products or [None]:
+	# Loop through products at this node (possibly including dummy).
+	for prod in node.products:
 		
 		# Get lead times and product index (for convenience).
 		order_lead_time = node.get_attribute('order_lead_time', prod) or 0
 		shipment_lead_time = node.get_attribute('shipment_lead_time', prod) or 0
-		prod_index = prod.index if prod is not None else None
-
+		
 		# Determine order quantity.
 		# Was an override order quantity provided?
 		try:
@@ -389,8 +388,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			# Calculate order quantity.
 			policy = node.get_attribute('inventory_policy', product=prod)
 			if policy is None:
-				if prod_index:
-					err_str = f'The inventory_policy attribute for node {node.index} and product {prod_index} is None. You must provide a Policy object in one or both objects in order for the simulation to set order quantities.'
+				if prod.index:
+					err_str = f'The inventory_policy attribute for node {node.index} and product {prod.index} is None. You must provide a Policy object in one or both objects in order for the simulation to set order quantities.'
 				else:
 					err_str = f'The inventory_policy attribute for node {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.'
 				raise AttributeError(err_str)
@@ -400,7 +399,7 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 
 			# Place orders to all raw material suppliers (predecessors that provide this product/node with
 			# a raw material).
-			for p in node.raw_material_suppliers(product_index=prod_index):
+			for p in node.raw_material_suppliers(product_index=prod.index):
 				p_index = p.index if p is not None else None
 
 				# Loop through products at predecessor and determine which ones are raw materials for prod.
@@ -501,35 +500,37 @@ def _initialize_state_vars(network):
 
 	# Initialize inventory levels and other quantities.
 	for n in network.nodes:
-		# Loop through products.
-		for prod in n.products:
-			# Shortcut to product index.
-			prod_index = prod.index if prod is not None else None
 
+		# State variables indexed by product at this node.
+		for prod in n.products:
+			
 			# Initialize inventory_level to initial_inventory_level (or to BS level, etc., if None).
 			init_IL = n.get_attribute('initial_inventory_level', prod)
 			if init_IL is None:
 				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(inventory_position=0)
-			n.state_vars[0][prod_index].inventory_level = init_IL
+			n.state_vars[0].inventory_level[prod.index] = init_IL
 
-			# Initialize inbound shipment pipeline and on-order quantities.
-			for p_index in n.predecessor_indices(include_external=True):
+			# Initialize inbound order pipeline. (Exclude external demand.)
+			for s in n.successors():
+				for l in range(s.get_attribute('order_lead_time') or 0):
+					n.state_vars[0].inbound_order_pipeline[s.index][prod.index][l] = s.get_attribute('initial_orders', prod) or 0
+
+		# State variables indexed by product at predecessor nodes.
+		for p in n.predecessors(include_external=True):
+			p_index = p.index if p is not None else None
+			for prod_index in p.product_indices if p is not None else [n._external_supplier_dummy_product.index]:
+				
+				# Initialize inbound shipment pipeline and on-order quantities.
 				for l in range(n.shipment_lead_time or 0):
 					n.state_vars[0].inbound_shipment_pipeline[p_index][prod_index][l] = n.get_attribute('initial_shipments', prod) or 0
 				n.state_vars[0].on_order_by_predecessor[p_index][prod_index] = \
 					(n.get_attribute('initial_shipments', prod) or 0) * (n.get_attribute('shipment_lead_time', prod) or 0) \
 						+ (n.get_attribute('initial_orders', prod) or 0) * (n.get_attribute('order_lead_time', prod) or 0)
 
-			# Initialize inbound order pipeline. (Exclude external demand.)
-			for s in n.successors():
-				for l in range(s.get_attribute('order_lead_time') or 0):
-					n.state_vars[0].inbound_order_pipeline[s.index][prod_index][l] = s.get_attribute('initial_orders', prod) or 0
+				# Initialize raw material inventory.
+				for rm_index in n.raw_material_indices(network_BOM=True):
+					n.state_vars[0].raw_material_inventory[rm_index] = 0   
 
-			# Initialize raw material inventory.
-			for rm_index in n.raw_material_indices:
-				n.state_vars[0].raw_material_inventory[rm_index] = 0
-			# for p_index in n.predecessor_indices(include_external=True):
-			# 	n.state_vars[0].raw_material_inventory[p_index][prod_index] = 0
 
 
 def _receive_inbound_orders(node):
