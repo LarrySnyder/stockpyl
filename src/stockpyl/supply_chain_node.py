@@ -1632,6 +1632,7 @@ class NodeStateVars(object):
 	raw_material_inventory : dict
 		``raw_material_inventory[prod]`` = number of units of product ``prod`` from _all_ predecessors 
 		in raw-material inventory at node. 
+		# TODO: note: this is a change, used to be indexed by predecessor
 	disrupted : bool
 		``True`` if the node was disrupted in the period, ``False`` otherwise.
 	holding_cost_incurred : float
@@ -2266,9 +2267,9 @@ class NodeStateVars(object):
 				+ self.raw_material_aggregate(prod_index=prod_index) \
 				+ self.inbound_disrupted_items_aggregate(prod_index=prod_index)
 		
-## STOPPED
 
 	def _echelon_inventory_position_adjusted(self):
+		# TODO: not updated for multi-product
 		"""Calculate the adjusted echelon inventory position. Equals the current echelon inventory position
 		including only items ordered :math:`L_i` periods ago or earlier, where :math:`L_i` is the
 		forward echelon lead time for the node. That is, equals current echelon inventory level
@@ -2421,7 +2422,8 @@ class NodeStateVars(object):
 			change_dict_key(self.inbound_shipment_pipeline, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.inbound_shipment, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.on_order_by_predecessor, p.index, old_to_new_dict[p.index])
-			change_dict_key(self.raw_material_inventory, p.index, old_to_new_dict[p.index])
+			# Removed 4/12/24: raw_material_inventory is no longer indexed by predecessor
+			# change_dict_key(self.raw_material_inventory, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.order_quantity, p.index, old_to_new_dict[p.index])
 			change_dict_key(self.inbound_disrupted_items, p.index, old_to_new_dict[p.index])
 
