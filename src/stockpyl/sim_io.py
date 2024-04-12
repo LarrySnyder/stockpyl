@@ -152,38 +152,42 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 	for t in pers_to_print:
 		temp = [t]
 		sorted_nodes = sorted(network.node_indices)
+		# Loop through nodes.
 		for ind in sorted_nodes:
 			node = network.get_node_from_index(ind)
-			# Remove 0th element of pipelines because these will always be 0 at the end of the period.
-			IOPL_temp = sort_dict_by_keys(node.state_vars[t].inbound_order_pipeline)
-			IOPL = [x[1:] for x in IOPL_temp]
-			ISPL_temp = sort_dict_by_keys(node.state_vars[t].inbound_shipment_pipeline)
-			ISPL = [x[1:] for x in ISPL_temp]
-			# Build row.
-			temp += ['|']
-			if 'DISR'	in cols_to_print: temp += [node.state_vars[t].disrupted]
-			if 'IO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_order) 
-			if 'IOPL'	in cols_to_print: temp += IOPL
-			if 'OQ'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].order_quantity) 
-			if 'OO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) 
-			if 'IS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_shipment) 
-			if 'ISPL'	in cols_to_print: temp += ISPL
-			if 'IDI'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_disrupted_items) 
-			if 'RM'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].raw_material_inventory) 
-			if 'OS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_shipment) 
-			if 'DMFS'	in cols_to_print: temp += [node.state_vars[t].demand_met_from_stock]
-			if 'FR'		in cols_to_print: temp += [node.state_vars[t].fill_rate]
-			if 'IL'		in cols_to_print: temp += [node.state_vars[t].inventory_level]
-			if 'BO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].backorders_by_successor) 
-			if 'ODI'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_disrupted_items) 
-			if 'HC'		in cols_to_print: temp += [node.state_vars[t].holding_cost_incurred]
-			if 'SC'		in cols_to_print: temp += [node.state_vars[t].stockout_cost_incurred]
-			if 'ITHC'	in cols_to_print: temp += [node.state_vars[t].in_transit_holding_cost_incurred]
-			if 'REV'	in cols_to_print: temp += [node.state_vars[t].revenue_earned]
-			if 'TC' 	in cols_to_print: temp += [node.state_vars[t].total_cost_incurred]
-		results.append(temp)
-		if print_dots and t+1 not in pers_to_print and t < num_periods-1:
-			results.append(["..."])
+			# Loop through products.
+			for prod in node.products:
+
+				# Remove 0th element of pipelines because these will always be 0 at the end of the period.
+				IOPL_temp = sort_dict_by_keys(node.state_vars[t].inbound_order_pipeline)
+				IOPL = [x[1:] for x in IOPL_temp]
+				ISPL_temp = sort_dict_by_keys(node.state_vars[t].inbound_shipment_pipeline)
+				ISPL = [x[1:] for x in ISPL_temp]
+				# Build row.
+				temp += ['|']
+				if 'DISR'	in cols_to_print: temp += [node.state_vars[t].disrupted]
+				if 'IO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_order) 
+				if 'IOPL'	in cols_to_print: temp += IOPL
+				if 'OQ'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].order_quantity) 
+				if 'OO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].on_order_by_predecessor) 
+				if 'IS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_shipment) 
+				if 'ISPL'	in cols_to_print: temp += ISPL
+				if 'IDI'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inbound_disrupted_items) 
+				if 'RM'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].raw_material_inventory) 
+				if 'OS'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_shipment) 
+				if 'DMFS'	in cols_to_print: temp += [node.state_vars[t].demand_met_from_stock]
+				if 'FR'		in cols_to_print: temp += [node.state_vars[t].fill_rate]
+				if 'IL'		in cols_to_print: temp += [node.state_vars[t].inventory_level]
+				if 'BO'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].backorders_by_successor) 
+				if 'ODI'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].outbound_disrupted_items) 
+				if 'HC'		in cols_to_print: temp += [node.state_vars[t].holding_cost_incurred]
+				if 'SC'		in cols_to_print: temp += [node.state_vars[t].stockout_cost_incurred]
+				if 'ITHC'	in cols_to_print: temp += [node.state_vars[t].in_transit_holding_cost_incurred]
+				if 'REV'	in cols_to_print: temp += [node.state_vars[t].revenue_earned]
+				if 'TC' 	in cols_to_print: temp += [node.state_vars[t].total_cost_incurred]
+			results.append(temp)
+			if print_dots and t+1 not in pers_to_print and t < num_periods-1:
+				results.append(["..."])
 
 	# Header row
 	headers = ["t"]
