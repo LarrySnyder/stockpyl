@@ -1726,8 +1726,7 @@ class NodeStateVars(object):
 												for p in self.node.predecessors(include_external=True)}
 			self.order_quantity = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
-			self.raw_material_inventory = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
-												for p in self.node.predecessors(include_external=True)}
+			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
 
 		else:
 

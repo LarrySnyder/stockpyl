@@ -399,7 +399,7 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 
 			# Place orders to all raw material suppliers (predecessors that provide this product/node with
 			# a raw material).
-			for p in node.raw_material_suppliers(product_index=prod.index):
+			for p in node.raw_material_suppliers_by_product(product_index=prod.index):
 				p_index = p.index if p is not None else None
 
 				# Loop through products at predecessor and determine which ones are raw materials for prod.
@@ -458,14 +458,14 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	# Shortcuts.
 	node = network.get_node_from_index(node_index)
 
-	# Remember starting IL.
+	# Remember starting IL (as dict by product).
 	starting_inventory_level = node.state_vars_current.inventory_level
 
 	# Receive inbound shipments. (Set inbound_shipment, remove from shipment
 	# pipeline, update OO.)
 	_receive_inbound_shipments(node)
 
-	# Convert raw materials to finished goods.
+	# Convert raw materials to finished goods. (Returns dict by)
 	new_finished_goods = _raw_materials_to_finished_goods(node)
 
 	# Process outbound shipments.
@@ -528,9 +528,8 @@ def _initialize_state_vars(network):
 						+ (n.get_attribute('initial_orders', prod) or 0) * (n.get_attribute('order_lead_time', prod) or 0)
 
 				# Initialize raw material inventory.
-				for rm_index in n.raw_material_indices(network_BOM=True):
+				for rm_index in n.raw_material_indices_by_product(product_index='all', network_BOM=True):
 					n.state_vars[0].raw_material_inventory[rm_index] = 0   
-
 
 
 def _receive_inbound_orders(node):
@@ -588,7 +587,7 @@ def _initialize_next_period_state_vars(network, period):
 			# Shortcut to predecessor index.
 			p_index = p.index if p is not None else None
 			# Loop through raw materials at predecessor.
-			for rm_index in (p.products if p is not None else [None]):
+			for rm_index in (p.products if p is not None else [n._external_supplier_dummy_product.index]):
 			
 				# Is there a transit-pausing disruption?
 				if n.disrupted and n.get_attribute('disruption_process', rm_index).disruption_type == 'TP':
@@ -628,11 +627,11 @@ def _initialize_next_period_state_vars(network, period):
 		for p in n.predecessors(include_external=True):
 			p_index = p.index if p is not None else None
 			# Loop through raw materials at predecessor.
-			for rm_index in (p.products if p is not None else [None]):
+			for rm_index in (p.products if p is not None else [n._external_supplier_dummy_product.index]):
 				n.state_vars[period + 1].on_order_by_predecessor[p_index][rm_index] = \
 					n.state_vars[period].on_order_by_predecessor[p_index][rm_index]
-				n.state_vars[period + 1].raw_material_inventory[p_index][rm_index] = \
-					n.state_vars[period].raw_material_inventory[p_index][rm_index]
+				n.state_vars[period + 1].raw_material_inventory[rm_index] = \
+					n.state_vars[period].raw_material_inventory[rm_index]
 				n.state_vars[period + 1].inbound_disrupted_items[p_index][rm_index] = \
 					n.state_vars[period].inbound_disrupted_items[p_index][rm_index]
 
@@ -673,10 +672,13 @@ def _calculate_period_costs(network, period):
 			except TypeError:
 				n.state_vars[period].holding_cost_incurred += (n.get_attribute('local_holding_cost', prod_index) or 0) * items_held
 			# Raw materials holding cost.
+   # TODO: fix this!! this is multiple-counting RM inventory holding cost because there's only 
+   # 1 but there's a loop over p. How to handle the fact that RM inventory is not predecessor-specific
+   # but its holding cost comes from teh predecessor???
 			for p in n.predecessors(include_external=False):
 				n.state_vars[period].holding_cost_incurred += \
 					(p.get_attribute('local_holding_cost', prod_index) or 0) * \
-					(n.state_vars[period].raw_material_inventory[p.index][prod_index] \
+					(n.state_vars[period].raw_material_inventory[prod_index] \
 						+ n.state_vars[period].inbound_disrupted_items[p.index][prod_index])
 			# Stockout cost.
 			try:
@@ -727,7 +729,7 @@ def _receive_inbound_shipments(node):
 		p_index = p.index if p is not None else None
 
 		# Loop through raw materials at predecessor.
-		for rm_index in (p.products if p is not None else [None]):
+		for rm_index in (p.products if p is not None else [node._external_supplier_dummy_product.index]):
 			# Determine number of items that will be received from p (if there is no disruption),
 			# not including inbound disrupted items waiting to be received.
 			ready_to_receive = node.state_vars_current.inbound_shipment_pipeline[p_index][rm_index][0]
@@ -751,7 +753,7 @@ def _receive_inbound_shipments(node):
 			# Remove shipment from pipeline.
 			node.state_vars_current.inbound_shipment_pipeline[p_index][rm_index][0] = 0
 			# Add shipment to raw material inventory.
-			node.state_vars_current.raw_material_inventory[p_index][rm_index] += IS
+			node.state_vars_current.raw_material_inventory[rm_index] += IS
 			# Update on-order inventory.
 			node.state_vars_current.on_order_by_predecessor[p_index][rm_index] -= ready_to_receive
 			# Update inbound_disrupted_items.
@@ -771,28 +773,43 @@ def _raw_materials_to_finished_goods(node):
 
 	Returns
 	-------
-	new_finished_goods : float
-		Number of new finished goods added to inventory this period.
+	new_finished_goods : dict
+		Dict whose keys are indices of products at ``node`` and whose values are 
+		the corresponding number of new finished goods added to inventory this period.
 
 	"""
+
+	# TODO: currently assumes product is infinitely divisble, i.e., if need 2 units of A and 2 of
+	# B to make the product, and have 1.5 units of A and 2 of B, will make 0.75 units of product. 
+	# Make it an option to choose whether to allow this, or require integer multiples of the BOM number to
+	# be available, i.e., require integer number of items to be processed.
+ 
 	# Determine number of units of each product that can be processed. 
 	new_finished_goods = {}
 	for prod_index in node.product_indices:
-		# Determine number of available units of each raw material for this product.
-		# in units of the product.
-		avail_rm = {}
-		for p in node.raw_material_suppliers(prod_index):
-			p_index = p.index if p is not None else None
-			for rm_index in p.products:
-				pass ## STOPPED
-	# 			avail_rm[p_index] = node.state_vars_current.raw_material_inventory[p_index][]
-	# new_finished_goods = float(np.min([node.state_vars_current.raw_material_inventory[p_index]
-	# 								   for p_index in node.predecessor_indices(include_external=True)]))
+		# Shortcut to product and BOM.
+		prod = node.products_by_index[prod_index]
+		BOM = {}
+		for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True):
+			BOM[rm_index] = prod.BOM(rm_index) 
+			if BOM[rm_index] == 0:
+				# Raw material is a dummy product (it's not in the product's BOM).
+				# BOM always = 1 in this case.
+				BOM[rm_index] = 1
 
-	# Process units: remove from raw material inventory and add to finished goods.
-	for p_index in node.predecessor_indices(include_external=True):
-		node.state_vars_current.raw_material_inventory[p_index] -= new_finished_goods
-	node.state_vars_current.inventory_level += new_finished_goods
+		# Determine number of available units of each raw material for this product,
+		# in units of the product.
+		avail_rm = {rm_index: node.state_vars_current.raw_material_inventory[rm_index] / BOM[rm_index]
+			  for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True)}
+					
+		# Determine number of units that can be processed.
+		new_finished_goods[prod_index] = min(avail_rm.values())
+
+		# Process units: remove from raw material and add to finished goods.
+		for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True):
+			node.state_vars_current.raw_material_inventory[rm_index] \
+				-= new_finished_goods[prod_index] * BOM[rm_index]
+		node.state_vars_current.inventory_level
 
 	return new_finished_goods
 
@@ -814,113 +831,118 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 	----------
 	node : |class_node|
 		The supply chain node.
-	starting_inventory_level : float
-		Starting inventory level for the period.
-	new_finished_goods : float
-		Number of new finished goods added to inventory this period.
+	starting_inventory_level : dict
+		Dict whose keys are indices of products at ``node`` and whose values are the corresponding
+		starting inventory level for the period.
+	new_finished_goods : dict
+		Dict whose keys are indices of products at ``node`` and whose values are 
+		the corresponding number of new finished goods added to inventory this period.
 	consistency_checks : str, optional
 		String indicating whether to run consistency checks (backorder calculations) and what to do
 		if check fails. For currently supported strings, see docstring for simulation().
 	"""
-	# Determine current on-hand and backorders (after new finished goods are
-	# added but before demand is subtracted).
-	current_on_hand = max(0.0, starting_inventory_level) + new_finished_goods
-	current_backorders = max(0.0, -starting_inventory_level)
 
-	global issued_backorder_warning
-	if consistency_checks in ('W', 'WF', 'E', 'EF') and not issued_backorder_warning:
-		# Double-check BO calculations.
-		current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period)
-		if not np.isclose(current_backorders, current_backorders_check):
-			if consistency_checks in ('WF', 'EF'):
-				# Write instance and simulation data to file.
-				filename = 'failed_instance_' + str(datetime.datetime.now())
-				filepath = 'aux_files/' + filename + '.json'
-				write_instance_and_states(
-					network=node.network,
-					filepath=filepath,
-					instance_name='failed_instance'
-				)
-			# Issue warning.
-			# See https://stackoverflow.com/q/287871/3453768 for terminal text color.
-			if consistency_checks in ('W', 'WF'):
-				textcolor = '\033[93m'
+	# Loop through products at this node.
+	for prod_index in node.product_indices:
+
+		# Determine current on-hand and backorders (after new finished goods are
+		# added but before demand is subtracted).
+		current_on_hand = max(0.0, starting_inventory_level[prod_index]) + new_finished_goods[prod_index]
+		current_backorders = max(0.0, -starting_inventory_level[prod_index])
+
+		global issued_backorder_warning
+		if consistency_checks in ('W', 'WF', 'E', 'EF') and not issued_backorder_warning:
+			# Double-check BO calculations.
+			current_backorders_check = node._get_attribute_total('backorders_by_successor', node.network.period, product_index=prod_index)
+			if not np.isclose(current_backorders, current_backorders_check):
+				if consistency_checks in ('WF', 'EF'):
+					# Write instance and simulation data to file.
+					filename = 'failed_instance_' + str(datetime.datetime.now())
+					filepath = 'aux_files/' + filename + '.json'
+					write_instance_and_states(
+						network=node.network,
+						filepath=filepath,
+						instance_name='failed_instance'
+					)
+				# Issue warning.
+				# See https://stackoverflow.com/q/287871/3453768 for terminal text color.
+				if consistency_checks in ('W', 'WF'):
+					textcolor = '\033[93m'
+				else:
+					textcolor = '\033[91m'
+				warning_msg = f"\n{textcolor}Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.\n"
+				if consistency_checks in ('WF', 'EF'):
+					warning_msg += f"The instance and simulation data have been written to {filepath}.\n"
+				warning_msg += f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.\n"
+				if consistency_checks in ('W', 'WF'):
+					warning_msg += f"Simulation will proceed, but results may be incorrect."
+				warning_msg += "\x1b[0m"  # reset color
+				if consistency_checks in ('W', 'WF'):
+					warnings.warn(warning_msg)
+					issued_backorder_warning = True
+				if consistency_checks in ('E', 'EF'):
+					raise ValueError(warning_msg)
+
+		# Determine outbound shipments. (Satisfy demand in order of successor node
+		# index.) Also update EIL and BO, and calculate demand met from stock.
+		node.state_vars_current.demand_met_from_stock[prod_index] = 0.0
+		for s in node.successors(include_external=True):
+			# Get successor index (for convenience).
+			s_index = None if s is None else s.index
+
+			# Determine number of items that will ship out to s (if there is no disruption), not including
+			# disrupted items waiting to ship. = min{OH, BO for s + new order from s}
+			ready_to_ship = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index][prod_index] +
+								node.state_vars_current.inbound_order[s_index][prod_index])
+
+			# Is there a shipment-pausing disruption at s?
+			if s is not None and s.disrupted and s.disruption_process.disruption_type == 'SP':
+				# Yes: Don't ship anything out.
+				OS = 0
+				# New outbound disrupted items = the items that would have been shipped out, if
+				# there were no disruption.
+				ODI = ready_to_ship
+				# Decompose ODI into new demands that are now disrupted items and previously backordered items
+				# that are now disrupted items. Assumes backorders are handled first, then new demands.
+				BO_to_DI = min(ready_to_ship, node.state_vars_current.backorders_by_successor[s_index][prod_index])
+				ND_to_DI = ODI - BO_to_DI
 			else:
-				textcolor = '\033[91m'
-			warning_msg = f"\n{textcolor}Backorder check failed! current_backorders = {current_backorders} <> current_backorders_check = {current_backorders_check}, node = {node.index}, period = {node.network.period}.\n"
-			if consistency_checks in ('WF', 'EF'):
-				warning_msg += f"The instance and simulation data have been written to {filepath}.\n"
-			warning_msg += f"Please post an issue at https://github.com/LarrySnyder/stockpyl/issues or contact the developer directly.\n"
-			if consistency_checks in ('W', 'WF'):
-				warning_msg += f"Simulation will proceed, but results may be incorrect."
-			warning_msg += "\x1b[0m"  # reset color
-			if consistency_checks in ('W', 'WF'):
-				warnings.warn(warning_msg)
-				issued_backorder_warning = True
-			if consistency_checks in ('E', 'EF'):
-				raise ValueError(warning_msg)
+				# No: Outbound shipment to s = ready_to_ship + ODI for s.
+				OS = ready_to_ship + node.state_vars_current.outbound_disrupted_items[s_index][prod_index]
+				# No new disrupted items.
+				ODI = 0
+				BO_to_DI = 0
+				ND_to_DI = 0
 
-	# Determine outbound shipments. (Satisfy demand in order of successor node
-	# index.) Also update EIL and BO, and calculate demand met from stock.
-	node.state_vars_current.demand_met_from_stock = 0.0
-	for s in node.successors(include_external=True):
-		# Get successor index (for convenience).
-		s_index = None if s is None else s.index
+			# How much of outbound shipment was used for previously disrupted items and to clear backorders?
+			# (Assumes disrupted items are cleared first, then backorders, before satisfying current period's
+			# demands.)
+			DI_OS = min(OS, node.state_vars_current.outbound_disrupted_items[s_index][prod_index])
+			BO_OS = min(OS - DI_OS, node.state_vars_current.backorders_by_successor[s_index][prod_index])
+			non_BO_DI_OS = OS - BO_OS - DI_OS
 
-		# Determine number of items that will ship out to s (if there is no disruption), not including
-		# disrupted items waiting to ship. = min{OH, BO for s + new order from s}
-		ready_to_ship = min(current_on_hand, node.state_vars_current.backorders_by_successor[s_index] +
-							node.state_vars_current.inbound_order[s_index])
+			# Update outbound_shipment and current_on_hand. (Outbound items that were previously disrupted
+			# do not get subtracted from current_on_hand because they were not included in it to begin with.)
+			node.state_vars_current.outbound_shipment[s_index][prod_index] = OS
+			current_on_hand -= (OS - DI_OS + ODI)
 
-		# Is there a shipment-pausing disruption at s?
-		if s is not None and s.disrupted and s.disruption_process.disruption_type == 'SP':
-			# Yes: Don't ship anything out.
-			OS = 0
-			# New outbound disrupted items = the items that would have been shipped out, if
-			# there were no disruption.
-			ODI = ready_to_ship
-			# Decompose ODI into new demands that are now disrupted items and previously backordered items
-			# that are now disrupted items. Assumes backorders are handled first, then new demands.
-			BO_to_DI = min(ready_to_ship, node.state_vars_current.backorders_by_successor[s_index])
-			ND_to_DI = ODI - BO_to_DI
-		else:
-			# No: Outbound shipment to s = ready_to_ship + ODI for s.
-			OS = ready_to_ship + node.state_vars_current.outbound_disrupted_items[s_index]
-			# No new disrupted items.
-			ODI = 0
-			BO_to_DI = 0
-			ND_to_DI = 0
+			# Calculate demand met from stock. (Note: This assumes that if there
+			# are backorders, they get priority over current period's demands.)
+			DMFS = max(0, OS - node.state_vars_current.backorders_by_successor[s_index][prod_index])
+			node.state_vars_current.demand_met_from_stock[prod_index] += DMFS
+			node.state_vars_current.demand_met_from_stock_cumul[prod_index] += DMFS
 
-		# How much of outbound shipment was used for previously disrupted items and to clear backorders?
-		# (Assumes disrupted items are cleared first, then backorders, before satisfying current period's
-		# demands.)
-		DI_OS = min(OS, node.state_vars_current.outbound_disrupted_items[s_index])
-		BO_OS = min(OS - DI_OS, node.state_vars_current.backorders_by_successor[s_index])
-		non_BO_DI_OS = OS - BO_OS - DI_OS
+			# Update IL and BO.
+			node.state_vars_current.inventory_level[prod_index] -= node.state_vars_current.inbound_order[s_index][prod_index]
 
-		# Update outbound_shipment and current_on_hand. (Outbound items that were previously disrupted
-		# do not get subtracted from current_on_hand because they were not included in it to begin with.)
-		node.state_vars_current.outbound_shipment[s_index] = OS
-		current_on_hand -= (OS - DI_OS + ODI)
+			# Calculate new backorders_by_successor.
+			node.state_vars_current.backorders_by_successor[s_index][prod_index] -= (BO_OS + BO_to_DI)
+			node.state_vars_current.backorders_by_successor[s_index][prod_index] \
+				+= max(0, node.state_vars_current.inbound_order[s_index][prod_index] - ND_to_DI - non_BO_DI_OS)
 
-		# Calculate demand met from stock. (Note: This assumes that if there
-		# are backorders, they get priority over current period's demands.)
-		DMFS = max(0, OS - node.state_vars_current.backorders_by_successor[s_index])
-		node.state_vars_current.demand_met_from_stock += DMFS
-		node.state_vars_current.demand_met_from_stock_cumul += DMFS
-
-		# Update IL and BO.
-		node.state_vars_current.inventory_level -= node.state_vars_current.inbound_order[s_index]
-
-		# Calculate new backorders_by_successor.
-		node.state_vars_current.backorders_by_successor[s_index] -= (BO_OS + BO_to_DI)
-		node.state_vars_current.backorders_by_successor[s_index] += max(0,
-																		node.state_vars_current.inbound_order[
-																			s_index] - ND_to_DI - non_BO_DI_OS)
-
-		# Update disrupted_items.
-		if s is not None:
-			node.state_vars_current.outbound_disrupted_items[s_index] += ODI - DI_OS
+			# Update disrupted_items.
+			if s is not None:
+				node.state_vars_current.outbound_disrupted_items[s_index][prod_index] += ODI - DI_OS
 
 
 def _calculate_fill_rate(node, period):
@@ -934,17 +956,16 @@ def _calculate_fill_rate(node, period):
 		Time period.
 
 	"""
-	# Calculate fill rate (cumulative in periods 0,...,t).
-	met_from_stock = node.state_vars[period].demand_met_from_stock_cumul
-	total_demand = node.state_vars[period].demand_cumul
-	# met_from_stock = np.sum([node.state_vars[t].demand_met_from_stock for t in range(period + 1)])
-	# total_demand = np.sum([node._get_attribute_total('inbound_order', t)
-	# 					   for t in range(period + 1)])
+	# Loop through products at this node.
+	for prod_index in node.product_indices:
+		# Calculate fill rate (cumulative in periods 0,...,t).
+		met_from_stock = node.state_vars[period].demand_met_from_stock_cumul[prod_index]
+		total_demand = node.state_vars[period].demand_cumul[prod_index]
 
-	if total_demand > 0:
-		node.state_vars_current.fill_rate = met_from_stock / total_demand
-	else:
-		node.state_vars_current.fill_rate = 1.0
+		if total_demand > 0:
+			node.state_vars_current.fill_rate[prod_index] = met_from_stock / total_demand
+		else:
+			node.state_vars_current.fill_rate[prod_index] = 1.0
 
 
 def _propagate_shipment_downstream(node):
@@ -957,17 +978,19 @@ def _propagate_shipment_downstream(node):
 
 	Returns
 	-------
-	inbound_shipment : float
-		The inbound shipment quantity.
-
+	inbound_shipment : dict
+		Dict whose keys are indices of products at ``node`` and whose values are the corresponding
+		starting inbound shipment quantity.
 	"""
-	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
-	# (Normally inbound_shipment_pipeline[node.index][s.shipment_lead_time] should equal 0,
-	# unless there is a type-TP disruption, in which case outbound shipments
-	# successor wait in slot s.shipment_lead_time until the disruption ends.)
-	for s in node.successors():
-		s.state_vars_current.inbound_shipment_pipeline[node.index][s.shipment_lead_time or 0] \
-			+= node.state_vars_current.outbound_shipment[s.index]
+	# Loop through products at this node.
+	for prod_index in node.product_indices:
+		# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
+		# (Normally inbound_shipment_pipeline[node.index][s.shipment_lead_time] should equal 0,
+		# unless there is a type-TP disruption, in which case outbound shipments
+		# successor wait in slot s.shipment_lead_time until the disruption ends.)
+		for s in node.successors():
+			s.state_vars_current.inbound_shipment_pipeline[node.index][prod_index][s.shipment_lead_time or 0] \
+				+= node.state_vars_current.outbound_shipment[s.index][prod_index]
 
 
 # -------------------
