@@ -741,9 +741,25 @@ def sort_dict_by_keys(d, ascending=True, return_values=True):
 	"""Sort dict by keys and return sorted list of values or keys, depending
 	on the value of ``return_values``.
 
-	Special handling is included to handle keys that might be ``None``.
+	Keys must all be comparable to one another, i.e., all numbers or all strings,
+	with the exception that ``None`` keys are allowed.
+	Special handling is included to handle keys that are ``None``.
 	(``None`` is assumed to come before any other element when sorting in
 	ascending order.)
+
+	**Example:**
+
+	.. testsetup:: *
+
+		from stockpyl.helpers import *
+
+	.. doctest::
+
+		>>> the_dict = {'a': 5, None: 14, 'b': 7}
+		>>> sort_dict_by_keys(the_dict)
+		[14, 5, 7]
+		>>> sort_dict_by_keys(the_dict, return_values=False)
+		[None, 'a', 'b']
 
 	Parameters
 	----------
@@ -787,6 +803,67 @@ def sort_dict_by_keys(d, ascending=True, return_values=True):
 
 	return return_list
 
+	
+def sort_nested_dict_by_keys(d, ascending=True, return_values=True):
+	"""Sort nested dict by its first two levels of keys and return sorted 
+	list of values or keys, depending on the value of ``return_values``.
+	If ``return_values`` is ``False``, the list returned
+	contains tuples ``(key1, key2)``, where ``key1`` is the key from the
+	outer dict and ``key2`` is the key from the inner dict.
+
+	Keys must all be comparable to one another, i.e., all numbers or all strings,
+	with the exception that ``None`` keys are allowed.
+	Special handling is included to handle keys that are ``None``.
+	(``None`` is assumed to come before any other element when sorting in
+	ascending order.)
+
+	**Example:**
+
+	.. testsetup:: *
+
+		from stockpyl.helpers import *
+
+	.. doctest::
+
+		>>> the_dict = {'a': 5, None: 14, 'b': 7}
+		>>> sort_dict_by_keys(the_dict)
+		[14, 5, 7]
+		>>> sort_dict_by_keys(the_dict, return_values=False)
+		[None, 'a', 'b']
+
+	Parameters
+	----------
+	d : dict
+		The dict to sort.
+	ascending : bool, optional
+		Sort order.
+	return_values : bool, optional
+		Set to ``True`` to return a list of the dict's values, ``False`` to
+		return its keys.
+
+	Returns
+	-------
+	return_list : list
+		List of values or keys of ``d``, sorted in order of keys of ``d``.
+
+	"""
+	# Replace nested dict with one in which the first two levels are replaced by a tuple.
+	# Also replace any None keys with -inf so they will always be sorted first (if ascending order).
+	flattened_dict = {(key1 if key1 is not None else float('-inf'), key2 if key2 is not None else float('-inf')): \
+							d[key1][key2] for key1 in d.keys() for key2 in d[key1].keys()}
+
+	if return_values:
+		# Build sorted list of values (sorted by keys) in flattened_dict.
+		return_list = [value for _, value in sorted(flattened_dict.items(), reverse=not ascending)]
+	else:
+		# Build sorted list of keys in flattened_dict.
+		return_list = [key for key, _ in sorted(flattened_dict.items(), reverse=not ascending)]
+
+		# Replace -inf with None.
+		return_list = [(None if key1 == -float('inf') else key1, None if key2 == -float('inf') else key2) \
+						for key1, key2 in return_list]
+
+	return return_list
 
 def change_dict_key(dict_to_change, old_key, new_key):
 	"""Change ``old_key`` to ``new_key`` in ``dict_to_change`` (in place).

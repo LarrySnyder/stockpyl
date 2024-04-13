@@ -894,6 +894,43 @@ class TestSortDictByKeys(unittest.TestCase):
 		self.assertEqual(c_vals, [9, 3, 2, 0, None])
 
 
+class TestSortNestedDictByKeys(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSortNestedDictByKeys', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSortNestedDictByKeys', 'tear_down_class()')
+
+	def test_nest_list(self):
+		"""Test sort_nested_dict_by_keys().
+		"""
+		print_status('TestSortNestedDictByKeys', 'test_ascending_values()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+		c = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		d = {5: a, None: b, 17: c}
+		# Note to self: d items, sorted ascending by key, are:
+		# (None, None): "bar", (None, 0): 5, (None, 2): -1, (None, 3): "hello", (None, 9): None,
+		# (5, 0): 5, (5, 2): -1, (5, 3): "hello", (5, 9): None,
+		# (17, "a"): 2, (17, "b"): "foo", (17, "c"): -5, (17, "d"): None
+  
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d), 
+				   ["bar", 5, -1, "hello", None, 5, -1, "hello", None, 2, "foo", -5, None])
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d, ascending=False), 
+				   list(reversed(["bar", 5, -1, "hello", None, 5, -1, "hello", None, 2, "foo", -5, None])))
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d, return_values=False), 
+				   [(None, None), (None, 0), (None, 2), (None, 3), (None, 9),
+					(5, 0), (5, 2), (5, 3), (5, 9), (17, "a"), (17, "b"), (17, "c"), (17, "d")])
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d, ascending=False, return_values=False), 
+				   list(reversed([(None, None), (None, 0), (None, 2), (None, 3), (None, 9),
+					(5, 0), (5, 2), (5, 3), (5, 9), (17, "a"), (17, "b"), (17, "c"), (17, "d")])))
+		
+		
 class TestChangeDictKey(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
