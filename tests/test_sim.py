@@ -217,30 +217,21 @@ class TestSimulation(unittest.TestCase):
             demand_source=demand_source.DemandSource(type='CD', demand_list=[1, 2, 3, 4], probabilities= 4 * [0.25]),
             inventory_policy=policy.Policy(type='BS', base_stock_level=2)
         )
+        dp = network.nodes[0]._dummy_product.index
+        esdp = network.nodes[0]._external_supplier_dummy_product.index
 
         total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False, consistency_checks='E')
 
-        write_results(
-            network=network,
-            num_periods=100,
-        #	num_periods_to_print=100,
-            columns_to_print=['basic', 'costs'],
-            write_txt=False,
-            txt_filename='/Users/larry/Documents/GitHub/stockpyl-private/debugging_files/simple_sim.txt',
-            write_csv=True,
-            csv_filename='/Users/larry/Documents/GitHub/stockpyl-private/debugging_files/simple_sim.csv'
-        )
-
         # Compare total cost.
-        self.assertAlmostEqual(total_cost, 255.2472033, places=4)
+        self.assertEqual(total_cost, 825)
 
         # Compare a few performance measures.
-        self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[None], 57.103320, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 9.9564105, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[43].inbound_order[None], 32.00584965, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[95].inbound_shipment[None], 52.9079333, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None], 6.7125153, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level, -2.09415258242449, places=4)
+        self.assertEqual(network.nodes[0].state_vars[6].order_quantity[None][esdp], 3)
+        self.assertEqual(network.nodes[0].state_vars[95].inventory_level[dp], -2)
+        self.assertEqual(network.nodes[0].state_vars[43].inbound_order[None][dp], 4)
+        self.assertEqual(network.nodes[0].state_vars[95].inbound_shipment[None][esdp], 2)
+        self.assertEqual(network.nodes[0].state_vars[16].backorders_by_successor[None][dp], 2)
+        self.assertEqual(network.nodes[0].state_vars[86].inventory_level[dp], -1)
 
     def test_single_stage(self):
         """Test that simulation() function correctly simulates single-stage
@@ -249,6 +240,8 @@ class TestSimulation(unittest.TestCase):
         print_status('TestSimulation', 'test_single_stage()')
 
         network = load_instance("example_4_1_network")
+        dp = network.nodes[0]._dummy_product.index
+        esdp = network.nodes[0]._external_supplier_dummy_product.index
 
         # Set initial inventory levels to 0. (Tests below were built with this assumption, but subsequent
         # changes in code changed the default initial IL.)
@@ -261,12 +254,12 @@ class TestSimulation(unittest.TestCase):
         self.assertAlmostEqual(total_cost, 255.2472033, places=4)
 
         # Compare a few performance measures.
-        self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[None], 57.103320, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 9.9564105, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[43].inbound_order[None], 32.00584965, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[95].inbound_shipment[None], 52.9079333, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None], 6.7125153, places=4)
-        self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level, -2.09415258242449, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[None][esdp], 57.103320, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level[dp], 9.9564105, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[43].inbound_order[None][dp], 32.00584965, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[95].inbound_shipment[None][esdp], 52.9079333, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None][dp], 6.7125153, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level[dp], -2.09415258242449, places=4)
 
     def test_no_policy_node(self):
         """Test that simulation still works if we don't set the node attribute of the inventory policy.

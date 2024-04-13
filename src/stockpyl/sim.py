@@ -28,6 +28,7 @@ from scipy import stats
 from tqdm import tqdm  # progress bar
 import warnings
 import datetime
+import copy
 
 #from stockpyl.datatypes import *
 #from stockpyl.supply_chain_network import SupplyChainNetwork
@@ -458,7 +459,7 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	node = network.get_node_from_index(node_index)
 
 	# Remember starting IL (as dict by product).
-	starting_inventory_level = node.state_vars_current.inventory_level
+	starting_inventory_level = copy.deepcopy(node.state_vars_current.inventory_level)
 
 	# Receive inbound shipments. (Set inbound_shipment, remove from shipment
 	# pipeline, update OO.)
