@@ -204,7 +204,43 @@ class TestSimulation(unittest.TestCase):
         self.assertAlmostEqual(node2.state_vars[5].inbound_shipment[None], 17.11936, places=4)
         self.assertAlmostEqual(node2.state_vars[8].inventory_level, 0.47918 , places=4)
 
+    def test_simple_single_stage(self):
+        """Test that simulation() function correctly simulates single-stage
+        model with small-integer demands (for easier debugging) with base-stock policy.
+        """
+        print_status('TestSimulation', 'test_simple_single_stage()')
 
+        network = single_stage_system(
+            holding_cost=1,
+            stockout_cost=10,
+            shipment_lead_time=1,
+            demand_source=demand_source.DemandSource(type='CD', demand_list=[1, 2, 3, 4], probabilities= 4 * [0.25]),
+            inventory_policy=policy.Policy(type='BS', base_stock_level=2)
+        )
+
+        total_cost = simulation(network, num_periods=100, rand_seed=762, progress_bar=False, consistency_checks='E')
+
+        write_results(
+            network=network,
+            num_periods=100,
+        #	num_periods_to_print=100,
+            columns_to_print=['basic', 'costs'],
+            write_txt=False,
+            txt_filename='/Users/larry/Documents/GitHub/stockpyl-private/debugging_files/simple_sim.txt',
+            write_csv=True,
+            csv_filename='/Users/larry/Documents/GitHub/stockpyl-private/debugging_files/simple_sim.csv'
+        )
+
+        # Compare total cost.
+        self.assertAlmostEqual(total_cost, 255.2472033, places=4)
+
+        # Compare a few performance measures.
+        self.assertAlmostEqual(network.nodes[0].state_vars[6].order_quantity[None], 57.103320, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[95].inventory_level, 9.9564105, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[43].inbound_order[None], 32.00584965, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[95].inbound_shipment[None], 52.9079333, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[19].backorders_by_successor[None], 6.7125153, places=4)
+        self.assertAlmostEqual(network.nodes[0].state_vars[86].inventory_level, -2.09415258242449, places=4)
 
     def test_single_stage(self):
         """Test that simulation() function correctly simulates single-stage

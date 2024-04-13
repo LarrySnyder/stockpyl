@@ -402,24 +402,23 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			for p in node.raw_material_suppliers_by_product(product_index=prod.index):
 				p_index = p.index if p is not None else None
 
-				# Loop through products at predecessor and determine which ones are raw materials for prod.
-				for rm_index in(p.product_indices if p is not None else [None]):
-					if prod.BOM(rm_index) > 0:
+				# Loop through products at predecessor.
+				for rm_index in (p.product_indices if p is not None else [node._external_supplier_dummy_product.index]):
+					# Calculate order quantity from policy. 
+					# (It will be 0 if there's no BOM relationship for this product/predecessor/raw material.)
+					order_quantity = min(order_capac, policy.get_order_quantity(product_index=prod.index, predecessor_index=p_index, rm_index=rm_index))
 
-						# Calculate order quantity from policy.
-						order_quantity = min(order_capac, policy.get_order_quantity(predecessor_index=p_index, predecessor_product_index=rm_index))
+					# Place order in predecessor's order pipeline (converting first to raw material units via BOM).
+					if p is not None:
+						p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] = order_quantity
+					else:
+						# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
+						node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += order_quantity
 
-						# Place order in predecessor's order pipeline.
-						if p is not None:
-							p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] = order_quantity
-						else:
-							# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
-							node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += order_quantity
-
-						# Record order quantity.
-						node.state_vars_current.order_quantity[p_index][rm_index] = order_quantity
-						# Add order to on_order_by_predecessor.
-						node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += order_quantity
+					# Record order quantity.
+					node.state_vars_current.order_quantity[p_index][rm_index] = order_quantity
+					# Add order to on_order_by_predecessor.
+					node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += order_quantity
 
 		
 def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks='W'):
@@ -601,7 +600,7 @@ def _initialize_next_period_state_vars(network, period):
 					n.state_vars[period + 1].inbound_shipment_pipeline[p_index][rm_index][0] = \
 						n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index][0]
 					# Add items from slot s+1 in period t to slot s in period t+1.
-					for s in range(len(n.state_vars[period].inbound_shipment_pipeline[p]) - 1):
+					for s in range(len(n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index]) - 1):
 						n.state_vars[period + 1].inbound_shipment_pipeline[p_index][rm_index][s] += \
 							n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index][s + 1]
 				
@@ -809,7 +808,7 @@ def _raw_materials_to_finished_goods(node):
 		for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True):
 			node.state_vars_current.raw_material_inventory[rm_index] \
 				-= new_finished_goods[prod_index] * BOM[rm_index]
-		node.state_vars_current.inventory_level
+		node.state_vars_current.inventory_level[prod_index] += new_finished_goods[prod_index]
 
 	return new_finished_goods
 

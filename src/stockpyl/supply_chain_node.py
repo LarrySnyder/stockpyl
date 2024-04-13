@@ -1918,8 +1918,8 @@ class NodeStateVars(object):
 
 		total_in_transit = np.sum([
 				self.in_transit_from(p, rm_index) 
-				* self.node.NBOM(product_index=prod_index, predecessor_index=p, rm_index=rm_index)
-			for rm_index in self.node.raw_material_indices(product_index=prod_index, network_BOM=True)
+				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
+			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
 			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
 		])
 
@@ -1967,8 +1967,8 @@ class NodeStateVars(object):
 
 		total_on_order = np.sum([
 				self.on_order_by_predecessor[p][rm_index]
-				* self.node.NBOM(product_index=prod_index, predecessor_index=p, rm_index=rm_index)
-			for rm_index in self.node.raw_material_indices(product_index=prod_index, network_BOM=True)
+				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
+			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
 			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
 		])
 
@@ -2016,7 +2016,7 @@ class NodeStateVars(object):
 		prod = self.node.products_by_index[prod_index]
 
 		total_raw_material = 0
-		for rm_index in self.node.raw_material_indices(product_index=prod_index, network_BOM=True):
+		for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True):
 			BOM = prod.BOM(rm_index) 
 			if BOM == 0:
 				# rm_index has no BOM relationship, so it is only in the network BOM; therefore,
@@ -2069,8 +2069,8 @@ class NodeStateVars(object):
 
 		total_disrupted_items = np.sum([
 				self.inbound_disrupted_items[p][rm_index]
-				* self.node.NBOM(product_index=prod_index, predecessor_index=p, rm_index=rm_index)
-			for rm_index in self.node.raw_material_indices(product_index=prod_index, network_BOM=True)
+				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
+			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
 			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
 		])
 
@@ -2124,10 +2124,10 @@ class NodeStateVars(object):
 			If ``predecessor_index is None`` and ``rm_index is not None``, or vice-versa.
 		"""
 		# Validate parameters.
-		if predecessor_index is None and rm_index is not None:
-			raise ValueError('If predecessor_index is None, then rm_index must also be None.')
-		if predecessor_index is not None and rm_index is None:
-			raise ValueError('If rm_index is None, then predecessor_index must also be None.')
+		# if predecessor_index is None and rm_index is not None:
+		# 	raise ValueError('If predecessor_index is None, then rm_index must also be None.')
+		# if predecessor_index is not None and rm_index is None:
+		# 	raise ValueError('If rm_index is None, then predecessor_index must also be None.')
 
 		# Determine product index. # TODO: validate parameters
 		prod_index = prod_index or self.node.product_indices[0]
@@ -2140,7 +2140,7 @@ class NodeStateVars(object):
 		else:
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0
 			# (because raw materials are processed right away).
-			return self.inventory_level \
+			return self.inventory_level[prod_index] \
 				+ self.on_order(prod_index=prod_index) \
 				+ self.raw_material_aggregate(prod_index=prod_index) \
 				+ self.inbound_disrupted_items_aggregate(prod_index=prod_index)

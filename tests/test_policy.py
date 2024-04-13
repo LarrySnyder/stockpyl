@@ -325,6 +325,7 @@ class TestToDict(unittest.TestCase):
 		correct_dict = {
 			'type': 'BS',
 			'node': None,
+			'product': None,
 			'base_stock_level': 100,
 			'order_quantity': None,
 			'reorder_point': None,
@@ -348,6 +349,7 @@ class TestToDict(unittest.TestCase):
 		correct_dict = {
 			'type': 'BS',
 			'node': 5,
+			'product': None,
 			'base_stock_level': 100,
 			'order_quantity': None,
 			'reorder_point': None,
@@ -369,6 +371,7 @@ class TestToDict(unittest.TestCase):
 		correct_dict = {
 			'type': 'sS',
 			'node': None,
+			'product': None,
 			'base_stock_level': None,
 			'order_quantity': None,
 			'reorder_point': 100,

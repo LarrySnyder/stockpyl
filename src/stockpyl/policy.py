@@ -349,7 +349,7 @@ class Policy(object):
 
 	# ORDER QUANTITY METHODS
 
-	def get_order_quantity(self, predecessor_index=None, predecessor_product_index=None, inventory_position=None,
+	def get_order_quantity(self, product_index=None, predecessor_index=None, rm_index=None, inventory_position=None,
 						   echelon_inventory_position_adjusted=None):
 		"""Calculate order quantity using the policy type specified in ``type``.
 		If ``type`` is ``None``, return ``None``.
@@ -358,22 +358,29 @@ class Policy(object):
 		and sometimes others) from ``self.node.network``. The order quantity is set using the
 		bill of materials structure for the node/product.
 
+		If the policy's ``node`` attribute is ``None``, assumes that the product and raw material have
+		a BOM number of 1.
+
 		If ``inventory_position`` (and ``echelon_inventory_position_adjusted``, for
 		balanced echelon base-stock policies) are provided, they will override the
 		values indicated by the node's current state variables. This allows the
 		policy to be queried for an order quantity even if no node/product or network are
 		provided or have no state variables objects. If ``inventory_position``
-		and ``echelon_inventory_position_adjusted`` are omitted
+		and ``echelon_inventory_position_adjusted`` are ``None``
 		(which is the typical use case), the current state variables will be used.
 
 		Parameters
 		----------
+		product_index : int, optional
+			The index of the product for which the order quantity should be calculated.
+			If the node is single-product, either set ``product_index`` to the index of the single product, 
+			or to ``None`` and the function will determine the index automatically. 
 		predecessor_index : int, optional
-			The predecessor for which the order quantity should be calculated.
+			The index of the predecessor for which the order quantity should be calculated.
 			Use ``None`` for external supplier, or if node has only one predecessor
 			(including external supplier).
-		predecessor_product_index : int, optional
-			The product at the predecessor for which the order quantity should be calculated.
+		rm_index : int, optional
+			The index of the raw material at the predecessor for which the order quantity should be calculated.
 			Use ``None`` if the predecessor is the external supplier. If the predecessor
 			has only one product, ``predecessor_product_index`` can be set to ``None`` or to the
 			index of that product.
@@ -399,6 +406,15 @@ class Policy(object):
 		"""
 		if self.type is None:
 			return None
+		
+		# Determine network BOM for this product/predecessor/raw material. If it's 0, return 0.
+		if self.node is None:
+			# Assume BOM number = 1.
+			NBOM = 1
+		else:
+			NBOM = self.node.NBOM(product=product_index, predecessor=predecessor_index, raw_material=rm_index)
+			if NBOM == 0:
+				return 0
 
 		# Was inventory_position provided?
 		if inventory_position is not None:
@@ -409,39 +425,37 @@ class Policy(object):
 				IP = None
 			else:
 				# Make sure node attribute is set or inventory_position is provided.
-				# TODO: adjust error message for multi-product?
 				if self.node is None:
 					raise AttributeError("You must either provide inventory_position or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
 				if self.node.is_multiproduct and self.product is None:
 					raise AttributeError("You must either provide inventory_position or set the product attribute of the Policy object to the product that it refers to (since the node is multi-product). (Usually this shoudl be done when you first creat the Policy object.)")
-# TODO: stopped here
 
 				# Calculate total demand (inbound orders), including successor nodes and
 				# external demand.
-				demand = self.node._get_attribute_total('inbound_order', self.node.network.period)
+				demand = self.node._get_attribute_total('inbound_order', self.node.network.period, product_index=product_index)
 
 				# Calculate (local or echelon) inventory position, before demand is subtracted.
 				if self.type in ('EBS', 'BEBS'):
 					IP_before_demand = \
-						self.node.state_vars_current.echelon_inventory_position(predecessor_index=predecessor_index)
+						self.node.state_vars_current.echelon_inventory_position(prod_index=product_index, predecessor_index=predecessor_index, rm_index=rm_index)
 				else:
 					IP_before_demand = \
-						self.node.state_vars_current.inventory_position(predecessor_index=predecessor_index)
+						self.node.state_vars_current.inventory_position(prod_index=product_index, predecessor_index=predecessor_index, rm_index=rm_index)
 
 				# Calculate current inventory position, after demand is subtracted.
 				IP = IP_before_demand - demand
 
-		# Determine order quantity based on policy.
+		# Determine order quantity based on policy. This order quantity is in units of the product.
 		if self.type == 'BS':
-			return self._get_order_quantity_base_stock(IP)
+			OQ = self._get_order_quantity_base_stock(IP)
 		elif self.type == 'sS':
-			return self._get_order_quantity_s_S(IP)
+			OQ = self._get_order_quantity_s_S(IP)
 		elif self.type == 'rQ':
-			return self._get_order_quantity_r_Q(IP)
+			OQ = self._get_order_quantity_r_Q(IP)
 		elif self.type == 'FQ':
-			return self._get_order_quantity_fixed_quantity()
+			OQ = self._get_order_quantity_fixed_quantity()
 		elif self.type == 'EBS':
-			return self._get_order_quantity_echelon_base_stock(IP)
+			OQ = self._get_order_quantity_echelon_base_stock(IP)
 		elif self.type == 'BEBS':
 			# Make sure node attribute is set or inventory_position is provided.
 			if self.node is None and echelon_inventory_position_adjusted is None:
@@ -458,9 +472,15 @@ class Policy(object):
 					partner_node = self.node.network.get_node_from_index(self.node.index + 1)
 					EIPA = partner_node.state_vars_current._echelon_inventory_position_adjusted()
 
-			return self._get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
+			OQ = self._get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
 		else:
+			OQ = None
+
+		# Convert to units of the raw material.
+		if OQ is None:
 			return None
+		else:
+			return OQ * NBOM
 
 	def _get_order_quantity_base_stock(self, inventory_position):
 		"""Calculate order quantity using base-stock policy.
