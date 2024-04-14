@@ -236,7 +236,7 @@ class SupplyChainNode(object):
 		if self._dummy_product:
 			self._remove_dummy_product()
 			self._add_dummy_product()
-			self._external_supplier_dummy_product = SupplyChainProduct(self._dummy_product.index - 1)
+			self._external_supplier_dummy_product = SupplyChainProduct(self._dummy_product.index - 1, is_dummy=True)
 			# TODO: this is clumsy -- do these values really need to change if index changes? and if so, is this really the way to do it?
 	
 

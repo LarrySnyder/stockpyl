@@ -587,7 +587,7 @@ def _initialize_next_period_state_vars(network, period):
 			# Shortcut to predecessor index.
 			p_index = p.index if p is not None else None
 			# Loop through raw materials at predecessor.
-			for rm_index in (p.products if p is not None else [n._external_supplier_dummy_product.index]):
+			for rm_index in (p.product_indices if p is not None else [n._external_supplier_dummy_product.index]):
 			
 				# Is there a transit-pausing disruption?
 				if n.disrupted and n.get_attribute('disruption_process', rm_index).disruption_type == 'TP':
@@ -627,7 +627,7 @@ def _initialize_next_period_state_vars(network, period):
 		for p in n.predecessors(include_external=True):
 			p_index = p.index if p is not None else None
 			# Loop through raw materials at predecessor.
-			for rm_index in (p.products if p is not None else [n._external_supplier_dummy_product.index]):
+			for rm_index in (p.product_indices if p is not None else [n._external_supplier_dummy_product.index]):
 				n.state_vars[period + 1].on_order_by_predecessor[p_index][rm_index] = \
 					n.state_vars[period].on_order_by_predecessor[p_index][rm_index]
 				n.state_vars[period + 1].raw_material_inventory[rm_index] = \
@@ -671,15 +671,17 @@ def _calculate_period_costs(network, period):
 				n.state_vars[period].holding_cost_incurred += n.get_attribute('local_holding_cost_function', prod_index)(items_held)
 			except TypeError:
 				n.state_vars[period].holding_cost_incurred += (n.get_attribute('local_holding_cost', prod_index) or 0) * items_held
-			# Raw materials holding cost.
-   # TODO: fix this!! this is multiple-counting RM inventory holding cost because there's only 
-   # 1 but there's a loop over p. How to handle the fact that RM inventory is not predecessor-specific
-   # but its holding cost comes from teh predecessor???
-			for p in n.predecessors(include_external=False):
+			# Raw materials holding cost. Includes only "real" products, which come from an actual predecessor node.
+			for rm_index in n.raw_material_indices_by_product(product_index=prod_index, network_BOM=False):
+				# Determine any supplier of this raw material and use its holding cost. This is a workaround
+				# for now, since there cam be multiple RM suppliers but there's no way to specify which supplier's
+				# holding cost to use (or some other holding cost). See https://github.com/LarrySnyder/stockpyl/issues/140.
+				p = n.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=False)[0]
+				# Calculate raw material holding cost.
 				n.state_vars[period].holding_cost_incurred += \
-					(p.get_attribute('local_holding_cost', prod_index) or 0) * \
-					(n.state_vars[period].raw_material_inventory[prod_index] \
-						+ n.state_vars[period].inbound_disrupted_items[p.index][prod_index])
+					(p.get_attribute('local_holding_cost', rm_index) or 0) * \
+					(n.state_vars[period].raw_material_inventory[rm_index] \
+						+ n.state_vars[period].inbound_disrupted_items[p.index][rm_index])
 			# Stockout cost.
 			try:
 				n.state_vars[period].stockout_cost_incurred += \
@@ -729,7 +731,7 @@ def _receive_inbound_shipments(node):
 		p_index = p.index if p is not None else None
 
 		# Loop through raw materials at predecessor.
-		for rm_index in (p.products if p is not None else [node._external_supplier_dummy_product.index]):
+		for rm_index in (p.product_indices if p is not None else [node._external_supplier_dummy_product.index]):
 			# Determine number of items that will be received from p (if there is no disruption),
 			# not including inbound disrupted items waiting to be received.
 			ready_to_receive = node.state_vars_current.inbound_shipment_pipeline[p_index][rm_index][0]
