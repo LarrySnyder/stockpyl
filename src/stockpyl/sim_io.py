@@ -185,35 +185,37 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 				if 'ITHC'	in cols_to_print: temp += [node.state_vars[t].in_transit_holding_cost_incurred]
 				if 'REV'	in cols_to_print: temp += [node.state_vars[t].revenue_earned]
 				if 'TC' 	in cols_to_print: temp += [node.state_vars[t].total_cost_incurred]
-			results.append(temp)
-			if print_dots and t+1 not in pers_to_print and t < num_periods-1:
-				results.append(["..."])
+		results.append(temp)
+		if print_dots and t+1 not in pers_to_print and t < num_periods-1:
+			results.append(["..."])
 
 	# Header row
 	headers = ["t"]
 	for ind in sorted_nodes:
 		node = network.get_node_from_index(ind)
-		headers = headers + ["| i={:d}".format(node.index)] 
-		if 'DISR'	in cols_to_print: headers += ['DISR']
-		if 'IO'		in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order, "IO")
-		if 'IOPL'	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
-		if 'OQ' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
-		if 'OO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
-		if 'IS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
-		if 'ISPL' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
-		if 'IDI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_disrupted_items, "IDI")
-		if 'RM' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
-		if 'OS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
-		if 'DMFS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "DMFS")
-		if 'FR'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "FR")
-		if 'IL'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "IL")
-		if 'BO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
-		if 'ODI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_disrupted_items , "ODI")
-		if 'HC'		in cols_to_print: headers += ["HC"]
-		if 'SC'		in cols_to_print: headers += ["SC"]
-		if 'ITHC'	in cols_to_print: headers += ["ITHC"]
-		if 'REV'	in cols_to_print: headers += ["REV"]
-		if 'TC'		in cols_to_print: headers += ["TC"]
+		# Loop through products.
+		for prod_index in node.product_indices:
+			headers = headers + [f"| i={ind:d} pr={prod_index:d}"] 
+			if 'DISR'	in cols_to_print: headers += ['DISR']
+			if 'IO'		in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order, "IO")
+			if 'IOPL'	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
+			if 'OQ' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
+			if 'OO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
+			if 'IS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
+			if 'ISPL' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
+			if 'IDI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_disrupted_items, "IDI")
+			if 'RM' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
+			if 'OS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
+			if 'DMFS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "DMFS")
+			if 'FR'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "FR")
+			if 'IL'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inventory_level, "IL")
+			if 'BO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
+			if 'ODI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_disrupted_items , "ODI")
+			if 'HC'		in cols_to_print: headers += ["HC"]
+			if 'SC'		in cols_to_print: headers += ["SC"]
+			if 'ITHC'	in cols_to_print: headers += ["ITHC"]
+			if 'REV'	in cols_to_print: headers += ["REV"]
+			if 'TC'		in cols_to_print: headers += ["TC"]
 
 	# Average row.
 	averages = ["t"]
