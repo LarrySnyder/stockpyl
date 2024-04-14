@@ -165,6 +165,17 @@ def initialize(network, num_periods, rand_seed=None):
 	if network.has_directed_cycle():
 		raise ValueError("network may not contain a directed cycle")
 
+	# Check that all nodes have inventory policies with node attribute set correctly.
+	for node in network.nodes:
+		for prod in node.products:
+			policy = node.get_attribute('inventory_policy', product=prod)
+			if policy is None or policy.type is None:
+				if prod.index:
+					err_str = f'The inventory_policy attribute for node {node.index} and product {prod.index} is None. You must provide a Policy object in one or both objects in order for the simulation to set order quantities.'
+				else:
+					err_str = f'The inventory_policy attribute for node {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.'
+				raise AttributeError(err_str)
+
 	# Initialize state and decision variables at each node.
 
 	# NOTE: State variables are indexed up to num_periods+extra_periods; the
@@ -388,12 +399,6 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 		else:
 			# Calculate order quantity.
 			policy = node.get_attribute('inventory_policy', product=prod)
-			if policy is None:
-				if prod.index:
-					err_str = f'The inventory_policy attribute for node {node.index} and product {prod.index} is None. You must provide a Policy object in one or both objects in order for the simulation to set order quantities.'
-				else:
-					err_str = f'The inventory_policy attribute for node {node.index} is None. You must provide a Policy object in order for the simulation to set order quantities.'
-				raise AttributeError(err_str)
 
 			# Determine node/product's order capacity.
 			order_capac = node.get_attribute('order_capacity', product=prod) or BIG_FLOAT
