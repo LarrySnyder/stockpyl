@@ -351,15 +351,19 @@ class TestSimulation(unittest.TestCase):
         print_status('TestSimulation', 'test_rosling_figure_1()')
 
         network = load_instance("rosling_figure_1")
+
+        nodes = {n.index: n for n in network.nodes}
+        dummy_prods = {n.index: n._dummy_product.index for n in network.nodes}
+        ext_dummy_prods = {n.index: n._external_supplier_dummy_product.index for n in network.source_nodes}
+
         # Make the BS levels a little smaller so there are some stockouts.
-        #network.get_node_from_index(1).order_capacity = 10000
-        network.get_node_from_index(1).inventory_policy.base_stock_level = 6
-        network.get_node_from_index(2).inventory_policy.base_stock_level = 20
-        network.get_node_from_index(3).inventory_policy.base_stock_level = 35
-        network.get_node_from_index(4).inventory_policy.base_stock_level = 58
-        network.get_node_from_index(5).inventory_policy.base_stock_level = 45
-        network.get_node_from_index(6).inventory_policy.base_stock_level = 65
-        network.get_node_from_index(7).inventory_policy.base_stock_level = 75
+        nodes[1].inventory_policy.base_stock_level = 6
+        nodes[2].inventory_policy.base_stock_level = 20
+        nodes[3].inventory_policy.base_stock_level = 35
+        nodes[4].inventory_policy.base_stock_level = 58
+        nodes[5].inventory_policy.base_stock_level = 45
+        nodes[6].inventory_policy.base_stock_level = 65
+        nodes[7].inventory_policy.base_stock_level = 75
 
         total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
@@ -367,39 +371,39 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(total_cost, 0)
 
         # Compare a few performance measures.
-        self.assertEqual(network.get_node_from_index(1).state_vars[6].order_quantity[2], 4)
-        self.assertEqual(network.get_node_from_index(1).state_vars[6].order_quantity[3], 4)
-        self.assertEqual(network.get_node_from_index(2).state_vars[6].order_quantity[5], 4)
-        self.assertEqual(network.get_node_from_index(3).state_vars[6].order_quantity[4], 4)
-        self.assertEqual(network.get_node_from_index(4).state_vars[6].order_quantity[6], 0)
-        self.assertEqual(network.get_node_from_index(4).state_vars[6].order_quantity[7], 0)
-        self.assertEqual(network.get_node_from_index(1).state_vars[16].inventory_level, 3)
-        self.assertEqual(network.get_node_from_index(2).state_vars[16].inventory_level, 7)
-        self.assertEqual(network.get_node_from_index(3).state_vars[16].inventory_level, 4)
-        self.assertEqual(network.get_node_from_index(4).state_vars[16].inventory_level, 9)
-        self.assertEqual(network.get_node_from_index(5).state_vars[16].inventory_level, 7)
-        self.assertEqual(network.get_node_from_index(6).state_vars[16].inventory_level, 19)
-        self.assertEqual(network.get_node_from_index(7).state_vars[16].inventory_level, 24)
-        self.assertEqual(network.get_node_from_index(1).state_vars[44].inventory_level, -4)
-        self.assertEqual(network.get_node_from_index(2).state_vars[44].inventory_level, -5)
-        self.assertEqual(network.get_node_from_index(3).state_vars[44].inventory_level, 0)
-        self.assertEqual(network.get_node_from_index(4).state_vars[44].inventory_level, -2)
-        self.assertEqual(network.get_node_from_index(5).state_vars[44].inventory_level, -6)
-        self.assertEqual(network.get_node_from_index(6).state_vars[44].inventory_level, 0)
-        self.assertEqual(network.get_node_from_index(7).state_vars[44].inventory_level, 10)
-        self.assertEqual(network.get_node_from_index(1).state_vars[16].inbound_shipment[2], 2)
-        self.assertEqual(network.get_node_from_index(1).state_vars[16].inbound_shipment[3], 2)
-        self.assertEqual(network.get_node_from_index(2).state_vars[16].inbound_shipment[5], 1)
-        self.assertEqual(network.get_node_from_index(3).state_vars[16].inbound_shipment[4], 0)
-        self.assertEqual(network.get_node_from_index(4).state_vars[16].inbound_shipment[6], 12)
-        self.assertEqual(network.get_node_from_index(4).state_vars[16].inbound_shipment[7], 12)
-        self.assertEqual(network.get_node_from_index(5).state_vars[16].inbound_shipment[None], 9)
-        self.assertEqual(network.get_node_from_index(6).state_vars[16].inbound_shipment[None], 13)
-        self.assertEqual(network.get_node_from_index(7).state_vars[16].inbound_shipment[None], 12)
-        self.assertEqual(network.get_node_from_index(1).state_vars[45].raw_material_inventory[2], 0)
-        self.assertEqual(network.get_node_from_index(1).state_vars[45].raw_material_inventory[3], 5)
-        self.assertEqual(network.get_node_from_index(2).state_vars[45].raw_material_inventory[5], 0)
-        self.assertEqual(network.get_node_from_index(4).state_vars[45].raw_material_inventory[6], 0)
+        self.assertEqual(nodes[1].state_vars[6].order_quantity[2][dummy_prods[2]], 4)
+        self.assertEqual(nodes[1].state_vars[6].order_quantity[3][dummy_prods[3]], 4)
+        self.assertEqual(nodes[2].state_vars[6].order_quantity[5][dummy_prods[5]], 4)
+        self.assertEqual(nodes[3].state_vars[6].order_quantity[4][dummy_prods[4]], 4)
+        self.assertEqual(nodes[4].state_vars[6].order_quantity[6][dummy_prods[6]], 0)
+        self.assertEqual(nodes[4].state_vars[6].order_quantity[7][dummy_prods[7]], 0)
+        self.assertEqual(nodes[1].state_vars[16].inventory_level[dummy_prods[1]], 3)
+        self.assertEqual(nodes[2].state_vars[16].inventory_level[dummy_prods[2]], 7)
+        self.assertEqual(nodes[3].state_vars[16].inventory_level[dummy_prods[3]], 4)
+        self.assertEqual(nodes[4].state_vars[16].inventory_level[dummy_prods[4]], 9)
+        self.assertEqual(nodes[5].state_vars[16].inventory_level[dummy_prods[5]], 7)
+        self.assertEqual(nodes[6].state_vars[16].inventory_level[dummy_prods[6]], 19)
+        self.assertEqual(nodes[7].state_vars[16].inventory_level[dummy_prods[7]], 24)
+        self.assertEqual(nodes[1].state_vars[44].inventory_level[dummy_prods[1]], -4)
+        self.assertEqual(nodes[2].state_vars[44].inventory_level[dummy_prods[2]], -5)
+        self.assertEqual(nodes[3].state_vars[44].inventory_level[dummy_prods[3]], 0)
+        self.assertEqual(nodes[4].state_vars[44].inventory_level[dummy_prods[4]], -2)
+        self.assertEqual(nodes[5].state_vars[44].inventory_level[dummy_prods[5]], -6)
+        self.assertEqual(nodes[6].state_vars[44].inventory_level[dummy_prods[6]], 0)
+        self.assertEqual(nodes[7].state_vars[44].inventory_level[dummy_prods[7]], 10)
+        self.assertEqual(nodes[1].state_vars[16].inbound_shipment[2][dummy_prods[2]], 2)
+        self.assertEqual(nodes[1].state_vars[16].inbound_shipment[3][dummy_prods[3]], 2)
+        self.assertEqual(nodes[2].state_vars[16].inbound_shipment[5][dummy_prods[5]], 1)
+        self.assertEqual(nodes[3].state_vars[16].inbound_shipment[4][dummy_prods[4]], 0)
+        self.assertEqual(nodes[4].state_vars[16].inbound_shipment[6][dummy_prods[6]], 12)
+        self.assertEqual(nodes[4].state_vars[16].inbound_shipment[7][dummy_prods[7]], 12)
+        self.assertEqual(nodes[5].state_vars[16].inbound_shipment[None][ext_dummy_prods[5]], 9)
+        self.assertEqual(nodes[6].state_vars[16].inbound_shipment[None][ext_dummy_prods[6]], 13)
+        self.assertEqual(nodes[7].state_vars[16].inbound_shipment[None][ext_dummy_prods[7]], 12)
+        self.assertEqual(nodes[1].state_vars[45].raw_material_inventory[dummy_prods[2]], 0)
+        self.assertEqual(nodes[1].state_vars[45].raw_material_inventory[dummy_prods[3]], 5)
+        self.assertEqual(nodes[2].state_vars[45].raw_material_inventory[dummy_prods[5]], 0)
+        self.assertEqual(nodes[4].state_vars[45].raw_material_inventory[dummy_prods[6]], 0)
 
     def test_directed_cycle(self):
         """Test that simulation() function correctly raises a ValueError if network contains a

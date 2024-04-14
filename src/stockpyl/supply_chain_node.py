@@ -1809,7 +1809,7 @@ class NodeStateVars(object):
 		if self.node.is_multiproduct:
 			return {prod_index: max(0, self.inventory_level[prod_index]) for prod_index in self.node.product_indices}
 		else:
-			return max(0, self.inventory_level[None])
+			return max(0, self.inventory_level[self.node._dummy_product.index])
 
 	@property
 	def backorders(self):
@@ -1822,7 +1822,7 @@ class NodeStateVars(object):
 		if self.node.is_multiproduct:
 			return {prod_index: max(0, -self.inventory_level[prod_index]) for prod_index in self.node.product_indices}
 		else:
-			return max(0, -self.inventory_level[None])
+			return max(0, -self.inventory_level[self.node._dummy_product.index])
 
 	def in_transit_to(self, successor, prod_index=None):
 		"""Return current total inventory of product ``prod_index`` in transit to a given successor.
@@ -1868,12 +1868,15 @@ class NodeStateVars(object):
 		float
 			The current inventory in transit from the predecessor.
 		"""
+		# Get predecessor index. Also get prod_index if it's None.
 		if predecessor is None:
 			p_ind = None
+			if prod_index is None:
+				prod_index = self.node._external_supplier_dummy_product.index
 		else:
 			p_ind = predecessor.index
-		# Determine product index. # TODO: validate parameters
-		prod_index = prod_index or self.node._dummy_product.index
+			if prod_index is None:
+				prod_index = predecessor.products[0].index
 
 		return np.sum(self.inbound_shipment_pipeline[p_ind][prod_index][:])
 
@@ -2244,27 +2247,33 @@ class NodeStateVars(object):
 		ValueError
 			If ``predecessor_index is None`` and ``rm_index is not None``, or vice-versa.
 		"""
-		# Validate parameters.
-		if predecessor_index is None and rm_index is not None:
-			raise ValueError('If predecessor_index is None, then rm_index must also be None.')
-		if predecessor_index is not None and rm_index is None:
-			raise ValueError('If rm_index is None, then predecessor_index must also be None.')
+		# Validate parameters. # TODO: figure out what's going on here
+		# if predecessor_index is None and rm_index is not None:
+		# 	raise ValueError('If predecessor_index is None, then rm_index must also be None.')
+		# if predecessor_index is not None and rm_index is None:
+		# 	raise ValueError('If rm_index is None, then predecessor_index must also be None.')
 
 		# Determine product index. # TODO: validate parameters
 		prod_index = prod_index or self.node.product_indices[0]
 
-		if predecessor_index is not None:
-			return self.echelon_inventory_level[prod_index] \
-				+ self.on_order_by_predecessor[predecessor_index][rm_index] \
-				+ self.raw_material_inventory[predecessor_index][rm_index] \
-				+ self.inbound_disrupted_items[predecessor_index][rm_index]
+		# Calculate echelon inventory level.
+		if self.node.is_singleproduct:
+			EIL = self.echelon_inventory_level
+		else:
+			EIL = self.echelon_inventory_level[prod_index]
+		# Calculate on-order, raw material inventory, and inbound disrupted items.
+		if rm_index is not None:
+			OO = self.on_order_by_predecessor[predecessor_index][rm_index]
+			RMI = self.raw_material_inventory[rm_index]
+			IDI = self.inbound_disrupted_items[predecessor_index][rm_index]
 		else:
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0
    			# (because raw materials are processed right away).
-			return self.echelon_inventory_level \
-				+ self.on_order(prod_index=prod_index) \
-				+ self.raw_material_aggregate(prod_index=prod_index) \
-				+ self.inbound_disrupted_items_aggregate(prod_index=prod_index)
+			OO = self.on_order(prod_index=prod_index)
+			RMI = self.raw_material_aggregate(prod_index=prod_index)
+			IDI = inbound_disrupted_items_aggregate(prod_index=prod_index)
+		
+		return EIL + OO + RMI + IDI
 		
 
 	def _echelon_inventory_position_adjusted(self):
@@ -2300,11 +2309,13 @@ class NodeStateVars(object):
 		pred = self.node.get_one_predecessor()
 		if pred is None:
 			pred_index = None
+			rm_index = self.node._external_supplier_dummy_product.index
 		else:
 			pred_index = pred.index
+			rm_index = pred.product_indices[0]
 		for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time):
 			if self.node.network.period - t >= 0:
-				in_transit_adjusted += self.node.state_vars[self.node.network.period - t].order_quantity[pred_index]
+				in_transit_adjusted += self.node.state_vars[self.node.network.period - t].order_quantity[pred_index][rm_index]
 		# np.sum([self.node.state_vars[self.node.network.period-t].order_quantity[predecessor_index]
 		# 		for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time)])
 		# Calculate adjusted echelon inventory position.

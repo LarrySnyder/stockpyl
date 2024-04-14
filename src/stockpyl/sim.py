@@ -512,7 +512,12 @@ def _initialize_state_vars(network):
 			# Initialize inventory_level to initial_inventory_level (or to BS level, etc., if None).
 			init_IL = n.get_attribute('initial_inventory_level', prod)
 			if init_IL is None:
-				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(inventory_position=0)
+				# Choose a supplier and RM to use when getting an order quantity to set the initial IL.
+				# This is klugey -- TODO: set this better
+				rm_index = n.raw_material_indices_by_product(prod.index)[0]
+				pred_index = n.raw_material_suppliers_by_raw_material(rm_index)[0]
+				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(
+								product_index=prod.index, predecessor_index=pred_index, rm_index=rm_index, inventory_position=0)
 			n.state_vars[0].inventory_level[prod.index] = init_IL
 
 			# Initialize inbound order pipeline. (Exclude external demand.)

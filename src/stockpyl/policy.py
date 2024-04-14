@@ -434,6 +434,8 @@ class Policy(object):
 				# external demand.
 				demand = self.node._get_attribute_total('inbound_order', self.node.network.period, product_index=product_index)
 
+				# Determine predecessor and RM index.
+				
 				# Calculate (local or echelon) inventory position, before demand is subtracted.
 				if self.type in ('EBS', 'BEBS'):
 					IP_before_demand = \
