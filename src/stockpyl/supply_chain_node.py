@@ -1174,6 +1174,7 @@ class SupplyChainNode(object):
 		* Successors and predecessors are stored as their indices only, not |class_node| objects.
 		* Values in ``_products_by_index`` dict are replaced with indices only, not |class_product| objects.
 			(This means that the keys and values in the dict are the same.)
+		* Dummy product attributes are replaced with indices only, not |class_product| objects.
 		* ``network`` object is not filled.
 
 		These should be replaced with the corresponding node objects if this function is called
@@ -1193,7 +1194,11 @@ class SupplyChainNode(object):
 			if attr == 'network':
 				node_dict[attr] = None
 			elif attr == '_products_by_index':
+				# Replace product objects with their indices.
 				node_dict[attr] = {prod_ind: prod_ind for prod_ind in self._products_by_index.keys()}
+			elif attr in ('_dummy_product', '_external_supplier_dummy_product'):
+				# Replace dummy products with their indices.
+				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).index
 			elif attr == '_predecessors':
 				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=True))
 			elif attr == '_successors':
@@ -1220,8 +1225,10 @@ class SupplyChainNode(object):
 		function is called recursively from a |class_network|'s ``from_dict()`` method.
 
 		``_products_by_index`` is set to a dict in which the keys and values are both product indices, 
-		like they are in the dict, but should be converted to a dict if this function is 
-		called recursively from a |class_network|'s ``from_dict()`` method.
+		like they are in the dict, but should be converted to |class_product| objects if this function is 
+		called recursively from a |class_network|'s ``from_dict()`` method. 
+		``_dummy_product`` and ``_external_supplier_dummy_product`` are set to indices, like they are
+		in the dict, but should be converted to |class_product| objects if this function is called recursively.
 
 		Similarly, ``network`` object is not filled, but should be filled with the network object if this
 		function is called recursively from a |class_network|'s ``from_dict()`` method.

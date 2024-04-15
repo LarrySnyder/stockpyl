@@ -361,6 +361,9 @@ class SupplyChainNetwork(object):
 							node._products_by_index = {}
 							for prod_ind in prod_indices:
 								node.add_product(network.products_by_index[prod_ind])
+							# Replace dummy-product indices with product objects.
+							node._dummy_product = network.products_by_index[node._dummy_product]
+							node._external_supplier_dummy_product = network.products_by_index[node._external_supplier_dummy_product]
 							# Add node to network.
 							network.add_node(node)
 						for n in network.nodes:

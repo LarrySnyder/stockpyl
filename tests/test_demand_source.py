@@ -277,6 +277,8 @@ class TestToDict(unittest.TestCase):
 			'probabilities': None,
 			'lo': 100,
 			'hi': 200,
+			'mean': 150.0,
+			'standard_deviation': 28.867513459481287,
 			'n': None,
 			'p': None
 		}
@@ -302,6 +304,8 @@ class TestToDict(unittest.TestCase):
 			'standard_deviation': None,
 			'demand_list': [0, 1, 2, 3],
 			'probabilities': [0.25, 0.1, 0.5, 0.15],
+			'mean': 1.55,
+			'standard_deviation': 1.023474474522936,
 			'lo': None,
 			'hi': None,
 			'n': None,
@@ -334,7 +338,9 @@ class TestToDict(unittest.TestCase):
 			'lo': None,
 			'hi': None,
 			'n': 20,
-			'p': 0.1
+			'p': 0.1,
+			'mean': 180.0,
+			'standard_deviation': 42.426406871192845,
 		}
 		self.assertDictEqual(ds_dict, correct_dict)
 
@@ -465,26 +471,26 @@ class TestFromDict(unittest.TestCase):
 		self.assertEqual(ds, correct_ds)
 
 		
-def test_missing_values(self):
-		"""Test that from_dict() correctly fills missing attribute values to their defaults.
-		"""
-		print_status('TestFromDict', 'test_missing_values()')
+	def test_missing_values(self):
+			"""Test that from_dict() correctly fills missing attribute values to their defaults.
+			"""
+			print_status('TestFromDict', 'test_missing_values()')
 
-		# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
-		network1 = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestFromDict_data.json")
-		network2 = load_instance("example_6_1")
-		ds1 = network1.get_node_from_index(1).demand_source
-		ds2 = network2.get_node_from_index(1).demand_source
-		ds2.mean = DemandSource._DEFAULT_VALUES['_mean']
-		self.assertEqual(ds1, ds2)
-		
-		# In this instance, demand_source at node 2 is missing the ``demand_list`` attribute.
-		network1 = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestFromDict_data.json")
-		network2 = load_instance("example_6_1")
-		ds1 = network1.get_node_from_index(2).demand_source
-		ds2 = network2.get_node_from_index(2).demand_source
-		ds2.mean = DemandSource._DEFAULT_VALUES['_demand_list']
-		self.assertEqual(ds1, ds2)
+			# In this instance, demand_source at node 1 is missing the ``mean`` attribute.
+			network1 = load_instance("missing_mean", "tests/additional_files/test_demand_source_TestFromDict_data.json")
+			network2 = load_instance("example_6_1")
+			ds1 = network1.get_node_from_index(1).demand_source
+			ds2 = network2.get_node_from_index(1).demand_source
+			ds2.mean = DemandSource._DEFAULT_VALUES['_mean']
+			self.assertEqual(ds1, ds2)
+			
+			# In this instance, demand_source at node 2 is missing the ``demand_list`` attribute.
+			network1 = load_instance("missing_demand_list", "tests/additional_files/test_demand_source_TestFromDict_data.json")
+			network2 = load_instance("example_6_1")
+			ds1 = network1.get_node_from_index(2).demand_source
+			ds2 = network2.get_node_from_index(2).demand_source
+			ds2.mean = DemandSource._DEFAULT_VALUES['_demand_list']
+			self.assertEqual(ds1, ds2)
 
 class TestValidateParameters(unittest.TestCase):
 	@classmethod
@@ -514,6 +520,7 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source.standard_deviation = -100
 		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
+			# TODO: if mean is not set, mean property calls demand_distribution property which calls mean property...
 
 	def test_poisson(self):
 		"""Test that TestValidateParameters correctly raises errors on invalid parameters

@@ -206,6 +206,19 @@ class TestRelabelNodes(unittest.TestCase):
 			correct_node.larger_adjacent_node = correct_larger_adjacent[correct_node.index]
 			correct_node.larger_adjacent_node_is_downstream = correct_downstream[correct_node.index]
 
+	def test_bad_index(self):
+		"""Test that reindex_nodes() correctly raises an exception if an index is not a positive integer.
+		"""
+
+		print_status('TestRelabelNodes', 'test_bad_index()')
+
+		orig_G = load_instance("figure_6_14")
+
+		with self.assertRaises(ValueError):
+			orig_G.reindex_nodes({1: 4.5, 2: 3, 3: 9, 4: 1, 5: 10, 6: 8, 7: 7, 8: 2, 9: 5, 10: 6})
+			orig_G.reindex_nodes({1: -4, 2: 3, 3: 9, 4: 1, 5: 10, 6: 8, 7: 7, 8: 2, 9: 5, 10: 6})
+
+
 
 class TestIsCorrectlyLabeled(unittest.TestCase):
 	@classmethod
@@ -230,20 +243,6 @@ class TestIsCorrectlyLabeled(unittest.TestCase):
 		is_correct = gsm_tree.is_correctly_labeled(new_G)
 
 		self.assertEqual(is_correct, True)
-
-	def test_noninteger(self):
-		"""Test that is_correctly_labeled() works for if network has a
-		non-integer label.
-		"""
-
-		print_status('TestFindLargerAdjacentNodes', 'test_noninteger()')
-
-		new_G = gsm_tree.relabel_nodes(load_instance("figure_6_12"), start_index=1)
-		new_G.reindex_nodes({1: 1.3, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7})
-
-		is_correct = gsm_tree.is_correctly_labeled(new_G)
-
-		self.assertEqual(is_correct, False)
 
 	def test_nonconsecutive(self):
 		"""Test that is_correctly_labeled() works for if network labels are
