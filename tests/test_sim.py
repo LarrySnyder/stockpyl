@@ -486,6 +486,11 @@ class TestStepByStepSimulation(unittest.TestCase):
         network2 = load_instance("example_6_1")
         T = 100
 
+        nodes1 = {n.index: n for n in network1.nodes}
+        # dummy_prods = {n.index: n._dummy_product.index for n in network1.nodes}
+        # ext_dummy_prod = nodes1[2]._external_supplier_dummy_product.index
+        nodes2 = {n.index: n for n in network2.nodes}
+
         # Via simulation().
         total_cost1 = simulation(network1, num_periods=T, rand_seed=17, progress_bar=False, consistency_checks='E')
 
@@ -494,18 +499,18 @@ class TestStepByStepSimulation(unittest.TestCase):
         for t in range(T):
             if t == 40:
                 step(network2, consistency_checks='E', order_quantity_override={
-                    network2.get_node_from_index(2): 33,
-                    network2.get_node_from_index(3): 77,
+                    nodes2[2]: {nodes2[3]._dummy_product: 33},
+                    nodes2[3]: {nodes2[3]._external_supplier_dummy_product: 77},
                 })
             else:
                 step(network2, consistency_checks='E')
         total_cost2 = close(network2)
 
         # Compare order quantities in period 40.
-        self.assertEqual(network2.get_node_from_index(2).state_vars[40].order_quantity[3], 33.0)
-        self.assertEqual(network2.get_node_from_index(3).state_vars[40].order_quantity[None], 77.0)
-        self.assertAlmostEqual(network2.get_node_from_index(1).state_vars[40].order_quantity[2],
-                               network1.get_node_from_index(1).state_vars[40].order_quantity[2])
+        self.assertEqual(nodes2[2].state_vars[40].order_quantity[3][nodes2[3]._dummy_product.index], 33.0)
+        self.assertEqual(nodes2[3].state_vars[40].order_quantity[None][nodes2[3]._external_supplier_dummy_product.index], 77.0)
+        self.assertAlmostEqual(nodes2[1].state_vars[40].order_quantity[2][nodes2[2]._dummy_product.index],
+                               nodes1[1].state_vars[40].order_quantity[2][nodes1[2]._dummy_product.index])
 
     def test_problem_6_2a(self):
         """Test that initialize() + step() + close() match the results from simulation() for
@@ -862,20 +867,37 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 
         # Compare a few performance measures.
         for i in range(len(network_ech.nodes)):
-            np.testing.assert_allclose([network_local.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
-                                        network_local.nodes[i].predecessor_indices(include_external=True)],
-                                       [network_ech.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
-                                        network_local.nodes[i].predecessor_indices(include_external=True)])
-            np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inventory_level,
-                                       network_ech.nodes[i].state_vars[99].inventory_level)
+            for p in network_local.nodes[i].predecessors(include_external=True):
+                if p is None:
+                    self.assertAlmostEqual(
+                        network_local.nodes[i].state_vars[99].order_quantity[None][network_local.nodes[i]._external_supplier_dummy_product.index],
+                        network_ech.nodes[i].state_vars[99].order_quantity[None][network_ech.nodes[i]._external_supplier_dummy_product.index],
+                        places=6
+                    )
+                else:
+                    self.assertAlmostEqual(
+                        network_local.nodes[i].state_vars[99].order_quantity[p.index][p._dummy_product.index],
+                        network_ech.nodes[i].state_vars[99].order_quantity[p.index][p._dummy_product.index],
+                        places=6
+                    )
+            self.assertAlmostEqual(
+                network_local.nodes[i].state_vars[99].inventory_level[network_local.nodes[i]._dummy_product.index],
+                network_ech.nodes[i].state_vars[99].inventory_level[network_ech.nodes[i]._dummy_product.index],
+                places=6
+            )
             for s in network_ech.nodes[i].successor_indices():
-                np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_order[s],
-                                           network_ech.nodes[i].state_vars[99].inbound_order[s])
-            for p in network_ech.nodes[i].predecessor_indices():
-                np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_shipment[p],
-                                           network_ech.nodes[i].state_vars[99].inbound_shipment[p])
-            np.testing.assert_allclose(network_local.nodes[i].state_vars[99].backorders,
-                                       network_ech.nodes[i].state_vars[99].backorders)
+                self.assertAlmostEqual(network_local.nodes[i].state_vars[99].inbound_order[s][network_local.nodes[i]._dummy_product.index],
+                                           network_ech.nodes[i].state_vars[99].inbound_order[s][network_ech.nodes[i]._dummy_product.index],
+                                           places=6)
+            for p in network_ech.nodes[i].predecessors():
+                p_ind = p.index if p is not None else None
+                dpi = p._dummy_product.index if p is not None else network_ech.nodes[i]._external_supplier_dummy_product.index
+                self.assertAlmostEqual(network_local.nodes[i].state_vars[99].inbound_shipment[p_ind][dpi],
+                                           network_ech.nodes[i].state_vars[99].inbound_shipment[p_ind][dpi],
+                                           places=6)
+            self.assertAlmostEqual(network_local.nodes[i].state_vars[99].backorders,
+                                       network_ech.nodes[i].state_vars[99].backorders,
+                                       places=6)
 
     def test_problem_6_2a(self):
         """Test that echelon policy results agree with local policy results
@@ -919,20 +941,37 @@ class TestSerialEchelonVsLocal(unittest.TestCase):
 
         # Compare a few performance measures.
         for i in range(len(network_ech.nodes)):
-            np.testing.assert_allclose([network_local.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
-                                        network_local.nodes[i].predecessor_indices(include_external=True)],
-                                       [network_ech.nodes[i].state_vars[99].order_quantity[p_ind] for p_ind in
-                                        network_local.nodes[i].predecessor_indices(include_external=True)])
-            np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inventory_level,
-                                       network_ech.nodes[i].state_vars[99].inventory_level)
+            for p in network_local.nodes[i].predecessors(include_external=True):
+                if p is None:
+                    self.assertAlmostEqual(
+                        network_local.nodes[i].state_vars[99].order_quantity[None][network_local.nodes[i]._external_supplier_dummy_product.index],
+                        network_ech.nodes[i].state_vars[99].order_quantity[None][network_ech.nodes[i]._external_supplier_dummy_product.index],
+                        places=6
+                    )
+                else:
+                    self.assertAlmostEqual(
+                        network_local.nodes[i].state_vars[99].order_quantity[p.index][p._dummy_product.index],
+                        network_ech.nodes[i].state_vars[99].order_quantity[p.index][p._dummy_product.index],
+                        places=6
+                    )
+            self.assertAlmostEqual(
+                network_local.nodes[i].state_vars[99].inventory_level[network_local.nodes[i]._dummy_product.index],
+                network_ech.nodes[i].state_vars[99].inventory_level[network_ech.nodes[i]._dummy_product.index],
+                places=6
+            )
             for s in network_ech.nodes[i].successor_indices():
-                np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_order[s],
-                                           network_ech.nodes[i].state_vars[99].inbound_order[s])
-            for p in network_ech.nodes[i].predecessor_indices():
-                np.testing.assert_allclose(network_local.nodes[i].state_vars[99].inbound_shipment[p],
-                                           network_ech.nodes[i].state_vars[99].inbound_shipment[p])
-            np.testing.assert_allclose(network_local.nodes[i].state_vars[99].backorders,
-                                       network_ech.nodes[i].state_vars[99].backorders)
+                self.assertAlmostEqual(network_local.nodes[i].state_vars[99].inbound_order[s][network_local.nodes[i]._dummy_product.index],
+                                           network_ech.nodes[i].state_vars[99].inbound_order[s][network_ech.nodes[i]._dummy_product.index],
+                                           places=6)
+            for p in network_ech.nodes[i].predecessors():
+                p_ind = p.index if p is not None else None
+                dpi = p._dummy_product.index if p is not None else network_ech.nodes[i]._external_supplier_dummy_product.index
+                self.assertAlmostEqual(network_local.nodes[i].state_vars[99].inbound_shipment[p_ind][dpi],
+                                           network_ech.nodes[i].state_vars[99].inbound_shipment[p_ind][dpi],
+                                           places=6)
+            self.assertAlmostEqual(network_local.nodes[i].state_vars[99].backorders,
+                                       network_ech.nodes[i].state_vars[99].backorders,
+                                       places=6)
 
 
 class TestBadBackorders(unittest.TestCase):

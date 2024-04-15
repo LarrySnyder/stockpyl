@@ -217,9 +217,13 @@ def step(network, order_quantity_override=None, consistency_checks='W'):
 		String indicating whether to run consistency checks (backorder calculations) and what to do
 		if check fails. See docstring for :func:`~stockpyl.sim.simulation` for list of currently supported strings.
 	order_quantity_override : dict, optional
-		Dictionary indicating an order quantity (or ``None``) for each node in network (specified as |class_node| objects).
-		If provided, these order quantity will override the order quantities that would otherwise be calculated for
-		the nodes. If ``order_quantity_override`` is provided but its value is ``None`` for a given
+		Nested dictionary such that order_quantity_override[node][rm] is an order quantity (or ``None``)
+		for each node in the network (specified as a |class_node| object) and for each raw material the node orders
+		(specified as a |class_product| object). 
+		If provided, these order quantities will override the order quantities that would otherwise be calculated for
+		the nodes/products. If the node has a single raw material, ``rm`` may be set to ``None`` and the
+		raw material will be determined automatically.
+	 	If ``order_quantity_override`` is provided but its value is ``None`` for a given
 		node, an order quantity will be calculated for that node as usual. (This option is mostly used
 		when running the simulation from outside the package, e.g., in a reinforcement learning environment;
 		it is analogous to setting the action for the current time period.)
@@ -337,14 +341,16 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 		Dictionary indicating whether each node in network has already been
 		visited by the depth-first search.
 	order_quantity_override : dict, optional
-		Dictionary indicating an order quantity (or ``None``) for each node and product in network 
-		(specified as |class_node| and |class_product| objects, or ``None`` for single-product nodes).
-		e.g., ``order_quantity_override[node][product]`` is the order quantity to use for ``product`` at ``node``.
-		If provided, these order quantity will override the order quantities that would otherwise be calculated for
-		the nodes. If ``order_quantity_override`` is provided but its value is ``None`` for a given
+		Nested dictionary such that order_quantity_override[node][rm] is an order quantity (or ``None``)
+		for each node in the network (specified as a |class_node| object) and for each raw material the node orders
+		(specified as a |class_product| object). 
+		If provided, these order quantities will override the order quantities that would otherwise be calculated for
+		the nodes/products. If the node has a single raw material, ``rm`` may be set to ``None`` and the
+		raw material will be determined automatically.
+	 	If ``order_quantity_override`` is provided but its value is ``None`` for a given
 		node, an order quantity will be calculated for that node as usual. (This option is mostly used
-		when running the simulation from outside the package, e.g., in a reinforcement learning environment.)
-
+		when running the simulation from outside the package, e.g., in a reinforcement learning environment;
+		it is analogous to setting the action for the current time period.)
 	"""
 	# Did we already visit this node?
 	if visited[node_index]:
@@ -383,18 +389,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 		shipment_lead_time = node.get_attribute('shipment_lead_time', prod) or 0
 		
 		# Determine order quantity.
-		# Was an override order quantity provided?
-		try:
-			qty_override = order_quantity_override[node][prod]
-		except:
-			qty_override = None
-		if qty_override is not None:
-			order_quantity = qty_override
-		# if order_quantity_override is not None and node in order_quantity_override \
-		# 		and order_quantity_override[node] is not None :
-		# 	order_quantity = order_quantity_override[node]
 		# Is there an order-pausing disruption?
-		elif node.disrupted and node.disruption_process.disruption_type == 'OP':
+		if node.disrupted and node.disruption_process.disruption_type == 'OP':
 			order_quantity = 0
 		else:
 			# Calculate order quantity.
@@ -409,10 +405,22 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 				p_index = p.index if p is not None else None
 
 				# Loop through products at predecessor.
-				for rm_index in (p.product_indices if p is not None else [node._external_supplier_dummy_product.index]):
-					# Calculate order quantity from policy. 
-					# (It will be 0 if there's no BOM relationship for this product/predecessor/raw material.)
-					order_quantity = min(order_capac, policy.get_order_quantity(product_index=prod.index, predecessor_index=p_index, rm_index=rm_index))
+				for rm in (p.products if p is not None else [node._external_supplier_dummy_product]):
+					rm_index = rm.index
+					# Was an override order quantity provided?
+					try:
+						if None in order_quantity_override[node]:
+							qty_override = order_quantity_override[node][None]
+						else:
+							qty_override = order_quantity_override[node][rm]
+					except:
+						qty_override = None
+					if qty_override is not None:
+						order_quantity = qty_override
+					else:
+						# Calculate order quantity from policy. 
+						# (It will be 0 if there's no BOM relationship for this product/predecessor/raw material.)
+						order_quantity = min(order_capac, policy.get_order_quantity(product_index=prod.index, predecessor_index=p_index, rm_index=rm_index))
 
 					# Place order in predecessor's order pipeline (converting first to raw material units via BOM).
 					if p is not None:
@@ -600,7 +608,7 @@ def _initialize_next_period_state_vars(network, period):
 			for rm_index in (p.product_indices if p is not None else [n._external_supplier_dummy_product.index]):
 			
 				# Is there a transit-pausing disruption?
-				if n.disrupted and n.get_attribute('disruption_process', rm_index).disruption_type == 'TP':
+				if n.disrupted and n.disruption_process.disruption_type == 'TP':
 					# Yes; items in shipment pipeline stay where they are.
 					n.state_vars[period + 1].inbound_shipment_pipeline[p_index][rm_index] = \
 						n.state_vars[period].inbound_shipment_pipeline[p_index][rm_index].copy()
@@ -751,7 +759,7 @@ def _receive_inbound_shipments(node):
 			ready_to_receive = node.state_vars_current.inbound_shipment_pipeline[p_index][rm_index][0]
 
 			# Is there a receipt-pausing disruption?
-			if node.disrupted and node.get_attribute('disruption_process', rm_index).disruption_type == 'RP':
+			if node.disrupted and node.disruption_process.disruption_type == 'RP':
 				# Yes: Don't receive anything.
 				IS = 0
 				# Increase inbound disrupted items by the items that would have been received, if
