@@ -212,7 +212,7 @@ class DemandSource(object):
 		"""
 		if self._mean is not None:
 			return self._mean
-		elif self.type in ('UC', 'UD', 'D', 'NB', 'CD'):
+		elif self.type in ('UC', 'UD', 'NB', 'CD'):
 			return self.demand_distribution.mean()
 		else:
 			return None
@@ -229,7 +229,7 @@ class DemandSource(object):
 		"""
 		if self._standard_deviation is not None:
 			return self._standard_deviation
-		elif self.type in ('P', 'UC', 'UD', 'D', 'NB', 'CD'):
+		elif self.type in ('P', 'UC', 'UD', 'NB', 'CD'):
 			return self.demand_distribution.std()
 		else:
 			return None
@@ -298,7 +298,8 @@ class DemandSource(object):
 	@property
 	def demand_distribution(self):
 		"""Demand distribution, as a ``scipy.stats.rv_continuous`` or
-		``scipy.stats.rv_discrete`` object. Read only.
+		``scipy.stats.rv_discrete`` object. Returns ``None`` if demand source ``type`` is ``'D'``.
+		Read only.
 		"""
 		# Check that the appropriate parameters have been set. If not, raise an exception.
 		self.validate_parameters()
@@ -490,11 +491,24 @@ class DemandSource(object):
 			for attr in cls._DEFAULT_VALUES.keys():
 				# Remove leading '_' to get property names.
 				prop = attr[1:] if attr[0] == '_' else attr
-				if prop in the_dict:
-					value = the_dict[prop]
+
+				# Some attributes require special handling.
+				if prop == 'demand_list':
+					# Replace integer-as-strings in keys with integers.
+					if the_dict[prop] is not None:
+						value = [{int(k): v for k, v in d.items()} for d in the_dict[prop]]
+					else:
+						value = None
 				else:
-					value = cls._DEFAULT_VALUES[attr]
+					if prop in the_dict:
+						value = the_dict[prop]
+					else:
+						value = cls._DEFAULT_VALUES[attr]
+
+				# Set the property/attribute.
 				setattr(ds, prop, value)
+	
+					
 
 		return ds
 
