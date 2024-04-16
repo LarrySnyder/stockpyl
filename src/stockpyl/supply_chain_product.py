@@ -458,7 +458,7 @@ class SupplyChainProduct(object):
 			elif attr == 'disruption_process':
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
-				self.inventory_policy = policy.Policy(node=self)
+				self.inventory_policy = policy.Policy()
 			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
@@ -576,7 +576,7 @@ class SupplyChainProduct(object):
 			product = cls()
 		else:
 			# Build empty SupplyChainProduct.
-			product = cls(the_dict['_index'])
+			product = cls(the_dict['_index'], is_dummy=the_dict['is_dummy'])
 			# Fill attributes.
 			for attr in cls._DEFAULT_VALUES.keys():
 				# Some attributes require special handling.

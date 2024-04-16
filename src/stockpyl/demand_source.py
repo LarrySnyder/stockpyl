@@ -210,7 +210,7 @@ class DemandSource(object):
 		set but is calculated from other parameters, returns the calculated mean.
 		If neither is true, return ``None``.
 		"""
-		if self._mean:
+		if self._mean is not None:
 			return self._mean
 		elif self.type in ('UC', 'UD', 'D', 'NB', 'CD'):
 			return self.demand_distribution.mean()
@@ -227,7 +227,7 @@ class DemandSource(object):
 		set but is calculated from other parameters, returns the calculated standard deviation.
 		If neither is true, return ``None``.
 		"""
-		if self._standard_deviation:
+		if self._standard_deviation is not None:
 			return self._standard_deviation
 		elif self.type in ('P', 'UC', 'UD', 'D', 'NB', 'CD'):
 			return self.demand_distribution.std()

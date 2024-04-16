@@ -7,9 +7,14 @@
 			"data": {
 				"nodes": [
 					{
-						"index": 1,
+						"_index": 1,
 						"name": "Raw_Material",
 						"network": null,
+						"_products_by_index": {
+							"-1": -1
+						},
+						"_dummy_product": -1,
+						"_external_supplier_dummy_product": -2,
 						"_predecessors": [],
 						"_successors": [
 							2
@@ -31,6 +36,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -39,13 +46,13 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 1,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
 						"supply_type": null,
-						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -54,6 +61,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 2,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -68,9 +76,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 2,
+						"_index": 2,
 						"name": "Process_Wafers",
 						"network": null,
+						"_products_by_index": {
+							"-2": -2
+						},
+						"_dummy_product": -2,
+						"_external_supplier_dummy_product": -3,
 						"_predecessors": [
 							1
 						],
@@ -94,6 +107,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -102,13 +117,13 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 2,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
 						"supply_type": null,
-						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -117,6 +132,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 3,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -131,9 +147,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 3,
+						"_index": 3,
 						"name": "Package_Test_Wafers",
 						"network": null,
+						"_products_by_index": {
+							"-3": -3
+						},
+						"_dummy_product": -3,
+						"_external_supplier_dummy_product": -4,
 						"_predecessors": [
 							2
 						],
@@ -157,6 +178,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -165,13 +188,13 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 3,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
 						"supply_type": null,
-						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -180,6 +203,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 2,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -194,9 +218,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 4,
+						"_index": 4,
 						"name": "Imager_Base",
 						"network": null,
+						"_products_by_index": {
+							"-4": -4
+						},
+						"_dummy_product": -4,
+						"_external_supplier_dummy_product": -5,
 						"_predecessors": [],
 						"_successors": [
 							5
@@ -218,6 +247,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -226,13 +257,13 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 4,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
 						"supply_type": null,
-						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -241,6 +272,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 4,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -255,9 +287,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 5,
+						"_index": 5,
 						"name": "Imager_Assembly",
 						"network": null,
+						"_products_by_index": {
+							"-5": -5
+						},
+						"_dummy_product": -5,
+						"_external_supplier_dummy_product": -6,
 						"_predecessors": [
 							3,
 							4
@@ -282,6 +319,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -290,13 +329,13 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 5,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
 							"order_up_to_level": null
 						},
 						"supply_type": null,
-						"order_capacity": null,
 						"disruption_process": {
 							"random_process_type": null,
 							"disruption_type": "OP",
@@ -305,6 +344,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 2,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -319,9 +359,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 6,
+						"_index": 6,
 						"name": "Ship_to_Final_Assembly",
 						"network": null,
+						"_products_by_index": {
+							"-6": -6
+						},
+						"_dummy_product": -6,
+						"_external_supplier_dummy_product": -7,
 						"_predecessors": [
 							5
 						],
@@ -345,6 +390,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -353,6 +400,7 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 6,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
@@ -367,6 +415,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 3,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -381,9 +430,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 7,
+						"_index": 7,
 						"name": "Camera",
 						"network": null,
+						"_products_by_index": {
+							"-7": -7
+						},
+						"_dummy_product": -7,
+						"_external_supplier_dummy_product": -8,
 						"_predecessors": [],
 						"_successors": [
 							10
@@ -405,6 +459,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -413,6 +469,7 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 7,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
@@ -427,6 +484,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 6,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -441,9 +499,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 8,
+						"_index": 8,
 						"name": "Circuit_Board",
 						"network": null,
+						"_products_by_index": {
+							"-8": -8
+						},
+						"_dummy_product": -8,
+						"_external_supplier_dummy_product": -9,
 						"_predecessors": [],
 						"_successors": [
 							10
@@ -465,6 +528,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -473,6 +538,7 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 8,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
@@ -487,6 +553,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 4,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -501,9 +568,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 9,
+						"_index": 9,
 						"name": "Other_Parts",
 						"network": null,
+						"_products_by_index": {
+							"-9": -9
+						},
+						"_dummy_product": -9,
+						"_external_supplier_dummy_product": -10,
 						"_predecessors": [],
 						"_successors": [
 							10
@@ -525,6 +597,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -533,6 +607,7 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 9,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
@@ -547,6 +622,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 3,
 						"external_inbound_cst": null,
 						"external_outbound_cst": null,
@@ -561,9 +637,14 @@
 						"state_vars": null
 					},
 					{
-						"index": 10,
+						"_index": 10,
 						"name": "Build_Test_Pack",
 						"network": null,
+						"_products_by_index": {
+							"-10": -10
+						},
+						"_dummy_product": -10,
+						"_external_supplier_dummy_product": -11,
 						"_predecessors": [
 							7,
 							6,
@@ -590,6 +671,8 @@
 							"probabilities": null,
 							"lo": null,
 							"hi": null,
+							"n": null,
+							"p": null,
 							"round_to_int": null
 						},
 						"initial_inventory_level": null,
@@ -598,6 +681,7 @@
 						"_inventory_policy": {
 							"type": null,
 							"node": 10,
+							"product": null,
 							"base_stock_level": null,
 							"order_quantity": null,
 							"reorder_point": null,
@@ -612,6 +696,7 @@
 							"disruption_state_list": null,
 							"disrupted": false
 						},
+						"order_capacity": null,
 						"processing_time": 2,
 						"external_inbound_cst": null,
 						"external_outbound_cst": 2,
@@ -624,6 +709,481 @@
 						"larger_adjacent_node_is_downstream": null,
 						"max_replenishment_time": null,
 						"state_vars": null
+					}
+				],
+				"_products": [
+					{
+						"_index": -11,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -2,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -9,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -8,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -7,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -6,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -5,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -4,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -3,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -1,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
+					},
+					{
+						"_index": -10,
+						"name": null,
+						"network": null,
+						"is_dummy": true,
+						"_bill_of_materials": {},
+						"local_holding_cost": null,
+						"echelon_holding_cost": null,
+						"local_holding_cost_function": null,
+						"in_transit_holding_cost": null,
+						"stockout_cost": null,
+						"stockout_cost_function": null,
+						"revenue": null,
+						"shipment_lead_time": null,
+						"order_lead_time": null,
+						"demand_source": {
+							"type": null,
+							"mean": null,
+							"standard_deviation": null,
+							"demand_list": null,
+							"probabilities": null,
+							"lo": null,
+							"hi": null,
+							"n": null,
+							"p": null,
+							"round_to_int": null
+						},
+						"initial_inventory_level": null,
+						"initial_orders": null,
+						"initial_shipments": null,
+						"_inventory_policy": {
+							"type": null,
+							"node": null,
+							"product": null,
+							"base_stock_level": null,
+							"order_quantity": null,
+							"reorder_point": null,
+							"order_up_to_level": null
+						},
+						"supply_type": null,
+						"order_capacity": null,
+						"state_vars": []
 					}
 				],
 				"period": 0,

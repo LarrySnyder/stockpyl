@@ -1,1 +1,0 @@
-{"_id": "", "instances": [{"name": "test_omit_state_vars_true", "description": "this is test_omit_state_vars_true", "data": {"nodes": [{"_index": 5, "name": null, "network": null, "_products_by_index": {"-5": -5}, "_dummy_product": 

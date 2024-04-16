@@ -963,11 +963,11 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		nodes[2].add_products([prods[2], prods[3]])
 		nodes[3].add_products([prods[4], prods[5]])
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=None), [nodes[1], nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=None), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=None), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=None), [1, 2, 3])
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77)
 
 	def test_mwor_one_product(self):
 		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on MWOR network with one product added at retailer.
@@ -989,16 +989,16 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		nodes[0].products[0].set_bill_of_materials(4, 15)
 		nodes[0].products[0].set_bill_of_materials(5, 6)
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10), [nodes[1], nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2, 3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=10), [nodes[1], nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=10), [1, 2, 3])
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=None)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77)
 
 	def test_mwor_multiple_products(self):
-		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on MWOR network with multiple products added at retailer.
+		"""Test that raw_material_suppliers_by_product and raw_material_supplier_indices_by_product work correctly on MWOR network with multiple products added at retailer.
 		"""
 		print_status('TestRawMaterialSuppliers', 'test_mwor_multiple_products()')
 
@@ -1018,51 +1018,51 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		nodes[0].products_by_index[11].set_bill_of_materials(4, 15)
 		nodes[0].products_by_index[12].set_bill_of_materials(5, 6)
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=10), [nodes[1], nodes[2]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=11), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=12), [nodes[3]])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=10), [1, 2])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=11), [2, 3])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=12), [3])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=10), [nodes[1], nodes[2]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=11), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=12), [nodes[3]])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=10), [1, 2])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=11), [2, 3])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=12), [3])
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=None)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77)
 
 	def test_multiproduct_5_7(self):
-		"""Test that raw_material_suppliers and raw_material_supplier_indices work correctly on 5-node, 7-product network.
+		"""Test that raw_material_suppliers_by_product and raw_material_supplier_indices_by_product work correctly on 5-node, 7-product network.
 		"""
 		print_status('TestRawMaterialSuppliers', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
 
-		self.assertListEqual(nodes[0].raw_material_suppliers(product_index=0), [nodes[2]])
-		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=0), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[1].raw_material_suppliers(product_index=1), [nodes[2], nodes[3]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=2), [nodes[4]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=3), [nodes[4]])
-		self.assertListEqual(nodes[2].raw_material_suppliers(product_index=4), [nodes[4]])
-		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=2), [nodes[4]])
-		self.assertListEqual(nodes[3].raw_material_suppliers(product_index=4), [nodes[4]])
-		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=5), [None])
-		self.assertListEqual(nodes[4].raw_material_suppliers(product_index=6), [None])
-		self.assertListEqual(nodes[0].raw_material_supplier_indices(product_index=0), [2])
-		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=0), [2, 3])
-		self.assertListEqual(nodes[1].raw_material_supplier_indices(product_index=1), [2, 3])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=2), [4])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=3), [4])
-		self.assertListEqual(nodes[2].raw_material_supplier_indices(product_index=4), [4])
-		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=2), [4])
-		self.assertListEqual(nodes[3].raw_material_supplier_indices(product_index=4), [4])
-		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=5), [None])
-		self.assertListEqual(nodes[4].raw_material_supplier_indices(product_index=6), [None])
+		self.assertListEqual(nodes[0].raw_material_suppliers_by_product(product_index=0), [nodes[2]])
+		self.assertListEqual(nodes[1].raw_material_suppliers_by_product(product_index=0), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[1].raw_material_suppliers_by_product(product_index=1), [nodes[2], nodes[3]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=2), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=3), [nodes[4]])
+		self.assertListEqual(nodes[2].raw_material_suppliers_by_product(product_index=4), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers_by_product(product_index=2), [nodes[4]])
+		self.assertListEqual(nodes[3].raw_material_suppliers_by_product(product_index=4), [nodes[4]])
+		self.assertListEqual(nodes[4].raw_material_suppliers_by_product(product_index=5), [None])
+		self.assertListEqual(nodes[4].raw_material_suppliers_by_product(product_index=6), [None])
+		self.assertListEqual(nodes[0].raw_material_supplier_indices_by_product(product_index=0), [2])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_product(product_index=0), [2, 3])
+		self.assertListEqual(nodes[1].raw_material_supplier_indices_by_product(product_index=1), [2, 3])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=2), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=3), [4])
+		self.assertListEqual(nodes[2].raw_material_supplier_indices_by_product(product_index=4), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_product(product_index=2), [4])
+		self.assertListEqual(nodes[3].raw_material_supplier_indices_by_product(product_index=4), [4])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_product(product_index=5), [None])
+		self.assertListEqual(nodes[4].raw_material_supplier_indices_by_product(product_index=6), [None])
 		with self.assertRaises(ValueError):
-			_ = nodes[0].raw_material_suppliers(product_index=None)
-			_ = nodes[0].raw_material_suppliers(product_index=77)
-			_ = nodes[0].raw_material_supplier_indices(product_index=None)
-			_ = nodes[0].raw_material_supplier_indices(product_index=77)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=None)
+			_ = nodes[0].raw_material_suppliers_by_product(product_index=77)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=None)
+			_ = nodes[0].raw_material_supplier_indices_by_product(product_index=77)
 		
 
 class TestGetNetworkBillOfMaterials(unittest.TestCase):
@@ -2129,7 +2129,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Convert successors and predecessors back to node objects. Replace network and product objects.
 		for n in dict_nodes:
 			preds = []
 			succs = []
@@ -2141,6 +2141,11 @@ class TestNodeToFromDict(unittest.TestCase):
 			n._predecessors = preds
 			n._successors = succs
 			n.network = network
+			if n._dummy_product is not None:
+				n._dummy_product = network.products_by_index[n._dummy_product]
+			if n._external_supplier_dummy_product is not None:
+				n._external_supplier_dummy_product = network.products_by_index[n._external_supplier_dummy_product]
+			n._products_by_index = {k: network.products_by_index[k] for k in n._products_by_index.keys()}
 
 		# Compare.
 		for i in range(len(network.nodes)):
@@ -2160,7 +2165,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Convert successors and predecessors back to node objects. Replace network and product objects.
 		for n in dict_nodes:
 			preds = []
 			succs = []
@@ -2172,6 +2177,11 @@ class TestNodeToFromDict(unittest.TestCase):
 			n._predecessors = preds
 			n._successors = succs
 			n.network = network
+			if n._dummy_product is not None:
+				n._dummy_product = network.products_by_index[n._dummy_product]
+			if n._external_supplier_dummy_product is not None:
+				n._external_supplier_dummy_product = network.products_by_index[n._external_supplier_dummy_product]
+			n._products_by_index = {k: network.products_by_index[k] for k in n._products_by_index.keys()}
 
 		# Compare.
 		for i in range(len(network.nodes)):
@@ -2199,7 +2209,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Convert successors and predecessors back to node objects. Replace network and product objects.
 		for n in dict_nodes:
 			preds = []
 			succs = []
@@ -2211,6 +2221,11 @@ class TestNodeToFromDict(unittest.TestCase):
 			n._predecessors = preds
 			n._successors = succs
 			n.network = network
+			if n._dummy_product is not None:
+				n._dummy_product = network.products_by_index[n._dummy_product]
+			if n._external_supplier_dummy_product is not None:
+				n._external_supplier_dummy_product = network.products_by_index[n._external_supplier_dummy_product]
+			n._products_by_index = {k: network.products_by_index[k] for k in n._products_by_index.keys()}
 
 		# Compare.
 		for i in range(len(network.nodes)):
@@ -2238,7 +2253,7 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Convert successors and predecessors back to node objects. Replace network and product objects.
 		for n in dict_nodes:
 			preds = []
 			succs = []
@@ -2250,6 +2265,11 @@ class TestNodeToFromDict(unittest.TestCase):
 			n._predecessors = preds
 			n._successors = succs
 			n.network = network
+			if n._dummy_product is not None:
+				n._dummy_product = network.products_by_index[n._dummy_product]
+			if n._external_supplier_dummy_product is not None:
+				n._external_supplier_dummy_product = network.products_by_index[n._external_supplier_dummy_product]
+			n._products_by_index = {k: network.products_by_index[k] for k in n._products_by_index.keys()}
 
 		# Compare.
 		for i in range(len(network.nodes)):

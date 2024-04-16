@@ -126,6 +126,8 @@ class SupplyChainNetwork(object):
 		product_set = set(self._products)
 		for node in self.nodes:
 			product_set |= set(node.products)
+			if node._external_supplier_dummy_product is not None:
+				product_set |= {node._external_supplier_dummy_product}
 		return list(product_set)
 
 	@property
@@ -148,12 +150,17 @@ class SupplyChainNetwork(object):
 		with index 4. 
 
 		Includes "dummy products" that are added internally to nodes that do not have a |class_product|
-		object added. Dummy products are identifiable by their index, which is always negative.
+		object added. Dummy products are identifiable as such by their index, which is always negative.
 	
 		Read only. 
 		"""
 		# Include all products in network (including in nodes).
-		return {prod.index: prod for prod in self.products}
+		prod_by_ind = {prod.index: prod for prod in self.products}
+		# Add external supplier dummy products.
+		prod_by_ind.update({node._external_supplier_dummy_product.index: node._external_supplier_dummy_product \
+					  for node in self.nodes if node._external_supplier_dummy_product is not None})
+	
+		return prod_by_ind
 
 	@property
 	def period(self):
@@ -362,8 +369,10 @@ class SupplyChainNetwork(object):
 							for prod_ind in prod_indices:
 								node.add_product(network.products_by_index[prod_ind])
 							# Replace dummy-product indices with product objects.
-							node._dummy_product = network.products_by_index[node._dummy_product]
-							node._external_supplier_dummy_product = network.products_by_index[node._external_supplier_dummy_product]
+							if node._dummy_product is not None:
+								node._dummy_product = network.products_by_index[node._dummy_product]
+							if node._external_supplier_dummy_product is not None:
+								node._external_supplier_dummy_product = network.products_by_index[node._external_supplier_dummy_product]
 							# Add node to network.
 							network.add_node(node)
 						for n in network.nodes:
