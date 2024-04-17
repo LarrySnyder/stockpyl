@@ -436,9 +436,22 @@ class SupplyChainNetwork(object):
 			Dict in which keys are old indices and values are new names.
 
 		"""
+		# Build product mapping. (Real products keep their indices. Dummy products change
+  		# because their nodes change.)
+		old_to_new_prod_dict = {}
+		for node in self.nodes:
+			for prod in node.products:
+				if prod.is_dummy:
+					old_to_new_prod_dict[prod.index] = \
+						SupplyChainNode._dummy_product_index_from_node_index(old_to_new_dict[node.index])
+				else:
+					old_to_new_prod_dict[prod.index] = prod.index
+			old_to_new_prod_dict[node._external_supplier_dummy_product.index] = \
+				SupplyChainNode._external_supplier_dummy_product_index_from_node_index(old_to_new_dict[node.index])
+	
 		# Reindex state variables. (This must be done before reindexing nodes.)
 		for node in self.nodes:
-			node.reindex_all_state_variables(old_to_new_dict)
+			node.reindex_all_state_variables(old_to_new_dict, old_to_new_prod_dict)
 
 		# Reindex nodes.
 		for node in self.nodes:

@@ -233,11 +233,15 @@ class SupplyChainNode(object):
 		self._index = value
 
 		# If node has a dummy product, replace it with a new one to update its index.
+		# TODO: this is clumsy -- do these values really need to change if index changes? and if so, is this really the way to do it?
 		if self._dummy_product:
 			self._remove_dummy_product()
 			self._add_dummy_product()
 			self._external_supplier_dummy_product = SupplyChainProduct(self._dummy_product.index - 1, is_dummy=True)
-			# TODO: this is clumsy -- do these values really need to change if index changes? and if so, is this really the way to do it?
+		# Replace external supplier dummy product.
+		self._external_supplier_dummy_product = \
+			SupplyChainProduct(SupplyChainNode._external_supplier_dummy_product_index_from_node_index(self.index), is_dummy=True)
+
 	
 
 	# Properties related to input parameters.
@@ -488,7 +492,7 @@ class SupplyChainNode(object):
 		"""Add a dummy product to the node. Typically this happens when the node is initialized and/or
 		when all "real" products are removed from the node.
 		"""
-		prod_ind = -self.index if self.index > 0 else -_INDEX_BUMP
+		prod_ind = self._dummy_product_index_from_node_index(self.index)
 		dummy = SupplyChainProduct(index=prod_ind, is_dummy=True)
 		self.add_product(dummy)
 		self._dummy_product = dummy
@@ -500,6 +504,36 @@ class SupplyChainNode(object):
 		self.remove_product(self._dummy_product)
 		self._dummy_product = None
 
+	@classmethod
+	def _dummy_product_index_from_node_index(cls, node_index):
+		"""Return index of dummy product for a given node index. This is called when a dummy product is
+		added to a node, to determine its index, but also can be called at other times (e.g., when nodes are
+		being reindexed), to predict what the new dummy product index will be.
+
+		Parameters
+		----------
+		node_index : int
+			The index of the node.
+		"""
+		if node_index > 0:
+			return -node_index
+		else:
+			return -_INDEX_BUMP
+
+	@classmethod
+	def _external_supplier_dummy_product_index_from_node_index(cls, node_index):
+		"""Return index of external supplier dummy product for a given node index. This is called when an
+		external supplier dummy product is
+		added to a node, to determine its index, but also can be called at other times (e.g., when nodes are
+		being reindexed), to predict what the new external supplier dummy product index will be.
+
+		Parameters
+		----------
+		node_index : int
+			The index of the node.
+		"""
+		return SupplyChainNode._dummy_product_index_from_node_index(node_index) - 1
+		
 	def get_network_bill_of_materials(self, product=None, predecessor=None, raw_material=None):
 		"""Return the "network bill of materials," i.e., the number of units of ``raw_material`` 
 		from ``predecessor`` that are required to make one unit of ``product`` at this node,
@@ -1087,7 +1121,8 @@ class SupplyChainNode(object):
 		
 		# Set external supplier dummy product. (This is set even if the node does not and
   		# never will have an external supplier.)
-		self._external_supplier_dummy_product = SupplyChainProduct(self._dummy_product.index - 1, is_dummy=True)
+		self._external_supplier_dummy_product = \
+			SupplyChainProduct(SupplyChainNode._external_supplier_dummy_product_index_from_node_index(self.index), is_dummy=True)
 
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are
@@ -1558,17 +1593,20 @@ class SupplyChainNode(object):
 			else:
 				return self.state_vars[period].__dict__[attribute][product_index]
 
-	def reindex_all_state_variables(self, old_to_new_dict):
-		"""Change indices of all keys in all state variables using ``old_to_new_dict``.
+	def reindex_all_state_variables(self, old_to_new_dict, old_to_new_prod_dict):
+		"""Change indices of all node-based keys in all state variables using ``old_to_new_dict``
+		and all product-based keys using ``old_to_new_prod_dict``.
 
 		Parameters
 		----------
 		old_to_new_dict : dict
-			Dict in which keys are old indices and values are new indices.
+			Dict in which keys are old node indices and values are new node indices.
+		old_to_new_prod_dict : dict
+			Dict in which keys are old product indices and values are new product indices.
 
 		"""
 		for i in range(len(self.state_vars)):
-			self.state_vars[i].reindex_state_variables(old_to_new_dict)
+			self.state_vars[i].reindex_state_variables(old_to_new_dict, old_to_new_prod_dict)
 
 
 # ===============================================================================
@@ -2425,27 +2463,59 @@ class NodeStateVars(object):
 
 	# --- Utility Functions --- #
 
-	def reindex_state_variables(self, old_to_new_dict):
-		"""Change indices of state variable dict keys using ``old_to_new_dict``.
+	def reindex_state_variables(self, old_to_new_dict, old_to_new_prod_dict):
+		"""Change indices of node-based state variable dict keys using ``old_to_new_dict``
+		and indices of product-based state variable dict keys using ``old_to_new_prod_dict``.
 
 		Parameters
 		----------
 		old_to_new_dict : dict
-			Dict in which keys are old indices and values are new indices.
+			Dict in which keys are old node indices and values are new node indices.
+		old_to_new_prod_dict : dict
+			Dict in which keys are old product indices and values are new product indices.
 
 		"""
+		# State variables indexed by product only.
+		for prod in self.node.products:
+			change_dict_key(self.demand_cumul, prod.index, old_to_new_prod_dict[prod.index])
+			change_dict_key(self.inventory_level, prod.index, old_to_new_prod_dict[prod.index])
+			change_dict_key(self.demand_met_from_stock, prod.index, old_to_new_prod_dict[prod.index])
+			change_dict_key(self.demand_met_from_stock_cumul, prod.index, old_to_new_prod_dict[prod.index])
+			change_dict_key(self.fill_rate, prod.index, old_to_new_prod_dict[prod.index])
+			old_rm_indices = list(self.raw_material_inventory.keys())
+			for rm_index in old_rm_indices:
+				change_dict_key(self.raw_material_inventory, rm_index, old_to_new_prod_dict[rm_index])
+
 		# State variables indexed by predecessor.
-		for p in self.node.predecessors(include_external=False):
-			change_dict_key(self.inbound_shipment_pipeline, p.index, old_to_new_dict[p.index])
-			change_dict_key(self.inbound_shipment, p.index, old_to_new_dict[p.index])
-			change_dict_key(self.on_order_by_predecessor, p.index, old_to_new_dict[p.index])
-			# Removed 4/12/24: raw_material_inventory is no longer indexed by predecessor
-			# change_dict_key(self.raw_material_inventory, p.index, old_to_new_dict[p.index])
-			change_dict_key(self.order_quantity, p.index, old_to_new_dict[p.index])
-			change_dict_key(self.inbound_disrupted_items, p.index, old_to_new_dict[p.index])
+		for p in self.node.predecessors(include_external=True):
+			p_index = p.index if p is not None else None
+			rm_indices = p.product_indices if p is not None else [self.node._external_supplier_dummy_product.index]
+			# Change rm index (inner level of nested dict).
+			for rm_index in rm_indices:
+				change_dict_key(self.inbound_shipment_pipeline[p_index], rm_index, old_to_new_prod_dict[rm_index])
+				change_dict_key(self.inbound_shipment[p_index], rm_index, old_to_new_prod_dict[rm_index])
+				change_dict_key(self.on_order_by_predecessor[p_index], rm_index, old_to_new_prod_dict[rm_index])
+				change_dict_key(self.order_quantity[p_index], rm_index, old_to_new_prod_dict[rm_index])
+				change_dict_key(self.inbound_disrupted_items[p_index], rm_index, old_to_new_prod_dict[rm_index])
+			# Change predecessor index (outer level of nested dict).
+			if p is not None:
+				# We don't need to change the node index for external supplier (only the rm index).
+				change_dict_key(self.inbound_shipment_pipeline, p_index, old_to_new_dict[p_index])
+				change_dict_key(self.inbound_shipment, p_index, old_to_new_dict[p_index])
+				change_dict_key(self.on_order_by_predecessor, p_index, old_to_new_dict[p_index])
+				change_dict_key(self.order_quantity, p_index, old_to_new_dict[p_index])
+				change_dict_key(self.inbound_disrupted_items, p_index, old_to_new_dict[p_index])
 
 		# State variables indexed by successor.
 		for s in self.node.successors(include_external=False):
+			# Change prod index (inner level of nested dict).
+			for prod_index in self.node.product_indices:
+				change_dict_key(self.inbound_order_pipeline[s.index], prod_index, old_to_new_prod_dict[prod_index])
+				change_dict_key(self.inbound_order[s.index], prod_index, old_to_new_prod_dict[prod_index])
+				change_dict_key(self.outbound_shipment[s.index], prod_index, old_to_new_prod_dict[prod_index])
+				change_dict_key(self.backorders_by_successor[s.index], prod_index, old_to_new_prod_dict[prod_index])
+				change_dict_key(self.outbound_disrupted_items[s.index], prod_index, old_to_new_prod_dict[prod_index])
+			# Change successor index (outer level of nested dict).
 			change_dict_key(self.inbound_order_pipeline, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.inbound_order, s.index, old_to_new_dict[s.index])
 			change_dict_key(self.outbound_shipment, s.index, old_to_new_dict[s.index])
