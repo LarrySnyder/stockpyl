@@ -494,11 +494,12 @@ class DemandSource(object):
 
 				# Some attributes require special handling.
 				if prop == 'demand_list':
-					# Replace integer-as-strings in keys with integers.
-					if the_dict[prop] is not None:
-						value = [{int(k): v for k, v in d.items()} for d in the_dict[prop]]
-					else:
+					if prop not in the_dict or the_dict[prop] is None:
 						value = None
+					elif the_dict[prop] is not None:
+						# If elements of demand_list are dicts (keys = products, values = demands),
+	  					# replace string keys with integers.
+						value = [{int(k): v for k, v in d.items()} if is_dict(d) else d for d in the_dict[prop]]
 				else:
 					if prop in the_dict:
 						value = the_dict[prop]

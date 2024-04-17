@@ -1738,6 +1738,7 @@ class NodeStateVars(object):
 
 			# Initialize dicts with appropriate keys. (inbound_shipment_pipeline gets
 			# order_lead_time+shipment_lead_time slots for orders to external supplier)
+			self.inventory_level = {prod_index: 0 for prod_index in self.node.product_indices}
 			self.inbound_shipment_pipeline = {p_index[p]:
 									 			{prod_index:
 												  [0] * ((self.node.order_lead_time or 0) + (
@@ -1752,13 +1753,12 @@ class NodeStateVars(object):
 											   [0] * ((s.order_lead_time or 0) + 1)
 											 for prod_index in node.product_indices}
 										   for s in node.successors()}
+			
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
 			# or its own order lead time.)
 			if node.demand_source is not None and node.demand_source.type is not None:
 				self.inbound_order_pipeline[None] = {prod_index: [0] for prod_index in node.product_indices}
-				# for prod_index in node.product_indices:
-				# 	self.inbound_order_pipeline[None][prod_index] = [0]
 			self.inbound_order = {s_index[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
 			self.outbound_shipment = {s_index[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
 			self.on_order_by_predecessor = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
@@ -1772,6 +1772,12 @@ class NodeStateVars(object):
 			self.order_quantity = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
 			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
+
+			# Fill rate quantities.
+			self.demand_cumul = {prod_index: 0 for prod_index in self.node.product_indices}
+			self.demand_met_from_stock = {prod_index: 0 for prod_index in self.node.product_indices}
+			self.demand_met_from_stock_cumul = {prod_index: 0 for prod_index in self.node.product_indices}
+			self.fill_rate = {prod_index: 0 for prod_index in self.node.product_indices}
 
 		else:
 
@@ -1789,7 +1795,6 @@ class NodeStateVars(object):
 			self.raw_material_inventory = {}
 
 		# Remaining state variables.
-		self.inventory_level = {prod_index: 0 for prod_index in self.node.product_indices}
 		self.disrupted = False
 
 		# Costs: each refers to a component of the cost (or the total cost)
@@ -1799,12 +1804,6 @@ class NodeStateVars(object):
 		self.in_transit_holding_cost_incurred = 0
 		self.revenue_earned = 0
 		self.total_cost_incurred = 0
-
-		# Fill rate quantities.
-		self.demand_cumul = {prod_index: 0 for prod_index in self.node.product_indices}
-		self.demand_met_from_stock = {prod_index: 0 for prod_index in self.node.product_indices}
-		self.demand_met_from_stock_cumul = {prod_index: 0 for prod_index in self.node.product_indices}
-		self.fill_rate = {prod_index: 0 for prod_index in self.node.product_indices}
 
 	# --- Special Methods --- #
 
@@ -1966,9 +1965,9 @@ class NodeStateVars(object):
 
 		total_in_transit = np.sum([
 				self.in_transit_from(p, rm_index) 
-				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
+				* self.node.NBOM(product=prod_index, predecessor=p.index if p is not None else None, raw_material=rm_index)
 			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
-			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
+			for p in self.node.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=True)
 		])
 
 		if total_in_transit == 0:
@@ -2026,7 +2025,7 @@ class NodeStateVars(object):
 			return total_on_order / len(self.node.raw_materials_by_product(product_index=prod_index, network_BOM=True))
 
 	def raw_material_aggregate(self, prod_index=None):
-		"""Current raw materials for product ``prod_index`` that in raw-material inventory at the node. Read only.
+		"""Current raw materials for product ``prod_index`` that are in raw-material inventory at the node. Read only.
 		
 		Raw materials are counted using the "units" of the node (or node-product pair) itself.
 		That is, each raw material quantity is divided by the number of units of the raw material
@@ -2171,14 +2170,18 @@ class NodeStateVars(object):
 		ValueError
 			If ``predecessor_index is None`` and ``rm_index is not None``, or vice-versa.
 		"""
-		# Validate parameters.
+		# Validate parameters. # TODO: do this or not??
 		# if predecessor_index is None and rm_index is not None:
 		# 	raise ValueError('If predecessor_index is None, then rm_index must also be None.')
 		# if predecessor_index is not None and rm_index is None:
 		# 	raise ValueError('If rm_index is None, then predecessor_index must also be None.')
 
-		# Determine product index. # TODO: validate parameters
+		# Determine product and RM index. # TODO: validate parameters
 		prod_index = prod_index or self.node.product_indices[0]
+		if rm_index is None:
+			if predecessor_index is not None:
+				pred = self.node.network.get_node_from_index(predecessor_index)
+				rm_index = pred.product_indices[0]
 
 		if predecessor_index is not None:
 			return self.inventory_level[prod_index] \
@@ -2316,7 +2319,7 @@ class NodeStateVars(object):
    			# (because raw materials are processed right away).
 			OO = self.on_order(prod_index=prod_index)
 			RMI = self.raw_material_aggregate(prod_index=prod_index)
-			IDI = inbound_disrupted_items_aggregate(prod_index=prod_index)
+			IDI = self.inbound_disrupted_items_aggregate(prod_index=prod_index)
 		
 		return EIL + OO + RMI + IDI
 		
