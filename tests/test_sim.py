@@ -321,6 +321,7 @@ class TestSimulation(unittest.TestCase):
         ext_dummy_prods = {n.index: n._external_supplier_dummy_product.index for n in network.source_nodes}
 
         total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+#        write_results(network=network, num_periods=100, columns_to_print=['basic', 'costs'], write_txt=True, txt_filename='temp_3stage.txt')
 
         # Compare total cost.
         self.assertEqual(total_cost, 1884)
@@ -438,6 +439,158 @@ class TestSimulation(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+
+class TestMultiproductSimulation(unittest.TestCase):
+    @classmethod
+    def set_up_class(cls):
+        """Called once, before any tests."""
+        print_status('TestMultiproductSimulation', 'set_up_class()')
+
+    @classmethod
+    def tear_down_class(cls):
+        """Called once, after all tests, if set_up_class successful."""
+        print_status('TestMultiproductSimulation', 'tear_down_class()')
+
+    def test_assembly_3_stage_as_multiproduct(self):
+        """Test that simulation() function correctly simulates 3-stage assembly model in which
+        predecessor products are interpreted as separate RMs at a single node.
+        """
+        print_status('TestMultiproductSimulation', 'test_assembly_3_stage_as_multiproduct()')
+
+        orig_network = load_instance("assembly_3_stage")
+        rms = {n.index: SupplyChainProduct.from_node(n) for n in orig_network.source_nodes}
+
+        network = serial_system(
+            num_nodes=2,
+            node_order_in_system=[1, 0],
+            node_order_in_lists=[0, 1],
+            local_holding_cost=[2, 1],
+            stockout_cost=[20, 0],
+            demand_type='N',
+            mean=5,
+            standard_deviation=1,
+            shipment_lead_time=[1, 2],
+            # policy_type='BS',
+            # base_stock_level=[7, 13, 11],
+            # initial_inventory_level=[7, 13, 11]
+        )
+        # Add supplier nodes for products 1 and 2. (Can't be external supplier because prod 1 and 2
+        # need separate RMs to match oroginal system.)
+        network.add_predecessor(network.get_node_from_index(1), SupplyChainNode(index=11, supply_type='U'))
+        network.add_predecessor(network.get_node_from_index(1), SupplyChainNode(index=12, supply_type='U'))
+        network.get_node_from_index(1).supply_type = None
+
+        nodes = {n.index: n for n in network.nodes}
+
+        products = {prod_index: SupplyChainProduct(index=prod_index) for prod_index in [0, 1, 2, 11, 12]}
+        products[0].set_bill_of_materials(rm_index=1, num_needed=1)
+        products[0].set_bill_of_materials(rm_index=2, num_needed=1)
+        products[1].set_bill_of_materials(rm_index=11, num_needed=1)
+        products[2].set_bill_of_materials(rm_index=12, num_needed=1)
+
+        nodes[0].add_product(products[0])
+        nodes[1].add_products([products[1], products[2]])
+        nodes[11].add_product(products[11])
+        nodes[12].add_product(products[12])
+
+        nodes[0].demand_source.round_to_int = True
+        nodes[0].initial_inventory_level = 7
+        nodes[0].inventory_policy = Policy(type='BS', base_stock_level=7, node=nodes[0])
+
+        products[1].inventory_policy = Policy(type='BS', base_stock_level=13, node=nodes[1], product=products[1])
+        products[2].inventory_policy = Policy(type='BS', base_stock_level=11, node=nodes[1], product=products[2])
+        products[1].initial_inventory_level = 13
+        products[2].initial_inventory_level = 11
+
+        nodes[11].inventory_policy = Policy(type='BS', base_stock_level=100, node=nodes[11])
+        nodes[12].inventory_policy = Policy(type='BS', base_stock_level=100, node=nodes[12])
+
+        total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+        write_results(network=network, num_periods=100, columns_to_print=['basic', 'costs'], write_txt=True, txt_filename='temp.txt')
+
+        # Compare total cost.
+        self.assertEqual(total_cost, 1884)
+
+        nodes = {n.index: n for n in network.nodes}
+
+        # Compare a few performance measures.
+        self.assertEqual(nodes[0].state_vars[6].order_quantity[1][1], 5)
+        self.assertEqual(nodes[0].state_vars[6].order_quantity[1][2], 5)
+        self.assertEqual(nodes[0].state_vars[26].inventory_level[0], 3)
+        self.assertEqual(nodes[1].state_vars[26].inventory_level[1], 4)
+        self.assertEqual(nodes[1].state_vars[26].inventory_level[2], 2)
+        self.assertEqual(nodes[0].state_vars[41].inventory_level[0], -1)
+        self.assertEqual(nodes[1].state_vars[41].inventory_level[1], 1)
+        self.assertEqual(nodes[1].state_vars[41].inventory_level[2], -1)
+        self.assertEqual(nodes[1].state_vars[43].inbound_order[0][1], 4)
+        self.assertEqual(nodes[1].state_vars[43].inbound_order[0][2], 4)
+        self.assertEqual(nodes[0].state_vars[95].inbound_shipment[1][1], 6)
+        self.assertEqual(nodes[0].state_vars[95].inbound_shipment[1][2], 7)
+        self.assertEqual(nodes[1].state_vars[95].inbound_shipment[11][11], 4) 
+        self.assertEqual(nodes[1].state_vars[95].inbound_shipment[12][12], 4)
+        self.assertEqual(nodes[1].state_vars[78].backorders_by_successor[0][2], 2)
+
+    def test_rosling_figure_1(self):
+        """Test that simulation() function correctly simulates model in Rosling (1989),
+        Figure 1.
+        """
+        print_status('TestSimulation', 'test_rosling_figure_1()')
+
+        network = load_instance("rosling_figure_1")
+
+        nodes = {n.index: n for n in network.nodes}
+        dummy_prods = {n.index: n._dummy_product.index for n in network.nodes}
+        ext_dummy_prods = {n.index: n._external_supplier_dummy_product.index for n in network.source_nodes}
+
+        # Make the BS levels a little smaller so there are some stockouts.
+        nodes[1].inventory_policy.base_stock_level = 6
+        nodes[2].inventory_policy.base_stock_level = 20
+        nodes[3].inventory_policy.base_stock_level = 35
+        nodes[4].inventory_policy.base_stock_level = 58
+        nodes[5].inventory_policy.base_stock_level = 45
+        nodes[6].inventory_policy.base_stock_level = 65
+        nodes[7].inventory_policy.base_stock_level = 75
+
+        total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+        # Compare total cost.
+        self.assertEqual(total_cost, 0)
+
+        # Compare a few performance measures.
+        self.assertEqual(nodes[1].state_vars[6].order_quantity[2][dummy_prods[2]], 4)
+        self.assertEqual(nodes[1].state_vars[6].order_quantity[3][dummy_prods[3]], 4)
+        self.assertEqual(nodes[2].state_vars[6].order_quantity[5][dummy_prods[5]], 4)
+        self.assertEqual(nodes[3].state_vars[6].order_quantity[4][dummy_prods[4]], 4)
+        self.assertEqual(nodes[4].state_vars[6].order_quantity[6][dummy_prods[6]], 0)
+        self.assertEqual(nodes[4].state_vars[6].order_quantity[7][dummy_prods[7]], 0)
+        self.assertEqual(nodes[1].state_vars[16].inventory_level[dummy_prods[1]], 3)
+        self.assertEqual(nodes[2].state_vars[16].inventory_level[dummy_prods[2]], 7)
+        self.assertEqual(nodes[3].state_vars[16].inventory_level[dummy_prods[3]], 4)
+        self.assertEqual(nodes[4].state_vars[16].inventory_level[dummy_prods[4]], 9)
+        self.assertEqual(nodes[5].state_vars[16].inventory_level[dummy_prods[5]], 7)
+        self.assertEqual(nodes[6].state_vars[16].inventory_level[dummy_prods[6]], 19)
+        self.assertEqual(nodes[7].state_vars[16].inventory_level[dummy_prods[7]], 24)
+        self.assertEqual(nodes[1].state_vars[44].inventory_level[dummy_prods[1]], -4)
+        self.assertEqual(nodes[2].state_vars[44].inventory_level[dummy_prods[2]], -5)
+        self.assertEqual(nodes[3].state_vars[44].inventory_level[dummy_prods[3]], 0)
+        self.assertEqual(nodes[4].state_vars[44].inventory_level[dummy_prods[4]], -2)
+        self.assertEqual(nodes[5].state_vars[44].inventory_level[dummy_prods[5]], -6)
+        self.assertEqual(nodes[6].state_vars[44].inventory_level[dummy_prods[6]], 0)
+        self.assertEqual(nodes[7].state_vars[44].inventory_level[dummy_prods[7]], 10)
+        self.assertEqual(nodes[1].state_vars[16].inbound_shipment[2][dummy_prods[2]], 2)
+        self.assertEqual(nodes[1].state_vars[16].inbound_shipment[3][dummy_prods[3]], 2)
+        self.assertEqual(nodes[2].state_vars[16].inbound_shipment[5][dummy_prods[5]], 1)
+        self.assertEqual(nodes[3].state_vars[16].inbound_shipment[4][dummy_prods[4]], 0)
+        self.assertEqual(nodes[4].state_vars[16].inbound_shipment[6][dummy_prods[6]], 12)
+        self.assertEqual(nodes[4].state_vars[16].inbound_shipment[7][dummy_prods[7]], 12)
+        self.assertEqual(nodes[5].state_vars[16].inbound_shipment[None][ext_dummy_prods[5]], 9)
+        self.assertEqual(nodes[6].state_vars[16].inbound_shipment[None][ext_dummy_prods[6]], 13)
+        self.assertEqual(nodes[7].state_vars[16].inbound_shipment[None][ext_dummy_prods[7]], 12)
+        self.assertEqual(nodes[1].state_vars[45].raw_material_inventory[dummy_prods[2]], 0)
+        self.assertEqual(nodes[1].state_vars[45].raw_material_inventory[dummy_prods[3]], 5)
+        self.assertEqual(nodes[2].state_vars[45].raw_material_inventory[dummy_prods[5]], 0)
+        self.assertEqual(nodes[4].state_vars[45].raw_material_inventory[dummy_prods[6]], 0)
 
 
 class TestStepByStepSimulation(unittest.TestCase):

@@ -1491,6 +1491,15 @@ class SupplyChainNode(object):
 				return self_attr[product_ind]
 			else:
 				return getattr(product_obj, attr)
+		elif attr == 'inventory_policy':
+			# inventory_policy needs to be handled separately because both None and Policy(None)
+			# trigger using the product's attribute.
+			if product_obj is not None and \
+				(self_attr is None or self_attr == self._DEFAULT_VALUES['_inventory_policy'] or \
+				 (isinstance(self_attr, policy.Policy) and self_attr.type is None)):
+				return getattr(product_obj, attr)
+			else:
+				return self_attr
 		else:
 			# Determine whether attr is set to its default value; if so, try to use product attribute.
 			# Properties that are aliases for attributes require special handling since there's no
@@ -1499,9 +1508,7 @@ class SupplyChainNode(object):
 				default_val = self._DEFAULT_VALUES['local_holding_cost']
 			elif attr == 'lead_time':
 				default_val = self._DEFAULT_VALUES['shipment_lead_time']
-			elif attr == 'inventory_policy':
-				default_val = self._DEFAULT_VALUES['_inventory_policy']
-				# TODO: other '_' properties?
+				# TODO: '_' properties?
 			else:
 				default_val = self._DEFAULT_VALUES[attr]
 			if product_obj is not None and ((default_val is None and self_attr is None) or (self_attr == default_val)):
