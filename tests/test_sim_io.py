@@ -45,9 +45,6 @@ class TestWriteResults(unittest.TestCase):
 		# Build network.
 		network = load_instance("example_6_1")
 
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
-
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 		filename_root = 'tests/additional_files/temp_TestWriteResults_test_example_6_1'
@@ -95,8 +92,6 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
@@ -145,8 +140,6 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
@@ -193,8 +186,6 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
@@ -241,8 +232,6 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
@@ -289,8 +278,6 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)
@@ -338,8 +325,6 @@ class TestWriteResults(unittest.TestCase):
 
 		# Build network.
 		network = load_instance("example_6_1")
-		# reindex nodes to 2 -> 1 -> 0
-		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 
 		# Simulate and write results.
 		simulation(network, 100, rand_seed=17, progress_bar=False)

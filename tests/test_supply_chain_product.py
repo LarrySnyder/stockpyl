@@ -6,8 +6,8 @@ from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.instances import *
 from stockpyl.sim import *
-#from tests.settings import RUN_ALL_TESTS
-RUN_ALL_TESTS = False
+from tests.settings import RUN_ALL_TESTS
+#RUN_ALL_TESTS = False
 
 # Module-level functions.
 

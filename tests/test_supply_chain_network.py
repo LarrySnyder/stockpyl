@@ -13,8 +13,8 @@ from stockpyl.supply_chain_node import SupplyChainNode
 from stockpyl.demand_source import DemandSource
 from stockpyl.instances import *
 from stockpyl.sim import *
-#from tests.settings import *
-RUN_ALL_TESTS = False
+from tests.settings import *
+#RUN_ALL_TESTS = False
 
 # Module-level functions.
 
@@ -691,7 +691,7 @@ class TestAddRemoveProduct(unittest.TestCase):
 
 		network.remove_product(network.products_by_index[10])
 
-		self.assertSetEqual(set(network.product_indices), set([0, 1, 2, 3, 4, 5, 6, 11, -1001, -5, -4, -3, -2]))
+		self.assertSetEqual(set(network.product_indices), set([0, 1, 2, 3, 4, 5, 6, 11, -1001, -9, -7, -5, -4, -3, -2]))
 
 
 class TestProductLists(unittest.TestCase):
@@ -730,9 +730,9 @@ class TestProductLists(unittest.TestCase):
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 		network.add_product(SupplyChainProduct(10))
 		network.add_product(SupplyChainProduct(11))
-		products = {i: network.products_by_index[i] for i in [0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -5, -4, -3, -2]}
+		products = {i: network.products_by_index[i] for i in [0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -9, -7, -5, -4, -3, -2]}
 
-		self.assertSetEqual(set(network.product_indices), set([0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -5, -4, -3, -2]))
+		self.assertSetEqual(set(network.product_indices), set([0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -9, -7, -5, -4, -3, -2]))
 		self.assertSetEqual(set(network.products), set(products.values()))
 		self.assertDictEqual(network.products_by_index, {i: products[i] for i in products.keys()})
 	

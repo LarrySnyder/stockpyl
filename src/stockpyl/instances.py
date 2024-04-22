@@ -146,7 +146,7 @@ def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 	return instance
 
 def save_instance(instance_name, instance_data, instance_description='', filepath=None, 
-	replace=True, create_if_none=True, omit_state_vars=True):
+	replace=True, create_if_none=True, delete_if_exists=False, omit_state_vars=True):
 	"""Save an instance to a JSON file. 
 	
 	Parameters
@@ -168,6 +168,9 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	create_if_none : bool, optional
 		If the file does not already exist, the function will create a new file if ``True``; 
 		otherwise, it will not do anything and issue a warning.
+	delete_if_exists : bool, optional
+		If the file already exists, the function will delete it first if ``True``; 
+		otherwise, it will modify the existing file.
 	omit_state_vars : bool, optional
 		If ``True``, the function will not save state variables as part of the nodes,
 		even if they are present in the instance.
@@ -179,9 +182,17 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 
 	# Does JSON file exist?
 	if os.path.exists(filepath):
-		# Load data from JSON.
-		with open(filepath) as f:
-			json_contents = json.load(f)
+		if delete_if_exists:
+			os.remove(filepath)
+			json_contents = {
+				"_id": "",
+				"instances": [],
+				"last_updated": ""
+			}
+		else:
+			# Load data from JSON.
+			with open(filepath) as f:
+				json_contents = json.load(f)
 	else:
 		# Should we create it?
 		if create_if_none:

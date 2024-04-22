@@ -516,9 +516,9 @@ class SupplyChainNode(object):
 			The index of the node.
 		"""
 		if node_index > 0:
-			return -node_index
+			return -2 * node_index
 		else:
-			return -_INDEX_BUMP
+			return -_INDEX_BUMP - 2 * node_index
 
 	@classmethod
 	def _external_supplier_dummy_product_index_from_node_index(cls, node_index):
@@ -613,7 +613,7 @@ class SupplyChainNode(object):
 		found = False
 		for prod1 in self.products:
 			for prod2 in prod1.raw_materials:
-				if prod2 in pred.products:
+				if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
 					found = True
 					break
 		
@@ -1738,45 +1738,67 @@ class NodeStateVars(object):
 		if node:
 
 			# Build some shortcuts.
-			p_index = {p: p.index if p is not None else None for p in self.node.predecessors(include_external=True)}
-			s_index = {s: s.index if s is not None else None for s in self.node.successors(include_external=True)}
+			p_indices = {p: p.index if p is not None else None for p in self.node.predecessors(include_external=True)}
+			s_indices = {s: s.index if s is not None else None for s in self.node.successors(include_external=True)}
 			rm_indices = {p: (p.product_indices if p is not None else [node._external_supplier_dummy_product.index]) \
 				   for p in self.node.predecessors(include_external=True)}
+			order_lead_time = self.node.get_attribute('order_lead_time')
 
 			# Initialize dicts with appropriate keys. (inbound_shipment_pipeline gets
 			# order_lead_time+shipment_lead_time slots for orders to external supplier)
 			self.inventory_level = {prod_index: 0 for prod_index in self.node.product_indices}
-			self.inbound_shipment_pipeline = {p_index[p]:
-									 			{prod_index:
-												  [0] * ((self.node.order_lead_time or 0) + (
-															  self.node.shipment_lead_time or 0) + 1)
-												 for prod_index in rm_indices[p]}
-											  for p in self.node.predecessors(include_external=True)}
-			self.inbound_shipment = {p_index[p]: 
+			self.inbound_shipment_pipeline = {}
+			for p_index in self.node.predecessor_indices(include_external=True):
+				self.inbound_shipment_pipeline[p_index] = {}
+				for rm_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True):
+					# Find a product at this node that uses raw material rm_index from predecessor p_index,
+					# and use its lead times. If there is more than one such product, use the last one found.
+					# This is a little klugey. # TODO: improve? should LTs be an attribute of the RM, not the product?
+					for prod_index in self.node.product_indices:
+						if rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True) and \
+							p_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
+							# Get lead times for this product.
+							order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
+							shipment_lead_time = (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0)
+							self.inbound_shipment_pipeline[p_index][rm_index] = [0] * (order_lead_time + shipment_lead_time + 1)			  
+			# self.inbound_shipment_pipeline = {p_indices[p]:
+			# 						 			{prod_index:
+			# 									  [0] * ((self.node.get_attribute('order_lead_time', product=prod_index) or 0) + 
+			# 											 (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0) + 1)
+			# 									 for prod_index in rm_indices[p]}
+			# 								  for p in self.node.predecessors(include_external=True)}
+			self.inbound_shipment = {p_indices[p]: 
 										{prod_index: 0 for prod_index in rm_indices[p]}
 		   							 for p in self.node.predecessors(include_external=True)}
-			self.inbound_order_pipeline = {s_index[s]:
-								  			{prod_index: 
-											   [0] * ((s.order_lead_time or 0) + 1)
-											 for prod_index in node.product_indices}
-										   for s in node.successors()}
+			self.inbound_order_pipeline = {}
+			for s_index in self.node.successor_indices(include_external=False):
+				self.inbound_order_pipeline[s_index] = {}
+				for prod_index in self.node.product_indices:
+					order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
+					self.inbound_order_pipeline[s_index][prod_index] = [0] * (order_lead_time + 1)
+			# self.inbound_order_pipeline = {s_indices[s]:
+			# 					  			{prod_index: 
+			#   									# TODO: should we be getting order_lead_time for self.node instead of s?
+			# 								   [0] * ((s.get_attribute('order_lead_time', product=prod_index) or 0) + 1)
+			# 								 for prod_index in node.product_indices}
+			# 							   for s in node.successors()}
 			
 			# Add external customer to inbound_order_pipeline. (Must be done
 			# separately since external customer does not have its own node,
 			# or its own order lead time.)
 			if node.demand_source is not None and node.demand_source.type is not None:
 				self.inbound_order_pipeline[None] = {prod_index: [0] for prod_index in node.product_indices}
-			self.inbound_order = {s_index[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
-			self.outbound_shipment = {s_index[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
-			self.on_order_by_predecessor = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
+			self.inbound_order = {s_indices[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
+			self.outbound_shipment = {s_indices[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
+			self.on_order_by_predecessor = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
-			self.backorders_by_successor = {s_index[s]: {prod_index: 0 for prod_index in node.product_indices}
+			self.backorders_by_successor = {s_indices[s]: {prod_index: 0 for prod_index in node.product_indices}
 												for s in self.node.successors(include_external=True)}
-			self.outbound_disrupted_items = {s_index[s]: {prod_index: 0 for prod_index in node.product_indices}
+			self.outbound_disrupted_items = {s_indices[s]: {prod_index: 0 for prod_index in node.product_indices}
 												for s in self.node.successors(include_external=True)}
-			self.inbound_disrupted_items = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
+			self.inbound_disrupted_items = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
-			self.order_quantity = {p_index[p]: {prod_index: 0 for prod_index in rm_indices[p]}
+			self.order_quantity = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
 			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
 

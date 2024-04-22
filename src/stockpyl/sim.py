@@ -423,14 +423,16 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 						order_quantity = min(order_capac, policy.get_order_quantity(product_index=prod.index, predecessor_index=p_index, rm_index=rm_index))
 
 					# Place order in predecessor's order pipeline (converting first to raw material units via BOM).
+	 				# (Add to any existing inbound order, because multiple products at the node can order the same RM.)
 					if p is not None:
-						p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] = order_quantity
+						p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] += order_quantity
 					else:
 						# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
 						node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += order_quantity
 
-					# Record order quantity.
-					node.state_vars_current.order_quantity[p_index][rm_index] = order_quantity
+					# Record order quantity. (Add to existing order quantity, since multiple products might order the same RM from
+					# the same predecessor.)
+					node.state_vars_current.order_quantity[p_index][rm_index] += order_quantity
 					# Add order to on_order_by_predecessor.
 					node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += order_quantity
 
@@ -1013,7 +1015,16 @@ def _propagate_shipment_downstream(node):
 		# unless there is a type-TP disruption, in which case outbound shipments
 		# successor wait in slot s.shipment_lead_time until the disruption ends.)
 		for s in node.successors():
-			s.state_vars_current.inbound_shipment_pipeline[node.index][prod_index][s.shipment_lead_time or 0] \
+			# Find a product at successor node that uses prod_index from node as a raw material,
+			# and use its lead time. If there is more than one such product, use the last one found.
+			# This is a little klugey. # TODO: improve? should LTs be an attribute of the RM, not the product?
+			for FG_index in s.product_indices:
+				if prod_index in s.raw_material_indices_by_product(product_index=FG_index, network_BOM=True) and \
+					node.index in s.raw_material_supplier_indices_by_raw_material(rm_index=prod_index, network_BOM=True):
+					# Get lead time for this product.
+					shipment_lead_time = (s.get_attribute('shipment_lead_time', product=FG_index) or 0)
+
+			s.state_vars_current.inbound_shipment_pipeline[node.index][prod_index][shipment_lead_time] \
 				+= node.state_vars_current.outbound_shipment[s.index][prod_index]
 
 

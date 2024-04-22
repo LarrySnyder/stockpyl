@@ -434,9 +434,9 @@ class SaveInstance(unittest.TestCase):
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_omit_state_vars_false_rosling.json'
 		try:
 			instances.save_instance(
-				instance_name='test_omit_state_vars_rosling_false',
+				instance_name='test_omit_state_vars_false_rosling',
 				instance_data=instance,
-				instance_description='this is test_omit_state_vars_rosling_false',
+				instance_description='this is test_omit_state_vars_false_rosling',
 				filepath=temp_filename,
 				omit_state_vars=False
 			)

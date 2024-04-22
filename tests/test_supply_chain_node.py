@@ -99,10 +99,10 @@ class TestIndex(unittest.TestCase):
 		print_status('TestIndex', 'test_bad_index()')
 
 		node = SupplyChainNode(index=5)
-		self.assertEqual(node._dummy_product.index, -5)
+		self.assertEqual(node._dummy_product.index, -10)
 
 		node.index = 10
-		self.assertEqual(node._dummy_product.index, -10)
+		self.assertEqual(node._dummy_product.index, -20)
 
 	def test_bad_index(self):
 		"""Test that index property correctly raises error when appropriate.
@@ -481,8 +481,8 @@ class TestRemoveProduct(unittest.TestCase):
 		nodes[2].remove_product(1)
 		nodes[3].remove_product(nodes[3].products_by_index[2])
 
-		self.assertEqual(nodes[1].product_indices, [-1])
-		self.assertEqual(nodes[2].product_indices, [-2])
+		self.assertEqual(nodes[1].product_indices, [-2])
+		self.assertEqual(nodes[2].product_indices, [-4])
 		self.assertEqual(nodes[3].product_indices, [3])
 
 	def test_multiproduct_5_7(self):
@@ -531,7 +531,7 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		print_status('TestAddRemoveDummyProduct', 'test_basic()')
 
 		node = SupplyChainNode(4)
-		self.assertEqual(node.product_indices, [-4])
+		self.assertEqual(node.product_indices, [-8])
 		self.assertTrue(node.products[0].is_dummy)
 
 	def test_add_remove(self):
@@ -540,7 +540,7 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		print_status('TestAddRemoveDummyProduct', 'test_add_remove()')
 
 		node = SupplyChainNode(4)
-		self.assertEqual(node.product_indices, [-4])
+		self.assertEqual(node.product_indices, [-8])
 		self.assertTrue(node.products[0].is_dummy)
 		self.assertEqual(node._dummy_product, node.products[0])
 
@@ -550,7 +550,7 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		self.assertIsNone(node._dummy_product)
 
 		node.remove_product(5)
-		self.assertEqual(node.product_indices, [-4])
+		self.assertEqual(node.product_indices, [-8])
 		self.assertTrue(node.products[0].is_dummy)
 		self.assertEqual(node._dummy_product, node.products[0])
 
@@ -582,9 +582,9 @@ class TestRemoveProducts(unittest.TestCase):
 		nodes[2].remove_products([1])
 		nodes[3].remove_products([nodes[3].products_by_index[2], 3])
 
-		self.assertEqual(nodes[1].product_indices, [-1])
-		self.assertEqual(nodes[2].product_indices, [-2])
-		self.assertEqual(nodes[3].product_indices, [-3])
+		self.assertEqual(nodes[1].product_indices, [-2])
+		self.assertEqual(nodes[2].product_indices, [-4])
+		self.assertEqual(nodes[3].product_indices, [-6])
 
 	def test_multiproduct_5_7(self):
 		"""Test remove_product() for 5-node 7-product instance.
