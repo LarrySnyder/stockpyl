@@ -1450,7 +1450,8 @@ class SupplyChainNode(object):
 		or a product-keyed dict. ``product`` may be either a |class_product| object or the index of the product.
 		
 			* If ``self.attr`` is a dict and contains the key ``product``, returns ``self.attr[product]``. 
-			(This returns a (node, product)-specific value of the attribute.)
+			``product`` must be the product index, in this case.
+			(This returns a (node, product)-specific value of the attribute.) 
 			* Else if ``self.attr`` equals its default value (e.g., ``None``), 
 			or is a dict but does not contain the key ``product``, returns
 			``self.products[product].attr``. (This returns a product-specific value of the attribute.)
@@ -1473,6 +1474,8 @@ class SupplyChainNode(object):
 		any
 			The value of the attribute for the product (if any).
 		"""
+		# TODO : allow product = None for single-product nodes.
+  
 		# Get self.attr and the product and index.
 		self_attr = getattr(self, attr)
 		if product is None:
@@ -1518,7 +1521,8 @@ class SupplyChainNode(object):
 				return self_attr
 
 	def _get_attribute_total(self, attribute, period, product_index=None, include_external=True):
-		"""Return total of ``attribute`` in the node's ``state_vars`` for the period and product specified, for an
+		"""Return total (over all successors/predecessors) of ``attribute`` in the node's ``state_vars`` 
+		for the period and product specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
 		``inbound_shipment``,`` on_order_by_predecessor``, ``inbound_order``, ``outbound_shipment``,
 		``backorders_by_successor``, ``outbound_disrupted_items``, ``inbound_disrupted_items``.

@@ -528,6 +528,8 @@ def _initialize_state_vars(network):
 				pred_index = n.raw_material_suppliers_by_raw_material(rm_index)[0]
 				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(
 								product_index=prod.index, predecessor_index=pred_index, rm_index=rm_index, inventory_position=0)
+				# Now divide by the NBOM becuase result from get_order_quantity() will be in units of the RM.
+				init_IL /= n.NBOM(product=prod, predecessor=pred_index, raw_material=rm_index) 
 			n.state_vars[0].inventory_level[prod.index] = init_IL
 
 			# Initialize inbound order pipeline. (Exclude external demand.)

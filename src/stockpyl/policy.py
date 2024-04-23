@@ -434,6 +434,11 @@ class Policy(object):
 				# external demand.
 				demand = self.node._get_attribute_total('inbound_order', self.node.network.period, product_index=product_index)
 
+				# Calculate total orders that have already been placed by this node to this supplier for this RM
+				# in the current time period (for other products at the node that use the same RM). These units
+				# will be included in IP_before_demand and so must be subtracted before setting the order quantity.
+				units_already_ordered = self.node.state_vars_current.order_quantity[predecessor_index][rm_index]
+
 				# Determine predecessor and RM index.
 				
 				# Calculate (local or echelon) inventory position, before demand is subtracted.
@@ -445,7 +450,7 @@ class Policy(object):
 						self.node.state_vars_current.inventory_position(prod_index=product_index, predecessor_index=predecessor_index, rm_index=rm_index)
 
 				# Calculate current inventory position, after demand is subtracted.
-				IP = IP_before_demand - demand
+				IP = IP_before_demand - demand - units_already_ordered
 
 		# Determine order quantity based on policy. This order quantity is in units of the product.
 		if self.type == 'BS':
