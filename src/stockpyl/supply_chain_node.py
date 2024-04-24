@@ -2161,7 +2161,8 @@ class NodeStateVars(object):
 
 	def inventory_position(self, prod_index=None, predecessor_index=None, rm_index=None):
 		"""Current local inventory position at node for product with index ``prod_index``. 
-		Equals inventory level plus on-order inventory.
+		Equals inventory level plus on-order inventory. Returns the inventory position in the units of the
+		downstream product, i.e., of ``prod_index``, not of ``rm_index``.
 
 		On-order includes raw material inventory that has not yet been processed, as
 		well as inbound disrupted items due to type-RP disruptions.
@@ -2216,18 +2217,19 @@ class NodeStateVars(object):
 				pred = self.node.network.get_node_from_index(predecessor_index)
 				rm_index = pred.product_indices[0]
 
+		# Determine total units of RM in the pipeline, converted to units of the downstream product.
 		if predecessor_index is not None:
-			return self.inventory_level[prod_index] \
-				+ self.on_order_by_predecessor[predecessor_index][rm_index] \
-				+ self.raw_material_inventory[rm_index] \
-				+ self.inbound_disrupted_items[predecessor_index][rm_index]
+			pipeline = (self.on_order_by_predecessor[predecessor_index][rm_index] \
+						+ self.raw_material_inventory[rm_index] \
+						+ self.inbound_disrupted_items[predecessor_index][rm_index]) \
+						/ self.node.NBOM(product=prod_index, predecessor=predecessor_index, raw_material=rm_index)
 		else:
-			# Note: If <=1 predecessor, raw_material_inventory should always = 0
-			# (because raw materials are processed right away).
-			return self.inventory_level[prod_index] \
-				+ self.on_order(prod_index=prod_index) \
-				+ self.raw_material_aggregate(prod_index=prod_index) \
-				+ self.inbound_disrupted_items_aggregate(prod_index=prod_index)
+			# These functions already convert to units of the downstream product.
+			pipeline = self.on_order(prod_index=prod_index) \
+						+ self.raw_material_aggregate(prod_index=prod_index) \
+						+ self.inbound_disrupted_items_aggregate(prod_index=prod_index)
+
+		return self.inventory_level[prod_index] + pipeline
 
 	@property
 	def echelon_on_hand_inventory(self):

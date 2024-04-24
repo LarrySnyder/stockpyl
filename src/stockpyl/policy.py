@@ -361,6 +361,10 @@ class Policy(object):
 		If the policy's ``node`` attribute is ``None``, assumes that the product and raw material have
 		a BOM number of 1.
 
+		Order quantity returned is in the units of ``rm_index``, not ``product_index``. For example, if
+		4 units of ``rm_index`` are required to make 1 unit of ``product_index``, and if we should increase
+		the inventory position of ``product_index`` by 5 units, then this function will return 20.
+
 		If ``inventory_position`` (and ``echelon_inventory_position_adjusted``, for
 		balanced echelon base-stock policies) are provided, they will override the
 		values indicated by the node's current state variables. This allows the
@@ -438,6 +442,8 @@ class Policy(object):
 				# in the current time period (for other products at the node that use the same RM). These units
 				# will be included in IP_before_demand and so must be subtracted before setting the order quantity.
 				units_already_ordered = self.node.state_vars_current.order_quantity[predecessor_index][rm_index]
+				# Convert to downstream units.
+				units_already_ordered /= NBOM
 
 				# Determine predecessor and RM index.
 				

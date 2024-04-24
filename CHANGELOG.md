@@ -16,6 +16,7 @@ a given number and return the corresponding value.
 ### Fixed
 - Bug in ``helpers.ensure_list_for_time_period()`` that caused it to handle numpy arrays improperly.
 - Bug in ``demand_source.py`` that sometimes caused infinite recursion when some attributes were ``None``.
+- Bug in ``sim_io.py`` that caused incorrect headers for a few state variables.
 
 ## [0.0.15] -- 2024-02-10
 
