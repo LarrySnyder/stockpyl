@@ -352,7 +352,8 @@ class Policy(object):
 	def get_order_quantity(self, product_index=None, predecessor_index=None, rm_index=None, inventory_position=None,
 						   echelon_inventory_position_adjusted=None):
 		"""Calculate order quantity using the policy type specified in ``type``.
-		If ``type`` is ``None``, return ``None``.
+		If ``type`` is ``None``, return ``None``. Returns order quantity in the units of the upstream product
+		(the raw material).
 
 		The method obtains the necessary state variables (typically inventory position,
 		and sometimes others) from ``self.node.network``. The order quantity is set using the
@@ -441,12 +442,21 @@ class Policy(object):
 				# Calculate total orders that have already been placed by this node to this supplier for this RM
 				# in the current time period (for other products at the node that use the same RM). These units
 				# will be included in IP_before_demand and so must be subtracted before setting the order quantity.
-				units_already_ordered = self.node.state_vars_current.order_quantity[predecessor_index][rm_index]
-				# Convert to downstream units.
+				# units_already_ordered = self.node.state_vars_current.order_quantity[predecessor_index][rm_index]
+				# # Convert to downstream units.
+				# units_already_ordered /= NBOM
+	
+				# Determine number of units of this raw material that are already spoken for (via pending_finished_goods)
+				# for all products at this node. First in units of the raw material:
+				units_already_ordered = 0
+				for prod in self.node.products: 
+					units_already_ordered += \
+						self.node.state_vars_current.pending_finished_goods[prod.index] \
+						* self.node.NBOM(product=prod.index, predecessor=predecessor_index, raw_material=rm_index)
+				# Then convert to units of this product:
 				units_already_ordered /= NBOM
-
-				# Determine predecessor and RM index.
 				
+
 				# Calculate (local or echelon) inventory position, before demand is subtracted.
 				if self.type in ('EBS', 'BEBS'):
 					IP_before_demand = \

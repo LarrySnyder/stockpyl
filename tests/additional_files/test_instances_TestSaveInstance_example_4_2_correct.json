@@ -1,1 +1,1 @@
-{"_id": "", "instances": [{"name": "test_example_4_2", "description": "this is test_example_4_2", "data": {"revenue": 1, "purchase_cost": 0.3, "salvage_value": 0.12, "demand_mean": 50, "demand_sd": 8}, "type": "dict"}], "last_updated": "2024-04-21 22:28:41.855000"}
+{"_id": "", "instances": [{"name": "test_example_4_2", "description": "this is test_example_4_2", "data": {"revenue": 1, "purchase_cost": 0.3, "salvage_value": 0.12, "demand_mean": 50, "demand_sd": 8}, "type": "dict"}], "last_updated": "2024-04-24 21:29:04.115019"}

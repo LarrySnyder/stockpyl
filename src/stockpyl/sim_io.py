@@ -34,6 +34,8 @@ The table has the following format:
 		  that cannot be received due to a type-RP disruption at the node
 		- ``RM:p``: number of items from predecessor ``p`` in raw-material inventory
 		  at node
+		- ``PFG:p``: number of items of product ``p`` that are pending, waiting to be
+		  processed from raw materials
 		- ``OS:s``: outbound shipment to successor ``s``
 		- ``DMFS``: demand met from stock at the node in the current period
 		- ``FR``: fill rate; cumulative from start of simulation to the current period
@@ -134,7 +136,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Determine columns to print.
 	if columns_to_print is None or columns_to_print == 'all' or 'all' in columns_to_print:
-		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'PFG', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
 	elif not is_list(columns_to_print) and isinstance(columns_to_print, str):
 		# columns_to_print is a string; put it in a list.
 		cols_to_print = [columns_to_print]
@@ -174,6 +176,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			if 'ISPL'	in cols_to_print: temp += ISPL
 			if 'IDI'	in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].inbound_disrupted_items) 
 			if 'RM'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].raw_material_inventory) 
+			if 'PFG'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].pending_finished_goods) 
 			if 'OS'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].outbound_shipment) 
 			if 'DMFS'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].demand_met_from_stock)
 			if 'FR'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].fill_rate)
@@ -206,6 +209,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		if 'ISPL' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
 		if 'IDI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_disrupted_items, "IDI")
 		if 'RM' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
+		if 'PFG' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].pending_finished_goods, "PFG")
 		if 'OS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
 		if 'DMFS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].demand_met_from_stock, "DMFS")
 		if 'FR'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].fill_rate, "FR")

@@ -1689,6 +1689,10 @@ class NodeStateVars(object):
 		``raw_material_inventory[prod]`` = number of units of product ``prod`` from _all_ predecessors 
 		in raw-material inventory at node. 
 		# TODO: note: this is a change, used to be indexed by predecessor
+	pending_finished_goods : dict
+		``pending_finished_goods[prod]`` = number of units of product ``prod`` that are waiting to be
+		produced from raw materials. (This is used internally to ensure that raw materials are used to produce
+		the finished goods that they were originally ordered for.)
 	disrupted : bool
 		``True`` if the node was disrupted in the period, ``False`` otherwise.
 	holding_cost_incurred : float
@@ -1805,6 +1809,7 @@ class NodeStateVars(object):
 			self.order_quantity = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
 			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
+			self.pending_finished_goods = {prod_index: 0 for prod_index in self.node.product_indices}
 
 			# Fill rate quantities.
 			self.demand_cumul = {prod_index: 0 for prod_index in self.node.product_indices}
@@ -1826,6 +1831,7 @@ class NodeStateVars(object):
 			self.inbound_disrupted_items = {}
 			self.order_quantity = {}
 			self.raw_material_inventory = {}
+			self.pending_finished_goods = {}
 
 		# Remaining state variables.
 		self.disrupted = False
@@ -2047,7 +2053,7 @@ class NodeStateVars(object):
 
 		total_on_order = np.sum([
 				self.on_order_by_predecessor[p][rm_index]
-				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
+				/ self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
 			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
 			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
 		])
@@ -2433,6 +2439,7 @@ class NodeStateVars(object):
 		sv_dict['inbound_disrupted_items'] = copy.deepcopy(self.inbound_disrupted_items)
 		sv_dict['order_quantity'] = copy.deepcopy(self.order_quantity)
 		sv_dict['raw_material_inventory'] = copy.deepcopy(self.raw_material_inventory)
+		sv_dict['pending_finished_goods'] = copy.deepcopy(self.pending_finished_goods)
 		sv_dict['inventory_level'] = self.inventory_level
 		sv_dict['disrupted'] = self.disrupted
 		sv_dict['holding_cost_incurred'] = self.holding_cost_incurred
@@ -2485,6 +2492,7 @@ class NodeStateVars(object):
 			nsv.inbound_disrupted_items = copy.deepcopy(the_dict['inbound_disrupted_items'])
 			nsv.order_quantity = copy.deepcopy(the_dict['order_quantity'])
 			nsv.raw_material_inventory = copy.deepcopy(the_dict['raw_material_inventory'])
+			nsv.pending_finished_goods = copy.deepcopy(the_dict['pending_finished_goods'])
 			nsv.inventory_level = the_dict['inventory_level']
 			nsv.disrupted = the_dict['disrupted']
 			nsv.holding_cost_incurred = the_dict['holding_cost_incurred']
@@ -2523,6 +2531,7 @@ class NodeStateVars(object):
 			old_rm_indices = list(self.raw_material_inventory.keys())
 			for rm_index in old_rm_indices:
 				change_dict_key(self.raw_material_inventory, rm_index, old_to_new_prod_dict[rm_index])
+			change_dict_key(self.pending_finished_goods, prod.index, old_to_new_prod_dict[prod.index])
 
 		# State variables indexed by predecessor.
 		for p in self.node.predecessors(include_external=True):
@@ -2602,6 +2611,7 @@ class NodeStateVars(object):
 		if self.inbound_disrupted_items != other.inbound_disrupted_items: return False
 		if self.order_quantity != other.order_quantity: return False
 		if self.raw_material_inventory != other.raw_material_inventory: return False
+		if self.pending_finished_goods != other.pending_finished_goods: return False
 		if self.inventory_level != other.inventory_level: return False
 		if self.disrupted != other.disrupted: return False
 		if self.holding_cost_incurred != other.holding_cost_incurred: return False
