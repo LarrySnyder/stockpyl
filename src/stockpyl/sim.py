@@ -217,12 +217,12 @@ def step(network, order_quantity_override=None, consistency_checks='W'):
 		String indicating whether to run consistency checks (backorder calculations) and what to do
 		if check fails. See docstring for :func:`~stockpyl.sim.simulation` for list of currently supported strings.
 	order_quantity_override : dict, optional
-		Nested dictionary such that order_quantity_override[node][rm] is an order quantity (or ``None``)
-		for each node in the network (specified as a |class_node| object) and for each raw material the node orders
-		(specified as a |class_product| object). 
+		Nested dictionary such that order_quantity_override[node][pred][rm] is an order quantity (or ``None``)
+		for each node in the network (specified as a |class_node| object), each predecessor (specified as a |class_node| 
+		object), and each raw material (specified as a |class_product| object) the node orders from that predecessor. 
 		If provided, these order quantities will override the order quantities that would otherwise be calculated for
-		the nodes/products. If the node has a single raw material, ``rm`` may be set to ``None`` and the
-		raw material will be determined automatically.
+		the nodes/products. If the node has a single predecessor and raw material, ``pred`` and ``rm`` may be set to ``None`` and
+		they will be determined automatically.
 	 	If ``order_quantity_override`` is provided but its value is ``None`` for a given
 		node, an order quantity will be calculated for that node as usual. (This option is mostly used
 		when running the simulation from outside the package, e.g., in a reinforcement learning environment;
@@ -341,16 +341,17 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 		Dictionary indicating whether each node in network has already been
 		visited by the depth-first search.
 	order_quantity_override : dict, optional
-		Nested dictionary such that order_quantity_override[node][rm] is an order quantity (or ``None``)
-		for each node in the network (specified as a |class_node| object) and for each raw material the node orders
-		(specified as a |class_product| object). 
+		Nested dictionary such that order_quantity_override[node][pred][rm] is an order quantity (or ``None``)
+		for each node in the network (specified as a |class_node| object), each predecessor (specified as a |class_node| 
+		object), and each raw material (specified as a |class_product| object) the node orders from that predecessor. 
 		If provided, these order quantities will override the order quantities that would otherwise be calculated for
-		the nodes/products. If the node has a single raw material, ``rm`` may be set to ``None`` and the
-		raw material will be determined automatically.
+		the nodes/products. If the node has a single predecessor and raw material, ``pred`` and ``rm`` may be set to ``None`` and
+		they will be determined automatically.
 	 	If ``order_quantity_override`` is provided but its value is ``None`` for a given
 		node, an order quantity will be calculated for that node as usual. (This option is mostly used
 		when running the simulation from outside the package, e.g., in a reinforcement learning environment;
 		it is analogous to setting the action for the current time period.)
+	# TODO: Change this so that order_quantity_override only specifies the FG quantity?
 	"""
 	# Did we already visit this node?
 	if visited[node_index]:
@@ -385,73 +386,120 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	for prod in node.products:
 		
 		# Get lead times and product index (for convenience).
+  # TODO: LTs should live with the RM, not the FG. Otherwise, different RMs can't have different LTs. (But this doesn't mean interpret LT as applying to the outbound link instead of the inbound.)
 		order_lead_time = node.get_attribute('order_lead_time', prod) or 0
 		shipment_lead_time = node.get_attribute('shipment_lead_time', prod) or 0
 		
-		# Determine order quantity.
+		# Determine order quantity, in FG units.
 		# Is there an order-pausing disruption?
 		if node.disrupted and node.disruption_process.disruption_type == 'OP':
-			order_quantity = 0
+			# Do nothing.
+			pass
 		else:
-			# Calculate order quantity.
+			# Shortcut to the policy.
 			policy = node.get_attribute('inventory_policy', product=prod)
 
 			# Determine node/product's order capacity.
 			order_capac = node.get_attribute('order_capacity', product=prod) or BIG_FLOAT
 
-			# Place orders to all raw material suppliers (predecessors that provide this product/node with
-			# a raw material).
-			for p in node.raw_material_suppliers_by_product(product_index=prod.index):
-				p_index = p.index if p is not None else None
+			# Get order quantities for all raw materials (expressed in units of RM).
+			# Dict returned also contains an order quantity for the FG, which will be used
+			# below to set pending_finished_goods.
+			order_quantity_dict = policy.get_order_quantity(product_index=prod.index, order_capacity=order_capac, include_raw_materials=True)
 
-				# Loop through products at predecessor.
-				for rm in (p.products if p is not None else [node._external_supplier_dummy_product]):
-					rm_index = rm.index
+			# Update FG order quantity and pending finished goods. (Convert to downstream units.)
+			node.state_vars_current.order_quantity_fg[prod.index] += order_quantity_dict[None][None]
+			node.state_vars_current.pending_finished_goods[prod.index] += order_quantity_dict[None][None]
 
-	 				# Calculate NBOM.
-					NBOM = node.NBOM(product=prod, predecessor=p, raw_material=rm)
-
+			# Place orders for all raw materials.
+			for rm in node.raw_materials_by_product(product_index=prod.index, network_BOM=True):
+				rm_index = rm.index
+				for p in node.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=True):
+					p_index = p.index if p is not None else None
+					
 					# Was an override order quantity provided?
 					try:
-						if None in order_quantity_override[node]:
-							qty_override = order_quantity_override[node][None]
+						if None in order_quantity_override[node] and None in order_quantity_override[node][None]:
+							qty_override = order_quantity_override[node][None][None]
 						else:
-							qty_override = order_quantity_override[node][rm]
+							qty_override = order_quantity_override[node][p][rm]
 					except:
 						qty_override = None
-					if qty_override is not None:
-						rm_order_quantity = qty_override
-						if NBOM == 0:
-							NBOM = 1 # TODO: This is klugey. Basically we need to determine how many FG to make if order quantity override is provided but there's no NBOM; maybe just raise an error in this case?
-						fg_order_quantity = qty_override / NBOM
-					elif NBOM == 0:
-						rm_order_quantity = 0
-						fg_order_quantity = 0
+					
+					if qty_override is not None:   
+						rm_OQ = qty_override
 					else:
-						# Calculate order quantity from policy, expressed in units of the raw material.
-						rm_order_quantity = policy.get_order_quantity(product_index=prod.index, predecessor_index=p_index, rm_index=rm_index)
-						fg_order_quantity = rm_order_quantity / NBOM
-						
-	 					# Adjust to account for order capacity.
-						fg_order_quantity = min(fg_order_quantity, order_capac)
-						rm_order_quantity = fg_order_quantity * NBOM
+						rm_OQ = order_quantity_dict[p_index][rm_index]
 
 					# Place order in predecessor's order pipeline (converting first to raw material units via BOM).
 	 				# (Add to any existing inbound order, because multiple products at the node can order the same RM.)
 					if p is not None:
-						p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] += rm_order_quantity
+						p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] += rm_OQ
 					else:
 						# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
-						node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += rm_order_quantity
+						node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += rm_OQ
 
 					# Record order quantity. (Add to existing order quantity, since multiple products might order the same RM from
 					# the same predecessor.)
-					node.state_vars_current.order_quantity[p_index][rm_index] += rm_order_quantity
+					node.state_vars_current.order_quantity[p_index][rm_index] += rm_OQ
 					# Add order to on_order_by_predecessor.
-					node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += rm_order_quantity
+					node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += rm_OQ
 
-					# Update pending finished goods. (Convert to downstream units.)
-					node.state_vars_current.pending_finished_goods[prod.index] += fg_order_quantity
+
+	
+			# # Place orders to all raw material suppliers (predecessors that provide this product/node with
+			# # a raw material).
+			# for p in node.raw_material_suppliers_by_product(product_index=prod.index):
+			# 	p_index = p.index if p is not None else None
+
+			# 	# Loop through products at predecessor.
+			# 	for rm in (p.products if p is not None else [node._external_supplier_dummy_product]):
+			# 		rm_index = rm.index
+
+	 		# 		# Calculate NBOM.
+			# 		NBOM = node.NBOM(product=prod, predecessor=p, raw_material=rm)
+
+			# 		# Was an override order quantity provided?
+			# 		try:
+			# 			if None in order_quantity_override[node]:
+			# 				qty_override = order_quantity_override[node][None]
+			# 			else:
+			# 				qty_override = order_quantity_override[node][rm]
+			# 		except:
+			# 			qty_override = None
+			# 		if qty_override is not None:
+			# 			rm_order_quantity = qty_override
+			# 			if NBOM == 0:
+			# 				NBOM = 1 # TODO: This is klugey. Basically we need to determine how many FG to make if order quantity override is provided but there's no NBOM; maybe just raise an error in this case?
+			# 			fg_order_quantity = qty_override / NBOM
+			# 		elif NBOM == 0:
+			# 			rm_order_quantity = 0
+			# 			fg_order_quantity = 0
+			# 		else:
+			# 			# Calculate order quantity from policy, expressed in units of the raw material.
+			# 			rm_order_quantity = policy.get_order_quantity(product_index=prod.index, predecessor_index=p_index, rm_index=rm_index)
+			# 			fg_order_quantity = rm_order_quantity / NBOM
+						
+	 		# 			# Adjust to account for order capacity.
+			# 			fg_order_quantity = min(fg_order_quantity, order_capac)
+			# 			rm_order_quantity = fg_order_quantity * NBOM
+
+			# 		# Place order in predecessor's order pipeline (converting first to raw material units via BOM).
+	 		# 		# (Add to any existing inbound order, because multiple products at the node can order the same RM.)
+			# 		if p is not None:
+			# 			p.state_vars_current.inbound_order_pipeline[node_index][rm_index][order_lead_time] += rm_order_quantity
+			# 		else:
+			# 			# Place order to external supplier. (For now, this just means adding to inbound shipment pipeline.)
+			# 			node.state_vars_current.inbound_shipment_pipeline[None][rm_index][order_lead_time + shipment_lead_time] += rm_order_quantity
+
+			# 		# Record order quantity. (Add to existing order quantity, since multiple products might order the same RM from
+			# 		# the same predecessor.)
+			# 		node.state_vars_current.order_quantity[p_index][rm_index] += rm_order_quantity
+			# 		# Add order to on_order_by_predecessor.
+			# 		node.state_vars_current.on_order_by_predecessor[p_index][rm_index] += rm_order_quantity
+
+			# 		# Update pending finished goods. (Convert to downstream units.)
+			# 		node.state_vars_current.pending_finished_goods[prod.index] += fg_order_quantity
 
 		
 def _generate_downstream_shipments(node_index, network, period, visited, consistency_checks='W'):
@@ -540,13 +588,7 @@ def _initialize_state_vars(network):
 			init_IL = n.get_attribute('initial_inventory_level', prod)
 			if init_IL is None:
 				# Choose a supplier and RM to use when getting an order quantity to set the initial IL.
-				# This is klugey -- TODO: set this better
-				rm_index = n.raw_material_indices_by_product(prod.index)[0]
-				pred_index = n.raw_material_suppliers_by_raw_material(rm_index)[0]
-				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(
-								product_index=prod.index, predecessor_index=pred_index, rm_index=rm_index, inventory_position=0)
-				# Now divide by the NBOM becuase result from get_order_quantity() will be in units of the RM.
-				init_IL /= n.NBOM(product=prod, predecessor=pred_index, raw_material=rm_index) 
+				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(product_index=prod.index, include_raw_materials=False, inventory_position=0)
 			n.state_vars[0].inventory_level[prod.index] = init_IL
 
 			# Initialize inbound order pipeline. (Exclude external demand.)
@@ -830,36 +872,71 @@ def _raw_materials_to_finished_goods(node):
 	# Make it an option to choose whether to allow this, or require integer multiples of the BOM number to
 	# be available, i.e., require integer number of items to be processed.
  
-	# Determine number of units of each product that can be processed. 
-	new_finished_goods = {}
-	for i, prod_index in enumerate(node.product_indices):
-		# Shortcut to product and BOM.
-		prod = node.products_by_index[prod_index]
-		BOM = {}
-		for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True):
-			BOM[rm_index] = prod.BOM(rm_index) 
-			if BOM[rm_index] == 0:
-				# Raw material is a dummy product (it's not in the product's BOM).
-				# BOM always = 1 in this case.
-				BOM[rm_index] = 1
+	# Shortcut to period.
+	period = node.network.period
 
-		# Determine number of available units of each raw material for this product,
-		# in units of the product.
-		avail_rm = {rm_index: node.state_vars_current.raw_material_inventory[rm_index] / BOM[rm_index]
-			  for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True)}
+	# Allocate available raw materials to products in proportion to each product's share of
+	# the order for that raw material that was placed LT periods ago.
+	share = {}
+	for rm_index in node.raw_material_indices_by_product(product_index='all', network_BOM=True):
+
+		# Shortcut to lead times. Note: This assumes that all products that use this RM have the
+		# same lead times. Currently no way to distinguish among products if they have different lead times.
+		# TODO: fix this
+		prod = node.products_by_raw_material(rm_index, network_BOM=True)[0]
+		OLT = node.get_attribute('order_lead_time', prod) or 0
+		SLT = node.get_attribute('shipment_lead_time', prod) or 0
+
+		# Determine number of units of this raw material available (in units of the RM).
+		avail_rm = node.state_vars_current.raw_material_inventory[rm_index]
+
+		# Shortcut to list of product indices for this RM.
+		prods_for_rm = node.product_indices_by_raw_material(rm_index, network_BOM=True)
+
+		# If avail_rm > 0, then we know period >= OLT + SLT.
+		if avail_rm > 0:
+			# Determine total order placed for this raw material LT periods ago.
+			units_ordered = sum([node.state_vars[period - OLT - SLT].order_quantity[pred_index][rm_index]
+									for pred_index in node.raw_material_supplier_indices_by_raw_material(rm_index, network_BOM=True)])
+			
+			# If units_ordered == 0, allocate into equal shares. (This can happen if the original
+			# order was backordered, or if there is initial RM at the start of the simulation.)
+			# TODO: allocate in a smarter way in this case?
+			if units_ordered == 0:
+				share_frac = {prod_index: 1 / len(prods_for_rm) for prod_index in prods_for_rm}
+			else:
+				# TODO: what if order_quantity_fg = 0 (e.g., because of backorders)?
+				share_frac = {prod_index: node.state_vars[period - OLT - SLT].order_quantity_fg[prod_index] \
+											* node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index) \
+											/ units_ordered for prod_index in prods_for_rm}
+			
+			# Determine each product's share of this raw material.
+			share[rm_index] = {prod_index: avail_rm * share_frac[prod_index] for prod_index in prods_for_rm}
+		else:
+			share[rm_index] = {prod_index: 0 for prod_index in prods_for_rm}
 		
-		# Determine number of finished goods to make: min of min RM available and pending FG, 
-		# unless this is the last product to process, in which case process as many RM as possible.
+		# If share doesn't sum to 1, allocate the remaining units to an arbitrary product.
+		# (I don't think this should ever happen, except maybe because of rounding.)
+		extra = avail_rm - sum([share[rm_index][prod_index] for prod_index in prods_for_rm])
+		if extra > 0:
+			share[rm_index][prods_for_rm[0]] + extra
+
+	# Determine number of units of each product that can be processed.
+	new_finished_goods = {}
+	for prod_index in node.product_indices:
+		# Determine number of FGunits that can be produced; it equals the min, over all
+		# RMs for the product, of the product's share of that RM, expressed in FG units.
+		avail_rm = {rm_index: share[rm_index][prod_index] / node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index)
+					for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True)}
 		num_to_make = min(avail_rm.values())
-		if i < len(node.product_indices) - 1:
-			num_to_make = min(num_to_make, node.state_vars_current.pending_finished_goods[prod_index])
 	
 		# Number of finished goods = min of min RM available and pending FG.
 		new_finished_goods[prod_index] = num_to_make
 
 		# Process units: remove from raw material and add to finished goods.
 		for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True):
-			node.state_vars_current.raw_material_inventory[rm_index] -= num_to_make * BOM[rm_index]
+			node.state_vars_current.raw_material_inventory[rm_index] \
+				-= num_to_make * node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index)
 		node.state_vars_current.inventory_level[prod_index] += num_to_make
 
 		# Subtract units from pending_finished_goods.

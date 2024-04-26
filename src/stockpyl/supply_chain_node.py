@@ -535,14 +535,19 @@ class SupplyChainNode(object):
 		return SupplyChainNode._dummy_product_index_from_node_index(node_index) - 1
 		
 	def get_network_bill_of_materials(self, product=None, predecessor=None, raw_material=None):
-		"""Return the "network bill of materials," i.e., the number of units of ``raw_material`` 
+		"""Return the "network bill of materials" (NBOM) i.e., the number of units of ``raw_material`` 
 		from ``predecessor`` that are required to make one unit of ``product`` at this node,
 		accounting for network structure. In particular, if _no_ raw materials at the predecessor
 		have a BOM relationship with _any_ product at the node, then _every_ raw material at the predecessor is assigned a BOM
 		number of 1 for _every_ product at the node. (In particular, this allows single-product networks to
 		be constructed without adding any products to the network.)
 
-		``product``, ``predecessor``, and ``raw_material`` may be indices or objects.
+		``product``, ``predecessor``, and ``raw_material`` may be indices or objects. Set ``predecessor`` to ``None`` to
+		determine the predecessor automatically: Either the external supplier (if ``raw_material`` is
+		``None`` or the index of the dummy product at the external supplier) or the unique predecessor that provides a given
+		dummy product (if ``raw_material`` is a dummy product), or an arbitrary predecessor (if ``raw_material`` is not a
+		dummy product, because in this case the NBOM equals the BOM--it is product-specific, not node-specific, so
+		the predecessor is irrelevant). # TODO: make sure this covers all the cases
 			
 		Raises a ``ValueError`` if ``product`` is not a product at the node, ``raw_material`` is
 		not a product at ``predecessor``, or ``predecessor`` is not a predecessor of the node.
@@ -588,18 +593,31 @@ class SupplyChainNode(object):
 		else:
 			prod = self.network.products_by_index[product]
 			prod_ind = product
-		if isinstance(predecessor, SupplyChainNode):
-			pred = predecessor
-			pred_ind = predecessor.index
-		else:
-			pred = None if predecessor is None else self.network.get_node_from_index(predecessor)
-			pred_ind = predecessor
+
 		if isinstance(raw_material, SupplyChainProduct):
 #			rm = raw_material
 			rm_ind = raw_material.index
 		else:
 #			rm = None if raw_material is None else self.network.products_by_index[raw_material]
 			rm_ind = raw_material
+
+		# TODO: unit tests for this part
+		if isinstance(predecessor, SupplyChainNode):
+			pred = predecessor
+			pred_ind = predecessor.index
+		elif predecessor is None:
+			if rm_ind == self._external_supplier_dummy_product.index:
+				pred = None
+				pred_ind = None
+			# elif rm.is_dummy:
+			# 	pred = rm.handling_nodes[0]
+			else:
+				# This works for the case in which rm is a dummy product or a regular product.
+				pred = self.raw_material_suppliers_by_raw_material(rm_ind, network_BOM=True)[0]
+				pred_ind = pred.index if pred is not None else None
+		else:
+			pred = self.network.get_node_from_index(predecessor)
+			pred_ind = predecessor
 
 		# Validate parameters.
 		if prod_ind not in self.product_indices:
@@ -651,7 +669,7 @@ class SupplyChainNode(object):
 		Returns
 		-------
 		list
-			List of all raw materials required to make all products at the node.
+			List of all raw materials required to make the product at the node.
 
 		Raises
 		------
@@ -706,7 +724,7 @@ class SupplyChainNode(object):
 		Returns
 		-------
 		list
-			List of indices of all raw materials required to make all products at the node.
+			List of indices of all raw materials required to make the product at the node.
 
 		Raises
 		------
@@ -924,6 +942,81 @@ class SupplyChainNode(object):
 			If ``rm_index is None`` and the node requires more than one raw material.
 		"""
 		return [(s.index if s is not None else None) for s in self.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=network_BOM)]
+
+	def products_by_raw_material(self, rm_index=None, network_BOM=True):
+		"""A list of all products that use raw material with index ``rm_index`` at the node, 
+		as as |class_prod| objects. If the node has a single raw material (either dummy or real), either set
+		``rm_index`` to the index of the single raw material, or to ``None`` and the function
+		will determine the index automatically. 
+ 
+		If ``network_BOM`` is ``True``, includes products that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) Read only.
+
+		Parameters
+		----------
+		rm_index : int, optional
+			The raw material index, or ``None`` if the node has a single raw material.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+
+		Returns
+		-------
+		list
+			List of all products that use the raw material at the node.
+
+		Raises
+		------
+		ValueError
+			If ``rm_index`` is not found among the node's raw materials, and it's not the case that ``rm_index is None`` and
+			this node has a single raw material.
+		"""
+		# TODO: unit tests
+  
+		# If rm_index is not in raw material indices for node, AND it's not the case that this node has a single raw material
+		# and rm_index is None, raise exception.
+		all_rms = self.raw_material_indices_by_product('all', network_BOM=True)
+		if not (len(all_rms) == 1 and rm_index is None) and rm_index not in all_rms:
+			raise ValueError(f'{rm_index} is not a raw material index in this SupplyChainNode')
+
+		# If rm_index is None, determine which rm_index to use.
+		if rm_index is None:
+			rm_index = all_rms[0]
+		
+		if network_BOM:
+			return [prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_index) > 0]
+		else:
+			return [prod for prod in self.products if prod.BOM(rm_index=rm_index) > 0]
+
+	def product_indices_by_raw_material(self, rm_index=None, network_BOM=True):
+		"""A list of indices of all products that use raw material with index ``rm_index`` at the node, 
+		as as |class_prod| objects. If the node has a single raw material (either dummy or real), either set
+		``rm_index`` to the index of the single raw material, or to ``None`` and the function
+		will determine the index automatically. 
+ 
+		If ``network_BOM`` is ``True``, includes products that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) Read only.
+
+		Parameters
+		----------
+		rm_index : int, optional
+			The raw material index, or ``None`` if the node has a single raw material.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+
+		Returns
+		-------
+		list
+			List of indices of all products that use the raw material at the node.
+
+		Raises
+		------
+		ValueError
+			If ``rm_index`` is not found among the node's raw materials, and it's not the case that ``rm_index is None`` and
+			this node has a single raw material.
+		"""
+		return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index, network_BOM=network_BOM)]
 
 	# Properties related to lead times.
 
@@ -1717,8 +1810,10 @@ class NodeStateVars(object):
 		If node is single product, ``prod=None``.
 	order_quantity : dict
 		``order_quantity[p][prod]`` = order quantity for product ``prod`` placed by the node to
-		predecessor ``p`` in period. If ``p`` is ``None``, refers to external supplir. If ``p`` is external
-		supplier or single-product, ``prod=None``.
+		predecessor ``p`` in period. If ``p`` is ``None``, refers to external supplier. 
+	order_quantity_fg : dict
+		``order_quantity_fg[prod]`` = finished-goods order quantity for product ``prod`` at the 
+		node in period.
 	"""
 
 	def __init__(self, node=None, period=None):
@@ -1809,6 +1904,7 @@ class NodeStateVars(object):
 			self.order_quantity = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
 			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
+			self.order_quantity_fg = {prod_index: 0 for prod_index in self.node.product_indices}
 			self.pending_finished_goods = {prod_index: 0 for prod_index in self.node.product_indices}
 
 			# Fill rate quantities.
@@ -1831,6 +1927,7 @@ class NodeStateVars(object):
 			self.inbound_disrupted_items = {}
 			self.order_quantity = {}
 			self.raw_material_inventory = {}
+			self.order_quantity_fg = {}
 			self.pending_finished_goods = {}
 
 		# Remaining state variables.
@@ -2165,7 +2262,78 @@ class NodeStateVars(object):
 		else:
 			return total_disrupted_items / len(self.node.raw_materials_by_product(product_index=prod_index, network_BOM=True))
 
-	def inventory_position(self, prod_index=None, predecessor_index=None, rm_index=None):
+
+	def inventory_position(self, prod_index=None, exclude_earmarked_units=False):
+		"""Current (local) inventory position at node for product with index ``prod_index``. 
+		Equals inventory level plus pipeline inventory. (Pipeline inventory equals on-order inventory of the raw material,
+		raw material inventory that has not yet been processed, and inbound disrupted items of the
+		raw material due to type-RP disruptions). Inventory position is expressed in the units of the product
+		(not the raw materials).
+
+		If the product uses multiple raw materials, the pipeline inventory is the maximum number
+		of units of the product that can be produced, given the quantities of raw materials in the pipeline.
+		For example, suppose product A requires 10 units of product B and 5 units of product C; there are
+		4 units of product A on hand; and there are 20 units of product B and 15 units of product C in the pipeline.
+		The the inventory level is 4, and the pipeline inventory contains enough raw materials to make 2 units 
+		of product A. So, the inventory position is 6.
+
+		If ``exclude_earmarked_units`` is ``True``, raw materials that are already "earmarked" for a different 
+		product at this node are excluded from the pipeline inventory. In particular, the pipeline of a given
+		raw material is reduced by the sum, over all _other_ products at the node, of the number of units
+		of that product that are pending times the NBOM for that product/raw material.
+
+		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
+		and the function will determine the index automatically. If the node is multi-product, ``prod_index`` must be
+		set to the index of a single product at the node.
+
+		If the node has multiple products that use the same raw material, the inventory position returned by this function includes all units of that
+		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+
+		Parameters
+		----------
+		prod_index : int, optional
+			The product index, or ``None`` to set the product automatically if node is single-product.
+
+		Returns
+		-------
+		float
+			The inventory position.
+		"""
+
+		# Determine product index.
+		prod_index = prod_index or self.node.product_indices[0]
+
+		# Determine total units of each RM in the pipeline, converted to units of the downstream product.
+		pipeline = {}
+		for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True):
+			# Calculate pipeline, in upstream units.
+			pipeline[rm_index] = self.raw_material_inventory[rm_index]
+			for pred_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
+				pipeline[rm_index] += (self.on_order_by_predecessor[pred_index][rm_index] \
+										+ self.inbound_disrupted_items[pred_index][rm_index])
+			
+			# Subtract earmarked units, if requested.
+			if exclude_earmarked_units:
+				for other_prod_index in self.node.product_indices:
+					if other_prod_index != prod_index:
+						# Get any RM supplier to use for NBOM -- # TODO: handle this better
+						pred_index = self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)[0]
+						# Calculate number of earmarked units.
+						earmarked_units = self.node.state_vars_current.pending_finished_goods[other_prod_index] \
+											* self.node.NBOM(product=other_prod_index, predecessor=pred_index, raw_material=rm_index)
+						# Subtract earmarked units from pipeline.
+						# TODO: is it correct to take the max with 0? If it would be <0 should we treat it sort of like a backorder? Can this even happen?
+						pipeline[rm_index] = max(0, pipeline[rm_index] - earmarked_units)
+
+			# Convert to downstream units.
+			pipeline[rm_index] /= self.node.NBOM(product=prod_index, predecessor=pred_index, raw_material=rm_index)
+
+		# Determine number of units of FG that can be made from pipeline inventory.
+		units_from_pipeline = min(pipeline.values())
+
+		return self.inventory_level[prod_index] + units_from_pipeline
+	
+	def _inventory_position_old(self, prod_index=None, predecessor_index=None, rm_index=None):
 		"""Current local inventory position at node for product with index ``prod_index``. 
 		Equals inventory level plus on-order inventory. Returns the inventory position in the units of the
 		downstream product, i.e., of ``prod_index``, not of ``rm_index``.
@@ -2438,6 +2606,7 @@ class NodeStateVars(object):
 		sv_dict['outbound_disrupted_items'] = copy.deepcopy(self.outbound_disrupted_items)
 		sv_dict['inbound_disrupted_items'] = copy.deepcopy(self.inbound_disrupted_items)
 		sv_dict['order_quantity'] = copy.deepcopy(self.order_quantity)
+		sv_dict['order_quantity_fg'] = copy.deepcopy(self.order_quantity_fg)
 		sv_dict['raw_material_inventory'] = copy.deepcopy(self.raw_material_inventory)
 		sv_dict['pending_finished_goods'] = copy.deepcopy(self.pending_finished_goods)
 		sv_dict['inventory_level'] = self.inventory_level
@@ -2491,6 +2660,7 @@ class NodeStateVars(object):
 			nsv.outbound_disrupted_items = copy.deepcopy(the_dict['outbound_disrupted_items'])
 			nsv.inbound_disrupted_items = copy.deepcopy(the_dict['inbound_disrupted_items'])
 			nsv.order_quantity = copy.deepcopy(the_dict['order_quantity'])
+			nsv.order_quantity_fg = copy.deepcopy(the_dict['order_quantity_fg'])
 			nsv.raw_material_inventory = copy.deepcopy(the_dict['raw_material_inventory'])
 			nsv.pending_finished_goods = copy.deepcopy(the_dict['pending_finished_goods'])
 			nsv.inventory_level = the_dict['inventory_level']
@@ -2531,6 +2701,7 @@ class NodeStateVars(object):
 			old_rm_indices = list(self.raw_material_inventory.keys())
 			for rm_index in old_rm_indices:
 				change_dict_key(self.raw_material_inventory, rm_index, old_to_new_prod_dict[rm_index])
+			change_dict_key(self.order_quantity_fg, prod.index, old_to_new_prod_dict[prod.index])
 			change_dict_key(self.pending_finished_goods, prod.index, old_to_new_prod_dict[prod.index])
 
 		# State variables indexed by predecessor.
@@ -2610,6 +2781,7 @@ class NodeStateVars(object):
 		if self.outbound_disrupted_items != other.outbound_disrupted_items: return False
 		if self.inbound_disrupted_items != other.inbound_disrupted_items: return False
 		if self.order_quantity != other.order_quantity: return False
+		if self.order_quantity_fg != other.order_quantity_fg: return False
 		if self.raw_material_inventory != other.raw_material_inventory: return False
 		if self.pending_finished_goods != other.pending_finished_goods: return False
 		if self.inventory_level != other.inventory_level: return False

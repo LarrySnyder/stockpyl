@@ -24,6 +24,7 @@ The table has the following format:
 		  quantities arriving from succesor ``s`` in ``r`` periods from the
 		  period, for ``r`` = 1, ..., ``order_lead_time``
 		- ``OQ:p``: order quantity placed to predecessor ``p`` in the period
+		# TODO: OQFG
 		- ``OO:p``: on-order quantity (items that have been ordered from successor
 		  ``p`` but not yet received) 
 		- ``IS:p``: inbound shipment received from predecessor ``p`` 

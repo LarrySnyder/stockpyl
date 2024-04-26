@@ -504,7 +504,7 @@ class TestMultiproductSimulation(unittest.TestCase):
         nodes[12].inventory_policy = Policy(type='BS', base_stock_level=100, node=nodes[12])
 
         total_cost = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
-#        write_results(network=network, num_periods=100, columns_to_print=['basic', 'costs'], write_txt=True, txt_filename='temp.txt')
+        write_results(network=network, num_periods=100, columns_to_print=['basic', 'costs'], write_txt=True, txt_filename='temp.txt')
 
         # Compare total cost.
         self.assertEqual(total_cost, 1884)
@@ -558,7 +558,7 @@ class TestMultiproductSimulation(unittest.TestCase):
         T = 100
 
         orig_cost = simulation(orig_network, T, rand_seed=17, progress_bar=False, consistency_checks='E')
-#        write_results(network=orig_network, num_periods=T, columns_to_print=['basic'], write_txt=True, txt_filename='temp_orig.txt')
+        # write_results(network=orig_network, num_periods=T, columns_to_print=['basic', 'RM'], write_txt=True, txt_filename='temp_orig.txt')
 
         # Next build multi-product version of system.
         network = serial_system(
@@ -633,7 +633,7 @@ class TestMultiproductSimulation(unittest.TestCase):
 
         # Simulate multi-product network.
         cost = simulation(network, T, rand_seed=17, progress_bar=False, consistency_checks='E')
-#        write_results(network=network, num_periods=T, columns_to_print=['basic'], write_txt=True, txt_filename='temp_new.txt')
+#        write_results(network=network, num_periods=T, columns_to_print=['basic', 'RM'], write_txt=True, txt_filename='temp_new.txt')
 
         # Map (node, product, pred, rm) in original network to new network.
         rm_mapping = {
@@ -725,8 +725,8 @@ class TestStepByStepSimulation(unittest.TestCase):
         for t in range(T):
             if t == 40:
                 step(network2, consistency_checks='E', order_quantity_override={
-                    nodes2[2]: {nodes2[3]._dummy_product: 33},
-                    nodes2[3]: {nodes2[3]._external_supplier_dummy_product: 77},
+                    nodes2[2]: {nodes2[3]: {nodes2[3]._dummy_product: 33}},
+                    nodes2[3]: {nodes2[3]: {nodes2[3]._external_supplier_dummy_product: 77}}
                 })
             else:
                 step(network2, consistency_checks='E')

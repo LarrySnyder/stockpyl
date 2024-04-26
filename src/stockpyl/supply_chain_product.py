@@ -351,9 +351,8 @@ class SupplyChainProduct(object):
 		"""A list of all nodes in the network that handle this product, 
 		as |class_node| objects. Read only.
 		"""		
-		# TODO:
-#		return [node for node in self.network.nodes if .......]
-		pass
+		# TODO: unit tests
+		return [node for node in self.network.nodes if self in node.products]
 	
 	@property
 	def handling_node_indices(self):

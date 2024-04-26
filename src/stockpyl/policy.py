@@ -349,7 +349,178 @@ class Policy(object):
 
 	# ORDER QUANTITY METHODS
 
-	def get_order_quantity(self, product_index=None, predecessor_index=None, rm_index=None, inventory_position=None,
+	def get_order_quantity(self, product_index=None, order_capacity=None, include_raw_materials=False,
+		inventory_position=None, echelon_inventory_position_adjusted=None):
+		"""Calculate order quantity for the product using the policy type specified in ``type``.
+		If ``type`` is ``None``, return ``None``. 
+		
+		If ``include_raw_materials`` is ``False`` (the default), returns a singleton that equals the order
+		quantity for ``product_index``. If ``include_raw_materials`` is ``True``, returns 
+		a nested dict such that ``get_order_quantity[p][rm]`` is the order
+		quantity to place to predecessor ``p`` for product ``rm``, expressed in units of ``rm``. 
+		The dict includes an entry in which ``pred`` and ``rm`` are both ``None``, which corresponds to the order quantity 
+		of the product itself, expressed in units of the product.
+
+		If ``order_capacity`` is provided, the FG order quantity returned will not exceed this capacity,
+		and the RM order quantities will be scaled accordingly.
+
+		If there are multiple predecessors that supply the same raw material, this function will, in general,
+		order all required units of that raw material from a single supplier. The function can be overloaded to
+		specify an allocation rule. # TODO: Handle this differently?
+		
+		The method obtains the necessary state variables (typically inventory position,
+		and sometimes others) from ``self.node.network``. The order quantities are set using the
+		bill of materials structure for the node/product.
+
+		If the policy's ``node`` attribute is ``None``, the returned dict only contains ``product_index`` itself,
+		no raw materials.
+
+		If ``inventory_position`` (and ``echelon_inventory_position_adjusted``, for
+		balanced echelon base-stock policies) are provided, they will override the
+		values indicated by the node's current state variables. This allows the
+		policy to be queried for an order quantity even if no node/product or network are
+		provided or have no state variables objects. If ``inventory_position``
+		and ``echelon_inventory_position_adjusted`` are ``None``
+		(which is the typical use case), the current state variables will be used.
+
+		Parameters
+		----------
+		product_index : int, optional
+			The index of the product for which the order quantity should be calculated.
+			If the node is single-product, either set ``product_index`` to the index of the single product, 
+			or to ``None`` and the function will determine the index automatically. 
+		order_capacity : float, optional
+			Maximum number of units of ``product_index`` that can be ordered in the current period.
+		include_raw_materials : bool, optional
+			If ``False``, the function will return the order quantity for ``product_index``, as a 
+			singleton float. If ``True``, the function will return a dict indicating the order quantities
+			for all raw materials and predecessors.
+		inventory_position : float, optional
+			Inventory position immediately before order is placed (after demand is subtracted).
+			If provided, the policy will use this IP instead of the IP indicated by the
+			current state variables.
+		echelon_inventory_position_adjusted : float, optional
+			Adjusted echelon inventory position at node i+1, where i is the current node.
+			If provided, the policy will use this EIPA instead of the EIPA indicated by
+			current state variables. Used only for balanced echelon base-stock policies.
+
+		Returns
+		-------
+		order_quantity : float or dict
+			The order quantity for ``product_index`` if ``include_raw_materials`` is ``False``; or, if 
+			``include_raw_materials`` is ``True``, a nested
+			dict such that ``get_order_quantity[p][rm]`` is the order quantity to place to predecessor ``p`` 
+			for product ``rm``, expressed in units of ``rm``. The dict includes an entry in which ``pred`` and ``rm`` 
+			are both ``None``, which corresponds to the order quantity of the product itself, expressed in units of the product.
+
+		Raises
+		------
+		AttributeError
+			If the policy's ``node`` attribute (or ``product`` attribute, if ``node`` is multi-product)
+			is ``None`` and ``inventory_position`` or other required state variables are ``None``.
+		"""
+		if self.type is None:
+			return None
+		
+		# Calculate IP.
+		if inventory_position is not None:
+			# inventory_position was provided -- use it.
+			IP = inventory_position
+		else:
+			if self.type == 'FQ':
+				# Fixed-quantity policy does not need inventory position.
+				IP = None
+			else:
+				# Make sure node attribute is set or inventory_position is provided.
+				if self.node is None:
+					raise AttributeError("You must either provide inventory_position or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
+				if self.node.is_multiproduct and self.product is None:
+					raise AttributeError("You must either provide inventory_position or set the product attribute of the Policy object to the product that it refers to (since the node is multi-product). (Usually this shoudl be done when you first creat the Policy object.)")
+
+				# Calculate total demand (inbound orders), including successor nodes and
+				# external demand, in FG units.
+				demand = self.node._get_attribute_total('inbound_order', self.node.network.period, product_index=product_index)
+
+				# Calculate (local or echelon) inventory position, before demand is subtracted. Exclude from pipeline
+				# RM units that are "earmarked" for other products at this node.
+				if self.type in ('EBS', 'BEBS'):
+					# TODO: handle this case (for now, just setting pred_index and rm_index to None)
+	 				# TODO: handle exclude_earmarked_units
+					IP_before_demand = \
+						self.node.state_vars_current.echelon_inventory_position(prod_index=product_index, predecessor_index=None, rm_index=None)
+				else:
+					IP_before_demand = \
+						self.node.state_vars_current.inventory_position(prod_index=product_index, exclude_earmarked_units=True)
+
+				# Calculate current inventory position, after demand is subtracted.
+				IP = IP_before_demand - demand
+ 
+		# Determine order quantity based on policy. This order quantity is in units of the product.
+		if self.type == 'BS':
+			OQ = self._get_order_quantity_base_stock(IP)
+		elif self.type == 'sS':
+			OQ = self._get_order_quantity_s_S(IP)
+		elif self.type == 'rQ':
+			OQ = self._get_order_quantity_r_Q(IP)
+		elif self.type == 'FQ':
+			OQ = self._get_order_quantity_fixed_quantity()
+		elif self.type == 'EBS':
+			OQ = self._get_order_quantity_echelon_base_stock(IP)
+		elif self.type == 'BEBS':
+			# Make sure node attribute is set or inventory_position is provided.
+			if self.node is None and echelon_inventory_position_adjusted is None:
+				raise AttributeError("You must either provide echelon_inventory_position_adjusted or set the node attribute of the Policy object to the node that it refers to. (Usually this should be done when you first create the Policy object.)")
+
+			# Was EIPA provided?
+			if echelon_inventory_position_adjusted is not None:
+				EIPA = echelon_inventory_position_adjusted
+			else:
+				# Determine partner node and adjusted echelon inventory position.
+				if self.node.index == max(self.node.network.node_indices):
+					EIPA = np.inf
+				else:
+					partner_node = self.node.network.get_node_from_index(self.node.index + 1)
+					EIPA = partner_node.state_vars_current._echelon_inventory_position_adjusted()
+
+			OQ = self._get_order_quantity_balanced_echelon_base_stock(IP, EIPA)
+		else:
+			OQ = None
+		
+		# Adjust OQ to account for capacity, if provided.
+		if order_capacity is not None:
+			OQ = min(OQ, order_capacity)
+	
+		# Include raw materials?
+		if not include_raw_materials:
+			return OQ
+		else:
+			# Initialize returned dict with FG order quantity.
+			OQ_dict = {None: {None: OQ}}
+
+			# Loop through raw materials and predecessors, and calculate order quantities for each.
+			if OQ is not None:
+				for rm_index in self.node.raw_material_indices_by_product(product_index):
+					for pred_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index):
+
+						# Calculate total orders that have already been placed by this node to this supplier for this RM
+						# in the current time period (for other products at the node that use the same RM). These units
+						# will be included in IP_before_demand and so must be added to the order quantity.
+#						units_already_ordered = self.node.state_vars_current.order_quantity[pred_index][rm_index]
+
+						# Create key for pred in outer level of dict, if it doesn't already exist.
+						if pred_index not in OQ_dict:
+							OQ_dict[pred_index] = {}
+
+						# Convert OQ to raw material units and add it to OQ_dict.
+						OQ_dict[pred_index][rm_index] = \
+							OQ * self.node.NBOM(product=product_index, predecessor=pred_index, raw_material=rm_index)
+						# # Convert OQ to raw material units, adjust for units_already_ordered, and add it to OQ_dict.
+						# OQ_dict[pred_index][rm_index] = units_already_ordered + \
+						# 	OQ * self.node.NBOM(product=product_index, predecessor=pred_index, raw_material=rm_index)
+
+			return OQ_dict
+	
+	def _get_order_quantity_old(self, product_index=None, predecessor_index=None, rm_index=None, inventory_position=None,
 						   echelon_inventory_position_adjusted=None):
 		"""Calculate order quantity using the policy type specified in ``type``.
 		If ``type`` is ``None``, return ``None``. Returns order quantity in the units of the upstream product
@@ -445,6 +616,8 @@ class Policy(object):
 				# units_already_ordered = self.node.state_vars_current.order_quantity[predecessor_index][rm_index]
 				# # Convert to downstream units.
 				# units_already_ordered /= NBOM
+	
+	# TODO: should units_already_ordered and IP_before_demand really happen outside the policy? Policy should maybe just take IP as an input.
 	
 				# Determine number of units of this raw material that are already spoken for (via pending_finished_goods)
 				# for all products at this node. First in units of the raw material:
