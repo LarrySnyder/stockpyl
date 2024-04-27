@@ -726,7 +726,7 @@ class TestStepByStepSimulation(unittest.TestCase):
             if t == 40:
                 step(network2, consistency_checks='E', order_quantity_override={
                     nodes2[2]: {nodes2[3]: {nodes2[3]._dummy_product: 33}},
-                    nodes2[3]: {nodes2[3]: {nodes2[3]._external_supplier_dummy_product: 77}}
+                    nodes2[3]: {None: {nodes2[3]._external_supplier_dummy_product: 77}}
                 })
             else:
                 step(network2, consistency_checks='E')

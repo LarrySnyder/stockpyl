@@ -412,6 +412,7 @@ class SaveInstance(unittest.TestCase):
 			del correct_json['last_updated']
 
 			# Compare.
+			self.maxDiff = None
 			self.assertDictEqual(saved_json, correct_json)
 
 		finally:
