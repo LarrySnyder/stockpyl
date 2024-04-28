@@ -149,6 +149,44 @@ class TestInitialize(unittest.TestCase):
 		ds1.initialize()
 		self.assertEqual(ds1, ds2)
 
+
+class TestIsDiscrete(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsDiscrete', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsDiscrete', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test that initialize() correctly initializes.
+		"""
+		print_status('TestIsDiscrete', 'test_copy()')
+
+		ds = DemandSource(type='N')
+		self.assertFalse(ds.is_discrete)
+
+		ds.type = 'P'
+		self.assertTrue(ds.is_discrete)
+
+		ds.type = 'UD'
+		self.assertTrue(ds.is_discrete)
+
+		ds.type = 'UC'
+		self.assertFalse(ds.is_discrete)
+
+		ds.type = 'NB'
+		self.assertTrue(ds.is_discrete)
+
+		ds.type = 'D'
+		self.assertTrue(ds.is_discrete)
+
+		ds.type = 'CD'
+		self.assertTrue(ds.is_discrete)
+
 class TestMean(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

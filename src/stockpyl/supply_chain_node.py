@@ -233,7 +233,6 @@ class SupplyChainNode(object):
 		self._index = value
 
 		# If node has a dummy product, replace it with a new one to update its index.
-		# TODO: this is clumsy -- do these values really need to change if index changes? and if so, is this really the way to do it?
 		if self._dummy_product:
 			self._remove_dummy_product()
 			self._add_dummy_product()
@@ -547,7 +546,7 @@ class SupplyChainNode(object):
 		``None`` or the index of the dummy product at the external supplier) or the unique predecessor that provides a given
 		dummy product (if ``raw_material`` is a dummy product), or an arbitrary predecessor (if ``raw_material`` is not a
 		dummy product, because in this case the NBOM equals the BOM--it is product-specific, not node-specific, so
-		the predecessor is irrelevant). # TODO: make sure this covers all the cases
+		the predecessor is irrelevant). 
 			
 		Raises a ``ValueError`` if ``product`` is not a product at the node, ``raw_material`` is
 		not a product at ``predecessor``, or ``predecessor`` is not a predecessor of the node.
@@ -601,7 +600,6 @@ class SupplyChainNode(object):
 #			rm = None if raw_material is None else self.network.products_by_index[raw_material]
 			rm_ind = raw_material
 
-		# TODO: unit tests for this part
 		if isinstance(predecessor, SupplyChainNode):
 			pred = predecessor
 			pred_ind = predecessor.index
@@ -609,8 +607,6 @@ class SupplyChainNode(object):
 			if rm_ind == self._external_supplier_dummy_product.index:
 				pred = None
 				pred_ind = None
-			# elif rm.is_dummy:
-			# 	pred = rm.handling_nodes[0]
 			else:
 				# This works for the case in which rm is a dummy product or a regular product.
 				pred = self.raw_material_suppliers_by_raw_material(rm_ind, network_BOM=True)[0]
@@ -943,7 +939,7 @@ class SupplyChainNode(object):
 		"""
 		return [(s.index if s is not None else None) for s in self.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=network_BOM)]
 
-	def products_by_raw_material(self, rm_index=None, network_BOM=True):
+	def products_by_raw_material(self, rm_index=None):
 		"""A list of all products that use raw material with index ``rm_index`` at the node, 
 		as as |class_prod| objects. If the node has a single raw material (either dummy or real), either set
 		``rm_index`` to the index of the single raw material, or to ``None`` and the function
@@ -957,8 +953,6 @@ class SupplyChainNode(object):
 		----------
 		rm_index : int, optional
 			The raw material index, or ``None`` if the node has a single raw material.
-		network_BOM : bool, optional
-			If ``True`` (default), function uses network BOM instead of product-only BOM.
 
 		Returns
 		-------
@@ -983,12 +977,9 @@ class SupplyChainNode(object):
 		if rm_index is None:
 			rm_index = all_rms[0]
 		
-		if network_BOM:
-			return [prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_index) > 0]
-		else:
-			return [prod for prod in self.products if prod.BOM(rm_index=rm_index) > 0]
-
-	def product_indices_by_raw_material(self, rm_index=None, network_BOM=True):
+		return [prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_index) > 0]
+	
+	def product_indices_by_raw_material(self, rm_index=None):
 		"""A list of indices of all products that use raw material with index ``rm_index`` at the node, 
 		as as |class_prod| objects. If the node has a single raw material (either dummy or real), either set
 		``rm_index`` to the index of the single raw material, or to ``None`` and the function
@@ -1002,8 +993,6 @@ class SupplyChainNode(object):
 		----------
 		rm_index : int, optional
 			The raw material index, or ``None`` if the node has a single raw material.
-		network_BOM : bool, optional
-			If ``True`` (default), function uses network BOM instead of product-only BOM.
 
 		Returns
 		-------
@@ -1016,7 +1005,7 @@ class SupplyChainNode(object):
 			If ``rm_index`` is not found among the node's raw materials, and it's not the case that ``rm_index is None`` and
 			this node has a single raw material.
 		"""
-		return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index, network_BOM=network_BOM)]
+		return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index)]
 
 	# Properties related to lead times.
 

@@ -15,34 +15,36 @@ The table has the following format:
 
 	* Each row corresponds to a period in the simulation.
 	* Each node is represented by a group of columns. 
+	* The node number is indicated in the first column in the group (i.e., i=1).
+	* (node, product) pairs are indicated by a vertical line, so '2|20' means node 2, product 20.
 	* The columns for each node are as follows:
 
 		- ``i=<node index>``: label for the column group
 		- ``DISR``: was the node disrupted in the period? (True/False)
-		- ``IO:s``: inbound order received from successor ``s``
-		- ``IOPL:s``: inbound order pipeline from successor ``s``: a list of order
+		- ``IO:s|prod``: inbound order for product ``prod`` received from successor ``s``
+		- ``IOPL:s|prod``: inbound order pipeline for product ``prod`` from successor ``s``: a list of order
 		  quantities arriving from succesor ``s`` in ``r`` periods from the
 		  period, for ``r`` = 1, ..., ``order_lead_time``
-		- ``OQ:p``: order quantity placed to predecessor ``p`` in the period
-		# TODO: OQFG
-		- ``OO:p``: on-order quantity (items that have been ordered from successor
+		- ``OQ:p|prod``: order quantity placed to predecessor ``p`` for product ``prod``
+		- ``OQFG:prod``: order quantity of finished good ``prod`` (this "order" is never actually placed;
+		  only the raw material orders in ``OQ`` are placed; but it is useful for debugging)
+		- ``OO:p:prod``: on-order quantity (items of product ``prod`` that have been ordered from successor
 		  ``p`` but not yet received) 
-		- ``IS:p``: inbound shipment received from predecessor ``p`` 
-		- ``ISPL:p``: inbound shipment pipeline from predecessor ``p``: a list of
+		- ``IS:p|prod``: inbound shipment of product ``prod`` received from predecessor ``p`` 
+		- ``ISPL:p|prod``: inbound shipment pipeline for product ``prod`` from predecessor ``p``: a list of
 		  shipment quantities arriving from predecessor ``p`` in ``r`` periods from
 		  the period, for ``r`` = 1, ..., ``shipment_lead_time``
-		- ``IDI:p``: inbound disrupted items: number of items from predecessor ``p``
+		- ``IDI:p|prod``: inbound disrupted items: number of items of product ``prod`` from predecessor ``p``
 		  that cannot be received due to a type-RP disruption at the node
-		- ``RM:p``: number of items from predecessor ``p`` in raw-material inventory
-		  at node
-		- ``PFG:p``: number of items of product ``p`` that are pending, waiting to be
+		- ``RM:prod``: number of items of product ``prod`` in raw-material inventory at node
+		- ``PFG:prod``: number of items of product ``prod`` that are pending, waiting to be
 		  processed from raw materials
-		- ``OS:s``: outbound shipment to successor ``s``
-		- ``DMFS``: demand met from stock at the node in the current period
-		- ``FR``: fill rate; cumulative from start of simulation to the current period
-		- ``IL``: inventory level (positive, negative, or zero) at node
-		- ``BO:s``: backorders owed to successor ``s``
-		- ``ODI:s``: outbound disrupted items: number of items held for successor ``s`` due to
+		- ``OS:s|prod``: outbound shipment of product ``prod`` to successor ``s``
+		- ``DMFS|prod``: demand of product ``prod`` met from stock at the node in the current period
+		- ``FR|prod``: fill rate of product ``prod``; cumulative from start of simulation to the current period
+		- ``IL|prod``: inventory level of product ``prod`` (positive, negative, or zero) at node
+		- ``BO:s|prod``: backorders of product ``prod`` owed to successor ``s``
+		- ``ODI:s|prod``: outbound disrupted items of product ``prod``: number of items held for successor ``s`` due to
 		  a type-SP disruption at ``s``
 		- ``HC``: holding cost incurred at the node in the period
 		- ``SC``: stockout cost incurred at the node in the period
@@ -55,7 +57,7 @@ The table has the following format:
 	  refers to the node's external customer
 	* For state variables that are indexed by predecessor, if ``p`` = ``EXT``, the column
 	  refers to the node's external supplier
-
+	* Negative product indices are "dummy products"
 
 .. admonition:: See Also
 
@@ -137,7 +139,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Determine columns to print.
 	if columns_to_print is None or columns_to_print == 'all' or 'all' in columns_to_print:
-		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'PFG', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OQFG', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'PFG', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
 	elif not is_list(columns_to_print) and isinstance(columns_to_print, str):
 		# columns_to_print is a string; put it in a list.
 		cols_to_print = [columns_to_print]
@@ -172,6 +174,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			if 'IO'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].inbound_order) 
 			if 'IOPL'	in cols_to_print: temp += IOPL
 			if 'OQ'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].order_quantity) 
+			if 'OQFG'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].order_quantity_fg) 
 			if 'OO'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].on_order_by_predecessor) 
 			if 'IS'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].inbound_shipment) 
 			if 'ISPL'	in cols_to_print: temp += ISPL
@@ -205,6 +208,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		if 'IO'		in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order, "IO")
 		if 'IOPL'	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
 		if 'OQ' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
+		if 'OQFG' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].order_quantity_fg, "OQFG")
 		if 'OO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
 		if 'IS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
 		if 'ISPL' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")

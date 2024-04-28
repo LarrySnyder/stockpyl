@@ -132,6 +132,53 @@ class TestWriteResults(unittest.TestCase):
 			if os.path.exists(csv_filename):
 				os.remove(csv_filename)
 
+	def test_columns_to_print_all(self):
+		"""Test that write_results() function correctly writes results from
+		simulation of Example 6.1 when columns_to_print is 'all'.
+		"""
+		print_status('TestWriteResults', 'test_columns_to_print_all()')
+
+		# Build network.
+		network = load_instance("example_6_1")
+
+		# Simulate and write results.
+		simulation(network, 100, rand_seed=17, progress_bar=False)
+		filename_root = 'tests/additional_files/temp_TestWriteResults_test_columns_to_print_all'
+		txt_filename = filename_root + '.txt'
+		csv_filename = filename_root + '.csv'
+
+		# Same correct file as for test_columns_to_print_none.
+		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_columns_to_print_none'
+		correct_txt_filename = correct_filename_root + '.txt'
+		correct_csv_filename = correct_filename_root + '.csv'
+
+		try:
+			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print='all', 
+				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+
+			# Load TXT results and check them.
+			with open(txt_filename) as txtfile:
+				lines = txtfile.read().splitlines()
+			with open(correct_txt_filename) as correct_txtfile:
+				correct_lines = correct_txtfile.read().splitlines()
+			self.assertListEqual(lines, correct_lines)
+
+			# Load CSV results and check them.
+			with open(csv_filename) as csvfile:
+				reader = csv.reader(csvfile)
+				rows = list(reader)
+			with open(correct_csv_filename) as correct_csvfile:
+				correct_reader = csv.reader(correct_csvfile)
+				correct_rows = list(correct_reader)
+			self.assertListEqual(rows, correct_rows)
+
+		finally:
+			# Delete files.
+			if os.path.exists(txt_filename):
+				os.remove(txt_filename)
+			if os.path.exists(csv_filename):
+				os.remove(csv_filename)
+
 	def test_columns_to_print_none(self):
 		"""Test that write_results() function correctly writes results from
 		simulation of Example 6.1 when columns_to_print is None.

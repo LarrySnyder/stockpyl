@@ -334,7 +334,6 @@ class DemandSource(object):
 		-------
 		bool
 			``True`` if the distribution is discrete, ``False`` if it is continuous.
-# TODO: unit tests
 		"""
 		return self.type in ('P', 'UD', 'CD', 'NB', 'D')
 	
