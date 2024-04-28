@@ -258,6 +258,9 @@ class TestGetAttribute(unittest.TestCase):
 		self.assertEqual(node.get_attribute('stockout_cost', 1), None)
 		self.assertEqual(node.get_attribute('stockout_cost', prod2), None)
 
+		with self.assertRaises(ValueError):
+			node.get_attribute('local_holding_cost', None)
+
 
 		
 class TestDescendants(unittest.TestCase):

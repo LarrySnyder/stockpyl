@@ -536,7 +536,7 @@ def _initialize_state_vars(network):
 
 			# Initialize inbound order pipeline. (Exclude external demand.)
 			for s in n.successors():
-				for l in range(s.get_attribute('order_lead_time') or 0):
+				for l in range(s.get_attribute('order_lead_time', prod) or 0):
 					n.state_vars[0].inbound_order_pipeline[s.index][prod.index][l] = s.get_attribute('initial_orders', prod) or 0
 
 		# State variables indexed by product at predecessor nodes.

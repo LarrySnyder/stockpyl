@@ -965,8 +965,6 @@ class SupplyChainNode(object):
 			If ``rm_index`` is not found among the node's raw materials, and it's not the case that ``rm_index is None`` and
 			this node has a single raw material.
 		"""
-		# TODO: unit tests
-  
 		# If rm_index is not in raw material indices for node, AND it's not the case that this node has a single raw material
 		# and rm_index is None, raise exception.
 		all_rms = self.raw_material_indices_by_product('all', network_BOM=True)
@@ -1228,8 +1226,6 @@ class SupplyChainNode(object):
 		-------
 		bool
 			``True`` if the two nodes are equal, ``False`` otherwise.
-
-		# TODO: check products
 		"""
 
 		# Initialize name of violating attribute (used for debugging) and equality flag.
@@ -1549,20 +1545,27 @@ class SupplyChainNode(object):
 			The name of the attribute to get.
 		product : |class_product| or int, optional
 			The product to get the attribute for, either as a |class_product| object or as an index.
-			Set to ``None`` or omit for single-product models.
-
+			If the node has a single product, set ``product`` to its index, or to ``None`` (or omit it)
+			to determine the index automatically.
+		
 		Returns
 		-------
 		any
 			The value of the attribute for the product (if any).
+		
+		Raises
+		------
+		ValueError
+			If ``product`` is ``None`` but the node has multiple products.
 		"""
-		# TODO : allow product = None for single-product nodes.
+		if product is None and len(self.products) > 1:
+			raise ValueError(f'You cannot set product = None for a node that has multiple products (node = {self.index}).')
   
 		# Get self.attr and the product and index.
 		self_attr = getattr(self, attr)
 		if product is None:
-			product_obj = None
-			product_ind = None
+			product_obj = self.products[0]
+			product_ind = self.products[0].index
 		elif isinstance(product, SupplyChainProduct):
 			product_obj = product
 			product_ind = product.index
@@ -1834,7 +1837,6 @@ class NodeStateVars(object):
 			s_indices = {s: s.index if s is not None else None for s in self.node.successors(include_external=True)}
 			rm_indices = {p: (p.product_indices if p is not None else [node._external_supplier_dummy_product.index]) \
 				   for p in self.node.predecessors(include_external=True)}
-			order_lead_time = self.node.get_attribute('order_lead_time')
 
 			# Initialize dicts with appropriate keys. (inbound_shipment_pipeline gets
 			# order_lead_time+shipment_lead_time slots for orders to external supplier)
