@@ -14,6 +14,7 @@ a given number and return the corresponding value.
 - Support for negative binomial demand distributions in ``DemandSource``.
 
 ### Changed
+- ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
 - ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
 demand source parameters were provided specifically for that node in the input args.
 

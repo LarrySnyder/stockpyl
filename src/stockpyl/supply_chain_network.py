@@ -673,6 +673,87 @@ class SupplyChainNetwork(object):
 			# Remove product from network.
 			self._products.remove(product)
 
+	# Utility functions.
+
+	def parse_node(self, node):
+		"""Return the node and node index as a tuple, whether ``node`` is a |class_node|
+		object or an int.
+
+		Parameters
+		----------
+		node : |class_node| or int
+			The node itself (as a |class_node|) or its index (as an int).
+
+		Returns
+		-------
+		|class_node| 
+			The node object.
+		int
+			The node index.
+
+		Raises
+		------
+		TypeError
+			If ``node`` is not a |class_node| or an int.
+		ValueError
+			if ``node`` is not a node in the network.
+		"""
+
+		if isinstance(node, SupplyChainNode):
+			node_obj = node
+			node_ind = node.index
+			if node_obj not in self.nodes:
+				raise ValueError(f'Node {node_ind} is not a node in the network.')
+		elif isinstance(node, int):
+			try:
+				node_obj = self.get_node_from_index(node)
+			except:
+				raise ValueError(f'Node {node} is not a node in the network.')
+			node_ind = node
+		else:
+			raise TypeError('node must be a SupplyChainNode or an int.')
+
+		return node_obj, node_ind
+
+	def parse_product(self, product):
+		"""Return the product and product index as a tuple, whether ``product`` is a |class_product|
+		object or an int.
+
+		Parameters
+		----------
+		product : |class_product| or int
+			The product itself (as a |class_product|) or its index (as an int).
+
+		Returns
+		-------
+		|class_product| 
+			The product object.
+		int
+			The product index.
+
+		Raises
+		------
+		TypeError
+			If ``product`` is not a |class_product| or an int.
+		ValueError
+			if ``product`` is not a product in the network.
+		"""
+
+		if isinstance(product, SupplyChainProduct):
+			product_obj = product
+			product_ind = product.index
+			if product_obj not in self.products:
+				raise ValueError(f'Product {product_ind} is not a product in the network.')
+		elif isinstance(product, int):
+			try:
+				product_obj = self.products_by_index[product]
+			except:
+				raise ValueError(f'product {product} is not a product in the network.')
+			product_ind = product
+		else:
+			raise TypeError('product must be a SupplyChainProduct or an int.')
+
+		return product_obj, product_ind
 
 # ===============================================================================
 # Network-Creation Methods

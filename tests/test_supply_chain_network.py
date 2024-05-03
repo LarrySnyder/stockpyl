@@ -652,6 +652,109 @@ class TestRemoveNode(unittest.TestCase):
 		self.assertEqual(node3succ, [])
 
 
+class TestParseNode(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestParseNode', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestParseNode', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test parse_node() on 3-node serial system.
+		"""
+		print_status('TestParseNode', 'test_example_6_1()')
+
+		network = load_instance("example_6_1") # 3 -> 2 -> 1
+		nodes = {n.index: n for n in network.nodes}
+
+		node_obj, node_ind = network.parse_node(nodes[1])
+		self.assertEqual(node_obj, nodes[1])
+		self.assertEqual(node_ind, 1)
+
+		node_obj, node_ind = network.parse_node(nodes[3])
+		self.assertEqual(node_obj, nodes[3])
+		self.assertEqual(node_ind, 3)
+
+		node_obj, node_ind = network.parse_node(1)
+		self.assertEqual(node_obj, nodes[1])
+		self.assertEqual(node_ind, 1)
+
+		node_obj, node_ind = network.parse_node(3)
+		self.assertEqual(node_obj, nodes[3])
+		self.assertEqual(node_ind, 3)
+
+	def test_bad_param(self):
+		"""Test that parse_node() raises errors correctly on bad parameters.
+		"""
+		print_status('TestParseNode', 'test_bad_param()')
+
+		network = load_instance("example_6_1") # 3 -> 2 -> 1
+
+		with self.assertRaises(TypeError):
+			_, _ = network.parse_node(6.5)
+			_, _ = network.parse_node(network.products[0])
+
+		with self.assertRaises(ValueError):
+			_, _ = network.parse_node(5)
+			_, _ = network.parse_node(SupplyChainNode(5))
+
+		
+class TestParseProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestParseProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestParseProduct', 'tear_down_class()')
+
+	def test_multiproduct_5_7(self):
+		"""Test parse_product() on 5-node, 7-product system.
+		"""
+		print_status('TestParseProduct', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		products = {n.index: n for n in network.products}
+
+		product_obj, product_ind = network.parse_product(products[1])
+		self.assertEqual(product_obj, products[1])
+		self.assertEqual(product_ind, 1)
+
+		product_obj, product_ind = network.parse_product(products[3])
+		self.assertEqual(product_obj, products[3])
+		self.assertEqual(product_ind, 3)
+
+		product_obj, product_ind = network.parse_product(1)
+		self.assertEqual(product_obj, products[1])
+		self.assertEqual(product_ind, 1)
+
+		product_obj, product_ind = network.parse_product(3)
+		self.assertEqual(product_obj, products[3])
+		self.assertEqual(product_ind, 3)
+
+	def test_bad_param(self):
+		"""Test that parse_product() raises errors correctly on bad parameters.
+		"""
+		print_status('TestParseProduct', 'test_bad_param()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+
+		with self.assertRaises(TypeError):
+			_, _ = network.parse_product(6.5)
+			_, _ = network.parse_product(network.nodes[0])
+
+		with self.assertRaises(ValueError):
+			_, _ = network.parse_product(55)
+			_, _ = network.parse_product(SupplyChainProduct(55))
+
+		
+				
 class TestAddRemoveProduct(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
