@@ -13,6 +13,10 @@ a given number and return the corresponding value.
 - ``loss_functions.standard_normal_loss_dict()`` function, to build a dictionary of loss-function values.
 - Support for negative binomial demand distributions in ``DemandSource``.
 
+### Changed
+- ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
+demand source parameters were provided specifically for that node in the input args.
+
 ### Fixed
 - Bug in ``helpers.ensure_list_for_time_period()`` that caused it to handle numpy arrays improperly.
 - Bug in ``demand_source.py`` that sometimes caused infinite recursion when some attributes were ``None``.

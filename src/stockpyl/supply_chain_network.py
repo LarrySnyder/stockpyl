@@ -827,23 +827,33 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 			n.shipment_lead_time = data_dict[n.index].get('lead_time')
 		n.order_lead_time = data_dict[n.index].get('order_lead_time')
 
-		# Demand source.
-		if data_dict[n.index].get('demand_source') is not None:
-			n.demand_source = data_dict[n.index]['demand_source']
+		# Demand source. If this is a sink node OR if demand_source or demand_type were
+		# provided as a dict or list (not a singleton) and node was included in it, 
+		# build demand_source as specified by kwargs. Otherwise (it's not a sink node
+		# and demand_source and demand_type are singletons or do not include node), 
+		# create DemandSource of type None.
+		if n in network.sink_nodes or \
+			(is_iterable(kwargs.get('demand_source')) and data_dict[n.index].get('demand_source') is not None) or \
+			(is_iterable(kwargs.get('demand_type')) and data_dict[n.index].get('demand_type') is not None):
+
+			if data_dict[n.index].get('demand_source') is not None:
+				n.demand_source = data_dict[n.index]['demand_source']
+			else:
+				# Create DemandSource object. (Don't override default value for round_to_int
+				# with None.)
+				ds = DemandSource()
+				ds.type = data_dict[n.index].get('demand_type')
+				if data_dict[n.index].get('round_to_int') is not None:
+					ds.round_to_int = data_dict[n.index].get('round_to_int')
+				ds.mean = data_dict[n.index].get('mean')
+				ds.standard_deviation = data_dict[n.index].get('standard_deviation')
+				ds.demand_list = data_dict[n.index].get('demand_list')
+				ds.probabilities = data_dict[n.index].get('probabilities')
+				ds.lo = data_dict[n.index].get('lo')
+				ds.hi = data_dict[n.index].get('hi')
+				n.demand_source = ds
 		else:
-			# Create DemandSource object. (Don't override default value for round_to_int
-			# with None.)
-			ds = DemandSource()
-			ds.type = data_dict[n.index].get('demand_type')
-			if data_dict[n.index].get('round_to_int') is not None:
-				ds.round_to_int = data_dict[n.index].get('round_to_int')
-			ds.mean = data_dict[n.index].get('mean')
-			ds.standard_deviation = data_dict[n.index].get('standard_deviation')
-			ds.demand_list = data_dict[n.index].get('demand_list')
-			ds.probabilities = data_dict[n.index].get('probabilities')
-			ds.lo = data_dict[n.index].get('lo')
-			ds.hi = data_dict[n.index].get('hi')
-			n.demand_source = ds
+			n.demand_source = DemandSource()
 
 		# Inventory policy.
 		if data_dict[n.index].get('inventory_policy') is not None:

@@ -1304,6 +1304,74 @@ class TestNetworkFromEdges(unittest.TestCase):
 		# 		n.inventory_policy.node = n
 		self.assertTrue(network.deep_equal_to(correct_network))
 
+	def test_demand_source(self):
+		"""Test different ways to specify demand_source.
+		"""
+		print_status('TestNetworkFromEdges', 'test_demand_source()')
+
+		# Correct network.
+		correct_network = self.get_correct_network()
+
+		# Specify type as singleton, other attributes as list.
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='N',
+			mean=[50, 20, None, None],
+			standard_deviation=[5, 3, None, None],
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
+
+		# Specify type as singleton, other attributes as dict.
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='N',
+			mean={1: 50, 2: 20},
+			standard_deviation={1: 5, 2: 3},
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
+
+		# Specify type and other attributes as singleton.
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='N',
+			mean=50,
+			standard_deviation=5,
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		# Change correct_network to account for same means/SDs.
+		correct_network.get_node_from_index(2).demand_source.mean = 50
+		correct_network.get_node_from_index(2).demand_source.standard_deviation = 5
+		self.assertTrue(network.deep_equal_to(correct_network))
+
 	def test_single_node(self):
 		"""Test network_from_edges() for building a single-node network.
 		"""

@@ -173,6 +173,53 @@ class TestBillOfMaterialsDict(unittest.TestCase):
 		self.assertDictEqual(prod[5].bill_of_materials_dict, {})
 		self.assertDictEqual(prod[6].bill_of_materials_dict, {})
 
+class TestHandlingNodes(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestRawMaterials', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestRawMaterials', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Basic test of raw_materials and raw_material_indices.
+		"""
+		print_status('TestRawMaterials', 'test_basic()')
+
+		prod = {i: SupplyChainProduct(index=i) for i in range(7)}
+
+		prod[0].set_bill_of_materials(2, 2.5)
+		prod[0].set_bill_of_materials(3, 7)
+		prod[1].set_bill_of_materials(3, 10)
+		prod[1].set_bill_of_materials(4, 3.8)
+		prod[2].set_bill_of_materials(5, 0.2)
+		prod[3].set_bill_of_materials(5, 2)
+		prod[4].set_bill_of_materials(6, 50)
+
+		network = SupplyChainNetwork()
+		for i in range(7):
+			network.add_product(prod[i])
+		
+		self.assertListEqual(prod[0].raw_materials, [prod[2], prod[3]])
+		self.assertListEqual(prod[1].raw_materials, [prod[3], prod[4]])
+		self.assertListEqual(prod[2].raw_materials, [prod[5]])
+		self.assertListEqual(prod[3].raw_materials, [prod[5]])
+		self.assertListEqual(prod[4].raw_materials, [prod[6]])
+		self.assertListEqual(prod[5].raw_materials, [])
+		self.assertListEqual(prod[6].raw_materials, [])
+
+		self.assertListEqual(prod[0].raw_material_indices, [2, 3])
+		self.assertListEqual(prod[1].raw_material_indices, [3, 4])
+		self.assertListEqual(prod[2].raw_material_indices, [5])
+		self.assertListEqual(prod[3].raw_material_indices, [5])
+		self.assertListEqual(prod[4].raw_material_indices, [6])
+		self.assertListEqual(prod[5].raw_material_indices, [])
+		self.assertListEqual(prod[6].raw_material_indices, [])
+
+
 class TestRawMaterials(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

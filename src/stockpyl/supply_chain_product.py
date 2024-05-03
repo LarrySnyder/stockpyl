@@ -45,10 +45,6 @@ Game plan for BOM:
 	This is true whether the node or predecessor have an actual product loaded, or a dummy product. 
 - To set the BOM number to something other than 1, both the product and the RM must be actual products, 
 	not dummy.
-- If a node or its predecessor has more than one product, a BOM relationship must be specified for
-	at least one product at the node and at least one RM at the predecessor (otherwise no items will be
-	ordered/shipped even though there is an edge between the nodes)
-	# TODO: add a check and warning for this
 - If a node has supply_type 'U', the external supplier is assumed to provide a dummy raw material,
 	which is not loaded into the external supplier (since a node doesn't exist for that supplier),
 	but raw material inventory is allocated at the node for the external supplier's dummy product at 

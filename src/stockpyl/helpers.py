@@ -535,7 +535,7 @@ def build_node_data_dict(attribute_dict, node_order_in_lists, default_values={})
 	``data_dict[n][a]`` is the value of attribute ``a``, where ``a`` is in a key
 	in ``attribute_dict``.
 
-	:func:`~build_node_data_dict` is similar calling :func:`~ensure_dict_for_nodes` for multiple
+	:func:`~build_node_data_dict` is similar to calling :func:`~ensure_dict_for_nodes` for multiple
 	attributes simultaneously.
 
 	For each attribute ``a`` in ``attribute_dict`` keys, ``attribute_dict[a]`` 

@@ -439,7 +439,7 @@ class Policy(object):
 
 				# Calculate total demand (inbound orders), including successor nodes and
 				# external demand, in FG units.
-				demand = self.node._get_attribute_total('inbound_order', self.node.network.period, product_index=product_index)
+				demand = self.node._get_state_var_total('inbound_order', self.node.network.period, product_index=product_index)
 
 				# Calculate (local or echelon) inventory position, before demand is subtracted. Exclude from pipeline
 				# RM units that are "earmarked" for other products at this node.
@@ -608,7 +608,7 @@ class Policy(object):
 
 				# Calculate total demand (inbound orders), including successor nodes and
 				# external demand.
-				demand = self.node._get_attribute_total('inbound_order', self.node.network.period, product_index=product_index)
+				demand = self.node._get_state_var_total('inbound_order', self.node.network.period, product_index=product_index)
 
 				# Calculate total orders that have already been placed by this node to this supplier for this RM
 				# in the current time period (for other products at the node that use the same RM). These units
