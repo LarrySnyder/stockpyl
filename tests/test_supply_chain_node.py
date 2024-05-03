@@ -400,6 +400,65 @@ class TestAncestors(unittest.TestCase):
 		self.assertEqual(anc[4], [])
 
 
+class TestValidatePredecessor(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestValidatePredecessor', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestValidatePredecessor', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test validate_predecessor for 3-node serial system in Example 6.1.
+		"""
+		print_status('TestValidatePredecessor', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+		nodes = {n.index: n for n in network.nodes}
+
+		pred_obj, pred_ind = nodes[1].validate_predecessor(2)
+		self.assertEqual(pred_obj, nodes[2])
+		self.assertEqual(pred_ind, 2)
+
+		pred_obj, pred_ind = nodes[1].validate_predecessor(nodes[2])
+		self.assertEqual(pred_obj, nodes[2])
+		self.assertEqual(pred_ind, 2)
+
+		pred_obj, pred_ind = nodes[1].validate_predecessor(None)
+		self.assertEqual(pred_obj, nodes[2])
+		self.assertEqual(pred_ind, 2)
+
+		pred_obj, pred_ind = nodes[3].validate_predecessor(None)
+		self.assertIsNone(pred_obj)
+		self.assertIsNone(pred_ind)
+
+	def test_bad_param(self):
+		"""Test that validate_predecessor correctly raises exceptions on bad parameters.
+		"""
+		print_status('TestValidatePredecessor', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+		nodes = {n.index: n for n in network.nodes}
+
+		with self.assertRaises(TypeError):
+			_, _ = nodes[1].validate_predecessor(5.6)
+			_, _ = nodes[1].validate_predecessor(SupplyChainProduct(1))
+		
+		with self.assertRaises(ValueError):
+			_, _ = nodes[1].validate_predecessor(nodes[3])
+			_, _ = nodes[1].validate_predecessor(3)
+
+		network.add_predecessor(nodes[2], SupplyChainNode(4))
+		with self.assertRaises(ValueError):
+			_, _ = nodes[2].validate_predecessor(None)
+
+
+
+
+
 class TestAddProduct(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

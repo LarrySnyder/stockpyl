@@ -389,7 +389,59 @@ class SupplyChainNode(object):
 		Read only.
 		"""
 		return [n.index for n in self.neighbors]
+
+	def validate_predecessor(self, predecessor):
+		"""Confirm that ``predecessor`` is a valid predecessor of node:
+
+			* If ``predecessor`` is a |class_node| object, confirms that it is a 
+				predecessor of the node, and returns the predecessor node and its index.
+			* If ``predecessor`` is an int, confirms that it is the index of a predecessor
+				of the node, and returns the predecessor node and its index.
+			* If ``predecessor`` is ``None`` and the node has a single predecessor node
+				(regardless of whether it also has an external supplier), returns the predecessor node and its index.
+			* If ``predecessor`` is ``None`` and the node has 0 or more than 1 predecessor node and has
+				an external supplier, returns ``None, None``. (This represents the external supplier.)
+			* Raises a ``ValueError`` in most other cases.
+
+		Parameters
+		----------
+		predecessor : |class_node|, int, or ``None``
+			The predecessor to validate.
+		
+		Returns
+		-------
+		|class_node|
+			The node object.
+		int
+			The node index.
 	
+		Raises
+		------
+		TypeError
+			If ``predecessor`` is not a |class_node|, int, or ``None``.
+		ValueError
+			If ``predecessor`` is not a predecessor of the node.
+		ValueError
+			If ``predecessor`` is ``None`` and the node has no external supplier 
+			and has 0 or >1 predecessor nodes.
+		"""
+
+		preds = self.predecessors(include_external=False)
+		if predecessor is None:
+			if len(preds) == 1:
+				return self.network.parse_node(preds[0])
+			elif None in self.predecessors(include_external=True):
+				return None, None
+			else:
+				raise ValueError(f'predecessor cannot be None if the node has no external supplier and 0 or >1 predecessor nodes.')
+		else:
+			pred_node, pred_ind = self.network.parse_node(predecessor) # raises TypeError on bad type
+			if pred_node not in preds:
+				raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
+			else:
+				return pred_node, pred_ind
+ 
+		
 	# Properties and functions related to products and bill of materials.
 
 	@property

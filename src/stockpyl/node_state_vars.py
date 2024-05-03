@@ -296,26 +296,42 @@ class NodeStateVars(object):
 	# These are basically shortcuts to the individual attributes that offer more flexibility
 	# in how products are specified (or not).
  
-	def get_inbound_shipment_pipeline(predecessor, periods_from_now, product=None):
-		"""Shortcut to ``self.inbound_shipment_pipeline[predecessor][product][periods_from_now]``.
+	def get_inbound_shipment_pipeline(periods_from_now, predecessor=None, product=None):
+		"""Shortcut to ``self.inbound_shipment_pipeline[predecessor][product][periods_from_now]``
+		that does not require predecessor or product if they are inferrable.
 
 		Parameters
 		----------
-		predecessor : |class_node| or int
-			Predecessor node (as a |class_node|) or its index.
 		periods_away : int
 			Get pipeline inventory arriving this many periods into the future.
+		predecessor : |class_node| or int, optional
+			Predecessor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect predecessor automatically for a single-predecessor node. If node has
+			both an external supplier and a predecessor node and ``predecessor`` is ``None``,
+			returns the external supplier.
 		product : |class_product| or int, optional
-			Product (as a |class_product|) or its index, or ``None`` to detect 
-			product automatically for single-product nodes.
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
 
 		Returns
 		-------
 		float
 			Inbound shipment pipeline.
 		"""
+		# Handle predecessor = None.
+		if predecessor is None:
+			if len(self.node.predecessors()) == 1:
+				predecessor = self.node.predecessors()[0]
+			elif len(self.node.predcessors()) > 1:
+				raise ValueError('predecessor cannot be None for nodes with multiple predecessors.')
+	
+		# Parse predecessor.
 		_, pred_index = parse_node(predecessor)
 		_, prod_index = parse_product(product)
+	
+
+
+
 
 
 	# --- Calculated State Variables --- #

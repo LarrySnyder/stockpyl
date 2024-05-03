@@ -675,7 +675,7 @@ class SupplyChainNetwork(object):
 
 	# Utility functions.
 
-	def parse_node(self, node):
+	def parse_node(self, node, allow_none=True):
 		"""Return the node and node index as a tuple, whether ``node`` is a |class_node|
 		object or an int.
 
@@ -683,6 +683,9 @@ class SupplyChainNetwork(object):
 		----------
 		node : |class_node| or int
 			The node itself (as a |class_node|) or its index (as an int).
+		allow_none : bool, optional
+			If ``True`` (the default), ``node`` may be ``None``, in which case the
+			function returns ``None, None``. If ``False``, raises an exception.
 
 		Returns
 		-------
@@ -699,7 +702,13 @@ class SupplyChainNetwork(object):
 			if ``node`` is not a node in the network.
 		"""
 
-		if isinstance(node, SupplyChainNode):
+		if node is None:
+			if allow_none:
+				node_obj = None
+				node_ind = None
+			else:
+				raise ValueError('node may not be None if allow_none is False.')
+		elif isinstance(node, SupplyChainNode):
 			node_obj = node
 			node_ind = node.index
 			if node_obj not in self.nodes:
@@ -715,7 +724,7 @@ class SupplyChainNetwork(object):
 
 		return node_obj, node_ind
 
-	def parse_product(self, product):
+	def parse_product(self, product, allow_none=True):
 		"""Return the product and product index as a tuple, whether ``product`` is a |class_product|
 		object or an int.
 
@@ -723,6 +732,9 @@ class SupplyChainNetwork(object):
 		----------
 		product : |class_product| or int
 			The product itself (as a |class_product|) or its index (as an int).
+		allow_none : bool, optional
+			If ``True`` (the default), ``product`` may be ``None``, in which case the
+			function returns ``None, None``. If ``False``, raises an exception.
 
 		Returns
 		-------
@@ -739,7 +751,13 @@ class SupplyChainNetwork(object):
 			if ``product`` is not a product in the network.
 		"""
 
-		if isinstance(product, SupplyChainProduct):
+		if product is None:
+			if allow_none:
+				product_obj = None
+				product_ind = None
+			else:
+				raise TypeError('product may not be None if allow_none is False.')
+		elif isinstance(product, SupplyChainProduct):
 			product_obj = product
 			product_ind = product.index
 			if product_obj not in self.products:

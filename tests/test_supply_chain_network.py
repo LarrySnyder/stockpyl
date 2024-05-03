@@ -687,6 +687,10 @@ class TestParseNode(unittest.TestCase):
 		self.assertEqual(node_obj, nodes[3])
 		self.assertEqual(node_ind, 3)
 
+		node_obj, node_ind = network.parse_node(None)
+		self.assertIsNone(node_obj)
+		self.assertIsNone(node_ind)
+
 	def test_bad_param(self):
 		"""Test that parse_node() raises errors correctly on bad parameters.
 		"""
@@ -697,6 +701,7 @@ class TestParseNode(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			_, _ = network.parse_node(6.5)
 			_, _ = network.parse_node(network.products[0])
+			_, _ = network.parse_node(None, allow_none=False)
 
 		with self.assertRaises(ValueError):
 			_, _ = network.parse_node(5)
@@ -738,6 +743,10 @@ class TestParseProduct(unittest.TestCase):
 		self.assertEqual(product_obj, products[3])
 		self.assertEqual(product_ind, 3)
 
+		product_obj, product_ind = network.parse_product(None)
+		self.assertIsNone(product_obj)
+		self.assertIsNone(product_ind)
+
 	def test_bad_param(self):
 		"""Test that parse_product() raises errors correctly on bad parameters.
 		"""
@@ -748,11 +757,11 @@ class TestParseProduct(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			_, _ = network.parse_product(6.5)
 			_, _ = network.parse_product(network.nodes[0])
+			_, _ = network.parse_product(None, allow_none=False)
 
 		with self.assertRaises(ValueError):
 			_, _ = network.parse_product(55)
 			_, _ = network.parse_product(SupplyChainProduct(55))
-
 		
 				
 class TestAddRemoveProduct(unittest.TestCase):
