@@ -18,6 +18,7 @@ a given number and return the corresponding value.
 - ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
 - ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
 demand source parameters were provided specifically for that node in the input args.
+- More compact text representation of ``SupplyChainNetwork`` and ``SupplyChainNode`` objects via ``__repr__()``.
 
 ### Fixed
 - Bug in ``helpers.ensure_list_for_time_period()`` that caused it to handle numpy arrays improperly.

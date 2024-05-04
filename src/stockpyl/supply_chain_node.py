@@ -773,7 +773,7 @@ class SupplyChainNode(object):
  
 		If ``network_BOM`` is ``True``, includes raw materials that don't have a 
 		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
+		(See :func:`get_network_bill_of_materials`.) 
 
 		Parameters
 		----------
@@ -828,7 +828,7 @@ class SupplyChainNode(object):
 
 		If ``network_BOM`` is ``True``, includes raw materials that don't have a 
 		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
+		(See :func:`get_network_bill_of_materials`.) 
 
 		Parameters
 		----------
@@ -860,7 +860,7 @@ class SupplyChainNode(object):
 
 		If ``network_BOM`` is ``True``, includes raw material suppliers that don't have a 
 		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
+		(See :func:`get_network_bill_of_materials`.)
 			
 		Suppliers in list are
 		|class_node| objects, plus ``None`` for the external supplier, if appropriate. 
@@ -926,7 +926,7 @@ class SupplyChainNode(object):
 
 		If ``network_BOM`` is ``True``, includes raw material suppliers that don't have a 
 		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
+		(See :func:`get_network_bill_of_materials`.) 
 			
 		Parameters
 		----------
@@ -962,7 +962,7 @@ class SupplyChainNode(object):
 
 		If ``network_BOM`` is ``True``, includes raw material suppliers that don't have a 
 		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
+		(See :func:`get_network_bill_of_materials`.) 
 			
 		Suppliers in list are
 		|class_node| objects, plus ``None`` for the external supplier, if appropriate. 
@@ -1035,7 +1035,7 @@ class SupplyChainNode(object):
 
 		If ``network_BOM`` is ``True``, includes raw material suppliers that don't have a 
 		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
+		(See :func:`get_network_bill_of_materials`.) 
 			
 		Parameters
 		----------
@@ -1065,10 +1065,6 @@ class SupplyChainNode(object):
 		as as |class_prod| objects. If the node has a single raw material (either dummy or real), either set
 		``rm_index`` to the index of the single raw material, or to ``None`` and the function
 		will determine the index automatically. 
- 
-		If ``network_BOM`` is ``True``, includes products that don't have a 
-		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
 
 		Parameters
 		----------
@@ -1103,10 +1099,6 @@ class SupplyChainNode(object):
 		as as |class_prod| objects. If the node has a single raw material (either dummy or real), either set
 		``rm_index`` to the index of the single raw material, or to ``None`` and the function
 		will determine the index automatically. 
- 
-		If ``network_BOM`` is ``True``, includes products that don't have a 
-		BOM relationship specified but are implied by the network structure. 
-		(See :func:`get_network_bill_of_materials`.) Read only.
 
 		Parameters
 		----------
@@ -1125,6 +1117,46 @@ class SupplyChainNode(object):
 			this node has a single raw material.
 		"""
 		return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index)]
+	
+	def customers_by_product(self, product=None, return_indices=False, network_BOM=True):
+		"""A list of customers that order ``product`` from the node. If the node has a single product
+		(either dummy or real), either set ``product`` to the single product, or to ``None`` and the function
+		will determine it automatically. 
+				
+		If ``return_indices`` is ``False``, returns the customers as |class_node| objects (or ``None`` for the
+		external customer), otherwise returns customer indices.
+
+		If ``network_BOM`` is ``True``, includes customers that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) 
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			The product (as a |class_product| object or index), or ``None`` if the node has a single product.
+		return_indices : bool, optional
+			Set to ``False`` (the default) to return product objects, ``True`` to return product indices.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+		"""
+		prod_obj, prod_ind = self.validate_product(product)
+	
+		# Customer nodes.
+		custs = [n for n in self.successors(include_external=False) \
+			if prod_obj in n.raw_materials_by_product('all', network_BOM=network_BOM) and \
+				self in n.raw_material_suppliers_by_raw_material(prod_ind, network_BOM=network_BOM)]
+		
+		# Convert to indices, if desired.
+		if return_indices:
+			custs = [n.index for n in custs]
+		
+		# External customer.
+		ds = self.get_attribute('demand_source', product=product)
+		if ds is not None and ds.type is not None:
+			custs.append(None)
+		
+		return custs
+			
 
 	def validate_product(self, product):
 		"""Confirm that ``product`` is a valid product of node:
@@ -1367,7 +1399,8 @@ class SupplyChainNode(object):
 			A string representation of the |class_node| instance.
 
 		"""
-		return "SupplyChainNode({:s})".format(str(vars(self)))
+		return f'SupplyChainNode(index={self.index})'
+#		return "SupplyChainNode({:s})".format(str(vars(self)))
 
 	# Attribute management.
 

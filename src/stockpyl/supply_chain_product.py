@@ -437,7 +437,8 @@ class SupplyChainProduct(object):
 			A string representation of the |class_product| instance.
 
 		"""
-		return "SupplyChainProduct({:s})".format(str(vars(self)))
+		return f'SupplyChainProduct(index={self.index})'
+#		return "SupplyChainProduct({:s})".format(str(vars(self)))
 
 	# Attribute management.
 

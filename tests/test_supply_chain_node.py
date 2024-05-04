@@ -1875,7 +1875,147 @@ class TestProductsByRawMaterial(unittest.TestCase):
 			_ = nodes[0].product_indices_by_raw_material(rm_index=5)
 			_ = nodes[0].product_indices_by_raw_material(rm_index=None)
 
+
+class TestCustomersByProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCustomersByProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCustomersByProduct', 'tear_down_class()')
+
+	def test_mwor_no_product(self):
+		"""Test that customers_by_product works correctly on MWOR network with no product added at retailer.
+		"""
+		print_status('TestCustomersByProduct', 'test_mwor_no_product()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes[0].demand_source = DemandSource(type='P', mean=5)
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		nodes[1].add_products([prods[1], prods[2]])
+		nodes[2].add_products([prods[2], prods[3]])
+		nodes[3].add_products([prods[4], prods[5]])
+
+		self.assertListEqual(nodes[0].customers_by_product(product=nodes[0]._dummy_product, return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].customers_by_product(product=None, return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].customers_by_product(product=None, return_indices=True, network_BOM=True), [None])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=True, network_BOM=True), [0])
+		self.assertListEqual(nodes[1].customers_by_product(product=2, return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[2], return_indices=False, network_BOM=False), [])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[2], return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=2, return_indices=True, network_BOM=True), [0])
+		self.assertListEqual(nodes[2].customers_by_product(product=3, return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[3], return_indices=False, network_BOM=False), [])
+
+		with self.assertRaises(ValueError):
+			_ = nodes[1].customers_by_product(product=77)
+
+	def test_mwor_one_product(self):
+		"""Test that customers_by_product works correctly on MWOR network with one product added at retailer.
+		"""
+		print_status('TestCustomersByProduct', 'test_mwor_one_product()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes[0].demand_source = DemandSource(type='P', mean=5)
+
+		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
+		nodes[1].add_products([prods[1], prods[2]])
+		nodes[2].add_products([prods[2], prods[3]])
+		nodes[3].add_products([prods[4], prods[5]])
+
+		prods[10] = SupplyChainProduct(10)
+		nodes[0].add_product(prods[10])
+		prods[10].set_bill_of_materials(1, 5)
+		prods[10].set_bill_of_materials(2, 7)
+		prods[10].set_bill_of_materials(3, 3)
+		prods[10].set_bill_of_materials(4, 15)
+		prods[10].set_bill_of_materials(5, 6)
+
+		self.assertListEqual(nodes[0].customers_by_product(product=prods[10], return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].customers_by_product(product=None, return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].customers_by_product(product=None, return_indices=True, network_BOM=True), [None])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=True, network_BOM=True), [0])
+		self.assertListEqual(nodes[1].customers_by_product(product=2, return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[2], return_indices=False, network_BOM=False), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[2], return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=2, return_indices=True, network_BOM=True), [0])
+		self.assertListEqual(nodes[2].customers_by_product(product=3, return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[3], return_indices=False, network_BOM=False), [nodes[0]])
+
+		with self.assertRaises(ValueError):
+			_ = nodes[1].customers_by_product(product=77)
+
+	def test_mwor_multiple_products(self):
+		"""Test that customers_by_product works correctly on MWOR network with multiple products added at retailer.
+		"""
+		print_status('TestCustomersByProduct', 'test_mwor_multiple_products()')
+
+		network = mwor_system(3)
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes[0].demand_source = DemandSource(type='P', mean=5)
+
+		prods = {i: SupplyChainProduct(i) for i in [1, 2, 3, 4, 5, 10, 11, 12]}
+		network.get_node_from_index(1).add_products([prods[1], prods[2]])
+		network.get_node_from_index(2).add_products([prods[2], prods[3]])
+		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+
+		nodes[0].add_products([prods[10], prods[11], prods[12]])
+
+		prods[10].set_bill_of_materials(1, 5)
+		prods[10].set_bill_of_materials(2, 7)
+		prods[11].set_bill_of_materials(3, 3)
+		prods[11].set_bill_of_materials(4, 15)
+		prods[12].set_bill_of_materials(5, 6)
+
+		self.assertListEqual(nodes[0].customers_by_product(product=prods[10], return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].customers_by_product(product=prods[11], return_indices=True, network_BOM=True), [None])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=True, network_BOM=True), [0])
+		self.assertListEqual(nodes[1].customers_by_product(product=2, return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[2], return_indices=False, network_BOM=False), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[2], return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=2, return_indices=True, network_BOM=True), [0])
+		self.assertListEqual(nodes[2].customers_by_product(product=3, return_indices=False, network_BOM=True), [nodes[0]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[3], return_indices=False, network_BOM=False), [nodes[0]])
+
+		with self.assertRaises(ValueError):
+			_ = nodes[1].customers_by_product(product=77)
+			_ = nodes[0].customers_by_product(product=None, return_indices=True, network_BOM=True), [None]
+
+	def test_multiproduct_5_7(self):
+		"""Test that customers_by_product works correctly on 5-node, 7-product network.
+		"""
+		print_status('TestCustomersByProduct', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		prods = {prod.index: prod for prod in network.products}
+
+		self.assertListEqual(nodes[0].customers_by_product(product=prods[0], return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[0].customers_by_product(product=prods[0], return_indices=True, network_BOM=True), [None])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=False, network_BOM=True), [None])
+		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=True, network_BOM=True), [None])
+		self.assertListEqual(nodes[2].customers_by_product(product=2, return_indices=False, network_BOM=True), [nodes[0], nodes[1]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[3], return_indices=False, network_BOM=False), [nodes[0], nodes[1]])
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[4], return_indices=True, network_BOM=False), [1])
+		self.assertListEqual(nodes[3].customers_by_product(product=prods[2], return_indices=False, network_BOM=True), [nodes[1]])
+		self.assertListEqual(nodes[3].customers_by_product(product=4, return_indices=True, network_BOM=True), [1])
+		self.assertListEqual(nodes[4].customers_by_product(product=5, return_indices=True, network_BOM=True), [2, 3])
+		self.assertListEqual(nodes[4].customers_by_product(product=prods[6], return_indices=False, network_BOM=False), [nodes[2], nodes[3]])
+
+		with self.assertRaises(ValueError):
+			_ = nodes[1].customers_by_product(product=77)
+			_ = nodes[0].customers_by_product(product=None, return_indices=True, network_BOM=True), [None]
 		
+
 class TestValidateProduct(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

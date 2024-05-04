@@ -224,7 +224,8 @@ class SupplyChainNetwork(object):
 			A string representation of the |class_network| instance.
 
 		"""
-		return "SupplyChainNetwork({:s})".format(str(vars(self)))
+		return f'SupplyChainNetwork(nodes={self.node_indices}, products={self.product_indices})'
+#		return "SupplyChainNetwork({:s})".format(str(vars(self)))
 
 	# Attribute management.
 
