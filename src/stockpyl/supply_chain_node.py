@@ -279,6 +279,33 @@ class SupplyChainNode(object):
 				self._inventory_policy.node = self
 
 	# Properties and functions related to network structure.
+ 
+	@property
+	def has_external_supplier(self):
+		"""``True`` if the node has an external supplier (i.e., if its ``supply_type`` is not ``None``),
+		``False`` otherwise.
+		"""
+		has_ext_supp = False
+		for product in self.products:
+			if self.get_attribute('supply_type', product=product) is not None:
+				has_ext_supp = True
+				break
+		
+		return has_ext_supp
+
+	@property
+	def has_external_customer(self):
+		"""``True`` if the node has an external customer (i.e., if its ``demand_source`` is not ``None``),
+		``False`` otherwise.
+		"""
+		has_ext_cust = False
+		for product in self.products:
+			ds = self.get_attribute('demand_source', product=product)
+			if ds is not None and ds.type is not None:
+				has_ext_cust = True
+				break
+		
+		return has_ext_cust
 
 	def predecessors(self, include_external=False):
 		"""Return a list of all predecessors of the node, as |class_node| objects.
@@ -293,15 +320,7 @@ class SupplyChainNode(object):
 		list
 			List of all predecessors, as |class_node| objects.
 		"""
-		# Set supply_type to not None if the node or any products have it set to not None.
-		# TODO: handle this more elegantly (node supply_type property sets based on products too)
-		supply_type = self.supply_type
-		if not supply_type:
-			for prod in self.products:
-				if prod is not None and not is_integer(prod) and prod.supply_type is not None:
-					supply_type = prod.supply_type
-		# Include external supplier if include_external and supply_type is not None.
-		if include_external and supply_type is not None:
+		if include_external and self.has_external_supplier:
 			return self._predecessors + [None]
 		else:
 			return self._predecessors
@@ -319,8 +338,7 @@ class SupplyChainNode(object):
 		list
 			List of all successors, as |class_node| objects.
 		"""
-		if include_external and \
-				(self.demand_source is not None and self.demand_source.type is not None):
+		if include_external and self.has_external_customer:
 			return self._successors + [None]
 		else:
 			return self._successors
@@ -433,7 +451,7 @@ class SupplyChainNode(object):
 			elif None in self.predecessors(include_external=True):
 				return None, None
 			else:
-				raise ValueError(f'predecessor cannot be None if the node has no external supplier and 0 or >1 predecessor nodes.')
+				raise ValueError(f'predecessor cannot be None if the node has no external supplier and has 0 or >1 predecessor nodes.')
 		else:
 			pred_node, pred_ind = self.network.parse_node(predecessor) # raises TypeError on bad type
 			if pred_node not in preds:
@@ -441,6 +459,56 @@ class SupplyChainNode(object):
 			else:
 				return pred_node, pred_ind
  
+	def validate_successor(self, successor):
+		"""Confirm that ``successor`` is a valid successor of node:
+
+			* If ``successor`` is a |class_node| object, confirms that it is a 
+				successor of the node, and returns the successor node and its index.
+			* If ``successor`` is an int, confirms that it is the index of a successor
+				of the node, and returns the successor node and its index.
+			* If ``successor`` is ``None`` and the node has a single successor node
+				(regardless of whether it also has an external customer), returns the successor node and its index.
+			* If ``successor`` is ``None`` and the node has 0 or more than 1 successor node and has
+				an external customer, returns ``None, None``. (This represents the external customer.)
+			* Raises a ``ValueError`` in most other cases.
+
+		Parameters
+		----------
+		successor : |class_node|, int, or ``None``
+			The successor to validate.
+		
+		Returns
+		-------
+		|class_node|
+			The node object.
+		int
+			The node index.
+	
+		Raises
+		------
+		TypeError
+			If ``successor`` is not a |class_node|, int, or ``None``.
+		ValueError
+			If ``successor`` is not a successor of the node.
+		ValueError
+			If ``successor`` is ``None`` and the node has no external customer 
+			and has 0 or >1 successor nodes.
+		"""
+
+		succs = self.successors(include_external=False)
+		if successor is None:
+			if len(succs) == 1:
+				return self.network.parse_node(succs[0])
+			elif None in self.successors(include_external=True):
+				return None, None
+			else:
+				raise ValueError(f'successor cannot be None if the node has no external customer and has 0 or >1 successor nodes.')
+		else:
+			succ_node, succ_ind = self.network.parse_node(successor) # raises TypeError on bad type
+			if succ_node not in succs:
+				raise ValueError(f'Node {succ_ind} is not a successor of node {self.index}.')
+			else:
+				return succ_node, succ_ind
 		
 	# Properties and functions related to products and bill of materials.
 
@@ -1058,6 +1126,112 @@ class SupplyChainNode(object):
 		"""
 		return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index)]
 
+	def validate_product(self, product):
+		"""Confirm that ``product`` is a valid product of node:
+
+			* If ``product`` is a |class_product| object, confirms that it is a 
+				product of the node, and returns the product object and its index.
+			* If ``product`` is an int, confirms that it is the index of a product
+				of the node, and returns the product object and its index.
+			* If ``product`` is ``None`` and the node has a single product
+				(including a dummy product), returns the product node and its index.
+			* Raises a ``ValueError`` in most other cases.
+
+		Parameters
+		----------
+		product : |class_product|, int, or ``None``
+			The product to validate.
+		
+		Returns
+		-------
+		|class_product|
+			The product object.
+		int
+			The product index.
+	
+		Raises
+		------
+		TypeError
+			If ``product`` is not a |class_product|, int, or ``None``.
+		ValueError
+			If ``product`` is not a product of the node.
+		ValueError
+			If ``product`` is ``None`` and the node has more than 1 product (including
+			the dummy product).
+		"""
+
+		prods = self.products
+		if product is None:
+			if len(prods) == 1:
+				return self.network.parse_product(prods[0])
+			else:
+				raise ValueError(f'product cannot be None if the node has more than 1 product.')
+		else:
+			prod_obj, prod_ind = self.network.parse_product(product) # raises TypeError on bad type
+			if prod_obj not in prods:
+				raise ValueError(f'Product {prod_ind} is not a product of node {self.index}.')
+			else:
+				return prod_obj, prod_ind
+		
+	def validate_raw_material(self, raw_material, predecessor=None):
+		"""Confirm that ``raw_material`` is a valid raw material used by the node:
+
+			* If ``raw_material`` is a |class_product| object, confirms that it is a 
+				raw material of the node, and returns the raw material's |class_product| object and its index.
+			* If ``raw_material`` is an int, confirms that it is the index of a raw material
+				of the node, and returns the raw material's |class_product| object and its index.
+			* If ``raw_material`` is ``None`` and the node has a single raw material
+				(including an external supplier dummy raw material), returns the raw material node and its index.
+			* Raises a ``ValueError`` in most other cases.
+			* If ``predecessor`` is not ``None``, also checks that the raw material is provided by that
+				predecessor, and raises an exception if not. (This only works if ``raw_material`` is not ``None``.)
+	
+		Parameters
+		----------
+		raw_material : |class_product|, int, or ``None``
+			The raw material to validate.
+		predecessor : |class_node| or int, optional
+			If not ``None`` and ``raw_material`` is not ``None``, the function will check that
+			``raw_material`` is provided by ``predecessor`` and raise an exception if not.
+		
+		Returns
+		-------
+		|class_product|
+			The raw material as an object.
+		int
+			The raw material index.
+	
+		Raises
+		------
+		TypeError
+			If ``raw_material`` is not a |class_product|, int, or ``None``.
+		ValueError
+			If ``raw_material`` is not a raw material of the node.
+		ValueError
+			If ``raw_material`` is ``None`` and the node has more than 1 raw material (including
+			the dummy raw materials).
+		ValueError
+			If ``raw_material`` and ``predecessor`` are both not ``None`` and ``predecessor``
+			does not supply this node with ``raw_material``.
+		"""
+
+		rms = self.raw_materials_by_product(product_index='all', network_BOM=True)
+		if raw_material is None:
+			if len(rms) == 1:
+				return self.network.parse_product(rms[0])
+			else:
+				raise ValueError(f'raw_material cannot be None if the node has more than 1 raw material.')
+		else:
+			rm_obj, rm_ind = self.network.parse_product(raw_material) # raises TypeError on bad type
+			_, pred_ind = self.network.parse_node(predecessor)
+			if rm_obj not in rms:
+				raise ValueError(f'Product {rm_ind} is not a raw material of node {self.index}.')
+			elif pred_ind is not None and \
+				pred_ind not in self.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+				raise ValueError(f'Node {pred_ind} does not provide product {rm_ind} as a raw material to node {self.index}')
+			else:
+				return rm_obj, rm_ind
+		
 	# Properties related to lead times.
 
 	@property
@@ -1312,8 +1486,19 @@ class SupplyChainNode(object):
 							  'stockout_cost', 'revenue', 'initial_inventory_level', 'initial_orders',
 							  'initial_shipments','demand_bound_constant', 'units_required', 'net_demand_mean',
 							  'net_demand_standard_deviation', 'order_capacity'):
-					# These attributes need approximate comparisons.
-					if not isclose(getattr(self, attr) or 0, getattr(other, attr) or 0, rel_tol=rel_tol):
+					# These attributes need approximate comparisons. Check first whether it's a dict or singleton.
+					self_attr = getattr(self, attr)
+					other_attr = getattr(other, attr)
+					if (is_dict(self_attr) and not is_dict(other_attr)) or (not is_dict(self_attr) and is_dict(other_attr)) \
+						or (is_dict(self_attr) and set(self_attr.keys()) != set(other_attr.keys())):
+						viol_attr = attr
+						eq = False
+					elif is_dict(self_attr):
+						for k, v in self_attr.items():
+							if not isclose(v or 0, other_attr[k] or 0, rel_tol=rel_tol):
+								viol_attr = attr
+								eq = False
+					elif not isclose(self_attr or 0, other_attr or 0, rel_tol=rel_tol):
 						viol_attr = attr
 						eq = False
 				elif attr in ('demand_source', 'disruption_process'):
@@ -1372,7 +1557,17 @@ class SupplyChainNode(object):
 			elif attr == '_products_by_index':
 				node_dict[attr] = {prod.index: prod.to_dict() for prod in self.products}
 			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
-				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).to_dict()
+				# Determine whether attr is a singleton or a dict (for node-product-level attribute).
+				# Leave a note to the decoder indicating which type of dict this is.
+				the_attr = None if getattr(self, attr) is None else getattr(self, attr)
+				if is_dict(the_attr):
+					node_dict[attr] = {k: v.to_dict() for k, v in the_attr.items()}
+					node_dict[attr]['dict_type'] = 'product_keyed_attribute'
+				elif the_attr is None:
+					node_dict[attr] = None
+				else:
+					node_dict[attr] = the_attr.to_dict()
+					node_dict[attr]['dict_type'] = 'singleton_attribute'
 			elif attr == 'state_vars':
 				node_dict[attr] = None if self.state_vars is None else [sv.to_dict() for sv in self.state_vars]
 			else:
@@ -1409,6 +1604,7 @@ class SupplyChainNode(object):
 		|class_product|
 			The object converted from the dict.
 		"""
+   
 		if the_dict is None:
 			node = cls()
 		else:
@@ -1419,57 +1615,71 @@ class SupplyChainNode(object):
 			# Build empty SupplyChainNode.
 			node = cls(index)
 			# Fill attributes.
-			for attr in cls._DEFAULT_VALUES.keys():
-				# Some attributes require special handling.
-				if attr == '_index':
+			for attr_name in cls._DEFAULT_VALUES.keys():
+				# Some attributes require special handling. For attributes that are objects (which will have
+				# been saved as dicts), read 'dict_type' to determine whether this is a product-keyed dict
+				# or a singleton; also, don't include 'dict_type' in the decoded object.
+				if attr_name == '_index':
 					# This has no effect--we already set the index--but is needed for setattr() below.
 					value = index
-				elif attr in ('_products_by_index', '_predecessors', '_successors'):
-					if attr in the_dict:
-						value = copy.deepcopy(the_dict[attr])
+				elif attr_name in ('_products_by_index', '_predecessors', '_successors'):
+					if attr_name in the_dict:
+						value = copy.deepcopy(the_dict[attr_name])
 					else:
-						value = copy.deepcopy(cls._DEFAULT_VALUES[attr])
-				# elif attr == '_products_by_index':
-				# 	if attr not in the_dict:
-				# 		value = copy.deepcopy(cls._DEFAULT_VALUES['_products_by_index'])
-				# 	else:
-				# 		value = copy.
-				# 		for prod_dict in (the_dict['_products_by_index'].values() or []):
-				# 			value[prod_dict['index']] = SupplyChainProduct.from_dict(prod_dict)
-				elif attr == 'demand_source':
-					if attr in the_dict:
-						value = demand_source.DemandSource.from_dict(the_dict[attr])
+						value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
+				elif attr_name == 'demand_source':
+					if attr_name in the_dict:
+						if 'dict_type' in the_dict[attr_name] and the_dict[attr_name]['dict_type'] == 'product_keyed_attribute':
+							# Attribute is product-keyed dict; convert keys to int (they were probably
+							# saved as strings) and undictify objects.
+							value = {int(k): demand_source.DemandSource.from_dict(v) for k, v in the_dict[attr_name].items() if k != 'dict_type'}
+						else:
+							value = demand_source.DemandSource.from_dict(the_dict[attr_name])
 					else:
 						value = demand_source.DemandSource.from_dict(None)
-				elif attr == 'disruption_process':
-					if attr in the_dict:
-						value = disruption_process.DisruptionProcess.from_dict(the_dict[attr])
+				elif attr_name == 'disruption_process':
+					if attr_name in the_dict:
+						if 'dict_type' in the_dict[attr_name] and the_dict[attr_name]['dict_type'] == 'product_keyed_attribute':
+							value = {int(k): disruption_process.DisruptionProcess.from_dict(v) for k, v in the_dict[attr_name].items() if k != 'dict_type'}
+						else:
+							value = disruption_process.DisruptionProcess.from_dict(the_dict[attr_name])
 					else:
 						value = disruption_process.DisruptionProcess.from_dict(None)
-				elif attr == '_inventory_policy':
-					if attr in the_dict:
-						value = policy.Policy.from_dict(the_dict[attr])
+				elif attr_name == '_inventory_policy':
+					if attr_name in the_dict:
+						if 'dict_type' in the_dict[attr_name] and the_dict[attr_name]['dict_type'] == 'product_keyed_attribute':
+							value = {int(k): policy.Policy.from_dict(v) for k, v in the_dict[attr_name].items() if k != 'dict_type'}
+							for k in value:
+								value[k].node = node
+						else:
+							value = policy.Policy.from_dict(the_dict[attr_name])
+							value.node = node
 					else:
 						value = policy.Policy.from_dict(None)
-					value.node = node
-					# Remove "_" from attr so we are setting the property, not the attribute.
-					attr = 'inventory_policy'
-				elif attr == 'state_vars':
-					if attr in the_dict:
-						if the_dict[attr] is None:
+						value.node = node
+					# Remove "_" from attr_name so we are setting the property, not the attribute.
+					attr_name = 'inventory_policy'
+				elif attr_name == 'state_vars':
+					if attr_name in the_dict:
+						if the_dict[attr_name] is None:
 							value = None
 						else:
-							value = [NodeStateVars.from_dict(sv) for sv in the_dict[attr]]
+							value = [NodeStateVars.from_dict(sv) for sv in the_dict[attr_name]]
 							for sv in value:
 								sv.node = node
 					else:
-						value = cls._DEFAULT_VALUES[attr]
+						value = cls._DEFAULT_VALUES[attr_name]
 				else:
-					if attr in the_dict:
-						value = the_dict[attr]
+					if attr_name in the_dict:
+						value = the_dict[attr_name]
+						if is_dict(the_dict[attr_name]) and 'dict_type' in the_dict[attr_name]:
+							if the_dict[attr_name]['dict_type'] == 'product_keyed_attribute':
+								# Keys (products) may have been saved as strings -- replace with ints.
+								value = replace_dict_numeric_string_keys(value)
+							del the_dict[attr_name]['dict_type']
 					else:
-						value = cls._DEFAULT_VALUES[attr]
-				setattr(node, attr, value)
+						value = cls._DEFAULT_VALUES[attr_name]
+				setattr(node, attr_name, value)
 
 		return node
 

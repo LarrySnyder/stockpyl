@@ -368,6 +368,9 @@ class SupplyChainNetwork(object):
 							node._products_by_index = {}
 							for prod_ind in prod_indices:
 								node.add_product(network.products_by_index[prod_ind])
+							# Replace product attribute in inventory_policy with product object (SupplyChainNode.to_dict()
+							# stores it as int.)
+							node
 							# Replace dummy-product indices with product objects.
 							if node._dummy_product is not None:
 								node._dummy_product = network.products_by_index[node._dummy_product]

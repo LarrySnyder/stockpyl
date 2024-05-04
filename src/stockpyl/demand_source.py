@@ -508,8 +508,6 @@ class DemandSource(object):
 				# Set the property/attribute.
 				setattr(ds, prop, value)
 	
-					
-
 		return ds
 
 	# DEMAND GENERATION

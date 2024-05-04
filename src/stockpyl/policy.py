@@ -70,8 +70,8 @@ class Policy(object):
 
 	node : |class_node|
 		The node the policy refers to.
-	product : |class_product|, optional
-		The product the policy refers to. The product must be handled by ``node``. Set to ``None``
+	product_index : int, optional
+		The index of the product the policy refers to. The product must be handled by ``node``. May set to ``None``
 		for single-product models.
 	base_stock_level : float, optional
 		The base-stock level used by the policy, if applicable. Required if ``type`` == 'BS',
@@ -288,8 +288,8 @@ class Policy(object):
 	# CONVERTING TO/FROM DICTS
 
 	def to_dict(self):
-		"""Convert the |class_policy| object to a dict. The ``node`` and ``product`` attributes are set
-		to the indices of the node and product (if any), rather than to the objects.
+		"""Convert the |class_policy| object to a dict. The ``node`` attribute is set
+		to the indices of the node, rather than to the object.
 
 		Returns
 		-------
@@ -304,9 +304,9 @@ class Policy(object):
 			if attr == '_node':
 				# Use index only.
 				pol_dict['node'] = None if self.node is None else self.node.index
-			elif attr == '_product':
-				# Use index only.
-				pol_dict['product'] = None if self.product is None else self.product.index
+			# elif attr == '_product':
+			# 	# Use index only.
+			# 	pol_dict['product'] = None if self.product is None else self.product.index
 			else:
 				# Remove leading '_' to get property names.
 				prop = attr[1:] if attr[0] == '_' else attr
@@ -317,9 +317,9 @@ class Policy(object):
 	@classmethod
 	def from_dict(cls, the_dict):
 		"""Return a new |class_policy| object with attributes copied from the
-		values in ``the_dict``. The ``node`` and ``product'' attributes are set to the indices
-		of the node and product, like they are in the dict, but should be converted to |class_node|
-		and |class_product| objects if this function is called recursively from a |class_node|'s 
+		values in ``the_dict``. The ``node`` attribute is set to the index
+		of the node, like it is in the dict, but should be converted to |class_node|
+		objecs if this function is called recursively from a |class_node|'s 
 		``from_dict()`` method.
 
 		Parameters

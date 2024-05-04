@@ -540,14 +540,16 @@ def _initialize_state_vars(network):
 					n.state_vars[0].inbound_order_pipeline[s.index][prod.index][l] = s.get_attribute('initial_orders', prod) or 0
 
 		# State variables indexed by product at predecessor nodes.
-		for p in n.predecessors(include_external=True):
-			p_index = p.index if p is not None else None
-			for prod_index in p.product_indices if p is not None else [n._external_supplier_dummy_product.index]:
+		for rm_index in n.raw_material_indices_by_product('all', network_BOM=True):
+			for p_index in n.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
+		# for p in n.predecessors(include_external=True):
+		# 	p_index = p.index if p is not None else None
+		# 	for rm_index in p.product_indices if p is not None else [n._external_supplier_dummy_product.index]:
 				
 				# Initialize inbound shipment pipeline and on-order quantities.
 				for l in range(n.shipment_lead_time or 0):
-					n.state_vars[0].inbound_shipment_pipeline[p_index][prod_index][l] = n.get_attribute('initial_shipments', prod) or 0
-				n.state_vars[0].on_order_by_predecessor[p_index][prod_index] = \
+					n.state_vars[0].inbound_shipment_pipeline[p_index][rm_index][l] = n.get_attribute('initial_shipments', prod) or 0
+				n.state_vars[0].on_order_by_predecessor[p_index][rm_index] = \
 					(n.get_attribute('initial_shipments', prod) or 0) * (n.get_attribute('shipment_lead_time', prod) or 0) \
 						+ (n.get_attribute('initial_orders', prod) or 0) * (n.get_attribute('order_lead_time', prod) or 0)
 

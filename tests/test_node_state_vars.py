@@ -374,6 +374,198 @@ class TestStateVariables(unittest.TestCase):
 	#
 
 
+class TestGetStateVariables(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestGetStateVariables', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestGetStateVariables', 'tear_down_class()')
+
+	def test_example_6_1_per_22(self):
+		"""Test state variables for simulation of 3-node serial system in
+		Example 6.1 at end of period 22.
+		"""
+		print_status('TestGetStateVariables', 'test_example_6_1_per_22()')
+
+		network = load_instance("example_6_1")
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variable shortcuts against dicts.
+		simulation(network, 23, rand_seed=17, progress_bar=False)
+
+		nodes = {i: network.get_node_from_index(i) for i in range(1, 4)}
+
+		for n in nodes.values():
+			# Indexed by predecessor and raw material.
+			for rm in n.raw_materials_by_product('all', network_BOM=True):
+				rm_ind = rm.index
+				for pred_ind in n.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+					self.assertEqual(n.state_vars[22].inbound_shipment[pred_ind][rm_ind],
+						n.state_vars[22].get_inbound_shipment(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[22].on_order_by_predecessor[pred_ind][rm_ind],
+						n.state_vars[22].get_on_order_by_predecessor(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[22].inbound_disrupted_items[pred_ind][rm_ind],
+						n.state_vars[22].get_inbound_disrupted_items(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[22].order_quantity[pred_ind][rm_ind],
+						n.state_vars[22].get_order_quantity(predecessor=pred_ind, raw_material=rm_ind))
+					for r in range(len(n.state_vars[22].inbound_shipment_pipeline[pred_ind][rm_ind])):
+						self.assertEqual(n.state_vars[22].inbound_shipment_pipeline[pred_ind][rm_ind][r],
+							n.state_vars[22].get_inbound_shipment_pipeline(periods_from_now=r, predecessor=pred_ind, raw_material=rm_ind))
+
+			# Indexed by successor and product.
+			for product in n.products:
+				prod_ind = product.index
+				for succ_ind in n.successor_indices(include_external=True):
+					self.assertEqual(n.state_vars[22].inbound_order[succ_ind][prod_ind],
+						n.state_vars[22].get_inbound_order(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[22].outbound_shipment[succ_ind][prod_ind],
+					  	n.state_vars[22].get_outbound_shipment(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[22].backorders_by_successor[succ_ind][prod_ind],
+					  	n.state_vars[22].get_backorders_by_successor(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[22].outbound_disrupted_items[succ_ind][prod_ind],
+					  	n.state_vars[22].get_outbound_disrupted_items(successor=succ_ind, product=prod_ind))
+					for r in range(len(n.state_vars[22].inbound_order_pipeline[succ_ind][prod_ind])):
+						self.assertEqual(n.state_vars[22].inbound_order_pipeline[succ_ind][prod_ind][r],
+							n.state_vars[22].get_inbound_order_pipeline(periods_from_now=r, successor=succ_ind, product=prod_ind))
+						
+			# Indexed by product.
+			for prod_ind in n.product_indices:
+				self.assertEqual(n.state_vars[22].demand_cumul[prod_ind], n.state_vars[22].get_demand_cumul(product=prod_ind))
+				self.assertEqual(n.state_vars[22].inventory_level[prod_ind], n.state_vars[22].get_inventory_level(product=prod_ind))
+				self.assertEqual(n.state_vars[22].pending_finished_goods[prod_ind], n.state_vars[22].get_pending_finished_goods(product=prod_ind))
+				self.assertEqual(n.state_vars[22].demand_met_from_stock[prod_ind], n.state_vars[22].get_demand_met_from_stock(product=prod_ind))
+				self.assertEqual(n.state_vars[22].demand_met_from_stock_cumul[prod_ind], n.state_vars[22].get_demand_met_from_stock_cumul(product=prod_ind))
+				self.assertEqual(n.state_vars[22].fill_rate[prod_ind], n.state_vars[22].get_fill_rate(product=prod_ind))
+				self.assertEqual(n.state_vars[22].order_quantity_fg[prod_ind], n.state_vars[22].get_order_quantity_fg(product=prod_ind))
+
+			# Indexed by raw material.
+			for rm_ind in n.raw_material_indices_by_product('all', network_BOM=True):
+				self.assertEqual(n.state_vars[22].raw_material_inventory[rm_ind], n.state_vars[22].get_raw_material_inventory(raw_material=rm_ind))
+
+	def test_assembly_3_stage_per_43(self):
+		"""Test state variables for simulation of 3-node assembly system at end of period 43.
+		"""
+		print_status('TestGetStateVariables', 'test_assembly_3_stage_per_43()')
+
+		network = load_instance("assembly_3_stage")
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variable shortcuts against dicts.
+		simulation(network, 44, rand_seed=17, progress_bar=False)
+		nodes = {n.index: n for n in network.nodes}
+
+		for n in nodes.values():
+			# Indexed by predecessor and raw material.
+			for rm in n.raw_materials_by_product('all', network_BOM=True):
+				rm_ind = rm.index
+				for pred_ind in n.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+					self.assertEqual(n.state_vars[43].inbound_shipment[pred_ind][rm_ind],
+						n.state_vars[43].get_inbound_shipment(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[43].on_order_by_predecessor[pred_ind][rm_ind],
+						n.state_vars[43].get_on_order_by_predecessor(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[43].inbound_disrupted_items[pred_ind][rm_ind],
+						n.state_vars[43].get_inbound_disrupted_items(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[43].order_quantity[pred_ind][rm_ind],
+						n.state_vars[43].get_order_quantity(predecessor=pred_ind, raw_material=rm_ind))
+					for r in range(len(n.state_vars[43].inbound_shipment_pipeline[pred_ind][rm_ind])):
+						self.assertEqual(n.state_vars[43].inbound_shipment_pipeline[pred_ind][rm_ind][r],
+							n.state_vars[43].get_inbound_shipment_pipeline(periods_from_now=r, predecessor=pred_ind, raw_material=rm_ind))
+
+			# Indexed by successor and product.
+			for product in n.products:
+				prod_ind = product.index
+				for succ_ind in n.successor_indices(include_external=True):
+					self.assertEqual(n.state_vars[43].inbound_order[succ_ind][prod_ind],
+						n.state_vars[43].get_inbound_order(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[43].outbound_shipment[succ_ind][prod_ind],
+					  	n.state_vars[43].get_outbound_shipment(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[43].backorders_by_successor[succ_ind][prod_ind],
+					  	n.state_vars[43].get_backorders_by_successor(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[43].outbound_disrupted_items[succ_ind][prod_ind],
+					  	n.state_vars[43].get_outbound_disrupted_items(successor=succ_ind, product=prod_ind))
+					for r in range(len(n.state_vars[43].inbound_order_pipeline[succ_ind][prod_ind])):
+						self.assertEqual(n.state_vars[43].inbound_order_pipeline[succ_ind][prod_ind][r],
+							n.state_vars[43].get_inbound_order_pipeline(periods_from_now=r, successor=succ_ind, product=prod_ind))
+						
+			# Indexed by product.
+			for prod_ind in n.product_indices:
+				self.assertEqual(n.state_vars[43].demand_cumul[prod_ind], n.state_vars[43].get_demand_cumul(product=prod_ind))
+				self.assertEqual(n.state_vars[43].inventory_level[prod_ind], n.state_vars[43].get_inventory_level(product=prod_ind))
+				self.assertEqual(n.state_vars[43].pending_finished_goods[prod_ind], n.state_vars[43].get_pending_finished_goods(product=prod_ind))
+				self.assertEqual(n.state_vars[43].demand_met_from_stock[prod_ind], n.state_vars[43].get_demand_met_from_stock(product=prod_ind))
+				self.assertEqual(n.state_vars[43].demand_met_from_stock_cumul[prod_ind], n.state_vars[43].get_demand_met_from_stock_cumul(product=prod_ind))
+				self.assertEqual(n.state_vars[43].fill_rate[prod_ind], n.state_vars[43].get_fill_rate(product=prod_ind))
+				self.assertEqual(n.state_vars[43].order_quantity_fg[prod_ind], n.state_vars[43].get_order_quantity_fg(product=prod_ind))
+
+			# Indexed by raw material.
+			for rm_ind in n.raw_material_indices_by_product('all', network_BOM=True):
+				self.assertEqual(n.state_vars[43].raw_material_inventory[rm_ind], n.state_vars[43].get_raw_material_inventory(raw_material=rm_ind))
+
+	def test_multiproduct_5_7_per_43(self):
+		"""Test state variables for simulation of 5-node, 7-product system at end of period 43.
+		"""
+		print_status('TestGetStateVariables', 'test_multiproduct_5_7_per_43()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+
+		# Strategy for these tests: run sim for a few periods, test state
+		# variable shortcuts against dicts.
+		simulation(network, 44, rand_seed=17, progress_bar=False)
+		nodes = {n.index: n for n in network.nodes}
+
+		for n in nodes.values():
+			# Indexed by predecessor and raw material.
+			for rm in n.raw_materials_by_product('all', network_BOM=True):
+				rm_ind = rm.index
+				for pred_ind in n.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+					self.assertEqual(n.state_vars[43].inbound_shipment[pred_ind][rm_ind],
+						n.state_vars[43].get_inbound_shipment(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[43].on_order_by_predecessor[pred_ind][rm_ind],
+						n.state_vars[43].get_on_order_by_predecessor(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[43].inbound_disrupted_items[pred_ind][rm_ind],
+						n.state_vars[43].get_inbound_disrupted_items(predecessor=pred_ind, raw_material=rm_ind))
+					self.assertEqual(n.state_vars[43].order_quantity[pred_ind][rm_ind],
+						n.state_vars[43].get_order_quantity(predecessor=pred_ind, raw_material=rm_ind))
+					for r in range(len(n.state_vars[43].inbound_shipment_pipeline[pred_ind][rm_ind])):
+						self.assertEqual(n.state_vars[43].inbound_shipment_pipeline[pred_ind][rm_ind][r],
+							n.state_vars[43].get_inbound_shipment_pipeline(periods_from_now=r, predecessor=pred_ind, raw_material=rm_ind))
+
+			# Indexed by successor and product.
+			for product in n.products:
+				prod_ind = product.index
+				for succ_ind in n.successor_indices(include_external=True):
+					self.assertEqual(n.state_vars[43].inbound_order[succ_ind][prod_ind],
+						n.state_vars[43].get_inbound_order(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[43].outbound_shipment[succ_ind][prod_ind],
+					  	n.state_vars[43].get_outbound_shipment(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[43].backorders_by_successor[succ_ind][prod_ind],
+					  	n.state_vars[43].get_backorders_by_successor(successor=succ_ind, product=prod_ind))
+					self.assertEqual(n.state_vars[43].outbound_disrupted_items[succ_ind][prod_ind],
+					  	n.state_vars[43].get_outbound_disrupted_items(successor=succ_ind, product=prod_ind))
+					for r in range(len(n.state_vars[43].inbound_order_pipeline[succ_ind][prod_ind])):
+						self.assertEqual(n.state_vars[43].inbound_order_pipeline[succ_ind][prod_ind][r],
+							n.state_vars[43].get_inbound_order_pipeline(periods_from_now=r, successor=succ_ind, product=prod_ind))
+						
+			# Indexed by product.
+			for prod_ind in n.product_indices:
+				self.assertEqual(n.state_vars[43].demand_cumul[prod_ind], n.state_vars[43].get_demand_cumul(product=prod_ind))
+				self.assertEqual(n.state_vars[43].inventory_level[prod_ind], n.state_vars[43].get_inventory_level(product=prod_ind))
+				self.assertEqual(n.state_vars[43].pending_finished_goods[prod_ind], n.state_vars[43].get_pending_finished_goods(product=prod_ind))
+				self.assertEqual(n.state_vars[43].demand_met_from_stock[prod_ind], n.state_vars[43].get_demand_met_from_stock(product=prod_ind))
+				self.assertEqual(n.state_vars[43].demand_met_from_stock_cumul[prod_ind], n.state_vars[43].get_demand_met_from_stock_cumul(product=prod_ind))
+				self.assertEqual(n.state_vars[43].fill_rate[prod_ind], n.state_vars[43].get_fill_rate(product=prod_ind))
+				self.assertEqual(n.state_vars[43].order_quantity_fg[prod_ind], n.state_vars[43].get_order_quantity_fg(product=prod_ind))
+
+			# Indexed by raw material.
+			for rm_ind in n.raw_material_indices_by_product('all', network_BOM=True):
+				self.assertEqual(n.state_vars[43].raw_material_inventory[rm_ind], n.state_vars[43].get_raw_material_inventory(raw_material=rm_ind))
+
+
+		
 class TestNodeStateVarsToFromDict(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

@@ -53,15 +53,13 @@ class NodeStateVars(object):
 	period : int
 		The period of the simulation that the state variables refer to.
 	inbound_shipment_pipeline : dict
-		``inbound_shipment_pipeline[p][prod][r]`` = shipment quantity of product ``prod`` 
+		``inbound_shipment_pipeline[p][rm][r]`` = shipment quantity of raw material ``rm`` 
 		arriving from predecessor node ``p`` in ``r`` periods from the current period.
-		If ``p`` is ``None``, refers to external supplier. If ``p`` is single-product or 
-		external supplier, ``prod=None``.
+		If ``p`` is ``None``, refers to external supplier.
 	inbound_shipment : dict
-		``inbound_shipment[p][prod]`` = shipment quantity of product ``prod`` arriving at node from
+		``inbound_shipment[p][rm]`` = shipment quantity of raw material ``rm`` arriving at node from
 		predecessor node ``p`` in the current period. If ``p`` is ``None``,
-		refers to external supplier. If ``p`` is single-product or 
-		external supplier, ``prod=None``.
+		refers to external supplier. 
 	inbound_order_pipeline : dict
 		``inbound_order_pipeline[s][prod][r]`` = order quantity for product ``prod`` arriving from
 		successor node ``s`` in ``r`` periods from the current period.
@@ -80,28 +78,26 @@ class NodeStateVars(object):
 		``outbound_shipment[s][prod]`` = outbound shipment of product ``prod`` to successor node ``s``.
 		If ``s`` is ``None``, refers to external demand. If node is single-product, ``prod=None``.
 	on_order_by_predecessor : dict
-		``on_order_by_predecessor[p][prod]`` = on-order quantity (items that have been
-		ordered from successor node ``p`` but not yet received) for product ``prod`` at node. If ``p`` is ``None``, 
-		refers to external supply. If ``p`` is single-product or external supplier, ``prod=None``.
+		``on_order_by_predecessor[p][rm]`` = on-order quantity (items that have been
+		ordered from predecessor node ``p`` but not yet received) for raw material ``rm`` at node. If ``p`` is ``None``, 
+		refers to external supply.
 	inventory_level : float
 		``inventory_level[prod]`` = inventory level (positive, negative, or zero) of product ``prod`` at node.
-		If node is single-product, ``prod=None``.
 	backorders_by_successor : dict
 		``backorders_by_successor[s][prod]`` = number of backorders of product ``prod`` for successor
-		``s``. If ``s`` is ``None``, refers to external demand. If node is single-product, ``prod=None``.
+		``s``. If ``s`` is ``None``, refers to external demand. 
 	outbound_disrupted_items : dict
 		``outbound_disrupted_items[s][prod]`` = number of items of product ``prod`` held for successor ``s``
 		due to a type-SP disruption at ``s``. (Since external demand cannot be
-		disrupted, ``outbound_disrupted_items[None][prod]`` always = 0.) If node is single-product, ``prod=None``.
+		disrupted, ``outbound_disrupted_items[None][prod]`` always = 0.) 
 		Items held for successor are not included in ``backorders_by_successor``.
 		Sum over all successors of ``backorders_by_successor + outbound_disrupted_items``
 		should always equal max{0, -``inventory_level``}.
 	inbound_disrupted_items : dict
-		``inbound_disrupted_items[p][prod]`` = number of items of product ``prod`` from predecessor ``p`` that are
-		being held before receipt due to a type-RP disruption at the node. If ``p`` is external supplier or 
-		single-product, ``prod=None``.
+		``inbound_disrupted_items[p][rm]`` = number of items of raw material ``rm`` from predecessor ``p`` that are
+		being held before receipt due to a type-RP disruption at the node.
 	raw_material_inventory : dict
-		``raw_material_inventory[prod]`` = number of units of product ``prod`` from _all_ predecessors 
+		``raw_material_inventory[rm]`` = number of units of raw material ``rm`` from _all_ predecessors 
 		in raw-material inventory at node. 
 		# TODO: note: this is a change, used to be indexed by predecessor
 	pending_finished_goods : dict
@@ -131,7 +127,7 @@ class NodeStateVars(object):
 		``fill_rate[prod]`` = cumulative fill rate for product ``prod`` in periods 0, ..., period.
 		If node is single product, ``prod=None``.
 	order_quantity : dict
-		``order_quantity[p][prod]`` = order quantity for product ``prod`` placed by the node to
+		``order_quantity[p][rm]`` = order quantity for raw material ``rm`` placed by the node to
 		predecessor ``p`` in period. If ``p`` is ``None``, refers to external supplier. 
 	order_quantity_fg : dict
 		``order_quantity_fg[prod]`` = finished-goods order quantity for product ``prod`` at the 
@@ -181,31 +177,13 @@ class NodeStateVars(object):
 					for prod_index in self.node.product_indices:
 						if rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True) and \
 							p_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
-							# Get lead times for this product.
+							# Get lead times for this product. # TODO: shouldn't inbound shipment pipeline only use shipment LT, not order LT?
 							order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
 							shipment_lead_time = (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0)
 							self.inbound_shipment_pipeline[p_index][rm_index] = [0] * (order_lead_time + shipment_lead_time + 1)			  
-			# self.inbound_shipment_pipeline = {p_indices[p]:
-			# 						 			{prod_index:
-			# 									  [0] * ((self.node.get_attribute('order_lead_time', product=prod_index) or 0) + 
-			# 											 (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0) + 1)
-			# 									 for prod_index in rm_indices[p]}
-			# 								  for p in self.node.predecessors(include_external=True)}
 			self.inbound_shipment = {p_indices[p]: 
 										{prod_index: 0 for prod_index in rm_indices[p]}
 		   							 for p in self.node.predecessors(include_external=True)}
-			self.inbound_order_pipeline = {}
-			for s_index in self.node.successor_indices(include_external=False):
-				self.inbound_order_pipeline[s_index] = {}
-				for prod_index in self.node.product_indices:
-					order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
-					self.inbound_order_pipeline[s_index][prod_index] = [0] * (order_lead_time + 1)
-			
-			# Add external customer to inbound_order_pipeline. (Must be done
-			# separately since external customer does not have its own node,
-			# or its own order lead time.)
-			if node.demand_source is not None and node.demand_source.type is not None:
-				self.inbound_order_pipeline[None] = {prod_index: [0] for prod_index in node.product_indices}
 			self.inbound_order = {s_indices[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
 			self.outbound_shipment = {s_indices[s]: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
 			self.on_order_by_predecessor = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
@@ -221,6 +199,21 @@ class NodeStateVars(object):
 			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
 			self.order_quantity_fg = {prod_index: 0 for prod_index in self.node.product_indices}
 			self.pending_finished_goods = {prod_index: 0 for prod_index in self.node.product_indices}
+
+			# inbound_order_pipeline needs some special handling -- external customer must be added
+			# separately since it does not have its own node, or its own order lead time.
+			self.inbound_order_pipeline = {}
+			for s_index in self.node.successor_indices(include_external=False):
+				self.inbound_order_pipeline[s_index] = {}
+				for prod_index in self.node.product_indices:
+					order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
+					self.inbound_order_pipeline[s_index][prod_index] = [0] * (order_lead_time + 1)
+			for prod_index in node.product_indices:
+				ds = node.get_attribute('demand_source', prod_index)
+				if ds is not None and ds.type is not None:
+					if None not in self.inbound_order_pipeline:
+						self.inbound_order_pipeline[None] = {}
+					self.inbound_order_pipeline[None][prod_index] = [0]
 
 			# Fill rate quantities.
 			self.demand_cumul = {prod_index: 0 for prod_index in self.node.product_indices}
@@ -296,19 +289,71 @@ class NodeStateVars(object):
 	# These are basically shortcuts to the individual attributes that offer more flexibility
 	# in how products are specified (or not).
  
-	def get_inbound_shipment_pipeline(periods_from_now, predecessor=None, product=None):
-		"""Shortcut to ``self.inbound_shipment_pipeline[predecessor][product][periods_from_now]``
-		that does not require predecessor or product if they are inferrable.
+	def get_inbound_shipment_pipeline(self, periods_from_now, predecessor=None, raw_material=None):
+		"""Shortcut to ``self.inbound_shipment_pipeline[predecessor][raw_material][periods_from_now]``
+		that does not require ``predecessor`` or ``raw_material`` to be specified if they are inferrable.
 
 		Parameters
 		----------
-		periods_away : int
+		periods_from_now : int
 			Get pipeline inventory arriving this many periods into the future.
 		predecessor : |class_node| or int, optional
 			Predecessor node (as a |class_node|) or its index, or ``None`` (the default)
 			to detect predecessor automatically for a single-predecessor node. If node has
 			both an external supplier and a predecessor node and ``predecessor`` is ``None``,
 			returns the external supplier.
+		raw_material : |class_product| or int, optional
+			Raw material (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			raw material automatically for a single-raw material node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Inbound shipment pipeline.
+		"""
+		_, pred_ind = self.node.validate_predecessor(predecessor)
+		_, rm_ind = self.node.validate_raw_material(raw_material=raw_material, predecessor=predecessor)
+			
+		return self.inbound_shipment_pipeline[pred_ind][rm_ind][periods_from_now] 
+	
+	def get_inbound_shipment(self, predecessor=None, raw_material=None):
+		"""Shortcut to ``self.inbound_shipment[predecessor][raw_material]``
+		that does not require ``predecessor`` or ``raw_material`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		predecessor : |class_node| or int, optional
+			Predecessor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect predecessor automatically for a single-predecessor node. If node has
+			both an external supplier and a predecessor node and ``predecessor`` is ``None``,
+			returns the external supplier.
+		raw_material : |class_product| or int, optional
+			Raw material (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			raw material automatically for a single-raw material node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Inbound shipment.
+		"""
+		_, pred_ind = self.node.validate_predecessor(predecessor)
+		_, rm_ind = self.node.validate_raw_material(raw_material=raw_material, predecessor=predecessor)
+			
+		return self.inbound_shipment[pred_ind][rm_ind] 
+	
+	def get_inbound_order_pipeline(self, periods_from_now, successor=None, product=None):
+		"""Shortcut to ``self.inbound_order_pipeline[successor][product][periods_from_now]``
+		that does not require ``successor`` or ``product`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		periods_from_now : int
+			Get pipeline order arriving this many periods into the future.
+		successor : |class_node| or int, optional
+			Successor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect successor automatically for a single-successor node. If node has
+			both an external customer and a successor node and ``successor`` is ``None``,
+			returns the external customer.
 		product : |class_product| or int, optional
 			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
 			product automatically for a single-product node (including a dummy product).
@@ -316,20 +361,339 @@ class NodeStateVars(object):
 		Returns
 		-------
 		float
-			Inbound shipment pipeline.
+			Inbound order pipeline.
 		"""
-		# Handle predecessor = None.
-		if predecessor is None:
-			if len(self.node.predecessors()) == 1:
-				predecessor = self.node.predecessors()[0]
-			elif len(self.node.predcessors()) > 1:
-				raise ValueError('predecessor cannot be None for nodes with multiple predecessors.')
+		_, succ_ind = self.node.validate_successor(successor)
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.inbound_order_pipeline[succ_ind][prod_ind][periods_from_now] 
 	
-		# Parse predecessor.
-		_, pred_index = parse_node(predecessor)
-		_, prod_index = parse_product(product)
-	
+	def get_inbound_order(self, successor=None, product=None):
+		"""Shortcut to ``self.inbound_order[successor][product]``
+		that does not require ``successor`` or ``product`` to be specified if they are inferrable.
 
+		Parameters
+		----------
+		successor : |class_node| or int, optional
+			Successor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect successor automatically for a single-successor node. If node has
+			both an external customer and a successor node and ``successor`` is ``None``,
+			returns the external customer.
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Inbound order.
+		"""
+		_, succ_ind = self.node.validate_successor(successor)
+		_, rm_ind = self.node.validate_product(product=product)
+			
+		return self.inbound_order[succ_ind][rm_ind] 
+	
+	def get_demand_cumul(self, product=None):
+		"""Shortcut to ``self.demand_cumul[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Cumulative demand.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.demand_cumul[prod_ind]
+
+	def get_outbound_shipment(self, successor=None, product=None):
+		"""Shortcut to ``self.outbound_shipment[successor][product]``
+		that does not require ``successor`` or ``product`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		successor : |class_node| or int, optional
+			Successor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect successor automatically for a single-successor node. If node has
+			both an external customer and a successor node and ``successor`` is ``None``,
+			returns the external customer.
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Outbound shipment.
+		"""
+		_, succ_ind = self.node.validate_successor(successor)
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.outbound_shipment[succ_ind][prod_ind] 
+
+	def get_on_order_by_predecessor(self, predecessor=None, raw_material=None):
+		"""Shortcut to ``self.on_order_by_predecessor[predecessor][raw_material]``
+		that does not require ``predecessor`` or ``raw_material`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		predecessor : |class_node| or int, optional
+			Predecessor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect predecessor automatically for a single-predecessor node. If node has
+			both an external supplier and a predecessor node and ``predecessor`` is ``None``,
+			returns the external supplier.
+		raw_material : |class_product| or int, optional
+			Raw material (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			raw material automatically for a single-raw material node (including a dummy product).
+
+		Returns
+		-------
+		float
+			On order by predecessor.
+		"""
+		_, pred_ind = self.node.validate_predecessor(predecessor)
+		_, rm_ind = self.node.validate_raw_material(raw_material=raw_material, predecessor=predecessor)
+			
+		return self.on_order_by_predecessor[pred_ind][rm_ind] 
+
+	def get_inventory_level(self, product=None):
+		"""Shortcut to ``self.inventory_level[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Inventory level.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.inventory_level[prod_ind]
+
+	def get_backorders_by_successor(self, successor=None, product=None):
+		"""Shortcut to ``self.backorders_by_successor[successor][product]``
+		that does not require ``successor`` or ``product`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		successor : |class_node| or int, optional
+			Successor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect successor automatically for a single-successor node. If node has
+			both an external customer and a successor node and ``successor`` is ``None``,
+			returns the external customer.
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Backorders by successor.
+		"""
+		_, succ_ind = self.node.validate_successor(successor)
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.backorders_by_successor[succ_ind][prod_ind] 
+
+	def get_outbound_disrupted_items(self, successor=None, product=None):
+		"""Shortcut to ``self.outbound_disrupted_items[successor][product]``
+		that does not require ``successor`` or ``product`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		successor : |class_node| or int, optional
+			Successor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect successor automatically for a single-successor node. If node has
+			both an external customer and a successor node and ``successor`` is ``None``,
+			returns the external customer.
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Outbound disrupted items.
+		"""
+		_, succ_ind = self.node.validate_successor(successor)
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.outbound_disrupted_items[succ_ind][prod_ind] 
+
+	def get_inbound_disrupted_items(self, predecessor=None, raw_material=None):
+		"""Shortcut to ``self.inbound_disrupted_items[predecessor][raw_material]``
+		that does not require ``predecessor`` or ``raw_material`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		predecessor : |class_node| or int, optional
+			Predecessor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect predecessor automatically for a single-predecessor node. If node has
+			both an external supplier and a predecessor node and ``predecessor`` is ``None``,
+			returns the external supplier.
+		raw_material : |class_product| or int, optional
+			Raw material (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			raw material automatically for a single-raw material node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Inbound disrupted items.
+		"""
+		_, pred_ind = self.node.validate_predecessor(predecessor)
+		_, rm_ind = self.node.validate_raw_material(raw_material=raw_material, predecessor=predecessor)
+			
+		return self.inbound_disrupted_items[pred_ind][rm_ind] 
+
+	def get_raw_material_inventory(self, raw_material=None):
+		"""Shortcut to ``self.raw_material_inventory[raw_material]``
+		that does not require ``raw_material`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		raw_material : |class_product| or int, optional
+			Raw material (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			raw material automatically for a single-raw material node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Raw material inventory.
+		"""
+		_, rm_ind = self.node.validate_raw_material(raw_material=raw_material)
+			
+		return self.raw_material_inventory[rm_ind]
+
+	def get_pending_finished_goods(self, product=None):
+		"""Shortcut to ``self.pending_finished_goods[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Pending finished goods.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.pending_finished_goods[prod_ind]
+
+	def get_demand_met_from_stock(self, product=None):
+		"""Shortcut to ``self.demand_met_from_stock[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Demand met from stock.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.demand_met_from_stock[prod_ind]
+
+	def get_demand_met_from_stock_cumul(self, product=None):
+		"""Shortcut to ``self.demand_met_from_stock_cumul[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Cumulative demand met from stock.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.demand_met_from_stock_cumul[prod_ind]
+
+	def get_fill_rate(self, product=None):
+		"""Shortcut to ``self.fill_rate[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Fill rate.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.fill_rate[prod_ind]
+
+	def get_order_quantity(self, predecessor=None, raw_material=None):
+		"""Shortcut to ``self.order_quantity[predecessor][raw_material]``
+		that does not require ``predecessor`` or ``raw_material`` to be specified if they are inferrable.
+
+		Parameters
+		----------
+		predecessor : |class_node| or int, optional
+			Predecessor node (as a |class_node|) or its index, or ``None`` (the default)
+			to detect predecessor automatically for a single-predecessor node. If node has
+			both an external supplier and a predecessor node and ``predecessor`` is ``None``,
+			returns the external supplier.
+		raw_material : |class_product| or int, optional
+			Raw material (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			raw material automatically for a single-raw material node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Order quantity.
+		"""
+		_, pred_ind = self.node.validate_predecessor(predecessor)
+		_, rm_ind = self.node.validate_raw_material(raw_material=raw_material, predecessor=predecessor)
+			
+		return self.order_quantity[pred_ind][rm_ind] 
+
+	def get_order_quantity_fg(self, product=None):
+		"""Shortcut to ``self.order_quantity_fg[product]``
+		that does not require ``product`` to be specified if it is inferrable.
+
+		Parameters
+		----------
+		product : |class_product| or int, optional
+			Product (as a |class_product|) or its index, or ``None`` (the default) to detect 
+			product automatically for a single-product node (including a dummy product).
+
+		Returns
+		-------
+		float
+			Finished-goods order quantity.
+		"""
+		_, prod_ind = self.node.validate_product(product=product)
+			
+		return self.order_quantity_fg[prod_ind]
 
 
 

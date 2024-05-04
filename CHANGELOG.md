@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 a given number and return the corresponding value.
 - ``loss_functions.standard_normal_loss_dict()`` function, to build a dictionary of loss-function values.
 - Support for negative binomial demand distributions in ``DemandSource``.
+- Functions to validate and parse nodes and products within a network or node. (Mostly used internally for simulation.)
 
 ### Changed
 - ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
