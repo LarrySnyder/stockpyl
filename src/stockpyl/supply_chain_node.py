@@ -792,7 +792,7 @@ class SupplyChainNode(object):
 		------
 		ValueError
 			If ``product_index`` is not found among the node's products, and it's not the case that ``product_index is None`` and
-			this is a single-product node with no |class_product| added.
+			this is a single-product node.
 		"""
 		# If product index is not in product indices for node, AND it's not the case that this is a single-product node
 		# and product_index is None, raise exception.
@@ -803,7 +803,7 @@ class SupplyChainNode(object):
 		# Determine which products to get raw materials for.
 		if product_index == 'all':
 			products = self.products
-		elif product_index == None:
+		elif product_index is None:
 			products = [self.products[0]]
 		else:
 			products = [self.products_by_index[product_index]]
@@ -1117,7 +1117,69 @@ class SupplyChainNode(object):
 			this node has a single raw material.
 		"""
 		return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index)]
-	
+
+	def supplier_raw_material_pairs_by_product(self, product=None, return_indices=False, network_BOM=True):
+		"""A list of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
+		Set ``product`` to ``'all'`` to get predecessors and raw materials for all products at the node.
+		If the node has a single product (either dummy or real), either set ``product`` to the single product,
+		or to ``None`` and the function will determine it automatically. 
+
+		If ``return_indices`` is ``False``, returns the predecessors as |class_node| objects (or ``None`` for the
+		external supplier) and the products as |class_product| objects, otherwise returns predecessor and product indices.
+
+		If ``network_BOM`` is ``True``, includes predecessors and raw materials that don't have a 
+		BOM relationship specified but are implied by the network structure. 
+		(See :func:`get_network_bill_of_materials`.) 
+
+		Parameters
+		----------
+		product : |class_product|, int, or string, optional
+			The product (as a |class_product| object or index), ``None`` if the node has a single product,
+			or ``'all'`` to get predecessors and raw materials for all products.
+		return_indices : bool, optional
+			Set to ``False`` (the default) to return node and product objects, ``True`` to return node and product indices.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+
+		Raises
+		------
+		ValueError
+			If ``product`` is not found among the node's products, and it's not the case that ``product is None`` and
+			this is a single-product node.
+		"""
+		# Validate parameters.
+		if product != 'all':
+			prod_obj, prod_ind = self.validate_product(product)
+
+			# If product is not in products for node, AND it's not the case that this is a single-product node
+			# and product_index is None, raise exception.
+			if not (self.is_singleproduct and prod_obj is None) \
+				and prod_ind not in self.product_indices:
+				raise ValueError(f'{prod_ind} is not a product index in this SupplyChainNode')
+
+		# Determine which products to consider.
+		if product == 'all':
+			products = self.products
+		elif product is None:
+			products = [self.products[0]]
+		else:
+			products = [prod_obj]
+
+		pairs = set()
+		for prod in products:
+			for rm in self.raw_materials_by_product(prod.index, network_BOM=network_BOM):
+				for pred in self.raw_material_suppliers_by_raw_material(rm.index, network_BOM=network_BOM):
+					if return_indices:
+						if pred is None:
+							pairs.add((None, rm.index))
+						else:
+							pairs.add((pred.index, rm.index))
+					else:
+						pairs.add((pred, rm))
+		
+		return list(pairs)
+
+
 	def customers_by_product(self, product=None, return_indices=False, network_BOM=True):
 		"""A list of customers that order ``product`` from the node. If the node has a single product
 		(either dummy or real), either set ``product`` to the single product, or to ``None`` and the function
@@ -1135,7 +1197,7 @@ class SupplyChainNode(object):
 		product : |class_product| or int, optional
 			The product (as a |class_product| object or index), or ``None`` if the node has a single product.
 		return_indices : bool, optional
-			Set to ``False`` (the default) to return product objects, ``True`` to return product indices.
+			Set to ``False`` (the default) to return node objects, ``True`` to return node indices.
 		network_BOM : bool, optional
 			If ``True`` (default), function uses network BOM instead of product-only BOM.
 		"""
@@ -1400,7 +1462,6 @@ class SupplyChainNode(object):
 
 		"""
 		return f'SupplyChainNode(index={self.index})'
-#		return "SupplyChainNode({:s})".format(str(vars(self)))
 
 	# Attribute management.
 

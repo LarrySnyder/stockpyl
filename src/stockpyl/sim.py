@@ -731,7 +731,8 @@ def _calculate_period_costs(network, period):
 			else:
 				h = n.get_attribute('in_transit_holding_cost', prod_index) or 0
 			n.state_vars[period].in_transit_holding_cost_incurred += \
-				h * float(np.sum([n.state_vars[period].in_transit_to(s, prod_index) for s in n.successors()]))
+				h * float(np.sum([n.state_vars[period].in_transit_to(s, prod_index) \
+					  for s in n.customers_by_product(product=prod_index, network_BOM=True) if s is not None]))
 			# Revenue.
 			n.state_vars[period].revenue_earned = (n.get_attribute('revenue', prod_index) or 0) * \
 												float(np.sum([n.state_vars[period].outbound_shipment[s_index][prod_index] \

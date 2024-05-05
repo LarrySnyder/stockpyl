@@ -747,6 +747,9 @@ class NodeStateVars(object):
 		# Validate parameters.
 		if prod_index is not None and prod_index not in self.node.product_indices:
 			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		elif prod_index is not None and (self.node.index, prod_index) not in \
+			successor.supplier_raw_material_pairs_by_product(product='all', return_indices=True, network_BOM=True):
+			raise ValueError(f'Node {self.node.index} does not provide product {prod_index} to node {successor.index}.')
 		
 		# Determine product index.
 		prod_index = prod_index or self.node._dummy_product.index
