@@ -411,9 +411,9 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			node.state_vars_current.pending_finished_goods[prod.index] += order_quantity_dict[None][None]
 
 			# Place orders for all raw materials.
-			for rm in node.raw_materials_by_product(product_index=prod.index, network_BOM=True):
+			for rm in node.raw_materials_by_product(product=prod.index, network_BOM=True):
 				rm_index = rm.index
-				for p in node.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=True):
+				for p in node.raw_material_suppliers_by_raw_material(raw_material=rm_index, network_BOM=True):
 					p_index = p.index if p is not None else None
 					
 					# Was an override order quantity provided?
@@ -540,8 +540,8 @@ def _initialize_state_vars(network):
 					n.state_vars[0].inbound_order_pipeline[s.index][prod.index][l] = s.get_attribute('initial_orders', prod) or 0
 
 		# State variables indexed by product at predecessor nodes.
-		for rm_index in n.raw_material_indices_by_product('all', network_BOM=True):
-			for p_index in n.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
+		for rm_index in n.raw_materials_by_product('all', return_indices=True, network_BOM=True):
+			for p_index in n.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True):
 		# for p in n.predecessors(include_external=True):
 		# 	p_index = p.index if p is not None else None
 		# 	for rm_index in p.product_indices if p is not None else [n._external_supplier_dummy_product.index]:
@@ -554,7 +554,7 @@ def _initialize_state_vars(network):
 						+ (n.get_attribute('initial_orders', prod) or 0) * (n.get_attribute('order_lead_time', prod) or 0)
 
 				# Initialize raw material inventory.
-				for rm_index in n.raw_material_indices_by_product(product_index='all', network_BOM=True):
+				for rm_index in n.raw_materials_by_product(product='all', return_indices=True, network_BOM=True):
 					n.state_vars[0].raw_material_inventory[rm_index] = 0   
 
 
@@ -615,7 +615,7 @@ def _initialize_next_period_state_vars(network, period):
 			# Loop through raw materials at predecessor.
 			for rm_index in (p.product_indices if p is not None else [n._external_supplier_dummy_product.index]):
 
-				if rm_index in n.raw_material_indices_by_product('all', network_BOM=True) and \
+				if rm_index in n.raw_materials_by_product('all', return_indices=True, network_BOM=True) and \
 					p in n.raw_material_suppliers_by_raw_material(rm_index, network_BOM=True):
 			
 					# Is there a transit-pausing disruption?
@@ -658,7 +658,7 @@ def _initialize_next_period_state_vars(network, period):
 			p_index = p.index if p is not None else None
 			# Loop through raw materials at predecessor.
 			for rm_index in (p.product_indices if p is not None else [n._external_supplier_dummy_product.index]):
-				if rm_index in n.raw_material_indices_by_product('all', network_BOM=True) and \
+				if rm_index in n.raw_materials_by_product('all', return_indices=True, network_BOM=True) and \
 					p in n.raw_material_suppliers_by_raw_material(rm_index, network_BOM=True):
 					n.state_vars[period + 1].on_order_by_predecessor[p_index][rm_index] = \
 						n.state_vars[period].on_order_by_predecessor[p_index][rm_index]
@@ -704,9 +704,9 @@ def _calculate_period_costs(network, period):
 			except TypeError:
 				n.state_vars[period].holding_cost_incurred += (n.get_attribute('local_holding_cost', prod_index) or 0) * items_held
 			# Raw materials holding cost. Includes only products that come from an actual predecessor node, not external supplier.
-			for rm_index in n.raw_material_indices_by_product(product_index=prod_index, network_BOM=True):
+			for rm_index in n.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
 				# Determine suppliers for this raw material, excluding external supplier.
-				preds = n.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=True)
+				preds = n.raw_material_suppliers_by_raw_material(raw_material=rm_index, network_BOM=True)
 				preds = [p for p in preds if p is not None]
 				if len(preds) > 0:
 					# Choose first supplier of this raw material arbitrarily and use its holding cost. This is a workaround
@@ -769,7 +769,7 @@ def _receive_inbound_shipments(node):
 
 		# Loop through raw materials at predecessor.
 		for rm_index in (p.product_indices if p is not None else [node._external_supplier_dummy_product.index]):
-			if rm_index in node.raw_material_indices_by_product('all', network_BOM=True) and \
+			if rm_index in node.raw_materials_by_product('all', return_indices=True, network_BOM=True) and \
 				p in node.raw_material_suppliers_by_raw_material(rm_index, network_BOM=True):
 
 				# Determine number of items that will be received from p (if there is no disruption),
@@ -832,7 +832,7 @@ def _raw_materials_to_finished_goods(node):
 	# Allocate available raw materials to products in proportion to each product's share of
 	# the order for that raw material that was placed LT periods ago.
 	share = {}
-	for rm_index in node.raw_material_indices_by_product(product_index='all', network_BOM=True):
+	for rm_index in node.raw_materials_by_product(product='all', return_indices=True, network_BOM=True):
 
 		# Shortcut to lead times. Note: This assumes that all products that use this RM have the
 		# same lead times. Currently no way to distinguish among products if they have different lead times.
@@ -845,13 +845,13 @@ def _raw_materials_to_finished_goods(node):
 		avail_rm = node.state_vars_current.raw_material_inventory[rm_index]
 
 		# Shortcut to list of product indices for this RM.
-		prods_for_rm = node.product_indices_by_raw_material(rm_index)
+		prods_for_rm = node.products_by_raw_material(rm_index, return_indices=True)
 
 		# If avail_rm > 0, then we know period >= OLT + SLT.
 		if avail_rm > 0:
 			# Determine total order placed for this raw material LT periods ago.
 			units_ordered = sum([node.state_vars[period - OLT - SLT].order_quantity[pred_index][rm_index]
-									for pred_index in node.raw_material_supplier_indices_by_raw_material(rm_index, network_BOM=True)])
+									for pred_index in node.raw_material_suppliers_by_raw_material(rm_index, return_indices=True, network_BOM=True)])
 			
 			# If units_ordered == 0, allocate into equal shares. (This can happen if the original
 			# order was backordered, or if there is initial RM at the start of the simulation.)
@@ -881,14 +881,14 @@ def _raw_materials_to_finished_goods(node):
 		# Determine number of FGunits that can be produced; it equals the min, over all
 		# RMs for the product, of the product's share of that RM, expressed in FG units.
 		avail_rm = {rm_index: share[rm_index][prod_index] / node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index)
-					for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True)}
+					for rm_index in node.raw_materials_by_product(prod_index, return_indices=True, network_BOM=True)}
 		num_to_make = min(avail_rm.values())
 	
 		# Number of finished goods = min of min RM available and pending FG.
 		new_finished_goods[prod_index] = num_to_make
 
 		# Process units: remove from raw material and add to finished goods.
-		for rm_index in node.raw_material_indices_by_product(prod_index, network_BOM=True):
+		for rm_index in node.raw_materials_by_product(prod_index, return_indices=True, network_BOM=True):
 			node.state_vars_current.raw_material_inventory[rm_index] \
 				-= num_to_make * node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index)
 		node.state_vars_current.inventory_level[prod_index] += num_to_make
@@ -1074,14 +1074,14 @@ def _propagate_shipment_downstream(node):
 		# unless there is a type-TP disruption, in which case outbound shipments
 		# successor wait in slot s.shipment_lead_time until the disruption ends.)
 		for s in node.successors():
-			if prod_index in s.raw_material_indices_by_product('all', network_BOM=True) and \
+			if prod_index in s.raw_materials_by_product('all', return_indices=True, network_BOM=True) and \
 				node in s.raw_material_suppliers_by_raw_material(prod_index, network_BOM=True):
 				# Find a product at successor node that uses prod_index from node as a raw material,
 				# and use its lead time. If there is more than one such product, use the last one found.
 				# This is a little klugey. # TODO: improve? should LTs be an attribute of the RM, not the product?
 				for FG_index in s.product_indices:
-					if prod_index in s.raw_material_indices_by_product(product_index=FG_index, network_BOM=True) and \
-						node.index in s.raw_material_supplier_indices_by_raw_material(rm_index=prod_index, network_BOM=True):
+					if prod_index in s.raw_materials_by_product(product=FG_index, return_indices=True, network_BOM=True) and \
+						node.index in s.raw_material_suppliers_by_raw_material(raw_material=prod_index, return_indices=True, network_BOM=True):
 						# Get lead time for this product.
 						shipment_lead_time = (s.get_attribute('shipment_lead_time', product=FG_index) or 0)
 

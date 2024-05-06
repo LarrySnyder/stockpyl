@@ -499,8 +499,8 @@ class Policy(object):
 
 			# Loop through raw materials and predecessors, and calculate order quantities for each.
 			if OQ is not None:
-				for rm_index in self.node.raw_material_indices_by_product(product_index):
-					for pred_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index):
+				for rm_index in self.node.raw_materials_by_product(product_index, return_indices=True):
+					for pred_index in self.node.raw_material_suppliers_by_raw_material(rm_index, return_indices=True):
 
 						# Calculate total orders that have already been placed by this node to this supplier for this RM
 						# in the current time period (for other products at the node that use the same RM). These units

@@ -403,7 +403,7 @@ class TestGetStateVariables(unittest.TestCase):
 			# Indexed by predecessor and raw material.
 			for rm in n.raw_materials_by_product('all', network_BOM=True):
 				rm_ind = rm.index
-				for pred_ind in n.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+				for pred_ind in n.raw_material_suppliers_by_raw_material(rm_ind, return_indices=True, network_BOM=True):
 					self.assertEqual(n.state_vars[22].inbound_shipment[pred_ind][rm_ind],
 						n.state_vars[22].get_inbound_shipment(predecessor=pred_ind, raw_material=rm_ind))
 					self.assertEqual(n.state_vars[22].on_order_by_predecessor[pred_ind][rm_ind],
@@ -443,7 +443,7 @@ class TestGetStateVariables(unittest.TestCase):
 				self.assertEqual(n.state_vars[22].order_quantity_fg[prod_ind], n.state_vars[22].get_order_quantity_fg(product=prod_ind))
 
 			# Indexed by raw material.
-			for rm_ind in n.raw_material_indices_by_product('all', network_BOM=True):
+			for rm_ind in n.raw_materials_by_product('all', return_indices=True, network_BOM=True):
 				self.assertEqual(n.state_vars[22].raw_material_inventory[rm_ind], n.state_vars[22].get_raw_material_inventory(raw_material=rm_ind))
 
 	def test_assembly_3_stage_per_43(self):
@@ -462,7 +462,7 @@ class TestGetStateVariables(unittest.TestCase):
 			# Indexed by predecessor and raw material.
 			for rm in n.raw_materials_by_product('all', network_BOM=True):
 				rm_ind = rm.index
-				for pred_ind in n.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+				for pred_ind in n.raw_material_suppliers_by_raw_material(rm_ind, return_indices=True, network_BOM=True):
 					self.assertEqual(n.state_vars[43].inbound_shipment[pred_ind][rm_ind],
 						n.state_vars[43].get_inbound_shipment(predecessor=pred_ind, raw_material=rm_ind))
 					self.assertEqual(n.state_vars[43].on_order_by_predecessor[pred_ind][rm_ind],
@@ -502,7 +502,7 @@ class TestGetStateVariables(unittest.TestCase):
 				self.assertEqual(n.state_vars[43].order_quantity_fg[prod_ind], n.state_vars[43].get_order_quantity_fg(product=prod_ind))
 
 			# Indexed by raw material.
-			for rm_ind in n.raw_material_indices_by_product('all', network_BOM=True):
+			for rm_ind in n.raw_materials_by_product('all', return_indices=True, network_BOM=True):
 				self.assertEqual(n.state_vars[43].raw_material_inventory[rm_ind], n.state_vars[43].get_raw_material_inventory(raw_material=rm_ind))
 
 	def test_multiproduct_5_7_per_43(self):
@@ -521,7 +521,7 @@ class TestGetStateVariables(unittest.TestCase):
 			# Indexed by predecessor and raw material.
 			for rm in n.raw_materials_by_product('all', network_BOM=True):
 				rm_ind = rm.index
-				for pred_ind in n.raw_material_supplier_indices_by_raw_material(rm_ind, network_BOM=True):
+				for pred_ind in n.raw_material_suppliers_by_raw_material(rm_ind, return_indices=True, network_BOM=True):
 					self.assertEqual(n.state_vars[43].inbound_shipment[pred_ind][rm_ind],
 						n.state_vars[43].get_inbound_shipment(predecessor=pred_ind, raw_material=rm_ind))
 					self.assertEqual(n.state_vars[43].on_order_by_predecessor[pred_ind][rm_ind],
@@ -561,7 +561,7 @@ class TestGetStateVariables(unittest.TestCase):
 				self.assertEqual(n.state_vars[43].order_quantity_fg[prod_ind], n.state_vars[43].get_order_quantity_fg(product=prod_ind))
 
 			# Indexed by raw material.
-			for rm_ind in n.raw_material_indices_by_product('all', network_BOM=True):
+			for rm_ind in n.raw_materials_by_product('all', return_indices=True, network_BOM=True):
 				self.assertEqual(n.state_vars[43].raw_material_inventory[rm_ind], n.state_vars[43].get_raw_material_inventory(raw_material=rm_ind))
 
 

@@ -170,13 +170,13 @@ class NodeStateVars(object):
 			self.inbound_shipment_pipeline = {}
 			for p_index in self.node.predecessor_indices(include_external=True):
 				self.inbound_shipment_pipeline[p_index] = {}
-				for rm_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True):
+				for rm_index in self.node.raw_materials_by_product(product='all', return_indices=True, network_BOM=True):
 					# Find a product at this node that uses raw material rm_index from predecessor p_index,
 					# and use its lead times. If there is more than one such product, use the last one found.
 					# This is a little klugey. # TODO: improve? should LTs be an attribute of the RM, not the product?
 					for prod_index in self.node.product_indices:
-						if rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True) and \
-							p_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
+						if rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True) and \
+							p_index in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True):
 							# Get lead times for this product. # TODO: shouldn't inbound shipment pipeline only use shipment LT, not order LT?
 							order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
 							shipment_lead_time = (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0)
@@ -196,7 +196,8 @@ class NodeStateVars(object):
 												for p in self.node.predecessors(include_external=True)}
 			self.order_quantity = {p_indices[p]: {prod_index: 0 for prod_index in rm_indices[p]}
 												for p in self.node.predecessors(include_external=True)}
-			self.raw_material_inventory = {prod_index: 0 for prod_index in self.node.raw_material_indices_by_product(product_index='all', network_BOM=True)}
+			self.raw_material_inventory = {prod_index: 0 for prod_index \
+				in self.node.raw_materials_by_product(product='all', return_indices=True, network_BOM=True)}
 			self.order_quantity_fg = {prod_index: 0 for prod_index in self.node.product_indices}
 			self.pending_finished_goods = {prod_index: 0 for prod_index in self.node.product_indices}
 
@@ -838,14 +839,14 @@ class NodeStateVars(object):
 		total_in_transit = np.sum([
 				self.in_transit_from(p, rm_index) 
 				* self.node.NBOM(product=prod_index, predecessor=p.index if p is not None else None, raw_material=rm_index)
-			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
-			for p in self.node.raw_material_suppliers_by_raw_material(rm_index=rm_index, network_BOM=True)
+			for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True)
+			for p in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, network_BOM=True)
 		])
 
 		if total_in_transit == 0:
 			return 0
 		else:
-			return total_in_transit / len(self.node.raw_materials_by_product(product_index=prod_index, network_BOM=True))
+			return total_in_transit / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
 
 	def on_order(self, prod_index=None):
 		"""Current inventory of raw materials for product ``prod_index`` that is on order to the node. Read only.
@@ -891,14 +892,14 @@ class NodeStateVars(object):
 		total_on_order = np.sum([
 				self.on_order_by_predecessor[p][rm_index]
 				/ self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
-			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
-			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
+			for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True)
+			for p in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True)
 		])
 
 		if total_on_order == 0:
 			return 0
 		else:
-			return total_on_order / len(self.node.raw_materials_by_product(product_index=prod_index, network_BOM=True))
+			return total_on_order / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
 
 	def raw_material_aggregate(self, prod_index=None):
 		"""Current raw materials for product ``prod_index`` that are in raw-material inventory at the node. Read only.
@@ -943,7 +944,7 @@ class NodeStateVars(object):
 		prod = self.node.products_by_index[prod_index]
 
 		total_raw_material = 0
-		for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True):
+		for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
 			BOM = prod.BOM(rm_index) 
 			if BOM == 0:
 				# rm_index has no BOM relationship, so it is only in the network BOM; therefore,
@@ -955,7 +956,7 @@ class NodeStateVars(object):
 		if total_raw_material == 0:
 			return 0
 		else:
-			return total_raw_material / len(self.node.raw_materials_by_product(product_index=prod_index, network_BOM=True))
+			return total_raw_material / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
 
 	def inbound_disrupted_items_aggregate(self, prod_index=None):
 		"""Current total inbound disrupted inventory of raw materials for product ``prod_index``. Read only.
@@ -1001,14 +1002,14 @@ class NodeStateVars(object):
 		total_disrupted_items = np.sum([
 				self.inbound_disrupted_items[p][rm_index]
 				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
-			for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True)
-			for p in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True)
+			for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True)
+			for p in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True)
 		])
 
 		if total_disrupted_items == 0:
 			return 0
 		else:
-			return total_disrupted_items / len(self.node.raw_materials_by_product(product_index=prod_index, network_BOM=True))
+			return total_disrupted_items / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
 
 	def inventory_position(self, prod_index=None, exclude_earmarked_units=False):
 		"""Current (local) inventory position at node for product with index ``prod_index``. 
@@ -1056,10 +1057,10 @@ class NodeStateVars(object):
 
 		# Determine total units of each RM in the pipeline, converted to units of the downstream product.
 		pipeline = {}
-		for rm_index in self.node.raw_material_indices_by_product(product_index=prod_index, network_BOM=True):
+		for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
 			# Calculate pipeline, in upstream units.
 			pipeline[rm_index] = self.raw_material_inventory[rm_index]
-			for pred_index in self.node.raw_material_supplier_indices_by_raw_material(rm_index=rm_index, network_BOM=True):
+			for pred_index in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True):
 				pipeline[rm_index] += (self.on_order_by_predecessor[pred_index][rm_index] \
 										+ self.inbound_disrupted_items[pred_index][rm_index])
 			
