@@ -241,8 +241,10 @@ class SupplyChainNode(object):
 		# Replace external supplier dummy product.
 		self._external_supplier_dummy_product = \
 			SupplyChainProduct(SupplyChainNode._external_supplier_dummy_product_index_from_node_index(self.index), is_dummy=True)
-
-	
+		
+		# Rebuild product-related attributes in network.
+		if self.network is not None:
+			self.network._build_product_attributes()
 
 	# Properties related to input parameters.
 
@@ -540,6 +542,36 @@ class SupplyChainNode(object):
 		"""A list of indices of all products handled at the node. Read only."""
 		return list(self._products_by_index.keys())
 	
+	def _build_network_bill_of_materials(self):
+		"""Build the network bill of materials and store it in _network_bill_of_materials attribute.
+		This attribute is built each time the nodes or products change, rather than 
+		deriving it live during a simulation.
+		"""
+		# Initialize NBOM.
+		self._network_bill_of_materials = {prod.index: {pred.index: {} for pred in self.predecessors} for prod in self.products}
+
+		# Loop through predecessors.
+		for pred in self.predecessors:
+			# Do any raw materials at predecessor have a BOM relationship with any products at the node?
+			BOM_found = False
+			for prod1 in self.products:
+				for prod2 in prod1.raw_materials:
+					if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
+						BOM_found = True
+						break
+			
+			# Loop through products at node and predecessor.
+			for prod1 in self.products:
+				for prod2 in pred.products:
+					# If any BOM relationships were found, use product BOM; otherwise, NBOM = 1.
+					if BOM_found:
+						NBOM = prod1.BOM(prod2.index)
+					else:
+						NBOM = 1
+
+					# Set NBOM.
+					self._network_bill_of_materials[prod1.index][pred.index][prod2.index] = NBOM
+			
 	def add_product(self, product):
 		"""Add ``product`` to the node. If ``product`` is already in the node (as determined by the index),
 		do nothing.
@@ -556,6 +588,10 @@ class SupplyChainNode(object):
 			if not product.is_dummy:
 				# Remove dummy product. (This also sets `dummy_product` to None.)
 				self._remove_dummy_product()
+
+		# Rebuild product-related attributes in network.
+		if self.network is not None:
+			self.network._build_product_attributes()
 
 	def add_products(self, list_of_products):
 		"""Add each product in ``list_of_products`` to the node. If a given product is already in the 
@@ -589,6 +625,10 @@ class SupplyChainNode(object):
 			# No real products in the node. Add dummy product.
 			self._add_dummy_product()
 
+		# Rebuild product-related attributes in network.
+		if self.network is not None:
+			self.network._build_product_attributes()
+
 	def remove_products(self, list_of_products):
 		"""Remove each product in ``list_of_products`` from the node. Products in ``list_of_products``
 		may be either |class_product| objects or product indices, or a mix. Alternatively, set ``list_of_products`` to
@@ -616,6 +656,10 @@ class SupplyChainNode(object):
 		dummy = SupplyChainProduct(index=prod_ind, is_dummy=True)
 		self.add_product(dummy)
 		self._dummy_product = dummy
+
+		# Rebuild product-related attributes in network.
+		if self.network is not None:
+			self.network._build_product_attributes()
 		
 	def _remove_dummy_product(self):
 		"""Remove the dummy product from the node. Typically this happens when a "real" product is added
@@ -623,6 +667,10 @@ class SupplyChainNode(object):
 		"""
 		self.remove_product(self._dummy_product)
 		self._dummy_product = None
+
+		# Rebuild product-related attributes in network.
+		if self.network is not None:
+			self.network._build_product_attributes()
 
 	@classmethod
 	def _dummy_product_index_from_node_index(cls, node_index):
@@ -1178,7 +1226,6 @@ class SupplyChainNode(object):
 							pairs.add((pred, rm))
 
 		return list(pairs)
-
 
 	def customers_by_product(self, product=None, return_indices=False, network_BOM=True):
 		"""A list of customers that order ``product`` from the node. If the node has a single product
