@@ -281,6 +281,10 @@ class SupplyChainProduct(object):
 		else:
 			# We are removing a BOM relationship.
 			self._bill_of_materials.pop(rm_index, None)
+
+		# Rebuild product info throughout network.
+		if self.network:
+			self.network._build_product_attributes()
 	
 	def get_bill_of_materials(self, rm_index):
 		"""Return the number of units of raw material product ``rm_index`` that are required in order
@@ -330,14 +334,19 @@ class SupplyChainProduct(object):
 
 	@property
 	def raw_materials(self):
-		"""A list of all raw materials required to make this product, as |class_prod| objects. Read only."""
+		"""A list of all raw materials required to make this product, as |class_prod| objects. 
+		If a given raw material is registered in the product's BOM but has not been added
+		to the network (or any of its nodes), the raw material is not included in the list. Read only."""
 		if self.network is None:
 			raise ValueError('self.network cannot be None when calling raw_materials.')
-		return [self.network.products_by_index[rm_index] for rm_index in self.bill_of_materials_dict.keys() if self.BOM(rm_index) > 0 ]
+		return [self.network.products_by_index[rm_index] for rm_index in self.bill_of_materials_dict.keys() \
+				if self.BOM(rm_index) > 0 and rm_index in self.network.products_by_index]
 
 	@property
 	def raw_material_indices(self):
-		"""A list of the indices of all raw materials required to make this product. Read only."""
+		"""A list of the indices of all raw materials required to make this product. 
+		If a given raw material is registered in the product's BOM but has not been added
+		to the network (or any of its nodes), the raw material is not included in the list. Read only."""
 		return [rm.index for rm in self.raw_materials]
 
 	# Properties and functions related to network structure.

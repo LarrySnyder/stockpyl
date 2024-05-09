@@ -242,6 +242,10 @@ class SupplyChainNetwork(object):
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])
 
+		# Set _currently_building flag. (This indicates whether we are currently building
+ 		# a network, e.g., using from_dict(), in which case we should pause buidling product attributes.)
+		self._currently_building = False
+
 		# Initialize product-related attributes that are derived from others.
 		self._build_product_attributes()
 
@@ -359,10 +363,13 @@ class SupplyChainNetwork(object):
 				network._local_products = copy.deepcopy(cls._DEFAULT_VALUES['_local_products'])
 			else:
 				network._local_products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_local_products']]
-			# Build product-related attributes.
-			network._build_product_attributes()
 
-			# Fill attributes. 
+			# Build product attributes (for now, this just creates network._products_by_index).
+			network._build_product_attributes()
+			# Set _currently_building flag so we don't re-build product attributes in the next step.
+			network._currently_building = True
+
+   			# Fill attributes. 
 			for attr in cls._DEFAULT_VALUES.keys():
 				if attr == '_nodes':
 					if 'nodes' not in the_dict:
@@ -379,7 +386,7 @@ class SupplyChainNetwork(object):
 								node.add_product(network.products_by_index[prod_ind])
 							# Replace product attribute in inventory_policy with product object (SupplyChainNode.to_dict()
 							# stores it as int.)
-							node
+							node # TODO: ???
 							# Replace dummy-product indices with product objects.
 							if node._dummy_product is not None:
 								node._dummy_product = network.products_by_index[node._dummy_product]
@@ -411,6 +418,10 @@ class SupplyChainNetwork(object):
 						value = cls._DEFAULT_VALUES[attr]
 					setattr(network, attr, value)
 						
+		# Turn off _currently_building flag and build product-related attributes.
+		network._currently_building = False
+		network._build_product_attributes()
+
 		return network
 
 	# Methods for node handling.
@@ -503,8 +514,8 @@ class SupplyChainNetwork(object):
 				if not is_integer(prod):		
 					prod.network = self
 
-		# Rebuild product attributes.
-		self._build_product_attributes()
+			# Rebuild product attributes.
+			self._build_product_attributes()
 
 	def add_edge(self, from_index, to_index):
 		"""Add an edge to the network to and from the nodes with the specified indices.
@@ -662,24 +673,34 @@ class SupplyChainNetwork(object):
 	# Functions related to product management.
  
 	def _build_product_attributes(self):
-		"""Build product-related attributes that are derived from other attributes.
+		"""Build product-related attributes that are derived from other attributes,
+		at the network and the nodes in it.
 		These attributes are built each time the nodes or products change, rather than 
 		deriving them live during a simulation.
+
+		Does nothing if self._currently_building is True. (This is to avoid building
+  		product attributes when network is currently being built and not all product/node
+		info is in place yet.)
 		"""
-		# Build _products and _product_indices.
-		product_set = set(self._local_products)
-		for node in self.nodes:
-			product_set |= set(node.products)
-			if node._external_supplier_dummy_product is not None:
-				product_set |= {node._external_supplier_dummy_product}
-		self._products = list(product_set)
-		self._product_indices = [prod.index for prod in self._products]
+		if not self._currently_building:
+			# Build _products and _product_indices.
+			product_set = set(self._local_products)
+			for node in self.nodes:
+				product_set |= set(node.products)
+				if node._external_supplier_dummy_product is not None:
+					product_set |= {node._external_supplier_dummy_product}
+			self._products = list(product_set)
+			self._product_indices = [prod.index for prod in self._products]
+			
+			# Build _products_by_index. Include all products in network (including in nodes).
+			self._products_by_index = {prod.index: prod for prod in self._products}
+			# Add external supplier dummy products.
+			self._products_by_index.update({node._external_supplier_dummy_product.index: node._external_supplier_dummy_product \
+						for node in self.nodes if node._external_supplier_dummy_product is not None})
 		
-		# Build _products_by_index. Include all products in network (including in nodes).
-		self._products_by_index = {prod.index: prod for prod in self._products}
-		# Add external supplier dummy products.
-		self._products_by_index.update({node._external_supplier_dummy_product.index: node._external_supplier_dummy_product \
-					  for node in self.nodes if node._external_supplier_dummy_product is not None})
+			# Build network BOM for all nodes.
+			for node in self.nodes:
+				node._build_network_bill_of_materials()
 
 	def add_product(self, product):
 		"""Add ``product`` to the network. ``product`` will not automatically be contained in any
@@ -916,6 +937,9 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 	# Create network.
 	network = SupplyChainNetwork()
 
+	# Set _currently_building flag so we don't re-build product attributes in the next step.
+	network._currently_building = True
+
 	# Is the edge list non-empty?
 	if edges:
 		# Add nodes from edge list.
@@ -1061,6 +1085,10 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 
 		# Problem-specific data.
 		n.problem_specific_data = data_dict[n.index].get('problem_specific_data')
+
+	# Turn off _currently_building flag and build product-related attributes.
+	network._currently_building = False
+	network._build_product_attributes()
 
 	return network
 

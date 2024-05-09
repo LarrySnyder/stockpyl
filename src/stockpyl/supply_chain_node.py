@@ -161,12 +161,14 @@ class SupplyChainNode(object):
 		AttributeError
 			If an optional keyword argument does not match a |class_node| attribute.
 		"""
-		# Initialize attributes; set index; add dummy product.
+		# Set network. (This must be done before initialize() because initialize() uses it.)
+		self.network = network
+
+		# Initialize other attributes; set index; add dummy product.
 		self.initialize(index)
 
-		# Set other named attributes.
+		# Set name. (This must be done after initialize() because initialize() will reset it to None.)
 		self.name = name
-		self.network = network
 
 		# Set attributes specified by kwargs.
 		for key, value in kwargs.items():
@@ -410,7 +412,7 @@ class SupplyChainNode(object):
 		"""
 		return [n.index for n in self.neighbors]
 
-	def validate_predecessor(self, predecessor):
+	def validate_predecessor(self, predecessor, raw_material=None, network_BOM=True, err_on_multiple_preds=True):
 		"""Confirm that ``predecessor`` is a valid predecessor of node:
 
 			* If ``predecessor`` is a |class_node| object, confirms that it is a 
@@ -422,11 +424,21 @@ class SupplyChainNode(object):
 			* If ``predecessor`` is ``None`` and the node has 0 or more than 1 predecessor node and has
 				an external supplier, returns ``None, None``. (This represents the external supplier.)
 			* Raises a ``ValueError`` in most other cases.
+			* If ``raw_material`` is not ``None``, also checks that the predecessor provides that raw
+				material, and raises an exception if not. (This only works if ``preecessor`` is not ``None``.)
 
 		Parameters
 		----------
 		predecessor : |class_node|, int, or ``None``
 			The predecessor to validate.
+		raw_material : |class_product| or int, optional
+			If not ``None`` and ``predecessor`` is not ``None``, the function will check that
+			``raw_material`` is provided by ``predecessor`` and raise an exception if not.
+		network_BOM : bool, optional
+			If ``True`` (default), function uses network BOM instead of product-only BOM.
+		err_on_multiple_preds : bool, optional
+			If ``True`` (default), raises an exception if ``predecessor`` is ``None`` and the
+			node has multiple predecessors (or multiple predecessors that provide ``raw_material``).
 		
 		Returns
 		-------
@@ -444,23 +456,40 @@ class SupplyChainNode(object):
 		ValueError
 			If ``predecessor`` is ``None`` and the node has no external supplier 
 			and has 0 or >1 predecessor nodes.
+		ValueError
+			If ``predecessor`` and ``raw_material`` are both not ``None`` and ``predecessor``
+			does not supply this node with ``raw_material``.
 		"""
 
-		preds = self.predecessors(include_external=False)
+		if raw_material is None:
+			preds = self.predecessors(include_external=False)
+		else:
+			rm_obj, rm_ind = self.network.parse_product(raw_material)
+			preds = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices]
+			if rm_ind == self._external_supplier_dummy_product.index:
+				preds.append(None)
+		
 		if predecessor is None:
 			if len(preds) == 1:
 				return self.network.parse_node(preds[0])
 			elif None in self.predecessors(include_external=True):
 				return None, None
+			# Now len(preds) = 0 or >1 and node does not have an external supplier.
+			elif len(preds) == 0 or err_on_multiple_preds:
+				if raw_material is None:
+					raise ValueError(f'predecessor cannot be None if the node has no external supplier and has 0 or >1 predecessor nodes.')
+				else:
+					raise ValueError(f'predecessor cannot be None if raw_material is not None and the node has 0 or >1 suppliers of raw_material')
 			else:
-				raise ValueError(f'predecessor cannot be None if the node has no external supplier and has 0 or >1 predecessor nodes.')
+				# len(preds) > 1 but error was suppressed.
+				return None, None
 		else:
 			pred_node, pred_ind = self.network.parse_node(predecessor) # raises TypeError on bad type
 			if pred_node not in preds:
 				raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
 			else:
 				return pred_node, pred_ind
- 
+
 	def validate_successor(self, successor):
 		"""Confirm that ``successor`` is a valid successor of node:
 
@@ -546,31 +575,39 @@ class SupplyChainNode(object):
 		"""Build the network bill of materials and store it in _network_bill_of_materials attribute.
 		This attribute is built each time the nodes or products change, rather than 
 		deriving it live during a simulation.
+
+		Does nothing if ``self.network`` is ``None`` or ``self.network._currently_building`` is ``True``. 
+		(This is to avoid building
+  		product attributes when network is currently being built and not all product/node
+		info is in place yet.)
 		"""
-		# Initialize NBOM.
-		self._network_bill_of_materials = {prod.index: {pred.index: {} for pred in self.predecessors} for prod in self.products}
+		if self.network is not None and not self.network._currently_building:
+			# Initialize NBOM.
+			self._network_bill_of_materials = \
+				{prod_ind: {pred_ind: {} for pred_ind in self.predecessor_indices(include_external=True)} for prod_ind in self.product_indices}
 
-		# Loop through predecessors.
-		for pred in self.predecessors:
-			# Do any raw materials at predecessor have a BOM relationship with any products at the node?
-			BOM_found = False
-			for prod1 in self.products:
-				for prod2 in prod1.raw_materials:
-					if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
-						BOM_found = True
-						break
-			
-			# Loop through products at node and predecessor.
-			for prod1 in self.products:
-				for prod2 in pred.products:
-					# If any BOM relationships were found, use product BOM; otherwise, NBOM = 1.
-					if BOM_found:
-						NBOM = prod1.BOM(prod2.index)
-					else:
-						NBOM = 1
+			# Loop through predecessors.
+			for pred in self.predecessors(include_external=True):
+				pred_ind = pred.index if pred is not None else None
+				# Do any raw materials at predecessor have a BOM relationship with any products at the node?
+				BOM_found = False
+				for prod1 in self.products:
+					for prod2 in prod1.raw_materials:
+						if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
+							BOM_found = True
+							break
+				
+				# Loop through products at node and predecessor.
+				for prod1 in self.products:
+					for prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product]):
+						# If any BOM relationships were found, use product BOM; otherwise, NBOM = 1.
+						if BOM_found:
+							NBOM = prod1.BOM(prod2.index)
+						else:
+							NBOM = 1
 
-					# Set NBOM.
-					self._network_bill_of_materials[prod1.index][pred.index][prod2.index] = NBOM
+						# Set NBOM.
+						self._network_bill_of_materials[prod1.index][pred_ind][prod2.index] = NBOM
 			
 	def add_product(self, product):
 		"""Add ``product`` to the node. If ``product`` is already in the node (as determined by the index),
@@ -583,6 +620,12 @@ class SupplyChainNode(object):
 		"""
 
 		product.network = self.network
+
+		# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
+		if self.network is not None:
+			old_currently_building = self.network._currently_building
+			self.network._currently_building = True
+				
 		if product not in self.products:
 			self._products_by_index[product.index] = product
 			if not product.is_dummy:
@@ -591,6 +634,7 @@ class SupplyChainNode(object):
 
 		# Rebuild product-related attributes in network.
 		if self.network is not None:
+			self.network._currently_building = old_currently_building
 			self.network._build_product_attributes()
 
 	def add_products(self, list_of_products):
@@ -616,6 +660,11 @@ class SupplyChainNode(object):
 		product : |class_product| or int
 			The product to remove from the node.
 		"""
+		# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
+		if self.network is not None:
+			old_currently_building = self.network._currently_building
+			self.network._currently_building = True
+				
 		if isinstance(product, SupplyChainProduct):
 			self._products_by_index.pop(product.index, None)
 		else:
@@ -627,6 +676,7 @@ class SupplyChainNode(object):
 
 		# Rebuild product-related attributes in network.
 		if self.network is not None:
+			self.network._currently_building = old_currently_building
 			self.network._build_product_attributes()
 
 	def remove_products(self, list_of_products):
@@ -712,12 +762,12 @@ class SupplyChainNode(object):
 
 		``product``, ``predecessor``, and ``raw_material`` may be indices or objects. Set ``predecessor`` to ``None`` to
 		determine the predecessor automatically: Either the external supplier (if ``raw_material`` is
-		``None`` or the index of the dummy product at the external supplier) or the unique predecessor that provides a given
+		``None`` or the dummy product at the external supplier) or the unique predecessor that provides a given
 		dummy product (if ``raw_material`` is a dummy product), or an arbitrary predecessor (if ``raw_material`` is not a
 		dummy product, because in this case the NBOM equals the BOM--it is product-specific, not node-specific, so
 		the predecessor is irrelevant). 
 			
-		Raises a ``ValueError`` if ``product`` is not a product at the node, ``raw_material`` is
+		Returns a ``ValueError`` if ``product`` is not a product at the node, ``raw_material`` is
 		not a product at ``predecessor``, or ``predecessor`` is not a predecessor of the node.
 
 		:func:`NBOM` is a shortcut to this function.
@@ -748,65 +798,84 @@ class SupplyChainNode(object):
 			If ``predecessor`` is not a predecessor of the node.
 		"""
 
-		# TODO: would be better to pre-build this, plus raw_materials, raw_material_suppliers, etc.,
-		# in SCNode and SCProduct. Rebuild it each time the product or node structure changes.
-
-		# Get objects and indices for parameters.
-		if isinstance(product, SupplyChainProduct):
-			prod = product
-			prod_ind = product.index
-		elif product is None:
-			prod = self._dummy_product
-			prod_ind = self._dummy_product.index
+		_, prod_ind = self.validate_product(product)
+		pred_obj, pred_ind = self.validate_predecessor(predecessor, raw_material=raw_material, err_on_multiple_preds=False)
+		if pred_obj:
+			# Make sure raw material is a product at pred.
+			_, rm_ind = pred_obj.validate_product(raw_material) # can't use self.validate_raw_material here because it calls NBOM() ==> infinite recursion
 		else:
-			prod = self.network.products_by_index[product]
-			prod_ind = product
+			# Pred is external supplier. Just parse the raw material.
+			rm_obj, rm_ind = self.network.parse_product(raw_material)
+			# If raw material is a non-dummy product, replace pred with an arbitrary predecessor. (See docstring.)
+			if rm_obj is not None and not rm_obj.is_dummy:
+				pred_obj = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices][0]
+				pred_ind = pred_obj.index
 
-		if isinstance(raw_material, SupplyChainProduct):
-#			rm = raw_material
-			rm_ind = raw_material.index
-		else:
-#			rm = None if raw_material is None else self.network.products_by_index[raw_material]
-			rm_ind = raw_material
+			# If raw material is None, replace it with external supplier dummy product.
+			if rm_ind is None:
+				rm_ind = self._external_supplier_dummy_product.index
 
-		if isinstance(predecessor, SupplyChainNode):
-			pred = predecessor
-			pred_ind = predecessor.index
-		elif predecessor is None:
-			if rm_ind == self._external_supplier_dummy_product.index:
-				pred = None
-				pred_ind = None
-			else:
-				# This works for the case in which rm is a dummy product or a regular product.
-				pred = self.raw_material_suppliers_by_raw_material(rm_ind, network_BOM=True)[0]
-				pred_ind = pred.index if pred is not None else None
-		else:
-			pred = self.network.get_node_from_index(predecessor)
-			pred_ind = predecessor
+		return self._network_bill_of_materials[prod_ind][pred_ind][rm_ind]
 
-		# Validate parameters.
-		if prod_ind not in self.product_indices:
-			raise ValueError(f'Product {prod_ind} is not a product in node {self.index}.')
-		if pred is not None and rm_ind not in pred.product_indices:
-			raise ValueError(f'Product {rm_ind} is not a product in node {pred_ind}.')
-		if pred_ind not in self.predecessor_indices(include_external=True):
-			raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
+# 		# TODO: would be better to pre-build this, plus raw_materials, raw_material_suppliers, etc.,
+# 		# in SCNode and SCProduct. Rebuild it each time the product or node structure changes.
+
+# 		# Get objects and indices for parameters.
+# 		if isinstance(product, SupplyChainProduct):
+# 			prod = product
+# 			prod_ind = product.index
+# 		elif product is None:
+# 			prod = self._dummy_product
+# 			prod_ind = self._dummy_product.index
+# 		else:
+# 			prod = self.network.products_by_index[product]
+# 			prod_ind = product
+
+# 		if isinstance(raw_material, SupplyChainProduct):
+# #			rm = raw_material
+# 			rm_ind = raw_material.index
+# 		else:
+# #			rm = None if raw_material is None else self.network.products_by_index[raw_material]
+# 			rm_ind = raw_material
+
+# 		if isinstance(predecessor, SupplyChainNode):
+# 			pred = predecessor
+# 			pred_ind = predecessor.index
+# 		elif predecessor is None:
+# 			if rm_ind == self._external_supplier_dummy_product.index:
+# 				pred = None
+# 				pred_ind = None
+# 			else:
+# 				# This works for the case in which rm is a dummy product or a regular product.
+# 				pred = self.raw_material_suppliers_by_raw_material(rm_ind, network_BOM=True)[0]
+# 				pred_ind = pred.index if pred is not None else None
+# 		else:
+# 			pred = self.network.get_node_from_index(predecessor)
+# 			pred_ind = predecessor
+
+# 		# Validate parameters.
+# 		if prod_ind not in self.product_indices:
+# 			raise ValueError(f'Product {prod_ind} is not a product in node {self.index}.')
+# 		if pred is not None and rm_ind not in pred.product_indices:
+# 			raise ValueError(f'Product {rm_ind} is not a product in node {pred_ind}.')
+# 		if pred_ind not in self.predecessor_indices(include_external=True):
+# 			raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
 		
-		# Do any raw materials at predecessor have a BOM relationship with any products at the node?
-		found = False
-		for prod1 in self.products:
-			for prod2 in prod1.raw_materials:
-				if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
-					found = True
-					break
+# 		# Do any raw materials at predecessor have a BOM relationship with any products at the node?
+# 		found = False
+# 		for prod1 in self.products:
+# 			for prod2 in prod1.raw_materials:
+# 				if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
+# 					found = True
+# 					break
 		
-		# Were any BOM relationships found?
-		if found:
-			# Yes--return BOM relationship for this (product, raw material) pair (even if it's 0).
-			return prod.BOM(rm_ind)
-		else:
-			# No--return 1, regardless of the product and raw material.
-			return 1
+# 		# Were any BOM relationships found?
+# 		if found:
+# 			# Yes--return BOM relationship for this (product, raw material) pair (even if it's 0).
+# 			return prod.BOM(rm_ind)
+# 		else:
+# 			# No--return 1, regardless of the product and raw material.
+# 			return 1
 		
 	def NBOM(self, product=None, predecessor=None, raw_material=None):
 		"""A shortcut to :func:`~get_network_bill_of_materials`."""
@@ -1119,17 +1188,22 @@ class SupplyChainNode(object):
 			this node has a single raw material.
 		"""
 		# Validate parameters.
-		rm_obj, rm_ind = self.validate_raw_material(raw_material, network_BOM=network_BOM)
+		_, rm_ind = self.validate_raw_material(raw_material, network_BOM=network_BOM)
   
 		if network_BOM:
-			prods = [prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=raw_material) > 0]
+			prods = set()
+			for prod in self.products:
+				for pred in self.raw_material_suppliers_by_raw_material(rm_ind, return_indices=False, network_BOM=True):
+					if self.NBOM(product=prod, predecessor=pred, raw_material=rm_ind) > 0:
+						prods.add(prod)
+#			[prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_ind) > 0]
 		else:
-			prods = [prod for prod in self.products if prod.BOM(rm_index=rm_ind) > 0]
+			prods = {prod for prod in self.products if prod.BOM(rm_index=rm_ind) > 0}
 		
 		if return_indices:
 			return [prod.index for prod in prods]
 		else:
-			return prods
+			return list(prods)
 	
 	# def product_indices_by_raw_material(self, rm_index=None):
 	# 	"""A list of indices of all products that use raw material with index ``rm_index`` at the node, 
@@ -1539,11 +1613,8 @@ class SupplyChainNode(object):
 		if index is not None and not is_integer(index):
 			raise ValueError('Node index must be an integer.')
 		
-		# Remember current index. (Make sure it exists. If this is first initialization, it does not.)
-		if hasattr(self, 'index'):
-			curr_index = self.index
-		else:
-			curr_index = None
+		# Remember current index, if any. (If this is first initialization, it doesn't exist yet.)
+		curr_index = self.index if hasattr(self, 'index') else None
 
 		# Loop through attributes. Special handling for list and object attributes.
 		for attr in self._DEFAULT_VALUES.keys():
@@ -1572,6 +1643,9 @@ class SupplyChainNode(object):
   		# never will have an external supplier.)
 		self._external_supplier_dummy_product = \
 			SupplyChainProduct(SupplyChainNode._external_supplier_dummy_product_index_from_node_index(self.index), is_dummy=True)
+	
+		# Build NBOM.
+		self._build_network_bill_of_materials()
 
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are

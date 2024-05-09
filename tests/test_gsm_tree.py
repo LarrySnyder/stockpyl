@@ -575,8 +575,7 @@ class TestGSMToSSM(unittest.TestCase):
 		correct_SSM_tree.add_edge(3, 2)
 		correct_SSM_tree.add_edge(3, 4)
 
-		trees_equal = SSM_tree.deep_equal_to(correct_SSM_tree)
-		self.assertEqual(trees_equal, True)
+		self.assertTrue(SSM_tree.deep_equal_to(correct_SSM_tree))
 
 	def test_figure_6_14(self):
 		"""Test that GSM_to_SSM() works for network in Figure 6.14.
@@ -602,8 +601,7 @@ class TestGSMToSSM(unittest.TestCase):
 			demand_source=DemandSource(type='N', mean=0, standard_deviation=10)))
 		correct_SSM_tree.add_edges_from_list([(1, 2), (2, 3), (3, 5), (4, 5), (5, 6), (7, 10), (6, 10), (8, 10), (9, 10)])
 
-		trees_equal = SSM_tree.deep_equal_to(correct_SSM_tree)
-		self.assertEqual(trees_equal, True)
+		self.assertTrue(SSM_tree.deep_equal_to(correct_SSM_tree))
 
 	def test_problem_6_9(self):
 		"""Test that GSM_to_SSM() works for network in Problem 6.9.
@@ -624,8 +622,7 @@ class TestGSMToSSM(unittest.TestCase):
 		correct_SSM_tree.add_node(SupplyChainNode(6, shipment_lead_time=2, echelon_holding_cost=7.5 * 0.2 / 365))
 		correct_SSM_tree.add_edges_from_list([(6, 5), (5, 3), (4, 3), (3, 1), (3, 2)])
 
-		trees_equal = SSM_tree.deep_equal_to(correct_SSM_tree)
-		self.assertEqual(trees_equal, True)
+		self.assertTrue(SSM_tree.deep_equal_to(correct_SSM_tree))
 
 
 class TestPreprocessTree(unittest.TestCase):
@@ -712,8 +709,7 @@ class TestPreprocessTree(unittest.TestCase):
 		)
 		correct_tree.add_successor(node3, node4)
 
-		trees_equal = new_tree.deep_equal_to(correct_tree)
-		self.assertTrue(trees_equal)
+		self.assertTrue(new_tree.deep_equal_to(correct_tree))
 
 	def test_figure_6_14(self):
 		"""Test that preprocess_tree() works for network in Figure 6.14.
@@ -839,8 +835,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=14))
 		correct_tree.add_edges_from_list([(1, 2), (2, 3), (3, 5), (4, 5), (5, 6), (6, 10), (7, 10), (8, 10), (9, 10)])
 
-		trees_equal = new_tree.deep_equal_to(correct_tree)
-		self.assertEqual(trees_equal, True)
+		self.assertTrue(new_tree.deep_equal_to(correct_tree))
 
 	def test_problem_6_7(self):
 		"""Test that preprocess_tree() works for network in Problem 6.7.
@@ -884,8 +879,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=5))
 		correct_tree.add_edges_from_list([(2, 1), (3, 2)])
 
-		trees_equal = new_tree.deep_equal_to(correct_tree)
-		self.assertTrue(trees_equal)
+		self.assertTrue(new_tree.deep_equal_to(correct_tree))
 
 	def test_problem_6_9(self):
 		"""Test that preprocess_tree() works for network in Problem 6.9.
@@ -973,8 +967,7 @@ class TestPreprocessTree(unittest.TestCase):
 							max_replenishment_time=2))
 		correct_tree.add_edges_from_list([(6, 5), (4, 3), (5, 3), (3, 1), (3, 2)])
 
-		trees_equal = new_tree.deep_equal_to(correct_tree)
-		self.assertTrue(trees_equal)
+		self.assertTrue(new_tree.deep_equal_to(correct_tree))
 
 
 class TestCalculateC(unittest.TestCase):
