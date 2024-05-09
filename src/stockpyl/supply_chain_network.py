@@ -700,7 +700,7 @@ class SupplyChainNetwork(object):
 		
 			# Build network BOM for all nodes.
 			for node in self.nodes:
-				node._build_network_bill_of_materials()
+				node._build_product_attributes()
 
 	def add_product(self, product):
 		"""Add ``product`` to the network. ``product`` will not automatically be contained in any

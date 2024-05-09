@@ -571,6 +571,56 @@ class SupplyChainNode(object):
 		"""A list of indices of all products handled at the node. Read only."""
 		return list(self._products_by_index.keys())
 	
+	def _build_product_attributes(self):
+		"""Build product-related attributes that are derived from other attributes,
+		at the network and the nodes in it.
+		These attributes are built each time the nodes or products in the network change, rather than 
+		deriving them live during a simulation.
+
+		Does nothing if self._currently_building is True. (This is to avoid building
+  		product attributes when network is currently being built and not all product/node
+		info is in place yet.)
+		"""
+		if self.network is not None and not self.network._currently_building:
+			self._build_network_bill_of_materials()
+			self._build_supplier_raw_material_pairs()
+						
+	def _build_supplier_raw_material_pairs(self):
+		"""Build two product-indexed dicts of (supplier, raw material) pairs -- one based on pure BOM
+   		and one based on NBOM -- and store them in _supplier_raw_material_pairs_by_product_BOM and
+   		_supplier_raw_material_pairs_by_product_NBOM attributes. Suppliers and raw materials are
+		stored as indices.
+		These attributes are built each time the nodes or products change, rather than 
+		deriving them live during a simulation.
+
+		Does nothing if ``self.network`` is ``None`` or ``self.network._currently_building`` is ``True``. 
+		(This is to avoid building
+  		product attributes when network is currently being built and not all product/node
+		info is in place yet.)
+		"""
+		# This function relies on :func:`get_network_bill_of_materials` but not other functions
+		# that list suppliers/raw materials. Therefore, those functions can call this one without
+		# triggering an infinite recursion.
+
+		if self.network is not None and not self.network._currently_building:
+
+			# Initialize attributes.
+			self._supplier_raw_material_pairs_by_product_BOM = {prod_ind: [] for prod_ind in self.product_indices}
+			self._supplier_raw_material_pairs_by_product_NBOM = {prod_ind: [] for prod_ind in self.product_indices}
+
+			for prod in self.products:
+				pairs_BOM = set()
+				pairs_NBOM = set()
+				for pred in self.predecessors(include_external=True):
+					for rm in pred.products if pred is not None else [self._external_supplier_dummy_product]:
+						if prod.BOM(rm_index=rm.index) > 0:
+							pairs_BOM.add((pred.index if pred else None, rm.index))
+						if self.NBOM(product=prod, predecessor=pred, raw_material=rm) > 0:
+							pairs_NBOM.add((pred.index if pred else None, rm.index))
+
+				self._supplier_raw_material_pairs_by_product_BOM[prod.index] = pairs_BOM
+				self._supplier_raw_material_pairs_by_product_NBOM[prod.index] = pairs_NBOM
+						
 	def _build_network_bill_of_materials(self):
 		"""Build the network bill of materials and store it in _network_bill_of_materials attribute.
 		This attribute is built each time the nodes or products change, rather than 
@@ -1230,7 +1280,7 @@ class SupplyChainNode(object):
 	# 	return [prod.index for prod in self.products_by_raw_material(rm_index=rm_index)]
 
 	def supplier_raw_material_pairs_by_product(self, product=None, return_indices=False, network_BOM=True):
-		"""A list of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
+		"""A set of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
 		Set ``product`` to ``'all'`` to get predecessors and raw materials for all products at the node.
 		If the node has a single product (either dummy or real), either set ``product`` to the single product,
 		or to ``None`` and the function will determine it automatically. 
@@ -1254,8 +1304,8 @@ class SupplyChainNode(object):
 		
 		Returns
 		-------
-		list
-			List of (predecessor, raw material) tuples.
+		set
+			Set of (predecessor, raw material) tuples.
 
 		Raises
 		------
@@ -1287,19 +1337,16 @@ class SupplyChainNode(object):
 
 		pairs = set()
 		for prod in products:
-			for pred in self.predecessors(include_external=True):
-				for rm in pred.products if pred is not None else [self._external_supplier_dummy_product]:
-					if (network_BOM and self.NBOM(product=prod, predecessor=pred, raw_material=rm) > 0) \
-						or (not network_BOM and prod.BOM(rm_index=rm.index) > 0):
-						if return_indices:
-							if pred is None:
-								pairs.add((None, rm.index))
-							else:
-								pairs.add((pred.index, rm.index))
-						else:
-							pairs.add((pred, rm))
+			if network_BOM:
+				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_NBOM[prod.index])
+			else:
+				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_BOM[prod.index])
+		
+		# Convert indices to objects, if requested.
+		if not return_indices:
+			pairs = {(self.network.get_node_from_index(pred_ind), self.network.products_by_index[rm_ind]) for pred_ind, rm_ind in pairs}
 
-		return list(pairs)
+		return pairs
 
 	def customers_by_product(self, product=None, return_indices=False, network_BOM=True):
 		"""A list of customers that order ``product`` from the node. If the node has a single product
@@ -1644,8 +1691,8 @@ class SupplyChainNode(object):
 		self._external_supplier_dummy_product = \
 			SupplyChainProduct(SupplyChainNode._external_supplier_dummy_product_index_from_node_index(self.index), is_dummy=True)
 	
-		# Build NBOM.
-		self._build_network_bill_of_materials()
+		# Build product-related attributes.
+		self._build_product_attributes()
 
 	def deep_equal_to(self, other, rel_tol=1e-8):
 		"""Check whether node "deeply equals" ``other``, i.e., if all attributes are
