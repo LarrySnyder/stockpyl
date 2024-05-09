@@ -150,6 +150,24 @@ def is_list(x):
 	return isinstance(x, list)
 
 
+def is_set(x):
+	"""Determine whether x is a set.
+	# TODO: unit tests
+	
+	Parameters
+	----------
+	x : any
+		Object to test for set-ness.
+
+	Returns
+	-------
+	bool
+		``True`` if ``x`` is a set, ``False`` otherwise.
+
+	"""
+	return isinstance(x, set)
+
+
 def is_dict(x):
 	"""Determine whether x is a dict.
 
