@@ -541,9 +541,6 @@ def _initialize_state_vars(network):
 		# State variables indexed by product at predecessor nodes.
 		for rm_index in n.raw_materials_by_product('all', return_indices=True, network_BOM=True):
 			for p_index in n.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True):
-		# for p in n.predecessors(include_external=True):
-		# 	p_index = p.index if p is not None else None
-		# 	for rm_index in p.product_indices if p is not None else [n._external_supplier_dummy_product.index]:
 				
 				# Initialize inbound shipment pipeline and on-order quantities.
 				for l in range(n.shipment_lead_time or 0):
