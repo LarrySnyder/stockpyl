@@ -264,6 +264,60 @@ class TestIsDict(unittest.TestCase):
 		self.assertEqual(helpers.is_dict(a), False)
 		
 				
+class TestIsSet(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsSet', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsSet', 'tear_down_class()')
+
+	def test_list(self):
+		"""Test that is_set() correctly returns False when input is a list.
+		"""
+		print_status('TestIsSet', 'test_list()')
+
+		a = [1, 2, 3]
+		self.assertFalse(helpers.is_set(a))
+
+	def test_set(self):
+		"""Test that is_set() correctly returns False when input is a set.
+		"""
+		print_status('TestIsSet', 'test_set()')
+
+		a = {1, 2, 3}
+		self.assertTrue(helpers.is_set(a))
+
+	def test_dict(self):
+		"""Test that is_set() correctly returns True when input is a dict.
+		"""
+		print_status('TestIsSet', 'test_dict()')
+
+		a = {1: 0, 2: 5, 3: 'potato'}
+		self.assertFalse(helpers.is_set(a))
+
+	def test_singleton(self):
+		"""Test that is_set() correctly returns False when input is a
+		singleton.
+		"""
+		print_status('TestIsSet', 'test_singleton()')
+
+		a = 3.14
+		self.assertFalse(helpers.is_set(a))
+
+	def test_iter(self):
+		"""Test that is_set() correctly returns False when input is an
+		iter.
+		"""
+		print_status('TestIsSet', 'test_iter()')
+
+		a = iter("foo")
+		self.assertFalse(helpers.is_set(a))
+		
+				
 class TestIsInteger(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):

@@ -75,9 +75,6 @@ def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 		If the JSON file does not exist or the instance cannot be found in the JSON file.
 	"""
 
-
-# TODO: convert 'null' to None
-		
 	# Determine filepath.
 	if filepath is None:
 		filepath = _stockpyl_instances_json_path()

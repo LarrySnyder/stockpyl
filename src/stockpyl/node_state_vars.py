@@ -99,7 +99,6 @@ class NodeStateVars(object):
 	raw_material_inventory : dict
 		``raw_material_inventory[rm]`` = number of units of raw material ``rm`` from _all_ predecessors 
 		in raw-material inventory at node. 
-		# TODO: note: this is a change, used to be indexed by predecessor
 	pending_finished_goods : dict
 		``pending_finished_goods[prod]`` = number of units of product ``prod`` that are waiting to be
 		produced from raw materials. (This is used internally to ensure that raw materials are used to produce
@@ -173,11 +172,10 @@ class NodeStateVars(object):
 				for rm_index in self.node.raw_materials_by_product(product='all', return_indices=True, network_BOM=True):
 					# Find a product at this node that uses raw material rm_index from predecessor p_index,
 					# and use its lead times. If there is more than one such product, use the last one found.
-					# This is a little klugey. # TODO: improve? should LTs be an attribute of the RM, not the product?
 					for prod_index in self.node.product_indices:
 						if rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True) and \
 							p_index in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True):
-							# Get lead times for this product. # TODO: shouldn't inbound shipment pipeline only use shipment LT, not order LT?
+							# Get lead times for this product. 
 							order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
 							shipment_lead_time = (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0)
 							self.inbound_shipment_pipeline[p_index][rm_index] = [0] * (order_lead_time + shipment_lead_time + 1)			  
@@ -1149,7 +1147,7 @@ class NodeStateVars(object):
 		set to the index of a single product at the node.
 
 		If the node has a single predecessor, which provides a single raw material, either set ``predecessor_index`` 
-		and ``rm_index`` to the appropriate indicies, or to ``None`` and the function will determine the indices
+		and ``rm_index`` to the appropriate indicies, or set them to ``None`` and the function will determine the indices
 		automatically.
 		If the node has multiple predecessors and/or raw materials, either set ``predecessor_index`` and ``rm_index``
 		to the indices of a single predecessor and raw material (to get the raw-material-specific inventory position)
@@ -1182,17 +1180,20 @@ class NodeStateVars(object):
 			If ``predecessor_index is None`` and ``rm_index is not None``, or vice-versa.
 		"""
 		# Validate parameters. # TODO: figure out what's going on here
+		if not (predecessor_index is None and rm_index is None):
+			_, predecessor_index = self.node.validate_predecessor(predecessor_index, raw_material=rm_index)
+		_, prod_index = self.node.validate_product(prod_index)
 		# if predecessor_index is None and rm_index is not None:
 		# 	raise ValueError('If predecessor_index is None, then rm_index must also be None.')
 		# if predecessor_index is not None and rm_index is None:
 		# 	raise ValueError('If rm_index is None, then predecessor_index must also be None.')
 
-		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		# # Validate parameters.
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
 		
-		# Determine product index.
-		prod_index = prod_index or self.node.product_indices[0]
+		# # Determine product index.
+		# prod_index = prod_index or self.node.product_indices[0]
 
 		# Calculate echelon inventory level.
 		if self.node.is_singleproduct:
@@ -1214,7 +1215,6 @@ class NodeStateVars(object):
 		return EIL + OO + RMI + IDI
 		
 	def _echelon_inventory_position_adjusted(self):
-		# TODO: not updated for multi-product
 		"""Calculate the adjusted echelon inventory position. Equals the current echelon inventory position
 		including only items ordered :math:`L_i` periods ago or earlier, where :math:`L_i` is the
 		forward echelon lead time for the node. That is, equals current echelon inventory level
@@ -1232,6 +1232,8 @@ class NodeStateVars(object):
 		more than its predecessor can ship; therefore, # of items shipped in a
 		given interval is the same as # of items ordered. In addition, there
 		are no raw-material inventories.
+
+		.. warning:: This function has not yet been updated to handle multi-product nodes.
 
 		Returns
 		-------

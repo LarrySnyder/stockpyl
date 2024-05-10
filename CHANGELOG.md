@@ -15,6 +15,7 @@ a given number and return the corresponding value.
 - Functions to validate and parse nodes and products within a network or node. (Mostly used internally for simulation.)
 
 ### Changed
+- ``NodeStateVars.raw_material_inventory`` is now indexed by product, not by predecessor.
 - ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
 - ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
 demand source parameters were provided specifically for that node in the input args.

@@ -152,7 +152,6 @@ def is_list(x):
 
 def is_set(x):
 	"""Determine whether x is a set.
-	# TODO: unit tests
 	
 	Parameters
 	----------
