@@ -766,8 +766,8 @@ def is_correctly_labeled(tree):
 			for k in tree.nodes:
 				if k.index < np.max(ind):
 					greater_indexed_neighbors = \
-						{i for i in k.predecessors() if i.index > k.index}.union(
-							{i for i in k.successors() if i.index > k.index}
+						{i_ind for i_ind in k.predecessor_indices() if i_ind > k.index}.union(
+							{i_ind for i_ind in k.successor_indices() if i_ind > k.index}
 						)
 					if len(greater_indexed_neighbors) != 1:
 						is_correct = False
