@@ -124,12 +124,6 @@ class SupplyChainNetwork(object):
 		that are handled by the nodes in the network. Read only.
 		"""
 		return self._products
-		# product_set = set(self._local_products)
-		# for node in self.nodes:
-		# 	product_set |= set(node.products)
-		# 	if node._external_supplier_dummy_product is not None:
-		# 		product_set |= {node._external_supplier_dummy_product}
-		# return list(product_set)
 
 	@property
 	def product_indices(self):
@@ -138,7 +132,6 @@ class SupplyChainNetwork(object):
 		that are handled by the nodes in the network. Read only.
 		"""
 		return self._product_indices
-		# return [prod.index for prod in self.products]
 
 	@property
 	def products_by_index(self):
@@ -681,12 +674,15 @@ class SupplyChainNetwork(object):
 		"""
 		if not self._currently_building:
 			# Build _products and _product_indices.
-			product_set = set(self._local_products)
+			products = self._local_products
 			for node in self.nodes:
-				product_set |= set(node.products)
+				for prod in node.products:
+					if prod not in products:
+						products.append(prod)
 				if node._external_supplier_dummy_product is not None:
-					product_set |= {node._external_supplier_dummy_product}
-			self._products = list(product_set)
+					if node._external_supplier_dummy_product not in products:
+						products.append(node._external_supplier_dummy_product)
+			self._products = products
 			self._product_indices = [prod.index for prod in self._products]
 			
 			# Build _products_by_index. Include all products in network (including in nodes).

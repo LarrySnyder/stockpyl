@@ -694,7 +694,7 @@ def _calculate_period_costs(network, period):
 		for prod_index in n.product_indices:
 			# Finished goods holding cost.
 			items_held = max(0, n.state_vars[period].inventory_level[prod_index]) + \
-							n._get_state_var_total('outbound_disrupted_items', period, product_index=prod_index)
+							n._get_state_var_total('outbound_disrupted_items', period, product=prod_index)
 			try:
 				n.state_vars[period].holding_cost_incurred += n.get_attribute('local_holding_cost_function', prod_index)(items_held)
 			except TypeError:
@@ -926,7 +926,7 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 		global issued_backorder_warning
 		if consistency_checks in ('W', 'WF', 'E', 'EF') and not issued_backorder_warning:
 			# Double-check BO calculations.
-			current_backorders_check = node._get_state_var_total('backorders_by_successor', node.network.period, product_index=prod_index)
+			current_backorders_check = node._get_state_var_total('backorders_by_successor', node.network.period, product=prod_index)
 			if not np.isclose(current_backorders, current_backorders_check):
 				if consistency_checks in ('WF', 'EF'):
 					# Write instance and simulation data to file.

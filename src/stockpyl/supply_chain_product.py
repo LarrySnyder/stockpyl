@@ -243,80 +243,88 @@ class SupplyChainProduct(object):
 
 	# Properties and functions related to bill of materials.
 
-	def set_bill_of_materials(self, rm_index, num_needed=1.0):
-		"""Specify that ``num_needed`` units of raw material product ``rm_index`` are required in order
+	def set_bill_of_materials(self, raw_material, num_needed=1.0):
+		"""Specify that ``num_needed`` units of ``raw_material`` are required in order
 		to make one unit of this product.
 		
 		To remove a BOM relationship, call this function again, setting ``num_needed = 0`` or ``num_needed = None``.
 		If ``num_needed = 0`` or ``None`` and a BOM relationship does not already exist for the specified product 
 		and raw material, does nothing.
 
-		Raises an exception if the product's index or ``rm_index`` is negative. (Negative indices are reserved for
+		Raises an exception if the product's index or ``raw_material`` (or its index) is negative. (Negative indices are reserved for
 		"dummy products" established by a simulation, and such products always have a BOM number of 1 with every
 		other product.)
 
 		Parameters
 		----------
-		rm_index : int
-			Index of raw material product.
+		raw_material : |class_product| or int
+			The raw material product.
 		num_needed : float, optional
 			The number of units required, by default 1.0. Set to 0 or ``None`` to remove the BOM relationship.
 		
 		Raises
 		------
 		ValueError
-			If ``self.index is None`` or ``rm_index is None``.
+			If ``self.index is None`` or ``raw_material is None``.
 		"""
+		if self.network is not None:
+			_, rm_ind = self.network.parse_product(raw_material)
+		elif is_integer(raw_material):
+			rm_ind = raw_material
+		elif raw_material is None:
+			rm_ind = None
+		else:
+			rm_ind = raw_material.index
 
-		if self.index < 0 or rm_index < 0:
+		if self.index < 0 or rm_ind < 0:
 			raise ValueError('You cannot set the BOM for dummy products (products with index < 0).')
 		
 		# Are we adding a BOM relationship?
 		if num_needed:
-			# Set self._bill_of_materials[rm_index].
-			self._bill_of_materials[rm_index] = num_needed
+			# Set self._bill_of_materials[rm_ind].
+			self._bill_of_materials[rm_ind] = num_needed
 		else:
 			# We are removing a BOM relationship.
-			self._bill_of_materials.pop(rm_index, None)
+			self._bill_of_materials.pop(rm_ind, None)
 
 		# Rebuild product info throughout network.
 		if self.network:
 			self.network._build_product_attributes()
 	
-	def get_bill_of_materials(self, rm_index):
-		"""Return the number of units of raw material product ``rm_index`` that are required in order
-		to make one unit of this product. Returns 0 if there is no BOM relationship for this product and ``rm_index``.
+	def get_bill_of_materials(self, raw_material):
+		"""Return the number of units of ``raw_material`` that are required in order
+		to make one unit of this product. Returns 0 if there is no BOM relationship for this 
+		product and ``raw_material``.
 
 		:func:`BOM` is a shortcut to this function.
 		
 		Parameters
 		----------
-		rm_index : int
-			Index of raw material product.
+		raw_material : |class_product| or int
+			The raw material product.
 		
 		Returns
 		-------
 		int
 			The BOM number for the (raw material, product) pair.
 		"""
-		# if self.index < 0 or rm_index < 0:
-		# 	return 1
-   
 		try:
+			_, rm_ind = self.network.parse_product(raw_material)
+
 			# Return BOM number, if BOM entry exists.
-			return self._bill_of_materials[rm_index]
+			return self._bill_of_materials[rm_ind]
 		except:
 			# No BOM relationship exists; return 0.
 			return 0
 		
-	def BOM(self, rm_index):
+	def BOM(self, raw_material):
 		"""A shortcut to :func:`~get_bill_of_materials`."""
-		return self.get_bill_of_materials(rm_index)
+		return self.get_bill_of_materials(raw_material)
 
 	@property
 	def bill_of_materials_dict(self):
 		"""A dict containing all non-zero bill-of-materials relationships for this product.
-		``bill_of_materials_dict[rm_index]`` is the number of units of raw material ``rm_index`` 
+		``bill_of_materials_dict[rm]`` is the number of units of raw material ``rm`` 
 		required to make one unit of this product.
 
 		It is normally easier to access the bill of materials using :func:`get_bill_of_materials` 
@@ -429,12 +437,12 @@ class SupplyChainProduct(object):
 		"""
 		return not self.__eq__(other)
 
-	def __hash__(self):
-		"""
-		Return the hash for the product, which equals its index, or -1 if its index is ``None``.
+	# def __hash__(self):
+	# 	"""
+	# 	Return the hash for the product, which equals its index, or -1 if its index is ``None``.
 
-		"""
-		return self.index or -1
+	# 	"""
+	# 	return self.index or -1
 
 	def __repr__(self):
 		"""

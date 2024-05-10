@@ -403,7 +403,10 @@ class SupplyChainNode(object):
 		"""A list of all neighbors (successors and predecessors) of the node, as
 		|class_node| objects. Read only.
 		"""
-		return list(set(self.successors()).union(set(self.predecessors())))
+		neighbors = self.successors()
+		neighbors.extend(self.predecessors()) # this assumes no predecessor can also be a successor
+	
+		return neighbors
 
 	@property
 	def neighbor_indices(self):
@@ -613,7 +616,7 @@ class SupplyChainNode(object):
 				pairs_NBOM = set()
 				for pred in self.predecessors(include_external=True):
 					for rm in pred.products if pred is not None else [self._external_supplier_dummy_product]:
-						if prod.BOM(rm_index=rm.index) > 0:
+						if prod.BOM(raw_material=rm.index) > 0:
 							pairs_BOM.add((pred.index if pred else None, rm.index))
 						if self.NBOM(product=prod, predecessor=pred, raw_material=rm) > 0:
 							pairs_NBOM.add((pred.index if pred else None, rm.index))
@@ -918,13 +921,13 @@ class SupplyChainNode(object):
 		else:
 			products = [prod_obj]
 
-		rms = set()
+		rms = []
 		for prod in products:
-			for pred, rm in self.supplier_raw_material_pairs_by_product(product=prod, \
+			for _, rm in self.supplier_raw_material_pairs_by_product(product=prod, \
 										return_indices=return_indices, network_BOM=network_BOM):
-				rms.add(rm)
+				rms.append(rm)
 			
-		return list(rms)
+		return rms
 
 	def raw_material_suppliers_by_product(self, product=None, return_indices=False, network_BOM=True):
 		"""Return a list of all predecessors from which a raw material must be ordered in order to
@@ -965,12 +968,12 @@ class SupplyChainNode(object):
 		# Validate parameters.
 		prod_obj, _ = self.validate_product(product)
 
-		suppliers = set()
+		suppliers = []
 		for pred, rm in self.supplier_raw_material_pairs_by_product(product=prod_obj, \
 									return_indices=return_indices, network_BOM=network_BOM):
-			suppliers.add(pred)
+			suppliers.append(pred)
 		
-		return list(suppliers)
+		return suppliers
 
 	def raw_material_suppliers_by_raw_material(self, raw_material=None, return_indices=False, network_BOM=True):
 		"""Return a list of all predecessors that supply the node with ``raw_material``.
@@ -1012,16 +1015,16 @@ class SupplyChainNode(object):
 		# Validate parameters.
 		rm_obj, _ = self.validate_raw_material(raw_material, network_BOM=network_BOM)
 
-		suppliers = set()
+		suppliers = []
 		for pred, rm in self.supplier_raw_material_pairs_by_product(product='all', 
    										return_indices=False, network_BOM=network_BOM):
 			if rm == rm_obj:
 				if return_indices:
-					suppliers.add(pred.index if pred is not None else None)
+					suppliers.append(pred.index if pred is not None else None)
 				else:
-					suppliers.add(pred)
+					suppliers.append(pred)
 	
-		return list(suppliers)
+		return suppliers
 
 	def products_by_raw_material(self, raw_material=None, return_indices=False, network_BOM=True):
 		"""Return a list of all products that use ``raw_material`` at the node. 
@@ -1054,28 +1057,29 @@ class SupplyChainNode(object):
 		_, rm_ind = self.validate_raw_material(raw_material, network_BOM=network_BOM)
   
 		if network_BOM:
-			prods = set()
+			prods = []
 			for prod in self.products:
 				for pred in self.raw_material_suppliers_by_raw_material(rm_ind, return_indices=False, network_BOM=True):
 					if self.NBOM(product=prod, predecessor=pred, raw_material=rm_ind) > 0:
-						prods.add(prod)
+						prods.append(prod)
 #			[prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_ind) > 0]
 		else:
-			prods = {prod for prod in self.products if prod.BOM(rm_index=rm_ind) > 0}
+			prods = [prod for prod in self.products if prod.BOM(raw_material=rm_ind) > 0]
 		
 		if return_indices:
 			return [prod.index for prod in prods]
 		else:
-			return list(prods)
+			return prods
 	
 	def supplier_raw_material_pairs_by_product(self, product=None, return_indices=False, network_BOM=True):
-		"""A set of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
+		"""A set or list (see below) of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
 		Set ``product`` to ``'all'`` to get predecessors and raw materials for all products at the node.
 		If the node has a single product (either dummy or real), either set ``product`` to the single product,
 		or to ``None`` and the function will determine it automatically. 
 
-		If ``return_indices`` is ``False``, returns the predecessors as |class_node| objects (or ``None`` for the
-		external supplier) and the products as |class_product| objects, otherwise returns predecessor and product indices.
+		If ``return_indices`` is ``False``, returns a list, with the predecessors as |class_node| objects (or ``None`` for the
+		external supplier) and the products as |class_product| objects. Otherwise, returns a set, with 
+		the predecessor and product indices.
 
 		If ``network_BOM`` is ``True``, includes predecessors and raw materials that don't have a 
 		BOM relationship specified but are implied by the network structure. 
@@ -1093,8 +1097,9 @@ class SupplyChainNode(object):
 		
 		Returns
 		-------
-		set
-			Set of (predecessor, raw material) tuples.
+		set or list
+			Set (if ``return_indices`` is ``True`` or list (if ``return_indices`` is ``False``) 
+			of (predecessor, raw material) tuples.
 
 		Raises
 		------
@@ -1133,7 +1138,7 @@ class SupplyChainNode(object):
 		
 		# Convert indices to objects, if requested.
 		if not return_indices:
-			pairs = {(self.network.get_node_from_index(pred_ind), self.network.products_by_index[rm_ind]) for pred_ind, rm_ind in pairs}
+			pairs = [(self.network.get_node_from_index(pred_ind), self.network.products_by_index[rm_ind]) for pred_ind, rm_ind in pairs]
 
 		return pairs
 
@@ -1403,12 +1408,12 @@ class SupplyChainNode(object):
 		"""
 		return not self.__eq__(other)
 
-	def __hash__(self):
-		"""
-		Return the hash for the node, which equals its index.
+	# def __hash__(self):
+	# 	"""
+	# 	Return the hash for the node, which equals its index.
 
-		"""
-		return self.index
+	# 	"""
+	# 	return self.index
 
 	def __repr__(self):
 		"""
@@ -1919,7 +1924,7 @@ class SupplyChainNode(object):
 			else:
 				return self_attr
 
-	def _get_state_var_total(self, attribute, period, product_index=None, include_external=True):
+	def _get_state_var_total(self, attribute, period, product=None, include_external=True):
 		"""Return total (over all successors/predecessors) of ``attribute`` in the node's ``state_vars`` 
 		for the period and product specified, for an
 		attribute that is indexed by successor or predecessor, i.e.,
@@ -1963,30 +1968,32 @@ class SupplyChainNode(object):
 			If ``product_index is None`` and the node is not single-product.
 
 		"""
-		if product_index is None and self.is_multiproduct:
-			raise ValueError('product_index cannot be None for multi-product nodes.')
+		_, prod_ind = self.validate_product(product)
 		
-		# Reset product_index to index of (possibly dummy) product if this is a single-product node.
-		if product_index is None:
-			product_index = self.product_indices[0]
+		# if product_index is None and self.is_multiproduct:
+		# 	raise ValueError('product_index cannot be None for multi-product nodes.')
+		
+		# # Reset product_index to index of (possibly dummy) product if this is a single-product node.
+		# if product_index is None:
+		# 	product_index = self.product_indices[0]
 
 		if attribute in ('inbound_shipment', 'on_order_by_predecessor', 'raw_material_inventory', 'inbound_disrupted_items'):
 			# These attributes are indexed by predecessor.
 			if period is None:
-				return float(np.sum([self.state_vars[t].__dict__[attribute][p_index][product_index]
+				return float(np.sum([self.state_vars[t].__dict__[attribute][p_index][prod_ind]
 									 for t in range(len(self.state_vars))
 									 for p_index in self.predecessor_indices(include_external=include_external)]))
 			else:
-				return float(np.sum([self.state_vars[period].__dict__[attribute][p_index][product_index]
+				return float(np.sum([self.state_vars[period].__dict__[attribute][p_index][prod_ind]
 									 for p_index in self.predecessor_indices(include_external=include_external)]))
 		elif attribute in ('inbound_order', 'outbound_shipment', 'backorders_by_successor', 'outbound_disrupted_items'):
 			# These attributes are indexed by successor.
 			if period is None:
-				return float(np.sum([self.state_vars[t].__dict__[attribute][s_index][product_index]
+				return float(np.sum([self.state_vars[t].__dict__[attribute][s_index][prod_ind]
 									 for t in range(len(self.state_vars))
 									 for s_index in self.successor_indices(include_external=include_external)]))
 			else:
-				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index][product_index]
+				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index][prod_ind]
 									 for s_index in self.successor_indices(include_external=include_external)]))
 		elif attribute in ('disrupted', 'holding_cost_incurred', 'stockout_cost_incurred', 'in_transit_holding_cost_incurred',
 			'revenue_earned', 'total_cost_incurred'):
@@ -1997,9 +2004,9 @@ class SupplyChainNode(object):
 				return self.state_vars[period].__dict__[attribute]
 		else:
 			if period is None:
-				return np.sum([self.state_vars[:].__dict__[attribute][product_index]])
+				return np.sum([self.state_vars[:].__dict__[attribute][prod_ind]])
 			else:
-				return self.state_vars[period].__dict__[attribute][product_index]
+				return self.state_vars[period].__dict__[attribute][prod_ind]
 
 	def reindex_all_state_variables(self, old_to_new_dict, old_to_new_prod_dict):
 		"""Change indices of all node-based keys in all state variables using ``old_to_new_dict``
