@@ -1523,7 +1523,6 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
 
-	@unittest.skipUnless(RUN_ALL_TESTS, "TestNetworkFromEdges.test_list_params skipped because test fails for now; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_list_params(self):
 		"""Test that network_from_edges() correctly builds the network defined in
 		get_correct_network() when built using all lists.
@@ -1540,8 +1539,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			demand_list=[0, 1, 2, 3],
 			probabilities=[0.25, 0.25, 0.4, 0.1]
 		)
-		correct_network.get_node_from_index(3).demand_source = DemandSource(type='CD')
-		correct_network.get_node_from_index(4).demand_source = DemandSource(type='CD')
+		correct_network.get_node_from_index(3).demand_source = DemandSource(type=None)
+		correct_network.get_node_from_index(4).demand_source = DemandSource(type=None)
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],

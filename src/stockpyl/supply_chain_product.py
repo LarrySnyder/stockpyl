@@ -389,7 +389,8 @@ class SupplyChainProduct(object):
 		# Note that _inventory_policy.node cannot be set here, because we don't know the node from
 		# within the product.
 		self._inventory_policy = value
-		self._inventory_policy.product_index = self.index
+		if self._inventory_policy:
+			self._inventory_policy.product_index = self.index
 
 
 	# Special methods.
