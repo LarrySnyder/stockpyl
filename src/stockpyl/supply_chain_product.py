@@ -94,8 +94,6 @@ class SupplyChainProduct(object):
 	by a |class_node| that handles the product. 
 	TODO: update?
 	
-	TODO: note that GSM and SSM modules can't handle multi-product; only sim.
-
 	Attributes
 	----------
 	index : int
@@ -143,7 +141,6 @@ class SupplyChainProduct(object):
 		Initial inbound shipment quantity.
 	inventory_policy : |class_policy|
 		Inventory policy to be used to make inventory decisions.
-	TODO: decide whether disruptions are at node or product level
 	supply_type : str
 		Supply type , as a string. Currently supported strings are:
 
@@ -356,7 +353,6 @@ class SupplyChainProduct(object):
 		"""A list of all nodes in the network that handle this product, 
 		as |class_node| objects. Read only.
 		"""		
-		# TODO: unit tests
 		return [node for node in self.network.nodes if self in node.products]
 	
 	@property
@@ -389,9 +385,11 @@ class SupplyChainProduct(object):
 	
 	@inventory_policy.setter
 	def inventory_policy(self, value):
-		# Set _inventory_policy, and also set _inventory_policy's product
+		# Set _inventory_policy, and also set _inventory_policy's product.
+		# Note that _inventory_policy.node cannot be set here, because we don't know the node from
+		# within the product.
 		self._inventory_policy = value
-		# TODO: handle setting product and node attributes
+		self._inventory_policy.product_index = self.index
 
 
 	# Special methods.

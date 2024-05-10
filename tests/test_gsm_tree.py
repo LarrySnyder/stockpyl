@@ -1940,3 +1940,18 @@ class TestOptimizeCommittedServiceTimes(unittest.TestCase):
 
 		self.assertAlmostEqual(opt_cost, 2)
 		self.assertDictEqual(opt_cst, {1: 0})
+
+	def test_bad_params(self):
+		"""Test that optimize_committed_service_times() correctly raises errors on bad parameters."""
+
+		print_status('TestOptimizeCommittedServiceTimes', 'test_bad_params')
+
+		tree = load_instance("problem_6_9")
+		tree.get_node_from_index(1).demand_source.mean = None
+		with self.assertRaises(ValueError):
+			gsm_tree.optimize_committed_service_times(tree)
+
+		tree = load_instance("problem_6_9")
+		tree.get_node_from_index(2).demand_source.standard_deviation = None
+		with self.assertRaises(ValueError):
+			gsm_tree.optimize_committed_service_times(tree)

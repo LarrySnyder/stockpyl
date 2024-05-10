@@ -384,9 +384,6 @@ class SupplyChainNetwork(object):
 							node._products_by_index = {}
 							for prod_ind in prod_indices:
 								node.add_product(network.products_by_index[prod_ind])
-							# Replace product attribute in inventory_policy with product object (SupplyChainNode.to_dict()
-							# stores it as int.)
-							node # TODO: ???
 							# Replace dummy-product indices with product objects.
 							if node._dummy_product is not None:
 								node._dummy_product = network.products_by_index[node._dummy_product]
@@ -1065,8 +1062,6 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 				dp.disrupted = data_dict[n.index].get('disrupted')
 			n.disruption_process = dp
 
-		# TODO: bill_of_materials
-
 		# Supply type.
 		if not n.predecessors():
 			n.supply_type = 'U'
@@ -1289,8 +1284,6 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 	if node_order_in_lists is None:
 		node_order_in_lists = node_order_in_system
 
-	# TODO: bill_of_materials
-		
 	# Build network.
 	network = network_from_edges(
 		edges=edges,
@@ -1405,8 +1398,6 @@ def owmr_system(num_retailers, node_order_in_system=None, node_order_in_lists=No
 	if node_order_in_lists is None:
 		node_order_in_lists = node_order_in_system
 
-	# TODO: bill_of_materials
-
 	# Build network.
 	return network_from_edges(
 		edges=edges,
@@ -1510,8 +1501,6 @@ def mwor_system(num_warehouses, node_order_in_system=None, node_order_in_lists=N
 	# Determine node_order_in_lists.
 	if node_order_in_lists is None:
 		node_order_in_lists = node_order_in_system
-
-	# TODO: bill_of_materials
 
 	# Build network.
 	return network_from_edges(

@@ -385,7 +385,6 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	for prod in node.products:
 		
 		# Get lead times and product index (for convenience).
-  # TODO: LTs should live with the RM, not the FG. Otherwise, different RMs can't have different LTs. (But this doesn't mean interpret LT as applying to the outbound link instead of the inbound.)
 		order_lead_time = node.get_attribute('order_lead_time', prod) or 0
 		shipment_lead_time = node.get_attribute('shipment_lead_time', prod) or 0
 		
@@ -821,11 +820,6 @@ def _raw_materials_to_finished_goods(node):
 
 	"""
 
-	# TODO: currently assumes product is infinitely divisble, i.e., if need 2 units of A and 2 of
-	# B to make the product, and have 1.5 units of A and 2 of B, will make 0.75 units of product. 
-	# Make it an option to choose whether to allow this, or require integer multiples of the BOM number to
-	# be available, i.e., require integer number of items to be processed.
- 
 	# Shortcut to period.
 	period = node.network.period
 
@@ -836,7 +830,6 @@ def _raw_materials_to_finished_goods(node):
 
 		# Shortcut to lead times. Note: This assumes that all products that use this RM have the
 		# same lead times. Currently no way to distinguish among products if they have different lead times.
-		# TODO: fix this
 		prod = node.products_by_raw_material(rm_index)[0]
 		OLT = node.get_attribute('order_lead_time', prod) or 0
 		SLT = node.get_attribute('shipment_lead_time', prod) or 0
@@ -855,11 +848,9 @@ def _raw_materials_to_finished_goods(node):
 			
 			# If units_ordered == 0, allocate into equal shares. (This can happen if the original
 			# order was backordered, or if there is initial RM at the start of the simulation.)
-			# TODO: allocate in a smarter way in this case?
 			if units_ordered == 0:
 				share_frac = {prod_index: 1 / len(prods_for_rm) for prod_index in prods_for_rm}
 			else:
-				# TODO: what if order_quantity_fg = 0 (e.g., because of backorders)?
 				share_frac = {prod_index: node.state_vars[period - OLT - SLT].order_quantity_fg[prod_index] \
 											* node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index) \
 											/ units_ordered for prod_index in prods_for_rm}
@@ -1078,7 +1069,6 @@ def _propagate_shipment_downstream(node):
 				node in s.raw_material_suppliers_by_raw_material(prod_index, network_BOM=True):
 				# Find a product at successor node that uses prod_index from node as a raw material,
 				# and use its lead time. If there is more than one such product, use the last one found.
-				# This is a little klugey. # TODO: improve? should LTs be an attribute of the RM, not the product?
 				for FG_index in s.product_indices:
 					if prod_index in s.raw_materials_by_product(product=FG_index, return_indices=True, network_BOM=True) and \
 						node.index in s.raw_material_suppliers_by_raw_material(raw_material=prod_index, return_indices=True, network_BOM=True):

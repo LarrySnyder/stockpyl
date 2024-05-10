@@ -26,6 +26,10 @@ demand source parameters were provided specifically for that node in the input a
 - Bug in ``demand_source.py`` that sometimes caused infinite recursion when some attributes were ``None``.
 - Bug in ``sim_io.py`` that caused incorrect headers for a few state variables.
 
+### Known Issues
+- Echelon base-stock policies are not working reliably yet, at least for systems with multiple products. [#153](https://github.com/LarrySnyder/stockpyl/issues/153)
+- Disruptions can only occur at node level, not product level. [#158](https://github.com/LarrySnyder/stockpyl/issues/158)
+
 ## [0.0.15] -- 2024-02-10
 
 ### Added

@@ -1179,21 +1179,10 @@ class NodeStateVars(object):
 		ValueError
 			If ``predecessor_index is None`` and ``rm_index is not None``, or vice-versa.
 		"""
-		# Validate parameters. # TODO: figure out what's going on here
+		# Validate parameters. 
 		if not (predecessor_index is None and rm_index is None):
 			_, predecessor_index = self.node.validate_predecessor(predecessor_index, raw_material=rm_index)
 		_, prod_index = self.node.validate_product(prod_index)
-		# if predecessor_index is None and rm_index is not None:
-		# 	raise ValueError('If predecessor_index is None, then rm_index must also be None.')
-		# if predecessor_index is not None and rm_index is None:
-		# 	raise ValueError('If rm_index is None, then predecessor_index must also be None.')
-
-		# # Validate parameters.
-		# if prod_index is not None and prod_index not in self.node.product_indices:
-		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
-		
-		# # Determine product index.
-		# prod_index = prod_index or self.node.product_indices[0]
 
 		# Calculate echelon inventory level.
 		if self.node.is_singleproduct:

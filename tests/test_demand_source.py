@@ -558,7 +558,6 @@ class TestValidateParameters(unittest.TestCase):
 		demand_source.standard_deviation = -100
 		with self.assertRaises(AttributeError):
 			demand_source.validate_parameters()
-			# TODO: if mean is not set, mean property calls demand_distribution property which calls mean property...
 
 	def test_poisson(self):
 		"""Test that TestValidateParameters correctly raises errors on invalid parameters
