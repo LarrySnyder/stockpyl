@@ -1270,7 +1270,8 @@ class SupplyChainNode(object):
 		ValueError
 			If ``raw_material`` is not a raw material of the node.
 		ValueError
-			If ``raw_material`` is ``None`` and the node has more than 1 raw material (including
+			If ``raw_material`` is ``None`` and either ``predecessor`` is supplied and the node receives more than 1 raw
+			material from ``predecessor`` or ``predecesor`` is ``None`` and the node has more than 1 raw material (including
 			the dummy raw materials).
 		ValueError
 			If ``raw_material`` and ``predecessor`` are both not ``None`` and ``predecessor``
@@ -1279,10 +1280,20 @@ class SupplyChainNode(object):
 
 		rms = self.raw_materials_by_product(product='all', network_BOM=network_BOM)
 		if raw_material is None:
-			if len(rms) == 1:
-				return self.network.parse_product(rms[0])
+			if predecessor is None:
+				if len(rms) == 1:
+					return self.network.parse_product(rms[0])
+				else:
+					raise ValueError(f'raw_material and predecessor cannot both be None if the node has more than 1 raw material.')
 			else:
-				raise ValueError(f'raw_material cannot be None if the node has more than 1 raw material.')
+				_, pred_ind = self.network.parse_node(predecessor)
+				rms_from_pred = [rm_ind for (p_ind, rm_ind) in \
+									self.supplier_raw_material_pairs_by_product(product='all', return_indices=True, network_BOM=True) \
+									if p_ind == pred_ind]
+				if len(rms_from_pred) == 1:
+					return self.network.parse_product(rms_from_pred[0])
+				else:
+					raise ValueError(f'raw_material cannot be None if the predecessor provides more than 1 raw material to the node.')
 		else:
 			rm_obj, rm_ind = self.network.parse_product(raw_material) # raises TypeError on bad type
 			_, pred_ind = self.network.parse_node(predecessor)

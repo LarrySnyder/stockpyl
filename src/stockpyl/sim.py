@@ -403,7 +403,7 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			# Get order quantities for all raw materials (expressed in units of RM).
 			# Dict returned also contains an order quantity for the FG, which will be used
 			# below to set pending_finished_goods.
-			order_quantity_dict = policy.get_order_quantity(product_index=prod.index, order_capacity=order_capac, include_raw_materials=True)
+			order_quantity_dict = policy.get_order_quantity(product=prod.index, order_capacity=order_capac, include_raw_materials=True)
 
 			# Update FG order quantity and pending finished goods. (Convert to downstream units.)
 			node.state_vars_current.order_quantity_fg[prod.index] += order_quantity_dict[None][None]
@@ -530,7 +530,7 @@ def _initialize_state_vars(network):
 			init_IL = n.get_attribute('initial_inventory_level', prod)
 			if init_IL is None:
 				# Choose a supplier and RM to use when getting an order quantity to set the initial IL.
-				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(product_index=prod.index, include_raw_materials=False, inventory_position=0)
+				init_IL = n.get_attribute('inventory_policy', prod).get_order_quantity(product=prod.index, include_raw_materials=False, inventory_position=0)
 			n.state_vars[0].inventory_level[prod.index] = init_IL
 
 			# Initialize inbound order pipeline. (Exclude external demand.)

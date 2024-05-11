@@ -722,19 +722,20 @@ class NodeStateVars(object):
 		else:
 			return max(0, -self.inventory_level[self.node._dummy_product.index])
 
-	def in_transit_to(self, successor, prod_index=None):
-		"""Return current total inventory of product ``prod_index`` in transit to a given successor.
+	def in_transit_to(self, successor, product=None):
+		"""Return current total inventory of ``product`` in transit to ``successor``.
 		Includes items that will be/have been delivered during the current period.
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically.
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically.
 
 		Parameters
 		----------
 		successor : |class_node|
 			The successor node.
-		prod_index : int, optional
-			The outbound product index, or ``None`` if ``successor`` is single-product.
+		product : |class_product| or int, optional
+			The outbound product (as a |class_product| object or index), or 
+			``None`` if ``successor`` is single-product.
 
 		Returns
 		-------
@@ -742,59 +743,64 @@ class NodeStateVars(object):
 			The current inventory in transit to the successor.
 		"""
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
-		elif prod_index is not None and (self.node.index, prod_index) not in \
+		_, prod_ind = self.node.validate_product(product)
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		if prod_ind is not None and (self.node.index, prod_ind) not in \
 			successor.supplier_raw_material_pairs_by_product(product='all', return_indices=True, network_BOM=True):
-			raise ValueError(f'Node {self.node.index} does not provide product {prod_index} to node {successor.index}.')
+			raise ValueError(f'Node {self.node.index} does not provide product {prod_ind} to node {successor.index}.')
 		
-		# Determine product index.
-		prod_index = prod_index or self.node._dummy_product.index
-   
-		return np.sum([successor.state_vars[self.period].inbound_shipment_pipeline[self.node.index][prod_index][:]])
+		return np.sum([successor.state_vars[self.period].inbound_shipment_pipeline[self.node.index][prod_ind][:]])
 
-	def in_transit_from(self, predecessor=None, prod_index=None):
-		"""Return current total inventory of product ``prod_index`` in transit from a given predecessor.
+	def in_transit_from(self, predecessor=None, raw_material=None):
+		"""Return current total inventory of ``raw_material`` in transit from a given predecessor.
 		Includes items that will be/have been delivered during the current period.
 
 		Set ``predecessor`` to ``None`` if the predecessor is the external supplier.
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically.
+		If the node has a single raw material, either set ``raw_material`` to the single raw material, or to ``None``
+		and the function will determine the raw material automatically.
 
 		Parameters
 		----------
 		predecessor : |class_node|
 			The predecessor node.
-		prod_index : int, optional
-			The inbound product index, or ``None`` if ``predecessor`` is single-product or external supplier.
+		raw_material : |class_product| or int, optional
+			The inbound raw_material (as a |class_product| object or index), or ``None`` if 
+			``predecessor`` has a single product or external supplier.
 
 		Returns
 		-------
 		float
 			The current inventory in transit from the predecessor.
 		"""
-		# Get predecessor index. Also get prod_index if it's None.
-		if predecessor is None:
-			p_ind = None
-			if prod_index is None:
-				prod_index = self.node._external_supplier_dummy_product.index
-		else:
-			p_ind = predecessor.index
-			if prod_index is None:
-				prod_index = predecessor.products[0].index
-
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.inbound_shipment_pipeline[p_ind].keys():
-			raise ValueError(f'{prod_index} is not a product at node {p_ind}.')
+		_, rm_ind = self.node.validate_raw_material(raw_material, predecessor)
+		# if rm_ind is None:
+		# 	rm_ind = self.node._external_supplier_dummy_product.index
+		_, pred_ind = self.node.validate_predecessor(predecessor, rm_ind)
+			
+		# 					Get predecessor index. Also get prod_index if it's None.
+		# if predecessor is None:
+		# 	p_ind = None
+		# 	if prod_index is None:
+		# 		prod_index = self.node._external_supplier_dummy_product.index
+		# else:
+		# 	p_ind = predecessor.index
+		# 	if prod_index is None:
+		# 		prod_index = predecessor.products[0].index
 
-		return np.sum(self.inbound_shipment_pipeline[p_ind][prod_index][:])
+		# # Validate parameters.
+		# if prod_index is not None and prod_index not in self.inbound_shipment_pipeline[p_ind].keys():
+		# 	raise ValueError(f'{prod_index} is not a product at node {p_ind}.')
 
-	def in_transit(self, prod_index=None):
-		"""Current inventory of raw materials for product ``prod_index`` that is in transit to the node.  Read only.
+		return np.sum(self.inbound_shipment_pipeline[pred_ind][rm_ind][:])
+
+	def in_transit(self, product=None):
+		"""Current inventory of raw materials for ``product`` that is in transit to the node.  Read only.
 		
 		In-transit items are counted using the "units" of the node (or node-product pair) itself.
 		That is, each in-transit quantity is divided by the number of units of the inbound item
-		required to make one unit of product ``prod_index`` at this node, according to the bill of materials; and then 
+		required to make one unit of ``product`` at this node, according to the bill of materials; and then 
 		the sum of those quantities is divided by the total number of raw materials required for this node (or node-product pair). 
 
 		For example, if the bill of materials specifies that to make one unit at the node requires
@@ -805,20 +811,21 @@ class NodeStateVars(object):
 
 		\\frac{\\frac{10}{2} + \\frac{18}{6}}{2} = 4
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically. 
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically. 
 		
 		If the node has multiple products that use the same raw material, this function includes all units of that
-		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+		raw material, even though some of them may wind up being used to make products other than ``product``.
 
 		To get the number of units in transit by predecessor and/or product, use :func:`in_transit_from`.
 
-		**Note:** This was a property prior to version [VERSION] and is now a function.
+		..note:: This was a property prior to version [VERSION] and is now a function.
 		
 		Parameters
 		----------
-		prod_index : int, optional
-			The product index, or ``None`` to set the product automatically if node is single-product.
+		product : |class_product| or int, optional
+			The product (as a |class_product| object or index), or ``None`` to set the product 
+			automatically if node is single-product.
 
 		Returns
 		-------
@@ -826,30 +833,31 @@ class NodeStateVars(object):
 			The current inventory in transit from predecessors.
 		"""
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		_, prod_ind = self.node.validate_product(product)
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
 		
-		# Determine product index.
-		prod_index = prod_index or self.node.product_indices[0]
+		# # Determine product index.
+		# prod_index = prod_index or self.node.product_indices[0]
 
 		total_in_transit = np.sum([
 				self.in_transit_from(p, rm_index) 
-				* self.node.NBOM(product=prod_index, predecessor=p.index if p is not None else None, raw_material=rm_index)
-			for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True)
+				* self.node.NBOM(product=prod_ind, predecessor=p.index if p is not None else None, raw_material=rm_index)
+			for rm_index in self.node.raw_materials_by_product(product=prod_ind, return_indices=True, network_BOM=True)
 			for p in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, network_BOM=True)
 		])
 
 		if total_in_transit == 0:
 			return 0
 		else:
-			return total_in_transit / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
+			return total_in_transit / len(self.node.raw_materials_by_product(product=prod_ind, network_BOM=True))
 
-	def on_order(self, prod_index=None):
-		"""Current inventory of raw materials for product ``prod_index`` that is on order to the node. Read only.
+	def on_order(self, product=None):
+		"""Current inventory of raw materials for ``product`` that is on order to the node. Read only.
 		
 		On-order items are counted using the "units" of the node (or node-product pair) itself.
 		That is, each on-order quantity is divided by the number of units of the inbound item
-		required to make one unit of product ``prod_index`` at this node, according to the bill of materials; and then 
+		required to make one unit of product ``product`` at this node, according to the bill of materials; and then 
 		the sum of those quantities is divided by the total number of raw materials required for this node (or node-product pair). 
 
 		For example, if the bill of materials specifies that to make one unit at the node requires
@@ -860,18 +868,19 @@ class NodeStateVars(object):
 
 		\\frac{\\frac{10}{2} + \\frac{18}{6}}{2} = 4
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically. 
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically. 
 		
 		If the node has multiple products that use the same raw material, this function includes all units of that
-		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+		raw material, even though some of them may wind up being used to make products other than ``product``.
 
-		**Note:** This was a property prior to version [VERSION] and is now a function.
+		..note:: This was a property prior to version [VERSION] and is now a function.
 		
 		Parameters
 		----------
-		prod_index : int, optional
-			The product index, or ``None`` to set the product automatically if node is single-product.
+		product : |class_product| or int, optional
+			The product (as a |class_product| object or index), or ``None`` to set the product 
+			automatically if node is single-product.
 
 		Returns
 		-------
@@ -879,30 +888,31 @@ class NodeStateVars(object):
 			The current inventory on order from predecessors.
 		"""
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		_, prod_ind = self.node.validate_product(product)
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
 		
-		# Determine product index. 
-		prod_index = prod_index or self.node.product_indices[0]
+		# # Determine product index. 
+		# prod_index = prod_index or self.node.product_indices[0]
 
 		total_on_order = np.sum([
 				self.on_order_by_predecessor[p][rm_index]
-				/ self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
-			for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True)
+				/ self.node.NBOM(product=prod_ind, predecessor=p, raw_material=rm_index)
+			for rm_index in self.node.raw_materials_by_product(product=prod_ind, return_indices=True, network_BOM=True)
 			for p in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True)
 		])
 
 		if total_on_order == 0:
 			return 0
 		else:
-			return total_on_order / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
+			return total_on_order / len(self.node.raw_materials_by_product(product=prod_ind, network_BOM=True))
 
-	def raw_material_aggregate(self, prod_index=None):
-		"""Current raw materials for product ``prod_index`` that are in raw-material inventory at the node. Read only.
+	def raw_material_aggregate(self, product=None):
+		"""Current raw materials for ``product`` that are in raw-material inventory at the node. Read only.
 		
 		Raw materials are counted using the "units" of the node (or node-product pair) itself.
 		That is, each raw material quantity is divided by the number of units of the raw material
-		required to make one unit of product ``prod_index`` at this node, according to the bill of materials; and then 
+		required to make one unit of product ``product`` at this node, according to the bill of materials; and then 
 		the sum of those quantities is divided by the total number of raw materials required for this node (or node-product pair). 
 
 		For example, if the bill of materials specifies that to make one unit at the node requires
@@ -913,18 +923,19 @@ class NodeStateVars(object):
 
 		\\frac{\\frac{10}{2} + \\frac{18}{6}}{2} = 4
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically. 
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically. 
 		
 		If the node has multiple products that use the same raw material, this function includes all units of that
-		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+		raw material, even though some of them may wind up being used to make products other than ``product``.
 
-		**Note:** This was a property prior to version [VERSION] and is now a function.
+		..note:: This was a property prior to version [VERSION] and is now a function.
 		
 		Parameters
 		----------
-		prod_index : int, optional
-			The product index, or ``None`` to set the product automatically if node is single-product.
+		product : |class_product| or int, optional
+			The product (as a |class_product| object or index), or ``None`` to set the product 
+			automatically if node is single-product.
 
 		Returns
 		-------
@@ -932,16 +943,17 @@ class NodeStateVars(object):
 			The current raw material inventory.
 		"""
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		prod_obj, prod_ind = self.node.validate_product(product)
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
 		
-		# Determine product index.
-		prod_index = prod_index or self.node.product_indices[0]
-		prod = self.node.products_by_index[prod_index]
+		# # Determine product index.
+		# prod_index = prod_index or self.node.product_indices[0]
+		# prod = self.node.products_by_index[prod_index]
 
 		total_raw_material = 0
-		for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
-			BOM = prod.BOM(rm_index) 
+		for rm_index in self.node.raw_materials_by_product(product=prod_ind, return_indices=True, network_BOM=True):
+			BOM = prod_obj.BOM(rm_index) 
 			if BOM == 0:
 				# rm_index has no BOM relationship, so it is only in the network BOM; therefore,
 				# its BOM number is 1.
@@ -952,14 +964,14 @@ class NodeStateVars(object):
 		if total_raw_material == 0:
 			return 0
 		else:
-			return total_raw_material / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
+			return total_raw_material / len(self.node.raw_materials_by_product(product=prod_ind, network_BOM=True))
 
-	def inbound_disrupted_items_aggregate(self, prod_index=None):
-		"""Current total inbound disrupted inventory of raw materials for product ``prod_index``. Read only.
+	def inbound_disrupted_items_aggregate(self, product=None):
+		"""Current total inbound disrupted inventory of raw materials for ``product``. Read only.
 		
 		Inbound items are counted using the "units" of the node (or node-product pair) itself.
 		That is, each inbound quantity is divided by the number of units of the inbound item
-		required to make one unit of product ``prod_index`` at this node, according to the bill of materials; and then 
+		required to make one unit of ``product`` at this node, according to the bill of materials; and then 
 		the sum of those quantities is divided by the total number of raw materials required for this node (or node-product pair). 
 
 		For example, if the bill of materials specifies that to make one unit at the node requires
@@ -970,18 +982,19 @@ class NodeStateVars(object):
 
 		\\frac{\\frac{10}{2} + \\frac{18}{6}}{2} = 4
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically. 
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically. 
 		
 		If the node has multiple products that use the same raw material, this function includes all disrupted units of that
-		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+		raw material, even though some of them may wind up being used to make products other than ``product``.
 
-		**Note:** This was a property prior to version [VERSION] and is now a function.
+		..note:: This was a property prior to version [VERSION] and is now a function.
 		
 		Parameters
 		----------
-		prod_index : int, optional
-			The product index, or ``None`` to set the product automatically if node is single-product.
+		product : |class_product| or int, optional
+			The product (as a |class_product| object or index), or ``None`` to set the product 
+			automatically if node is single-product.
 
 		Returns
 		-------
@@ -989,26 +1002,27 @@ class NodeStateVars(object):
 			The current disrupted inventory from predecessors.
 		"""
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		_, prod_ind = self.node.validate_product(product)
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
 		
-		# Determine product index. 
-		prod_index = prod_index or self.node.product_indices[0]
+		# # Determine product index. 
+		# prod_index = prod_index or self.node.product_indices[0]
 
 		total_disrupted_items = np.sum([
 				self.inbound_disrupted_items[p][rm_index]
-				* self.node.NBOM(product=prod_index, predecessor=p, raw_material=rm_index)
-			for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True)
+				* self.node.NBOM(product=prod_ind, predecessor=p, raw_material=rm_index)
+			for rm_index in self.node.raw_materials_by_product(product=prod_ind, return_indices=True, network_BOM=True)
 			for p in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True)
 		])
 
 		if total_disrupted_items == 0:
 			return 0
 		else:
-			return total_disrupted_items / len(self.node.raw_materials_by_product(product=prod_index, network_BOM=True))
+			return total_disrupted_items / len(self.node.raw_materials_by_product(product=prod_ind, network_BOM=True))
 
-	def inventory_position(self, prod_index=None, exclude_earmarked_units=False):
-		"""Current (local) inventory position at node for product with index ``prod_index``. 
+	def inventory_position(self, product=None, exclude_earmarked_units=False):
+		"""Current (local) inventory position at node for ``product``. 
 		Equals inventory level plus pipeline inventory. (Pipeline inventory equals on-order inventory of the raw material,
 		raw material inventory that has not yet been processed, and inbound disrupted items of the
 		raw material due to type-RP disruptions). Inventory position is expressed in the units of the product
@@ -1026,17 +1040,18 @@ class NodeStateVars(object):
 		raw material is reduced by the sum, over all _other_ products at the node, of the number of units
 		of that product that are pending times the NBOM for that product/raw material.
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically. If the node is multi-product, ``prod_index`` must be
-		set to the index of a single product at the node.
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically. If the node is multi-product, ``product`` must be
+		set to a single product at the node.
 
 		If the node has multiple products that use the same raw material, the inventory position returned by this function includes all units of that
-		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+		raw material, even though some of them may wind up being used to make products other than ``product``.
 
 		Parameters
 		----------
-		prod_index : int, optional
-			The product index, or ``None`` to set the product automatically if node is single-product.
+		product : |class_product| or int, optional
+			The product (as a |class_product| object or index), or ``None`` to set the product 
+			automatically if node is single-product.
 
 		Returns
 		-------
@@ -1045,15 +1060,16 @@ class NodeStateVars(object):
 		"""
 
 		# Validate parameters.
-		if prod_index is not None and prod_index not in self.node.product_indices:
-			raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
+		_, prod_ind = self.node.validate_product(product)
+		# if prod_index is not None and prod_index not in self.node.product_indices:
+		# 	raise ValueError(f'{prod_index} is not a product at node {self.node.index}.')
 		
-		# Determine product index.
-		prod_index = prod_index or self.node.product_indices[0]
+		# # Determine product index.
+		# prod_index = prod_index or self.node.product_indices[0]
 
 		# Determine total units of each RM in the pipeline, converted to units of the downstream product.
 		pipeline = {}
-		for rm_index in self.node.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
+		for rm_index in self.node.raw_materials_by_product(product=prod_ind, return_indices=True, network_BOM=True):
 			# Calculate pipeline, in upstream units.
 			pipeline[rm_index] = self.raw_material_inventory[rm_index]
 			for pred_index in self.node.raw_material_suppliers_by_raw_material(raw_material=rm_index, return_indices=True, network_BOM=True):
@@ -1062,21 +1078,21 @@ class NodeStateVars(object):
 			
 			# Subtract earmarked units, if requested.
 			if exclude_earmarked_units:
-				for other_prod_index in self.node.product_indices:
-					if other_prod_index != prod_index:
+				for other_prod_ind in self.node.product_indices:
+					if other_prod_ind != prod_ind:
 						# Calculate number of earmarked units.
-						earmarked_units = self.node.state_vars_current.pending_finished_goods[other_prod_index] \
-											* self.node.NBOM(product=other_prod_index, predecessor=None, raw_material=rm_index)
+						earmarked_units = self.node.state_vars_current.pending_finished_goods[other_prod_ind] \
+											* self.node.NBOM(product=other_prod_ind, predecessor=None, raw_material=rm_index)
 						# Subtract earmarked units from pipeline.
 						pipeline[rm_index] = max(0, pipeline[rm_index] - earmarked_units)
 
 			# Convert to downstream units.
-			pipeline[rm_index] /= self.node.NBOM(product=prod_index, predecessor=None, raw_material=rm_index)
+			pipeline[rm_index] /= self.node.NBOM(product=prod_ind, predecessor=None, raw_material=rm_index)
 
 		# Determine number of units of FG that can be made from pipeline inventory.
 		units_from_pipeline = min(pipeline.values())
 
-		return self.inventory_level[prod_index] + units_from_pipeline
+		return self.inventory_level[prod_ind] + units_from_pipeline
 	
 	@property
 	def echelon_on_hand_inventory(self):
@@ -1095,7 +1111,7 @@ class NodeStateVars(object):
 				# of self (or equal to self).
 				for p in d.predecessors():
 					if p.index == self.node.index or p in self.node.descendants:
-						EOHI += d.state_vars[self.period].in_transit_from(predecessor=p, prod_index=None)
+						EOHI += d.state_vars[self.period].in_transit_from(predecessor=p, raw_material=None)
 		else:
 			for d in self.node.descendants:
 				# Add on-hand inventory at descendant.
@@ -1106,7 +1122,7 @@ class NodeStateVars(object):
 					# of self (or equal to self).
 					for p in d.predecessors():
 						if p.index == self.node.index or p in self.node.descendants:
-							EOHI[prod_index] += d.state_vars[self.period].in_transit_from(predecessor=p, prod_index=prod_index)
+							EOHI[prod_index] += d.state_vars[self.period].in_transit_from(predecessor=p, raw_material=prod_index)
 
 		return EOHI
 
@@ -1132,40 +1148,40 @@ class NodeStateVars(object):
 
 		return EIL
 
-	def echelon_inventory_position(self, prod_index=None, predecessor_index=None, rm_index=None):
-		"""Current echelon inventory position at node for product with index ``prod_index``. 
-		Equals echelon inventory level plus
-		on order items. 
+	def echelon_inventory_position(self, product=None, predecessor=None, raw_material=None):
+		"""Current echelon inventory position at node for product with index ``product``. 
+		Equals echelon inventory level plus on order items. 
 		
 		On-order includes raw material inventory that has not yet been processed, as well as
 		inbound disrupted items due to type-RP disruptions.
 
-		If the node is single-product, either set ``prod_index`` to the index of the single product, or to ``None``
-		and the function will determine the index automatically. If the node is multi-product, ``prod_index`` must be
-		set to the index of a single product at the node.
+		If the node is single-product, either set ``product`` to the single product, or to ``None``
+		and the function will determine the product automatically. If the node is multi-product, ``product`` must be
+		set to a single product at the node.
 
-		If the node has a single predecessor, which provides a single raw material, either set ``predecessor_index`` 
-		and ``rm_index`` to the appropriate indicies, or set them to ``None`` and the function will determine the indices
+		If the node has a single predecessor, which provides a single raw material, either set ``predecessor`` 
+		and ``raw_material`` to the appropriate indicies, or set them to ``None`` and the function will determine them
 		automatically.
-		If the node has multiple predecessors and/or raw materials, either set ``predecessor_index`` and ``rm_index``
+		If the node has multiple predecessors and/or raw materials, either set ``predecessor`` and ``raw_material``
 		to the indices of a single predecessor and raw material (to get the raw-material-specific inventory position)
 		or set both to ``None`` to use the aggregate on-order and raw material inventory for all predecessors and
 		raw materials (counting such items using the "units" of the node itself; see documentation for :func:`on_order` for more details).
-		``predecessor_index`` and ``rm_index`` must both either be ``None`` or not ``None``. 
+		``predecessor`` and ``raw_material`` must both either be ``None`` or not ``None``. 
 
 		If the node has multiple products that use the same raw material, this function includes all units of that
-		raw material, even though some of them may wind up being used to make products other than ``prod_index``.
+		raw material, even though some of them may wind up being used to make products other than ``product``.
 
 		Parameters
 		----------
-		prod_index : int, optional
-			The product index, or ``None`` to set the product automatically if node is single-product.
-		predecessor_index : int, optional
-			Predecessor to consider in inventory position calculation (including all others), or ``None`` to
-			include all predecessors.
-		rm_index : int, optional
-			Raw material to consider in inventory position calculation (excluding all others),
-			or ``None`` to include all raw materials.
+		product : |class_product| or int, optional
+			The product (as |class_product| object or index), or ``None`` to set the product 
+			automatically if node is single-product.
+		predecessor : |class_node| or int, optional
+			Predecessor (as |class_node| object or index) to consider in inventory position 
+			calculation (including all others), or ``None`` to include all predecessors.
+		raw_material : |class_product| or int, optional
+			Raw material (as |class_product| or index) to consider in inventory position
+			calculation (excluding all others), or ``None`` to include all raw materials.
 
 		Returns
 		-------
@@ -1175,29 +1191,30 @@ class NodeStateVars(object):
 		Raises
 		------
 		ValueError
-			If ``predecessor_index is None`` and ``rm_index is not None``, or vice-versa.
+			If ``predecessor is None`` and ``raw_material is not None``, or vice-versa.
 		"""
 		# Validate parameters. 
-		if not (predecessor_index is None and rm_index is None):
-			_, predecessor_index = self.node.validate_predecessor(predecessor_index, raw_material=rm_index)
-		_, prod_index = self.node.validate_product(prod_index)
+		if not (predecessor is None and raw_material is None):
+			_, pred_ind = self.node.validate_predecessor(predecessor, raw_material=raw_material)
+			_, rm_ind = self.node.validate_raw_material(raw_material, predecessor=predecessor)
+		_, prod_ind = self.node.validate_product(product)
 
 		# Calculate echelon inventory level.
 		if self.node.is_singleproduct:
 			EIL = self.echelon_inventory_level
 		else:
-			EIL = self.echelon_inventory_level[prod_index]
+			EIL = self.echelon_inventory_level[prod_ind]
 		# Calculate on-order, raw material inventory, and inbound disrupted items.
-		if rm_index is not None:
-			OO = self.on_order_by_predecessor[predecessor_index][rm_index]
-			RMI = self.raw_material_inventory[rm_index]
-			IDI = self.inbound_disrupted_items[predecessor_index][rm_index]
+		if raw_material is not None:
+			OO = self.on_order_by_predecessor[pred_ind][rm_ind]
+			RMI = self.raw_material_inventory[rm_ind]
+			IDI = self.inbound_disrupted_items[pred_ind][rm_ind]
 		else:
 			# Note: If <=1 predecessor, raw_material_inventory should always = 0
    			# (because raw materials are processed right away).
-			OO = self.on_order(prod_index=prod_index)
-			RMI = self.raw_material_aggregate(prod_index=prod_index)
-			IDI = self.inbound_disrupted_items_aggregate(prod_index=prod_index)
+			OO = self.on_order(product=prod_ind)
+			RMI = self.raw_material_aggregate(product=prod_ind)
+			IDI = self.inbound_disrupted_items_aggregate(product=prod_ind)
 		
 		return EIL + OO + RMI + IDI
 		
