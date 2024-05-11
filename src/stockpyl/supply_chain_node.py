@@ -403,8 +403,8 @@ class SupplyChainNode(object):
 		"""A list of all neighbors (successors and predecessors) of the node, as
 		|class_node| objects. Read only.
 		"""
-		neighbors = self.successors()
-		neighbors.extend(self.predecessors()) # this assumes no predecessor can also be a successor
+		neighbors = copy.deepcopy(self.successors())
+		neighbors.extend(copy.deepcopy(self.predecessors())) # this assumes no predecessor can also be a successor
 	
 		return neighbors
 
@@ -925,7 +925,8 @@ class SupplyChainNode(object):
 		for prod in products:
 			for _, rm in self.supplier_raw_material_pairs_by_product(product=prod, \
 										return_indices=return_indices, network_BOM=network_BOM):
-				rms.append(rm)
+				if rm not in rms:
+					rms.append(rm)
 			
 		return rms
 
@@ -971,7 +972,8 @@ class SupplyChainNode(object):
 		suppliers = []
 		for pred, rm in self.supplier_raw_material_pairs_by_product(product=prod_obj, \
 									return_indices=return_indices, network_BOM=network_BOM):
-			suppliers.append(pred)
+			if pred not in suppliers:	
+				suppliers.append(pred)
 		
 		return suppliers
 
@@ -1018,11 +1020,12 @@ class SupplyChainNode(object):
 		suppliers = []
 		for pred, rm in self.supplier_raw_material_pairs_by_product(product='all', 
    										return_indices=False, network_BOM=network_BOM):
-			if rm == rm_obj:
-				if return_indices:
-					suppliers.append(pred.index if pred is not None else None)
-				else:
-					suppliers.append(pred)
+			if pred not in suppliers:
+				if rm == rm_obj:
+					if return_indices:
+						suppliers.append(pred.index if pred is not None else None)
+					else:
+						suppliers.append(pred)
 	
 		return suppliers
 
@@ -1059,9 +1062,11 @@ class SupplyChainNode(object):
 		if network_BOM:
 			prods = []
 			for prod in self.products:
-				for pred in self.raw_material_suppliers_by_raw_material(rm_ind, return_indices=False, network_BOM=True):
-					if self.NBOM(product=prod, predecessor=pred, raw_material=rm_ind) > 0:
-						prods.append(prod)
+				if prod not in prods:
+					for pred in self.raw_material_suppliers_by_raw_material(rm_ind, return_indices=False, network_BOM=True):
+						if self.NBOM(product=prod, predecessor=pred, raw_material=rm_ind) > 0:
+							prods.append(prod)
+							break
 #			[prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_ind) > 0]
 		else:
 			prods = [prod for prod in self.products if prod.BOM(raw_material=rm_ind) > 0]
@@ -1376,7 +1381,8 @@ class SupplyChainNode(object):
 
 	def __eq__(self, other):
 		"""Determine whether ``other`` is equal to the node. Two nodes are
-		considered equal if their indices are equal.
+		considered equal if their indices are equal. Returns ``False`` if ``other`` 
+		is not a |class_node|.
 
 		Parameters
 		----------
@@ -1389,7 +1395,10 @@ class SupplyChainNode(object):
 			True if the nodes are equal, False otherwise.
 
 		"""
-		return other is not None and self.index == other.index
+		if not isinstance(other, SupplyChainNode):
+			return False
+		else:
+			return self.index == other.index
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to the node. Two nodes are

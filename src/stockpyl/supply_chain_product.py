@@ -309,8 +309,16 @@ class SupplyChainProduct(object):
 			The BOM number for the (raw material, product) pair.
 		"""
 		try:
-			_, rm_ind = self.network.parse_product(raw_material)
-
+			# Can't use network.parse_product because self.network might be None
+			# (but BOM may still have been added to product).
+			if raw_material is None:
+				raise TypeError('raw_material may not be None.')
+			elif isinstance(raw_material, SupplyChainProduct):
+				rm_ind = raw_material.index
+			elif isinstance(raw_material, int):
+				rm_ind = raw_material
+			else:
+				raise TypeError('raw_material must be a SupplyChainProduct or an int.')
 			# Return BOM number, if BOM entry exists.
 			return self._bill_of_materials[rm_ind]
 		except:
@@ -405,7 +413,8 @@ class SupplyChainProduct(object):
 
 	def __eq__(self, other):
 		"""Determine whether ``other`` is equal to the product. Two products are
-		considered equal if their indices are equal.
+		considered equal if their indices are equal. Returns ``False`` if ``other`` 
+		is not a |class_product|.
 
 		Parameters
 		----------
@@ -418,7 +427,10 @@ class SupplyChainProduct(object):
 			True if the products are equal, False otherwise.
 
 		"""
-		return self.index == (other.index if other is not None else None)
+		if not isinstance(other, SupplyChainProduct):
+			return False
+		else:
+			return self.index == other.index
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to the product. Two products are

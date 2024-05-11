@@ -973,6 +973,42 @@ def replace_dict_null_keys(dict_to_change):
 
 	return new_dict
 
+def compare_unhashable_lists(list1, list2):
+	"""Determine whether ``list1`` and ``list2`` have the same elements, with the same
+	counts, not necessarily in the same order. Return ``True`` if they do, ``False`` otherwise.
+
+	.. note : Only use this function for lists of unhashable objects (such as |class_node|
+	and |class_product|). For hashable objects, ``collections.Counter`` is faster, e.g.,
+	``Counter(list1) == Counter(list2)``.
+
+	Parameters
+	----------
+	list1 : list
+		The first list to compare.
+	list2 : list
+		The second list to compare.
+
+	Returns
+	-------
+	bool
+		``True`` if the two lists have the same elements, with the same counts, not 
+		neceessarily in the same order, ``False`` otherwise.
+	"""
+	# https://stackoverflow.com/a/7829388/3453768
+
+	if len(list1) != len(list2):
+		return False
+		
+	list1 = list(list1)   # make a mutable copy
+    
+	try:
+		for elem in list2:
+			list1.remove(elem)
+	except ValueError:
+		return False
+    
+	return not list1
+
 
 ### STATS FUNCTIONS ###
 

@@ -3,6 +3,8 @@ from scipy import stats
 import numpy as np
 
 import stockpyl.helpers as helpers
+from stockpyl.supply_chain_node import SupplyChainNode
+from stockpyl.supply_chain_product import SupplyChainProduct
 from tests.settings import *
 
 
@@ -1119,6 +1121,55 @@ class TestReplaceDictNullKeys(unittest.TestCase):
 		self.assertDictEqual(b_new, {None: -5, "4": 2, "d": None, 6: "foo"})
 		self.assertDictEqual(c_new, {"0": 5, 3: "hello", 2: -1, 9: {0: 5, 3: "hello", None: -1, "9": None}, None: {None: -5, "4": 2, "d": None, 6: "foo"}})
 
+
+class TestCompareUnhashableLists(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCompareUnhashableLists', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCompareUnhashableLists', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test compare_unhashable_lists().
+		"""
+		print_status('TestCompareUnhashableLists', 'test_basic()')
+
+		nodes = [SupplyChainNode(i) for i in range(5)]
+		prods = [SupplyChainProduct(i) for i in range(5)]
+
+		list1 = [nodes[0], nodes[1]]
+		list2 = [nodes[0], nodes[1]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[1], nodes[3]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = [nodes[3], nodes[4], prods[2]]
+		list2 = [nodes[3], nodes[4], prods[2]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[1], nodes[3], prods[2]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = [nodes[3], nodes[4], nodes[3], prods[2]]
+		list2 = [nodes[3], nodes[4], prods[2], nodes[3]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[3], nodes[4], prods[0], nodes[3]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = nodes + [nodes[3], prods[4], nodes[4], nodes[3], prods[2], prods[4]]
+		list2 = [nodes[3], nodes[4], prods[2], nodes[3], nodes[1], nodes[2], nodes[0], nodes[4], nodes[3], prods[4], prods[4]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[0], nodes[4], prods[2], nodes[3], nodes[1], nodes[2], nodes[0], nodes[4], nodes[3], prods[4], prods[4]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = [nodes[3], nodes[4], 42, 9, nodes[3], prods[2], 42]
+		list2 = [42, 9, 42, nodes[3], nodes[4], prods[2], nodes[3]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [41, 9, 42, nodes[3], nodes[4], prods[2], nodes[3]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
 
 class TestConvolveMany(unittest.TestCase):
 	@classmethod

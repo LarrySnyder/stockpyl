@@ -481,10 +481,10 @@ class TestMultiproductSimulation(unittest.TestCase):
         nodes = {n.index: n for n in network.nodes}
 
         products = {prod_index: SupplyChainProduct(index=prod_index) for prod_index in [0, 1, 2, 11, 12]}
-        products[0].set_bill_of_materials(rm_index=1, num_needed=1)
-        products[0].set_bill_of_materials(rm_index=2, num_needed=1)
-        products[1].set_bill_of_materials(rm_index=11, num_needed=1)
-        products[2].set_bill_of_materials(rm_index=12, num_needed=1)
+        products[0].set_bill_of_materials(raw_material=1, num_needed=1)
+        products[0].set_bill_of_materials(raw_material=2, num_needed=1)
+        products[1].set_bill_of_materials(raw_material=11, num_needed=1)
+        products[2].set_bill_of_materials(raw_material=12, num_needed=1)
 
         nodes[0].add_product(products[0])
         nodes[1].add_products([products[1], products[2]])
@@ -585,15 +585,15 @@ class TestMultiproductSimulation(unittest.TestCase):
         nodes = {n.index: n for n in network.nodes}
 
         products = {prod_index: SupplyChainProduct(index=prod_index) for prod_index in [1, 2, 3, 4, 5, 6, 7, 55, 66, 77]}
-        products[1].set_bill_of_materials(rm_index=3, num_needed=1)
-        products[1].set_bill_of_materials(rm_index=2, num_needed=1)
-        products[3].set_bill_of_materials(rm_index=4, num_needed=1)
-        products[2].set_bill_of_materials(rm_index=5, num_needed=1)
-        products[4].set_bill_of_materials(rm_index=7, num_needed=1)
-        products[4].set_bill_of_materials(rm_index=6, num_needed=1)
-        products[6].set_bill_of_materials(rm_index=66, num_needed=1)
-        products[7].set_bill_of_materials(rm_index=77, num_needed=1)
-        products[5].set_bill_of_materials(rm_index=55, num_needed=1)
+        products[1].set_bill_of_materials(raw_material=3, num_needed=1)
+        products[1].set_bill_of_materials(raw_material=2, num_needed=1)
+        products[3].set_bill_of_materials(raw_material=4, num_needed=1)
+        products[2].set_bill_of_materials(raw_material=5, num_needed=1)
+        products[4].set_bill_of_materials(raw_material=7, num_needed=1)
+        products[4].set_bill_of_materials(raw_material=6, num_needed=1)
+        products[6].set_bill_of_materials(raw_material=66, num_needed=1)
+        products[7].set_bill_of_materials(raw_material=77, num_needed=1)
+        products[5].set_bill_of_materials(raw_material=55, num_needed=1)
 
         nodes[0].add_product(products[1])
         nodes[1].add_products([products[3], products[2]])
@@ -725,8 +725,8 @@ class TestStepByStepSimulation(unittest.TestCase):
         for t in range(T):
             if t == 40:
                 step(network2, consistency_checks='E', order_quantity_override={
-                    nodes2[2]: {nodes2[3]: {nodes2[3]._dummy_product: 33}},
-                    nodes2[3]: {None: {nodes2[3]._external_supplier_dummy_product: 77}}
+                    2: {3: {nodes2[3]._dummy_product.index: 33}},
+                    3: {None: {nodes2[3]._external_supplier_dummy_product.index: 77}}
                 })
             else:
                 step(network2, consistency_checks='E')

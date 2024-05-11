@@ -218,8 +218,8 @@ def step(network, order_quantity_override=None, consistency_checks='W'):
 		if check fails. See docstring for :func:`~stockpyl.sim.simulation` for list of currently supported strings.
 	order_quantity_override : dict, optional
 		Nested dictionary such that order_quantity_override[node][pred][rm] is an order quantity (or ``None``)
-		for each node in the network (specified as a |class_node| object), each predecessor (specified as a |class_node| 
-		object), and each raw material (specified as a |class_product| object) the node orders from that predecessor. 
+		for each node in the network, each predecessor, and each raw material the node orders from that predecessor
+		(each specified by its index, not the object). 
 		If provided, these order quantities will override the order quantities that would otherwise be calculated for
 		the nodes/products. If the node has a single predecessor and raw material, ``pred`` and ``rm`` may be set to ``None`` and
 		they will be determined automatically.
@@ -342,8 +342,8 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 		visited by the depth-first search.
 	order_quantity_override : dict, optional
 		Nested dictionary such that order_quantity_override[node][pred][rm] is an order quantity (or ``None``)
-		for each node in the network (specified as a |class_node| object), each predecessor (specified as a |class_node| 
-		object), and each raw material (specified as a |class_product| object) the node orders from that predecessor. 
+		for each node in the network, each predecessor, and each raw material the node orders from that predecessor
+		(each specified by its index, not the object). 
 		If provided, these order quantities will override the order quantities that would otherwise be calculated for
 		the nodes/products. If the node has a single predecessor and raw material, ``pred`` and ``rm`` may be set to ``None`` and
 		they will be determined automatically.
@@ -417,10 +417,10 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 					
 					# Was an override order quantity provided?
 					try:
-						if None in order_quantity_override[node] and None in order_quantity_override[node][None]:
-							qty_override = order_quantity_override[node][None][None]
+						if None in order_quantity_override[node.index] and None in order_quantity_override[node.index][None]:
+							qty_override = order_quantity_override[node.index][None][None]
 						else:
-							qty_override = order_quantity_override[node][p][rm]
+							qty_override = order_quantity_override[node.index][p_index][rm_index]
 					except:
 						qty_override = None
 					

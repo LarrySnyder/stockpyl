@@ -38,6 +38,7 @@ import networkx as nx
 import numpy as np
 # import json
 import copy
+from collections import Counter
 
 #import supply_chain_node
 from stockpyl.supply_chain_node import SupplyChainNode
@@ -97,7 +98,8 @@ class SupplyChainNetwork(object):
 
 	_DEFAULT_VALUES = {
 		'_nodes': [],
-		'_local_products': [],				# products that are loaded into the network but not (necessarily) into a node
+		'_local_products': [],				# only includes products that are loaded directly into the network; they may or may not also be loaded into nodes
+		'_products': [],					# all products (loaded directly or into nodes) 
 		'_period': 0,
 		'max_max_replenishment_time': None
 	}
@@ -150,13 +152,6 @@ class SupplyChainNetwork(object):
 		Read only. 
 		"""
 		return self._products_by_index
-		# # Include all products in network (including in nodes).
-		# prod_by_ind = {prod.index: prod for prod in self.products}
-		# # Add external supplier dummy products.
-		# prod_by_ind.update({node._external_supplier_dummy_product.index: node._external_supplier_dummy_product \
-		# 			  for node in self.nodes if node._external_supplier_dummy_product is not None})
-	
-		# return prod_by_ind
 
 	@property
 	def period(self):
@@ -291,13 +286,28 @@ class SupplyChainNetwork(object):
 								eq = False
 							elif not self.get_node_from_index(n_ind).deep_equal_to(other_node, rel_tol=rel_tol):
 								eq = False
+					elif attr == '_products':
+						# Check that lists of indices are equal (ignoring order).
+						if Counter([prod.index for prod in self._products]) != Counter([prod.index for prod in other._products]):
+							eq = False
+						for prod in self._products:
+							other_prod = other.products_by_index[prod.index]
+							if not prod.deep_equal_to(other_prod, rel_tol=rel_tol):
+								eq = False
 					elif attr == '_local_products':
-						for prod_ind in sorted(self.product_indices):
-							other_product = other.products_by_index[prod_ind]
-							if other_product is None:
+						# Check that lists of indices are equal (ignoring order).
+						if Counter([prod.index for prod in self._local_products]) != Counter([prod.index for prod in other._local_products]):
+							eq = False
+						for prod in self._local_products:
+							other_prod = other.products_by_index[prod.index]
+							if not prod.deep_equal_to(other_prod, rel_tol=rel_tol):
 								eq = False
-							elif not self.products_by_index[prod_ind].deep_equal_to(other_product, rel_tol=rel_tol):
-								eq = False
+						# for prod in self._local_products:						
+						# 	other_prod = other.products_by_index[prod.index]
+						# 	if other_prod is None:
+						# 		eq = False
+						# 	elif not self.products_by_index[prod.index].deep_equal_to(other_prod, rel_tol=rel_tol):
+						# 		eq = False
 					else:
 						if getattr(self, attr) != getattr(other, attr):
 							eq = False
@@ -324,8 +334,11 @@ class SupplyChainNetwork(object):
 				network_dict['nodes'] = []
 				for n in self.nodes:
 					network_dict['nodes'].append(n.to_dict())
-			elif attr == '_local_products':
+			elif attr == '_products':
 				network_dict[attr] = [prod.to_dict() for prod in self.products]
+			elif attr == '_local_products':
+				# Store as indices only.
+				network_dict[attr] = [prod.index for prod in self._local_products]
 			else:
 				network_dict[prop] = getattr(self, prop)
 
@@ -351,14 +364,16 @@ class SupplyChainNetwork(object):
 		else:
 			# Build empty SupplyChainNetwork.
 			network = cls()
-			# Fill products first, since these will be needed when filling nodes.
-			if '_local_products' not in the_dict:
-				network._local_products = copy.deepcopy(cls._DEFAULT_VALUES['_local_products'])
-			else:
-				network._local_products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_local_products']]
 
-			# Build product attributes (for now, this just creates network._products_by_index).
-			network._build_product_attributes()
+			# Build list and dict of products to use below.
+			if '_products' not in the_dict:
+				products = copy.deepcopy(cls._DEFAULT_VALUES['_products'])
+			else:
+				products = [SupplyChainProduct.from_dict(prod_dict) for prod_dict in the_dict['_products']]
+			products_by_index = {prod.index: prod for prod in products}
+
+			# # Build product attributes (for now, this just creates network._products_by_index).
+			# network._build_product_attributes()
 			# Set _currently_building flag so we don't re-build product attributes in the next step.
 			network._currently_building = True
 
@@ -376,12 +391,12 @@ class SupplyChainNetwork(object):
 							prod_indices = [int(k) for k in node._products_by_index.keys()]
 							node._products_by_index = {}
 							for prod_ind in prod_indices:
-								node.add_product(network.products_by_index[prod_ind])
+								node.add_product(products_by_index[prod_ind])
 							# Replace dummy-product indices with product objects.
 							if node._dummy_product is not None:
-								node._dummy_product = network.products_by_index[node._dummy_product]
+								node._dummy_product = products_by_index[node._dummy_product]
 							if node._external_supplier_dummy_product is not None:
-								node._external_supplier_dummy_product = network.products_by_index[node._external_supplier_dummy_product]
+								node._external_supplier_dummy_product = products_by_index[node._external_supplier_dummy_product]
 							# Add node to network.
 							network.add_node(node)
 						for n in network.nodes:
@@ -397,8 +412,8 @@ class SupplyChainNetwork(object):
 							n._predecessors = preds
 							n._successors = succs
 				elif attr == '_local_products':
-					# Already set this--do nothing.
-					pass
+					# Replace indices with objects. (They are stored as indices.)
+					network._local_products = [products_by_index[prod_ind] for prod_ind in the_dict['_local_products']]
 				else:
 					# Remove leading '_' to get property names.
 					prop = attr[1:] if attr[0] == '_' else attr
@@ -674,7 +689,7 @@ class SupplyChainNetwork(object):
 		"""
 		if not self._currently_building:
 			# Build _products and _product_indices.
-			products = self._local_products
+			products = [prod for prod in self._local_products]
 			for node in self.nodes:
 				for prod in node.products:
 					if prod not in products:
@@ -691,7 +706,7 @@ class SupplyChainNetwork(object):
 			self._products_by_index.update({node._external_supplier_dummy_product.index: node._external_supplier_dummy_product \
 						for node in self.nodes if node._external_supplier_dummy_product is not None})
 		
-			# Build network BOM for all nodes.
+			# Build product attributes for all nodes.
 			for node in self.nodes:
 				node._build_product_attributes()
 
