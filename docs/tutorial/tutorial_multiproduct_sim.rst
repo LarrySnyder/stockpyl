@@ -1,6 +1,6 @@
 .. include:: ../globals.inc
 
-.. tutorial_multiproduct_sim_page:
+.. _tutorial_multiproduct_sim_page:
 
 Multi-Product Simulation
 ========================
