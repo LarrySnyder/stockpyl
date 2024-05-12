@@ -74,7 +74,7 @@ In the diagram:
 	* The arrow into node 2 represents the external supplier. The lead time for shipments
 	  from the external supplier is 2 periods, as indicated by `L=2` on the arrow.
 
-We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` function:
+We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` method:
 
 .. doctest::
 
@@ -83,9 +83,8 @@ We'll start building this network using the :func:`~stockpyl.supply_chain_networ
 	...		num_nodes=2,
 	...		node_order_in_system=[2, 1],
 	...		node_order_in_lists=[1, 2],
-	...		local_holding_cost=[5, None],	# holding cost at node 2 will be product-specific, so leave it unspecified here
 	...		stockout_cost=[20, 0],
-	...		demand_type='UD',	# discrete uniform distribution, for easier debugging
+	...		demand_type='UD',
 	...		lo=1,
 	...		hi=5,
 	...		shipment_lead_time=[1, 2]
@@ -103,7 +102,7 @@ and whose values are products, for easy access to the product objects. We'll als
 	>>> products[10].set_bill_of_materials(raw_material=20, num_needed=5)
 	>>> products[10].set_bill_of_materials(raw_material=30, num_needed=3)
 
-To add the products to the nodes, we use :meth:`~supply_chain_node.SupplyChainNode.add_product` and 
+To add the products to the nodes, we use :meth:`~stockpyl.supply_chain_node.SupplyChainNode.add_product` and 
 :meth:`~stockpyl.supply_chain_node.SupplyChainNode.add_products`:
 
 .. doctest::
@@ -112,15 +111,119 @@ To add the products to the nodes, we use :meth:`~supply_chain_node.SupplyChainNo
 	>>> nodes[2].add_products([products[20], products[30]])
 
 
-Specifying Attributes
+Assigned Attributes
 ---------------------------
 
 Most attributes that apply to nodes (``local_holding_cost``, ``stockout_cost``,
 ``demand_source``, ``inventory_policy``, etc.) also apply to products. There are three was
-to specify attributes:
+to assign attributes:
 
-	* By setting it at a node, e.g., `my_node.stockout_cost = 50`
-	* By setting it at a product, e.g., `my_product.stockout_cost = 50`
+	* By setting it at a node, e.g., ``my_node.stockout_cost = 50``
+	* By setting it at a product, e.g., ``my_product.stockout_cost = 50``
 	* By setting the attribute at the node to a dict whose keys are product indices
 	  and whose values are the attribute values; this allows you to set (node, product)-specific
 	  values of the attribute
+
+In our example network, since node 1 only handles one product (product 10), we can set 
+``local_holding_cost`` directly at node 1. We'll set ``local_holding_cost`` for products
+20 and 30 in the product objects. 
+
+.. doctest::
+
+	>>> nodes[1].local_holding_cost = 5
+	>>> products[20].local_holding_cost = 2
+	>>> products[30].local_holding_cost = 3
+
+We need an inventory policy for each product. This attribute, too, can be set at the
+node, product, or (node, product) levels. We'll set the policy for product 10 in the 
+product object (we could instead set it at node 1). And we'll set the policy for
+products 20 and 30 using a dict at node 2:
+
+.. doctest::
+
+	>>> from stockpyl.policy import Policy
+	>>> products[10].inventory_policy = Policy(type='BS', base_stock_level=6, node=nodes[1], product=products[10])
+	>>> nodes[2].inventory_policy = {
+	... 	20: Policy(type='BS', base_stock_level=35, node=nodes[2], product=products[20]),
+	...		30: Policy(type='BS', base_stock_level=20, node=nodes[2], product=products[30])
+	... }
+
+
+Accessing Attributes
+--------------------
+
+It is possible to access attributes in the same way they were assigned:
+
+.. doctest::
+
+	>>> nodes[1].local_holding_cost
+	5
+	>>> products[20].local_holding_cost
+	2
+	>>> products[30].local_holding_cost
+	3
+	>>> products[10].inventory_policy
+	Policy(BS: base_stock_level=6.00)
+	>>> nodes[2].inventory_policy[20]
+	Policy(BS: base_stock_level=35.00)
+
+But it can be annoying to access them this way, because you need to know
+whether the attribute was originally assigned to the node, to the product,
+or to the node as a dict. 
+
+Instead, use the :meth:`~stockpyl.supply_chain_node.SupplyChainNode.get_attribute` method,
+which figures out where the attribute is set and returns the appropriate value. In particular,
+the method attempts to access the attribute in the following order:
+
+	* As a dict in the node object (meaning there is a (node, product)-specific value)
+	* As a singleton in the product object (meaning there is a product-specific value)
+	* As a singleton in the node object (meaning there is a node-specific value)
+	* (If none of these, an exception is raised)
+
+During a simulation, |sp| uses :meth:`~stockpyl.supply_chain_node.SupplyChainNode.get_attribute`
+to access all attributes, so the simulation will pull attributes from nodes and products
+using the same logic as above.
+
+.. doctest::
+
+	>>> nodes[1].get_attribute('local_holding_cost', product=10)
+	5
+	>>> nodes[2].get_attribute('local_holding_cost', product=20)
+	2
+	>>> nodes[2].get_attribute('local_holding_cost', product=30)
+	3
+	>>> # You can omit the `product` argument if the node has a single product.
+	>>> nodes[1].get_attribute('inventory_policy')
+	Policy(BS: base_stock_level=6.00)
+	>>> nodes[2].get_attribute('inventory_policy', product=20)
+	Policy(BS: base_stock_level=35.00)
+
+
+Bill of Materials
+-----------------
+
+The number of units of product A required to make 1 unit of product B
+is called the **BOM number** for products A and B. The BOM number is specified at the product level,
+not the node level: If the BOM number for products A and B is 5, then it is 5 at every
+node that handles product B and every node that it orders product A from. 
+
+The :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.set_bill_of_materials`
+method is used to set the BOM relationships between pairs of products. We already used the 
+following code to set the BOM for our example network:
+
+.. doctest::
+
+	>>> products[10].set_bill_of_materials(raw_material=20, num_needed=5)
+	>>> products[10].set_bill_of_materials(raw_material=30, num_needed=3)
+
+We can access the BOM number using :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.get_bill_of_materials`,
+or the shortcut method :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.BOM`:
+
+.. doctest::
+
+	>>> products[10].get_bill_of_materials(raw_material=20)
+	5
+	>>> products[10].BOM(30)
+	3
+
+See :ref:`External Suppliers` 
