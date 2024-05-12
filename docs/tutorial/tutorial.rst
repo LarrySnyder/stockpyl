@@ -9,3 +9,4 @@ Tutorial
     tutorial_su
     tutorial_meio
     tutorial_sim
+    tutorial_multiproduct_sim
