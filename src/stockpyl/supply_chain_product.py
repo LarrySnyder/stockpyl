@@ -26,15 +26,15 @@ then said to "handle" the product. Most attributes (``echelon_holding_cost``, ``
 the product), or at the node-product level (separate value for the node-product pair).
 
 Products are related to each other via a **bill of materials (BOM).** The BOM specifies
-the number of units of an upstream product (_raw material_) that are required to make 
-one unit of a downstream product (_finished goods_). For example, the BOM might specify that
+the number of units of an upstream product (*raw material*) that are required to make 
+one unit of a downstream product (*finished goods*). For example, the BOM might specify that
 5 units of product A and 2 units of product B are required to make 1 unit of product C at a downstream node.
 The raw materials are products A and B, and the finished good is product C. 
 
-.. note:: "Raw materials" and "finished goods" are |class_products|s. They are not separate
-classes. Moreover, a finished good at one node may be a raw material at another node; for example,
-node 1 might produce product A as its finished good, which it then ships to node 2, where it is
-used as a raw material to product product B.
+.. note:: "Raw materials" and "finished goods" are |class_products| objects. They are not separate
+	classes. Moreover, a finished good at one node may be a raw material at another node; for example,
+	node 1 might produce product A as its finished good, which it then ships to node 2, where it is
+	used as a raw material to product product B.
 
 Every node has at least one product. If your code does not explicltly create products or
 add them to nodes, |sp| automatically creates and manages "dummy" products at each node.
