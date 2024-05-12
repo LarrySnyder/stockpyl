@@ -226,4 +226,4 @@ or the shortcut method :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.
 	>>> products[10].BOM(30)
 	3
 
-See :ref:`External Suppliers` 
+See :ref:`tutorial_sim:External Suppliers` 
