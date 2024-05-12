@@ -65,14 +65,14 @@ In the diagram:
 	* The squares represent nodes. The number in the top-left corner of a node is its index.
 	* The circles represent products. The number in a product is its index.
 	* The lines from products 20 and 30 to product 10 indicate that products 20 and 30 are
-		raw materials that are used to make product 10. To make 1 unit of product 10 requires
-		5 units of product 20 and 2 units of product 30, as indicated by `x5` and `x3` on the lines.
+	  raw materials that are used to make product 10. To make 1 unit of product 10 requires
+	  5 units of product 20 and 2 units of product 30, as indicated by `x5` and `x3` on the lines.
 	* The arrow from node 2 to node 1 indicates that node 2 ships items to node 1. The lead
-		time for these shipments is 1 period, as indicated by `L=1` on the arrow.
+	  time for these shipments is 1 period, as indicated by `L=1` on the arrow.
 	* The arrow from node 1 represents the external demand, which follows a uniform discrete
-		distribution on [1,5].
+	  distribution on [1,5].
 	* The arrow into node 2 represents the external supplier. The lead time for shipments
-		from the external supplier is 2 periods, as indicated by `L=2` on the arrow.
+	  from the external supplier is 2 periods, as indicated by `L=2` on the arrow.
 
 We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` function:
 
@@ -103,10 +103,16 @@ and whose values are products, for easy access to the product objects. We'll als
 	>>> products[10].set_bill_of_materials(raw_material=20, num_needed=5)
 	>>> products[10].set_bill_of_materials(raw_material=30, num_needed=3)
 
-To add the products to the nodes, we use :meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_product` and 
-:meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_products`:
+To add the products to the nodes, we use :py:meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_product` and 
+:py:meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_products`:
 
 .. doctest::
 
 	>>> nodes[1].add_product(products[10])
 	>>> nodes[2].add_products([products[20], products[30]])
+
+
+Specifying Attributes
+---------------------------
+
+Most attributes that apply to nodes also apply to products. For example, 
