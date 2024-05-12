@@ -22,13 +22,13 @@ sys.path.insert(0, os.path.abspath('../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'stockpyl'
-copyright = '2022, Larry Snyder'
+copyright = '2024, Larry Snyder'
 author = 'Larry Snyder'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '1.0'
 
 
 # -- General configuration ---------------------------------------------------

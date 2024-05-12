@@ -5,8 +5,8 @@ Overview
 --------
 
 The |mod_sim| module contains code for simulating multi-echelon inventory systems.
-The primary data object is the |class_network| and the |class_node| objects
-that it contains, which contains all of the data for the simulation instance.
+The primary data object is the |class_network| object and the |class_node| and |class_product| objects
+that it contains. These objects contain all of the data for the simulation instance.
 
 
 .. note:: |node_stage|
@@ -14,7 +14,8 @@ that it contains, which contains all of the data for the simulation instance.
 .. admonition:: See Also
 
 	For an overview of simulation in |sp|,
-	see the :ref:`tutorial page for simulation<tutorial_sim_page>`.
+	see the :ref:`tutorial page for simulation<tutorial_sim_page>` and
+	the :ref:`tutorial page for multi-product simulation<_tutorial_multiproduct_sim_page>`.
 
 
 API Reference

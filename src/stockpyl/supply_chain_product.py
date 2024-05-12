@@ -16,18 +16,38 @@ in a supply chain network.
 
 .. note:: |fosct_notation|
 
-A |class_product| is used primarily for :ref:`multi-echelon inventory optimization (MEIO) <meio_page>`
-or :ref:`simulation <sim_page>`. |class_product| objects are ... TODO: info here about including these 
-objects in nodes or nodeproducts.
+A |class_product| is used for :ref:`simulation <sim_page>`. Currently, simulation is the
+only feature of |sp| that handles multi-product systems.
 
-TODO: update:
-The product object contains many attributes, and different functions use different sets of attributes.
-For example, the :func:`stockpyl.ssm_serial.optimize_base_stock_levels` function takes a
-|class_network| whose nodes contain values for ``echelon_holding_cost``, ``lead_time``, ``stockout_cost``,
-and ``demand_source`` attributes, while :func:`stockpyl.gsm_serial.optimize_committed_service_times`
-uses ``local_holding_cost``, ``processing_time``, etc.
-Therefore, to determine which attributes are needed, refer to the documentation for the function
-you are using.
+A |class_product| object is typically added to one or more |class_node| objects; those nodes are
+then said to "handle" the product. Most attributes (``echelon_holding_cost``, ``lead_time``, ``stockout_cost``,
+``demand_source``, ``inventory_policy``, etc.) may be specified either at the node level
+(same value for all products at the node), at the product level (same value for all nodes that handle
+the product), or at the node-product level (separate value for the node-product pair).
+
+Products are related to each other via a **bill of materials (BOM).** The BOM specifies
+the number of units of an upstream product (_raw material_) that are required to make 
+one unit of a downstream product (_finished goods_). For example, the BOM might specify that
+5 units of product A and 2 units of product B are required to make 1 unit of product C at a downstream node.
+The raw materials are products A and B, and the finished good is product C. 
+
+.. note:: "Raw materials" and "finished goods" are |class_products|s. They are not separate
+classes. Moreover, a finished good at one node may be a raw material at another node; for example,
+node 1 might produce product A as its finished good, which it then ships to node 2, where it is
+used as a raw material to product product B.
+
+Every node has at least one product. If your code does not explicltly create products or
+add them to nodes, |sp| automatically creates and manages "dummy" products at each node.
+This means that you can ignore products entirely if you do not need them, and any code written
+for versions of |sp| prior to v1.0 (when products were introduced) should still work without
+being adapted to handle products. # TODO: is this true? are there caveats?
+ 
+
+.. admonition:: See Also
+
+	For more information about creating and managing products, and simulating multi-product systems in |sp|,
+	see the :ref:`tutorial page for multi-product simulation<_tutorial_multiproduct_sim_page>`.
+
 
 
 Game plan for BOM:
