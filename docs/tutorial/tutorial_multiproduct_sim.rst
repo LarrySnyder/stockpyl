@@ -55,7 +55,7 @@ Basic Multi-Product Example
 
 This tutorial will use the following network:
 
-.. image:: https://github.com/LarrySnyder/stockpyl-testing/blob/main/intro_to_products_diagram.png
+.. image:: https://raw.githubusercontent.com/LarrySnyder/stockpyl-testing/ac4f0ca30993c53f5e53743a77f4f2d7ae55d05e/intro_to_products_diagram.png
    :scale: 100 %
    :alt: 3-node network diagram
    :align: center
@@ -76,12 +76,9 @@ In the diagram:
 
 We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` function:
 
-.. testsetup:: *
-
-	from stockpyl.supply_chain_network import serial_system
-
 .. doctest::
 
+	>>> from stockpyl.supply_chain_network import serial_system
 	>>> network = serial_system(
 	...		num_nodes=2,
 	...		node_order_in_system=[2, 1],
@@ -93,5 +90,23 @@ We'll start building this network using the :func:`~stockpyl.supply_chain_networ
 	...		hi=5,
 	...		shipment_lead_time=[1, 2]
 	...	)
+	>>> # Build a dict for easier access to the nodes.
+	>>> nodes = {n.index: n for n in network.nodes}
 
-Next, we'll create three products, w
+Next, we'll create the three products and add them to a dict whose keys are product indices
+and whose values are products, for easy access to the product objects. We'll also set the BOM.
+
+.. doctest::
+
+	>>> from stockpyl.supply_chain_product import SupplyChainProduct
+	>>> products = {10: SupplyChainProduct(index=10), 20: SupplyChainProduct(index=20), 30: SupplyChainProduct(index=30)}
+	>>> products[10].set_bill_of_materials(raw_material=20, num_needed=5)
+	>>> products[10].set_bill_of_materials(raw_material=30, num_needed=3)
+
+To add the products to the nodes, we use :meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_product` and 
+:meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_products`:
+
+.. doctest::
+
+	>>> nodes[1].add_product(products[10])
+	>>> nodes[2].add_products([products[20], products[30]])

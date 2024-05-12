@@ -1272,12 +1272,6 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 		>>> network.nodes[0].stockout_cost
 		0.7
 
-
-	return network_from_edges(
-		edges=[],
-		node_order_in_lists=[index],
-		**kwargs
-	)
 	"""
 
 	# (Exception: ``demand_list`` and ``probabilities`` attributes of |class_demand_source| may be
