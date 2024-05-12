@@ -27,7 +27,7 @@ Products
 
 The primary class for handling products is the |class_product|. A |class_product| object
 is typically added to one or more |class_node| objects; those nodes are then said to
-"handle" the product. Most attributes (``echelon_holding_cost``, ``lead_time``, ``stockout_cost``,
+"handle" the product. Most attributes (``local_holding_cost``, ``lead_time``, ``stockout_cost``,
 ``demand_source``, ``inventory_policy``, etc.) may be specified either at the node level
 (same value for all products at the node), at the product level (same value for all nodes that handle
 the product), or at the node-product level (separate value for the node-product pair). 
@@ -103,8 +103,8 @@ and whose values are products, for easy access to the product objects. We'll als
 	>>> products[10].set_bill_of_materials(raw_material=20, num_needed=5)
 	>>> products[10].set_bill_of_materials(raw_material=30, num_needed=3)
 
-To add the products to the nodes, we use :py:meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_product` and 
-:py:meth:`~stockpyl.supply_chain_network.SupplyChainProduct.add_products`:
+To add the products to the nodes, we use :meth:`~supply_chain_network.SupplyChainProduct.add_product` and 
+:meth:`stockpyl.supply_chain_network.SupplyChainProduct.add_products`:
 
 .. doctest::
 
@@ -115,4 +115,8 @@ To add the products to the nodes, we use :py:meth:`~stockpyl.supply_chain_networ
 Specifying Attributes
 ---------------------------
 
-Most attributes that apply to nodes also apply to products. For example, 
+Most attributes that apply to nodes (``local_holding_cost``, ``lead_time``, ``stockout_cost``,
+``demand_source``, ``inventory_policy``, etc.) also apply to products. There are three was
+to specify attributes:
+
+	* 
