@@ -96,6 +96,7 @@ autodoc_default_options = {
 # Require document name before section name in autosection references.
 # (added LVS 5/28/22)
 autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 3
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::). (added LVS 6/7/22)

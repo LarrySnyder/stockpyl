@@ -226,4 +226,6 @@ or the shortcut method :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.
 	>>> products[10].BOM(30)
 	3
 
-See :ref:`tutorial_sim:External Suppliers` 
+In a |sp| simulation, every network must have external supply—nodes can't 
+just create a product with no raw materials. (See :ref:`tutorial_sim:External Suppliers`.)  
+To 
