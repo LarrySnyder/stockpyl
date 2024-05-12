@@ -11,3 +11,4 @@ Data Types
 	demand_source
 	policy
 	disruption_process
+	node_state_vars

@@ -31,7 +31,7 @@ one unit of a downstream product (*finished goods*). For example, the BOM might 
 5 units of product A and 2 units of product B are required to make 1 unit of product C at a downstream node.
 The raw materials are products A and B, and the finished good is product C. 
 
-.. note:: "Raw materials" and "finished goods" are |class_products| objects. They are not separate
+.. note:: "Raw materials" and "finished goods" are |class_product| objects. They are not separate
 	classes. Moreover, a finished good at one node may be a raw material at another node; for example,
 	node 1 might produce product A as its finished good, which it then ships to node 2, where it is
 	used as a raw material to product product B.

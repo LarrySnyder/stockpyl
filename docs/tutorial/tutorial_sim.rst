@@ -8,6 +8,7 @@ Simulation
 |sp| contains code to simulate single- or multi-echelon inventory systems. The system being simulated
 can include many different features, including:
 
+	* Multiple products, with relationships specified by bill-of-materials (BOM) structures
 	* Stochastic demand with a variety of built-in demand distributions, or supply your own
 	* Inventory management using a variety of built-in inventory policies, or supply your own
 	* Stochastic supply disruptions with various implications
@@ -17,11 +18,11 @@ can include many different features, including:
 
 .. note:: |node_stage|
 
-|fosct_notation|
+.. note:: |fosct_notation|
 
 .. admonition:: See Also
 
-	For more details, see the API documentation for the |mod_sim| and |mod_sim_io| modules.
+	For more details, see the API documentation for the |mod_sim|, |mod_sim_io|, and |mod_supply_chain_product| modules.
 
 .. contents::
     :depth: 3
