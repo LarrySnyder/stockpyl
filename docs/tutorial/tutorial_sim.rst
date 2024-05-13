@@ -220,6 +220,8 @@ or you can do it manually.
 External customers always have an order lead time of 0 and a shipment lead time of 0.
 
 
+.. _external_suppliers:
+
 External Suppliers
 ~~~~~~~~~~~~~~~~~~~
 Any node can have an **external supplier**—a supplier that is not a node that is modeled explicitly

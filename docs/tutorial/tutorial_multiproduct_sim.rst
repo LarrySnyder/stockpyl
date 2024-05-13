@@ -74,7 +74,7 @@ In the diagram:
 	* The arrow into node 2 represents the external supplier. The lead time for shipments
 	  from the external supplier is 2 periods, as indicated by `L=2` on the arrow.
 
-We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` method:
+We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` function:
 
 .. doctest::
 
@@ -227,5 +227,10 @@ or the shortcut method :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.
 	3
 
 In a |sp| simulation, every network must have external supply—nodes can't 
-just create a product with no raw materials. (See :ref:`tutorial_sim:External Suppliers`.)  
-To 
+just create a product with no raw materials. (See :ref:`tutorial_sim:External Suppliers`
+:ref:`asdf<external_suppliers>` :ref:`asdfffasdfasd<tutorial_sim:external_suppliers>`.)  
+To specify that a node receives external supply, you set that node's ``supply_type``
+attribute to `'U'` (for "unlimited"), or to anything other than ``None``. The 
+:func:`~stockpyl.supply_chain_network.serial_system` function automatically sets 
+``supply_type = 'U'`` for the upstream-most node, which means that node 2 in
+our network has external supply. 
