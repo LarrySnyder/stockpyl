@@ -42,13 +42,17 @@ The raw materials are products A and B, and the finished good is product C.
 .. note:: "Raw materials" and "finished goods" are |class_product| objects. They are not separate
 	classes. Moreover, a finished good at one node may be a raw material at another node; for example,
 	node 1 might produce product A as its finished good, which it then ships to node 2, where it is
-	used as a raw material to product product B.
+	used as a raw material to produce product B.
+
+Dummy Products
+--------------
 
 Every node has at least one product. If your code does not explicltly create products or
 add them to nodes, |sp| automatically creates and manages "dummy" products at each node.
-This means that you can ignore products entirely if you do not need them, and any code written
-for versions of |sp| prior to v1.0 (when products were introduced) should still work without
-being adapted to handle products. # TODO: is this true? are there caveats?
+This means that you can ignore products entirely if you do not need them, and you can build
+and simulate networks just as you did in versions prior to |sp| prior to v1.0 (when products where
+introduced). 
+
 Dummy products are identifiable as such because they have negative indices.
 
 
