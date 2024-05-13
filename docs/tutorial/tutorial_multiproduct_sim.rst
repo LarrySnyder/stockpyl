@@ -129,8 +129,7 @@ to assign attributes:
 	* By setting the attribute at the node to a dict whose keys are product indices
 	  and whose values are the attribute values, e.g., 
 	  
-	  ```my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}
-	  ```
+	  ``my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}``
 
 	  This allows you to set (node, product)-specific
 	  values of the attribute
@@ -215,8 +214,8 @@ Bill of Materials
 
 The number of units of product A required to make 1 unit of product B
 is called the **BOM number** for products A and B. The BOM number is specified at the product level,
-not the node level: If the BOM number for products A and B is 5, then it is 5 at every
-node that handles product B and every node that it orders product A from. 
+not the node level: If the BOM number for products A and B is 5, then it is 5 no matter what nodes
+are under consideration.
 
 The :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.set_bill_of_materials`
 method is used to set the BOM relationships between pairs of products. We already used the 
@@ -241,14 +240,14 @@ In a |sp| simulation, every network must have external supply—nodes can't
 just create a product with no raw materials. (See 
 :ref:`External Suppliers<external_suppliers>`.)  
 To specify that a node receives external supply, you set that node's ``supply_type``
-attribute to `'U'` (for "unlimited"), or to anything other than ``None``. The 
+attribute to ``'U'`` (for "unlimited"), or to anything other than ``None``. The 
 :func:`~stockpyl.supply_chain_network.serial_system` function automatically sets 
 ``supply_type = 'U'`` for the upstream-most node, which means that node 2 in
 our network has external supply. 
 
 External suppliers provide raw materials, even though they are not created explictly
 as |class_product| objects. The BOM for such raw materials is therefore also not
-specified explicitly, Instead, such relationships are governed by the
+specified explicitly. Instead, such relationships are governed by the
 **network bill of materials (NBOM),** which assigns default values to certain
 pairs of nodes/products based on the structure of the network. The basic rule is:
 
@@ -294,9 +293,11 @@ Raw Material Inventory
 
 Every node has a raw material inventory for every product that it uses as a raw material.
 So, in our example, node 1 has raw material inventory for products 20 and 30, and node 2
-has raw material inventory for the dummy product from the external supplier. The raw material
-inventories are by product only, not by (product, predecessor).
+has raw material inventory for the dummy product from the external supplier. The holding cost 
+rate for raw material inventory is the same as the holding cost for the same product
+at the node that supplies it. (This node is chosen arbitrarily if there are multiple such nodes.)
 
+Raw material inventories are by product only, not by (product, predecessor).
 There are two important implications of this:
 
 	* If a node has multiple suppliers that provide the same raw material, those
