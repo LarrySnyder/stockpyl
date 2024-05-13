@@ -367,7 +367,28 @@ in a table. The table has the following format for multi-product networks:
 		>>> simulation(network=network, num_periods=10)
 		>>> write_results(network, num_periods=10)
 
-The results are shown in the table below. 
+The results are shown in the table below. In period 0:
+
+	* Period 0, we start with ``IL:10`` = 6 at node 1, ``IL:20`` = 35 and ``IL:30`` = 20 at node 2. (By default, the initial 
+	  inventory level equals the base-stock level.) These numbers aren't displayed in the table below, only the *ending* ILs are.
+	* Node 1 receives a demand of 2 for product 10 (``IO:EXT|10`` = 2). Its inventory position (IP) is now 6 - 2 = 4 and its
+		base-stock level is 6, so it needs to order 2 units' worth of raw materials. Expressed in the units of the raw materials,
+		that means it needs to order 10 of product 20 (because BOM = 5) and 6 of product 30 (because BOM = 3). In the table,
+		``OQ:2|20`` = 10, ``OQ:2|30`` = 6. 
+	* Node 1 has sufficient inventory to fulfill the demand of 2, so it does (``OS:EXT|10`` = 2).
+	* Node 1 ends the period with ``IL:10`` = 4, and incurs a holding cost of 20 since the per-unit holding cost is 5. There is
+		no stockout cost in this period, so we have ``HC`` = 20, ``SC`` = 0, ``TC`` = 20.
+	* Node 2 receives an inbound order of 10 units for product 20 and 6 units for product 3 (``IO:1|20`` = 10, ``IO:1|30`` = 6).
+		Its inventory positions are now ``IP:20`` = 35 - 10 = 25, ``IP:30`` = 20 - 6 = 14 and its base-stock levels are 35 and 20, 
+		respectively. So it needs to order 10 units of the external supplier dummy product for product 20, and another 6
+		units of the external supplier dummy product for product 30. (Remember that the NBOM = 1 for these pairs.)
+		So, ``OQ:EXT|-5`` = 16. (-5 is the index of the dummy product at the external supplier.)
+	* Node 2 has sufficient inventory to satisfy demand for both products, so it ships 10 units of product 20 and 6 units
+		of product 30 (``OS:1|20`` = 10, ``OS:1|30`` = 6).
+	* Node 2 ends the period with ``IL:20`` = 25, ``IL:30`` = 14, so ``HC`` = 25 * 2 + 14 * 3 = 92, ``SC`` = 0. Node 2 also incurs the 
+		in-transit holding cost for items that it shipped to node 1 that have not arrived yet; there are 10 units of
+		product 20 and 6 units of product 30, and the holding cost rates are 2 and 3, so ``ITHC`` = 10 * 2 + 6 * 3 = 38;
+		and ``TC`` = 92 + 38 = 130.
 
 
 
