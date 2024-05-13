@@ -26,8 +26,8 @@ The table has the following format:
 		  quantities arriving from succesor ``s`` in ``r`` periods from the
 		  period, for ``r`` = 1, ..., ``order_lead_time``
 		- ``OQ:p|prod``: order quantity placed to predecessor ``p`` for product ``prod``
-		- ``OQFG:prod``: order quantity of finished good ``prod`` (this "order" is never actually placed;
-		  only the raw material orders in ``OQ`` are placed; but it is useful for debugging)
+		- ``OQFG:prod``: order quantity of finished good ``prod`` (this "order" is never actually placed—only
+		   the raw material orders in ``OQ`` are placed; but ``OQFG`` can be useful for debugging)
 		- ``OO:p:prod``: on-order quantity (items of product ``prod`` that have been ordered from successor
 		  ``p`` but not yet received) 
 		- ``IS:p|prod``: inbound shipment of product ``prod`` received from predecessor ``p`` 

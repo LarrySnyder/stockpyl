@@ -21,6 +21,7 @@ the :ref:`tutorial page for simulation<tutorial_sim_page>`, read that first.
 .. contents::
     :depth: 3
 
+.. _products:
 
 Products
 --------
@@ -48,6 +49,7 @@ add them to nodes, |sp| automatically creates and manages "dummy" products at ea
 This means that you can ignore products entirely if you do not need them, and any code written
 for versions of |sp| prior to v1.0 (when products were introduced) should still work without
 being adapted to handle products. # TODO: is this true? are there caveats?
+Dummy products are identifiable as such because they have negative indices.
 
 
 Basic Multi-Product Example
@@ -76,7 +78,7 @@ In the diagram:
 
 We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` function:
 
-.. doctest::
+.. code-block::
 
 	>>> from stockpyl.supply_chain_network import serial_system
 	>>> network = serial_system(
@@ -95,7 +97,7 @@ We'll start building this network using the :func:`~stockpyl.supply_chain_networ
 Next, we'll create the three products and add them to a dict whose keys are product indices
 and whose values are products, for easy access to the product objects. We'll also set the BOM.
 
-.. doctest::
+.. code-block::
 
 	>>> from stockpyl.supply_chain_product import SupplyChainProduct
 	>>> products = {10: SupplyChainProduct(index=10), 20: SupplyChainProduct(index=20), 30: SupplyChainProduct(index=30)}
@@ -105,7 +107,7 @@ and whose values are products, for easy access to the product objects. We'll als
 To add the products to the nodes, we use :meth:`~stockpyl.supply_chain_node.SupplyChainNode.add_product` and 
 :meth:`~stockpyl.supply_chain_node.SupplyChainNode.add_products`:
 
-.. doctest::
+.. code-block::
 
 	>>> nodes[1].add_product(products[10])
 	>>> nodes[2].add_products([products[20], products[30]])
@@ -128,7 +130,7 @@ In our example network, since node 1 only handles one product (product 10), we c
 ``local_holding_cost`` directly at node 1. We'll set ``local_holding_cost`` for products
 20 and 30 in the product objects. 
 
-.. doctest::
+.. code-block::
 
 	>>> nodes[1].local_holding_cost = 5
 	>>> products[20].local_holding_cost = 2
@@ -139,7 +141,7 @@ node, product, or (node, product) levels. We'll set the policy for product 10 in
 product object (we could instead set it at node 1). And we'll set the policy for
 products 20 and 30 using a dict at node 2:
 
-.. doctest::
+.. code-block::
 
 	>>> from stockpyl.policy import Policy
 	>>> products[10].inventory_policy = Policy(type='BS', base_stock_level=6, node=nodes[1], product=products[10])
@@ -211,7 +213,7 @@ The :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.set_bill_of_materia
 method is used to set the BOM relationships between pairs of products. We already used the 
 following code to set the BOM for our example network:
 
-.. doctest::
+.. code-block::
 
 	>>> products[10].set_bill_of_materials(raw_material=20, num_needed=5)
 	>>> products[10].set_bill_of_materials(raw_material=30, num_needed=3)
@@ -227,10 +229,152 @@ or the shortcut method :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.
 	3
 
 In a |sp| simulation, every network must have external supply—nodes can't 
-just create a product with no raw materials. (See :ref:`tutorial_sim:External Suppliers`
-:ref:`asdf<external_suppliers>` :ref:`asdfffasdfasd<tutorial_sim:external_suppliers>`.)  
+just create a product with no raw materials. (See 
+:ref:`External Suppliers<external_suppliers>`.)  
 To specify that a node receives external supply, you set that node's ``supply_type``
 attribute to `'U'` (for "unlimited"), or to anything other than ``None``. The 
 :func:`~stockpyl.supply_chain_network.serial_system` function automatically sets 
 ``supply_type = 'U'`` for the upstream-most node, which means that node 2 in
 our network has external supply. 
+
+External suppliers provide raw materials, even though they are not created explictly
+as |class_product| objects. The BOM for such raw materials is therefore also not
+specified explicitly, Instead, such relationships are governed by the
+**network bill of materials (NBOM),** which assigns default values to certain
+pairs of nodes/products based on the structure of the network. The basic rule is:
+
+.. admonition:: Network Bill of Materials (NBOM)
+
+	If node A is a predecessor to node B, and there are no BOM relationships
+	specified between *any* product at node A and *any* product at node B, then
+	*every* product at node B is assumed to require 1 unit of *every* product
+	at node A as a raw material.
+
+In the case of our example network, that means that product 20 and product 30 require
+1 unit of the product provided by the external supplier. (That item is a "dummy" product
+assigned to the supplier.)
+
+We don't set the NBOM explicitly—we only set the BOM, and |sp| automatically adds the
+network-based relationships as needed. We can query the NBOM using 
+:meth:`~stockpyl.supply_chain_node.SupplyChainNode.get_network_bill_of_materials`
+(or its shortcut, :meth:`~stockpyl.supply_chain_node.SupplyChainNode.NBOM`), 
+which returns the BOM relationship for a given (node, product) and a given
+(predecessor, raw material). If the BOM is set explicitly, 
+:meth:`~stockpyl.supply_chain_node.SupplyChainNode.get_network_bill_of_materials`
+returns that number, and if it's implicit from the network structure, it returns
+that number. If there is no BOM relationship (either explicit or implied), it returns 0.
+
+If an NBOM relationship is implied by the network structure, the NBOM always equals 1.
+If you want it to equal something else (e.g., if we wanted to say that 4 units of the
+external supplier product are required to make 1 unit of product 30), you would need to
+explicitly create a node that's a predecessor to node 2, create a product at that node
+that's a raw material for product 30, and set the BOM explicitly.
+
+.. doctest::
+
+	>>> # Get the NBOM for node 1, product 10 with node 2, product 20.
+	>>> nodes[1].NBOM(product=10, predecessor=2, raw_material=20)
+	5
+	>>> # Get the NBOM for node 2, product 20 with the external supplier's dummy product.
+	>>> nodes[2].NBOM(product=20, predecessor=None, raw_material=None)
+	1
+
+
+Raw Material Inventory
+-------------------------
+
+Every node has a raw material inventory for every product that it uses as a raw material.
+So, in our example, node 1 has raw material inventory for products 20 and 30, and node 2
+has raw material inventory for the dummy product from the external supplier. The raw material
+inventories are by product only, not by (product, predecessor).
+
+There are two important implications of this:
+
+	* If a node has multiple suppliers that provide the same raw material, those
+	  supplies are pooled into a single raw material inventory.
+	* If a node has multiple products that use the same raw material, they share 
+	  the same raw material inventory.
+
+The second bullet is relevant for our example network, because both product 20 and
+product 30 use the dummy product from the external supplier as a raw material, so they
+both draw their raw materials from the same inventory.
+
+
+.. _multiproduct_sim_output:
+
+Multi-Product Simulation Output
+---------------------------------
+
+This section discusses the simulation output for a multi-product network, i.e., a network
+in which one or more |class_product| objects have been added explicitly. 
+(See :ref:`Simulation Output<sim_output>` for an overview of the |mod_sim_io| module
+and the simulation output in the context of a single-product network.)
+
+The :func:`~stockpyl.sim_io.write_results` function displays the results of the simulation
+in a table. The table has the following format for multi-product networks:
+
+	* Each row corresponds to a period in the simulation.
+	* Each node is represented by a group of columns. 
+	* The node number is indicated in the first column in the group (i.e., i=1).
+	* (node, product) pairs are indicated by a vertical line, so '2|20' means node 2, product 20.
+	* The columns for each node are as follows:
+
+		- ``i=<node index>``: label for the column group
+		- ``DISR``: was the node disrupted in the period? (True/False)
+		- ``IO:s|prod``: inbound order for product ``prod`` received from successor ``s``
+		- ``IOPL:s|prod``: inbound order pipeline for product ``prod`` from successor ``s``: a list of order
+		  quantities arriving from succesor ``s`` in ``r`` periods from the
+		  period, for ``r`` = 1, ..., ``order_lead_time``
+		- ``OQ:p|rm``: order quantity placed to predecessor ``p`` for raw material ``rm``
+		- ``OQFG:prod``: order quantity of finished good ``prod`` (this "order" is never actually placed—only
+		   the raw material orders in ``OQ`` are placed; but ``OQFG`` can be useful for debugging)
+		- ``OO:p:rm``: on-order quantity (items of raw material ``rm`` that have been ordered from successor
+		  ``p`` but not yet received) 
+		- ``IS:p|rm``: inbound shipment of raw material ``rm`` received from predecessor ``p`` 
+		- ``ISPL:p|rm``: inbound shipment pipeline for raw material ``rm`` from predecessor ``p``: a list of
+		  shipment quantities arriving from predecessor ``p`` in ``r`` periods from
+		  the period, for ``r`` = 1, ..., ``shipment_lead_time``
+		- ``IDI:p|rm``: inbound disrupted items: number of items of raw material ``rm`` from predecessor ``p``
+		  that cannot be received due to a type-RP disruption at the node
+		- ``RM:rm``: number of items of raw material ``rm`` in raw-material inventory at node
+		- ``PFG:prod``: number of items of product ``prod`` that are pending, waiting to be
+		  processed from raw materials
+		- ``OS:s|prod``: outbound shipment of product ``prod`` to successor ``s``
+		- ``DMFS|prod``: demand of product ``prod`` met from stock at the node in the current period
+		- ``FR|prod``: fill rate of product ``prod``; cumulative from start of simulation to the current period
+		- ``IL|prod``: inventory level of product ``prod`` (positive, negative, or zero) at node
+		- ``BO:s|prod``: backorders of product ``prod`` owed to successor ``s``
+		- ``ODI:s|prod``: outbound disrupted items of product ``prod``: number of items held for successor ``s`` due to
+		  a type-SP disruption at ``s``
+		- ``HC``: holding cost incurred at the node in the period
+		- ``SC``: stockout cost incurred at the node in the period
+		- ``ITHC``: in-transit holding cost incurred for items in transit to all successors
+		  of the node
+		- ``REV``: revenue (**Note:** *not currently supported*)
+		- ``TC``: total cost incurred at the node (holding, stockout, and in-transit holding)
+
+	* For state variables that are indexed by successor, if ``s`` = ``EXT``, the column
+	  refers to the node's external customer
+	* For state variables that are indexed by predecessor, if ``p`` = ``EXT``, the column
+	  refers to the node's external supplier
+	* Negative product indices are "dummy products"
+
+
+**Example:** The code below simulates our example network for 10 periods and displays the results:
+
+.. code-block::
+
+		>>> simulation(network=network, num_periods=10)
+		>>> write_results(network, num_periods=10)
+
+The results are shown in the table below. 
+
+
+
+
+
+.. csv-table:: Multi-Product Simulation Results
+   :file: ../aux_files/sim_io_multiproduct_example_instance.csv
+   :widths: auto
+   :header-rows: 1
+   :stub-columns: 1

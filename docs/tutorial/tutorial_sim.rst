@@ -274,13 +274,22 @@ Both nodes have a (shipment) lead time of 1.
 	  3             47        50         0      21   -26               47      47      37        47     3
 
 
+.. _sim_output:
+
 Displaying the Results
 ----------------------
 
 The :func:`~stockpyl.sim_io.write_results` function in the |mod_sim_io| module displays the results of
 a simulation. It takes as input the |class_network| object that already has its state variables 
 filled by the simulation, and prints a table to the console and/or to a CSV file. The table lists the
-values of the state variables for every node and every time period.  All state variables refer to their values at the end of the period.
+values of the state variables for every node and every time period.  
+All state variables refer to their values at the end of the period.
+
+.. note::
+
+	This section assumes that there are no products explicitly added to the network, i.e., the network
+	only contains "dummy products" (see :ref:`Products<products>`). For the simulation output for 
+	multiproduct networks, see :ref:`Multiproduct Simulation Output<multiproduct_sim_output>`.
 
 The table has the following format:
 
@@ -295,6 +304,9 @@ The table has the following format:
 		  quantities arriving from succesor ``s`` in ``r`` periods from the
 		  period, for ``r`` = 1, ..., ``order_lead_time``
 		- ``OQ:p``: order quantity placed to predecessor ``p`` in the period
+		- ``OQFG`` : order quantity of finished good (this "order" is never actually
+		  placed—only the raw material orders specified in ``OQ`` are placed; but ``OQFG`` can
+		  be useful for debugging)
 		- ``OO:p``: on-order quantity (items that have been ordered from successor
 		  ``p`` but not yet received) 
 		- ``IS:p``: inbound shipment received from predecessor ``p`` 
@@ -303,8 +315,10 @@ The table has the following format:
 		  the period, for ``r`` = 1, ..., ``shipment_lead_time``
 		- ``IDI:p``: inbound disrupted items: number of items from predecessor ``p``
 		  that cannot be received due to a type-RP disruption at the node
-		- ``RM:p``: number of items from predecessor ``p`` in raw-material inventory
+		- ``RM|rm``: number of items of raw material ``rm`` in raw-material inventory
 		  at node
+		- ``PFG``: number of items of the product that are pending, waiting to be
+		  processed from raw materials
 		- ``OS:s``: outbound shipment to successor ``s``
 		- ``DMFS``: demand met from stock at the node in the current period
 		- ``FR``: fill rate; cumulative from start of simulation to the current period
