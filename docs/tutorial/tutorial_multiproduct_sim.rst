@@ -72,13 +72,13 @@ In the diagram:
 	* The circles represent products. The number in a product is its index.
 	* The lines from products 20 and 30 to product 10 indicate that products 20 and 30 are
 	  raw materials that are used to make product 10. To make 1 unit of product 10 requires
-	  5 units of product 20 and 2 units of product 30, as indicated by `x5` and `x3` on the lines.
+	  5 units of product 20 and 2 units of product 30, as indicated by ``x5`` and ``x3`` on the lines.
 	* The arrow from node 2 to node 1 indicates that node 2 ships items to node 1. The lead
-	  time for these shipments is 1 period, as indicated by `L=1` on the arrow.
+	  time for these shipments is 1 period, as indicated by ``L=1`` on the arrow.
 	* The arrow from node 1 represents the external demand, which follows a uniform discrete
 	  distribution on [1,5].
 	* The arrow into node 2 represents the external supplier. The lead time for shipments
-	  from the external supplier is 2 periods, as indicated by `L=2` on the arrow.
+	  from the external supplier is 2 periods, as indicated by ``L=2`` on the arrow.
 
 We'll start building this network using the :func:`~stockpyl.supply_chain_network.serial_system` function:
 
@@ -86,14 +86,14 @@ We'll start building this network using the :func:`~stockpyl.supply_chain_networ
 
 	>>> from stockpyl.supply_chain_network import serial_system
 	>>> network = serial_system(
-	...		num_nodes=2,
-	...		node_order_in_system=[2, 1],
-	...		node_order_in_lists=[1, 2],
-	...		stockout_cost=[20, 0],
-	...		demand_type='UD',
-	...		lo=1,
-	...		hi=5,
-	...		shipment_lead_time=[1, 2]
+	...     num_nodes=2,
+	...     node_order_in_system=[2, 1],
+	...     node_order_in_lists=[1, 2],
+	...     stockout_cost=[20, 0],
+	...     demand_type='UD',
+	...     lo=1,
+	...     hi=5,
+	...     shipment_lead_time=[1, 2]
 	...	)
 	>>> # Build a dict for easier access to the nodes.
 	>>> nodes = {n.index: n for n in network.nodes}
@@ -121,13 +121,18 @@ Assigning Attributes
 ---------------------------
 
 Most attributes that apply to nodes (``local_holding_cost``, ``stockout_cost``,
-``demand_source``, ``inventory_policy``, etc.) also apply to products. There are three was
+``demand_source``, ``inventory_policy``, etc.) also apply to products. There are three ways
 to assign attributes:
 
 	* By setting it at a node, e.g., ``my_node.stockout_cost = 50``
 	* By setting it at a product, e.g., ``my_product.stockout_cost = 50``
 	* By setting the attribute at the node to a dict whose keys are product indices
-	  and whose values are the attribute values; this allows you to set (node, product)-specific
+	  and whose values are the attribute values, e.g., 
+	  
+	  ```my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}
+	  ```
+
+	  This allows you to set (node, product)-specific
 	  values of the attribute
 
 In our example network, since node 1 only handles one product (product 10), we can set 
@@ -150,8 +155,8 @@ products 20 and 30 using a dict at node 2:
 	>>> from stockpyl.policy import Policy
 	>>> products[10].inventory_policy = Policy(type='BS', base_stock_level=6, node=nodes[1], product=products[10])
 	>>> nodes[2].inventory_policy = {
-	... 	20: Policy(type='BS', base_stock_level=35, node=nodes[2], product=products[20]),
-	...		30: Policy(type='BS', base_stock_level=20, node=nodes[2], product=products[30])
+	...     20: Policy(type='BS', base_stock_level=35, node=nodes[2], product=products[20]),
+	...     30: Policy(type='BS', base_stock_level=20, node=nodes[2], product=products[30])
 	... }
 
 
