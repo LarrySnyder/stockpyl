@@ -820,9 +820,16 @@ class NodeStateVars(object):
 		To get the number of units in transit by predecessor and/or product, use :func:`in_transit_from`.
 
 		..versionchanged:: 1.0
-			
-			This was previously a property and is now a function.
-		
+		    This was previously a property and is now a function.
+
+
+		..versionadded:: 1.0
+		    This was previously a property and is now a function.
+
+		..note:: 
+		    This was previously a property and is now a function.
+
+							
 		Parameters
 		----------
 		product : |class_product| or int, optional
