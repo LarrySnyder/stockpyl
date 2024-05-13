@@ -15,7 +15,7 @@ Single-Echelon Inventory Optimization
 	finite_horizon
 	supply_uncertainty
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of single-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.

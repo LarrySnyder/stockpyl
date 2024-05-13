@@ -11,7 +11,7 @@ that it contains. These objects contain all of the data for the simulation insta
 
 .. note:: |node_stage|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of simulation in |sp|,
 	see the :ref:`tutorial page for simulation<tutorial_sim_page>` and

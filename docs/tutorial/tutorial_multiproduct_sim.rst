@@ -14,7 +14,7 @@ the :ref:`tutorial page for simulation<tutorial_sim_page>`, read that first.
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso:: 
 
 	For more details, see the API documentation for the |mod_sim|, |mod_sim_io|, and |mod_supply_chain_product| modules.
 

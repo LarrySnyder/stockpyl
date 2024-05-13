@@ -20,7 +20,7 @@ can include many different features, including:
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For more details, see the API documentation for the |mod_sim|, |mod_sim_io|, and |mod_supply_chain_product| modules.
 
@@ -78,7 +78,7 @@ Data Structures
 The simulation code in |sp| makes use of the |class_network| and |class_node| classes, which contain all of 
 the data for the system to be simulated. 
 
-.. admonition:: See Also
+.. seealso::
 
 	For more information,
 	see the :ref:`tutorial page for multi-echelon inventory optimization (MEIO) <tutorial_meio_page>`, or the

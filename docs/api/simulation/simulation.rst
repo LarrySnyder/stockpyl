@@ -13,7 +13,7 @@ Simulation
 	sim_io
 
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of simulation in |sp|,
 	see the :ref:`tutorial page for simulation<tutorial_sim_page>` and

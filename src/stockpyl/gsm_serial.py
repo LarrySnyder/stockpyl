@@ -18,7 +18,7 @@ for multi-echelon inventory systems with serial structures by Inderfurth (1991))
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of multi-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.

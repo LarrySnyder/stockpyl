@@ -43,7 +43,7 @@ for versions of |sp| prior to v1.0 (when products were introduced) should still 
 being adapted to handle products. # TODO: is this true? are there caveats?
  
 
-.. admonition:: See Also
+.. seealso::
 
 	For more information about creating and managing products, and simulating multi-product systems in |sp|,
 	see the :ref:`tutorial page for multi-product simulation<tutorial_multiproduct_sim_page>`.

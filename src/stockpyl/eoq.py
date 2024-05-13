@@ -16,7 +16,7 @@ The |mod_eoq| module contains code for solving the economic order quantity
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of single-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.

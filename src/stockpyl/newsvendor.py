@@ -18,7 +18,7 @@ problem and some of its variants.
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of single-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
