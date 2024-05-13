@@ -113,7 +113,7 @@ To add the products to the nodes, we use :meth:`~stockpyl.supply_chain_node.Supp
 	>>> nodes[2].add_products([products[20], products[30]])
 
 
-Assigned Attributes
+Assigning Attributes
 ---------------------------
 
 Most attributes that apply to nodes (``local_holding_cost``, ``stockout_cost``,
@@ -374,30 +374,64 @@ The results are shown in the table below. In period 0:
 	  inventory level equals the base-stock level.) These numbers aren't displayed in the table below, only the *ending* ILs are.
 	* Node 1 receives a demand of 2 for product 10 (``IO:EXT|10`` = 2). Its inventory position (IP) is now 6 - 2 = 4 and its
 	  base-stock level is 6, so it needs to order 2 units' worth of raw materials. Expressed in the units of the raw materials,
-	  that means it needs to order 10 of product 20 (because BOM = 5) and 6 of product 30 (because BOM = 3). In the table,
+	  that means it needs to order 10 units of product 20 (because BOM = 5) and 6 of product 30 (because BOM = 3). In the table,
 	  ``OQ:2|20`` = 10, ``OQ:2|30`` = 6. 
 	* Node 1 has sufficient inventory to fulfill the demand of 2, so it does (``OS:EXT|10`` = 2).
 	* Node 1 ends the period with ``IL:10`` = 4, and incurs a holding cost of 20 since the per-unit holding cost is 5. There is
 	  no stockout cost in this period, so we have ``HC`` = 20, ``SC`` = 0, ``TC`` = 20.
 	* Node 2 receives an inbound order of 10 units for product 20 and 6 units for product 3 (``IO:1|20`` = 10, ``IO:1|30`` = 6).
 	  Its inventory positions are now ``IP:20`` = 35 - 10 = 25, ``IP:30`` = 20 - 6 = 14 and its base-stock levels are 35 and 20, 
-	  respectively. So it needs to order 10 units of the external supplier dummy product for product 20, and another 6
-	  units of the external supplier dummy product for product 30. (Remember that the NBOM = 1 for these pairs.)
-	  So, ``OQ:EXT|-5`` = 16. (-5 is the index of the dummy product at the external supplier.)
+	  respectively. So it needs to order 10 units of the raw material from the external supplier for product 20, and another 6
+	  units of raw material for product 30. (Remember that the NBOM = 1 for these pairs.)
+	  So, ``OQ:EXT|-5`` = 16. (-5 is the index of the dummy product at the external supplier.) Of those 16 units,
+	  6 are "earmarked" for product 20 and 10 are for product 30.
 	* Node 2 has sufficient inventory to satisfy demand for both products, so it ships 10 units of product 20 and 6 units
 	  of product 30 (``OS:1|20`` = 10, ``OS:1|30`` = 6).
-	* Node 2 ends the period with ``IL:20`` = 25, ``IL:30`` = 14, so ``HC`` = 25 * 2 + 14 * 3 = 92, ``SC`` = 0. Node 2 also incurs the 
+	* Node 2 ends the period with ``IL:20`` = 25, ``IL:30`` = 14, so ``HC`` = 25 * 2 + 14 * 3 = 92 and ``SC`` = 0. Node 2 also incurs the 
 	  in-transit holding cost for items that it shipped to node 1 that have not arrived yet; there are 10 units of
 	  product 20 and 6 units of product 30, and the holding cost rates are 2 and 3, so ``ITHC`` = 10 * 2 + 6 * 3 = 38;
 	  and ``TC`` = 92 + 38 = 130.
 
 In period 1:
 
-	* 
+	* Node 1 starts period 1 with an IL of 4, and has 10 units of product 20 and 6 units of product 30 on order
+	  (``OO:2|20`` = 10 and ``OO:2|30`` = 10 at the end of period 0). The on-order units are sufficient to produce
+	  2 units of product 10, so its starting IP is 4 + 2 = 6. 
+	* Node 1 receives a demand of 2 again (``IO:EXT|10`` = 2), so its new IP is 4, and it again orders 10 units of
+	  product 20 and 6 of product 30 (``OQ:2|20`` = 10, ``OQ:2|30`` = 6).
+	* Node 1 again meets the demand in full (``OS:EXT|10`` = 2), ends the period with ``IL:10`` = 4, and has costs
+	  ``HC`` = 20, ``SC`` = 0, and ``TC`` = 20.
+	* Node 2 starts period 1 with ``IL:20`` = 25. It has 16 units of its raw material on order from the
+	  external supplier (``OO:EXT|-5`` = 16 at the end of period 0), 10 of which were "earmarked" for product 20,
+	  so its starting IP for product 20 is 25 + 10 = 35. 
+	  Node 1 ordered 10 units of product 20, so its new IP is 35 - 10 = 25. Its base-stock level for product 20 is 35,
+	  so it will need to order 10 units of the raw material from the external supplier for product 20.
+	* For product 30, the starting IL is 14, the on-order inventory is 10 (of which 6 were "earmarked" for
+	  product 30), the demand is 6, so the IP is 14 + 6 - 6 = 14.
+	  The base-stock level for product 30 is 20, so the node needs to order 6 units of the raw material. Therefore,
+	  node 2 places an order for a total of 16 units of the raw material from the external supplier (`OQ:EXT|-5` = 16).
+	* Node 2 again has sufficient inventory to meet its full demand, so ``OS:1|20`` = 10 and ``OS:1|30`` = 6.
+	* Node 2 ends period 1 with ``IL:20`` = 25 - 10 = 15 and ``IL:30`` = 14 - 6 = 8, so ``HC`` = 15 * 2 + 8 * 3 = 54.
+	  There are 10 units of product 20 and 6 of product 30 in transit to node 1, so ``ITHC`` = 10 * 2 + 6 * 3 = 38;
+	  and ``TC`` = 54 + 38 = 92.
 
+Here's an explanation of the fractional order quantities at node 1 in period 5:
 
-
-
+	* Node 1 starts period 5 (ends period 4) with 1 unit of the finished good, product 10 (``IL:10`` = 1 in period 4),
+	  and 0 units of both product 20 and product 30 in raw material inventory (``RM:20`` = 0, ``RM:30`` = 0 in period 4). 
+	* Node 1 receives 10 units of product 20 and 5 of product 30 in period 5 (``IS:2|20`` = 10, ``IS:2|30`` = 5).
+	* Now node 1 has 10 units of product 20 and 5 of product 30 on hand, which is enough to make
+	  1.6667 units of product 10 at node 1. Doing so uses up all units of product 30
+	  and 5 * 1.6667 = 8.3333 units of product 20, leaving 1.6667 remaining units
+	  of product 20. 
+	* Therefore, node 1 ends period 5 with ``RM:20 = 1.6667`` and ``RM:30 = 0``. 
+	* The demand for product 10 in period 5 is 5 (``IO:EXT|10`` = 5). Node 1 began the period with 1 unit
+	  of product 10 and then producted 1.6667 additional units; it ships these 2.6667 units to the external
+	  customer (``OS:EXT|10`` = 2.6667) and ends the period with 2.3333 backorders (``IL:10`` = -2.3333).
+	  It incurs a holding cost on the raw material inventory of product 20, at the per-unit local holding cost
+	  rate for product 20, i.e., 2. So ``HC`` = 2 * 1.6667 = 3.3333. It incurs a stockout cost of 20 per backorder,
+	  so ``SC`` = 20 * 2.3333 = 46.6667, and ``TC`` = 3.3333 + 46.6667 = 50.
+	
 
 .. csv-table:: Multi-Product Simulation Results
    :file: ../aux_files/sim_io_multiproduct_example_instance.csv
