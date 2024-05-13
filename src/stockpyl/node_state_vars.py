@@ -809,7 +809,7 @@ class NodeStateVars(object):
 
 		.. math::
 
-		\\frac{\\frac{10}{2} + \\frac{18}{6}}{2} = 4
+			\\frac{\\frac{10}{2} + \\frac{18}{6}}{2} = 4
 
 		If the node is single-product, either set ``product`` to the single product, or to ``None``
 		and the function will determine the product automatically. 
@@ -820,6 +820,7 @@ class NodeStateVars(object):
 		To get the number of units in transit by predecessor and/or product, use :func:`in_transit_from`.
 
 		..versionchanged:: 1.0
+			
 			This was previously a property and is now a function.
 		
 		Parameters

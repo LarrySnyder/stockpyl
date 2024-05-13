@@ -129,7 +129,9 @@ to assign attributes:
 	* By setting the attribute at the node to a dict whose keys are product indices
 	  and whose values are the attribute values, e.g., 
 	  
-	  ``my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}``
+	  .. code-block::
+	  
+	      my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}``
 
 	  This allows you to set (node, product)-specific
 	  values of the attribute
@@ -337,7 +339,7 @@ in a table. The table has the following format for multi-product networks:
 		  period, for ``r`` = 1, ..., ``order_lead_time``
 		- ``OQ:p|rm``: order quantity placed to predecessor ``p`` for raw material ``rm``
 		- ``OQFG:prod``: order quantity of finished good ``prod`` (this "order" is never actually placed—only
-		   the raw material orders in ``OQ`` are placed; but ``OQFG`` can be useful for debugging)
+		  the raw material orders in ``OQ`` are placed; but ``OQFG`` can be useful for debugging)
 		- ``OO:p:rm``: on-order quantity (items of raw material ``rm`` that have been ordered from successor
 		  ``p`` but not yet received) 
 		- ``IS:p|rm``: inbound shipment of raw material ``rm`` received from predecessor ``p`` 
@@ -371,7 +373,7 @@ in a table. The table has the following format for multi-product networks:
 
 
 **Example:** The code below simulates our example network for 10 periods and displays the results. 
-It uses the ``rand_seed`` parameter to allow the results to be reproduced.
+It sets the ``rand_seed`` parameter to allow the results to be reproduced.
 
 .. code-block::
 
@@ -448,3 +450,5 @@ Here's an explanation of the fractional order quantities at node 1 in period 5:
    :widths: auto
    :header-rows: 1
    :stub-columns: 1
+
+:download:`Download table in CSV format <../aux_files/sim_io_multiproduct_example_instance.csv>`
