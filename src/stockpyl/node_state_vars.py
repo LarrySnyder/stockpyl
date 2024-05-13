@@ -798,6 +798,11 @@ class NodeStateVars(object):
 	def in_transit(self, product=None):
 		"""Current inventory of raw materials for ``product`` that is in transit to the node.  Read only.
 		
+
+		..versionchanged:: 1.0	
+		    This was previously a property and is now a function.
+		
+		
 		In-transit items are counted using the "units" of the node (or node-product pair) itself.
 		That is, each in-transit quantity is divided by the number of units of the inbound item
 		required to make one unit of ``product`` at this node, according to the bill of materials; and then 
@@ -820,9 +825,7 @@ class NodeStateVars(object):
 		To get the number of units in transit by predecessor and/or product, use :func:`in_transit_from`.
 
 		
-		..versionchanged:: 1.0
-			
-		    This was previously a property and is now a function.
+
 
 
 		..versionadded:: 1.0
