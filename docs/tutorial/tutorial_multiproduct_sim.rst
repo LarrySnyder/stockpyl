@@ -131,7 +131,7 @@ to assign attributes:
 	  
 	  .. code-block::
 	  
-	      my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}``
+	      my_node.stockout_cost = {my_product1.index: 50, my_product2.index: 70}
 
 	  This allows you to set (node, product)-specific
 	  values of the attribute
