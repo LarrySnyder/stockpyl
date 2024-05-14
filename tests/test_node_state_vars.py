@@ -788,3 +788,40 @@ class TestNodeStateVarsDeepEqualTo(unittest.TestCase):
 
 		# Check inequality.
 		self.assertFalse(copy_nsv_lists[1][12].deep_equal_to(original_nsv_lists[1][12]))
+
+
+class TestPreviousBugs(unittest.TestCase):
+	"""Test issues that have previously failed due to bugs."""
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestPreviousBugs', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPreviousBugs', 'tear_down_class()')
+
+	def test_165(self):
+		"""Test instance in issue #165 (Bug in sim with order lead time).
+		"""
+		print_status('TestPreviousBugs', 'test_165()')
+
+		# Just check to make sure no exceptions are raised.
+		
+		from stockpyl.supply_chain_network import network_from_edges
+		from stockpyl.sim import simulation
+		from stockpyl.sim_io import write_results
+		network = network_from_edges(
+			edges=[(3, 2), (3, 1), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[2, 2, 1, 1],
+			stockout_cost=[10, 10, 0, 0],
+			order_lead_time=[0, 1, 0, 0],   
+			shipment_lead_time=[2, 1, 0, 1],
+			demand_type=['P', 'P', None, None],
+			mean=[10, 10, None, None],
+			policy_type=['BS', 'BS', 'BS', 'BS'],
+			base_stock_level=[30, 25, 10, 10]
+		)
+		simulation(network=network, num_periods=10, rand_seed=40)

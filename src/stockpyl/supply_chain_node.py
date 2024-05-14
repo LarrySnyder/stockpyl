@@ -38,7 +38,7 @@ indices and whose values are the attribute values). In particular:
 
 	* If the attribute is a dict, the node will first attempt to access the value of ``<attribute>[<product id>]``.
 	* Else, if the attribute is a dict but does not contain a value for a given product, the product's value
-	for the attribute is used, if it exists.
+	  for the attribute is used, if it exists.
 	* Else the node's value of the attribute is used. (It should be a singleton in this case.)
 
 To add a product to the node, use :func:`add_product`. To retrieve the products at the node, use
@@ -828,13 +828,13 @@ class SupplyChainNode(object):
 		Parameters
 		----------
 		product : |class_product| or int, optional
-			The product to get the BOM for, as a |class_object| or index. Set to ``None`` (the default) for
+			The product to get the BOM for, as a |class_product| or index. Set to ``None`` (the default) for
 			the dummy product.
 		predecessor : |class_node| or int, optional
 			The predecessor to get the BOM for, as a |class_node| object or index. Set to
 			``None`` (the default) to determine the predecessor automatically.
 		raw_material : |class_product| or int, optional
-			The raw material to get the BOM for, as a |class_object| or index. Set to ``None`` (the default) for
+			The raw material to get the BOM for, as a |class_product| or index. Set to ``None`` (the default) for
 			the dummy product at the external supplier.
 
 		Returns
@@ -1868,13 +1868,13 @@ class SupplyChainNode(object):
 		or a product-keyed dict. ``product`` may be either a |class_product| object or the index of the product.
 		
 			* If ``self.attr`` is a dict and contains the key ``product``, returns ``self.attr[product]``. 
-			``product`` must be the product index, in this case.
-			(This returns a (node, product)-specific value of the attribute.) 
+			  ``product`` must be the product index, in this case.
+			  (This returns a (node, product)-specific value of the attribute.) 
 			* Else if ``self.attr`` equals its default value (e.g., ``None``), 
-			or is a dict but does not contain the key ``product``, returns
-			``self.products[product].attr``. (This returns a product-specific value of the attribute.)
+			  or is a dict but does not contain the key ``product``, returns
+			  ``self.products[product].attr``. (This returns a product-specific value of the attribute.)
 			* Else (``self.attr`` is a singleton), returns ``self.attr``. (This returns a node-specific value
-			of the attribute.)
+			  of the attribute.)
 
 		(Here, we are assuming ``product`` is an index. If it is a |class_product| object, replace ``product``
 		with ``product.index``.)

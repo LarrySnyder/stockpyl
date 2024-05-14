@@ -47,12 +47,12 @@ an order lead time of 0, and a shipment lead time of 1.
 	... )
 	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=4, columns_to_print='basic')
-	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL
-	---  -----  --------  --------  --------  --------  ----
-	  0               12        12         0        12     1
-	  1                6         6        12         6     7
-	  2               11        11         6        11     2
-	  3               14        14        11        13    -1
+      t  | i=0      IO:EXT|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:EXT|-1000    IL:-1000
+    ---  -------  --------------  --------------  --------------  --------------  ----------
+      0  |                    12              12               0              12           1
+      1  |                     6               6              12               6           7
+      2  |                    11              11               6              11           2
+      3  |                    14              14              11              13          -1
 
 Interpreting the results:
 
@@ -64,7 +64,8 @@ Interpreting the results:
 	* A backorder occurs in period 3, because the node begins the period with an inventory level of 2, and receives a demand of 14, but
 	  only receives a shipment of 11.
 
-(In the column headers, ``EXT`` refers to the external supplier and customer. For more details about the columns in the
+(In the column headers, ``EXT`` refers to the external supplier and customer. ``|-1001`` refers to the "dummy" products
+at the nodes, which can be ignored in this case. For more details about the columns in the
 output produced by :func:`~stockpyl.sim_io.write_results`, see the API documentation for the |mod_sim_io| module.)
 
 .. note:: :func:`~stockpyl.sim.simulation` fills the state variables—the results of the simulation—
@@ -266,12 +267,12 @@ Both nodes have a (shipment) lead time of 1.
 	... )
 	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=4, columns_to_print='basic')
-	  t  i=0      IO:1    OQ:EXT    IS:EXT    OS:1    IL  i=1      IO:EXT    OQ:0    IS:0    OS:EXT    IL
-	---  -----  ------  --------  --------  ------  ----  -----  --------  ------  ------  --------  ----
-	  0             42        50         0      42     8               42      42       0        42     8
-	  1             50        50        50      50     8               50      50      42        50     0
-	  2             37         0        50      37    21               37      37      50        37    13
-	  3             47        50         0      21   -26               47      47      37        47     3
+      t  | i=0      IO:1|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:1|-1000    IL:-1000  | i=1      IO:EXT|-2    OQ:0|-1000    IS:0|-1000    OS:EXT|-2    IL:-2
+    ---  -------  ------------  --------------  --------------  ------------  ----------  -------  -----------  ------------  ------------  -----------  -------
+      0  |                  42              50               0            42           8  |                 42            42             0           42        8
+      1  |                  50              50              50            50           8  |                 50            50            42           50        0
+      2  |                  37               0              50            37          21  |                 37            37            50           37       13
+      3  |                  47              50               0            21         -26  |                 47            47            37           47        3
 
 
 .. _sim_output:
@@ -572,17 +573,17 @@ disruptions. First, type-OP disruptions:
 	>>> T = 100
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL
-	---  -----  ------  ------  --------  --------  ------  ----  -----  ------  --------  ------  ------  --------  ----
-	  7         False       19        19        14      19     6         False         19      19      14        19     6
-	  8         False       20        20        19      20     5         False         20      20      19        20     5
-	  9         False        0         0        20       0    25         True          21       0      20        21     4
-	 10         False        0         0         0       0    25         True          24       0       0         4   -20
-	 11         False        0         0         0       0    25         True          22       0       0         0   -42
-	 12         False        0         0         0       0    25         True          20       0       0         0   -62
-	 13         False      104       104         0      25   -79         False         17     104       0         0   -79
-	 14         False       20        20       104      99     5         False         20      20      25        25   -74
-	 15         False       21        21        20      21     4         False         21      21      99        95     4
+      t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4
+    ---  -------  ------  ---------  -----------  -----------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  -------
+      7  |        False          19           19           14         19        6  |        False            19         19         14           19        6
+      8  |        False          20           20           19         20        5  |        False            20         20         19           20        5
+      9  |        False           0            0           20          0       25  |        True             21          0         20           21        4
+     10  |        False           0            0            0          0       25  |        True             24          0          0            4      -20
+     11  |        False           0            0            0          0       25  |        True             22          0          0            0      -42
+     12  |        False           0            0            0          0       25  |        True             20          0          0            0      -62
+     13  |        False         104          104            0         25      -79  |        False            17        104          0            0      -79
+     14  |        False          20           20          104         99        5  |        False            20         20         25           25      -74
+     15  |        False          21           21           20         21        4  |        False            21         21         99           95        4
 
 Node 2 is disrupted starting in period 9 (``DISR`` column). Since these are order-pausing disruptions, the node cannot place orders, so its
 order quantity for orders to node 1 (``OQ:1``) is 0, starting in period 9 and continuing until the disruption ends in period 13,
@@ -596,17 +597,17 @@ Next, type-SP disruptions:
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    ODI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    ODI:EXT
-	---  -----  ------  ------  --------  --------  ------  ----  -------  -----  ------  --------  ------  ------  --------  ----  ---------
-	  7         False       19        19        14      19     6        0         False         19      19      14        19     6          0
-	  8         False       20        20        19      20     5        0         False         20      20      19        20     5          0
-	  9         False       21        21        20       0     4       21         True          21      21      20        21     4          0
-	 10         False       24        24        21       0     1       45         True          24      24       0         4   -20          0
-	 11         False       22        22        24       0     3       67         True          22      22       0         0   -42          0
-	 12         False       20        20        22       0     5       87         True          20      20       0         0   -62          0
-	 13         False       17        17        20     104     8        0         False         17      17       0         0   -79          0
-	 14         False       20        20        17      20     5        0         False         20      20     104        99     5          0
-	 15         False       21        21        20      21     4        0         False         21      21      20        21     4          0
+      t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2    ODI:2|-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4    ODI:EXT|-4
+    ---  -------  ------  ---------  -----------  -----------  ---------  -------  ----------  -------  ------  -----------  ---------  ---------  -----------  -------  ------------
+      7  |        False          19           19           14         19        6           0  |        False            19         19         14           19        6             0
+      8  |        False          20           20           19         20        5           0  |        False            20         20         19           20        5             0
+      9  |        False          21           21           20          0        4          21  |        True             21         21         20           21        4             0
+     10  |        False          24           24           21          0        1          45  |        True             24         24          0            4      -20             0
+     11  |        False          22           22           24          0        3          67  |        True             22         22          0            0      -42             0
+     12  |        False          20           20           22          0        5          87  |        True             20         20          0            0      -62             0
+     13  |        False          17           17           20        104        8           0  |        False            17         17          0            0      -79             0
+     14  |        False          20           20           17         20        5           0  |        False            20         20        104           99        5             0
+     15  |        False          21           21           20         21        4           0  |        False            21         21         20           21        4             0
 
 In this case, node 2 can still place orders during the disruption, but node 1 cannot ship them. Instead, the items are moved to
 node 1's "outbound disrupted items" category (``ODI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
@@ -618,17 +619,17 @@ Next, type-TP disruptions:
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
-	---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
-	  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
-	  8         False       20        20        19  [20.0]          20     5         False         20      20      19  [20.0]          20     5
-	  9         False       21        21        20  [21.0]          21     4         True          21      21      20  [21.0]          21     4
-	 10         False       24        24        21  [24.0]          24     1         True          24      24       0  [45.0]           4   -20
-	 11         False       22        22        24  [22.0]          22     3         True          22      22       0  [67.0]           0   -42
-	 12         False       20        20        22  [20.0]          20     5         True          20      20       0  [87.0]           0   -62
-	 13         False       17        17        20  [17.0]          17     8         False         17      17       0  [104.0]          0   -79
-	 14         False       20        20        17  [20.0]          20     5         False         20      20     104  [20.0]          99     5
-	 15         False       21        21        20  [21.0]          21     4         False         21      21      20  [21.0]          21     4
+      t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      OS:EXT|-4    IL:-4
+    ---  -------  ------  ---------  -----------  -----------  -------------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  -----------  -------
+      7  |        False          19           19           14  [19.0]                19        6  |        False            19         19         14  [19.0]                19        6
+      8  |        False          20           20           19  [20.0]                20        5  |        False            20         20         19  [20.0]                20        5
+      9  |        False          21           21           20  [21.0]                21        4  |        True             21         21         20  [21.0]                21        4
+     10  |        False          24           24           21  [24.0]                24        1  |        True             24         24          0  [45.0]                 4      -20
+     11  |        False          22           22           24  [22.0]                22        3  |        True             22         22          0  [67.0]                 0      -42
+     12  |        False          20           20           22  [20.0]                20        5  |        True             20         20          0  [87.0]                 0      -62
+     13  |        False          17           17           20  [17.0]                17        8  |        False            17         17          0  [104.0]                0      -79
+     14  |        False          20           20           17  [20.0]                20        5  |        False            20         20        104  [20.0]                99        5
+     15  |        False          21           21           20  [21.0]                21        4  |        False            21         21         20  [21.0]                21        4
 
 The disruption means that items in transit to node 2 are paused. This is evident from the inbound shipment pipeline at node 2 from node 1 (``ISPL:1``),
 which increases as the disruption continues and then is cleared when the disruption ends. 
@@ -640,17 +641,17 @@ Finally, type-RP disruptions:
 	>>> network.get_node_from_index(2).disruption_process.disruption_type='RP'
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      IDI:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      IDI:1    OS:EXT    IL
-	---  -----  ------  ------  --------  --------  ----------  ---------  ------  ----  -----  ------  --------  ------  ------  --------  -------  --------  ----
-	  7         False       19        19        14  [19.0]              0      19     6         False         19      19      14  [19.0]          0        19     6
-	  8         False       20        20        19  [20.0]              0      20     5         False         20      20      19  [20.0]          0        20     5
-	  9         False       21        21        20  [21.0]              0      21     4         True          21      21       0  [21.0]         20         5   -16
-	 10         False       24        24        21  [24.0]              0      24     1         True          24      24       0  [24.0]         41         0   -40
-	 11         False       22        22        24  [22.0]              0      22     3         True          22      22       0  [22.0]         65         0   -62
-	 12         False       20        20        22  [20.0]              0      20     5         True          20      20       0  [20.0]         87         0   -82
-	 13         False       17        17        20  [17.0]              0      17     8         False         17      17     107  [17.0]          0        99     8
-	 14         False       20        20        17  [20.0]              0      20     5         False         20      20      17  [20.0]          0        20     5
-	 15         False       21        21        20  [21.0]              0      21     4         False         21      21      20  [21.0]          0        21     4
+      t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      IDI:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      IDI:1|-2    OS:EXT|-4    IL:-4
+    ---  -------  ------  ---------  -----------  -----------  -------------  ------------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  ----------  -----------  -------
+      7  |        False          19           19           14  [19.0]                    0         19        6  |        False            19         19         14  [19.0]                0           19        6
+      8  |        False          20           20           19  [20.0]                    0         20        5  |        False            20         20         19  [20.0]                0           20        5
+      9  |        False          21           21           20  [21.0]                    0         21        4  |        True             21         21          0  [21.0]               20            5      -16
+     10  |        False          24           24           21  [24.0]                    0         24        1  |        True             24         24          0  [24.0]               41            0      -40
+     11  |        False          22           22           24  [22.0]                    0         22        3  |        True             22         22          0  [22.0]               65            0      -62
+     12  |        False          20           20           22  [20.0]                    0         20        5  |        True             20         20          0  [20.0]               87            0      -82
+     13  |        False          17           17           20  [17.0]                    0         17        8  |        False            17         17        107  [17.0]                0           99        8
+     14  |        False          20           20           17  [20.0]                    0         20        5  |        False            20         20         17  [20.0]                0           20        5
+     15  |        False          21           21           20  [21.0]                    0         21        4  |        False            21         21         20  [21.0]                0           21        4
 
 In this case, the disruptions prevent node 2 from receiving items. During the disruption, items that would otherwise have been 
 received by node 2 from node 1 are instead moved to node 2's "inbound disrupted items" category (``IDI:1``). They remain there
@@ -731,14 +732,14 @@ and :math:`(-x)^+` is the backorders).
 	>>> T = 100
 	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'])
-	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL    HC       SC       TC
-	---  -----  --------  --------  --------  --------  ----  ----  -------  -------
-	  0               18        18         0        17    -1   0    10       10
-	  1               10        10        18        11     7  24.5   0       24.5
-	  2               16        16        10        16     1   0.5   0        0.5
-	  3               19        19        16        17    -2   0    14.1421  14.1421
-	  4               11        11        19        13     6  18     0       18
-	  5               13        13        11        13     4   8     0        8
+      t  | i=0      IO:EXT|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:EXT|-1000    IL:-1000    HC       SC       TC
+    ---  -------  --------------  --------------  --------------  --------------  ----------  ----  -------  -------
+      0  |                    18              18               0              17          -1   0    10       10
+      1  |                    10              10              18              11           7  24.5   0       24.5
+      2  |                    16              16              10              16           1   0.5   0        0.5
+      3  |                    19              19              16              17          -2   0    14.1421  14.1421
+      4  |                    11              11              19              13           6  18     0       18
+      5  |                    13              13              11              13           4   8     0        8
 
 
 
@@ -773,7 +774,7 @@ determine whether the heuristic solution is statistically worse than the optimal
 	...	n.inventory_policy.base_stock_level = S_opt_local[n.index]
 	>>> mean_opt, sem_opt = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
 	>>> print(f"Optimal solution has simulated average cost per period with mean {mean_opt} and SEM {sem_opt}")
-	Optimal solution has simulated average cost per period with mean 47.78528000921442 and SEM 0.26119040852187103
+	Optimal solution has simulated average cost per period with mean 47.78805396416774 and SEM 0.258285462809664
 	>>> # Set base-stock levels according to heuristic solution.
 	>>> S_heur = newsvendor_heuristic(network=network)
 	>>> S_heur_local = echelon_to_local_base_stock_levels(network, S_heur)
@@ -781,7 +782,7 @@ determine whether the heuristic solution is statistically worse than the optimal
 	...	n.inventory_policy.base_stock_level = S_heur_local[n.index]
 	>>> mean_heur, sem_heur = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
 	>>> print(f"Heuristic solution has simulated average cost per period with mean {mean_heur} and SEM {sem_heur}")
-	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.27039814681794644
+	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.270398146817947
 	>>> ## Calculate confidence intervals.
 	>>> from scipy.stats import norm
 	>>> z = norm.ppf(1 - (1 - 0.95)/2)

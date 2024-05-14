@@ -200,10 +200,18 @@ class NodeStateVars(object):
 			# inbound_order_pipeline needs some special handling -- external customer must be added
 			# separately since it does not have its own node, or its own order lead time.
 			self.inbound_order_pipeline = {}
-			for s_index in self.node.successor_indices(include_external=False):
+			for s in self.node.successors(include_external=False):
+				s_index = s.index
 				self.inbound_order_pipeline[s_index] = {}
 				for prod_index in self.node.product_indices:
-					order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
+					# Does s order prod_index from node?
+					if prod_index in s.raw_materials_by_product(product='all', return_indices=True, network_BOM=True) \
+						and node.index in s.raw_material_suppliers_by_raw_material(raw_material=prod_index, return_indices=True, network_BOM=True):
+						# Find a product at s that orders this raw material at node, to get its order_lead_time.
+						downstream_prod_index = s.products_by_raw_material(prod_index)[0]
+						order_lead_time = s.get_attribute('order_lead_time', product=downstream_prod_index) or 0
+					else:
+						order_lead_time = 0
 					self.inbound_order_pipeline[s_index][prod_index] = [0] * (order_lead_time + 1)
 			for prod_index in node.product_indices:
 				ds = node.get_attribute('demand_source', prod_index)
@@ -1277,7 +1285,7 @@ class NodeStateVars(object):
 	def to_dict(self):
 		"""Convert the |class_state_vars| object to a dict. List and dict attributes
 		are deep-copied so changes to the original object do not get propagated to the dict.
-		 The ``node`` attribute is set to the index of the node (if any), rather than to the object.
+		The ``node`` attribute is set to the index of the node (if any), rather than to the object.
 
 		Returns
 		-------
