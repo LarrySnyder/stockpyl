@@ -40,45 +40,13 @@ Every node has at least one product. If your code does not explicltly create pro
 add them to nodes, |sp| automatically creates and manages "dummy" products at each node.
 This means that you can ignore products entirely if you do not need them, and any code written
 for versions of |sp| prior to v1.0 (when products were introduced) should still work without
-being adapted to handle products. # TODO: is this true? are there caveats?
+being adapted to handle products. 
  
 
 .. seealso::
 
 	For more information about creating and managing products, and simulating multi-product systems in |sp|,
 	see the :ref:`tutorial page for multi-product simulation<tutorial_multiproduct_sim_page>`.
-
-
-
-Game plan for BOM:
-# TODO: delete this later
-- BOM lives at product level, and does not indicate node for either product or raw material
-- Every node has a dummy product with negative index when it is created. When a product is loaded into the 
-	node, the dummy product is removed. If all "real" products are unloaded, a dummy product is added back.
-	Indices are generated automatically on the fly. Dummy products have their ``is_dummy`` attribute set to ``True``.
-- A dummy product is always assumed to have a BOM number of 1 with every product at every predecessor and
-	successor, including both dummy and real products. product.get_bill_of_materials(rm_ind) returns 1 if rm_ind < 0, 
-	and product.get_bill_of_materials(rm_index) returns 1 if product is a dummy product, regardless of what 
-	rm_index is.
-- If a node and a predecessor have no BOM relationship specified for all (rm, product) pairs,
-	a BOM number of 1 is assumed for every product/RM pair. 
-	This is true whether the node or predecessor have an actual product loaded, or a dummy product. 
-- To set the BOM number to something other than 1, both the product and the RM must be actual products, 
-	not dummy.
-- If a node has supply_type 'U', the external supplier is assumed to provide a dummy raw material,
-	which is not loaded into the external supplier (since a node doesn't exist for that supplier),
-	but raw material inventory is allocated at the node for the external supplier's dummy product at 
-	the start of the simulation. 
-	The BOM number is 1 in this case. If there are multiple products at the node, they each order
-	1 unit of the dummy product. The dummy product at an external supplier also has a negative
-	index that is generated on the fly.
-- To have an external supplier with a BOM number other than 1, you have to create a node to represent
-	the external supplier. It can have zero costs and LT, etc., but must have the RM product loaded.
-- In some functions, setting a product parameter to None is a shortcut for setting it to the index
-	of the dummy product.
-- _bill_of_materials[rm_index] = # of units of raw material rm_index required to make 1 unit of product.
-- In general, I'm ensuring that everything works if _all_ nodes have products loaded or _no_ nodes have
-	products loaded, but I'm less sure about the case in which some do and some don't.
 
 
 API Reference
@@ -109,10 +77,6 @@ from stockpyl.helpers import is_list, is_dict, is_integer
 
 class SupplyChainProduct(object):
 	"""The |class_product| class contains the data for a product within a supply chain.
-	
-	All attributes except ``name``, ``id``, and ``network`` may be overridden at the node level
-	by a |class_node| that handles the product. 
-	TODO: update?
 	
 	Attributes
 	----------

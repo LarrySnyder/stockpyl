@@ -55,7 +55,12 @@ This means that you can ignore products entirely if you do not need them, and yo
 and simulate networks just as you did in versions prior to |sp| prior to v1.0 (when products where
 introduced). 
 
-Dummy products are identifiable as such because they have negative indices.
+When a product is added to a node, the dummy product is removed. If all "real" products are removed, 
+a dummy product is added back.
+
+Dummy products are identifiable as such because they have negative indices, or because their
+``is_dummy`` attribute is set to ``True``.
+
 
 
 Basic Multi-Product Example

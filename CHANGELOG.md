@@ -5,7 +5,19 @@ All significant changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] -- 2024-05-13
+
+### Introducing: Products
+- |sp| now supports *products* in simulations. Products are implemented using the |class_product|
+object. 
+- Products are "handled" by nodes. Most attributes (``stockout_cost``, 
+``inventory_policy``, etc.) may be specified either at the node level, the product 
+level, or the (node, product) level.
+- Products are related to each other via a bill of materials (BOM), which specifies
+the number of units of an upstream product (*raw material*) that are required to make
+one unit of a downstream product (*finished goods*). 
+- For more information about creating and managing products, and simulating multi-product systems in |sp|, see the [supply_chain_product](https://stockpyl.readthedocs.io/en/multiproduct/api/datatypes/supply_chain_product.html module) or 
+see the [tutorial page for multi-product simulation](tutorial_multiproduct_sim_page).
 
 ### Added
 - ``helpers.nearest_dict_value()`` function, to find key in a dictionary that's nearest to
