@@ -168,7 +168,7 @@ Accessing Attributes
 
 It is possible to access attributes in the same way they were assigned:
 
-.. doctest::
+.. doctest:: *
 
 	>>> nodes[1].local_holding_cost
 	5
@@ -198,7 +198,7 @@ During a simulation, |sp| uses :meth:`~stockpyl.supply_chain_node.SupplyChainNod
 to access all attributes, so the simulation will pull attributes from nodes and products
 using the same logic as above.
 
-.. doctest::
+.. doctest:: *
 
 	>>> nodes[1].get_attribute('local_holding_cost', product=10)
 	5
@@ -233,7 +233,7 @@ following code to set the BOM for our example network:
 We can access the BOM number using :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.get_bill_of_materials`,
 or the shortcut method :meth:`~stockpyl.supply_chain_product.SupplyChainProduct.BOM`:
 
-.. doctest::
+.. doctest:: *
 
 	>>> products[10].get_bill_of_materials(raw_material=20)
 	5
@@ -282,7 +282,7 @@ external supplier product are required to make 1 unit of product 30), you would 
 explicitly create a node that's a predecessor to node 2, create a product at that node
 that's a raw material for product 30, and set the BOM explicitly.
 
-.. doctest::
+.. doctest:: *
 
 	>>> # Get the NBOM for node 1, product 10 with node 2, product 20.
 	>>> nodes[1].NBOM(product=10, predecessor=2, raw_material=20)

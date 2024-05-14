@@ -1160,11 +1160,11 @@ def single_stage_system(index=0, **kwargs):
 	.. doctest::
 
 		>>> network = single_stage_system(holding_cost=0.18,
-				stockout_cost=0.70,
-				demand_type='N',
-				mean=50, standard_deviation=8,
-				policy_type='BS',
-				base_stock_level=56.6)
+		... stockout_cost=0.70,
+		... demand_type='N',
+		... mean=50, standard_deviation=8,
+		... policy_type='BS',
+		... base_stock_level=56.6)
 		>>> network.nodes[0].stockout_cost
 		0.7
 
@@ -1264,11 +1264,11 @@ def serial_system(num_nodes, node_order_in_system=None, node_order_in_lists=None
 	.. doctest::
 
 		>>> network = single_stage_system(holding_cost=0.18,
-				stockout_cost=0.70,
-				demand_type='N',
-				mean=50, standard_deviation=8,
-				policy_type='BS',
-				base_stock_level=56.6)
+		... stockout_cost=0.70,
+		... demand_type='N',
+		... mean=50, standard_deviation=8,
+		... policy_type='BS',
+		... base_stock_level=56.6)
 		>>> network.nodes[0].stockout_cost
 		0.7
 

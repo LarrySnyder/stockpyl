@@ -1093,7 +1093,7 @@ def newsvendor_poisson_explicit(revenue, purchase_cost, salvage_value,
 	.. doctest::
 
 		>>> newsvendor_poisson_explicit(1, 0.3, 0.12, 50)
-		(56.60395592743389, 33.002394806823354)
+		(56.0, 33.20276478819082)
 
 	"""
 
