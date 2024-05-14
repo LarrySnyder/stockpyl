@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] -- 2024-05-13
 
 ### Introducing: Products
-- |sp| now supports *products* in simulations. Products are implemented using the |class_product|
+- Stockpyl now supports *products* in simulations. Products are implemented using the ``supply_chain_product``
 object. 
 - Products are "handled" by nodes. Most attributes (``stockout_cost``, 
 ``inventory_policy``, etc.) may be specified either at the node level, the product 
@@ -16,10 +16,13 @@ level, or the (node, product) level.
 - Products are related to each other via a bill of materials (BOM), which specifies
 the number of units of an upstream product (*raw material*) that are required to make
 one unit of a downstream product (*finished goods*). 
-- For more information about creating and managing products, and simulating multi-product systems in |sp|, see the [supply_chain_product](https://stockpyl.readthedocs.io/en/multiproduct/api/datatypes/supply_chain_product.html module) or 
-see the [tutorial page for multi-product simulation](tutorial_multiproduct_sim_page).
+- Only the simulation features of Stockpyl can currently make use of products; MEIO and other features
+still assume a single-product model.
+- For more information about creating and managing products, and simulating multi-product systems in |sp|, see the [``supply_chain_product``](https://stockpyl.readthedocs.io/en/multiproduct/api/datatypes/supply_chain_product.html) module or 
+the [tutorial page for multi-product simulation](tutorial_multiproduct_sim_page).
 
 ### Added
+- Products.
 - ``helpers.nearest_dict_value()`` function, to find key in a dictionary that's nearest to
 a given number and return the corresponding value.
 - ``loss_functions.standard_normal_loss_dict()`` function, to build a dictionary of loss-function values.
@@ -28,18 +31,35 @@ a given number and return the corresponding value.
 
 ### Changed
 - Requires Python 3.8 or later.
+- Default git branch has been [changed to ``main``](https://sfconservancy.org/news/2020/jun/23/gitbranchname/).
+If you have a local clone, you can rename it using:
+
+	```
+	git branch -m master main
+	git fetch origin
+	git branch -u origin/main main
+	git remote set-head origin -a
+	```
+
 - ``NodeStateVars.raw_material_inventory`` is now indexed by product, not by predecessor.
 - ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
-- ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
-demand source parameters were provided specifically for that node in the input args.
 - More compact text representation of ``SupplyChainNetwork`` and ``SupplyChainNode`` objects via ``__repr__()``.
 
 ### Fixed
+- ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
+demand source parameters were provided specifically for that node in the input args.
 - Bug in ``helpers.ensure_list_for_time_period()`` that caused it to handle numpy arrays improperly.
 - Bug in ``demand_source.py`` that sometimes caused infinite recursion when some attributes were ``None``.
 - Bug in ``sim_io.py`` that caused incorrect headers for a few state variables.
+- Various other bug fixes.
 
 ### Known Issues
+(See https://github.com/LarrySnyder/stockpyl/issues for all issues.)
+- BOM relationships assume the products are infinitely divisible; e.g., if 5 units of product A are
+required to make 1 unit of product B, and there are 4 units of product A available, then 0.8 units of
+product B are produced. [#155](https://github.com/LarrySnyder/stockpyl/issues/155)
+- Lead times are specific to downstream node and finished good product, not upstream node and raw material.
+This makes it hard to have different lead times for ordering different raw materials from different upstream nodes. [#149](https://github.com/LarrySnyder/stockpyl/issues/149)
 - Echelon base-stock policies are not working reliably yet, at least for systems with multiple products. [#153](https://github.com/LarrySnyder/stockpyl/issues/153)
 - Disruptions can only occur at node level, not product level. [#158](https://github.com/LarrySnyder/stockpyl/issues/158)
 
