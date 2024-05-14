@@ -798,12 +798,6 @@ class NodeStateVars(object):
 	def in_transit(self, product=None):
 		"""Current inventory of raw materials for ``product`` that is in transit to the node.  Read only.
 		
-
-
-		.. versionchanged:: 1.0	
-			This was previously a property and is now a function.
-		
-		
 		In-transit items are counted using the "units" of the node (or node-product pair) itself.
 		That is, each in-transit quantity is divided by the number of units of the inbound item
 		required to make one unit of ``product`` at this node, according to the bill of materials; and then 
@@ -824,20 +818,10 @@ class NodeStateVars(object):
 		raw material, even though some of them may wind up being used to make products other than ``product``.
 
 		To get the number of units in transit by predecessor and/or product, use :func:`in_transit_from`.
-
 		
-
-
-
-		.. versionadded:: 1.0
-
-		    This was previously a property and is now a function.
-
-			
-		.. note:: 
-			
-		    This was previously a property and is now a function.
-
+		.. versionchanged:: 1.0	
+			This was previously a property and is now a function.
+		
 							
 		Parameters
 		----------
@@ -892,8 +876,9 @@ class NodeStateVars(object):
 		If the node has multiple products that use the same raw material, this function includes all units of that
 		raw material, even though some of them may wind up being used to make products other than ``product``.
 
-		..versionchanged:: 1.0
+		.. versionchanged:: 1.0	
 			This was previously a property and is now a function.
+		
 		
 		Parameters
 		----------
@@ -948,8 +933,9 @@ class NodeStateVars(object):
 		If the node has multiple products that use the same raw material, this function includes all units of that
 		raw material, even though some of them may wind up being used to make products other than ``product``.
 
-		..versionchanged:: 1.0
+		.. versionchanged:: 1.0	
 			This was previously a property and is now a function.
+		
 		
 		Parameters
 		----------
@@ -1008,8 +994,9 @@ class NodeStateVars(object):
 		If the node has multiple products that use the same raw material, this function includes all disrupted units of that
 		raw material, even though some of them may wind up being used to make products other than ``product``.
 
-		..versionchanged:: 1.0
+		.. versionchanged:: 1.0	
 			This was previously a property and is now a function.
+		
 		
 		Parameters
 		----------

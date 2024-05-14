@@ -83,12 +83,6 @@ class DemandSource(object):
 			
 	round_to_int : bool
 		Round demand to nearest integer?
-	mean : float, optional
-		Mean of demand per period. Required if ``type`` == 'N' or 'P'. 
-		If not provided explicitly, the object will calculate it from the underlying distribution. [:math:`\mu`]
-	standard_deviation : float, optional
-		Standard deviation of demand per period. Required if ``type`` == 'N'. 
-		If not provided explicitly, the object will calculate it from the underlying distribution. [:math:`\sigma`]
 	demand_list : list, optional
 		List of demands, one per period (for deterministic demand types), or list
 		of possible demand values (for custom discrete demand types). For deterministic
