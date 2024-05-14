@@ -5,9 +5,43 @@ All significant changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] -- 2024-05-13
 
-(none so far)
+### Introducing: Products
+- |sp| now supports *products* in simulations. Products are implemented using the |class_product|
+object. 
+- Products are "handled" by nodes. Most attributes (``stockout_cost``, 
+``inventory_policy``, etc.) may be specified either at the node level, the product 
+level, or the (node, product) level.
+- Products are related to each other via a bill of materials (BOM), which specifies
+the number of units of an upstream product (*raw material*) that are required to make
+one unit of a downstream product (*finished goods*). 
+- For more information about creating and managing products, and simulating multi-product systems in |sp|, see the [supply_chain_product](https://stockpyl.readthedocs.io/en/multiproduct/api/datatypes/supply_chain_product.html module) or 
+see the [tutorial page for multi-product simulation](tutorial_multiproduct_sim_page).
+
+### Added
+- ``helpers.nearest_dict_value()`` function, to find key in a dictionary that's nearest to
+a given number and return the corresponding value.
+- ``loss_functions.standard_normal_loss_dict()`` function, to build a dictionary of loss-function values.
+- Support for negative binomial demand distributions in ``DemandSource``.
+- Functions to validate and parse nodes and products within a network or node. (Mostly used internally for simulation.)
+
+### Changed
+- Requires Python 3.8 or later.
+- ``NodeStateVars.raw_material_inventory`` is now indexed by product, not by predecessor.
+- ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
+- ``supply_chain_network.network_from_edges()`` now only creates a ``DemandSource`` for sink nodes or if the
+demand source parameters were provided specifically for that node in the input args.
+- More compact text representation of ``SupplyChainNetwork`` and ``SupplyChainNode`` objects via ``__repr__()``.
+
+### Fixed
+- Bug in ``helpers.ensure_list_for_time_period()`` that caused it to handle numpy arrays improperly.
+- Bug in ``demand_source.py`` that sometimes caused infinite recursion when some attributes were ``None``.
+- Bug in ``sim_io.py`` that caused incorrect headers for a few state variables.
+
+### Known Issues
+- Echelon base-stock policies are not working reliably yet, at least for systems with multiple products. [#153](https://github.com/LarrySnyder/stockpyl/issues/153)
+- Disruptions can only occur at node level, not product level. [#158](https://github.com/LarrySnyder/stockpyl/issues/158)
 
 ## [0.0.15] -- 2024-02-10
 

@@ -25,11 +25,14 @@
 .. |mod_ssm_serial| replace:: :mod:`~stockpyl.ssm_serial`
 .. |mod_supply_chain_network| replace:: :mod:`~stockpyl.supply_chain_network`
 .. |mod_supply_chain_node| replace:: :mod:`~stockpyl.supply_chain_node`
+.. |mod_supply_chain_product| replace:: :mod:`~stockpyl.supply_chain_product`
+.. |mod_node_state_vars| replace:: :mod:`~stockpyl.node_state_vars`
 .. |mod_supply_uncertainty| replace:: :mod:`~stockpyl.supply_uncertainty`
 .. |mod_wagner_whitin| replace:: :mod:`~stockpyl.wagner_whitin`
 
 .. |class_network| replace:: :class:`~stockpyl.supply_chain_network.SupplyChainNetwork`
 .. |class_node| replace:: :class:`~stockpyl.supply_chain_node.SupplyChainNode`
+.. |class_product| replace:: :class:`~stockpyl.supply_chain_node.SupplyChainProduct`
 .. |class_state_vars| replace:: :class:`~stockpyl.supply_chain_network.NodeStateVars`
 .. |class_demand_source| replace:: :class:`~stockpyl.demand_source.DemandSource`
 .. |class_disruption_process| replace:: :class:`~stockpyl.disruption_process.DisruptionProcess`

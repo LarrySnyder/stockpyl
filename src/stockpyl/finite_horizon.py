@@ -16,7 +16,7 @@ inventory optimization problems, with or without fixed costs, using dynamic prog
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of single-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for single-echelon inventory optimization<tutorial_seio_page>`.
@@ -45,13 +45,16 @@ def finite_horizon_dp(
 		terminal_stockout_cost,
 		purchase_cost,
 		fixed_cost,
-		demand_mean,
-		demand_sd,
+		demand_mean=None,
+		demand_sd=None,
+		demand_source=None,
 		discount_factor=1.0,
 		initial_inventory_level=0.0,
 		trunc_tol=0.02,
 		d_spread=4,
-		s_spread=5):
+		s_spread=5,
+		oul_matrix=None,
+		x_range=None):
 	"""
 	Solve the finite-horizon inventory optimization problem, with or without
 	fixed costs, minimizing the expected discounted cost over the time horizon,
@@ -81,7 +84,10 @@ def finite_horizon_dp(
 	``terminal_stockout_cost``, :math:`x^+ = \\max\\{x,0\\}`, and
 	:math:`x^- = \\max\\{-x,0\\}`.
 
-	Demands are assumed to be normally distributed.
+	Either ``demand_mean`` and ``demand_sd`` must be
+	provided (in which case the demand will be assumed to be normally distributed),
+	or ``demand_source`` must be provided (in which case the demand will follow the
+	distribution specified in ``demand_source``).
 
 	Most parameters may be given as a singleton or a list. If given as a
 	singleton, the parameter will be assumed to be the same in every time
@@ -106,6 +112,10 @@ def finite_horizon_dp(
 
 	Raises warnings if the discretization and truncation settings are likely to
 	lead to suboptimal results. (See details in the code.)
+		
+	If ``oul_matrix`` is provided as an input, the function uses it (with discretization 
+	specified by ``x_range`` input) instead of optimizing over the order-up-to levels.
+	If ``oul_matrix`` is provided, then ``x_range`` must be provided as well.
 
 	.. note:: This function executes faster than straightforward implementation because it calculates
 		:math:`H_t(y)` (as defined in (4.87)) for each :math:`t` and :math:`y`,
@@ -129,10 +139,13 @@ def finite_horizon_dp(
 		Purchase cost per item. [:math:`c`]
 	fixed_cost : float or list
 		Fixed cost per order. [:math:`K`]
-	demand_mean : float or list
-		Demand mean per period. [:math:`\\mu`]
-	demand_sd : float or list
-		Demand standard deviation per period. [:math:`\\sigma`]
+	demand_mean : float or list, optional
+		Demand mean per period. Ignored if ``demand_source`` is not ``None``. [:math:`\\mu`]
+	demand_sd : float or list, optional
+		Demand standard deviation per period. Ignored if ``demand_source`` is not ``None``. [:math:`\\sigma`]
+	demand_source : |class_demand_source|, optional
+		A |class_demand_source| object describing the demand distribution. Required if
+		``demand_mean`` and ``demand_standard_deviation`` are ``None``.
 	discount_factor : float or list
 		Discount factor, in :math:`(0,1]`. Default = 1. [:math:`\\gamma`]
 	initial_inventory_level : float
@@ -146,6 +159,13 @@ def finite_horizon_dp(
 		Number of standard deviations around mean to consider for demand truncation.
 	s_spread : float
 		Number of (demand) standard deviations around :math:`(s,S)` estimates to consider.
+	oul_matrix : ndarray, optional
+		User-specified matrix of order-up-to levels; ``oul_matrix[t,x]`` = optimal
+		order-up-to level in period :math:`t` if we begin period :math:`t`
+		with :math:`IL_t = x`. ``t=0`` is ignored. If provided, then ``x_range`` must also be provided.
+	x_range : ndarray, optional
+		User-specified list of :math:`x`-values used in the discretization, i.e.,
+		indices of the columns of ``cost_matrix`` and ``oul_matrix``. 
 
 	Returns
 	-------
@@ -163,9 +183,9 @@ def finite_horizon_dp(
 	oul_matrix : ndarray
 		Matrix of order-up-to levels; ``oul_matrix[t,x]`` = optimal
 		order-up-to level in period :math:`t` if we begin period :math:`t`
-		with :math:`IL_t = x`.
+		with :math:`IL_t = x`. ``t=0`` is ignored.
 	x_range : list
-		Vector of :math:`x`-values used in the discretization, i.e.,
+		List of :math:`x`-values used in the discretization, i.e.,
 		indices of the columns of ``cost_matrix`` and ``oul_matrix``.
 
 	Raises
@@ -176,9 +196,15 @@ def finite_horizon_dp(
 		If ``holding_cost``, ``stockout_cost``, ``purchase_cost``, ``fixed_cost``,
 		``demand_mean``, or ``demand_sd`` < 0 for any time period.
 	ValueError
+		If ``demand_mean`` or ``demand_standard_deviation`` is ``None`` and 
+		``demand_source`` is ``None``.
+	ValueError
 		If ``discount_factor`` <= 0 or > 1 for any time period.
 	ValueError
 		If ``terminal_holding_cost`` < 0 or ``terminal_stockout_cost`` < 0.
+	ValueError
+		If ``oul_matrix`` is provided but ``x_range`` is not, or ``x_range`` does not contain all
+		values in ``oul_matrix``.
 
 
 	**Equation Used** (equation (4.66)):
@@ -261,6 +287,16 @@ def finite_horizon_dp(
 	discount_factor = np.array(ensure_list_for_time_periods(discount_factor, num_periods, var_name="discount_factor"))
 	demand_mean = np.array(ensure_list_for_time_periods(demand_mean, num_periods, var_name="mean"))
 	demand_sd = np.array(ensure_list_for_time_periods(demand_sd, num_periods, var_name="demand_sd"))
+	demand_source = np.array(ensure_list_for_time_periods(demand_source, num_periods, var_name="demand_source"))
+
+	# Build demand_source, if not provided; and get mean and SD, if demand_source is provided.
+	# After this step, demand_mean[t], demand_sd[t], and demand_source[t] will be reliably set for all t.
+	for t in range(1, num_periods + 1):
+		if demand_source[t] is None:
+			demand_source[t] = DemandSource(type='N', mean=demand_mean[t], standard_deviation=demand_sd[t])
+		else:
+			demand_mean[t] = demand_source[t].mean or demand_source[t].demand_distribution.mean()
+			demand_sd[t] = demand_source[t].standard_deviation or demand_source[t].demand_distribution.std()
 
 	# Validate other parameters.
 	if not np.all(np.array(holding_cost[1:]) >= 0): raise ValueError("holding_cost must be non-negative")
@@ -271,7 +307,9 @@ def finite_horizon_dp(
 		not np.all(np.array(discount_factor[1:]) <= 1): raise ValueError("discount_factor must be <0 and <=1")
 	if not np.all(np.array(demand_mean[1:]) >= 0): raise ValueError("demand_mean must be non-negative")
 	if not np.all(np.array(demand_sd[1:]) >= 0): raise ValueError("demand_sd must be non-negative")
-
+	if (demand_mean is None or demand_sd is None) and demand_source is None:
+		raise ValueError("You must provide either demand_mean and demand_standard_deviation, or demand_source")
+	
 	# Determine truncation for D: mu +/- d_spread * sigma (but no negative values)
 	# (accounting appropriately for variations among periods)
 	d_min = int(max(0, round(np.min(demand_mean[1:]) - d_spread * np.max(demand_sd[1:]))))
@@ -282,12 +320,13 @@ def finite_horizon_dp(
 	# raise warning if > trunc_tol for any t. (prob is an array.)
 	# Ignore entry 0 (o/w divide-by-0) but then add back an entry for 0 to keep
 	# things consistent.
-	prob = norm.cdf(d_min, demand_mean[1:], demand_sd[1:]) + \
-		   (1 - norm.cdf(d_max, demand_mean[1:], demand_sd[1:]))
+	prob = [demand_source[t].demand_distribution.cdf(d_min) + \
+		    (1 - demand_source[t].demand_distribution.cdf(d_max)) for t in range(1, num_periods + 1)]
+	# prob = norm.cdf(d_min, demand_mean[1:], demand_sd[1:]) + \
+	# 	   (1 - norm.cdf(d_max, demand_mean[1:], demand_sd[1:]))
 	prob = np.append([0], prob)
 	if np.any(prob > trunc_tol):
-		warnings.warn("Total probability of demand outside demand-truncation range exceeds trunc_tol for at least one "
-					  "period.")
+		warnings.warn("Total probability of demand outside demand-truncation range exceeds trunc_tol for at least one period.")
 
 	# Calculate alpha (= p/(p+h)) in each period.
 	alpha = np.zeros(num_periods+1)
@@ -313,15 +352,33 @@ def finite_horizon_dp(
 	Q = [economic_order_quantity_with_backorders(fixed_cost[t], holding_cost[t],
 			stockout_cost[t], demand_mean[t])[0] for t in range(1, num_periods+1)]
 
-	# Determine initial truncation for x:
-	# - estimate s = newsvendor solution, S = s + EOQB
-	# - then subtract s_spread * sigma from s and add s_spread * sigma to S
-	# - then, subtract mu + d_spread * sigma from s to account for demand
-	# (accounting appropriately for variations among periods, and adjusting
-	# period T to include terminal costs)
-	x_min = int(round(np.min(nv[1:]) - np.max(demand_mean[1:]) - np.max(demand_sd[1:]) * (s_spread + d_spread)))
-	x_max = int(round(np.max(nv[1:]) + np.max(Q[1:]) + np.max(demand_sd[1:]) * s_spread))
-	x_range = np.array(range(x_min, x_max+1))
+	# Determine initial truncation for x.
+	# Did user specify oul_matrix?
+	if oul_matrix is not None:
+		user_provided_oul_matrix = True
+		# Make sure x_range is also provided and contains all OULs.
+		if x_range is None:
+			raise ValueError('If oul_matrix is provided, then x_range must also be provided.')
+		elif (np.amax(np.amax(oul_matrix)) not in x_range) or \
+			(np.amin(np.amin(oul_matrix)) not in x_range):
+			raise ValueError('x_range must contain all oul_matrix values.')
+		else:
+			x_min = int(np.amin(x_range))
+			x_max = int(np.amax(x_range))
+	elif x_range is not None:
+		user_provided_oul_matrix = False
+		x_min = int(np.amin(x_range))
+		x_max = int(np.amax(x_range))
+	else:
+		user_provided_oul_matrix = False
+		# - estimate s = newsvendor solution, S = s + EOQB
+		# - then subtract s_spread * sigma from s and add s_spread * sigma to S
+		# - then, subtract mu + d_spread * sigma from s to account for demand
+		# (accounting appropriately for variations among periods, and adjusting
+		# period T to include terminal costs)
+		x_min = int(round(np.min(nv[1:]) - np.max(demand_mean[1:]) - np.max(demand_sd[1:]) * (s_spread + d_spread)))
+		x_max = int(round(np.max(nv[1:]) + np.max(Q[1:]) + np.max(demand_sd[1:]) * s_spread))
+		x_range = np.array(range(x_min, x_max+1))
 
 	# Note:
 	# - to get x value from index i, use x_range[i]
@@ -336,7 +393,8 @@ def finite_horizon_dp(
 		reorder_points = [0] * (num_periods+1)
 		order_up_to_levels = [0] * (num_periods+1)
 		cost_matrix = np.zeros((num_periods+2, len(x_range)))
-		oul_matrix = np.zeros((num_periods+1, len(x_range)))
+		if not user_provided_oul_matrix:
+			oul_matrix = np.zeros((num_periods+1, len(x_range)))
 		H = np.zeros((num_periods+1, len(x_range)))
 
 		# Initialize abort (will be set to true if range is not large enough)
@@ -355,8 +413,13 @@ def finite_horizon_dp(
 		for t in range(num_periods, 0, -1):
 
 			# Calculate probability vector for demand.
-			prob = norm.cdf(d_range + 0.5, demand_mean[t], demand_sd[t]) - \
-				   norm.cdf(d_range - 0.5, demand_mean[t], demand_sd[t])
+			if demand_source[t].is_discrete:
+				prob = [demand_source[t].demand_distribution.pmf(d) for d in d_range]
+			else:
+				prob = [demand_source[t].demand_distribution.cdf(d + 0.5) - \
+						demand_source[t].demand_distribution.cdf(d - 0.5) for d in d_range]
+			# prob = norm.cdf(d_range + 0.5, demand_mean[t], demand_sd[t]) - \
+			# 	   norm.cdf(d_range - 0.5, demand_mean[t], demand_sd[t])
 
 			# Calculate H_t(y).
 			for y in range(x_min, x_max + 1):
@@ -364,11 +427,11 @@ def finite_horizon_dp(
 				# Initialize cost.
 				cost = 0.0
 
-				# Calculate n(y) and \bar{n}(y).
+				# Calculate n(y) and \bar{n}(y). 
 				n, n_bar = lf.normal_loss(y, demand_mean[t], demand_sd[t])
 
 				# Calculate current-period (newsvendor) cost.
-				cost += holding_cost[t] * n_bar + stockout_cost[t] * n;
+				cost += holding_cost[t] * n_bar + stockout_cost[t] * n
 
 				# Truncate demand range to avoid y-d exceeding x bounds.
 				# Need x_min <= y - d <= x_max.
@@ -399,8 +462,16 @@ def finite_horizon_dp(
 				# cost found for this t and x).
 				best_cost = float("inf")
 
+				# Did user provide oul_matrix? 
+				if user_provided_oul_matrix:
+					# Only consider y equal to value specified in oul_matrix.
+					y_range = [oul_matrix[t, x - x_min]]
+				else:
+					# Consider y = x, ..., x_max.
+					y_range = list(range(x, x_max + 1))
+
 				# Loop through possible y values.
-				for y in range(x, x_max + 1):
+				for y in y_range:
 
 					# Initialize cost.
 					cost = 0.0
@@ -410,7 +481,7 @@ def finite_horizon_dp(
 						cost += purchase_cost[t] * (y - x) + fixed_cost[t]
 
 					# Add H_t(y).
-					cost += H[t, y - x_min]
+					cost += H[t, int(y - x_min)]
 
 					# Compare cost to current best.
 					if cost < best_cost:
@@ -420,12 +491,16 @@ def finite_horizon_dp(
 						# If this is the largest y in range (and range has more
 						# than one element), abort and increase upper range.
 						if y == x_max and x < x_max:
-							warnings.warn('Cost is still decreasing at upper end of y range; increasing upper range '
-										  'and retrying: t = {:d}, x = {:d}, y = {:d}.'.format(t, x, y))
-							abort = True
-							x_max = x_max * 2
-							x_range = np.array(range(x_min, x_max + 1))
-							break
+							if user_provided_oul_matrix:
+								warnings.warn('Cost is still decreasing at upper end of y range; did not increase upper range '
+					 						'because oul_matrix was provided: t = {:d}, x = {:d}, y = {:d}.'.format(t, x, y))
+							else:
+								warnings.warn('Cost is still decreasing at upper end of y range; increasing upper range '
+											'and retrying: t = {:d}, x = {:d}, y = {:d}.'.format(t, x, y))
+								abort = True
+								x_max = x_max * 2
+								x_range = np.array(range(x_min, x_max + 1))
+								break
 
 				# If abort flag was set in for-y loop, exit for-x loop.
 				if abort:
@@ -453,7 +528,9 @@ def finite_horizon_dp(
 			# P(s - D < x_min) > trunc_tol). (Issue warning in each period
 			# in which there is a violation.)
 			prob_demand_below_range = 1 - \
-				norm.cdf(reorder_points[t] - x_min, demand_mean[t], demand_sd[t])
+				demand_source[t].demand_distribution.cdf(reorder_points[t] - x_min)
+			# prob_demand_below_range = 1 - \
+			# 	norm.cdf(reorder_points[t] - x_min, demand_mean[t], demand_sd[t])
 			if prob_demand_below_range > trunc_tol:
 				warnings.warn('Probability that demand brings IL below x-truncation range exceeds trunc_tol: t = {:d}, prob = {:f}'.format(t, prob_demand_below_range))
 

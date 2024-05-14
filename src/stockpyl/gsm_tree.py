@@ -21,7 +21,7 @@ for the GSM instance.
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of multi-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
@@ -62,6 +62,8 @@ def optimize_committed_service_times(tree):
 	Output parameters are expressed using the original labeling of tree, even if the nodes
 	are relabeled internally.
 
+	Demands are assumed to be normally distributed. 
+
 	Parameters
 	----------
 	tree : |class_network|
@@ -73,6 +75,11 @@ def optimize_committed_service_times(tree):
 		Dict of optimal CSTs, with node indices as keys and CSTs as values.
 	opt_cost : float
 		Optimal expected cost of system.
+	
+	Raises
+	------
+	ValueError
+		If any sink node (node with no successors) has no demand mean or standard devation provided.
 
 
 	**Example** (Example 6.5):
@@ -100,6 +107,13 @@ def optimize_committed_service_times(tree):
 	S. C. Graves and S. P. Willems. Erratum: Optimizing strategic safety stock placement in supply chains. 
 	*Manufacturing and Service Operations Management*, 5(2):176-177, 2003.
 	"""
+ 
+	# Validate parameters.
+	for n in tree.sink_nodes:
+		if n.demand_source.mean is None:
+			raise ValueError(f'All sink nodes must have demand_source.mean (node {n.index} does not).')
+		if n.demand_source.standard_deviation is None:
+			raise ValueError(f'All sink nodes must have demand_source.standard_deviation (node {n.index} does not).')
 
 	# Preprocess tree.
 	tree = preprocess_tree(tree)
@@ -752,8 +766,8 @@ def is_correctly_labeled(tree):
 			for k in tree.nodes:
 				if k.index < np.max(ind):
 					greater_indexed_neighbors = \
-						{i for i in k.predecessors() if i.index > k.index}.union(
-							{i for i in k.successors() if i.index > k.index}
+						{i_ind for i_ind in k.predecessor_indices() if i_ind > k.index}.union(
+							{i_ind for i_ind in k.successor_indices() if i_ind > k.index}
 						)
 					if len(greater_indexed_neighbors) != 1:
 						is_correct = False

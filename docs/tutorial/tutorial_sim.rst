@@ -8,6 +8,7 @@ Simulation
 |sp| contains code to simulate single- or multi-echelon inventory systems. The system being simulated
 can include many different features, including:
 
+	* Multiple products, with relationships specified by bill-of-materials (BOM) structures
 	* Stochastic demand with a variety of built-in demand distributions, or supply your own
 	* Inventory management using a variety of built-in inventory policies, or supply your own
 	* Stochastic supply disruptions with various implications
@@ -17,11 +18,11 @@ can include many different features, including:
 
 .. note:: |node_stage|
 
-|fosct_notation|
+.. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
-	For more details, see the API documentation for the |mod_sim| and |mod_sim_io| modules.
+	For more details, see the API documentation for the |mod_sim|, |mod_sim_io|, and |mod_supply_chain_product| modules.
 
 .. contents::
     :depth: 3
@@ -32,26 +33,26 @@ Basic Example
 Simulate a single-node system with Poisson(10) demand, a base-stock policy with a base-stock level of 13, 
 an order lead time of 0, and a shipment lead time of 1.
 
-.. doctest::
+	.. doctest::
 
-	>>> from stockpyl.supply_chain_network import single_stage_system
-	>>> from stockpyl.sim import simulation
-	>>> from stockpyl.sim_io import write_results
-	>>> network = single_stage_system(
-	...     demand_type='P',                # Poisson demand
-	...     mean=10,
-	...     policy_type='BS',               # base-stock policy
-	...     base_stock_level=13,
-	...     shipment_lead_time=1
-	... )
-	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=4, columns_to_print='basic')
-	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL
-	---  -----  --------  --------  --------  --------  ----
-	  0               12        12         0        12     1
-	  1                6         6        12         6     7
-	  2               11        11         6        11     2
-	  3               14        14        11        13    -1
+		>>> from stockpyl.supply_chain_network import single_stage_system
+		>>> from stockpyl.sim import simulation
+		>>> from stockpyl.sim_io import write_results
+		>>> network = single_stage_system(
+		...     demand_type='P',                # Poisson demand
+		...     mean=10,
+		...     policy_type='BS',               # base-stock policy
+		...     base_stock_level=13,
+		...     shipment_lead_time=1
+		... )
+		>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=4, columns_to_print='basic')
+		  t  | i=0      IO:EXT|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:EXT|-1000    IL:-1000
+		---  -------  --------------  --------------  --------------  --------------  ----------
+		  0  |                    12              12               0              12           1
+		  1  |                     6               6              12               6           7
+		  2  |                    11              11               6              11           2
+		  3  |                    14              14              11              13          -1
 
 Interpreting the results:
 
@@ -63,7 +64,8 @@ Interpreting the results:
 	* A backorder occurs in period 3, because the node begins the period with an inventory level of 2, and receives a demand of 14, but
 	  only receives a shipment of 11.
 
-(In the column headers, ``EXT`` refers to the external supplier and customer. For more details about the columns in the
+(In the column headers, ``EXT`` refers to the external supplier and customer. ``|-1001`` refers to the "dummy" products
+at the nodes, which can be ignored in this case. For more details about the columns in the
 output produced by :func:`~stockpyl.sim_io.write_results`, see the API documentation for the |mod_sim_io| module.)
 
 .. note:: :func:`~stockpyl.sim.simulation` fills the state variables—the results of the simulation—
@@ -77,7 +79,7 @@ Data Structures
 The simulation code in |sp| makes use of the |class_network| and |class_node| classes, which contain all of 
 the data for the system to be simulated. 
 
-.. admonition:: See Also
+.. seealso::
 
 	For more information,
 	see the :ref:`tutorial page for multi-echelon inventory optimization (MEIO) <tutorial_meio_page>`, or the
@@ -219,6 +221,8 @@ or you can do it manually.
 External customers always have an order lead time of 0 and a shipment lead time of 0.
 
 
+.. _external_suppliers:
+
 External Suppliers
 ~~~~~~~~~~~~~~~~~~~
 Any node can have an **external supplier**—a supplier that is not a node that is modeled explicitly
@@ -244,32 +248,34 @@ an :math:`(r,Q)` policy with :math:`r=10` and :math:`Q=50`, and the downstream n
 a base-stock policy with :math:`S=50`. The demand has a Poisson distribution with mean 45. 
 Both nodes have a (shipment) lead time of 1.
 
-.. testsetup:: *
+	.. testsetup:: *
 
-	from stockpyl.sim import simulation
+		from stockpyl.sim import simulation
 
-.. doctest::
+	.. doctest::
 
-	>>> from stockpyl.supply_chain_network import serial_system
-	>>> network = serial_system(
-	...     num_nodes=2,
-	...     demand_type='P',
-	...     mean=45,
-	...     policy_type=['rQ', 'BS'],
-	...     reorder_point=[10, None],
-	...     order_quantity=[50, None],
-	...     base_stock_level=[None, 50],
-	...     shipment_lead_time=[1, 1]
-	... )
-	>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=4, columns_to_print='basic')
-	  t  i=0      IO:1    OQ:EXT    IS:EXT    OS:1    IL  i=1      IO:EXT    OQ:0    IS:0    OS:EXT    IL
-	---  -----  ------  --------  --------  ------  ----  -----  --------  ------  ------  --------  ----
-	  0             42        50         0      42     8               42      42       0        42     8
-	  1             50        50        50      50     8               50      50      42        50     0
-	  2             37         0        50      37    21               37      37      50        37    13
-	  3             47        50         0      21   -26               47      47      37        47     3
+		>>> from stockpyl.supply_chain_network import serial_system
+		>>> network = serial_system(
+		...     num_nodes=2,
+		...     demand_type='P',
+		...     mean=45,
+		...     policy_type=['rQ', 'BS'],
+		...     reorder_point=[10, None],
+		...     order_quantity=[50, None],
+		...     base_stock_level=[None, 50],
+		...     shipment_lead_time=[1, 1]
+		... )
+		>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=4, columns_to_print='basic')
+		  t  | i=0      IO:1|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:1|-1000    IL:-1000  | i=1      IO:EXT|-2    OQ:0|-1000    IS:0|-1000    OS:EXT|-2    IL:-2
+		---  -------  ------------  --------------  --------------  ------------  ----------  -------  -----------  ------------  ------------  -----------  -------
+		  0  |                  42              50               0            42           8  |                 42            42             0           42        8
+		  1  |                  50              50              50            50           8  |                 50            50            42           50        0
+		  2  |                  37               0              50            37          21  |                 37            37            50           37       13
+		  3  |                  47              50               0            21         -26  |                 47            47            37           47        3
 
+
+.. _sim_output:
 
 Displaying the Results
 ----------------------
@@ -277,7 +283,14 @@ Displaying the Results
 The :func:`~stockpyl.sim_io.write_results` function in the |mod_sim_io| module displays the results of
 a simulation. It takes as input the |class_network| object that already has its state variables 
 filled by the simulation, and prints a table to the console and/or to a CSV file. The table lists the
-values of the state variables for every node and every time period.  All state variables refer to their values at the end of the period.
+values of the state variables for every node and every time period.  
+All state variables refer to their values at the end of the period.
+
+.. note::
+
+	This section assumes that there are no products explicitly added to the network, i.e., the network
+	only contains :ref:`dummy products<dummy_products>`. For the simulation output for 
+	multiproduct networks, see :ref:`Multiproduct Simulation Output<multiproduct_sim_output>`.
 
 The table has the following format:
 
@@ -292,6 +305,9 @@ The table has the following format:
 		  quantities arriving from succesor ``s`` in ``r`` periods from the
 		  period, for ``r`` = 1, ..., ``order_lead_time``
 		- ``OQ:p``: order quantity placed to predecessor ``p`` in the period
+		- ``OQFG`` : order quantity of finished good (this "order" is never actually
+		  placed—only the raw material orders specified in ``OQ`` are placed; but ``OQFG`` can
+		  be useful for debugging)
 		- ``OO:p``: on-order quantity (items that have been ordered from successor
 		  ``p`` but not yet received) 
 		- ``IS:p``: inbound shipment received from predecessor ``p`` 
@@ -300,8 +316,10 @@ The table has the following format:
 		  the period, for ``r`` = 1, ..., ``shipment_lead_time``
 		- ``IDI:p``: inbound disrupted items: number of items from predecessor ``p``
 		  that cannot be received due to a type-RP disruption at the node
-		- ``RM:p``: number of items from predecessor ``p`` in raw-material inventory
+		- ``RM|rm``: number of items of raw material ``rm`` in raw-material inventory
 		  at node
+		- ``PFG``: number of items of the product that are pending, waiting to be
+		  processed from raw materials
 		- ``OS:s``: outbound shipment to successor ``s``
 		- ``DMFS``: demand met from stock at the node in the current period
 		- ``FR``: fill rate; cumulative from start of simulation to the current period
@@ -435,14 +453,14 @@ columns:
 		...	periods_to_print=list(range(3, 9)), 
 		...	columns_to_print=['OQ', 'IL', 'TC']
 		...	)
-		  t  i=1      OQ:3    OQ:4    IL    TC  i=2      OQ:3    IL    TC  i=3      OQ:EXT    IL    TC  i=4      OQ:EXT    IL    TC
-		---  -----  ------  ------  ----  ----  -----  ------  ----  ----  -----  --------  ----  ----  -----  --------  ----  ----
-		  3              6       6    15    30             14    -2    20               19    10    38                6     4    19
-		  4             11      11    13    26             14    -3    30               25    10    41               11    -1    16
-		  5             11      11     8    16              9     2     4               25    10    46               11    -1    21
-		  6             10      10     8    17              8     8    16               19    10    40               10     0    22
-		  7             15      15     4     9              9     8    16               23    10    43               15    -5    21
-		  8             17      17    -2    20             12     4     8               26    10    51               17    -7    25
+		  t  | i=1      OQ:3|-6    OQ:4|-8    IL:-2    TC  | i=2      OQ:3|-6    IL:-4    TC  | i=3      OQ:EXT|-7    IL:-6    TC  | i=4      OQ:EXT|-9    IL:-8    TC
+		---  -------  ---------  ---------  -------  ----  -------  ---------  -------  ----  -------  -----------  -------  ----  -------  -----------  -------  ----
+		  3  |                6          6       15    30  |               14       -2    20  |                 19       10    38  |                  6        4    19
+		  4  |               11         11       13    26  |               14       -3    30  |                 25       10    41  |                 11       -1    16
+		  5  |               11         11        8    16  |                9        2     4  |                 25       10    46  |                 11       -1    21
+		  6  |               10         10        8    17  |                8        8    16  |                 19       10    40  |                 10        0    22
+		  7  |               15         15        4     9  |                9        8    16  |                 23       10    43  |                 15       -5    21
+		  8  |               17         17       -2    20  |               12        4     8  |                 26       10    51  |                 17       -7    25
 
 Certain strings serve as shortcuts for groups of columns. (See the docstring for :func:`~stockpyl.sim_io.write_results` for a list
 of allowable strings.) Shortcuts and column names can be combined in one list:
@@ -474,15 +492,14 @@ of allowable strings.) Shortcuts and column names can be combined in one list:
 		...	periods_to_print=list(range(3, 9)), 
 		...	columns_to_print=['OQ', 'IL', 'costs']
 		...	)
-		  t  i=1      OQ:3    OQ:4    IL    HC    SC    TC  i=2      OQ:3    IL    HC    SC    TC  i=3      OQ:EXT    IL    HC    SC    TC  i=4      OQ:EXT    IL    HC    SC    TC
-		---  -----  ------  ------  ----  ----  ----  ----  -----  ------  ----  ----  ----  ----  -----  --------  ----  ----  ----  ----  -----  --------  ----  ----  ----  ----
-		  3              6       6    15    30     0    30             14    -2     0    20    20               19    10    10     0    38                6     4     4     0    19
-		  4             11      11    13    26     0    26             14    -3     0    30    30               25    10    10     0    41               11    -1     0     0    16
-		  5             11      11     8    16     0    16              9     2     4     0     4               25    10    10     0    46               11    -1     0     0    21
-		  6             10      10     8    17     0    17              8     8    16     0    16               19    10    10     0    40               10     0     0     0    22
-		  7             15      15     4     9     0     9              9     8    16     0    16               23    10    10     0    43               15    -5     0     0    21
-		  8             17      17    -2     0    20    20             12     4     8     0     8               26    10    10     0    51               17    -7     0     0    25
-
+		  t  | i=1      OQ:3|-6    OQ:4|-8    IL:-2    HC    SC    TC  | i=2      OQ:3|-6    IL:-4    HC    SC    TC  | i=3      OQ:EXT|-7    IL:-6    HC    SC    TC  | i=4      OQ:EXT|-9    IL:-8    HC    SC    TC
+		---  -------  ---------  ---------  -------  ----  ----  ----  -------  ---------  -------  ----  ----  ----  -------  -----------  -------  ----  ----  ----  -------  -----------  -------  ----  ----  ----
+		  3  |                6          6       15    30     0    30  |               14       -2     0    20    20  |                 19       10    10     0    38  |                  6        4     4     0    19
+		  4  |               11         11       13    26     0    26  |               14       -3     0    30    30  |                 25       10    10     0    41  |                 11       -1     0     0    16
+		  5  |               11         11        8    16     0    16  |                9        2     4     0     4  |                 25       10    10     0    46  |                 11       -1     0     0    21
+		  6  |               10         10        8    17     0    17  |                8        8    16     0    16  |                 19       10    10     0    40  |                 10        0     0     0    22
+		  7  |               15         15        4     9     0     9  |                9        8    16     0    16  |                 23       10    10     0    43  |                 15       -5     0     0    21
+		  8  |               17         17       -2     0    20    20  |               12        4     8     0     8  |                 26       10    10     0    51  |                 17       -7     0     0    25
 
 
 
@@ -535,37 +552,37 @@ disruption probability 0.04 and recovery probability 0.25:
 **Example:** The code below simulates a 2-node serial system in which the downstream node (node 2) is subject to
 disruptions. First, type-OP disruptions:
 
-.. doctest::
+	.. doctest::
 
-	>>> network = serial_system(
-	...     num_nodes=2,
-	...     node_order_in_system=[1, 2],
-	...     shipment_lead_time=1,
-	...     demand_type='P',
-	...     mean=20,
-	...     policy_type='BS',
-	...     base_stock_level=[25, 25]
-	... )
-	>>> network.get_node_from_index(2).disruption_process = DisruptionProcess(
-	...     random_process_type='M',
-	...     disruption_type='OP',
-	...     disruption_probability=0.1,
-	...     recovery_probability=0.4
-	... )
-	>>> T = 100
-	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL
-	---  -----  ------  ------  --------  --------  ------  ----  -----  ------  --------  ------  ------  --------  ----
-	  7         False       19        19        14      19     6         False         19      19      14        19     6
-	  8         False       20        20        19      20     5         False         20      20      19        20     5
-	  9         False        0         0        20       0    25         True          21       0      20        21     4
-	 10         False        0         0         0       0    25         True          24       0       0         4   -20
-	 11         False        0         0         0       0    25         True          22       0       0         0   -42
-	 12         False        0         0         0       0    25         True          20       0       0         0   -62
-	 13         False      104       104         0      25   -79         False         17     104       0         0   -79
-	 14         False       20        20       104      99     5         False         20      20      25        25   -74
-	 15         False       21        21        20      21     4         False         21      21      99        95     4
+		>>> network = serial_system(
+		...     num_nodes=2,
+		...     node_order_in_system=[1, 2],
+		...     shipment_lead_time=1,
+		...     demand_type='P',
+		...     mean=20,
+		...     policy_type='BS',
+		...     base_stock_level=[25, 25]
+		... )
+		>>> network.get_node_from_index(2).disruption_process = DisruptionProcess(
+		...     random_process_type='M',
+		...     disruption_type='OP',
+		...     disruption_probability=0.1,
+		...     recovery_probability=0.4
+		... )
+		>>> T = 100
+		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'])
+		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4
+		---  -------  ------  ---------  -----------  -----------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  -------
+		  7  |        False          19           19           14         19        6  |        False            19         19         14           19        6
+		  8  |        False          20           20           19         20        5  |        False            20         20         19           20        5
+		  9  |        False           0            0           20          0       25  |        True             21          0         20           21        4
+		 10  |        False           0            0            0          0       25  |        True             24          0          0            4      -20
+		 11  |        False           0            0            0          0       25  |        True             22          0          0            0      -42
+		 12  |        False           0            0            0          0       25  |        True             20          0          0            0      -62
+		 13  |        False         104          104            0         25      -79  |        False            17        104          0            0      -79
+		 14  |        False          20           20          104         99        5  |        False            20         20         25           25      -74
+		 15  |        False          21           21           20         21        4  |        False            21         21         99           95        4
 
 Node 2 is disrupted starting in period 9 (``DISR`` column). Since these are order-pausing disruptions, the node cannot place orders, so its
 order quantity for orders to node 1 (``OQ:1``) is 0, starting in period 9 and continuing until the disruption ends in period 13,
@@ -574,66 +591,66 @@ upcoming large order.
 
 Next, type-SP disruptions:
 
-.. doctest::
+	.. doctest::
 
-	>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
-	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    ODI:2  i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    ODI:EXT
-	---  -----  ------  ------  --------  --------  ------  ----  -------  -----  ------  --------  ------  ------  --------  ----  ---------
-	  7         False       19        19        14      19     6        0         False         19      19      14        19     6          0
-	  8         False       20        20        19      20     5        0         False         20      20      19        20     5          0
-	  9         False       21        21        20       0     4       21         True          21      21      20        21     4          0
-	 10         False       24        24        21       0     1       45         True          24      24       0         4   -20          0
-	 11         False       22        22        24       0     3       67         True          22      22       0         0   -42          0
-	 12         False       20        20        22       0     5       87         True          20      20       0         0   -62          0
-	 13         False       17        17        20     104     8        0         False         17      17       0         0   -79          0
-	 14         False       20        20        17      20     5        0         False         20      20     104        99     5          0
-	 15         False       21        21        20      21     4        0         False         21      21      20        21     4          0
+		>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
+		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'])
+		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2    ODI:2|-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4    ODI:EXT|-4
+		---  -------  ------  ---------  -----------  -----------  ---------  -------  ----------  -------  ------  -----------  ---------  ---------  -----------  -------  ------------
+		  7  |        False          19           19           14         19        6           0  |        False            19         19         14           19        6             0
+		  8  |        False          20           20           19         20        5           0  |        False            20         20         19           20        5             0
+		  9  |        False          21           21           20          0        4          21  |        True             21         21         20           21        4             0
+		 10  |        False          24           24           21          0        1          45  |        True             24         24          0            4      -20             0
+		 11  |        False          22           22           24          0        3          67  |        True             22         22          0            0      -42             0
+		 12  |        False          20           20           22          0        5          87  |        True             20         20          0            0      -62             0
+		 13  |        False          17           17           20        104        8           0  |        False            17         17          0            0      -79             0
+		 14  |        False          20           20           17         20        5           0  |        False            20         20        104           99        5             0
+		 15  |        False          21           21           20         21        4           0  |        False            21         21         20           21        4             0
 
 In this case, node 2 can still place orders during the disruption, but node 1 cannot ship them. Instead, the items are moved to
 node 1's "outbound disrupted items" category (``ODI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
 
 Next, type-TP disruptions:
 
-.. doctest::
+	.. doctest::
 
-	>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
-	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
-	---  -----  ------  ------  --------  --------  ----------  ------  ----  -----  ------  --------  ------  ------  --------  --------  ----
-	  7         False       19        19        14  [19.0]          19     6         False         19      19      14  [19.0]          19     6
-	  8         False       20        20        19  [20.0]          20     5         False         20      20      19  [20.0]          20     5
-	  9         False       21        21        20  [21.0]          21     4         True          21      21      20  [21.0]          21     4
-	 10         False       24        24        21  [24.0]          24     1         True          24      24       0  [45.0]           4   -20
-	 11         False       22        22        24  [22.0]          22     3         True          22      22       0  [67.0]           0   -42
-	 12         False       20        20        22  [20.0]          20     5         True          20      20       0  [87.0]           0   -62
-	 13         False       17        17        20  [17.0]          17     8         False         17      17       0  [104.0]          0   -79
-	 14         False       20        20        17  [20.0]          20     5         False         20      20     104  [20.0]          99     5
-	 15         False       21        21        20  [21.0]          21     4         False         21      21      20  [21.0]          21     4
+		>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
+		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'])
+		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      OS:EXT|-4    IL:-4
+		---  -------  ------  ---------  -----------  -----------  -------------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  -----------  -------
+		  7  |        False          19           19           14  [19.0]                19        6  |        False            19         19         14  [19.0]                19        6
+		  8  |        False          20           20           19  [20.0]                20        5  |        False            20         20         19  [20.0]                20        5
+		  9  |        False          21           21           20  [21.0]                21        4  |        True             21         21         20  [21.0]                21        4
+		 10  |        False          24           24           21  [24.0]                24        1  |        True             24         24          0  [45.0]                 4      -20
+		 11  |        False          22           22           24  [22.0]                22        3  |        True             22         22          0  [67.0]                 0      -42
+		 12  |        False          20           20           22  [20.0]                20        5  |        True             20         20          0  [87.0]                 0      -62
+		 13  |        False          17           17           20  [17.0]                17        8  |        False            17         17          0  [104.0]                0      -79
+		 14  |        False          20           20           17  [20.0]                20        5  |        False            20         20        104  [20.0]                99        5
+		 15  |        False          21           21           20  [21.0]                21        4  |        False            21         21         20  [21.0]                21        4
 
 The disruption means that items in transit to node 2 are paused. This is evident from the inbound shipment pipeline at node 2 from node 1 (``ISPL:1``),
 which increases as the disruption continues and then is cleared when the disruption ends. 
 
 Finally, type-RP disruptions:
 
-.. doctest::
+	.. doctest::
 
-	>>> network.get_node_from_index(2).disruption_process.disruption_type='RP'
-	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'])
-	  t  i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      IDI:EXT    OS:2    IL  i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      IDI:1    OS:EXT    IL
-	---  -----  ------  ------  --------  --------  ----------  ---------  ------  ----  -----  ------  --------  ------  ------  --------  -------  --------  ----
-	  7         False       19        19        14  [19.0]              0      19     6         False         19      19      14  [19.0]          0        19     6
-	  8         False       20        20        19  [20.0]              0      20     5         False         20      20      19  [20.0]          0        20     5
-	  9         False       21        21        20  [21.0]              0      21     4         True          21      21       0  [21.0]         20         5   -16
-	 10         False       24        24        21  [24.0]              0      24     1         True          24      24       0  [24.0]         41         0   -40
-	 11         False       22        22        24  [22.0]              0      22     3         True          22      22       0  [22.0]         65         0   -62
-	 12         False       20        20        22  [20.0]              0      20     5         True          20      20       0  [20.0]         87         0   -82
-	 13         False       17        17        20  [17.0]              0      17     8         False         17      17     107  [17.0]          0        99     8
-	 14         False       20        20        17  [20.0]              0      20     5         False         20      20      17  [20.0]          0        20     5
-	 15         False       21        21        20  [21.0]              0      21     4         False         21      21      20  [21.0]          0        21     4
+		>>> network.get_node_from_index(2).disruption_process.disruption_type='RP'
+		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'])
+		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      IDI:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      IDI:1|-2    OS:EXT|-4    IL:-4
+		---  -------  ------  ---------  -----------  -----------  -------------  ------------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  ----------  -----------  -------
+		  7  |        False          19           19           14  [19.0]                    0         19        6  |        False            19         19         14  [19.0]                0           19        6
+		  8  |        False          20           20           19  [20.0]                    0         20        5  |        False            20         20         19  [20.0]                0           20        5
+		  9  |        False          21           21           20  [21.0]                    0         21        4  |        True             21         21          0  [21.0]               20            5      -16
+		 10  |        False          24           24           21  [24.0]                    0         24        1  |        True             24         24          0  [24.0]               41            0      -40
+		 11  |        False          22           22           24  [22.0]                    0         22        3  |        True             22         22          0  [22.0]               65            0      -62
+		 12  |        False          20           20           22  [20.0]                    0         20        5  |        True             20         20          0  [20.0]               87            0      -82
+		 13  |        False          17           17           20  [17.0]                    0         17        8  |        False            17         17        107  [17.0]                0           99        8
+		 14  |        False          20           20           17  [20.0]                    0         20        5  |        False            20         20         17  [20.0]                0           20        5
+		 15  |        False          21           21           20  [21.0]                    0         21        4  |        False            21         21         20  [21.0]                0           21        4
 
 In this case, the disruptions prevent node 2 from receiving items. During the disruption, items that would otherwise have been 
 received by node 2 from node 1 are instead moved to node 2's "inbound disrupted items" category (``IDI:1``). They remain there
@@ -671,7 +688,7 @@ in |sp|. Note that the average cost per period reported by the simulation is clo
 	>>> T = 1000
 	>>> total_cost = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 	>>> print(f"Total cost per period = {total_cost / T}")
-	Total cost per period = 47.259837154163556
+	Total cost per period = 47.25983715416357
 
 
 
@@ -694,34 +711,34 @@ holding and stockout cost functions given by
 where :math:`a^+ \equiv \max\{a,0\}` and :math:`x` is the inventory level (so :math:`x^+` is the on-hand inventory
 and :math:`(-x)^+` is the backorders).
 
-.. doctest::
+	.. doctest::
 
-	>>> from stockpyl.supply_chain_network import single_stage_system
-	>>> from stockpyl.sim import simulation
-	>>> from stockpyl.sim_io import write_results
-	>>> import math
-	>>> def holding_cost(x):
-	...	return 0.5 * max(x, 0)**2
-	>>> network = single_stage_system(
-	...	local_holding_cost_function=holding_cost,
-	...	stockout_cost_function=lambda x: 10 * math.sqrt(max(-x, 0)),
-	...	demand_type='P',	
-	...	mean=15,
-	...	policy_type='BS',		
-	...	base_stock_level=17,
-	...	lead_time=1
-	...	)
-	>>> T = 100
-	>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
-	>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'])
-	  t  i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL    HC       SC       TC
-	---  -----  --------  --------  --------  --------  ----  ----  -------  -------
-	  0               18        18         0        17    -1   0    10       10
-	  1               10        10        18        11     7  24.5   0       24.5
-	  2               16        16        10        16     1   0.5   0        0.5
-	  3               19        19        16        17    -2   0    14.1421  14.1421
-	  4               11        11        19        13     6  18     0       18
-	  5               13        13        11        13     4   8     0        8
+		>>> from stockpyl.supply_chain_network import single_stage_system
+		>>> from stockpyl.sim import simulation
+		>>> from stockpyl.sim_io import write_results
+		>>> import math
+		>>> def holding_cost(x):
+		...	return 0.5 * max(x, 0)**2
+		>>> network = single_stage_system(
+		...	local_holding_cost_function=holding_cost,
+		...	stockout_cost_function=lambda x: 10 * math.sqrt(max(-x, 0)),
+		...	demand_type='P',	
+		...	mean=15,
+		...	policy_type='BS',		
+		...	base_stock_level=17,
+		...	lead_time=1
+		...	)
+		>>> T = 100
+		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
+		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'])
+		  t  | i=0      IO:EXT|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:EXT|-1000    IL:-1000    HC       SC       TC
+		---  -------  --------------  --------------  --------------  --------------  ----------  ----  -------  -------
+		  0  |                    18              18               0              17          -1   0    10       10
+		  1  |                    10              10              18              11           7  24.5   0       24.5
+		  2  |                    16              16              10              16           1   0.5   0        0.5
+		  3  |                    19              19              16              17          -2   0    14.1421  14.1421
+		  4  |                    11              11              19              13           6  18     0       18
+		  5  |                    13              13              11              13           4   8     0        8
 
 
 
@@ -756,7 +773,7 @@ determine whether the heuristic solution is statistically worse than the optimal
 	...	n.inventory_policy.base_stock_level = S_opt_local[n.index]
 	>>> mean_opt, sem_opt = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
 	>>> print(f"Optimal solution has simulated average cost per period with mean {mean_opt} and SEM {sem_opt}")
-	Optimal solution has simulated average cost per period with mean 47.78528000921442 and SEM 0.26119040852187103
+	Optimal solution has simulated average cost per period with mean 47.78805396416774 and SEM 0.258285462809664
 	>>> # Set base-stock levels according to heuristic solution.
 	>>> S_heur = newsvendor_heuristic(network=network)
 	>>> S_heur_local = echelon_to_local_base_stock_levels(network, S_heur)
@@ -764,14 +781,14 @@ determine whether the heuristic solution is statistically worse than the optimal
 	...	n.inventory_policy.base_stock_level = S_heur_local[n.index]
 	>>> mean_heur, sem_heur = run_multiple_trials(network=network, num_trials=10, num_periods=1000, rand_seed=42, progress_bar=False)
 	>>> print(f"Heuristic solution has simulated average cost per period with mean {mean_heur} and SEM {sem_heur}")
-	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.27039814681794644
+	Heuristic solution has simulated average cost per period with mean 47.789138050714946 and SEM 0.270398146817947
 	>>> ## Calculate confidence intervals.
 	>>> from scipy.stats import norm
 	>>> z = norm.ppf(1 - (1 - 0.95)/2)
 	>>> lo_opt, hi_opt = mean_opt - z * sem_opt, mean_opt + z * sem_opt
 	>>> lo_heur, hi_heur = mean_heur - z * sem_heur, mean_heur + z * sem_heur
 	>>> print(f"Optimal solution CI = [{lo_opt}, {hi_opt}], heuristic solution CI = [{lo_heur}, {hi_heur}]")
-	Optimal solution CI = [47.27335621540425, 48.29720380302459], heuristic solution CI = [47.2591674214654, 48.31910867996449]
+	Optimal solution CI = [47.281823759330535, 48.29428416900494], heuristic solution CI = [47.2591674214654, 48.31910867996449]
 
 Because the two confidence intervals overlap, we cannot say that the two solutions have statistically different
 average costs. (Of course, the theory tells us that the true expected costs for the two solutions are different.)

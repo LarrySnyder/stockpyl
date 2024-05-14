@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; stockpyl 0.1 documentation</title>
+  <title>Index &mdash; stockpyl 1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx-toolbox-code.css" type="text/css" />
@@ -119,6 +119,14 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_product">add_product() (SupplyChainNetwork method)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.add_product">(SupplyChainNode method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.add_products">add_products() (SupplyChainNode method)</a>
+</li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.add_successor">add_successor() (SupplyChainNetwork method)</a>
 
       <ul>
@@ -133,13 +141,17 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.backorders">backorders (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.backorders">backorders (NodeStateVars property)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.backorders_by_successor">backorders_by_successor (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.backorders_by_successor">backorders_by_successor (NodeStateVars attribute)</a>
+</li>
+      <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.base_stock_level">base_stock_level (Policy attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.base_stock_level">base_stock_level (Policy attribute)</a>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.bill_of_materials_dict">bill_of_materials_dict (SupplyChainProduct property)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.BOM">BOM() (SupplyChainProduct method)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.build_node_data_dict">build_node_data_dict() (in module stockpyl.helpers)</a>
 </li>
@@ -157,6 +169,8 @@
 </li>
       <li><a href="api/simulation/sim.html#stockpyl.sim.close">close() (in module stockpyl.sim)</a>
 </li>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.compare_unhashable_lists">compare_unhashable_lists() (in module stockpyl.helpers)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.continuous_loss">continuous_loss() (in module stockpyl.loss_functions)</a>
@@ -167,40 +181,48 @@
 </li>
       <li><a href="api/meio/gsm_helpers.html#stockpyl.gsm_helpers.cst_to_base_stock_levels">cst_to_base_stock_levels() (in module stockpyl.gsm_helpers)</a>
 </li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.customers_by_product">customers_by_product() (SupplyChainNode method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.deep_equal_to">deep_equal_to() (NodeStateVars method)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.deep_equal_to">deep_equal_to() (NodeStateVars method)</a>
 
       <ul>
         <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.deep_equal_to">(SupplyChainNetwork method)</a>
 </li>
         <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.deep_equal_to">(SupplyChainNode method)</a>
 </li>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.deep_equal_to">(SupplyChainProduct method)</a>
+</li>
       </ul></li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.demand_cumul">demand_cumul (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.demand_cumul">demand_cumul (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.demand_distribution">demand_distribution (DemandSource property)</a>
 </li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.demand_list">demand_list (DemandSource attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.demand_met_from_stock">demand_met_from_stock (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.demand_met_from_stock">demand_met_from_stock (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.demand_met_from_stock_cumul">demand_met_from_stock_cumul (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.demand_met_from_stock_cumul">demand_met_from_stock_cumul (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.demand_source">demand_source (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.demand_source">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource">DemandSource (class in stockpyl.demand_source)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.derived_demand_mean">derived_demand_mean (SupplyChainNode property)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.derived_demand_standard_deviation">derived_demand_standard_deviation (SupplyChainNode property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.derived_demand_standard_deviation">derived_demand_standard_deviation (SupplyChainNode property)</a>
+</li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.descendants">descendants (SupplyChainNode property)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.dict_match">dict_match() (in module stockpyl.helpers)</a>
@@ -212,7 +234,7 @@
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.disrupted">disrupted (DisruptionProcess attribute)</a>
 
       <ul>
-        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.disrupted">(NodeStateVars attribute)</a>
+        <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.disrupted">(NodeStateVars attribute)</a>
 </li>
         <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.disrupted">(SupplyChainNode property)</a>
 </li>
@@ -220,7 +242,11 @@
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.disruption_probability">disruption_probability (DisruptionProcess attribute)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.disruption_process">disruption_process (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.disruption_process">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.disruption_state_list">disruption_state_list (DisruptionProcess attribute)</a>
 </li>
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.disruption_type">disruption_type (DisruptionProcess attribute)</a>
@@ -234,12 +260,16 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.echelon_holding_cost">echelon_holding_cost (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.echelon_holding_cost">(SupplyChainProduct attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.echelon_inventory_level">echelon_inventory_level (NodeStateVars property)</a>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.echelon_inventory_level">echelon_inventory_level (NodeStateVars property)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.echelon_inventory_position">echelon_inventory_position() (NodeStateVars method)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.echelon_inventory_position">echelon_inventory_position() (NodeStateVars method)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.echelon_on_hand_inventory">echelon_on_hand_inventory (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.echelon_on_hand_inventory">echelon_on_hand_inventory (NodeStateVars property)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.echelon_to_local_base_stock_levels">echelon_to_local_base_stock_levels() (in module stockpyl.supply_chain_network)</a>
 </li>
@@ -283,7 +313,7 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.fill_rate">fill_rate (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.fill_rate">fill_rate (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.find_nearest">find_nearest() (in module stockpyl.helpers)</a>
 </li>
@@ -296,7 +326,7 @@
       <ul>
         <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.from_dict">(DisruptionProcess class method)</a>
 </li>
-        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.from_dict">(NodeStateVars class method)</a>
+        <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.from_dict">(NodeStateVars class method)</a>
 </li>
         <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.from_dict">(Policy class method)</a>
 </li>
@@ -304,7 +334,13 @@
 </li>
         <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.from_dict">(SupplyChainNode class method)</a>
 </li>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.from_dict">(SupplyChainProduct class method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.from_node">from_node() (SupplyChainProduct class method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -321,15 +357,59 @@
 </li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.geometric_second_loss">geometric_second_loss() (in module stockpyl.loss_functions)</a>
 </li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_attribute">get_attribute() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_backorders_by_successor">get_backorders_by_successor() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.get_bill_of_materials">get_bill_of_materials() (SupplyChainProduct method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_demand_cumul">get_demand_cumul() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_demand_met_from_stock">get_demand_met_from_stock() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_demand_met_from_stock_cumul">get_demand_met_from_stock_cumul() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_fill_rate">get_fill_rate() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_inbound_disrupted_items">get_inbound_disrupted_items() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_inbound_order">get_inbound_order() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_inbound_order_pipeline">get_inbound_order_pipeline() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_inbound_shipment">get_inbound_shipment() (NodeStateVars method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_inbound_shipment_pipeline">get_inbound_shipment_pipeline() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_inventory_level">get_inventory_level() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_network_bill_of_materials">get_network_bill_of_materials() (SupplyChainNode method)</a>
+</li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.get_node_from_index">get_node_from_index() (SupplyChainNetwork method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_on_order_by_predecessor">get_on_order_by_predecessor() (NodeStateVars method)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_one_predecessor">get_one_predecessor() (SupplyChainNode method)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.get_one_successor">get_one_successor() (SupplyChainNode method)</a>
 </li>
-      <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.get_order_quantity">get_order_quantity() (Policy method)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_order_quantity">get_order_quantity() (NodeStateVars method)</a>
+
+      <ul>
+        <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.get_order_quantity">(Policy method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_order_quantity_fg">get_order_quantity_fg() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_outbound_disrupted_items">get_outbound_disrupted_items() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_outbound_shipment">get_outbound_shipment() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_pending_finished_goods">get_pending_finished_goods() (NodeStateVars method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.get_raw_material_inventory">get_raw_material_inventory() (NodeStateVars method)</a>
 </li>
       <li><a href="api/other/optimization.html#stockpyl.optimization.golden_section_search">golden_section_search() (in module stockpyl.optimization)</a>
 </li>
@@ -341,15 +421,27 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.handling_node_indices">handling_node_indices (SupplyChainProduct property)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.handling_nodes">handling_nodes (SupplyChainProduct property)</a>
+</li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.has_directed_cycle">has_directed_cycle() (SupplyChainNetwork method)</a>
 </li>
-      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.hi">hi (DemandSource attribute)</a>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.has_external_customer">has_external_customer (SupplyChainNode property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.holding_cost">holding_cost (SupplyChainNode property)</a>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.has_external_supplier">has_external_supplier (SupplyChainNode property)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.holding_cost_incurred">holding_cost_incurred (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.hi">hi (DemandSource attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.holding_cost">holding_cost (SupplyChainNode property)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.holding_cost">(SupplyChainProduct property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.holding_cost_incurred">holding_cost_incurred (NodeStateVars attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -357,34 +449,48 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit">in_transit (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.in_transit">in_transit() (NodeStateVars method)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit_from">in_transit_from() (NodeStateVars method)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.in_transit_from">in_transit_from() (NodeStateVars method)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.in_transit_holding_cost">in_transit_holding_cost (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.in_transit_holding_cost">(SupplyChainProduct attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit_holding_cost_incurred">in_transit_holding_cost_incurred (NodeStateVars attribute)</a>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.in_transit_holding_cost_incurred">in_transit_holding_cost_incurred (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.in_transit_to">in_transit_to() (NodeStateVars method)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.in_transit_to">in_transit_to() (NodeStateVars method)</a>
 </li>
       <li><a href="api/meio/gsm_helpers.html#stockpyl.gsm_helpers.inbound_cst">inbound_cst() (in module stockpyl.gsm_helpers)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_disrupted_items">inbound_disrupted_items (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inbound_disrupted_items">inbound_disrupted_items (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_disrupted_items_aggregate">inbound_disrupted_items_aggregate (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inbound_disrupted_items_aggregate">inbound_disrupted_items_aggregate() (NodeStateVars method)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_order">inbound_order (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inbound_order">inbound_order (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_order_pipeline">inbound_order_pipeline (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inbound_order_pipeline">inbound_order_pipeline (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_shipment">inbound_shipment (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inbound_shipment">inbound_shipment (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inbound_shipment_pipeline">inbound_shipment_pipeline (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inbound_shipment_pipeline">inbound_shipment_pipeline (NodeStateVars attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.index">index (SupplyChainProduct attribute)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.initial_inventory_level">initial_inventory_level (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.initial_inventory_level">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.initial_orders">initial_orders (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.initial_orders">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.initialize">initialize() (DemandSource method)</a>
 
       <ul>
@@ -398,20 +504,30 @@
 </li>
         <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.initialize">(SupplyChainNode method)</a>
 </li>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.initialize">(SupplyChainProduct method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inventory_level">inventory_level (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inventory_level">inventory_level (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.inventory_policy">inventory_policy (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.inventory_policy">(SupplyChainProduct attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.inventory_position">inventory_position() (NodeStateVars method)</a>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.inventory_position">inventory_position() (NodeStateVars method)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.irwin_hall_cdf">irwin_hall_cdf() (in module stockpyl.helpers)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.is_continuous_distribution">is_continuous_distribution() (in module stockpyl.helpers)</a>
 </li>
       <li><a href="api/meio/gsm_tree.html#stockpyl.gsm_tree.is_correctly_labeled">is_correctly_labeled() (in module stockpyl.gsm_tree)</a>
+</li>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.is_dict">is_dict() (in module stockpyl.helpers)</a>
+</li>
+      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.is_discrete">is_discrete (DemandSource property)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.is_discrete_distribution">is_discrete_distribution() (in module stockpyl.helpers)</a>
 </li>
@@ -420,6 +536,14 @@
       <li><a href="api/other/helpers.html#stockpyl.helpers.is_iterable">is_iterable() (in module stockpyl.helpers)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.is_list">is_list() (in module stockpyl.helpers)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.is_multiproduct">is_multiproduct (SupplyChainNode property)</a>
+</li>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.is_numeric_string">is_numeric_string() (in module stockpyl.helpers)</a>
+</li>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.is_set">is_set() (in module stockpyl.helpers)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.is_singleproduct">is_singleproduct (SupplyChainNode property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -436,7 +560,13 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.lead_time">lead_time (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.lead_time">(SupplyChainProduct attribute)</a>
 </li>
+        <li><a href="api/datatypes/supply_chain_product.html#id0">(SupplyChainProduct property)</a>
+</li>
+      </ul></li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.lead_time_demand_distribution">lead_time_demand_distribution() (DemandSource method)</a>
 </li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.lo">lo (DemandSource attribute)</a>
@@ -446,9 +576,17 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.local_holding_cost">local_holding_cost (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.local_holding_cost">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.local_holding_cost_function">local_holding_cost_function (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.local_holding_cost_function">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.local_to_echelon_base_stock_levels">local_to_echelon_base_stock_levels() (in module stockpyl.supply_chain_network)</a>
 </li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.lognormal_loss">lognormal_loss() (in module stockpyl.loss_functions)</a>
@@ -461,7 +599,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.max_max_replenishment_time">max_max_replenishment_time (SupplyChainNetwork attribute)</a>
 </li>
-      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.mean">mean (DemandSource attribute)</a>
+      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.mean">mean (DemandSource property)</a>
 </li>
       <li><a href="api/meio/meio_general.html#stockpyl.meio_general.meio_by_coordinate_descent">meio_by_coordinate_descent() (in module stockpyl.meio_general)</a>
 </li>
@@ -497,6 +635,8 @@
 </li>
         <li><a href="api/seio/newsvendor.html#module-stockpyl.newsvendor">stockpyl.newsvendor</a>
 </li>
+        <li><a href="api/datatypes/node_state_vars.html#module-stockpyl.node_state_vars">stockpyl.node_state_vars</a>
+</li>
         <li><a href="api/other/optimization.html#module-stockpyl.optimization">stockpyl.optimization</a>
 </li>
         <li><a href="api/datatypes/policy.html#module-stockpyl.policy">stockpyl.policy</a>
@@ -514,6 +654,8 @@
         <li><a href="api/datatypes/supply_chain_network.html#module-stockpyl.supply_chain_network">stockpyl.supply_chain_network</a>
 </li>
         <li><a href="api/datatypes/supply_chain_node.html#module-stockpyl.supply_chain_node">stockpyl.supply_chain_node</a>
+</li>
+        <li><a href="api/datatypes/supply_chain_product.html#module-stockpyl.supply_chain_product">stockpyl.supply_chain_product</a>
 </li>
         <li><a href="api/seio/supply_uncertainty.html#module-stockpyl.supply_uncertainty">stockpyl.supply_uncertainty</a>
 </li>
@@ -536,6 +678,14 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.n">n (DemandSource attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.name">name (SupplyChainProduct attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.NBOM">NBOM() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.nearest_dict_value">nearest_dict_value() (in module stockpyl.helpers)</a>
+</li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.negative_binomial_loss">negative_binomial_loss() (in module stockpyl.loss_functions)</a>
 </li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.negative_binomial_second_loss">negative_binomial_second_loss() (in module stockpyl.loss_functions)</a>
@@ -547,7 +697,11 @@
       <li><a href="api/meio/gsm_helpers.html#stockpyl.gsm_helpers.net_lead_time">net_lead_time() (in module stockpyl.gsm_helpers)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.network">network (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.network">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.network_from_edges">network_from_edges() (in module stockpyl.supply_chain_network)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.networkx_digraph">networkx_digraph() (SupplyChainNetwork method)</a>
@@ -556,14 +710,14 @@
 </li>
       <li><a href="api/seio/newsvendor.html#stockpyl.newsvendor.newsvendor_discrete">newsvendor_discrete() (in module stockpyl.newsvendor)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/meio/ssm_serial.html#stockpyl.ssm_serial.newsvendor_heuristic">newsvendor_heuristic() (in module stockpyl.ssm_serial)</a>
 </li>
       <li><a href="api/seio/newsvendor.html#stockpyl.newsvendor.newsvendor_normal">newsvendor_normal() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="api/seio/newsvendor.html#stockpyl.newsvendor.newsvendor_normal_cost">newsvendor_normal_cost() (in module stockpyl.newsvendor)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/seio/newsvendor.html#stockpyl.newsvendor.newsvendor_normal_explicit">newsvendor_normal_explicit() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="api/seio/newsvendor.html#stockpyl.newsvendor.newsvendor_poisson">newsvendor_poisson() (in module stockpyl.newsvendor)</a>
@@ -576,7 +730,7 @@
 </li>
       <li><a href="api/seio/supply_uncertainty.html#stockpyl.supply_uncertainty.newsvendor_with_disruptions">newsvendor_with_disruptions() (in module stockpyl.supply_uncertainty)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.node">node (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.node">node (NodeStateVars attribute)</a>
 
       <ul>
         <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.node">(Policy attribute)</a>
@@ -586,7 +740,7 @@
 </li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.nodes">nodes (SupplyChainNetwork property)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars">NodeStateVars (class in stockpyl.supply_chain_node)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars">NodeStateVars (class in stockpyl.node_state_vars)</a>
 </li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.normal_loss">normal_loss() (in module stockpyl.loss_functions)</a>
 </li>
@@ -598,11 +752,11 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.on_hand">on_hand (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.on_hand">on_hand (NodeStateVars property)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.on_order">on_order (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.on_order">on_order() (NodeStateVars method)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.on_order_by_predecessor">on_order_by_predecessor (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.on_order_by_predecessor">on_order_by_predecessor (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/meio/ssm_serial.html#stockpyl.ssm_serial.optimize_base_stock_levels">optimize_base_stock_levels() (in module stockpyl.ssm_serial)</a>
 </li>
@@ -612,21 +766,33 @@
         <li><a href="api/meio/gsm_tree.html#stockpyl.gsm_tree.optimize_committed_service_times">(in module stockpyl.gsm_tree)</a>
 </li>
       </ul></li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.order_capacity">order_capacity (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.order_capacity">(SupplyChainProduct attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.order_lead_time">order_lead_time (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.order_lead_time">(SupplyChainProduct attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.order_quantity">order_quantity (NodeStateVars attribute)</a>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.order_quantity">order_quantity (NodeStateVars attribute)</a>
 
       <ul>
         <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.order_quantity">(Policy attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.order_quantity_fg">order_quantity_fg (NodeStateVars attribute)</a>
+</li>
       <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.order_up_to_level">order_up_to_level (Policy attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.outbound_disrupted_items">outbound_disrupted_items (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.outbound_disrupted_items">outbound_disrupted_items (NodeStateVars attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.outbound_shipment">outbound_shipment (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.outbound_shipment">outbound_shipment (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.owmr_system">owmr_system() (in module stockpyl.supply_chain_network)</a>
 </li>
@@ -636,7 +802,15 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.period">period (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.p">p (DemandSource attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.parse_node">parse_node() (SupplyChainNetwork method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.parse_product">parse_product() (SupplyChainNetwork method)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.pending_finished_goods">pending_finished_goods (NodeStateVars attribute)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.period">period (NodeStateVars attribute)</a>
 
       <ul>
         <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.period">(SupplyChainNetwork attribute)</a>
@@ -650,22 +824,50 @@
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.predecessor_indices">predecessor_indices() (SupplyChainNode method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.predecessors">predecessors() (SupplyChainNode method)</a>
 </li>
       <li><a href="api/meio/gsm_tree.html#stockpyl.gsm_tree.preprocess_tree">preprocess_tree() (in module stockpyl.gsm_tree)</a>
 </li>
       <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.probabilities">probabilities (DemandSource attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.problem_specific_data">problem_specific_data (SupplyChainNetwork attribute)</a>
 
       <ul>
         <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.problem_specific_data">(SupplyChainNode attribute)</a>
 </li>
-      </ul></li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.purchase_cost">purchase_cost (SupplyChainNode attribute)</a>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.problem_specific_data">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
+      <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.product_index">product_index (Policy attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.product_indices">product_indices (SupplyChainNetwork property)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.product_indices">(SupplyChainNode property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.products">products (SupplyChainNetwork property)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.products">(SupplyChainNode property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.products_by_index">products_by_index (SupplyChainNetwork property)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.products_by_index">(SupplyChainNode property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.products_by_raw_material">products_by_raw_material() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.purchase_cost">purchase_cost (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.purchase_cost">(SupplyChainProduct attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -690,19 +892,29 @@
 </li>
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.random_process_type">random_process_type (DisruptionProcess attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.raw_material_aggregate">raw_material_aggregate (NodeStateVars property)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.raw_material_aggregate">raw_material_aggregate() (NodeStateVars method)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.raw_material_inventory">raw_material_inventory (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.raw_material_indices">raw_material_indices (SupplyChainProduct property)</a>
+</li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.raw_material_inventory">raw_material_inventory (NodeStateVars attribute)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.raw_material_suppliers_by_product">raw_material_suppliers_by_product() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.raw_material_suppliers_by_raw_material">raw_material_suppliers_by_raw_material() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.raw_materials">raw_materials (SupplyChainProduct property)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.raw_materials_by_product">raw_materials_by_product() (SupplyChainNode method)</a>
 </li>
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.recovery_probability">recovery_probability (DisruptionProcess attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.reindex_all_state_variables">reindex_all_state_variables() (SupplyChainNode method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.reindex_nodes">reindex_nodes() (SupplyChainNetwork method)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.reindex_state_variables">reindex_state_variables() (NodeStateVars method)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.reindex_state_variables">reindex_state_variables() (NodeStateVars method)</a>
 </li>
       <li><a href="api/meio/gsm_tree.html#stockpyl.gsm_tree.relabel_nodes">relabel_nodes() (in module stockpyl.gsm_tree)</a>
 </li>
@@ -710,13 +922,29 @@
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.remove_predecessor">remove_predecessor() (SupplyChainNode method)</a>
 </li>
+      <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.remove_product">remove_product() (SupplyChainNetwork method)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.remove_product">(SupplyChainNode method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.remove_products">remove_products() (SupplyChainNode method)</a>
+</li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.remove_successor">remove_successor() (SupplyChainNode method)</a>
 </li>
       <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.reorder_point">reorder_point (Policy attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.revenue">revenue (SupplyChainNode attribute)</a>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.replace_dict_null_keys">replace_dict_null_keys() (in module stockpyl.helpers)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.revenue_earned">revenue_earned (NodeStateVars attribute)</a>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.replace_dict_numeric_string_keys">replace_dict_numeric_string_keys() (in module stockpyl.helpers)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.revenue">revenue (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.revenue">(SupplyChainProduct attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.revenue_earned">revenue_earned (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.round_dict_values">round_dict_values() (in module stockpyl.helpers)</a>
 </li>
@@ -742,10 +970,16 @@
 </li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.serial_system">serial_system() (in module stockpyl.supply_chain_network)</a>
 </li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.set_bill_of_materials">set_bill_of_materials() (SupplyChainProduct method)</a>
+</li>
       <li><a href="api/seio/newsvendor.html#stockpyl.newsvendor.set_myopic_cost_to">set_myopic_cost_to() (in module stockpyl.newsvendor)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.shipment_lead_time">shipment_lead_time (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.shipment_lead_time">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/simulation/sim.html#stockpyl.sim.simulation">simulation() (in module stockpyl.sim)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.single_stage_system">single_stage_system() (in module stockpyl.supply_chain_network)</a>
@@ -758,16 +992,24 @@
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.sort_dict_by_keys">sort_dict_by_keys() (in module stockpyl.helpers)</a>
 </li>
+      <li><a href="api/other/helpers.html#stockpyl.helpers.sort_nested_dict_by_keys">sort_nested_dict_by_keys() (in module stockpyl.helpers)</a>
+</li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork.source_nodes">source_nodes (SupplyChainNetwork property)</a>
 </li>
-      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.standard_deviation">standard_deviation (DemandSource attribute)</a>
+      <li><a href="api/datatypes/demand_source.html#stockpyl.demand_source.DemandSource.standard_deviation">standard_deviation (DemandSource property)</a>
 </li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.standard_normal_loss">standard_normal_loss() (in module stockpyl.loss_functions)</a>
+</li>
+      <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.standard_normal_loss_dict">standard_normal_loss_dict() (in module stockpyl.loss_functions)</a>
 </li>
       <li><a href="api/other/loss_functions.html#stockpyl.loss_functions.standard_normal_second_loss">standard_normal_second_loss() (in module stockpyl.loss_functions)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.state_vars">state_vars (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.state_vars">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.state_vars_current">state_vars_current (SupplyChainNode property)</a>
 </li>
       <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.steady_state_probabilities">steady_state_probabilities() (DisruptionProcess method)</a>
@@ -775,10 +1017,18 @@
       <li><a href="api/simulation/sim.html#stockpyl.sim.step">step() (in module stockpyl.sim)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.stockout_cost">stockout_cost (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.stockout_cost">(SupplyChainProduct attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.stockout_cost_function">stockout_cost_function (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.stockout_cost_function">(SupplyChainProduct attribute)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.stockout_cost_incurred">stockout_cost_incurred (NodeStateVars attribute)</a>
+      </ul></li>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.stockout_cost_incurred">stockout_cost_incurred (NodeStateVars attribute)</a>
 </li>
       <li>
     stockpyl.demand_source
@@ -867,6 +1117,13 @@
 </li>
       </ul></li>
       <li>
+    stockpyl.node_state_vars
+
+      <ul>
+        <li><a href="api/datatypes/node_state_vars.html#module-stockpyl.node_state_vars">module</a>
+</li>
+      </ul></li>
+      <li>
     stockpyl.optimization
 
       <ul>
@@ -930,6 +1187,13 @@
 </li>
       </ul></li>
       <li>
+    stockpyl.supply_chain_product
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#module-stockpyl.supply_chain_product">module</a>
+</li>
+      </ul></li>
+      <li>
     stockpyl.supply_uncertainty
 
       <ul>
@@ -955,11 +1219,19 @@
 </li>
       <li><a href="api/other/helpers.html#stockpyl.helpers.sum_of_discretes_distribution">sum_of_discretes_distribution() (in module stockpyl.helpers)</a>
 </li>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.supply_type">supply_type (SupplyChainNode attribute)</a>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.supplier_raw_material_pairs_by_product">supplier_raw_material_pairs_by_product() (SupplyChainNode method)</a>
 </li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.supply_type">supply_type (SupplyChainNode attribute)</a>
+
+      <ul>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.supply_type">(SupplyChainProduct attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/datatypes/supply_chain_network.html#stockpyl.supply_chain_network.SupplyChainNetwork">SupplyChainNetwork (class in stockpyl.supply_chain_network)</a>
 </li>
       <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode">SupplyChainNode (class in stockpyl.supply_chain_node)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct">SupplyChainProduct (class in stockpyl.supply_chain_product)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -972,7 +1244,7 @@
       <ul>
         <li><a href="api/datatypes/disruption_process.html#stockpyl.disruption_process.DisruptionProcess.to_dict">(DisruptionProcess method)</a>
 </li>
-        <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.to_dict">(NodeStateVars method)</a>
+        <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.to_dict">(NodeStateVars method)</a>
 </li>
         <li><a href="api/datatypes/policy.html#stockpyl.policy.Policy.to_dict">(Policy method)</a>
 </li>
@@ -980,10 +1252,12 @@
 </li>
         <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.to_dict">(SupplyChainNode method)</a>
 </li>
+        <li><a href="api/datatypes/supply_chain_product.html#stockpyl.supply_chain_product.SupplyChainProduct.to_dict">(SupplyChainProduct method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.NodeStateVars.total_cost_incurred">total_cost_incurred (NodeStateVars attribute)</a>
+      <li><a href="api/datatypes/node_state_vars.html#stockpyl.node_state_vars.NodeStateVars.total_cost_incurred">total_cost_incurred (NodeStateVars attribute)</a>
 </li>
       <li><a href="api/meio/meio_general.html#stockpyl.meio_general.truncate_and_discretize">truncate_and_discretize() (in module stockpyl.meio_general)</a>
 </li>
@@ -1022,6 +1296,16 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.validate_predecessor">validate_predecessor() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.validate_product">validate_product() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.validate_raw_material">validate_raw_material() (SupplyChainNode method)</a>
+</li>
+      <li><a href="api/datatypes/supply_chain_node.html#stockpyl.supply_chain_node.SupplyChainNode.validate_successor">validate_successor() (SupplyChainNode method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="W">W</h2>
@@ -1047,7 +1331,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Larry Snyder.</p>
+    <p>&#169; Copyright 2024, Larry Snyder.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

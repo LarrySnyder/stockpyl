@@ -12,6 +12,7 @@ from scipy.stats import uniform
 import math
 
 import stockpyl.loss_functions as loss_functions
+from stockpyl.helpers import nearest_dict_value
 
 # Module-level functions.
 
@@ -191,6 +192,49 @@ class TestNormalSecondLoss(unittest.TestCase):
 		self.assertAlmostEqual(n2, n2a, places=4)
 		self.assertAlmostEqual(n2_bar, n2a_bar, places=4)
 
+
+class TestStandardNormalLossDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestStandardNormalLossDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestStandardNormalLossDict', 'tear_down_class()')
+
+	def test_loss(self):
+		"""Test standard_normal_loss_dict function for returning loss function.
+		"""
+		print_status('TestStandardNormalLossDict', 'test_loss()')
+
+		loss_dict = loss_functions.standard_normal_loss_dict()
+		self.assertAlmostEqual(nearest_dict_value(-3.71, loss_dict), 3.7100, places=4)
+		self.assertAlmostEqual(nearest_dict_value(-0.77, loss_dict), 0.8967, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 1.12, loss_dict), 0.0659, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 2.34, loss_dict), 0.0033, places=4)
+		
+		loss_dict = loss_functions.standard_normal_loss_dict(start=-0.5, stop=2.5, step=0.1)
+		self.assertAlmostEqual(nearest_dict_value(-0.3, loss_dict), 0.5668, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 1.1, loss_dict), 0.0686, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 2.3, loss_dict), 0.0037, places=4)
+
+	def test_complementary_loss(self):
+		"""Test standard_normal_loss_dict function for returning complementary loss function.
+		"""
+		print_status('TestStandardNormalLossDict', 'test_complementary_loss()')
+
+		loss_dict = loss_functions.standard_normal_loss_dict(complementary=True)
+		self.assertAlmostEqual(nearest_dict_value(-3.71, loss_dict), 2.486423864755949e-05, places=4)
+		self.assertAlmostEqual(nearest_dict_value(-0.77, loss_dict), 0.12669429630997542, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 1.12, loss_dict), 1.1859494400078596, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 2.34, loss_dict), 2.343254599799449, places=4)
+		
+		loss_dict = loss_functions.standard_normal_loss_dict(start=-0.5, stop=2.5, step=0.1, complementary=True)
+		self.assertAlmostEqual(nearest_dict_value(-0.3, loss_dict), 0.2667612421172099, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 1.1, loss_dict), 1.1686195099915297, places=4)
+		self.assertAlmostEqual(nearest_dict_value( 2.3, loss_dict), 2.3036615846917465, places=4)
 
 class TestLognormalLoss(unittest.TestCase):
 	@classmethod

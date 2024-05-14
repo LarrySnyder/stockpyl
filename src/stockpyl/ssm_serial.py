@@ -22,7 +22,7 @@ function (which implements the newsvendor heuristic by Shang and Song (2003)).
 .. note:: |fosct_notation|
 
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of multi-echelon inventory optimization in |sp|,
 	see the :ref:`tutorial page for multi-echelon inventory optimization<tutorial_meio_page>`.
@@ -613,7 +613,7 @@ def newsvendor_heuristic(num_nodes=None, node_order_in_system=None, node_order_i
 		...		demand_mean=5, 
 		...		demand_standard_deviation=1
 		...		)
-		47.680099140842174
+		47.65465421619295
 	"""
 
 	# Validate data and re-index to N, ..., 1.
@@ -749,7 +749,7 @@ def expected_cost(echelon_S,
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
 		...	)
-		47.668653127136345
+		47.641099926743415
 	"""
 
 	# Validate echelon_S. (Other parameters will be validated in optimize_base_stock_levels().)
@@ -830,7 +830,7 @@ def expected_holding_cost(echelon_S,
 		... 	demand_mean=5, 
 		... 	demand_standard_deviation=1
 		...	)
-		43.15945901616041
+		43.10006605241919
 	"""
 
 	# Validate echelon_S. (Other parameters will be validated in optimize_base_stock_levels().)

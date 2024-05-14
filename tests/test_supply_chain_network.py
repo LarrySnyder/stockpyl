@@ -8,12 +8,13 @@ import copy
 
 #from supply_chain_node import *
 from stockpyl.supply_chain_network import *
+from stockpyl.supply_chain_product import *
 from stockpyl.supply_chain_node import SupplyChainNode
 from stockpyl.demand_source import DemandSource
 from stockpyl.instances import *
 from stockpyl.sim import *
 from tests.settings import *
-
+#RUN_ALL_TESTS = False
 
 # Module-level functions.
 
@@ -87,9 +88,15 @@ class TestDeepEqualTo(unittest.TestCase):
 		node1 = SupplyChainNode(1)
 		node2 = SupplyChainNode(2)
 
+		prod0 = SupplyChainProduct(0)
+		prod1 = SupplyChainProduct(1)
+
 		network.add_node(node2)
 		network.add_successor(node2, node1)
 		network.add_successor(node1, node0)
+
+		network.add_product(prod0)
+		network.add_product(prod1)
 
 		# Equal networks.
 		network2 = copy.deepcopy(network)
@@ -104,10 +111,20 @@ class TestDeepEqualTo(unittest.TestCase):
 		network2.max_max_replenishment_time = 99
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
+		network2 = copy.deepcopy(network)
+		network2.products[0].stockout_cost = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
 
 		# Unequal networks due to missing node.
 		network2 = copy.deepcopy(network)
 		network2.remove_node(network2.nodes[0])
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing product.
+		network2 = copy.deepcopy(network)
+		network2.remove_product(network2.products[0])
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 
@@ -148,6 +165,38 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 
+	def test_multiproduct_5_7(self):
+		"""Test deep_equal_to() on 5-node, 7-product system.
+		"""
+		print_status('TestDeepEqualTo', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+
+		# Equal networks.
+		network2 = copy.deepcopy(network)
+		self.assertTrue(network.deep_equal_to(network2))
+		self.assertTrue(network2.deep_equal_to(network))
+		
+		# Unequal networks due to parameter.
+		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+		network2 = copy.deepcopy(network)
+		network2.max_max_replenishment_time = 99
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing node.
+		network2 = copy.deepcopy(network)
+		network2.remove_node(network2.nodes[2])
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
+
+		# Unequal networks due to missing product.
+		network2 = copy.deepcopy(network)
+		network2.get_node_from_index(0).remove_product(0)
+		self.assertFalse(network.deep_equal_to(network2))
+		self.assertFalse(network2.deep_equal_to(network))
 
 class TestInitialize(unittest.TestCase):
 	@classmethod
@@ -603,6 +652,203 @@ class TestRemoveNode(unittest.TestCase):
 		self.assertEqual(node3succ, [])
 
 
+class TestParseNode(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestParseNode', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestParseNode', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test parse_node() on 3-node serial system.
+		"""
+		print_status('TestParseNode', 'test_example_6_1()')
+
+		network = load_instance("example_6_1") # 3 -> 2 -> 1
+		nodes = {n.index: n for n in network.nodes}
+
+		node_obj, node_ind = network.parse_node(nodes[1])
+		self.assertEqual(node_obj, nodes[1])
+		self.assertEqual(node_ind, 1)
+
+		node_obj, node_ind = network.parse_node(nodes[3])
+		self.assertEqual(node_obj, nodes[3])
+		self.assertEqual(node_ind, 3)
+
+		node_obj, node_ind = network.parse_node(1)
+		self.assertEqual(node_obj, nodes[1])
+		self.assertEqual(node_ind, 1)
+
+		node_obj, node_ind = network.parse_node(3)
+		self.assertEqual(node_obj, nodes[3])
+		self.assertEqual(node_ind, 3)
+
+		node_obj, node_ind = network.parse_node(None)
+		self.assertIsNone(node_obj)
+		self.assertIsNone(node_ind)
+
+	def test_bad_param(self):
+		"""Test that parse_node() raises errors correctly on bad parameters.
+		"""
+		print_status('TestParseNode', 'test_bad_param()')
+
+		network = load_instance("example_6_1") # 3 -> 2 -> 1
+
+		with self.assertRaises(TypeError):
+			_, _ = network.parse_node(6.5)
+			_, _ = network.parse_node(network.products[0])
+			_, _ = network.parse_node(None, allow_none=False)
+
+		with self.assertRaises(ValueError):
+			_, _ = network.parse_node(5)
+			_, _ = network.parse_node(SupplyChainNode(5))
+
+		
+class TestParseProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestParseProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestParseProduct', 'tear_down_class()')
+
+	def test_multiproduct_5_7(self):
+		"""Test parse_product() on 5-node, 7-product system.
+		"""
+		print_status('TestParseProduct', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		products = {n.index: n for n in network.products}
+
+		product_obj, product_ind = network.parse_product(products[1])
+		self.assertEqual(product_obj, products[1])
+		self.assertEqual(product_ind, 1)
+
+		product_obj, product_ind = network.parse_product(products[3])
+		self.assertEqual(product_obj, products[3])
+		self.assertEqual(product_ind, 3)
+
+		product_obj, product_ind = network.parse_product(1)
+		self.assertEqual(product_obj, products[1])
+		self.assertEqual(product_ind, 1)
+
+		product_obj, product_ind = network.parse_product(3)
+		self.assertEqual(product_obj, products[3])
+		self.assertEqual(product_ind, 3)
+
+		product_obj, product_ind = network.parse_product(None)
+		self.assertIsNone(product_obj)
+		self.assertIsNone(product_ind)
+
+	def test_bad_param(self):
+		"""Test that parse_product() raises errors correctly on bad parameters.
+		"""
+		print_status('TestParseProduct', 'test_bad_param()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+
+		with self.assertRaises(TypeError):
+			_, _ = network.parse_product(6.5)
+			_, _ = network.parse_product(network.nodes[0])
+			_, _ = network.parse_product(None, allow_none=False)
+
+		with self.assertRaises(ValueError):
+			_, _ = network.parse_product(55)
+			_, _ = network.parse_product(SupplyChainProduct(55))
+		
+				
+class TestAddRemoveProduct(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestAddRemoveProduct', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestAddRemoveProduct', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test remove_product() on product-only system.
+		"""
+		print_status('TestAddRemoveProduct', 'test_basic()')
+
+		network = SupplyChainNetwork()
+
+		prod0 = SupplyChainProduct(0)
+		prod1 = SupplyChainProduct(1)
+
+		network.add_product(prod0)
+		network.add_product(prod1)
+
+		network.remove_product(network.products_by_index[1])
+
+		self.assertEqual(network.product_indices, [0])
+
+	def test_multiproduct_5_7(self):
+		"""Test remove_product() on 5-node, 7-product system.
+		"""
+		print_status('TestAddRemoveProduct', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		network.add_product(SupplyChainProduct(10))
+		network.add_product(SupplyChainProduct(11))
+
+		network.remove_product(network.products_by_index[10])
+
+		self.assertSetEqual(set(network.product_indices), set([0, 1, 2, 3, 4, 5, 6, 11, -1001, -9, -7, -5, -3]))
+
+
+class TestProductLists(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestProductLists', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestProductLists', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test product-only system.
+		"""
+		print_status('TestProductLists', 'test_basic()')
+
+		network = SupplyChainNetwork()
+
+		prod0 = SupplyChainProduct(0)
+		prod1 = SupplyChainProduct(1)
+
+		network.add_product(prod0)
+		network.add_product(prod1)
+
+		self.assertListEqual(network.products, [prod0, prod1])
+		self.assertListEqual(network.product_indices, [0, 1])
+		self.assertDictEqual(network.products_by_index, {0: prod0, 1: prod1})
+
+	def test_multiproduct_5_7(self):
+		"""Test 5-node, 7-product system.
+		"""
+		print_status('TestProductLists', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		network.add_product(SupplyChainProduct(10))
+		network.add_product(SupplyChainProduct(11))
+		products = {prod.index: prod for prod in network.products}
+
+		self.assertCountEqual(network.product_indices, [0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -9, -7, -5, -3])
+		self.assertListEqual(network.products, list(products.values()))
+		self.assertDictEqual(network.products_by_index, {i: products[i] for i in products.keys()})
+	
+
 class TestReindexNodes(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -650,6 +896,7 @@ class TestReindexNodes(unittest.TestCase):
 		print_status('TestReindexNodes', 'test_rosling_figure_1_with_state_vars()')
 
 		network = load_instance("rosling_figure_1")
+
 		# Make the BS levels a little smaller so there are some stockouts.
 		network.get_node_from_index(1).inventory_policy.base_stock_level = 6
 		network.get_node_from_index(2).inventory_policy.base_stock_level = 20
@@ -660,43 +907,45 @@ class TestReindexNodes(unittest.TestCase):
 		network.get_node_from_index(7).inventory_policy.base_stock_level = 75
 
 		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
+		nodes = {n.index: n for n in network.nodes}
+		dps = {n.index: n._dummy_product.index for n in network.nodes}
 
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
 		# Compare a few performance measures.
-		self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[12], 4)
-		self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[13], 4)
-		self.assertEqual(network.get_node_from_index(12).state_vars[6].order_quantity[15], 4)
-		self.assertEqual(network.get_node_from_index(13).state_vars[6].order_quantity[14], 4)
-		self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[16], 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[17], 0)
-		self.assertEqual(network.get_node_from_index(11).state_vars[16].inventory_level, 3)
-		self.assertEqual(network.get_node_from_index(12).state_vars[16].inventory_level, 7)
-		self.assertEqual(network.get_node_from_index(13).state_vars[16].inventory_level, 4)
-		self.assertEqual(network.get_node_from_index(14).state_vars[16].inventory_level, 9)
-		self.assertEqual(network.get_node_from_index(15).state_vars[16].inventory_level, 7)
-		self.assertEqual(network.get_node_from_index(16).state_vars[16].inventory_level, 19)
-		self.assertEqual(network.get_node_from_index(17).state_vars[16].inventory_level, 24)
-		self.assertEqual(network.get_node_from_index(11).state_vars[44].inventory_level, -4)
-		self.assertEqual(network.get_node_from_index(12).state_vars[44].inventory_level, -5)
-		self.assertEqual(network.get_node_from_index(13).state_vars[44].inventory_level, 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[44].inventory_level, -2)
-		self.assertEqual(network.get_node_from_index(15).state_vars[44].inventory_level, -6)
-		self.assertEqual(network.get_node_from_index(16).state_vars[44].inventory_level, 0)
-		self.assertEqual(network.get_node_from_index(17).state_vars[44].inventory_level, 10)
-		self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[12], 2)
-		self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[13], 2)
-		self.assertEqual(network.get_node_from_index(12).state_vars[16].inbound_shipment[15], 1)
-		self.assertEqual(network.get_node_from_index(13).state_vars[16].inbound_shipment[14], 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[16], 12)
-		self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[17], 12)
-		self.assertEqual(network.get_node_from_index(15).state_vars[16].inbound_shipment[None], 9)
-		self.assertEqual(network.get_node_from_index(16).state_vars[16].inbound_shipment[None], 13)
-		self.assertEqual(network.get_node_from_index(17).state_vars[16].inbound_shipment[None], 12)
-		self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[12], 0)
-		self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[13], 5)
-		self.assertEqual(network.get_node_from_index(12).state_vars[45].raw_material_inventory[15], 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[45].raw_material_inventory[16], 0)
+		self.assertEqual(nodes[11].state_vars[6].order_quantity[12][dps[12]], 4)
+		self.assertEqual(nodes[11].state_vars[6].order_quantity[13][dps[13]], 4)
+		self.assertEqual(nodes[12].state_vars[6].order_quantity[15][dps[15]], 4)
+		self.assertEqual(nodes[13].state_vars[6].order_quantity[14][dps[14]], 4)
+		self.assertEqual(nodes[14].state_vars[6].order_quantity[16][dps[16]], 0)
+		self.assertEqual(nodes[14].state_vars[6].order_quantity[17][dps[17]], 0)
+		self.assertEqual(nodes[11].state_vars[16].inventory_level[dps[11]], 3)
+		self.assertEqual(nodes[12].state_vars[16].inventory_level[dps[12]], 7)
+		self.assertEqual(nodes[13].state_vars[16].inventory_level[dps[13]], 4)
+		self.assertEqual(nodes[14].state_vars[16].inventory_level[dps[14]], 9)
+		self.assertEqual(nodes[15].state_vars[16].inventory_level[dps[15]], 7)
+		self.assertEqual(nodes[16].state_vars[16].inventory_level[dps[16]], 19)
+		self.assertEqual(nodes[17].state_vars[16].inventory_level[dps[17]], 24)
+		self.assertEqual(nodes[11].state_vars[44].inventory_level[dps[11]], -4)
+		self.assertEqual(nodes[12].state_vars[44].inventory_level[dps[12]], -5)
+		self.assertEqual(nodes[13].state_vars[44].inventory_level[dps[13]], 0)
+		self.assertEqual(nodes[14].state_vars[44].inventory_level[dps[14]], -2)
+		self.assertEqual(nodes[15].state_vars[44].inventory_level[dps[15]], -6)
+		self.assertEqual(nodes[16].state_vars[44].inventory_level[dps[16]], 0)
+		self.assertEqual(nodes[17].state_vars[44].inventory_level[dps[17]], 10)
+		self.assertEqual(nodes[11].state_vars[16].inbound_shipment[12][dps[12]], 2)
+		self.assertEqual(nodes[11].state_vars[16].inbound_shipment[13][dps[13]], 2)
+		self.assertEqual(nodes[12].state_vars[16].inbound_shipment[15][dps[15]], 1)
+		self.assertEqual(nodes[13].state_vars[16].inbound_shipment[14][dps[14]], 0)
+		self.assertEqual(nodes[14].state_vars[16].inbound_shipment[16][dps[16]], 12)
+		self.assertEqual(nodes[14].state_vars[16].inbound_shipment[17][dps[17]], 12)
+		self.assertEqual(nodes[15].state_vars[16].inbound_shipment[None][nodes[15]._external_supplier_dummy_product.index], 9)
+		self.assertEqual(nodes[16].state_vars[16].inbound_shipment[None][nodes[16]._external_supplier_dummy_product.index], 13)
+		self.assertEqual(nodes[17].state_vars[16].inbound_shipment[None][nodes[17]._external_supplier_dummy_product.index], 12)
+		self.assertEqual(nodes[11].state_vars[45].raw_material_inventory[dps[12]], 0)
+		self.assertEqual(nodes[11].state_vars[45].raw_material_inventory[dps[13]], 5)
+		self.assertEqual(nodes[12].state_vars[45].raw_material_inventory[dps[15]], 0)
+		self.assertEqual(nodes[14].state_vars[45].raw_material_inventory[dps[16]], 0)
 
 	def test_rosling_figure_1_with_state_vars_post(self):
 		"""Test reindex_nodes() on system from Rosling (1989) Figure 1 using
@@ -717,41 +966,43 @@ class TestReindexNodes(unittest.TestCase):
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
 		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
+		nodes = {n.index: n for n in network.nodes}
+		dps = {n.index: n._dummy_product.index for n in network.nodes}
 
 		# Compare a few performance measures.
-		self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[12], 4)
-		self.assertEqual(network.get_node_from_index(11).state_vars[6].order_quantity[13], 4)
-		self.assertEqual(network.get_node_from_index(12).state_vars[6].order_quantity[15], 4)
-		self.assertEqual(network.get_node_from_index(13).state_vars[6].order_quantity[14], 4)
-		self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[16], 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[6].order_quantity[17], 0)
-		self.assertEqual(network.get_node_from_index(11).state_vars[16].inventory_level, 3)
-		self.assertEqual(network.get_node_from_index(12).state_vars[16].inventory_level, 7)
-		self.assertEqual(network.get_node_from_index(13).state_vars[16].inventory_level, 4)
-		self.assertEqual(network.get_node_from_index(14).state_vars[16].inventory_level, 9)
-		self.assertEqual(network.get_node_from_index(15).state_vars[16].inventory_level, 7)
-		self.assertEqual(network.get_node_from_index(16).state_vars[16].inventory_level, 19)
-		self.assertEqual(network.get_node_from_index(17).state_vars[16].inventory_level, 24)
-		self.assertEqual(network.get_node_from_index(11).state_vars[44].inventory_level, -4)
-		self.assertEqual(network.get_node_from_index(12).state_vars[44].inventory_level, -5)
-		self.assertEqual(network.get_node_from_index(13).state_vars[44].inventory_level, 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[44].inventory_level, -2)
-		self.assertEqual(network.get_node_from_index(15).state_vars[44].inventory_level, -6)
-		self.assertEqual(network.get_node_from_index(16).state_vars[44].inventory_level, 0)
-		self.assertEqual(network.get_node_from_index(17).state_vars[44].inventory_level, 10)
-		self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[12], 2)
-		self.assertEqual(network.get_node_from_index(11).state_vars[16].inbound_shipment[13], 2)
-		self.assertEqual(network.get_node_from_index(12).state_vars[16].inbound_shipment[15], 1)
-		self.assertEqual(network.get_node_from_index(13).state_vars[16].inbound_shipment[14], 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[16], 12)
-		self.assertEqual(network.get_node_from_index(14).state_vars[16].inbound_shipment[17], 12)
-		self.assertEqual(network.get_node_from_index(15).state_vars[16].inbound_shipment[None], 9)
-		self.assertEqual(network.get_node_from_index(16).state_vars[16].inbound_shipment[None], 13)
-		self.assertEqual(network.get_node_from_index(17).state_vars[16].inbound_shipment[None], 12)
-		self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[12], 0)
-		self.assertEqual(network.get_node_from_index(11).state_vars[45].raw_material_inventory[13], 5)
-		self.assertEqual(network.get_node_from_index(12).state_vars[45].raw_material_inventory[15], 0)
-		self.assertEqual(network.get_node_from_index(14).state_vars[45].raw_material_inventory[16], 0)
+		self.assertEqual(nodes[11].state_vars[6].order_quantity[12][dps[12]], 4)
+		self.assertEqual(nodes[11].state_vars[6].order_quantity[13][dps[13]], 4)
+		self.assertEqual(nodes[12].state_vars[6].order_quantity[15][dps[15]], 4)
+		self.assertEqual(nodes[13].state_vars[6].order_quantity[14][dps[14]], 4)
+		self.assertEqual(nodes[14].state_vars[6].order_quantity[16][dps[16]], 0)
+		self.assertEqual(nodes[14].state_vars[6].order_quantity[17][dps[17]], 0)
+		self.assertEqual(nodes[11].state_vars[16].inventory_level[dps[11]], 3)
+		self.assertEqual(nodes[12].state_vars[16].inventory_level[dps[12]], 7)
+		self.assertEqual(nodes[13].state_vars[16].inventory_level[dps[13]], 4)
+		self.assertEqual(nodes[14].state_vars[16].inventory_level[dps[14]], 9)
+		self.assertEqual(nodes[15].state_vars[16].inventory_level[dps[15]], 7)
+		self.assertEqual(nodes[16].state_vars[16].inventory_level[dps[16]], 19)
+		self.assertEqual(nodes[17].state_vars[16].inventory_level[dps[17]], 24)
+		self.assertEqual(nodes[11].state_vars[44].inventory_level[dps[11]], -4)
+		self.assertEqual(nodes[12].state_vars[44].inventory_level[dps[12]], -5)
+		self.assertEqual(nodes[13].state_vars[44].inventory_level[dps[13]], 0)
+		self.assertEqual(nodes[14].state_vars[44].inventory_level[dps[14]], -2)
+		self.assertEqual(nodes[15].state_vars[44].inventory_level[dps[15]], -6)
+		self.assertEqual(nodes[16].state_vars[44].inventory_level[dps[16]], 0)
+		self.assertEqual(nodes[17].state_vars[44].inventory_level[dps[17]], 10)
+		self.assertEqual(nodes[11].state_vars[16].inbound_shipment[12][dps[12]], 2)
+		self.assertEqual(nodes[11].state_vars[16].inbound_shipment[13][dps[13]], 2)
+		self.assertEqual(nodes[12].state_vars[16].inbound_shipment[15][dps[15]], 1)
+		self.assertEqual(nodes[13].state_vars[16].inbound_shipment[14][dps[14]], 0)
+		self.assertEqual(nodes[14].state_vars[16].inbound_shipment[16][dps[16]], 12)
+		self.assertEqual(nodes[14].state_vars[16].inbound_shipment[17][dps[17]], 12)
+		self.assertEqual(nodes[15].state_vars[16].inbound_shipment[None][nodes[15]._external_supplier_dummy_product.index], 9)
+		self.assertEqual(nodes[16].state_vars[16].inbound_shipment[None][nodes[16]._external_supplier_dummy_product.index], 13)
+		self.assertEqual(nodes[17].state_vars[16].inbound_shipment[None][nodes[17]._external_supplier_dummy_product.index], 12)
+		self.assertEqual(nodes[11].state_vars[45].raw_material_inventory[dps[12]], 0)
+		self.assertEqual(nodes[11].state_vars[45].raw_material_inventory[dps[13]], 5)
+		self.assertEqual(nodes[12].state_vars[45].raw_material_inventory[dps[15]], 0)
+		self.assertEqual(nodes[14].state_vars[45].raw_material_inventory[dps[16]], 0)
 
 
 class TestSingleStageNetwork(unittest.TestCase):
@@ -1165,6 +1416,74 @@ class TestNetworkFromEdges(unittest.TestCase):
 		# 		n.inventory_policy.node = n
 		self.assertTrue(network.deep_equal_to(correct_network))
 
+	def test_demand_source(self):
+		"""Test different ways to specify demand_source.
+		"""
+		print_status('TestNetworkFromEdges', 'test_demand_source()')
+
+		# Correct network.
+		correct_network = self.get_correct_network()
+
+		# Specify type as singleton, other attributes as list.
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='N',
+			mean=[50, 20, None, None],
+			standard_deviation=[5, 3, None, None],
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
+
+		# Specify type as singleton, other attributes as dict.
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='N',
+			mean={1: 50, 2: 20},
+			standard_deviation={1: 5, 2: 3},
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		self.assertTrue(network.deep_equal_to(correct_network))
+
+		# Specify type and other attributes as singleton.
+		network = network_from_edges(
+			edges=[(3, 1), (3, 2), (4, 1)],
+			node_order_in_lists=[1, 2, 3, 4],
+			local_holding_cost=[4, 7, 2, 1],
+			stockout_cost=[20, 50, None, None],
+			demand_type='N',
+			mean=50,
+			standard_deviation=5,
+			inventory_policy=[
+				Policy(type='BS', base_stock_level=70),
+				Policy(type='BS', base_stock_level=25),
+				Policy(type='BS', base_stock_level=100),
+				Policy(type='rQ', reorder_point=20, order_quantity=60),
+			],
+			shipment_lead_time=[2, 6, 0, 1]
+		)
+		# Change correct_network to account for same means/SDs.
+		correct_network.get_node_from_index(2).demand_source.mean = 50
+		correct_network.get_node_from_index(2).demand_source.standard_deviation = 5
+		self.assertTrue(network.deep_equal_to(correct_network))
+
 	def test_single_node(self):
 		"""Test network_from_edges() for building a single-node network.
 		"""
@@ -1204,7 +1523,6 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		self.assertTrue(network.deep_equal_to(correct_network))
 
-	@unittest.skipUnless(RUN_ALL_TESTS, "TestNetworkFromEdges.test_list_params skipped because test fails for now; to un-skip, set RUN_ALL_TESTS to True in tests/settings.py")
 	def test_list_params(self):
 		"""Test that network_from_edges() correctly builds the network defined in
 		get_correct_network() when built using all lists.
@@ -1221,8 +1539,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			demand_list=[0, 1, 2, 3],
 			probabilities=[0.25, 0.25, 0.4, 0.1]
 		)
-		correct_network.get_node_from_index(3).demand_source = DemandSource(type='CD')
-		correct_network.get_node_from_index(4).demand_source = DemandSource(type='CD')
+		correct_network.get_node_from_index(3).demand_source = DemandSource(type=None)
+		correct_network.get_node_from_index(4).demand_source = DemandSource(type=None)
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],
@@ -1783,6 +2101,23 @@ class TestToFromDict(unittest.TestCase):
 		print_status('TestToFromDict', 'test_assembly_3_stage()')
 
 		network = load_instance("assembly_3_stage")
+
+		# Convert network to dict.
+		network_dict = network.to_dict()
+
+		# Convert dict back to network.
+		dict_network = SupplyChainNetwork.from_dict(network_dict)
+
+		# Compare.
+		self.assertTrue(network.deep_equal_to(dict_network))
+
+	def test_multiproduct_5_7(self):
+		"""Test that to_dict() and from_dict() correctly convert SupplyChainNetwork object to and from dict
+		in 5-node, 7-product system.
+		"""
+		print_status('TestToFromDict', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
 		# Convert network to dict.
 		network_dict = network.to_dict()

@@ -9,7 +9,6 @@ from stockpyl.ss import *
 from stockpyl.instances import *
 from tests.settings import *
 
-
 # Module-level functions.
 
 def print_status(class_name, function_name):

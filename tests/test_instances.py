@@ -226,27 +226,32 @@ class SaveInstance(unittest.TestCase):
 
 		# Save.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_example_6_1.json'
-		instances.save_instance(
-			instance_name='test_example_6_1',
-			instance_data=instance,
-			instance_description='this is test_example_6_1',
-			filepath=temp_filename
-		)
+		try:
+			instances.save_instance(
+				instance_name='test_example_6_1',
+				instance_data=instance,
+				instance_description='this is test_example_6_1',
+				filepath=temp_filename
+			)
 
-		# Load saved JSON and correct JSON.
-		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_correct.json'
-		with open(temp_filename) as f:
-			saved_json = json.load(f)
-			os.remove(temp_filename)
-		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			# Load saved JSON and correct JSON.
+			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_correct.json'
+			with open(temp_filename) as f:
+				saved_json = json.load(f)
+			with open(correct_contents_filename) as f:
+				correct_json = json.load(f)
 
-		# Remove the timestamp entry.
-		del saved_json['last_updated']
-		del correct_json['last_updated']
+			# Remove the timestamp entry.
+			del saved_json['last_updated']
+			del correct_json['last_updated']
 
-		# Compare.
-		self.assertDictEqual(saved_json, correct_json)
+			# Compare.
+			self.maxDiff = None
+			self.assertDictEqual(saved_json, correct_json)
+		finally:
+			if os.path.exists(temp_filename):
+				os.remove(temp_filename)
+
 
 	def test_example_6_1_with_order_capacity(self):
 		"""Test that save_instance() correctly saves Example 6.1 with a few order capacities.
@@ -260,27 +265,30 @@ class SaveInstance(unittest.TestCase):
 
 		# Save.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_example_6_1_with_order_capacity.json'
-		instances.save_instance(
-			instance_name='test_example_6_1_with_order_capacity',
-			instance_data=instance,
-			instance_description='this is test_example_6_1_with_order_capacity',
-			filepath=temp_filename
-		)
+		try:
+			instances.save_instance(
+				instance_name='test_example_6_1_with_order_capacity',
+				instance_data=instance,
+				instance_description='this is test_example_6_1_with_order_capacity',
+				filepath=temp_filename
+			)
 
-		# Load saved JSON and correct JSON.
-		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_with_order_capacity_correct.json'
-		with open(temp_filename) as f:
-			saved_json = json.load(f)
-			os.remove(temp_filename)
-		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			# Load saved JSON and correct JSON.
+			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_with_order_capacity_correct.json'
+			with open(temp_filename) as f:
+				saved_json = json.load(f)
+			with open(correct_contents_filename) as f:
+				correct_json = json.load(f)
 
-		# Remove the timestamp entry.
-		del saved_json['last_updated']
-		del correct_json['last_updated']
+			# Remove the timestamp entry.
+			del saved_json['last_updated']
+			del correct_json['last_updated']
 
-		# Compare.
-		self.assertDictEqual(saved_json, correct_json)
+			# Compare.
+			self.assertDictEqual(saved_json, correct_json)
+		finally:
+			if os.path.exists(temp_filename):
+				os.remove(temp_filename)
 
 	def test_figure_6_14(self):
 		"""Test that save_instance() correctly saves Figure 6.14.
@@ -292,37 +300,41 @@ class SaveInstance(unittest.TestCase):
 
 		# Save.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_figure_6_14.json'
-		instances.save_instance(
-			instance_name='test_figure_6_14',
-			instance_data=instance,
-			instance_description='this is test_figure_6_14',
-			filepath=temp_filename
-		)
+		try:
+			instances.save_instance(
+				instance_name='test_figure_6_14',
+				instance_data=instance,
+				instance_description='this is test_figure_6_14',
+				filepath=temp_filename
+			)
 
-		# Load saved JSON and correct JSON.
-		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_figure_6_14_correct.json'
-		with open(temp_filename) as f:
-			saved_json = json.load(f)
-			os.remove(temp_filename)
-		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			# Load saved JSON and correct JSON.
+			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_figure_6_14_correct.json'
+			with open(temp_filename) as f:
+				saved_json = json.load(f)
+			with open(correct_contents_filename) as f:
+				correct_json = json.load(f)
 
-		# Remove the timestamp entry.
-		del saved_json['last_updated']
-		del correct_json['last_updated']
+			# Remove the timestamp entry.
+			del saved_json['last_updated']
+			del correct_json['last_updated']
 
-		# Compare the networks separately from the rest of the dict.
-		# (pred/succ lists may be in different orders which will make the dicts fail assertDictEqual.)
-		saved_instance = SupplyChainNetwork.from_dict(saved_json['instances'][0]['data'])
-		correct_instance = SupplyChainNetwork.from_dict(correct_json['instances'][0]['data'])
-		self.assertTrue(saved_instance.deep_equal_to(correct_instance))
+			# Compare the networks separately from the rest of the dict.
+			# (pred/succ lists may be in different orders which will make the dicts fail assertDictEqual.)
+			saved_instance = SupplyChainNetwork.from_dict(saved_json['instances'][0]['data'])
+			correct_instance = SupplyChainNetwork.from_dict(correct_json['instances'][0]['data'])
+			self.assertTrue(saved_instance.deep_equal_to(correct_instance))
 
-		# Remove the instances from the dicts.
-		del saved_json['instances'][0]['data']
-		del correct_json['instances'][0]['data']
+			# Remove the instances from the dicts.
+			del saved_json['instances'][0]['data']
+			del correct_json['instances'][0]['data']
 
-		# Compare.
-		self.assertDictEqual(saved_json, correct_json)
+			# Compare.
+			self.assertDictEqual(saved_json, correct_json)
+
+		finally:
+			if os.path.exists(temp_filename):
+				os.remove(temp_filename)
 
 	def test_omit_state_vars_true(self):
 		"""Test that save_instance() correctly saves problem_6_2b_adj with 
@@ -338,28 +350,32 @@ class SaveInstance(unittest.TestCase):
 
 		# Save with omit_state_vars=True.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_omit_state_vars_true.json'
-		instances.save_instance(
-			instance_name='test_omit_state_vars_true',
-			instance_data=instance,
-			instance_description='this is test_omit_state_vars_true',
-			filepath=temp_filename,
-			omit_state_vars=True
-		)
+		try:
+			instances.save_instance(
+				instance_name='test_omit_state_vars_true',
+				instance_data=instance,
+				instance_description='this is test_omit_state_vars_true',
+				filepath=temp_filename,
+				omit_state_vars=True
+			)
 
-		# Load saved JSON and correct JSON.
-		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_true_correct.json'
-		with open(temp_filename) as f:
-			saved_json = json.load(f)
-			os.remove(temp_filename)
-		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			# Load saved JSON and correct JSON.
+			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_true_correct.json'
+			with open(temp_filename) as f:
+				saved_json = json.load(f)
+			with open(correct_contents_filename) as f:
+				correct_json = json.load(f)
 
-		# Remove the timestamp entry.
-		del saved_json['last_updated']
-		del correct_json['last_updated']
+			# Remove the timestamp entry.
+			del saved_json['last_updated']
+			del correct_json['last_updated']
 
-		# Compare.
-		self.assertDictEqual(saved_json, correct_json)
+			# Compare.
+			self.assertDictEqual(saved_json, correct_json)
+
+		finally:
+			if os.path.exists(temp_filename):
+				os.remove(temp_filename)
 
 	def test_omit_state_vars_false(self):
 		"""Test that save_instance() correctly saves problem_6_2b_adj with 
@@ -375,28 +391,33 @@ class SaveInstance(unittest.TestCase):
 
 		# Save with omit_state_vars=False.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_omit_state_vars_false.json'
-		instances.save_instance(
-			instance_name='test_omit_state_vars_false',
-			instance_data=instance,
-			instance_description='this is test_omit_state_vars_false',
-			filepath=temp_filename,
-			omit_state_vars=False
-		)
+		try:
+			instances.save_instance(
+				instance_name='test_omit_state_vars_false',
+				instance_data=instance,
+				instance_description='this is test_omit_state_vars_false',
+				filepath=temp_filename,
+				omit_state_vars=False
+			)
 
-		# Load saved JSON and correct JSON.
-		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_correct.json'
-		with open(temp_filename) as f:
-			saved_json = json.load(f)
-			os.remove(temp_filename)
-		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			# Load saved JSON and correct JSON.
+			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_correct.json'
+			with open(temp_filename) as f:
+				saved_json = json.load(f)
+			with open(correct_contents_filename) as f:
+				correct_json = json.load(f)
 
-		# Remove the timestamp entry.
-		del saved_json['last_updated']
-		del correct_json['last_updated']
+			# Remove the timestamp entry.
+			del saved_json['last_updated']
+			del correct_json['last_updated']
 
-		# Compare.
-		self.assertDictEqual(saved_json, correct_json)
+			# Compare.
+			self.maxDiff = None
+			self.assertDictEqual(saved_json, correct_json)
+
+		finally:
+			if os.path.exists(temp_filename):
+				os.remove(temp_filename)
 
 	def test_omit_state_vars_false_rosling(self):
 		"""Test that save_instance() correctly saves rosling_figure_1 with 
@@ -412,26 +433,32 @@ class SaveInstance(unittest.TestCase):
 
 		# Save with omit_state_vars=False.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_omit_state_vars_false_rosling.json'
-		instances.save_instance(
-			instance_name='test_omit_state_vars_rosling_false',
-			instance_data=instance,
-			instance_description='this is test_omit_state_vars_rosling_false',
-			filepath=temp_filename,
-			omit_state_vars=False
-		)
+		try:
+			instances.save_instance(
+				instance_name='test_omit_state_vars_false_rosling',
+				instance_data=instance,
+				instance_description='this is test_omit_state_vars_false_rosling',
+				filepath=temp_filename,
+				omit_state_vars=False
+			)
 
-		# Load saved JSON and correct JSON.
-		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_rosling_correct.json'
-		with open(temp_filename) as f:
-			saved_json = json.load(f)
-			os.remove(temp_filename)
-		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			# Load saved JSON and correct JSON.
+			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_rosling_correct.json'
+			with open(temp_filename) as f:
+				saved_json = json.load(f)
+			with open(correct_contents_filename) as f:
+				correct_json = json.load(f)
 
-		# Remove the timestamp entry.
-		del saved_json['last_updated']
-		del correct_json['last_updated']
+			# Remove the timestamp entry.
+			del saved_json['last_updated']
+			del correct_json['last_updated']
 
-		# Compare.
-		self.assertDictEqual(saved_json, correct_json)
+			# Compare.
+			self.maxDiff = None
+			self.assertDictEqual(saved_json, correct_json)
+
+		finally:
+			if os.path.exists(temp_filename):
+				os.remove(temp_filename)
+
 

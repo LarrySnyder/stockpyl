@@ -3,6 +3,8 @@ from scipy import stats
 import numpy as np
 
 import stockpyl.helpers as helpers
+from stockpyl.supply_chain_node import SupplyChainNode
+from stockpyl.supply_chain_product import SupplyChainProduct
 from tests.settings import *
 
 
@@ -156,6 +158,168 @@ class TestIsIterable(unittest.TestCase):
 		self.assertEqual(helpers.is_iterable(a), True)
 
 
+class TestIsList(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsList', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsList', 'tear_down_class()')
+
+	def test_list(self):
+		"""Test that is_list() correctly returns True when input is a list.
+		"""
+		print_status('TestIsList', 'test_list()')
+
+		a = [1, 2, 3]
+		self.assertEqual(helpers.is_list(a), True)
+
+	def test_set(self):
+		"""Test that is_list() correctly returns False when input is a set.
+		"""
+		print_status('TestIsList', 'test_set()')
+
+		a = {1, 2, 3}
+		self.assertEqual(helpers.is_list(a), False)
+
+	def test_dict(self):
+		"""Test that is_list() correctly returns False when input is a dict.
+		"""
+		print_status('TestIsList', 'test_dict()')
+
+		a = {1: 0, 2: 5, 3: 'potato'}
+		self.assertEqual(helpers.is_list(a), False)
+
+	def test_singleton(self):
+		"""Test that is_list() correctly returns False when input is a
+		singleton.
+		"""
+		print_status('TestIsList', 'test_singleton()')
+
+		a = 3.14
+		self.assertEqual(helpers.is_list(a), False)
+
+	def test_iter(self):
+		"""Test that is_list() correctly returns False when input is an
+		iter.
+		"""
+		print_status('TestIsList', 'test_iter()')
+
+		a = iter("foo")
+		self.assertEqual(helpers.is_list(a), False)
+		
+
+class TestIsDict(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsDict', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsDict', 'tear_down_class()')
+
+	def test_list(self):
+		"""Test that is_dict() correctly returns False when input is a list.
+		"""
+		print_status('TestIsDict', 'test_list()')
+
+		a = [1, 2, 3]
+		self.assertEqual(helpers.is_dict(a), False)
+
+	def test_set(self):
+		"""Test that is_dict() correctly returns False when input is a set.
+		"""
+		print_status('TestIsDict', 'test_set()')
+
+		a = {1, 2, 3}
+		self.assertEqual(helpers.is_dict(a), False)
+
+	def test_dict(self):
+		"""Test that is_dict() correctly returns True when input is a dict.
+		"""
+		print_status('TestIsDict', 'test_dict()')
+
+		a = {1: 0, 2: 5, 3: 'potato'}
+		self.assertEqual(helpers.is_dict(a), True)
+
+	def test_singleton(self):
+		"""Test that is_dict() correctly returns False when input is a
+		singleton.
+		"""
+		print_status('TestIsDict', 'test_singleton()')
+
+		a = 3.14
+		self.assertEqual(helpers.is_dict(a), False)
+
+	def test_iter(self):
+		"""Test that is_dict() correctly returns False when input is an
+		iter.
+		"""
+		print_status('TestIsDict', 'test_iter()')
+
+		a = iter("foo")
+		self.assertEqual(helpers.is_dict(a), False)
+		
+				
+class TestIsSet(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsSet', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsSet', 'tear_down_class()')
+
+	def test_list(self):
+		"""Test that is_set() correctly returns False when input is a list.
+		"""
+		print_status('TestIsSet', 'test_list()')
+
+		a = [1, 2, 3]
+		self.assertFalse(helpers.is_set(a))
+
+	def test_set(self):
+		"""Test that is_set() correctly returns False when input is a set.
+		"""
+		print_status('TestIsSet', 'test_set()')
+
+		a = {1, 2, 3}
+		self.assertTrue(helpers.is_set(a))
+
+	def test_dict(self):
+		"""Test that is_set() correctly returns True when input is a dict.
+		"""
+		print_status('TestIsSet', 'test_dict()')
+
+		a = {1: 0, 2: 5, 3: 'potato'}
+		self.assertFalse(helpers.is_set(a))
+
+	def test_singleton(self):
+		"""Test that is_set() correctly returns False when input is a
+		singleton.
+		"""
+		print_status('TestIsSet', 'test_singleton()')
+
+		a = 3.14
+		self.assertFalse(helpers.is_set(a))
+
+	def test_iter(self):
+		"""Test that is_set() correctly returns False when input is an
+		iter.
+		"""
+		print_status('TestIsSet', 'test_iter()')
+
+		a = iter("foo")
+		self.assertFalse(helpers.is_set(a))
+		
+				
 class TestIsInteger(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -174,7 +338,7 @@ class TestIsInteger(unittest.TestCase):
 
 		x = 14
 		is_int = helpers.is_integer(x)
-		self.assertEqual(is_int, True)
+		self.assertTrue(is_int)
 
 	def test_int_float(self):
 		"""Test that is_integer() returns correct result if x is an integer float.
@@ -183,7 +347,7 @@ class TestIsInteger(unittest.TestCase):
 
 		x = 14.0
 		is_int = helpers.is_integer(x)
-		self.assertEqual(is_int, True)
+		self.assertTrue(is_int)
 
 	def test_nonint_float(self):
 		"""Test that is_integer() returns correct result if x is a non-integer
@@ -205,6 +369,63 @@ class TestIsInteger(unittest.TestCase):
 		self.assertEqual(is_int, False)
 
 
+class TestIsNumericString(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestIsNumericString', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestIsNumericString', 'tear_down_class()')
+
+	def test_str_int(self):
+		"""Test that is_numeric_string() returns correct result if x is a string that represents an int.
+		"""
+		print_status('TestIsNumericString', 'test_str_int()')
+
+		x = '14'
+		is_int = helpers.is_numeric_string(x)
+		self.assertTrue(is_int)
+
+	def test_str_int_float(self):
+		"""Test that is_numeric_string() returns correct result if x is a string that represents an integer float.
+		"""
+		print_status('TestIsNumericString', 'test_str_int_float()')
+
+		x = '14.0'
+		is_int = helpers.is_numeric_string(x)
+		self.assertTrue(is_int)
+
+	def test_str_nonint_float(self):
+		"""Test that is_numeric_string() returns correct result if x is a string that represents an non-integer float.
+		"""
+		print_status('TestIsNumericString', 'test_str_int_float()')
+
+		x = '14.5'
+		is_int = helpers.is_numeric_string(x)
+		self.assertTrue(is_int)
+
+	def test_str_nonfloat(self):
+		"""Test that is_numeric_string() returns correct result if x is a string that represents an non-float.
+		"""
+		print_status('TestIsNumericString', 'test_str_nonfloat()')
+
+		x = 'foo'
+		is_int = helpers.is_numeric_string(x)
+		self.assertFalse(is_int)
+
+	def test_nonstr(self):
+		"""Test that is_numeric_string() returns correct result if x is not a string.
+		"""
+		print_status('TestIsNumericString', 'test_nonstr()')
+
+		x = 14
+		is_int = helpers.is_numeric_string(x)
+		self.assertFalse(is_int)
+		
+		
 class TestIsDiscreteDistribution(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -266,6 +487,30 @@ class TestIsDiscreteDistribution(unittest.TestCase):
 		is_discrete = helpers.is_discrete_distribution(dist)
 		self.assertEqual(is_discrete, False)
 
+
+class TestNearestDictValue(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestNearestDictValue', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestNearestDictValue', 'tear_down_class()')
+
+	def test(self):
+		"""Test nearest_dict_value().
+		"""
+		print_status('TestNearestDictValue', 'nearest_dict_value()')
+
+		the_dict = {0: 5, 0.1: 6.2, 0.2: 'foo', 0.3: None}
+
+		self.assertEqual(helpers.nearest_dict_value(0.1, the_dict), 6.2)
+		self.assertEqual(helpers.nearest_dict_value(0.09, the_dict), 6.2)
+		self.assertEqual(helpers.nearest_dict_value(-40, the_dict), 5)
+		self.assertEqual(helpers.nearest_dict_value(0.23, the_dict), 'foo')
+		self.assertIsNone(helpers.nearest_dict_value(6, the_dict))
 
 class TestIsContinuousDistribution(unittest.TestCase):
 	@classmethod
@@ -437,6 +682,24 @@ class TestEnsureListForTimePeriods(unittest.TestCase):
 		print_status('TestEnsureListForTimePeriods', 'test_list_with_0()')
 
 		x = helpers.ensure_list_for_time_periods([-1, 3.14, 3.14, 3.14, 3.14, 3.14], 5)
+		self.assertEqual(x, [-1, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_ndarray_without_0(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		an ndarray of length num_periods.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_ndarray_without_0()')
+
+		x = helpers.ensure_list_for_time_periods(np.array([3.14, 3.14, 3.14, 3.14, 3.14]), 5)
+		self.assertEqual(x, [0, 3.14, 3.14, 3.14, 3.14, 3.14])
+
+	def test_ndarray_with_0(self):
+		"""Test that ensure_list_of_length() returns correct result if x is
+		an ndarray of length num_periods+1.
+		"""
+		print_status('TestEnsureListForTimePeriods', 'test_ndarray_with_0()')
+
+		x = helpers.ensure_list_for_time_periods(np.array([-1, 3.14, 3.14, 3.14, 3.14, 3.14]), 5)
 		self.assertEqual(x, [-1, 3.14, 3.14, 3.14, 3.14, 3.14])
 
 	def test_bad_list(self):
@@ -687,6 +950,43 @@ class TestSortDictByKeys(unittest.TestCase):
 		self.assertEqual(c_vals, [9, 3, 2, 0, None])
 
 
+class TestSortNestedDictByKeys(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestSortNestedDictByKeys', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestSortNestedDictByKeys', 'tear_down_class()')
+
+	def test_nest_list(self):
+		"""Test sort_nested_dict_by_keys().
+		"""
+		print_status('TestSortNestedDictByKeys', 'test_ascending_values()')
+
+		a = {0: 5, 3: "hello", 2: -1, 9: None}
+		b = {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+		c = {"c": -5, "a": 2, "d": None, "b": "foo"}
+		d = {5: a, None: b, 17: c}
+		# Note to self: d items, sorted ascending by key, are:
+		# (None, None): "bar", (None, 0): 5, (None, 2): -1, (None, 3): "hello", (None, 9): None,
+		# (5, 0): 5, (5, 2): -1, (5, 3): "hello", (5, 9): None,
+		# (17, "a"): 2, (17, "b"): "foo", (17, "c"): -5, (17, "d"): None
+  
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d), 
+				   ["bar", 5, -1, "hello", None, 5, -1, "hello", None, 2, "foo", -5, None])
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d, ascending=False), 
+				   list(reversed(["bar", 5, -1, "hello", None, 5, -1, "hello", None, 2, "foo", -5, None])))
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d, return_values=False), 
+				   [(None, None), (None, 0), (None, 2), (None, 3), (None, 9),
+					(5, 0), (5, 2), (5, 3), (5, 9), (17, "a"), (17, "b"), (17, "c"), (17, "d")])
+		self.assertEqual(helpers.sort_nested_dict_by_keys(d, ascending=False, return_values=False), 
+				   list(reversed([(None, None), (None, 0), (None, 2), (None, 3), (None, 9),
+					(5, 0), (5, 2), (5, 3), (5, 9), (17, "a"), (17, "b"), (17, "c"), (17, "d")])))
+		
+		
 class TestChangeDictKey(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -725,6 +1025,151 @@ class TestChangeDictKey(unittest.TestCase):
 		with self.assertRaises(KeyError):
 			helpers.change_dict_key(a, 1, 77)
 
+
+class TestReplaceDictNumericStringKeys(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestReplaceDictNumericStringKeys', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestReplaceDictNumericStringKeys', 'tear_down_class()')
+
+	def test_no_nesting(self):
+		"""Test that replace_dict_numeric_string_keys() returns correct result
+		when dict doesn't have any nested dicts.
+		"""
+		print_status('TestReplaceDictNumericStringKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", 2: -1, "9": None}
+		b = {"c": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_new = helpers.replace_dict_numeric_string_keys(a)
+		b_new = helpers.replace_dict_numeric_string_keys(b)
+		c_new = helpers.replace_dict_numeric_string_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", 2: -1, 9: None})
+		self.assertDictEqual(b_new, {"c": -5, 4: 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {0: 5, 3: "hello", 2: -1, 9: None, None: "bar"})
+
+	def test_nesting(self):
+		"""Test that replace_dict_numeric_string_keys() returns correct result
+		when dict contains nested dicts.
+		"""
+		print_status('TestReplaceDictNumericStringKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", 2: -1, "9": None}
+		b = {"c": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: a, None: b}
+
+		a_new = helpers.replace_dict_numeric_string_keys(a)
+		b_new = helpers.replace_dict_numeric_string_keys(b)
+		c_new = helpers.replace_dict_numeric_string_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", 2: -1, 9: None})
+		self.assertDictEqual(b_new, {"c": -5, 4: 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {0: 5, 3: "hello", 2: -1, 9: {0: 5, 3: "hello", 2: -1, 9: None}, None: {"c": -5, 4: 2, "d": None, 6: "foo"}})
+
+
+class TestReplaceDictNullKeys(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestReplaceDictNullKeys', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestReplaceDictNullKeys', 'tear_down_class()')
+
+	def test_no_nesting(self):
+		"""Test that replace_dict_null_keys() returns correct result
+		when dict doesn't have any nested dicts.
+		"""
+		print_status('TestReplaceDictNullKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", "null": -1, "9": None}
+		b = {"null": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: None, None: "bar"}
+
+		a_new = helpers.replace_dict_null_keys(a)
+		b_new = helpers.replace_dict_null_keys(b)
+		c_new = helpers.replace_dict_null_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", None: -1, "9": None})
+		self.assertDictEqual(b_new, {None: -5, "4": 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {"0": 5, 3: "hello", 2: -1, 9: None, None: "bar"})
+
+	def test_nesting(self):
+		"""Test that replace_dict_null_keys() returns correct result
+		when dict contains nested dicts.
+		"""
+		print_status('TestReplaceDictNullKeys', 'test_no_nesting()')
+
+		a = {0: 5, 3: "hello", "null": -1, "9": None}
+		b = {"null": -5, "4": 2, "d": None, 6: "foo"}
+		c = {"0": 5, 3: "hello", 2: -1, 9: a, None: b}
+
+		a_new = helpers.replace_dict_null_keys(a)
+		b_new = helpers.replace_dict_null_keys(b)
+		c_new = helpers.replace_dict_null_keys(c)
+
+		self.assertDictEqual(a_new, {0: 5, 3: "hello", None: -1, "9": None})
+		self.assertDictEqual(b_new, {None: -5, "4": 2, "d": None, 6: "foo"})
+		self.assertDictEqual(c_new, {"0": 5, 3: "hello", 2: -1, 9: {0: 5, 3: "hello", None: -1, "9": None}, None: {None: -5, "4": 2, "d": None, 6: "foo"}})
+
+
+class TestCompareUnhashableLists(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestCompareUnhashableLists', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestCompareUnhashableLists', 'tear_down_class()')
+
+	def test_basic(self):
+		"""Test compare_unhashable_lists().
+		"""
+		print_status('TestCompareUnhashableLists', 'test_basic()')
+
+		nodes = [SupplyChainNode(i) for i in range(5)]
+		prods = [SupplyChainProduct(i) for i in range(5)]
+
+		list1 = [nodes[0], nodes[1]]
+		list2 = [nodes[0], nodes[1]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[1], nodes[3]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = [nodes[3], nodes[4], prods[2]]
+		list2 = [nodes[3], nodes[4], prods[2]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[1], nodes[3], prods[2]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = [nodes[3], nodes[4], nodes[3], prods[2]]
+		list2 = [nodes[3], nodes[4], prods[2], nodes[3]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[3], nodes[4], prods[0], nodes[3]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = nodes + [nodes[3], prods[4], nodes[4], nodes[3], prods[2], prods[4]]
+		list2 = [nodes[3], nodes[4], prods[2], nodes[3], nodes[1], nodes[2], nodes[0], nodes[4], nodes[3], prods[4], prods[4]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [nodes[0], nodes[4], prods[2], nodes[3], nodes[1], nodes[2], nodes[0], nodes[4], nodes[3], prods[4], prods[4]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
+
+		list1 = [nodes[3], nodes[4], 42, 9, nodes[3], prods[2], 42]
+		list2 = [42, 9, 42, nodes[3], nodes[4], prods[2], nodes[3]]
+		self.assertTrue(helpers.compare_unhashable_lists(list1, list2))
+		list3 = [41, 9, 42, nodes[3], nodes[4], prods[2], nodes[3]]
+		self.assertFalse(helpers.compare_unhashable_lists(list1, list3))
 
 class TestConvolveMany(unittest.TestCase):
 	@classmethod

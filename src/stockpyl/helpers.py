@@ -150,9 +150,43 @@ def is_list(x):
 	return isinstance(x, list)
 
 
+def is_set(x):
+	"""Determine whether x is a set.
+	
+	Parameters
+	----------
+	x : any
+		Object to test for set-ness.
+
+	Returns
+	-------
+	bool
+		``True`` if ``x`` is a set, ``False`` otherwise.
+
+	"""
+	return isinstance(x, set)
+
+
+def is_dict(x):
+	"""Determine whether x is a dict.
+
+	Parameters
+	----------
+	x : any
+		Object to test for dict-ness.
+
+	Returns
+	-------
+	bool
+		``True`` if ``x`` is a dict, ``False`` otherwise.
+
+	"""
+	return isinstance(x, dict)
+
+
 def is_integer(x):
-	"""Determine whether ``x`` is an integer. Return ``False`` if ``x`` is not a float,
-	or is a non-integer float, or is an int.
+	"""Determine whether ``x`` is an integer. Return ``True`` if ``x`` is an int,
+	or a float that evaluates to an integer, ``False`` otherwise.
 
 	Parameters
 	----------
@@ -177,6 +211,31 @@ def is_integer(x):
 			return False
 	else:
 		return False
+
+
+def is_numeric_string(s):
+	"""Determine whether ``s`` is a string that represents a number. 
+
+	Parameters
+	----------
+	s : str
+		String to check for integrality.
+
+	Returns
+	-------
+	bool
+		``True`` if ``s`` represents a number, ``False`` otherwise.
+
+	"""
+	if not isinstance(s, str):
+		return False
+	else:
+		# https://stackoverflow.com/q/354038/3453768
+		try:
+			float(s)
+			return True
+		except ValueError:
+			return False
 
 
 def is_discrete_distribution(distribution):
@@ -243,6 +302,22 @@ def is_continuous_distribution(distribution):
 	else:
 		# Check the object itself for type.
 		return isinstance(distribution, rv_continuous)
+
+
+def nearest_dict_value(key_to_search, the_dict):
+	"""Return the value in ``the_dict`` corresponding to the key that is closest
+	to ``key_to_search``.
+
+	Parameters
+	----------
+	key_to_search : float
+		The number to search for among the keys.
+	the_dict : dict
+		The dictionary to search.
+	"""
+
+	# https://stackoverflow.com/a/7934624/3453768
+	return the_dict.get(key_to_search, the_dict[min(the_dict.keys(), key=lambda k: abs(k-key_to_search))])
 
 
 def find_nearest(array, values, sorted=False, index=dict()):
@@ -341,6 +416,7 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	* If ``x`` is a list of length ``num_periods``+1, return ``x``.
 	* If ``x`` is a list of length ``num_periods``, shift elements to the right by 1 slot, 
 	  fill the 0th element with 0, and return new list.
+	* If ``x`` is a numpy array, convert to list first, then follow above rules.
 	* Otherwise, raise a ``ValueError``.
 
 	**Examples:**
@@ -384,6 +460,10 @@ def ensure_list_for_time_periods(x, num_periods, var_name=None):
 	ValueError
 		If ``x`` is not a singleton or a list of length ``num_periods`` or ``num_periods`` + 1.
 	"""
+	# If numpy array, convert to list.
+	if isinstance(x, np.ndarray):
+		x = x.tolist()
+
 	# Determine whether x is singleton or iterable.
 	if is_iterable(x):
 		if len(x) == num_periods+1:
@@ -472,7 +552,7 @@ def build_node_data_dict(attribute_dict, node_order_in_lists, default_values={})
 	``data_dict[n][a]`` is the value of attribute ``a``, where ``a`` is in a key
 	in ``attribute_dict``.
 
-	:func:`~build_node_data_dict` is similar calling :func:`~ensure_dict_for_nodes` for multiple
+	:func:`~build_node_data_dict` is similar to calling :func:`~ensure_dict_for_nodes` for multiple
 	attributes simultaneously.
 
 	For each attribute ``a`` in ``attribute_dict`` keys, ``attribute_dict[a]`` 
@@ -678,9 +758,25 @@ def sort_dict_by_keys(d, ascending=True, return_values=True):
 	"""Sort dict by keys and return sorted list of values or keys, depending
 	on the value of ``return_values``.
 
-	Special handling is included to handle keys that might be ``None``.
+	Keys must all be comparable to one another, i.e., all numbers or all strings,
+	with the exception that ``None`` keys are allowed.
+	Special handling is included to handle keys that are ``None``.
 	(``None`` is assumed to come before any other element when sorting in
 	ascending order.)
+
+	**Example:**
+
+	.. testsetup:: *
+
+		from stockpyl.helpers import *
+
+	.. doctest::
+
+		>>> the_dict = {'a': 5, None: 14, 'b': 7}
+		>>> sort_dict_by_keys(the_dict)
+		[14, 5, 7]
+		>>> sort_dict_by_keys(the_dict, return_values=False)
+		[None, 'a', 'b']
 
 	Parameters
 	----------
@@ -724,6 +820,67 @@ def sort_dict_by_keys(d, ascending=True, return_values=True):
 
 	return return_list
 
+	
+def sort_nested_dict_by_keys(d, ascending=True, return_values=True):
+	"""Sort nested dict by its first two levels of keys and return sorted 
+	list of values or keys, depending on the value of ``return_values``.
+	If ``return_values`` is ``False``, the list returned
+	contains tuples ``(key1, key2)``, where ``key1`` is the key from the
+	outer dict and ``key2`` is the key from the inner dict.
+
+	Keys must all be comparable to one another, i.e., all numbers or all strings,
+	with the exception that ``None`` keys are allowed.
+	Special handling is included to handle keys that are ``None``.
+	(``None`` is assumed to come before any other element when sorting in
+	ascending order.)
+
+	**Example:**
+
+	.. testsetup:: *
+
+		from stockpyl.helpers import *
+
+	.. doctest::
+
+		>>> the_dict = {'a': 5, None: 14, 'b': 7}
+		>>> sort_dict_by_keys(the_dict)
+		[14, 5, 7]
+		>>> sort_dict_by_keys(the_dict, return_values=False)
+		[None, 'a', 'b']
+
+	Parameters
+	----------
+	d : dict
+		The dict to sort.
+	ascending : bool, optional
+		Sort order.
+	return_values : bool, optional
+		Set to ``True`` to return a list of the dict's values, ``False`` to
+		return its keys.
+
+	Returns
+	-------
+	return_list : list
+		List of values or keys of ``d``, sorted in order of keys of ``d``.
+
+	"""
+	# Replace nested dict with one in which the first two levels are replaced by a tuple.
+	# Also replace any None keys with -inf so they will always be sorted first (if ascending order).
+	flattened_dict = {(key1 if key1 is not None else float('-inf'), key2 if key2 is not None else float('-inf')): \
+							d[key1][key2] for key1 in d.keys() for key2 in d[key1].keys()}
+
+	if return_values:
+		# Build sorted list of values (sorted by keys) in flattened_dict.
+		return_list = [value for _, value in sorted(flattened_dict.items(), reverse=not ascending)]
+	else:
+		# Build sorted list of keys in flattened_dict.
+		return_list = [key for key, _ in sorted(flattened_dict.items(), reverse=not ascending)]
+
+		# Replace -inf with None.
+		return_list = [(None if key1 == -float('inf') else key1, None if key2 == -float('inf') else key2) \
+						for key1, key2 in return_list]
+
+	return return_list
 
 def change_dict_key(dict_to_change, old_key, new_key):
 	"""Change ``old_key`` to ``new_key`` in ``dict_to_change`` (in place).
@@ -746,6 +903,111 @@ def change_dict_key(dict_to_change, old_key, new_key):
 	# Change key.
 	# See https://stackoverflow.com/a/4406521/3453768.
 	dict_to_change[new_key] = dict_to_change.pop(old_key)
+
+
+def replace_dict_numeric_string_keys(dict_to_change):
+	"""Replace any key in ``dict_to_change`` that is a string representing an integer with 
+	the integer itself. Return a new dict.
+	Works recursively to replace numeric-string keys in any values in ``dict_to_change``, etc.
+
+	Parameters
+	----------
+	dict_to_change : dict
+		The dict.
+
+	Returns
+	-------
+	dict
+		The new dict.
+	"""
+	new_dict = {}
+	for old_key, v in dict_to_change.items():
+
+		# If v is a dict, call this function recursively on it.
+		if is_dict(v):
+			v = replace_dict_numeric_string_keys(v)
+			
+		# Determine new key, if any.
+		if is_numeric_string(old_key):
+			# Change key.
+			new_key = float(old_key)
+			if is_integer(new_key):
+				new_key = int(old_key)
+		else:
+			new_key = old_key
+		# Add item to dict.
+		new_dict[new_key] = v
+
+	return new_dict
+
+
+def replace_dict_null_keys(dict_to_change):
+	"""Replace any key in ``dict_to_change`` that equals the string ``'null'`` with ``None``.
+	Return a new dict.
+	Works recursively to replace ``'null'``'`` keys in any values in ``dict_to_change``, etc.
+
+	Parameters
+	----------
+	dict_to_change : dict
+		The dict.
+
+	Returns
+	-------
+	dict
+		The new dict.
+	"""
+	new_dict = {}
+	for old_key, v in dict_to_change.items():
+
+		# If v is a dict, call this function recursively on it.
+		if is_dict(v):
+			v = replace_dict_null_keys(v)
+			
+		# Determine new key, if any.
+		if old_key == 'null':
+			new_key = None
+		else:
+			new_key = old_key
+		# Add item to dict.
+		new_dict[new_key] = v
+
+	return new_dict
+
+def compare_unhashable_lists(list1, list2):
+	"""Determine whether ``list1`` and ``list2`` have the same elements, with the same
+	counts, not necessarily in the same order. Return ``True`` if they do, ``False`` otherwise.
+
+	.. note : Only use this function for lists of unhashable objects (such as |class_node|
+	and |class_product|). For hashable objects, ``collections.Counter`` is faster, e.g.,
+	``Counter(list1) == Counter(list2)``.
+
+	Parameters
+	----------
+	list1 : list
+		The first list to compare.
+	list2 : list
+		The second list to compare.
+
+	Returns
+	-------
+	bool
+		``True`` if the two lists have the same elements, with the same counts, not 
+		neceessarily in the same order, ``False`` otherwise.
+	"""
+	# https://stackoverflow.com/a/7829388/3453768
+
+	if len(list1) != len(list2):
+		return False
+		
+	list1 = list(list1)   # make a mutable copy
+    
+	try:
+		for elem in list2:
+			list1.remove(elem)
+	except ValueError:
+		return False
+    
+	return not list1
 
 
 ### STATS FUNCTIONS ###

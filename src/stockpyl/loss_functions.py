@@ -258,6 +258,54 @@ def normal_second_loss(x, mean, sd):
 	return n, n_bar
 
 
+def standard_normal_loss_dict(start=-4, stop=4, step=0.01, complementary=False):
+	"""Return a dictionary whose keys range from ``start`` to ``stop`` in intervals of ``step``, 
+	and whose values are the standard normal loss function
+	values corresponding to those keys. If going from ``start`` in increments of ``step``
+	overshoots ``stop``, ends at the largest value before ``stop``. If ``complementary`` is ``False``,
+	the dictionary values are the standard normal complementary loss function.
+	
+	Default values return :math:`\\mathscr{L}^{(2)}(z)`
+	for :math:`z = -4.00, -3.99, -3.98, \ldots, 3.98, 3.99, 4.00`.
+
+	**Note:** Because of how floating point arithmetic works, the dictionary keys will not
+	precisely equal the desired values. Therefore, the resulting dictionary is difficult to 
+	use by calling it directly. For example, 0.55 is unlikely to be a key in the dictionary 
+	returned, even if the input parameters suggest that it should; instead, the key might be
+	represented as, say, 0.5499999999999593. Therefore, to determine the value of the loss function
+	for 0.55, you must generally search for the nearest key to 0.55 and take the corresponding value.
+	(The ``helpers.nearest_dict_value()`` function does just that.)
+
+	Parameters
+	----------
+	start : float, optional
+		The start value to calculate the loss function for, by default -4
+	stop : float, optional
+		The start value to calculate the loss function for, by default 4
+	step : float, optional
+		The interval between values to calculate the loss function for, by default 0.01
+	complementary : bool, optional
+		Set to ``True`` to return the complementary loss function, by default ``False``
+
+	Returns
+	-------
+	dict
+		Dictoinary whose keys range from ``start`` to ``stop`` in intervals of ``step``, 
+		and whose values are the standard normal loss function
+		values corresponding to those keys.
+	"""
+	
+	# Build list of z values.
+	z = start
+	z_list = []
+	while z < stop:
+		z_list.append(z)
+		z += step
+	
+	# Build and return dictionary.
+	return {z: standard_normal_loss(z)[1 if complementary else 0] for z in z_list}
+
+	
 def lognormal_loss(x, mu, sigma):
 	"""
 	Return lognormal loss and complementary loss functions for :math:`\\text{lognormal}(\\mu,\\sigma)`

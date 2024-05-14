@@ -23,7 +23,7 @@ in the |mod_supply_uncertainty| module:
 
 .. note:: |fosct_notation|
 
-.. admonition:: See Also
+.. seealso::
 
 	For an overview of supply uncertainty in |sp|,
 	see the :ref:`tutorial page for supply uncertainty<tutorial_su_page>`.
