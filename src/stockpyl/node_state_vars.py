@@ -799,8 +799,9 @@ class NodeStateVars(object):
 		"""Current inventory of raw materials for ``product`` that is in transit to the node.  Read only.
 		
 
-		..versionchanged:: 1.0	
-		    This was previously a property and is now a function.
+
+		.. versionchanged:: 1.0	
+			This was previously a property and is now a function.
 		
 		
 		In-transit items are counted using the "units" of the node (or node-product pair) itself.
@@ -828,12 +829,12 @@ class NodeStateVars(object):
 
 
 
-		..versionadded:: 1.0
+		.. versionadded:: 1.0
 
 		    This was previously a property and is now a function.
 
 			
-		..note:: 
+		.. note:: 
 			
 		    This was previously a property and is now a function.
 

@@ -288,7 +288,7 @@ All state variables refer to their values at the end of the period.
 .. note::
 
 	This section assumes that there are no products explicitly added to the network, i.e., the network
-	only contains "dummy products" (see :ref:`Products<products>`). For the simulation output for 
+	only contains :ref:`dummy products<dummy_products>`. For the simulation output for 
 	multiproduct networks, see :ref:`Multiproduct Simulation Output<multiproduct_sim_output>`.
 
 The table has the following format:

@@ -21,7 +21,6 @@ the :ref:`tutorial page for simulation<tutorial_sim_page>`, read that first.
 .. contents::
     :depth: 3
 
-.. _products:
 
 Products
 --------
@@ -43,6 +42,9 @@ The raw materials are products A and B, and the finished good is product C.
 	classes. Moreover, a finished good at one node may be a raw material at another node; for example,
 	node 1 might produce product A as its finished good, which it then ships to node 2, where it is
 	used as a raw material to produce product B.
+
+
+.. _dummy_products:
 
 Dummy Products
 --------------
