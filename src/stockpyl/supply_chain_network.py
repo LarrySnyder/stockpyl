@@ -1500,8 +1500,14 @@ def mwor_system(num_warehouses, node_order_in_system=None, node_order_in_lists=N
 	# Set demand_source parameter so it only occurs at retailer node.
 	if 'demand_source' not in local_kwargs:
 		local_kwargs['demand_source'] = {}
-	for n in node_order_in_system[0:-1]:
-		local_kwargs['demand_source'][n] = DemandSource()
+	elif isinstance(local_kwargs['demand_source'], DemandSource):
+		# demand_source provided as singleton; convert to dict.
+		local_kwargs['demand_source'] = {n: DemandSource() for n in node_order_in_system[0:-1]}
+		local_kwargs['demand_source'].update({node_order_in_system[-1]: kwargs['demand_source']})
+	else:
+		# demand_source provided as list; overwrite all except retailer node.
+		for n in node_order_in_system[0:-1]:
+			local_kwargs['demand_source'][n] = DemandSource()
 
 	# Determine node_order_in_lists.
 	if node_order_in_lists is None:

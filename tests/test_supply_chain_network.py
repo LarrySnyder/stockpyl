@@ -1717,6 +1717,20 @@ class TestMWORSystem(unittest.TestCase):
 		self.assertEqual(wh2.local_holding_cost, 2)
 		self.assertEqual(wh3.local_holding_cost, 1)
 
+	def test_145(self):
+		"""Test instance in issue #165 (mwor_system() fails when setting demand_source).
+		"""
+		print_status('TestReindexNodes', 'test_145()')
+
+		network = mwor_system(3, demand_source=DemandSource(type='P', mean=5))
+
+		self.assertIsInstance(network.get_node_from_index(0).demand_source, DemandSource)
+		self.assertEqual(network.get_node_from_index(0).demand_source.type, 'P')
+		self.assertEqual(network.get_node_from_index(0).demand_source.mean, 5)
+		for n in range(1, 4):
+			self.assertIsInstance(network.get_node_from_index(n).demand_source, DemandSource)
+			self.assertIsNone(network.get_node_from_index(n).demand_source.type)
+
 
 class TestOWMRSystem(unittest.TestCase):
 	@classmethod
