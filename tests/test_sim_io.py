@@ -84,6 +84,54 @@ class TestWriteResults(unittest.TestCase):
 			if os.path.exists(csv_filename):
 				os.remove(csv_filename)
 
+	def test_example_6_1_suppress_dummy_false(self):
+		"""Test that write_results() function correctly writes results from
+		simulation of Example 6.1.
+		"""
+		print_status('TestWriteResults', 'test_example_6_1_suppress_dummy_false()')
+
+		# Build network.
+		network = load_instance("example_6_1")
+
+		# Simulate and write results.
+		simulation(network, 100, rand_seed=17, progress_bar=False)
+		filename_root = 'tests/additional_files/temp_TestWriteResults_test_example_6_1_suppress_dummy_false'
+		txt_filename = filename_root + '.txt'
+		csv_filename = filename_root + '.csv'
+
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+
+		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_example_6_1_suppress_dummy_false'
+		correct_txt_filename = correct_filename_root + '.txt'
+		correct_csv_filename = correct_filename_root + '.csv'
+
+		try:
+			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=cols_to_print, 
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+			
+			# Load TXT results and check them.
+			with open(txt_filename) as txtfile:
+				lines = txtfile.read().splitlines()
+			with open(correct_txt_filename) as correct_txtfile:
+				correct_lines = correct_txtfile.read().splitlines()
+			self.assertListEqual(lines, correct_lines)
+
+			# Load CSV results and check them.
+			with open(csv_filename) as csvfile:
+				reader = csv.reader(csvfile)
+				rows = list(reader)
+			with open(correct_csv_filename) as correct_csvfile:
+				correct_reader = csv.reader(correct_csvfile)
+				correct_rows = list(correct_reader)
+			self.assertListEqual(rows, correct_rows)
+
+		finally:
+			# Delete files.
+			if os.path.exists(txt_filename):
+				os.remove(txt_filename)
+			if os.path.exists(csv_filename):
+				os.remove(csv_filename)
+
 	def test_periods_to_print(self):
 		"""Test that write_results() function correctly writes results from
 		simulation of Example 6.1 when periods_to_print is specified as a list.
@@ -107,7 +155,7 @@ class TestWriteResults(unittest.TestCase):
 
 		try:
 			sim_io.write_results(network=network, num_periods=100, periods_to_print=[2, 7, 43], columns_to_print=cols_to_print, 
-				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
 
 			# Load TXT results and check them.
 			with open(txt_filename) as txtfile:
@@ -154,7 +202,7 @@ class TestWriteResults(unittest.TestCase):
 
 		try:
 			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print='all', 
-				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
 
 			# Load TXT results and check them.
 			with open(txt_filename) as txtfile:
@@ -200,7 +248,7 @@ class TestWriteResults(unittest.TestCase):
 
 		try:
 			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=None, 
-				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
 
 			# Load TXT results and check them.
 			with open(txt_filename) as txtfile:
@@ -246,7 +294,7 @@ class TestWriteResults(unittest.TestCase):
 
 		try:
 			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['IO', 'OQ', 'IL', 'TC'], 
-				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
 			
 			# Load TXT results and check them.
 			with open(txt_filename) as txtfile:
@@ -292,7 +340,7 @@ class TestWriteResults(unittest.TestCase):
 
 		try:
 			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print='basic', 
-				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
 
 			# Load TXT results and check them.
 			with open(txt_filename) as txtfile:
@@ -338,7 +386,7 @@ class TestWriteResults(unittest.TestCase):
 
 		try:
 			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['basic', 'costs'], 
-				write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
 
 			# Load TXT results and check them.
 			with open(txt_filename) as txtfile:
@@ -405,11 +453,57 @@ class TestWriteResults(unittest.TestCase):
 
 		finally:
 			# Delete files.
+			# if os.path.exists(txt_filename):
+			# 	os.remove(txt_filename)
+			if os.path.exists(csv_filename):
+				os.remove(csv_filename)
+
+	def test_columns_to_print_mixed_suppress_dummy_false(self):
+		"""Test that write_results() function correctly writes results from
+		simulation of Example 6.1 when columns_to_print is specified as a list that contains
+		some column names and some built-in strings.
+		"""
+		print_status('TestWriteResults', 'test_columns_to_print_mixed_suppress_dummy_false()')
+
+		# Build network.
+		network = load_instance("example_6_1")
+
+		# Simulate and write results.
+		simulation(network, 100, rand_seed=17, progress_bar=False)
+		filename_root = 'tests/additional_files/temp_TestWriteResults_test_columns_to_print_mixed_suppress_dummy_false'
+		txt_filename = filename_root + '.txt'
+		csv_filename = filename_root + '.csv'
+
+		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_columns_to_print_mixed_suppress_dummy_false'
+		correct_txt_filename = correct_filename_root + '.txt'
+		correct_csv_filename = correct_filename_root + '.csv'
+
+		try:
+			sim_io.write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI'], 
+				suppress_dummy_products=False, write_txt=True, txt_filename=txt_filename, write_csv=True, csv_filename=csv_filename)
+
+			# Load TXT results and check them.
+			with open(txt_filename) as txtfile:
+				lines = txtfile.read().splitlines()
+			with open(correct_txt_filename) as correct_txtfile:
+				correct_lines = correct_txtfile.read().splitlines()
+			self.assertListEqual(lines, correct_lines)
+
+			# Load CSV results and check them.
+			with open(csv_filename) as csvfile:
+				reader = csv.reader(csvfile)
+				rows = list(reader)
+			with open(correct_csv_filename) as correct_csvfile:
+				correct_reader = csv.reader(correct_csvfile)
+				correct_rows = list(correct_reader)
+			self.assertListEqual(rows, correct_rows)
+
+		finally:
+			# Delete files.
 			if os.path.exists(txt_filename):
 				os.remove(txt_filename)
 			if os.path.exists(csv_filename):
 				os.remove(csv_filename)
-
 
 class TestWriteInstanceAndStates(unittest.TestCase):
 	@classmethod

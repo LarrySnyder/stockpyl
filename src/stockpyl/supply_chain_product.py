@@ -111,8 +111,6 @@ class SupplyChainProduct(object):
 		Revenue earned per unit of demand met. (**Note:** *not currently supported*.) [:math:`r`]
 	shipment_lead_time : int
 		Shipment lead time. [:math:`L`]
-	lead_time : int
-		An alias for ``shipment_lead_time``.
 	order_lead_time : int
 		Order lead time.  (**Note:** *not currently supported*.)
 	demand_source : |class_demand_source|
@@ -331,7 +329,7 @@ class SupplyChainProduct(object):
 
 	@property
 	def raw_materials(self):
-		"""A list of all raw materials required to make this product, as |class_prod| objects. 
+		"""A list of all raw materials required to make this product, as |class_product| objects. 
 		If a given raw material is registered in the product's BOM but has not been added
 		to the network (or any of its nodes), the raw material is not included in the list. Read only."""
 		if self.network is None:
@@ -568,7 +566,7 @@ class SupplyChainProduct(object):
 
 		``network`` object is not filled, but should be filled with the network object if this
 		function is called recursively from a |class_network|'s ``from_dict()`` method.
-		 ``node`` attribute is not filled in the product's ``inventory_policy`` attribute.
+		``node`` attribute is not filled in the product's ``inventory_policy`` attribute.
 
 		Parameters
 		----------

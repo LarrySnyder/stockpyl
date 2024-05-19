@@ -82,7 +82,7 @@ from stockpyl.demand_source import DemandSource
 from stockpyl.disruption_process import DisruptionProcess
 
 
-def write_results(network, num_periods, periods_to_print=None, columns_to_print=None, 
+def write_results(network, num_periods, periods_to_print=None, columns_to_print=None, suppress_dummy_products=True,
 					write_txt=False, txt_filename=None, write_csv=False, csv_filename=None):
 	"""Write the results of a simulation to the console, as well as to a TXT and/or CSV file if requested.
 
@@ -106,6 +106,10 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			* ``'all'``: prints all columns (equivalent to setting ``columns_to_print=None``)
 
 		Unrecognized strings are ignored. If omitted, will print all columns (the default). 
+	suppress_dummy_products : bool, optional
+		``True`` (default) to omit dummy product indices in column headers, ``False`` to display them. 
+		If dummy product indices are suppressed, 
+		raw material inventories are indicated by their predecessor node indices rather than product indices.
 	write_txt : bool, optional
 		``True`` to write the output that is printed to the terminal to TXT file also, ``False`` otherwise. 
 		Optional; default = ``False``.
@@ -160,8 +164,6 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		# Loop through nodes.
 		for ind in sorted_nodes:
 			node = network.get_node_from_index(ind)
-			# Loop through products.
-#			for prod in node.products:
 
 			# Remove 0th element of pipelines because these will always be 0 at the end of the period.
 			IOPL_temp = sort_nested_dict_by_keys(node.state_vars[t].inbound_order_pipeline)
@@ -200,27 +202,36 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 	headers = ["t"]
 	for ind in sorted_nodes:
 		node = network.get_node_from_index(ind)
-		# Loop through products.
-#		for prod_index in node.product_indices:
 		headers = headers + [f"| i={ind:d}"] 
-#			headers = headers + [f"| i={ind:d} pr={prod_index:d}"] 
 		if 'DISR'	in cols_to_print: headers += ['DISR']
-		if 'IO'		in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order, "IO")
-		if 'IOPL'	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL")
-		if 'OQ' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].order_quantity, "OQ")
-		if 'OQFG' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].order_quantity_fg, "OQFG")
-		if 'OO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO")
-		if 'IS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment, "IS")
-		if 'ISPL' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL")
-		if 'IDI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_disrupted_items, "IDI")
-		if 'RM' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].raw_material_inventory, "RM")
-		if 'PFG' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].pending_finished_goods, "PFG")
-		if 'OS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_shipment, "OS")
-		if 'DMFS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].demand_met_from_stock, "DMFS")
-		if 'FR'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].fill_rate, "FR")
-		if 'IL'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inventory_level, "IL")
-		if 'BO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO")
-		if 'ODI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_disrupted_items , "ODI")
+		if 'IO'		in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order, "IO", omit_negative_keys=suppress_dummy_products)
+		if 'IOPL'	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order_pipeline, "IOPL", omit_negative_keys=suppress_dummy_products)
+		if 'OQ' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].order_quantity, "OQ", omit_negative_keys=suppress_dummy_products)
+		if 'OQFG' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].order_quantity_fg, "OQFG", omit_negative_keys=suppress_dummy_products)
+		if 'OO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].on_order_by_predecessor, "OO", omit_negative_keys=suppress_dummy_products)
+		if 'IS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment, "IS", omit_negative_keys=suppress_dummy_products)
+		if 'ISPL' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_shipment_pipeline, "ISPL", omit_negative_keys=suppress_dummy_products)
+		if 'IDI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_disrupted_items, "IDI", omit_negative_keys=suppress_dummy_products)
+		if 'RM' 	in cols_to_print: 
+			# If suppress_dummy_products, use predecessor indices instead of product indices.
+			if suppress_dummy_products:
+				temp_dict = {}
+				for k, v in node.state_vars[0].raw_material_inventory.items():
+					if network.products_by_index[k].is_dummy: 
+						temp_dict[node.raw_material_suppliers_by_raw_material(raw_material=k, return_indices=True)[0]] = v
+					else:
+						temp_dict[k] = v
+				# temp_dict = {node.raw_material_suppliers_by_raw_material(raw_material=k, return_indices=True)[0]: v for k, v in node.state_vars[0].raw_material_inventory.items()}
+			else:
+				temp_dict = node.state_vars[0].raw_material_inventory
+			headers += _dict_to_header_list(temp_dict, "RM")
+		if 'PFG' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].pending_finished_goods, "PFG", omit_negative_keys=suppress_dummy_products)
+		if 'OS' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_shipment, "OS", omit_negative_keys=suppress_dummy_products)
+		if 'DMFS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].demand_met_from_stock, "DMFS", omit_negative_keys=suppress_dummy_products)
+		if 'FR'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].fill_rate, "FR", omit_negative_keys=suppress_dummy_products)
+		if 'IL'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inventory_level, "IL", omit_negative_keys=suppress_dummy_products)
+		if 'BO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO", omit_negative_keys=suppress_dummy_products)
+		if 'ODI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_disrupted_items , "ODI", omit_negative_keys=suppress_dummy_products)
 		if 'HC'		in cols_to_print: headers += ["HC"]
 		if 'SC'		in cols_to_print: headers += ["SC"]
 		if 'ITHC'	in cols_to_print: headers += ["ITHC"]
@@ -256,7 +267,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 				writer.writerow(r)
 
 
-def _dict_to_header_list(d, abbrev):
+def _dict_to_header_list(d, abbrev, omit_negative_keys=False):
 	"""Return list of headers for the given abbreviation and the values of the
 	dict ``d``.
 
@@ -266,6 +277,9 @@ def _dict_to_header_list(d, abbrev):
 		The dict whose values should be used.
 	abbrev : str
 		The abbreviation string to use.
+	omit_negative_keys : bool, optional
+		``True`` to omit ``:k`` (where ``k`` is the key from the dictionary) if 
+		``k`` is negative, ``True`` (default) to include it.
 
 	Returns
 	-------
@@ -277,15 +291,17 @@ def _dict_to_header_list(d, abbrev):
 	# Build header list.
 	header_list = []
 	for i in sorted_dict_keys:
+		header = abbrev
 		if i is None:
-			header_list.append(abbrev + ":EXT")
-		else:
-			header_list.append(abbrev + ":{:d}".format(i))
+			header += ':EXT'
+		elif i >= 0 or not omit_negative_keys:
+			header += f':{i:d}'
+		header_list.append(header)
 
 	return header_list
 
 
-def _nested_dict_to_header_list(d, abbrev):
+def _nested_dict_to_header_list(d, abbrev, omit_negative_keys=False):
 	"""Return list of headers for the given abbreviation and the values of the
 	nested dict ``d``.
 
@@ -295,6 +311,9 @@ def _nested_dict_to_header_list(d, abbrev):
 		The dict whose values should be used.
 	abbrev : str
 		The abbreviation string to use.
+	omit_negative_keys : bool, optional
+		``True`` to omit ``|k`` (where ``k`` is the key from the inner dictionary) if 
+		``k`` is negative, ``True`` (default) to include it.
 
 	Returns
 	-------
@@ -307,9 +326,12 @@ def _nested_dict_to_header_list(d, abbrev):
 	header_list = []
 	for i in sorted_dict_keys:
 		if i[0] is None:
-			header_list.append(f'{abbrev}:EXT|{i[1]:d}')
+			header = f'{abbrev}:EXT'
 		else:
-			header_list.append(f'{abbrev}:{i[0]:d}|{i[1]:d}')
+			header = f'{abbrev}:{i[0]:d}'
+		if i[1] >= 0 or not omit_negative_keys:
+			header += f'|{i[1]:d}'
+		header_list.append(header)
 
 	return header_list
 			

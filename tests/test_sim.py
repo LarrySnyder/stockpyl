@@ -860,8 +860,8 @@ class TestSimulationWithDisruptions(unittest.TestCase):
         test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_OP.csv'
         cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO',
                          'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
-        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True,
-                      csv_filename=test_filename)
+        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, suppress_dummy_products=False,
+                      write_csv=True, csv_filename=test_filename)
 
         cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_OP.csv'
 
@@ -909,8 +909,8 @@ class TestSimulationWithDisruptions(unittest.TestCase):
         test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_SP.csv'
         cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO',
                          'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
-        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True,
-                      csv_filename=test_filename)
+        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, suppress_dummy_products=False,
+                      write_csv=True, csv_filename=test_filename)
 
         cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_SP.csv'
 
@@ -958,8 +958,8 @@ class TestSimulationWithDisruptions(unittest.TestCase):
         test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_TP.csv'
         cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO',
                          'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
-        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True,
-                      csv_filename=test_filename)
+        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, suppress_dummy_products=False,
+                      write_csv=True, csv_filename=test_filename)
 
         cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_TP.csv'
 
@@ -1007,8 +1007,8 @@ class TestSimulationWithDisruptions(unittest.TestCase):
         test_filename = 'tests/additional_files/temp_TestSimulationWithDisruptions_test_example_6_1_RP.csv'
         cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'OS', 'DMFS', 'FR', 'IL', 'BO',
                          'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
-        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, write_csv=True,
-                      csv_filename=test_filename)
+        write_results(network=network, num_periods=100, columns_to_print=cols_to_print, suppress_dummy_products=False,
+                      write_csv=True, csv_filename=test_filename)
 
         cmp_filename = 'tests/additional_files/test_sim_disruption_example_6_1_RP.csv'
 

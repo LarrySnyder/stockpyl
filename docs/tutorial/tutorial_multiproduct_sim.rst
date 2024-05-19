@@ -459,3 +459,15 @@ Here's an explanation of the fractional order quantities at node 1 in period 5:
    :stub-columns: 1
 
 :download:`Download table in CSV format <../aux_files/sim_io_multiproduct_example_instance.csv>`
+
+
+Accessing the State Variables
+--------------------------------
+
+In addition to viewing the results in tabular form, you can also query a |class_state_vars| object
+to get values of individual state variables, using methods such as 
+:meth:`~stockpyl.node_state_vars.NodeStateVars.get_inventory_level`, 
+:meth:`~stockpyl.node_state_vars.NodeStateVars.get_order_quantity`, etc. The arguments of these
+methods are the relevant nodes/products, but these arguments can be omitted if they are inferrable
+(e.g., if the node has a single predecessor, or a single product, etc.).
+

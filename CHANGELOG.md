@@ -43,6 +43,10 @@ If you have a local clone, you can rename it using:
 
 - ``NodeStateVars.raw_material_inventory`` is now indexed by product, not by predecessor.
 - ``NodeStateVars`` object is now in its own module, ``node_state_vars.py``, rather than in ``supply_chain_node.py``.
+- ``NodeStateVars`` attributes should now be accessed using the appropriate methods, rather than using
+the attribute directly. For example: use ``node.state_vars[42].get_outbound_shipment(successor, product)`` instead
+of ``node.state_vars[42].outbound_shipment[successor][product]``. These methods allow you to omit product info if
+it is inferrable. (This is especially useful for models that don't have products explicitly added.)
 - More compact text representation of ``SupplyChainNetwork`` and ``SupplyChainNode`` objects via ``__repr__()``.
 
 ### Fixed

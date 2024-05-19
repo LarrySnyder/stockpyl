@@ -503,6 +503,42 @@ of allowable strings.) Shortcuts and column names can be combined in one list:
 
 
 
+Accessing the State Variables
+--------------------------------
+
+In addition to viewing the results in tabular form, you can also query a |class_state_vars| object
+using methods such as 
+:meth:`~stockpyl.node_state_vars.NodeStateVars.get_inventory_level`, 
+:meth:`~stockpyl.node_state_vars.NodeStateVars.get_order_quantity`, etc., to get values of 
+individual state variables. The arguments of these
+methods are the relevant nodes/products, but these arguments can be omitted if they are inferrable
+(e.g., if the node has a single predecessor, or a single product, etc.).
+
+	.. doctest::
+
+		>>> network.get_node_from_index(1).state_vars[3].get_inventory_level()
+		15
+		>>> network.get_node_from_index(1).state_vars[3].get_order_quantity(predecessor=3)
+		6
+		>>> network.get_node_from_index(2).state_vars[4].get_inbound_shipment()
+		13
+		>>> network.get_node_from_index(2).state_vars[6].get_inbound_order()
+		8
+		>>> network.get_node_from_index(3).state_vars[6].get_inbound_order(successor=2)
+		14
+
+Some state variables, in particular those that are not indexed by any node or product,
+are accessed by using the attribute directly:
+
+	.. doctest::
+
+		>>> network.get_node_from_index(1).state_vars[3].holding_cost
+		30
+		>>> network.get_node_from_index(3).state_vars[5].total_cost
+		46.0
+
+
+
 Advanced Features
 -----------------
 
