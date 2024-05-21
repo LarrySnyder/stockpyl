@@ -399,18 +399,27 @@ class SupplyChainNetwork(object):
 								node._external_supplier_dummy_product = products_by_index[node._external_supplier_dummy_product]
 							# Add node to network.
 							network.add_node(node)
-						for n in network.nodes:
-							# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
-							# replaces them with indices.)
-							preds = []
-							succs = []
-							for m in network.nodes:
-								if m.index in n.predecessors():
-									preds.append(m)
-								if m.index in n.successors():
-									succs.append(m)
-							n._predecessors = preds
-							n._successors = succs
+							# Remove None from predecessor and successor lists. (SupplyChainNode.to_dict() saves None for
+							# external suppliers/customers, but this will confuse things if we load the Nones.)
+							# TODO: fix this?
+							# for n in network.nodes:
+							# 	if None in n._predecessor_indices:
+							# 		n._predecessor_indices.remove(None)
+							# 	if None in n._successor_indices:
+							# 		n._successor_indices.remove(None)
+
+						# for n in network.nodes:
+						# 	# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
+						# 	# replaces them with indices.)
+						# 	preds = []
+						# 	succs = []
+						# 	for m in network.nodes:
+						# 		if m.index in n.predecessors():
+						# 			preds.append(m)
+						# 		if m.index in n.successors():
+						# 			succs.append(m)
+						# 	n._predecessors = preds
+						# 	n._successors = succs
 				elif attr == '_local_products':
 					# Replace indices with objects. (They are stored as indices.)
 					network._local_products = [products_by_index[prod_ind] for prod_ind in the_dict['_local_products']]
@@ -464,6 +473,10 @@ class SupplyChainNetwork(object):
 			Dict in which keys are old indices and values are new names.
 
 		"""
+		# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
+		old_currently_building = self._currently_building
+		self._currently_building = True
+		
 		# Build product mapping. (Real products keep their indices. Dummy products change
   		# because their nodes change.)
 		old_to_new_prod_dict = {}
@@ -486,11 +499,15 @@ class SupplyChainNetwork(object):
 			# Reindex node.
 			old_index = node.index
 			node.index = old_to_new_dict[old_index]
+			# Reindex predecessors and successors.
+			node._predecessor_indices = [old_to_new_dict[p] for p in node._predecessor_indices]
+			node._successor_indices = [old_to_new_dict[s] for s in node._successor_indices]
 			# Rename node.
 			if new_names is not None:
 				node.name = new_names[old_index]
 
 		# Rebuild product attributes.
+		self._currently_building = old_currently_building
 		self._build_product_attributes()
 
 	# Methods related to network structure.
@@ -580,8 +597,8 @@ class SupplyChainNetwork(object):
 		"""Add ``successor_node`` as a successor to ``node``. ``node`` must
 		already be contained in the network.
 
-		The method adds the nodes to each other's lists of _successors and
-		_predecessors. If ``successor_node`` is not already contained in the
+		The method adds the nodes to each other's lists of successors and
+		predecessors. If ``successor_node`` is not already contained in the
 		network, the method also adds it. (The node is assumed to be contained
 		in the network if its index or name match those of a node in the network.)
 
@@ -608,8 +625,8 @@ class SupplyChainNetwork(object):
 		"""Add ``predecessor_node`` as a predecessor to ``node``. ``node`` must
 		already be contained in the network.
 
-		The method adds the nodes to each other's lists of _successors and
-		_predecessors. If ``predecessor_node`` is not already contained in the
+		The method adds the nodes to each other's lists of successors and
+		predecessors. If ``predecessor_node`` is not already contained in the
 		network, the method also adds it. (The node is assumed to be contained
 		in the network if its index or name match those of a node in the network.)
 

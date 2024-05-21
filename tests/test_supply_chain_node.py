@@ -432,6 +432,79 @@ class TestDescendants(unittest.TestCase):
 
 
 
+class TestPredecessors(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestPredecessors', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPredecessors', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test ancestors for 3-node serial system in Example 6.1.
+		"""
+		print_status('TestPredecessors', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+		nodes = {n.index: n for n in network.nodes}
+
+		self.assertEqual(nodes[1].predecessor_indices(), [2])
+		self.assertEqual(nodes[2].predecessor_indices(), [3])
+		self.assertEqual(nodes[3].predecessor_indices(), [])
+		self.assertEqual(nodes[1].predecessors(), [nodes[2]])
+		self.assertEqual(nodes[2].predecessors(), [nodes[3]])
+		self.assertEqual(nodes[3].predecessors(), [])
+
+	def test_4_node_owmr(self):
+		"""Test ancestors for 4-node OWMR system.
+		"""
+		print_status('TestPredecessors', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		nodes = []
+		for i in range(4):
+			nodes.append(SupplyChainNode(i))
+
+		network.add_node(nodes[0])
+		network.add_successor(nodes[0], nodes[1])
+		network.add_successor(nodes[0], nodes[2])
+		network.add_successor(nodes[0], nodes[3])
+
+		nodes = {n.index: n for n in network.nodes}
+
+		self.assertEqual(nodes[0].predecessor_indices(), [])
+		self.assertEqual(nodes[1].predecessor_indices(), [0])
+		self.assertEqual(nodes[2].predecessor_indices(), [0])
+		self.assertEqual(nodes[3].predecessor_indices(), [0])
+		self.assertEqual(nodes[0].predecessors(), [])
+		self.assertEqual(nodes[1].predecessors(), [nodes[0]])
+		self.assertEqual(nodes[2].predecessors(), [nodes[0]])
+		self.assertEqual(nodes[3].predecessors(), [nodes[0]])
+
+	def test_multiproduct_5_7(self):
+		"""Test ancestors for 5-node, 7-product system.
+		"""
+		print_status('TestPredecessors', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		nodes = {n.index: n for n in network.nodes}
+
+		self.assertEqual(nodes[0].predecessor_indices(), [2])
+		self.assertEqual(nodes[1].predecessor_indices(), [2, 3])
+		self.assertEqual(nodes[2].predecessor_indices(), [4])
+		self.assertEqual(nodes[3].predecessor_indices(), [4])
+		self.assertEqual(nodes[4].predecessor_indices(), [])
+		self.assertEqual(nodes[0].predecessors(), [nodes[2]])
+		self.assertEqual(nodes[1].predecessors(), [nodes[2], nodes[3]])
+		self.assertEqual(nodes[2].predecessors(), [nodes[4]])
+		self.assertEqual(nodes[3].predecessors(), [nodes[4]])
+		self.assertEqual(nodes[4].predecessors(), [])
+
+
 class TestAncestors(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -2743,17 +2816,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2779,17 +2843,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2823,17 +2878,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2867,17 +2913,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2932,18 +2969,9 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Replace network objects.
 		# Fill products.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]

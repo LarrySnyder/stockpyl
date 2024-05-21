@@ -900,6 +900,8 @@ def _net_demand(tree):
 	# Make temp copy of tree.
 	temp_tree = copy.deepcopy(tree)
 
+# TODO: add check that the node list gets smaller each iteration -- otherwise there's a bug, but finding it can be hard because of the infinite loop
+
 	# Loop through temp_tree. At each iteration, handle leaf nodes (nodes with
 	# no _successors), adding their net_means and net_variances to those of their
 	# _predecessors. Then remove the leaf nodes and iterate.

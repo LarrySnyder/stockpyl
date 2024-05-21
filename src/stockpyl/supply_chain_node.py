@@ -191,8 +191,8 @@ class SupplyChainNode(object):
 		'_products_by_index': {},
 		'_dummy_product': None,
 		'_external_supplier_dummy_product': None,
-		'_predecessors': [],
-		'_successors': [],
+		'_predecessor_indices': [],
+		'_successor_indices': [],
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
@@ -324,10 +324,9 @@ class SupplyChainNode(object):
 		list
 			List of all predecessors, as |class_node| objects.
 		"""
-		if include_external and self.has_external_supplier:
-			return self._predecessors + [None]
-		else:
-			return self._predecessors
+		if self.network is None:
+			raise ValueError('predecessors() cannot be called if network attribute is None. Use predecessor_indices() instead.')
+		return [self.network.get_node_from_index(pred_ind) for pred_ind in self.predecessor_indices(include_external=include_external)]
 
 	def successors(self, include_external=False):
 		"""Return a list of all successors of the node, as |class_node| objects.
@@ -342,10 +341,9 @@ class SupplyChainNode(object):
 		list
 			List of all successors, as |class_node| objects.
 		"""
-		if include_external and self.has_external_customer:
-			return self._successors + [None]
-		else:
-			return self._successors
+		if self.network is None:
+			raise ValueError('successors() cannot be called if network attribute is None. Use successor_indices() instead.')
+		return [self.network.get_node_from_index(pred_ind) for pred_ind in self.successor_indices(include_external=include_external)]
 
 	def predecessor_indices(self, include_external=False):
 		"""Return a list of indices of all predecessors of the node.
@@ -360,7 +358,10 @@ class SupplyChainNode(object):
 		list
 			List of all predecessor indices.
 		"""
-		return [node.index if node else None for node in self.predecessors(include_external)]
+		if include_external and self.has_external_supplier:
+			return self._predecessor_indices + [None]
+		else:
+			return self._predecessor_indices
 
 	def successor_indices(self, include_external=False):
 		"""Return a list of indices of all successors of the node.
@@ -375,7 +376,10 @@ class SupplyChainNode(object):
 		list
 			List of all successor indices.
 		"""
-		return [node.index if node else None for node in self.successors(include_external)]
+		if include_external and self.has_external_customer:
+			return self._successor_indices + [None]
+		else:
+			return self._successor_indices
 
 	@property
 	def descendants(self):
@@ -1544,12 +1548,12 @@ class SupplyChainNode(object):
 				if attr in ('network', 'local_holding_cost_function', 'stockout_cost_function', 'state_vars'):
 					# Ignore.
 					pass
-				elif attr == '_predecessors':
+				elif attr == '_predecessor_indices':
 					# Only compare indices.
 					if sorted(self.predecessor_indices()) != sorted(other.predecessor_indices()):
 						viol_attr = attr
 						eq = False
-				elif attr == '_successors':
+				elif attr == '_successor_indices':
 					# Only compare indices.
 					if sorted(self.successor_indices()) != sorted(other.successor_indices()):
 						viol_attr = attr
@@ -1627,10 +1631,10 @@ class SupplyChainNode(object):
 			elif attr in ('_dummy_product', '_external_supplier_dummy_product'):
 				# Replace dummy products with their indices.
 				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).index
-			elif attr == '_predecessors':
-				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=True))
-			elif attr == '_successors':
-				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=True))
+			elif attr == '_predecessor_indices':
+				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=False))
+			elif attr == '_successor_indices':
+				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=False))
 			elif attr == '_products_by_index':
 				node_dict[attr] = {prod.index: prod.to_dict() for prod in self.products}
 			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
@@ -1657,10 +1661,6 @@ class SupplyChainNode(object):
 		"""Return a new |class_node| object with attributes copied from the
 		values in ``the_dict``. List attributes
 		are deep-copied so changes to the original dict do not get propagated to the object.
-
-		``_predecessors`` and ``_successors`` attributes are set to the indices of the nodes,
-		like they are in the dict, but should be converted to node objects if this
-		function is called recursively from a |class_network|'s ``from_dict()`` method.
 
 		``_products_by_index`` is set to a dict in which the keys and values are both product indices, 
 		like they are in the dict, but should be converted to |class_product| objects if this function is 
@@ -1699,7 +1699,24 @@ class SupplyChainNode(object):
 				if attr_name == '_index':
 					# This has no effect--we already set the index--but is needed for setattr() below.
 					value = index
-				elif attr_name in ('_products_by_index', '_predecessors', '_successors'):
+				# TODO: remove this and next after test instance files are rebuilt -- or maybe add warning but keep it?
+				elif attr_name == '_predecessor_indices':
+					if '_predecessors' in the_dict:
+						value = copy.deepcopy(the_dict['_predecessors'])
+					else:
+						value = copy.deepcopy(the_dict['_predecessor_indices'])
+					# Remove any None values. (Older versions saved external supplier as None.)
+					if None in value:
+						value.remove(None)
+				elif attr_name == '_successor_indices':
+					if '_successors' in the_dict:
+						value = copy.deepcopy(the_dict['_successors'])
+					else:
+						value = copy.deepcopy(the_dict['_successor_indices'])
+					# Remove any None values. (Older versions saved external customer as None.)
+					if None in value:
+						value.remove(None)	
+				elif attr_name in ('_products_by_index', '_predecessor_indices', '_successor_indices'):
 					if attr_name in the_dict:
 						value = copy.deepcopy(the_dict[attr_name])
 					else:
@@ -1777,7 +1794,7 @@ class SupplyChainNode(object):
 			The node to add as a successor.
 
 		"""
-		self._successors.append(successor)
+		self._successor_indices.append(successor.index)
 
 	def add_predecessor(self, predecessor):
 		"""Add ``predecessor`` to the node's list of predecessors.
@@ -1794,10 +1811,11 @@ class SupplyChainNode(object):
 			The node to add as a predecessor.
 
 		"""
-		self._predecessors.append(predecessor)
+		self._predecessor_indices.append(predecessor.index)
 
 	def remove_successor(self, successor):
-		"""Remove ``successor`` from the node's list of successors.
+		"""Remove ``successor`` from the node's list of successors. ``successor`` may
+		be a |class_node| or its index. Does nothing if ``successor`` is not a successor of the node
 
 		.. important:: This method simply updates the node's list of successors. It does not
 			remove ``successor`` from the network or remove ``self`` as a predecessor of
@@ -1807,14 +1825,20 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		successor : |class_node|
+		successor : |class_node| or int
 			The node to remove as a successor.
 
 		"""
-		self._successors.remove(successor)
+		if isinstance(successor, SupplyChainNode):
+			succ_ind = successor.index
+		else:
+			succ_ind = successor
+
+		self._successor_indices.remove(succ_ind)
 
 	def remove_predecessor(self, predecessor):
-		"""Remove ``predecessor`` from the node's list of predecessors.
+		"""Remove ``predecessor`` from the node's list of predecessors. ``predecessor`` may
+		be a |class_node| or its index. Does nothing if ``predecessor`` is not a predecessor of the node
 
 		.. important:: This method simply updates the node's list of predecessors. It does not
 			remove ``predecessor`` from the network or remove ``self`` as a successor of
@@ -1824,11 +1848,16 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		predecessor : |class_node|
+		predecessor : |class_node| or int
 			The node to remove as a predecessor.
 
 		"""
-		self._predecessors.remove(predecessor)
+		if isinstance(predecessor, SupplyChainNode):
+			pred_ind = predecessor.index
+		else:
+			pred_ind = predecessor
+
+		self._predecessor_indices.remove(pred_ind)
 
 	def get_one_successor(self):
 		"""Get one successor of the node. If the node has more than one
@@ -1840,10 +1869,10 @@ class SupplyChainNode(object):
 		successor : |class_node|
 			A successor of the node.
 		"""
-		if len(self._successors) == 0:
+		if len(self.successor_indices()) == 0:
 			return None
 		else:
-			return self._successors[0]
+			return self.successors()[0]
 
 	def get_one_predecessor(self):
 		"""Get one predecessor of the node. If the node has more than one
@@ -1855,10 +1884,10 @@ class SupplyChainNode(object):
 		predecessor : |class_node|
 			A predecessor of the node.
 		"""
-		if len(self._predecessors) == 0:
+		if len(self.predecessor_indices()) == 0:
 			return None
 		else:
-			return self._predecessors[0]
+			return self.predecessors()[0]
 
 	# Attribute management.
 
