@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Option to suppress dummy-product indices in simulation output.
 
+### Fixed
+- Bug that caused ``mwor_system()`` to crash when ``demand_source`` is provided as argument 
+[#146](https://github.com/LarrySnyder/stockpyl/issues/146).
+
 ## [1.0.0] -- 2024-05-13
 
 ### Introducing: Products
