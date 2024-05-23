@@ -67,7 +67,7 @@ from stockpyl import policy
 from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl import demand_source
 from stockpyl import disruption_process
-from stockpyl.helpers import change_dict_key, is_integer, is_list, is_dict, replace_dict_null_keys, replace_dict_numeric_string_keys
+from stockpyl.helpers import is_integer, is_list, is_dict, is_set, replace_dict_numeric_string_keys
 
 # This number gets added to product indices to avoid conflicts.
 _INDEX_BUMP = 1000
@@ -191,8 +191,8 @@ class SupplyChainNode(object):
 		'_products_by_index': {},
 		'_dummy_product': None,
 		'_external_supplier_dummy_product': None,
-		'_predecessor_indices': [],
-		'_successor_indices': [],
+		'_predecessor_indices': set(),
+		'_successor_indices': set(),
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
@@ -359,7 +359,7 @@ class SupplyChainNode(object):
 			List of all predecessor indices.
 		"""
 		if include_external and self.has_external_supplier:
-			return self._predecessor_indices + [None]
+			return self._predecessor_indices.union({None})
 		else:
 			return self._predecessor_indices
 
@@ -377,7 +377,7 @@ class SupplyChainNode(object):
 			List of all successor indices.
 		"""
 		if include_external and self.has_external_customer:
-			return self._successor_indices + [None]
+			return self._successor_indices.union({None})
 		else:
 			return self._successor_indices
 
@@ -1481,7 +1481,7 @@ class SupplyChainNode(object):
 		# Remember current index, if any. (If this is first initialization, it doesn't exist yet.)
 		curr_index = self.index if hasattr(self, 'index') else None
 
-		# Loop through attributes. Special handling for list and object attributes.
+		# Loop through attributes. Special handling for list/dict/set and object attributes.
 		for attr in self._DEFAULT_VALUES.keys():
 			if attr == 'demand_source':
 				self.demand_source = demand_source.DemandSource()
@@ -1489,7 +1489,8 @@ class SupplyChainNode(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy(node=self)
-			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
+			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]) or \
+				is_set(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])
@@ -1549,13 +1550,11 @@ class SupplyChainNode(object):
 					# Ignore.
 					pass
 				elif attr == '_predecessor_indices':
-					# Only compare indices.
-					if sorted(self.predecessor_indices()) != sorted(other.predecessor_indices()):
+					if self.predecessor_indices() != other.predecessor_indices():
 						viol_attr = attr
 						eq = False
 				elif attr == '_successor_indices':
-					# Only compare indices.
-					if sorted(self.successor_indices()) != sorted(other.successor_indices()):
+					if self.successor_indices() != other.successor_indices():
 						viol_attr = attr
 						eq = False
 				elif attr == '_inventory_policy':
@@ -1700,19 +1699,22 @@ class SupplyChainNode(object):
 					# This has no effect--we already set the index--but is needed for setattr() below.
 					value = index
 				# TODO: remove this and next after test instance files are rebuilt -- or maybe add warning but keep it?
+				# - _predecessor_indices instead of _predecessors (and same for succ)
+				# - None (nil) in preds/succs
+				# - lists instead of sets
 				elif attr_name == '_predecessor_indices':
 					if '_predecessors' in the_dict:
-						value = copy.deepcopy(the_dict['_predecessors'])
+						value = set(copy.deepcopy(the_dict['_predecessors']))
 					else:
-						value = copy.deepcopy(the_dict['_predecessor_indices'])
+						value = set(copy.deepcopy(the_dict['_predecessor_indices']))
 					# Remove any None values. (Older versions saved external supplier as None.)
 					if None in value:
 						value.remove(None)
 				elif attr_name == '_successor_indices':
 					if '_successors' in the_dict:
-						value = copy.deepcopy(the_dict['_successors'])
+						value = set(copy.deepcopy(the_dict['_successors']))
 					else:
-						value = copy.deepcopy(the_dict['_successor_indices'])
+						value = set(copy.deepcopy(the_dict['_successor_indices']))
 					# Remove any None values. (Older versions saved external customer as None.)
 					if None in value:
 						value.remove(None)	
@@ -1780,9 +1782,9 @@ class SupplyChainNode(object):
 	# Neighbor management.
 
 	def add_successor(self, successor):
-		"""Add ``successor`` to the node's list of successors.
+		"""Add ``successor`` to the node's set of successors.
 
-		.. important:: This method simply updates the node's list of successors. It does not
+		.. important:: This method simply updates the node's set of successors. It does not
 			add ``successor`` to the network or add ``self`` as a predecessor of
 			``successor``. Typically, this method is called by the network rather
 			than directly. Use the :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.add_successor` method
@@ -1794,12 +1796,12 @@ class SupplyChainNode(object):
 			The node to add as a successor.
 
 		"""
-		self._successor_indices.append(successor.index)
+		self._successor_indices.add(successor.index)
 
 	def add_predecessor(self, predecessor):
-		"""Add ``predecessor`` to the node's list of predecessors.
+		"""Add ``predecessor`` to the node's set of predecessors.
 
-		.. important:: This method simply updates the node's list of predecessors. It does not
+		.. important:: This method simply updates the node's set of predecessors. It does not
 			add ``predecessor`` to the network or add ``self`` as a successor of
 			``predecessor``. Typically, this method is called by the network rather
 			than directly. Use the :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.add_predecessor` method
@@ -1811,13 +1813,13 @@ class SupplyChainNode(object):
 			The node to add as a predecessor.
 
 		"""
-		self._predecessor_indices.append(predecessor.index)
+		self._predecessor_indices.add(predecessor.index)
 
 	def remove_successor(self, successor):
-		"""Remove ``successor`` from the node's list of successors. ``successor`` may
+		"""Remove ``successor`` from the node's set of successors. ``successor`` may
 		be a |class_node| or its index. Does nothing if ``successor`` is not a successor of the node
 
-		.. important:: This method simply updates the node's list of successors. It does not
+		.. important:: This method simply updates the node's set of successors. It does not
 			remove ``successor`` from the network or remove ``self`` as a predecessor of
 			``successor``. Typically, this method is called by the
 			:meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.remove_node` method of the
@@ -1837,10 +1839,10 @@ class SupplyChainNode(object):
 		self._successor_indices.remove(succ_ind)
 
 	def remove_predecessor(self, predecessor):
-		"""Remove ``predecessor`` from the node's list of predecessors. ``predecessor`` may
+		"""Remove ``predecessor`` from the node's set of predecessors. ``predecessor`` may
 		be a |class_node| or its index. Does nothing if ``predecessor`` is not a predecessor of the node
 
-		.. important:: This method simply updates the node's list of predecessors. It does not
+		.. important:: This method simply updates the node's set of predecessors. It does not
 			remove ``predecessor`` from the network or remove ``self`` as a successor of
 			``predecessor``. Typically, this method is called by the
 			:meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.remove_node` method of the
@@ -1872,7 +1874,8 @@ class SupplyChainNode(object):
 		if len(self.successor_indices()) == 0:
 			return None
 		else:
-			return self.successors()[0]
+			return self.network.get_node_from_index(next(iter(self.successor_indices())))
+#			return self.successors()[0]
 
 	def get_one_predecessor(self):
 		"""Get one predecessor of the node. If the node has more than one
@@ -1887,7 +1890,8 @@ class SupplyChainNode(object):
 		if len(self.predecessor_indices()) == 0:
 			return None
 		else:
-			return self.predecessors()[0]
+			return self.network.get_node_from_index(next(iter(self.predecessor_indices())))
+#			return self.predecessors()[0]
 
 	# Attribute management.
 

@@ -46,7 +46,7 @@ from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl.demand_source import DemandSource
 from stockpyl.policy import Policy
 from stockpyl.disruption_process import DisruptionProcess
-from stockpyl.helpers import is_list, is_dict, is_integer, is_iterable, ensure_dict_for_nodes, ensure_list_for_nodes
+from stockpyl.helpers import is_list, is_dict, is_integer, is_iterable, is_set, ensure_dict_for_nodes, ensure_list_for_nodes
 from stockpyl.helpers import build_node_data_dict
 
 
@@ -166,14 +166,14 @@ class SupplyChainNetwork(object):
 		"""List of all source nodes, i.e., all nodes that have no predecessors,
 		as |class_node| objects. Read only.
 		"""
-		return [node for node in self.nodes if node.predecessor_indices() == []]
+		return [node for node in self.nodes if len(node.predecessor_indices()) == 0]
 
 	@property
 	def sink_nodes(self):
 		"""List of all sink nodes, i.e., all nodes that have no successors,
 		as |class_node| objects. Read only.
 		"""
-		return [node for node in self.nodes if node.successor_indices() == []]
+		return [node for node in self.nodes if len(node.successor_indices()) == 0]
 
 	@property
 	def edges(self):
@@ -225,7 +225,8 @@ class SupplyChainNetwork(object):
 		"""
 		# Loop through attributes. Special handling for list and dict attributes.
 		for attr in self._DEFAULT_VALUES.keys():
-			if is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
+			if is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]) \
+				or is_set(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])
@@ -500,8 +501,8 @@ class SupplyChainNetwork(object):
 			old_index = node.index
 			node.index = old_to_new_dict[old_index]
 			# Reindex predecessors and successors.
-			node._predecessor_indices = [old_to_new_dict[p] for p in node._predecessor_indices]
-			node._successor_indices = [old_to_new_dict[s] for s in node._successor_indices]
+			node._predecessor_indices = {old_to_new_dict[p] for p in node._predecessor_indices}
+			node._successor_indices = {old_to_new_dict[s] for s in node._successor_indices}
 			# Rename node.
 			if new_names is not None:
 				node.name = new_names[old_index]

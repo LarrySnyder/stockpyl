@@ -5,6 +5,7 @@ import os
 import stockpyl.instances as instances
 from stockpyl.supply_chain_network import SupplyChainNetwork
 from stockpyl.sim import simulation
+from stockpyl.helpers import deserialize_set
 
 
 # Module-level functions.
@@ -172,10 +173,10 @@ class SaveInstance(unittest.TestCase):
 		# Load saved JSON and correct JSON.
 		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_4_2_correct.json'
 		with open(temp_filename) as f:
-			saved_json = json.load(f)
+			saved_json = json.load(f, object_hook=deserialize_set)
 			os.remove(temp_filename)
 		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			correct_json = json.load(f, object_hook=deserialize_set)
 
 		# Remove the timestamp entry.
 		del saved_json['last_updated']
@@ -204,10 +205,10 @@ class SaveInstance(unittest.TestCase):
 		# Load saved JSON and correct JSON.
 		correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_9_5_correct.json'
 		with open(temp_filename) as f:
-			saved_json = json.load(f)
+			saved_json = json.load(f, object_hook=deserialize_set)
 			os.remove(temp_filename)
 		with open(correct_contents_filename) as f:
-			correct_json = json.load(f)
+			correct_json = json.load(f, object_hook=deserialize_set)
 
 		# Remove the timestamp entry.
 		del saved_json['last_updated']
@@ -237,9 +238,9 @@ class SaveInstance(unittest.TestCase):
 			# Load saved JSON and correct JSON.
 			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_correct.json'
 			with open(temp_filename) as f:
-				saved_json = json.load(f)
+				saved_json = json.load(f, object_hook=deserialize_set)
 			with open(correct_contents_filename) as f:
-				correct_json = json.load(f)
+				correct_json = json.load(f, object_hook=deserialize_set)
 
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
@@ -276,9 +277,9 @@ class SaveInstance(unittest.TestCase):
 			# Load saved JSON and correct JSON.
 			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_example_6_1_with_order_capacity_correct.json'
 			with open(temp_filename) as f:
-				saved_json = json.load(f)
+				saved_json = json.load(f, object_hook=deserialize_set)
 			with open(correct_contents_filename) as f:
-				correct_json = json.load(f)
+				correct_json = json.load(f, object_hook=deserialize_set)
 
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
@@ -311,9 +312,9 @@ class SaveInstance(unittest.TestCase):
 			# Load saved JSON and correct JSON.
 			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_figure_6_14_correct.json'
 			with open(temp_filename) as f:
-				saved_json = json.load(f)
+				saved_json = json.load(f, object_hook=deserialize_set)
 			with open(correct_contents_filename) as f:
-				correct_json = json.load(f)
+				correct_json = json.load(f, object_hook=deserialize_set)
 
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
@@ -362,9 +363,9 @@ class SaveInstance(unittest.TestCase):
 			# Load saved JSON and correct JSON.
 			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_true_correct.json'
 			with open(temp_filename) as f:
-				saved_json = json.load(f)
+				saved_json = json.load(f, object_hook=deserialize_set)
 			with open(correct_contents_filename) as f:
-				correct_json = json.load(f)
+				correct_json = json.load(f, object_hook=deserialize_set)
 
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
@@ -403,9 +404,9 @@ class SaveInstance(unittest.TestCase):
 			# Load saved JSON and correct JSON.
 			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_correct.json'
 			with open(temp_filename) as f:
-				saved_json = json.load(f)
+				saved_json = json.load(f, object_hook=deserialize_set)
 			with open(correct_contents_filename) as f:
-				correct_json = json.load(f)
+				correct_json = json.load(f, object_hook=deserialize_set)
 
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
@@ -445,9 +446,9 @@ class SaveInstance(unittest.TestCase):
 			# Load saved JSON and correct JSON.
 			correct_contents_filename = 'tests/additional_files/test_instances_TestSaveInstance_omit_state_vars_false_rosling_correct.json'
 			with open(temp_filename) as f:
-				saved_json = json.load(f)
+				saved_json = json.load(f, object_hook=deserialize_set)
 			with open(correct_contents_filename) as f:
-				correct_json = json.load(f)
+				correct_json = json.load(f, object_hook=deserialize_set)
 
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
