@@ -34,7 +34,7 @@ The raw materials are products A and B, and the finished good is product C.
 .. note:: "Raw materials" and "finished goods" are |class_product| objects. They are not separate
 	classes. Moreover, a finished good at one node may be a raw material at another node; for example,
 	node 1 might produce product A as its finished good, which it then ships to node 2, where it is
-	used as a raw material to product product B.
+	used as a raw material to produce product B.
 
 Every node has at least one product. If your code does not explicltly create products or
 add them to nodes, |sp| automatically creates and manages "dummy" products at each node.
