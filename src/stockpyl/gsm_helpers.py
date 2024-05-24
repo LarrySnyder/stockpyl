@@ -193,7 +193,7 @@ def inbound_cst(tree, node_index, cst):
 		# inbound CST).
 		k_node = tree.get_node_from_index(k)
 		SI[k] = k_node.external_inbound_cst
-		if len(k_node.predecessors()) > 0:
+		if len(k_node.predecessor_indices()) > 0:
 			SI[k] = max(SI[k], np.max([cst[i] for i in k_node.predecessor_indices()]))
 
 	if n_is_iterable:

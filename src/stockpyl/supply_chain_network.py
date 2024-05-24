@@ -400,27 +400,6 @@ class SupplyChainNetwork(object):
 								node._external_supplier_dummy_product = products_by_index[node._external_supplier_dummy_product]
 							# Add node to network.
 							network.add_node(node)
-							# Remove None from predecessor and successor lists. (SupplyChainNode.to_dict() saves None for
-							# external suppliers/customers, but this will confuse things if we load the Nones.)
-							# TODO: fix this?
-							# for n in network.nodes:
-							# 	if None in n._predecessor_indices:
-							# 		n._predecessor_indices.remove(None)
-							# 	if None in n._successor_indices:
-							# 		n._successor_indices.remove(None)
-
-						# for n in network.nodes:
-						# 	# Convert nodes' successors and predecessors back to node objects. (SupplyChainNode.to_dict()
-						# 	# replaces them with indices.)
-						# 	preds = []
-						# 	succs = []
-						# 	for m in network.nodes:
-						# 		if m.index in n.predecessors():
-						# 			preds.append(m)
-						# 		if m.index in n.successors():
-						# 			succs.append(m)
-						# 	n._predecessors = preds
-						# 	n._successors = succs
 				elif attr == '_local_products':
 					# Replace indices with objects. (They are stored as indices.)
 					network._local_products = [products_by_index[prod_ind] for prod_ind in the_dict['_local_products']]
@@ -688,8 +667,8 @@ class SupplyChainNetwork(object):
 		digraph = nx.DiGraph()
 		digraph.add_nodes_from(self.node_indices)
 		for n in self.nodes:
-			for p in n.predecessors():
-				digraph.add_edge(p.index, n.index)
+			for p_index in n.predecessor_indices():
+				digraph.add_edge(p_index, n.index)
 
 		return digraph
 	

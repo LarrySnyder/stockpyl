@@ -314,6 +314,10 @@ class SupplyChainNode(object):
 	def predecessors(self, include_external=False):
 		"""Return a list of all predecessors of the node, as |class_node| objects.
 
+		.. note:: It is generally faster to use the :func:`~stockpyl.supply_chain_node.SupplyChainNode.predecessor_indices` function,
+		which returns a set instead of a list, if only the predecessor indices are needed, not the full objects.
+
+
 		Parameters
 		----------
 		include_external : bool, optional
@@ -331,7 +335,10 @@ class SupplyChainNode(object):
 	def successors(self, include_external=False):
 		"""Return a list of all successors of the node, as |class_node| objects.
 
-		Parameters
+		.. note:: It is generally faster to use the :func:`~stockpyl.supply_chain_node.SupplyChainNode.successor_indices` function,
+		which returns a set instead of a list, if only the successor indices are needed, not the full objects.
+
+				Parameters
 		----------
 		include_external : bool, optional
 			Include the external customer (if any)? Default = ``False``.
@@ -407,17 +414,20 @@ class SupplyChainNode(object):
 		"""A list of all neighbors (successors and predecessors) of the node, as
 		|class_node| objects. Read only.
 		"""
-		neighbors = copy.deepcopy(self.successors())
-		neighbors.extend(copy.deepcopy(self.predecessors())) # this assumes no predecessor can also be a successor
-	
-		return neighbors
+		if self.network is None:
+			raise ValueError('neighbors() cannot be called if network attribute is None. Use neighbor_indices() instead.')
+
+		return [self.network.get_node_from_index(n_index) for n_index in self.neighbor_indices]
 
 	@property
 	def neighbor_indices(self):
-		"""A list of indices of all neighbors (successors and predecessors) of the node.
+		"""A set of indices of all neighbors (successors and predecessors) of the node.
 		Read only.
 		"""
-		return [n.index for n in self.neighbors]
+		neighbor_indices = copy.deepcopy(self.successor_indices())
+		neighbor_indices.update(copy.deepcopy(self.predecessor_indices())) # this assumes no predecessor can also be a successor
+	
+		return neighbor_indices
 
 	def validate_predecessor(self, predecessor, raw_material=None, network_BOM=True, err_on_multiple_preds=True):
 		"""Confirm that ``predecessor`` is a valid predecessor of node:
@@ -469,20 +479,22 @@ class SupplyChainNode(object):
 		"""
 
 		if raw_material is None:
-			preds = self.predecessors(include_external=False)
+			pred_indices = self.predecessor_indices(include_external=False)
 		else:
 			rm_obj, rm_ind = self.network.parse_product(raw_material)
-			preds = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices]
+			pred_indices = [pred_ind for pred_ind in self.predecessor_indices(include_external=False) 
+				if rm_ind in self.network.get_node_from_index(pred_ind).product_indices]
 			if rm_ind == self._external_supplier_dummy_product.index:
-				preds.append(None)
+				pred_indices.append(None)
 		
 		if predecessor is None:
-			if len(preds) == 1:
-				return self.network.parse_node(preds[0])
-			elif None in self.predecessors(include_external=True):
+			if len(pred_indices) == 1:
+				[pred_ind] = pred_indices # convert to singleton https://stackoverflow.com/a/1619539/3453768
+				return self.network.parse_node(pred_ind)
+			elif None in self.predecessor_indices(include_external=True):
 				return None, None
 			# Now len(preds) = 0 or >1 and node does not have an external supplier.
-			elif len(preds) == 0 or err_on_multiple_preds:
+			elif len(pred_indices) == 0 or err_on_multiple_preds:
 				if raw_material is None:
 					raise ValueError(f'predecessor cannot be None if the node has no external supplier and has 0 or >1 predecessor nodes.')
 				else:
@@ -492,7 +504,7 @@ class SupplyChainNode(object):
 				return None, None
 		else:
 			pred_node, pred_ind = self.network.parse_node(predecessor) # raises TypeError on bad type
-			if pred_node not in preds:
+			if pred_ind not in pred_indices:
 				raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
 			else:
 				return pred_node, pred_ind
@@ -533,17 +545,18 @@ class SupplyChainNode(object):
 			and has 0 or >1 successor nodes.
 		"""
 
-		succs = self.successors(include_external=False)
+		succ_indices = self.successor_indices(include_external=False)
 		if successor is None:
-			if len(succs) == 1:
-				return self.network.parse_node(succs[0])
-			elif None in self.successors(include_external=True):
+			if len(succ_indices) == 1:
+				[succ_ind] = succ_indices # convert to singleton https://stackoverflow.com/a/1619539/3453768
+				return self.network.parse_node(succ_ind)
+			elif None in self.successor_indices(include_external=True):
 				return None, None
 			else:
 				raise ValueError(f'successor cannot be None if the node has no external customer and has 0 or >1 successor nodes.')
 		else:
 			succ_node, succ_ind = self.network.parse_node(successor) # raises TypeError on bad type
-			if succ_node not in succs:
+			if succ_ind not in succ_indices:
 				raise ValueError(f'Node {succ_ind} is not a successor of node {self.index}.')
 			else:
 				return succ_node, succ_ind
@@ -865,8 +878,12 @@ class SupplyChainNode(object):
 			rm_obj, rm_ind = self.network.parse_product(raw_material)
 			# If raw material is a non-dummy product, replace pred with an arbitrary predecessor. (See docstring.)
 			if rm_obj is not None and not rm_obj.is_dummy:
-				pred_obj = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices][0]
-				pred_ind = pred_obj.index
+				for pred_ind in self.predecessor_indices(include_external=False):
+					pred_obj = self.network.get_node_from_index(pred_ind)
+					if rm_ind in pred_obj.product_indices:
+						break
+				# pred_obj = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices][0]
+				# pred_ind = pred_obj.index
 
 			# If raw material is None, replace it with external supplier dummy product.
 			if rm_ind is None:
@@ -1891,7 +1908,7 @@ class SupplyChainNode(object):
 			return None
 		else:
 			return self.network.get_node_from_index(next(iter(self.predecessor_indices())))
-#			return self.predecessors()[0]
+#			return self()[0]
 
 	# Attribute management.
 

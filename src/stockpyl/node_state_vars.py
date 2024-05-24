@@ -177,21 +177,22 @@ class NodeStateVars(object):
 							order_lead_time = (self.node.get_attribute('order_lead_time', product=prod_index) or 0)
 							shipment_lead_time = (self.node.get_attribute('shipment_lead_time', product=prod_index) or 0)
 							self.inbound_shipment_pipeline[p_index][rm_index] = [0] * (order_lead_time + shipment_lead_time + 1)			  
-			self.inbound_shipment = {p.index if p else None: 
-										{prod_index: 0 for prod_index in rm_indices[p.index if p else None]}
-		   							 for p in self.node.predecessors(include_external=True)}
-			self.inbound_order = {s.index if s else None: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
-			self.outbound_shipment = {s.index if s else None: {prod_index: 0 for prod_index in node.product_indices} for s in self.node.successors(include_external=True)}
-			self.on_order_by_predecessor = {p.index if p else None: {prod_index: 0 for prod_index in rm_indices[p.index if p else None]}
-												for p in self.node.predecessors(include_external=True)}
-			self.backorders_by_successor = {s.index if s else None: {prod_index: 0 for prod_index in node.product_indices}
-												for s in self.node.successors(include_external=True)}
-			self.outbound_disrupted_items = {s.index if s else None: {prod_index: 0 for prod_index in node.product_indices}
-												for s in self.node.successors(include_external=True)}
-			self.inbound_disrupted_items = {p.index if p else None: {prod_index: 0 for prod_index in rm_indices[p.index if p else None]}
-												for p in self.node.predecessors(include_external=True)}
-			self.order_quantity = {p.index if p else None: {prod_index: 0 for prod_index in rm_indices[p.index if p else None]}
-												for p in self.node.predecessors(include_external=True)}
+			self.inbound_shipment = {p_index: {prod_index: 0 for prod_index in rm_indices[p_index]}
+		   							 for p_index in self.node.predecessor_indices(include_external=True)}
+			self.inbound_order = {s_index: {prod_index: 0 for prod_index in node.product_indices} 
+												for s_index in self.node.successor_indices(include_external=True)}
+			self.outbound_shipment = {s_index: {prod_index: 0 for prod_index in node.product_indices} 
+								   				for s_index in self.node.successor_indices(include_external=True)}
+			self.on_order_by_predecessor = {p_index: {prod_index: 0 for prod_index in rm_indices[p_index]}
+												for p_index in self.node.predecessor_indices(include_external=True)}
+			self.backorders_by_successor = {s_index: {prod_index: 0 for prod_index in node.product_indices}
+												for s_index in self.node.successor_indices(include_external=True)}
+			self.outbound_disrupted_items = {s_index: {prod_index: 0 for prod_index in node.product_indices}
+												for s_index in self.node.successor_indices(include_external=True)}
+			self.inbound_disrupted_items = {p_index: {prod_index: 0 for prod_index in rm_indices[p_index]}
+												for p_index in self.node.predecessor_indices(include_external=True)}
+			self.order_quantity = {p_index: {prod_index: 0 for prod_index in rm_indices[p_index]}
+												for p_index in self.node.predecessor_indices(include_external=True)}
 			self.raw_material_inventory = {prod_index: 0 for prod_index \
 				in self.node.raw_materials_by_product(product='all', return_indices=True, network_BOM=True)}
 			self.order_quantity_fg = {prod_index: 0 for prod_index in self.node.product_indices}
