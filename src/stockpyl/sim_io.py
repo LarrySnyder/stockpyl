@@ -163,7 +163,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		sorted_nodes = sorted(network.node_indices)
 		# Loop through nodes.
 		for ind in sorted_nodes:
-			node = network.get_node_from_index(ind)
+			node = network.nodes_by_index[ind]
 
 			# Remove 0th element of pipelines because these will always be 0 at the end of the period.
 			IOPL_temp = sort_nested_dict_by_keys(node.state_vars[t].inbound_order_pipeline)
@@ -201,7 +201,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 	# Header row
 	headers = ["t"]
 	for ind in sorted_nodes:
-		node = network.get_node_from_index(ind)
+		node = network.nodes_by_index[ind]
 		headers = headers + [f"| i={ind:d}"] 
 		if 'DISR'	in cols_to_print: headers += ['DISR']
 		if 'IO'		in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].inbound_order, "IO", omit_negative_keys=suppress_dummy_products)

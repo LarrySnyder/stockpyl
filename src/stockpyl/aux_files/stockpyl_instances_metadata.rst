@@ -1366,7 +1366,7 @@
 			base_stock_level=[7, 13, 11],
 			initial_inventory_level=[7, 13, 11]
 		)
-		instance.get_node_from_index(0).demand_source.round_to_int = True
+		instance.nodes_by_index[0].demand_source.round_to_int = True
 
 
 .. collapse:: Assembly system from Figure 1 in Rosling (1989)

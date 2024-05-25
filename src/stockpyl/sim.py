@@ -362,7 +362,7 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 	visited[node_index] = True
 
 	# Get the node.
-	node = network.get_node_from_index(node_index)
+	node = network.nodes_by_index[node_index]
 
 	# Loop through products (including dummy product).
 	for prod_index in node.product_indices:
@@ -479,7 +479,7 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	visited[node_index] = True
 
 	# Shortcuts.
-	node = network.get_node_from_index(node_index)
+	node = network.nodes_by_index[node_index]
 
 	# Remember starting IL (as dict by product).
 	starting_inventory_level = copy.deepcopy(node.state_vars_current.inventory_level)

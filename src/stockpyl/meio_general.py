@@ -280,7 +280,7 @@ def meio_by_coordinate_descent(network, initial_solution=None,
 		if nto_lo[n_ind] is None:
 			nto_lo[n_ind] = 0
 		if nto_hi[n_ind] is None:
-			n = network.get_node_from_index(n_ind)
+			n = network.nodes_by_index[n_ind]
 			nto_hi[n_ind] = 3 * n.lead_time * float(np.sum([s.demand_source.mean for s in network.sink_nodes]))
 
 	# Determine initial solution.

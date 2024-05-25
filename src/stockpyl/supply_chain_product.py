@@ -269,8 +269,9 @@ class SupplyChainProduct(object):
 			# We are removing a BOM relationship.
 			self._bill_of_materials.pop(rm_ind, None)
 
-		# Rebuild product info throughout network.
+		# Rebuild node and product info throughout network.
 		if self.network:
+			self.network._build_node_attributes()
 			self.network._build_product_attributes()
 	
 	def get_bill_of_materials(self, raw_material):

@@ -478,7 +478,7 @@ class Policy(object):
 				if self.node.index == max(self.node.network.node_indices):
 					EIPA = np.inf
 				else:
-					partner_node = self.node.network.get_node_from_index(self.node.index + 1)
+					partner_node = self.node.network.nodes_by_index[self.node.index + 1]
 					EIPA = partner_node.state_vars_current._echelon_inventory_position_adjusted()
 
 			OQ = self._get_order_quantity_balanced_echelon_base_stock(IP, EIPA)

@@ -48,9 +48,9 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
+			demand_mean=instance.nodes_by_index[1].demand_source.mean,
+			demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 			demand_source=None, S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
@@ -94,9 +94,9 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_alternate_indexing()')
 
 		instance = load_instance("example_6_1")
-		node1 = instance.get_node_from_index(1)
-		node2 = instance.get_node_from_index(2)
-		node3 = instance.get_node_from_index(3)
+		node1 = instance.nodes_by_index[1]
+		node2 = instance.nodes_by_index[2]
+		node3 = instance.nodes_by_index[3]
 		correct_S_star = [0, 6.599662958019763, 11.99662958019757, 22.790562824553184]
 #		correct_S_star = [0, 6.514438807325977, 12.232248034454390, 22.788203530691469]	# before changing sum_ltd_dist.mean() to sum_ltd_hi in optimize_base_stock_levels()
 		correct_C_star = 47.77466134840843
@@ -200,9 +200,9 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
+			demand_mean=instance.nodes_by_index[1].demand_source.mean,
+			demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 			demand_source=None, S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
@@ -228,9 +228,9 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
+			demand_mean=instance.nodes_by_index[1].demand_source.mean,
+			demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 			demand_source=None, S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
@@ -289,10 +289,10 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
 			demand_mean=None,
 			demand_standard_deviation=None,
-			demand_source=instance.get_node_from_index(1).demand_source, 
+			demand_source=instance.nodes_by_index[1].demand_source, 
 			S=None, plots=False, x=None, x_num=100, d_num=10,
 			ltd_lower_tail_prob=1-stats.norm.cdf(4),
 			ltd_upper_tail_prob=1-stats.norm.cdf(4),
@@ -391,60 +391,60 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_bad_parameters()')
 
 		instance = load_instance("example_6_1")
-		instance.get_node_from_index(2).shipment_lead_time = -20
+		instance.nodes_by_index[2].shipment_lead_time = -20
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				x_num=100, d_num=10)
 		
 		instance = load_instance("example_6_1")
 		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(1).stockout_cost = None
+		instance.nodes_by_index[1].stockout_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				x_num=100, d_num=10)
 
 		instance = load_instance("example_6_1")
 		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(1).stockout_cost = -2
+		instance.nodes_by_index[1].stockout_cost = -2
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(network=instance, x_num=100, d_num=10)
 
 		instance = load_instance("example_6_1")
 		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(2).echelon_holding_cost = None
+		instance.nodes_by_index[2].echelon_holding_cost = None
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				x_num=100, d_num=10)
 
 		instance = load_instance("example_6_1")
 		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(1).demand_source = None
-		instance.get_node_from_index(1).demand_mean = None
-		instance.get_node_from_index(1).demand_standard_deviation = 10
+		instance.nodes_by_index[1].demand_source = None
+		instance.nodes_by_index[1].demand_mean = None
+		instance.nodes_by_index[1].demand_standard_deviation = 10
 		with self.assertRaises(ValueError):
 			S_star, C_star = optimize_base_stock_levels(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
 				demand_mean=None,
 				demand_standard_deviation=10,
 				demand_source=None,
@@ -478,9 +478,9 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
+			demand_mean=instance.nodes_by_index[1].demand_source.mean,
+			demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 			demand_source=None)
 		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
 		for n in instance.node_indices:
@@ -509,9 +509,9 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 		print_status('TestOptimizeBaseStockLevels', 'test_example_6_1_alternate_indexing()')
 
 		instance = load_instance("example_6_1")
-		node1 = instance.get_node_from_index(1)
-		node2 = instance.get_node_from_index(2)
-		node3 = instance.get_node_from_index(3)
+		node1 = instance.nodes_by_index[1]
+		node2 = instance.nodes_by_index[2]
+		node3 = instance.nodes_by_index[3]
 		correct_S_heur = [0, 6.490880975286938, 12.027434723327854, 22.634032391786285]
 
 		S_heur = newsvendor_heuristic(num_nodes=3,
@@ -582,9 +582,9 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
+			demand_mean=instance.nodes_by_index[1].demand_source.mean,
+			demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 			demand_source=None)
 		correct_S_heur = [0, 123.4708970704270, 228.8600539144440]
 		for n in instance.node_indices:
@@ -604,9 +604,9 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 			num_nodes=len(instance.nodes),
 			echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 			lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-			stockout_cost=instance.get_node_from_index(1).stockout_cost,
-			demand_mean=instance.get_node_from_index(1).demand_source.mean,
-			demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+			stockout_cost=instance.nodes_by_index[1].stockout_cost,
+			demand_mean=instance.nodes_by_index[1].demand_source.mean,
+			demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 			demand_source=None)
 		correct_S_heur = [0, 40.5867040168793, 74.4580698705858, 109.5962562657559, 142.8985667640439, 175.8329858066735]
 		for n in instance.node_indices:
@@ -716,67 +716,67 @@ class TestNewsvendorHeuristic(unittest.TestCase):
 
 		instance = load_instance("example_6_1")
 		#instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(2).shipment_lead_time = -20
+		instance.nodes_by_index[2].shipment_lead_time = -20
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				demand_source=None)
 		
 		instance = load_instance("example_6_1")
 	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(1).stockout_cost = None
+		instance.nodes_by_index[1].stockout_cost = None
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				demand_source=None)
 
 		instance = load_instance("example_6_1")
 	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(1).stockout_cost = -2
+		instance.nodes_by_index[1].stockout_cost = -2
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				demand_source=None)
 
 		instance = load_instance("example_6_1")
 	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(2).echelon_holding_cost = None
+		instance.nodes_by_index[2].echelon_holding_cost = None
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
-				demand_mean=instance.get_node_from_index(1).demand_source.mean,
-				demand_standard_deviation=instance.get_node_from_index(1).demand_source.standard_deviation,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
+				demand_mean=instance.nodes_by_index[1].demand_source.mean,
+				demand_standard_deviation=instance.nodes_by_index[1].demand_source.standard_deviation,
 				demand_source=None)
 
 		instance = load_instance("example_6_1")
 	#	instance.reindex_nodes({0: 1, 1: 2, 2: 3})
-		instance.get_node_from_index(1).demand_source = None
-		instance.get_node_from_index(1).demand_mean = None
-		instance.get_node_from_index(1).demand_standard_deviation = 10
+		instance.nodes_by_index[1].demand_source = None
+		instance.nodes_by_index[1].demand_mean = None
+		instance.nodes_by_index[1].demand_standard_deviation = 10
 		with self.assertRaises(ValueError):
 			S_heur = newsvendor_heuristic(
 				num_nodes=len(instance.nodes),
 				echelon_holding_cost={node.index: node.echelon_holding_cost for node in instance.nodes},
 				lead_time={node.index: node.shipment_lead_time for node in instance.nodes},
-				stockout_cost=instance.get_node_from_index(1).stockout_cost,
+				stockout_cost=instance.nodes_by_index[1].stockout_cost,
 				demand_mean=None,
 				demand_standard_deviation=10,
 				demand_source=None)

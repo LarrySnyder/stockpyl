@@ -261,8 +261,8 @@ class SaveInstance(unittest.TestCase):
 
 		# Load.
 		instance = instances.load_instance('example_6_1')
-		instance.get_node_from_index(1).order_capacity = 40
-		instance.get_node_from_index(3).order_capacity = 25
+		instance.nodes_by_index[1].order_capacity = 40
+		instance.nodes_by_index[3].order_capacity = 25
 
 		# Save.
 		temp_filename = 'tests/additional_files/temp_TestSaveInstance_example_6_1_with_order_capacity.json'
