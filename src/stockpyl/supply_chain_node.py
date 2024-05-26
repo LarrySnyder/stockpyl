@@ -623,14 +623,14 @@ class SupplyChainNode(object):
 			self._supplier_raw_material_pairs_by_product_NBOM = {prod_ind: [] for prod_ind in self.product_indices}
 
 			for prod in self.products:
-				pairs_BOM = set()
-				pairs_NBOM = set()
+				pairs_BOM = []
+				pairs_NBOM = []
 				for pred in self.predecessors(include_external=True):
 					for rm in pred.products if pred is not None else [self._external_supplier_dummy_product]:
 						if prod.BOM(raw_material=rm.index) > 0:
-							pairs_BOM.add((pred.index if pred else None, rm.index))
+							pairs_BOM.append((pred.index if pred else None, rm.index))
 						if self.NBOM(product=prod, predecessor=pred, raw_material=rm) > 0:
-							pairs_NBOM.add((pred.index if pred else None, rm.index))
+							pairs_NBOM.append((pred.index if pred else None, rm.index))
 
 				self._supplier_raw_material_pairs_by_product_BOM[prod.index] = pairs_BOM
 				self._supplier_raw_material_pairs_by_product_NBOM[prod.index] = pairs_NBOM
@@ -1097,13 +1097,13 @@ class SupplyChainNode(object):
 			return [self.network.parse_product(prod_ind)[0] for prod_ind in prod_inds]
 	
 	def supplier_raw_material_pairs_by_product(self, product=None, return_indices=False, network_BOM=True):
-		"""A set or list (see below) of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
+		"""A list of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
 		Set ``product`` to ``'all'`` to get predecessors and raw materials for all products at the node.
 		If the node has a single product (either dummy or real), either set ``product`` to the single product,
 		or to ``None`` and the function will determine it automatically. 
 
-		If ``return_indices`` is ``False``, returns a list, with the predecessors as |class_node| objects (or ``None`` for the
-		external supplier) and the products as |class_product| objects. Otherwise, returns a set, with 
+		If ``return_indices`` is ``False``, returns a list with the predecessors as |class_node| objects (or ``None`` for the
+		external supplier) and the products as |class_product| objects. Otherwise, returns a list with 
 		the predecessor and product indices.
 
 		If ``network_BOM`` is ``True``, includes predecessors and raw materials that don't have a 
@@ -1122,9 +1122,8 @@ class SupplyChainNode(object):
 		
 		Returns
 		-------
-		set or list
-			Set (if ``return_indices`` is ``True`` or list (if ``return_indices`` is ``False``) 
-			of (predecessor, raw material) tuples.
+		list
+			List of (predecessor, raw material) tuples.
 
 		Raises
 		------
@@ -1156,12 +1155,14 @@ class SupplyChainNode(object):
 		else:
 			prod_inds = [prod_ind]
 
-		pairs = set()
+		pairs = []
 		for prod_ind in prod_inds:
 			if network_BOM:
-				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_NBOM[prod_ind])
+				pairs += self._supplier_raw_material_pairs_by_product_NBOM[prod_ind]
 			else:
-				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_BOM[prod_ind])
+				pairs += self._supplier_raw_material_pairs_by_product_BOM[prod_ind]
+		# Remove duplicates.
+		pairs = list(set(pairs))
 		
 		# Convert indices to objects, if requested.
 		if not return_indices:
