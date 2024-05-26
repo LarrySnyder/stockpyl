@@ -707,9 +707,9 @@ class TestAddProduct(unittest.TestCase):
 		network.nodes[2].add_product(SupplyChainProduct(2))
 		network.nodes[2].add_product(SupplyChainProduct(3))
 
-		self.assertEqual(network.nodes[0].product_indices, {0})
-		self.assertEqual(network.nodes[1].product_indices, {1})
-		self.assertEqual(network.nodes[2].product_indices, {2, 3})
+		self.assertEqual(network.nodes[0].product_indices, [0])
+		self.assertEqual(network.nodes[1].product_indices, [1])
+		self.assertEqual(network.nodes[2].product_indices, [2, 3])
 
 		
 class TestAddProducts(unittest.TestCase):
@@ -735,9 +735,9 @@ class TestAddProducts(unittest.TestCase):
 		network.nodes[2].add_products([SupplyChainProduct(2)])
 		network.nodes[2].add_products([SupplyChainProduct(3)])
 
-		self.assertEqual(network.nodes[0].product_indices, {0})
-		self.assertEqual(network.nodes[1].product_indices, {1})
-		self.assertEqual(network.nodes[2].product_indices, {2, 3})
+		self.assertEqual(network.nodes[0].product_indices, [0])
+		self.assertEqual(network.nodes[1].product_indices, [1])
+		self.assertEqual(network.nodes[2].product_indices, [2, 3])
 
 
 class TestRemoveProduct(unittest.TestCase):
@@ -768,9 +768,9 @@ class TestRemoveProduct(unittest.TestCase):
 		nodes[2].remove_product(1)
 		nodes[3].remove_product(nodes[3].products_by_index[2])
 
-		self.assertEqual(nodes[1].product_indices, {-2})
-		self.assertEqual(nodes[2].product_indices, {-4})
-		self.assertEqual(nodes[3].product_indices, {3})
+		self.assertEqual(nodes[1].product_indices, [-2])
+		self.assertEqual(nodes[2].product_indices, [-4])
+		self.assertEqual(nodes[3].product_indices, [3])
 
 	def test_multiproduct_5_7(self):
 		"""Test remove_product() for 5-node 7-product instance.
@@ -783,9 +783,9 @@ class TestRemoveProduct(unittest.TestCase):
 		network.nodes_by_index[1].remove_product(1)
 		network.nodes_by_index[2].remove_product(network.nodes_by_index[2].products_by_index[2])
 
-		self.assertEqual(network.nodes_by_index[0].product_indices, {-_INDEX_BUMP})
-		self.assertEqual(network.nodes_by_index[1].product_indices, {0})
-		self.assertEqual(network.nodes_by_index[2].product_indices, {3, 4})
+		self.assertEqual(network.nodes_by_index[0].product_indices, [-_INDEX_BUMP])
+		self.assertEqual(network.nodes_by_index[1].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[2].product_indices, [3, 4])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
@@ -797,8 +797,8 @@ class TestRemoveProduct(unittest.TestCase):
 		network.nodes_by_index[0].remove_product(7)
 		network.nodes_by_index[1].remove_product(7)
 
-		self.assertEqual(network.nodes_by_index[0].product_indices, {0})
-		self.assertEqual(network.nodes_by_index[1].product_indices, {0, 1})
+		self.assertEqual(network.nodes_by_index[0].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[1].product_indices, [0, 1])
 
 
 class TestAddRemoveDummyProduct(unittest.TestCase):
@@ -818,7 +818,7 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		print_status('TestAddRemoveDummyProduct', 'test_basic()')
 
 		node = SupplyChainNode(4)
-		self.assertEqual(node.product_indices, {-8})
+		self.assertEqual(node.product_indices, [-8])
 		self.assertTrue(node.products[0].is_dummy)
 
 	def test_add_remove(self):
@@ -827,7 +827,7 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		print_status('TestAddRemoveDummyProduct', 'test_add_remove()')
 
 		node = SupplyChainNode(4)
-		self.assertEqual(node.product_indices, {-8})
+		self.assertEqual(node.product_indices, [-8])
 		self.assertTrue(node.products[0].is_dummy)
 		self.assertEqual(node._dummy_product, node.products[0])
 
@@ -837,7 +837,7 @@ class TestAddRemoveDummyProduct(unittest.TestCase):
 		self.assertIsNone(node._dummy_product)
 
 		node.remove_product(5)
-		self.assertEqual(node.product_indices, {-8})
+		self.assertEqual(node.product_indices, [-8])
 		self.assertTrue(node.products[0].is_dummy)
 		self.assertEqual(node._dummy_product, node.products[0])
 
@@ -869,9 +869,9 @@ class TestRemoveProducts(unittest.TestCase):
 		nodes[2].remove_products([1])
 		nodes[3].remove_products([nodes[3].products_by_index[2], 3])
 
-		self.assertEqual(nodes[1].product_indices, {-2})
-		self.assertEqual(nodes[2].product_indices, {-4})
-		self.assertEqual(nodes[3].product_indices, {-6})
+		self.assertEqual(nodes[1].product_indices, [-2])
+		self.assertEqual(nodes[2].product_indices, [-4])
+		self.assertEqual(nodes[3].product_indices, [-6])
 
 	def test_multiproduct_5_7(self):
 		"""Test remove_product() for 5-node 7-product instance.
@@ -884,9 +884,9 @@ class TestRemoveProducts(unittest.TestCase):
 		network.nodes_by_index[1].remove_products([1])
 		network.nodes_by_index[2].remove_products([3, network.nodes_by_index[2].products_by_index[2]])
 
-		self.assertEqual(network.nodes_by_index[0].product_indices, {-_INDEX_BUMP})
-		self.assertEqual(network.nodes_by_index[1].product_indices, {0})
-		self.assertEqual(network.nodes_by_index[2].product_indices, {4})
+		self.assertEqual(network.nodes_by_index[0].product_indices, [-_INDEX_BUMP])
+		self.assertEqual(network.nodes_by_index[1].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[2].product_indices, [4])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
@@ -898,8 +898,8 @@ class TestRemoveProducts(unittest.TestCase):
 		network.nodes_by_index[0].remove_products([7])
 		network.nodes_by_index[2].remove_products([3, 7])
 
-		self.assertEqual(network.nodes_by_index[0].product_indices, {0})
-		self.assertEqual(network.nodes_by_index[2].product_indices, {2, 4})
+		self.assertEqual(network.nodes_by_index[0].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[2].product_indices, [2, 4])
 
 		
 class TestIsSingleMultiProduct(unittest.TestCase):

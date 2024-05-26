@@ -582,8 +582,8 @@ class SupplyChainNode(object):
 
 	@property
 	def product_indices(self):
-		"""A set of indices of all products handled at the node. Read only."""
-		return set(self._products_by_index.keys())
+		"""A list of indices of all products handled at the node. Read only."""
+		return list(self._products_by_index.keys())
 	
 	def _build_product_attributes(self):
 		"""Build product-related attributes that are derived from other attributes,
@@ -657,13 +657,13 @@ class SupplyChainNode(object):
 				BOM_found = False
 				for prod1 in self.products:
 					for prod2_ind in prod1.raw_material_indices:
-						if prod2_ind in (pred.product_indices if pred is not None else {self._external_supplier_dummy_product.index}):
+						if prod2_ind in (pred.product_indices if pred is not None else [self._external_supplier_dummy_product.index]):
 							BOM_found = True
 							break
 				
 				# Loop through products at node and predecessor.
 				for prod1 in self.products:
-					for prod2_ind in (pred.product_indices if pred is not None else {self._external_supplier_dummy_product.index}):
+					for prod2_ind in (pred.product_indices if pred is not None else [self._external_supplier_dummy_product.index]):
 						# If any BOM relationships were found, use product BOM; otherwise, NBOM = 1.
 						if BOM_found:
 							NBOM = prod1.BOM(prod2_ind)
@@ -940,7 +940,7 @@ class SupplyChainNode(object):
 				raise ValueError('product cannot be None unless node has exactly 1 product.')
 			prod_inds = self.product_indices
 		else:
-			prod_inds = {prod_ind}
+			prod_inds = [prod_ind]
 
 		rms = []
 		for prod_ind in prod_inds:
@@ -1154,7 +1154,7 @@ class SupplyChainNode(object):
 				raise ValueError('product cannot be None unless node has exactly 1 product.')
 			prod_inds = self.product_indices
 		else:
-			prod_inds = {prod_ind}
+			prod_inds = [prod_ind]
 
 		pairs = set()
 		for prod_ind in prod_inds:
@@ -1245,8 +1245,7 @@ class SupplyChainNode(object):
 		prod_indices = self.product_indices
 		if product is None:
 			if len(prod_indices) == 1:
-				[prod_index] = prod_indices
-				return self.network.parse_product(prod_index)
+				return self.network.parse_product(prod_indices[0])
 			else:
 				raise ValueError(f'product cannot be None if the node has more than 1 product.')
 		else:

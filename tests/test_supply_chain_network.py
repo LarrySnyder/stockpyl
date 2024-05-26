@@ -790,7 +790,7 @@ class TestAddRemoveProduct(unittest.TestCase):
 
 		network.remove_product(network.products_by_index[1])
 
-		self.assertEqual(network.product_indices, {0})
+		self.assertEqual(network.product_indices, [0])
 
 	def test_multiproduct_5_7(self):
 		"""Test remove_product() on 5-node, 7-product system.
@@ -831,7 +831,7 @@ class TestProductLists(unittest.TestCase):
 		network.add_product(prod1)
 
 		self.assertListEqual(network.products, [prod0, prod1])
-		self.assertSetEqual(network.product_indices, {0, 1})
+		self.assertListEqual(network.product_indices, [0, 1])
 		self.assertDictEqual(network.products_by_index, {0: prod0, 1: prod1})
 
 	def test_multiproduct_5_7(self):
@@ -844,7 +844,7 @@ class TestProductLists(unittest.TestCase):
 		network.add_product(SupplyChainProduct(11))
 		products = {prod.index: prod for prod in network.products}
 
-		self.assertSetEqual(network.product_indices, {0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -9, -7, -5, -3})
+		self.assertCountEqual(network.product_indices, [0, 1, 2, 3, 4, 5, 6, 10, 11, -1001, -9, -7, -5, -3])
 		self.assertListEqual(network.products, list(products.values()))
 		self.assertDictEqual(network.products_by_index, {i: products[i] for i in products.keys()})
 	
