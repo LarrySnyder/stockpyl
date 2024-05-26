@@ -451,9 +451,9 @@ class TestPredecessors(unittest.TestCase):
 		network = load_instance("example_6_1")
 		nodes = {n.index: n for n in network.nodes}
 
-		self.assertEqual(nodes[1].predecessor_indices(), {2})
-		self.assertEqual(nodes[2].predecessor_indices(), {3})
-		self.assertEqual(nodes[3].predecessor_indices(), set())
+		self.assertEqual(nodes[1].predecessor_indices(), [2])
+		self.assertEqual(nodes[2].predecessor_indices(), [3])
+		self.assertEqual(nodes[3].predecessor_indices(), [])
 		self.assertEqual(nodes[1].predecessors(), [nodes[2]])
 		self.assertEqual(nodes[2].predecessors(), [nodes[3]])
 		self.assertEqual(nodes[3].predecessors(), [])
@@ -476,10 +476,10 @@ class TestPredecessors(unittest.TestCase):
 
 		nodes = {n.index: n for n in network.nodes}
 
-		self.assertEqual(nodes[0].predecessor_indices(), set())
-		self.assertEqual(nodes[1].predecessor_indices(), {0})
-		self.assertEqual(nodes[2].predecessor_indices(), {0})
-		self.assertEqual(nodes[3].predecessor_indices(), {0})
+		self.assertEqual(nodes[0].predecessor_indices(), [])
+		self.assertEqual(nodes[1].predecessor_indices(), [0])
+		self.assertEqual(nodes[2].predecessor_indices(), [0])
+		self.assertEqual(nodes[3].predecessor_indices(), [0])
 		self.assertEqual(nodes[0].predecessors(), [])
 		self.assertEqual(nodes[1].predecessors(), [nodes[0]])
 		self.assertEqual(nodes[2].predecessors(), [nodes[0]])
@@ -493,11 +493,11 @@ class TestPredecessors(unittest.TestCase):
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 		nodes = {n.index: n for n in network.nodes}
 
-		self.assertEqual(nodes[0].predecessor_indices(), {2})
-		self.assertEqual(nodes[1].predecessor_indices(), {2, 3})
-		self.assertEqual(nodes[2].predecessor_indices(), {4})
-		self.assertEqual(nodes[3].predecessor_indices(), {4})
-		self.assertEqual(nodes[4].predecessor_indices(), set())
+		self.assertEqual(nodes[0].predecessor_indices(), [2])
+		self.assertEqual(nodes[1].predecessor_indices(), [2, 3])
+		self.assertEqual(nodes[2].predecessor_indices(), [4])
+		self.assertEqual(nodes[3].predecessor_indices(), [4])
+		self.assertEqual(nodes[4].predecessor_indices(), [])
 		self.assertEqual(nodes[0].predecessors(), [nodes[2]])
 		self.assertEqual(nodes[1].predecessors(), [nodes[2], nodes[3]])
 		self.assertEqual(nodes[2].predecessors(), [nodes[4]])

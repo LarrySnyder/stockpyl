@@ -13,8 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Use this in place of ``SupplyChainNetwork.get_node_from_index()``, which will be deprecated.
 
 ### Changed
-- Some attributes have been changed to return sets rather than lists: ``SupplyChainNode.predecessor_indices``,
-	``SupplyChainNode.successor_indices``.
 - Various speedups.
 
 ### Fixed

@@ -364,9 +364,9 @@ class TestAddSuccessor(unittest.TestCase):
 		node1succ = node1.successor_indices()
 		node2succ = node2.successor_indices()
 
-		self.assertEqual(node0succ, set())
-		self.assertEqual(node1succ, {0})
-		self.assertEqual(node2succ, {1})
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node1succ, [0])
+		self.assertEqual(node2succ, [1])
 
 	def test_3_node_serial_dupe(self):
 		"""Test add_successor() to build 3-node serial system when the nodes
@@ -391,9 +391,9 @@ class TestAddSuccessor(unittest.TestCase):
 		node1succ = node1.successor_indices()
 		node2succ = node2.successor_indices()
 
-		self.assertEqual(node0succ, set())
-		self.assertEqual(node1succ, {0})
-		self.assertEqual(node2succ, {1})
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node1succ, [0])
+		self.assertEqual(node2succ, [1])
 
 	def test_4_node_owmr(self):
 		"""Test add_successor() to build 4-node OWMR system.
@@ -417,10 +417,10 @@ class TestAddSuccessor(unittest.TestCase):
 		node2succ = node2.successor_indices()
 		node3succ = node3.successor_indices()
 
-		self.assertEqual(node0succ, {1, 2, 3})
-		self.assertEqual(node1succ, set())
-		self.assertEqual(node2succ, set())
-		self.assertEqual(node3succ, set())
+		self.assertEqual(node0succ, [1, 2, 3])
+		self.assertEqual(node1succ, [])
+		self.assertEqual(node2succ, [])
+		self.assertEqual(node3succ, [])
 
 
 class TestAddEdge(unittest.TestCase):
@@ -456,9 +456,9 @@ class TestAddEdge(unittest.TestCase):
 		node1succ = node1.successor_indices()
 		node2succ = node2.successor_indices()
 
-		self.assertEqual(node0succ, set())
-		self.assertEqual(node1succ, {0})
-		self.assertEqual(node2succ, {1})
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node1succ, [0])
+		self.assertEqual(node2succ, [1])
 
 		# Check that edge is not added if it already exists.
 		num_edges = len(network.edges)
@@ -495,10 +495,10 @@ class TestAddEdge(unittest.TestCase):
 		node2succ = node2.successor_indices()
 		node3succ = node3.successor_indices()
 
-		self.assertEqual(node0succ, {1, 2, 3})
-		self.assertEqual(node1succ, set())
-		self.assertEqual(node2succ, set())
-		self.assertEqual(node3succ, set())
+		self.assertEqual(node0succ, [1, 2, 3])
+		self.assertEqual(node1succ, [])
+		self.assertEqual(node2succ, [])
+		self.assertEqual(node3succ, [])
 
 		# Check that edge is not added if it already exists.
 		num_edges = len(network.edges)
@@ -538,9 +538,9 @@ class TestAddEdgesFromList(unittest.TestCase):
 		node1succ = node1.successor_indices()
 		node2succ = node2.successor_indices()
 
-		self.assertEqual(node0succ, set())
-		self.assertEqual(node1succ, {0})
-		self.assertEqual(node2succ, {1})
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node1succ, [0])
+		self.assertEqual(node2succ, [1])
 
 		# Check that edge is not added if it already exists.
 		num_edges = len(network.edges)
@@ -575,10 +575,10 @@ class TestAddEdgesFromList(unittest.TestCase):
 		node2succ = node2.successor_indices()
 		node3succ = node3.successor_indices()
 
-		self.assertEqual(node0succ, {1, 2, 3})
-		self.assertEqual(node1succ, set())
-		self.assertEqual(node2succ, set())
-		self.assertEqual(node3succ, set())
+		self.assertEqual(node0succ, [1, 2, 3])
+		self.assertEqual(node1succ, [])
+		self.assertEqual(node2succ, [])
+		self.assertEqual(node3succ, [])
 
 		# Check that edge is not added if it already exists.
 		num_edges = len(network.edges)
@@ -619,8 +619,8 @@ class TestRemoveNode(unittest.TestCase):
 		node0succ = node0.successor_indices()
 		node2succ = node2.successor_indices()
 
-		self.assertEqual(node0succ, set())
-		self.assertEqual(node2succ, set())
+		self.assertEqual(node0succ, [])
+		self.assertEqual(node2succ, [])
 
 	def test_4_node_owmr(self):
 		"""Test remove_node() on 4-node OWMR system.
@@ -647,9 +647,9 @@ class TestRemoveNode(unittest.TestCase):
 		node1succ = node1.successor_indices()
 		node3succ = node3.successor_indices()
 
-		self.assertEqual(node0succ, {1, 3})
-		self.assertEqual(node1succ, set())
-		self.assertEqual(node3succ, set())
+		self.assertEqual(node0succ, [1, 3])
+		self.assertEqual(node1succ, [])
+		self.assertEqual(node3succ, [])
 
 
 class TestParseNode(unittest.TestCase):
@@ -1082,12 +1082,12 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(middle_node.index, 1)
 		self.assertEqual(sink_node.index, 0)
 
-		self.assertEqual(source_node_succ, {1})
-		self.assertEqual(middle_node_succ, {0})
-		self.assertEqual(sink_node_succ, set())
-		self.assertEqual(source_node_pred, set())
-		self.assertEqual(middle_node_pred, {2})
-		self.assertEqual(sink_node_pred, {1})
+		self.assertEqual(source_node_succ, [1])
+		self.assertEqual(middle_node_succ, [0])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [2])
+		self.assertEqual(sink_node_pred, [1])
 
 		self.assertEqual(source_node.local_holding_cost, 2)
 		self.assertEqual(middle_node.local_holding_cost, 4)
@@ -1127,12 +1127,12 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(middle_node.index, 14)
 		self.assertEqual(sink_node.index, 17)
 
-		self.assertEqual(source_node_succ, {14})
-		self.assertEqual(middle_node_succ, {17})
-		self.assertEqual(sink_node_succ, set())
-		self.assertEqual(source_node_pred, set())
-		self.assertEqual(middle_node_pred, {12})
-		self.assertEqual(sink_node_pred, {14})
+		self.assertEqual(source_node_succ, [14])
+		self.assertEqual(middle_node_succ, [17])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [12])
+		self.assertEqual(sink_node_pred, [14])
 
 		self.assertEqual(source_node.local_holding_cost, 2)
 		self.assertEqual(middle_node.local_holding_cost, 4)
@@ -1173,12 +1173,12 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(middle_node.index, 14)
 		self.assertEqual(sink_node.index, 17)
 
-		self.assertEqual(source_node_succ, {14})
-		self.assertEqual(middle_node_succ, {17})
-		self.assertEqual(sink_node_succ, set())
-		self.assertEqual(source_node_pred, set())
-		self.assertEqual(middle_node_pred, {12})
-		self.assertEqual(sink_node_pred, {14})
+		self.assertEqual(source_node_succ, [14])
+		self.assertEqual(middle_node_succ, [17])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [12])
+		self.assertEqual(sink_node_pred, [14])
 
 		self.assertEqual(source_node.local_holding_cost, 2)
 		self.assertEqual(middle_node.local_holding_cost, 4)
@@ -1221,12 +1221,12 @@ class TestSerialSystem(unittest.TestCase):
 		self.assertEqual(middle_node.index, 1)
 		self.assertEqual(sink_node.index, 0)
 
-		self.assertEqual(source_node_succ, {1})
-		self.assertEqual(middle_node_succ, {0})
-		self.assertEqual(sink_node_succ, set())
-		self.assertEqual(source_node_pred, set())
-		self.assertEqual(middle_node_pred, {2})
-		self.assertEqual(sink_node_pred, {1})
+		self.assertEqual(source_node_succ, [1])
+		self.assertEqual(middle_node_succ, [0])
+		self.assertEqual(sink_node_succ, [])
+		self.assertEqual(source_node_pred, [])
+		self.assertEqual(middle_node_pred, [2])
+		self.assertEqual(sink_node_pred, [1])
 
 		self.assertEqual(source_node.local_holding_cost, 2)
 		self.assertEqual(middle_node.local_holding_cost, 4)
@@ -1605,14 +1605,14 @@ class TestMWORSystem(unittest.TestCase):
 		self.assertEqual(wh2.index, 2)
 		self.assertEqual(wh3.index, 3)
 
-		self.assertEqual(ret_succ, set())
-		self.assertEqual(wh1_succ, {0})
-		self.assertEqual(wh2_succ, {0})
-		self.assertEqual(wh3_succ, {0})
-		self.assertEqual(ret_pred, {1, 2, 3})
-		self.assertEqual(wh1_pred, set())
-		self.assertEqual(wh2_pred, set())
-		self.assertEqual(wh3_pred, set())
+		self.assertEqual(ret_succ, [])
+		self.assertEqual(wh1_succ, [0])
+		self.assertEqual(wh2_succ, [0])
+		self.assertEqual(wh3_succ, [0])
+		self.assertEqual(ret_pred, [1, 2, 3])
+		self.assertEqual(wh1_pred, [])
+		self.assertEqual(wh2_pred, [])
+		self.assertEqual(wh3_pred, [])
 
 		self.assertEqual(ret.local_holding_cost, 5)
 		self.assertEqual(wh1.local_holding_cost, 1)
@@ -1654,14 +1654,14 @@ class TestMWORSystem(unittest.TestCase):
 		self.assertEqual(wh2.index, 1)
 		self.assertEqual(wh3.index, 0)
 
-		self.assertEqual(ret_succ, set())
-		self.assertEqual(wh1_succ, {3})
-		self.assertEqual(wh2_succ, {3})
-		self.assertEqual(wh3_succ, {3})
-		self.assertEqual(ret_pred, {0, 1, 2})
-		self.assertEqual(wh1_pred, set())
-		self.assertEqual(wh2_pred, set())
-		self.assertEqual(wh3_pred, set())
+		self.assertEqual(ret_succ, [])
+		self.assertEqual(wh1_succ, [3])
+		self.assertEqual(wh2_succ, [3])
+		self.assertEqual(wh3_succ, [3])
+		self.assertEqual(ret_pred, [0, 1, 2])
+		self.assertEqual(wh1_pred, [])
+		self.assertEqual(wh2_pred, [])
+		self.assertEqual(wh3_pred, [])
 
 		self.assertEqual(ret.local_holding_cost, 5)
 		self.assertEqual(wh1.local_holding_cost, 1)
@@ -1703,14 +1703,14 @@ class TestMWORSystem(unittest.TestCase):
 		self.assertEqual(wh2.index, 12)
 		self.assertEqual(wh3.index, 14)
 
-		self.assertEqual(ret_succ, set())
-		self.assertEqual(wh1_succ, {17})
-		self.assertEqual(wh2_succ, {17})
-		self.assertEqual(wh3_succ, {17})
-		self.assertEqual(ret_pred, {5, 12, 14})
-		self.assertEqual(wh1_pred, set())
-		self.assertEqual(wh2_pred, set())
-		self.assertEqual(wh3_pred, set())
+		self.assertEqual(ret_succ, [])
+		self.assertEqual(wh1_succ, [17])
+		self.assertEqual(wh2_succ, [17])
+		self.assertEqual(wh3_succ, [17])
+		self.assertEqual(ret_pred, [5, 12, 14])
+		self.assertEqual(wh1_pred, [])
+		self.assertEqual(wh2_pred, [])
+		self.assertEqual(wh3_pred, [])
 
 		self.assertEqual(ret.local_holding_cost, 5)
 		self.assertEqual(wh1.local_holding_cost, 1)
@@ -1776,14 +1776,14 @@ class TestOWMRSystem(unittest.TestCase):
 		self.assertEqual(ret2.index, 2)
 		self.assertEqual(ret3.index, 3)
 
-		self.assertEqual(wh_succ, {1, 2, 3})
-		self.assertEqual(ret1_succ, set())
-		self.assertEqual(ret2_succ, set())
-		self.assertEqual(ret3_succ, set())
-		self.assertEqual(wh_pred, set())
-		self.assertEqual(ret1_pred, {0})
-		self.assertEqual(ret2_pred, {0})
-		self.assertEqual(ret3_pred, {0})
+		self.assertEqual(wh_succ, [1, 2, 3])
+		self.assertEqual(ret1_succ, [])
+		self.assertEqual(ret2_succ, [])
+		self.assertEqual(ret3_succ, [])
+		self.assertEqual(wh_pred, [])
+		self.assertEqual(ret1_pred, [0])
+		self.assertEqual(ret2_pred, [0])
+		self.assertEqual(ret3_pred, [0])
 
 		self.assertEqual(wh.local_holding_cost, 2)
 		self.assertEqual(ret1.local_holding_cost, 1)
@@ -1824,14 +1824,14 @@ class TestOWMRSystem(unittest.TestCase):
 		self.assertEqual(ret2.index, 1)
 		self.assertEqual(ret3.index, 2)
 
-		self.assertEqual(wh_succ, {0, 1, 2})
-		self.assertEqual(ret1_succ, set())
-		self.assertEqual(ret2_succ, set())
-		self.assertEqual(ret3_succ, set())
-		self.assertEqual(wh_pred, set())
-		self.assertEqual(ret1_pred, {3})
-		self.assertEqual(ret2_pred, {3})
-		self.assertEqual(ret3_pred, {3})
+		self.assertEqual(wh_succ, [0, 1, 2])
+		self.assertEqual(ret1_succ, [])
+		self.assertEqual(ret2_succ, [])
+		self.assertEqual(ret3_succ, [])
+		self.assertEqual(wh_pred, [])
+		self.assertEqual(ret1_pred, [3])
+		self.assertEqual(ret2_pred, [3])
+		self.assertEqual(ret3_pred, [3])
 
 		self.assertEqual(wh.local_holding_cost, 2)
 		self.assertEqual(ret1.local_holding_cost, 1)
@@ -1873,14 +1873,14 @@ class TestOWMRSystem(unittest.TestCase):
 		self.assertEqual(ret2.index, 14)
 		self.assertEqual(ret3.index, 17)
 
-		self.assertEqual(wh_succ, {12, 14, 17})
-		self.assertEqual(ret1_succ, set())
-		self.assertEqual(ret2_succ, set())
-		self.assertEqual(ret3_succ, set())
-		self.assertEqual(wh_pred, set())
-		self.assertEqual(ret1_pred, {5})
-		self.assertEqual(ret2_pred, {5})
-		self.assertEqual(ret3_pred, {5})
+		self.assertEqual(wh_succ, [12, 14, 17])
+		self.assertEqual(ret1_succ, [])
+		self.assertEqual(ret2_succ, [])
+		self.assertEqual(ret3_succ, [])
+		self.assertEqual(wh_pred, [])
+		self.assertEqual(ret1_pred, [5])
+		self.assertEqual(ret2_pred, [5])
+		self.assertEqual(ret3_pred, [5])
 
 		self.assertEqual(wh.local_holding_cost, 1)
 		self.assertEqual(ret1.local_holding_cost, 2)

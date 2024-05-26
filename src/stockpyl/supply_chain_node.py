@@ -191,8 +191,8 @@ class SupplyChainNode(object):
 		'_products_by_index': {},
 		'_dummy_product': None,
 		'_external_supplier_dummy_product': None,
-		'_predecessor_indices': set(),
-		'_successor_indices': set(),
+		'_predecessor_indices': [],
+		'_successor_indices': [],
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
@@ -315,10 +315,6 @@ class SupplyChainNode(object):
 	def predecessors(self, include_external=False):
 		"""Return a list of all predecessors of the node, as |class_node| objects.
 
-		.. note:: It is generally faster to use the :func:`~stockpyl.supply_chain_node.SupplyChainNode.predecessor_indices` function,
-		which returns a set instead of a list, if only the predecessor indices are needed, not the full objects.
-
-
 		Parameters
 		----------
 		include_external : bool, optional
@@ -336,10 +332,7 @@ class SupplyChainNode(object):
 	def successors(self, include_external=False):
 		"""Return a list of all successors of the node, as |class_node| objects.
 
-		.. note:: It is generally faster to use the :func:`~stockpyl.supply_chain_node.SupplyChainNode.successor_indices` function,
-		which returns a set instead of a list, if only the successor indices are needed, not the full objects.
-
-				Parameters
+		Parameters
 		----------
 		include_external : bool, optional
 			Include the external customer (if any)? Default = ``False``.
@@ -367,7 +360,7 @@ class SupplyChainNode(object):
 			List of all predecessor indices.
 		"""
 		if include_external and self.has_external_supplier:
-			return self._predecessor_indices.union({None})
+			return self._predecessor_indices + [None]
 		else:
 			return self._predecessor_indices
 
@@ -385,7 +378,7 @@ class SupplyChainNode(object):
 			List of all successor indices.
 		"""
 		if include_external and self.has_external_customer:
-			return self._successor_indices.union({None})
+			return self._successor_indices + [None]
 		else:
 			return self._successor_indices
 
@@ -422,11 +415,11 @@ class SupplyChainNode(object):
 
 	@property
 	def neighbor_indices(self):
-		"""A set of indices of all neighbors (successors and predecessors) of the node.
+		"""A list of indices of all neighbors (successors and predecessors) of the node.
 		Read only.
 		"""
 		neighbor_indices = copy.deepcopy(self.successor_indices())
-		neighbor_indices.update(copy.deepcopy(self.predecessor_indices())) # this assumes no predecessor can also be a successor
+		neighbor_indices += copy.deepcopy(self.predecessor_indices()) # this assumes no predecessor can also be a successor
 	
 		return neighbor_indices
 
@@ -1576,11 +1569,11 @@ class SupplyChainNode(object):
 					# Ignore.
 					pass
 				elif attr == '_predecessor_indices':
-					if self.predecessor_indices() != other.predecessor_indices():
+					if set(self.predecessor_indices()) != set(other.predecessor_indices()):
 						viol_attr = attr
 						eq = False
 				elif attr == '_successor_indices':
-					if self.successor_indices() != other.successor_indices():
+					if set(self.successor_indices()) != set(other.successor_indices()):
 						viol_attr = attr
 						eq = False
 				elif attr == '_inventory_policy':
@@ -1730,17 +1723,17 @@ class SupplyChainNode(object):
 				# - lists instead of sets
 				elif attr_name == '_predecessor_indices':
 					if '_predecessors' in the_dict:
-						value = set(copy.deepcopy(the_dict['_predecessors']))
+						value = list(copy.deepcopy(the_dict['_predecessors']))
 					else:
-						value = set(copy.deepcopy(the_dict['_predecessor_indices']))
+						value = list(copy.deepcopy(the_dict['_predecessor_indices']))
 					# Remove any None values. (Older versions saved external supplier as None.)
 					if None in value:
 						value.remove(None)
 				elif attr_name == '_successor_indices':
 					if '_successors' in the_dict:
-						value = set(copy.deepcopy(the_dict['_successors']))
+						value = list(copy.deepcopy(the_dict['_successors']))
 					else:
-						value = set(copy.deepcopy(the_dict['_successor_indices']))
+						value = list(copy.deepcopy(the_dict['_successor_indices']))
 					# Remove any None values. (Older versions saved external customer as None.)
 					if None in value:
 						value.remove(None)	
@@ -1822,7 +1815,7 @@ class SupplyChainNode(object):
 			The node to add as a successor.
 
 		"""
-		self._successor_indices.add(successor.index)
+		self._successor_indices.append(successor.index)
 
 	def add_predecessor(self, predecessor):
 		"""Add ``predecessor`` to the node's set of predecessors.
@@ -1839,7 +1832,7 @@ class SupplyChainNode(object):
 			The node to add as a predecessor.
 
 		"""
-		self._predecessor_indices.add(predecessor.index)
+		self._predecessor_indices.append(predecessor.index)
 
 	def remove_successor(self, successor):
 		"""Remove ``successor`` from the node's set of successors. ``successor`` may
@@ -1900,7 +1893,7 @@ class SupplyChainNode(object):
 		if len(self.successor_indices()) == 0:
 			return None
 		else:
-			return self.network.nodes_by_index[next(iter(self.successor_indices()))]
+			return self.network.nodes_by_index[self.successor_indices()[0]]
 #			return self.successors()[0]
 
 	def get_one_predecessor(self):
@@ -1916,7 +1909,7 @@ class SupplyChainNode(object):
 		if len(self.predecessor_indices()) == 0:
 			return None
 		else:
-			return self.network.nodes_by_index[next(iter(self.predecessor_indices()))]
+			return self.network.nodes_by_index[self.predecessor_indices()[0]]
 #			return self()[0]
 
 	# Attribute management.

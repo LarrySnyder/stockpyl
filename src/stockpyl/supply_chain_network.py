@@ -505,8 +505,8 @@ class SupplyChainNetwork(object):
 			old_index = node.index
 			node.index = old_to_new_dict[old_index]
 			# Reindex predecessors and successors.
-			node._predecessor_indices = {old_to_new_dict[p] for p in node._predecessor_indices}
-			node._successor_indices = {old_to_new_dict[s] for s in node._successor_indices}
+			node._predecessor_indices = [old_to_new_dict[p] for p in node._predecessor_indices]
+			node._successor_indices = [old_to_new_dict[s] for s in node._successor_indices]
 			# Rename node.
 			if new_names is not None:
 				node.name = new_names[old_index]
