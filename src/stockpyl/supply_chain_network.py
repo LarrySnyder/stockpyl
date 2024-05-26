@@ -838,17 +838,17 @@ class SupplyChainNetwork(object):
 				node_ind = None
 			else:
 				raise ValueError('node may not be None if allow_none is False.')
-		elif isinstance(node, SupplyChainNode):
-			node_obj = node
-			node_ind = node.index
-			if node_obj not in self.nodes:
-				raise ValueError(f'Node {node_ind} is not a node in the network.')
-		elif isinstance(node, int):
+		elif is_integer(node):
 			try:
 				node_obj = self.nodes_by_index[node]
 			except:
 				raise ValueError(f'Node {node} is not a node in the network.')
 			node_ind = node
+		elif isinstance(node, SupplyChainNode):
+			node_obj = node
+			node_ind = node.index
+			if node_ind not in self.node_indices:
+				raise ValueError(f'Node {node_ind} is not a node in the network.')
 		else:
 			raise TypeError('node must be a SupplyChainNode or an int.')
 
@@ -887,17 +887,17 @@ class SupplyChainNetwork(object):
 				product_ind = None
 			else:
 				raise TypeError('product may not be None if allow_none is False.')
-		elif isinstance(product, SupplyChainProduct):
-			product_obj = product
-			product_ind = product.index
-			if product_obj not in self.products:
-				raise ValueError(f'Product {product_ind} is not a product in the network.')
-		elif isinstance(product, int):
+		elif is_integer(product):
 			try:
 				product_obj = self.products_by_index[product]
 			except:
 				raise ValueError(f'product {product} is not a product in the network.')
 			product_ind = product
+		elif isinstance(product, SupplyChainProduct):
+			product_obj = product
+			product_ind = product.index
+			if product_ind not in self.product_indices:
+				raise ValueError(f'Product {product_ind} is not a product in the network.')
 		else:
 			raise TypeError('product must be a SupplyChainProduct or an int.')
 
