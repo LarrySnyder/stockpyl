@@ -589,8 +589,8 @@ class SupplyChainNode(object):
 
 	@property
 	def product_indices(self):
-		"""A list of indices of all products handled at the node. Read only."""
-		return list(self._products_by_index.keys())
+		"""A set of indices of all products handled at the node. Read only."""
+		return set(self._products_by_index.keys())
 	
 	def _build_product_attributes(self):
 		"""Build product-related attributes that are derived from other attributes,
@@ -1249,7 +1249,8 @@ class SupplyChainNode(object):
 		prod_indices = self.product_indices
 		if product is None:
 			if len(prod_indices) == 1:
-				return self.network.parse_product(prod_indices[0])
+				[prod_index] = prod_indices
+				return self.network.parse_product(prod_index)
 			else:
 				raise ValueError(f'product cannot be None if the node has more than 1 product.')
 		else:

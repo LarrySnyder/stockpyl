@@ -139,7 +139,7 @@ class SupplyChainNetwork(object):
 
 	@property
 	def product_indices(self):
-		"""List of indices of all products in the network. Includes products
+		"""Set of indices of all products in the network. Includes products
 		that have been explicitly added to the network via :func:`add_product` as well as products
 		that are handled by the nodes in the network. Read only.
 		"""
@@ -286,7 +286,7 @@ class SupplyChainNetwork(object):
 		else:
 			# Replace None with -1 in both node's product indices because None can't be sorted.
 			self_indices = [prod_ind if prod_ind is not None else -1  for prod_ind in self.product_indices]
-			if sorted(self.product_indices) != sorted(other.product_indices):
+			if self.product_indices != other.product_indices:
 				eq = False
 			else:
 				# Special handling for some attributes.
@@ -742,7 +742,7 @@ class SupplyChainNetwork(object):
 					if node._external_supplier_dummy_product not in products:
 						products.append(node._external_supplier_dummy_product)
 			self._products = products
-			self._product_indices = [prod.index for prod in self._products]
+			self._product_indices = {prod.index for prod in self._products}
 			
 			# Build _products_by_index. Include all products in network (including in nodes).
 			self._products_by_index = {prod.index: prod for prod in self._products}

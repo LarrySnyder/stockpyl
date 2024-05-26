@@ -1272,7 +1272,8 @@ class NodeStateVars(object):
 			rm_index = self.node._external_supplier_dummy_product.index
 		else:
 			pred_index = pred.index
-			rm_index = pred.product_indices[0]
+			rm_index = next(iter(pred.product_indices))
+#			rm_index = pred.product_indices[0]
 		for t in range(self.node.equivalent_lead_time, self.node.shipment_lead_time):
 			if self.node.network.period - t >= 0:
 				in_transit_adjusted += self.node.state_vars[self.node.network.period - t].order_quantity[pred_index][rm_index]
