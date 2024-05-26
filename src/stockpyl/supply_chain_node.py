@@ -291,8 +291,8 @@ class SupplyChainNode(object):
 		``False`` otherwise.
 		"""
 		has_ext_supp = False
-		for product in self.products:
-			if self.get_attribute('supply_type', product=product) is not None:
+		for prod_ind in self.product_indices:
+			if self.get_attribute('supply_type', product=prod_ind) is not None:
 				has_ext_supp = True
 				break
 		
@@ -304,8 +304,8 @@ class SupplyChainNode(object):
 		``False`` otherwise.
 		"""
 		has_ext_cust = False
-		for product in self.products:
-			ds = self.get_attribute('demand_source', product=product)
+		for prod_ind in self.product_indices:
+			ds = self.get_attribute('demand_source', product=prod_ind)
 			if ds is not None and ds.type is not None:
 				has_ext_cust = True
 				break
@@ -580,7 +580,7 @@ class SupplyChainNode(object):
 	@property
 	def is_multiproduct(self):
 		"""Returns ``True`` if the node handles multiple products, ``False`` otherwise. Read only."""
-		return len(self.products) > 1
+		return len(self.product_indices) > 1
 
 	@property
 	def is_singleproduct(self):
@@ -663,22 +663,22 @@ class SupplyChainNode(object):
 				# Do any raw materials at predecessor have a BOM relationship with any products at the node?
 				BOM_found = False
 				for prod1 in self.products:
-					for prod2 in prod1.raw_materials:
-						if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
+					for prod2_ind in prod1.raw_material_indices:
+						if prod2_ind in (pred.product_indices if pred is not None else {self._external_supplier_dummy_product.index}):
 							BOM_found = True
 							break
 				
 				# Loop through products at node and predecessor.
 				for prod1 in self.products:
-					for prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product]):
+					for prod2_ind in (pred.product_indices if pred is not None else {self._external_supplier_dummy_product.index}):
 						# If any BOM relationships were found, use product BOM; otherwise, NBOM = 1.
 						if BOM_found:
-							NBOM = prod1.BOM(prod2.index)
+							NBOM = prod1.BOM(prod2_ind)
 						else:
 							NBOM = 1
 
 						# Set NBOM.
-						self._network_bill_of_materials[prod1.index][pred_ind][prod2.index] = NBOM
+						self._network_bill_of_materials[prod1.index][pred_ind][prod2_ind] = NBOM
 			
 	def add_product(self, product):
 		"""Add ``product`` to the node. If ``product`` is already in the node (as determined by the index),
@@ -697,7 +697,7 @@ class SupplyChainNode(object):
 			old_currently_building = self.network._currently_building
 			self.network._currently_building = True
 				
-		if product not in self.products:
+		if product.index not in self.product_indices:
 			self._products_by_index[product.index] = product
 			if not product.is_dummy:
 				# Remove dummy product. (This also sets `dummy_product` to None.)
@@ -941,15 +941,17 @@ class SupplyChainNode(object):
 
 		# Determine which products to get raw materials for.
 		if product == 'all':
-			products = self.products
+			prod_inds = self.product_indices
 		elif product is None:
-			products = [self.products[0]]
+			if len(self.product_indices) != 1:
+				raise ValueError('product cannot be None unless node has exactly 1 product.')
+			prod_inds = self.product_indices
 		else:
-			products = [prod_obj]
+			prod_inds = {prod_ind}
 
 		rms = []
-		for prod in products:
-			for _, rm in self.supplier_raw_material_pairs_by_product(product=prod, \
+		for prod_ind in prod_inds:
+			for _, rm in self.supplier_raw_material_pairs_by_product(product=prod_ind, \
 										return_indices=return_indices, network_BOM=network_BOM):
 				if rm not in rms:
 					rms.append(rm)
@@ -1086,21 +1088,20 @@ class SupplyChainNode(object):
 		_, rm_ind = self.validate_raw_material(raw_material, network_BOM=network_BOM)
   
 		if network_BOM:
-			prods = []
-			for prod in self.products:
-				if prod not in prods:
+			prod_inds = []
+			for prod_ind in self.product_indices:
+				if prod_ind not in prod_inds:
 					for pred in self.raw_material_suppliers_by_raw_material(rm_ind, return_indices=False, network_BOM=True):
-						if self.NBOM(product=prod, predecessor=pred, raw_material=rm_ind) > 0:
-							prods.append(prod)
+						if self.NBOM(product=prod_ind, predecessor=pred, raw_material=rm_ind) > 0:
+							prod_inds.append(prod_ind)
 							break
-#			[prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_ind) > 0]
 		else:
-			prods = [prod for prod in self.products if prod.BOM(raw_material=rm_ind) > 0]
+			prod_inds = [prod.index for prod in self.products if prod.BOM(raw_material=rm_ind) > 0]
 		
 		if return_indices:
-			return [prod.index for prod in prods]
+			return prod_inds
 		else:
-			return prods
+			return [self.network.parse_product(prod_ind)[0] for prod_ind in prod_inds]
 	
 	def supplier_raw_material_pairs_by_product(self, product=None, return_indices=False, network_BOM=True):
 		"""A set or list (see below) of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
@@ -1154,18 +1155,20 @@ class SupplyChainNode(object):
 
 		# Determine which products to consider.
 		if product == 'all':
-			products = self.products
+			prod_inds = self.product_indices
 		elif product is None:
-			products = [self.products[0]]
+			if len(self.product_indices) != 1:
+				raise ValueError('product cannot be None unless node has exactly 1 product.')
+			prod_inds = self.product_indices
 		else:
-			products = [prod_obj]
+			prod_inds = {prod_ind}
 
 		pairs = set()
-		for prod in products:
+		for prod_ind in prod_inds:
 			if network_BOM:
-				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_NBOM[prod.index])
+				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_NBOM[prod_ind])
 			else:
-				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_BOM[prod.index])
+				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_BOM[prod_ind])
 		
 		# Convert indices to objects, if requested.
 		if not return_indices:
@@ -1954,7 +1957,7 @@ class SupplyChainNode(object):
 		ValueError
 			If ``product`` is ``None`` but the node has multiple products.
 		"""
-		if product is None and len(self.products) > 1:
+		if product is None and len(self.product_indices) > 1:
 			raise ValueError(f'You cannot set product = None for a node that has multiple products (node = {self.index}).')
   
 		# Get self.attr and the product and index.
@@ -1966,7 +1969,10 @@ class SupplyChainNode(object):
 			product_obj = product
 			product_ind = product.index
 		else:
-			product_obj = self.products_by_index[product]
+			if product in self.products_by_index:
+				product_obj = self.products_by_index[product]
+			else:
+				product_obj = self.network.products_by_index[product]
 			product_ind = product
 
 		# Is self.attr a dict?

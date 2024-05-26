@@ -787,7 +787,6 @@ class SupplyChainNetwork(object):
 		but is not removed from any nodes within the network. If the product is handled by
 		any of those nodes, it will still be included in ``self.products``.
 
-
 		Parameters
 		----------
 		product : |class_product|
