@@ -1246,15 +1246,15 @@ class SupplyChainNode(object):
 			the dummy product).
 		"""
 
-		prods = self.products
+		prod_indices = self.product_indices
 		if product is None:
-			if len(prods) == 1:
-				return self.network.parse_product(prods[0])
+			if len(prod_indices) == 1:
+				return self.network.parse_product(prod_indices[0])
 			else:
 				raise ValueError(f'product cannot be None if the node has more than 1 product.')
 		else:
 			prod_obj, prod_ind = self.network.parse_product(product) # raises TypeError on bad type
-			if prod_obj not in prods:
+			if prod_ind not in prod_indices:
 				raise ValueError(f'Product {prod_ind} is not a product of node {self.index}.')
 			else:
 				return prod_obj, prod_ind
@@ -1304,11 +1304,11 @@ class SupplyChainNode(object):
 			does not supply this node with ``raw_material``.
 		"""
 
-		rms = self.raw_materials_by_product(product='all', network_BOM=network_BOM)
+		rm_inds = self.raw_materials_by_product(product='all', return_indices=True, network_BOM=network_BOM)
 		if raw_material is None:
 			if predecessor is None:
-				if len(rms) == 1:
-					return self.network.parse_product(rms[0])
+				if len(rm_inds) == 1:
+					return self.network.parse_product(rm_inds[0])
 				else:
 					raise ValueError(f'raw_material and predecessor cannot both be None if the node has more than 1 raw material.')
 			else:
@@ -1323,7 +1323,7 @@ class SupplyChainNode(object):
 		else:
 			rm_obj, rm_ind = self.network.parse_product(raw_material) # raises TypeError on bad type
 			_, pred_ind = self.network.parse_node(predecessor)
-			if rm_obj not in rms:
+			if rm_ind not in rm_inds:
 				raise ValueError(f'Product {rm_ind} is not a raw material of node {self.index}.')
 			elif pred_ind is not None and (pred_ind, rm_ind) not in \
 				self.supplier_raw_material_pairs_by_product(product='all', return_indices=True, network_BOM=True):
