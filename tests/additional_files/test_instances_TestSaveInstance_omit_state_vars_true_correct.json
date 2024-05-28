@@ -5,14 +5,12 @@
 			"name": "test_omit_state_vars_true",
 			"description": "this is test_omit_state_vars_true",
 			"data": {
-				"nodes": [
+				"_nodes": [
 					{
 						"_index": 5,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-10": -10
-						},
+						"_product_indices": [-10],
 						"_dummy_product": -10,
 						"_external_supplier_dummy_product": -11,
 						"_predecessor_indices": [],
@@ -80,9 +78,7 @@
 						"_index": 4,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-8": -8
-						},
+						"_product_indices": [-8],
 						"_dummy_product": -8,
 						"_external_supplier_dummy_product": -9,
 						"_predecessor_indices": [5],
@@ -150,9 +146,7 @@
 						"_index": 3,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-6": -6
-						},
+						"_product_indices": [-6],
 						"_dummy_product": -6,
 						"_external_supplier_dummy_product": -7,
 						"_predecessor_indices": [4],
@@ -220,9 +214,7 @@
 						"_index": 2,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-4": -4
-						},
+						"_product_indices": [-4],
 						"_dummy_product": -4,
 						"_external_supplier_dummy_product": -5,
 						"_predecessor_indices": [3],
@@ -290,9 +282,7 @@
 						"_index": 1,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-2": -2
-						},
+						"_product_indices": [-2],
 						"_dummy_product": -2,
 						"_external_supplier_dummy_product": -3,
 						"_predecessor_indices": [2],
@@ -357,7 +347,7 @@
 						"state_vars": null
 					}
 				],
-				"_local_products": [],
+				"_local_product_indices": [],
 				"_products": [
 					{
 						"_index": -10,
@@ -790,7 +780,7 @@
 						"state_vars": []
 					}
 				],
-				"period": 24,
+				"_period": 24,
 				"max_max_replenishment_time": null
 			},
 			"type": "network"

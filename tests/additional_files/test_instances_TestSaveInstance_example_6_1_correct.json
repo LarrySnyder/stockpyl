@@ -5,14 +5,12 @@
 			"name": "test_example_6_1",
 			"description": "this is test_example_6_1",
 			"data": {
-				"nodes": [
+				"_nodes": [
 					{
 						"_index": 3,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-6": -6
-						},
+						"_product_indices": [-6],
 						"_dummy_product": -6,
 						"_external_supplier_dummy_product": -7,
 						"_predecessor_indices": [],
@@ -80,9 +78,7 @@
 						"_index": 2,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-4": -4
-						},
+						"_product_indices": [-4],
 						"_dummy_product": -4,
 						"_external_supplier_dummy_product": -5,
 						"_predecessor_indices": [3],
@@ -150,9 +146,7 @@
 						"_index": 1,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-2": -2
-						},
+						"_product_indices": [-2],
 						"_dummy_product": -2,
 						"_external_supplier_dummy_product": -3,
 						"_predecessor_indices": [2],
@@ -217,7 +211,7 @@
 						"state_vars": null
 					}
 				],
-				"_local_products": [],
+				"_local_product_indices": [],
 				"_products": [
 					{
 						"_index": -6,
@@ -478,7 +472,7 @@
 						"state_vars": []
 					}
 				],
-				"period": 0,
+				"_period": 0,
 				"max_max_replenishment_time": null
 			},
 			"type": "network"

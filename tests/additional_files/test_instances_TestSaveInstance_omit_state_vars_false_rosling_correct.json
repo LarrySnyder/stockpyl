@@ -5,14 +5,12 @@
 			"name": "test_omit_state_vars_false_rosling",
 			"description": "this is test_omit_state_vars_false_rosling",
 			"data": {
-				"nodes": [
+				"_nodes": [
 					{
 						"_index": 1,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-2": -2
-						},
+						"_product_indices": [-2],
 						"_dummy_product": -2,
 						"_external_supplier_dummy_product": -3,
 						"_predecessor_indices": [2, 3],
@@ -3429,9 +3427,7 @@
 						"_index": 2,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-4": -4
-						},
+						"_product_indices": [-4],
 						"_dummy_product": -4,
 						"_external_supplier_dummy_product": -5,
 						"_predecessor_indices": [5],
@@ -6259,9 +6255,7 @@
 						"_index": 3,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-6": -6
-						},
+						"_product_indices": [-6],
 						"_dummy_product": -6,
 						"_external_supplier_dummy_product": -7,
 						"_predecessor_indices": [4],
@@ -9151,9 +9145,7 @@
 						"_index": 4,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-8": -8
-						},
+						"_product_indices": [-8],
 						"_dummy_product": -8,
 						"_external_supplier_dummy_product": -9,
 						"_predecessor_indices": [6, 7],
@@ -12632,9 +12624,7 @@
 						"_index": 5,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-10": -10
-						},
+						"_product_indices": [-10],
 						"_dummy_product": -10,
 						"_external_supplier_dummy_product": -11,
 						"_predecessor_indices": [],
@@ -15555,9 +15545,7 @@
 						"_index": 6,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-12": -12
-						},
+						"_product_indices": [-12],
 						"_dummy_product": -12,
 						"_external_supplier_dummy_product": -13,
 						"_predecessor_indices": [],
@@ -18385,9 +18373,7 @@
 						"_index": 7,
 						"name": null,
 						"network": null,
-						"_products_by_index": {
-							"-14": -14
-						},
+						"_product_indices": [-14],
 						"_dummy_product": -14,
 						"_external_supplier_dummy_product": -15,
 						"_predecessor_indices": [],
@@ -21243,7 +21229,7 @@
 						]
 					}
 				],
-				"_local_products": [],
+				"_local_product_indices": [],
 				"_products": [
 					{
 						"_index": -2,
@@ -21848,7 +21834,7 @@
 						"state_vars": []
 					}
 				],
-				"period": 24,
+				"_period": 24,
 				"max_max_replenishment_time": null
 			},
 			"type": "network"

@@ -124,7 +124,7 @@ class TestDeepEqualTo(unittest.TestCase):
 
 		# Unequal networks due to missing product.
 		network2 = copy.deepcopy(network)
-		network2.remove_product(network2.products[0])
+		network2.remove_product(network2._local_product_indices[0])
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 

@@ -188,6 +188,8 @@ class SupplyChainNode(object):
 		'_index': None,
 		'name': None,
 		'network': None,
+		'_products': [],
+		'_product_indices': [],	
 		'_products_by_index': {},
 		'_dummy_product': None,
 		'_external_supplier_dummy_product': None,
@@ -324,6 +326,11 @@ class SupplyChainNode(object):
 		-------
 		list
 			List of all predecessors, as |class_node| objects.
+		
+		Raises
+		------
+		AttributeError
+			If ``network`` attribute is ``None``.
 		"""
 		if self.network is None:
 			raise ValueError('predecessors() cannot be called if network attribute is None. Use predecessor_indices() instead.')
@@ -341,6 +348,11 @@ class SupplyChainNode(object):
 		-------
 		list
 			List of all successors, as |class_node| objects.
+
+		Raises
+		------
+		AttributeError
+			If ``network`` attribute is ``None``.
 		"""
 		if self.network is None:
 			raise ValueError('successors() cannot be called if network attribute is None. Use successor_indices() instead.')
@@ -407,6 +419,11 @@ class SupplyChainNode(object):
 	def neighbors(self):
 		"""A list of all neighbors (successors and predecessors) of the node, as
 		|class_node| objects. Read only.
+
+		Raises
+		------
+		AttributeError
+			If ``network`` attribute is ``None``.
 		"""
 		if self.network is None:
 			raise ValueError('neighbors() cannot be called if network attribute is None. Use neighbor_indices() instead.')
@@ -483,8 +500,7 @@ class SupplyChainNode(object):
 		
 		if predecessor is None:
 			if len(pred_indices) == 1:
-				[pred_ind] = pred_indices # convert to singleton https://stackoverflow.com/a/1619539/3453768
-				return self.network.parse_node(pred_ind)
+				return self.network.parse_node(pred_indices[0])
 			elif None in self.predecessor_indices(include_external=True):
 				return None, None
 			# Now len(preds) = 0 or >1 and node does not have an external supplier.
@@ -542,8 +558,7 @@ class SupplyChainNode(object):
 		succ_indices = self.successor_indices(include_external=False)
 		if successor is None:
 			if len(succ_indices) == 1:
-				[succ_ind] = succ_indices # convert to singleton https://stackoverflow.com/a/1619539/3453768
-				return self.network.parse_node(succ_ind)
+				return self.network.parse_node(succ_indices[0])
 			elif None in self.successor_indices(include_external=True):
 				return None, None
 			else:
@@ -559,9 +574,14 @@ class SupplyChainNode(object):
 
 	@property
 	def products(self):
-		"""A list containing products handled by the node. Read only. """
-		return list(self._products_by_index.values())
+		"""A list containing products handled by the node. Read only."""			
+		return self._products
 
+	@property
+	def product_indices(self):
+		"""A list of indices of all products handled at the node. Read only."""
+		return self._product_indices
+	
 	@property
 	def products_by_index(self):
 		"""A dict containing products handled by the node. The keys of the dict are
@@ -580,11 +600,6 @@ class SupplyChainNode(object):
 		"""Returns ``True`` if the node handles a single product, ``False`` otherwise. Read only."""
 		return not self.is_multiproduct
 
-	@property
-	def product_indices(self):
-		"""A list of indices of all products handled at the node. Read only."""
-		return list(self._products_by_index.keys())
-	
 	def _build_product_attributes(self):
 		"""Build product-related attributes that are derived from other attributes,
 		at the network and the nodes in it.
@@ -616,7 +631,7 @@ class SupplyChainNode(object):
 		# that list suppliers/raw materials. Therefore, those functions can call this one without
 		# triggering an infinite recursion.
 
-		if self.network is not None and not self.network._currently_building:
+		if self.network and not self.network._currently_building:
 
 			# Initialize attributes.
 			self._supplier_raw_material_pairs_by_product_BOM = {prod_ind: [] for prod_ind in self.product_indices}
@@ -691,6 +706,8 @@ class SupplyChainNode(object):
 			self.network._currently_building = True
 				
 		if product.index not in self.product_indices:
+			self._product_indices.append(product.index)
+			self._products.append(product)
 			self._products_by_index[product.index] = product
 			if not product.is_dummy:
 				# Remove dummy product. (This also sets `dummy_product` to None.)
@@ -725,25 +742,48 @@ class SupplyChainNode(object):
 		product : |class_product| or int
 			The product to remove from the node.
 		"""
-		# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
-		if self.network is not None:
-			old_currently_building = self.network._currently_building
-			self.network._currently_building = True
-				
+		# Parse product. (Can't use network.parse_product() because network might be None.)
 		if isinstance(product, SupplyChainProduct):
-			self._products_by_index.pop(product.index, None)
+			prod_ind = product.index
+			prod_obj = product
 		else:
-			self._products_by_index.pop(product, None)
-	
-		if len(self._products_by_index) == 0:
-			# No real products in the node. Add dummy product.
-			self._add_dummy_product()
+			prod_ind = product
+			if product in self._products_by_index: 
+				prod_obj = self._products_by_index[product]
+			elif self.network and product in self.network.products_by_index:
+				prod_obj = self.network.products_by_index[product]
+			else:
+				prod_obj = None
 
-		# Rebuild node- and product-related attributes in network.
-		if self.network is not None:
-			self.network._currently_building = old_currently_building
-			self.network._build_node_attributes()
-			self.network._build_product_attributes()
+		# Remove items from lists/dict carefully; it's possible that not all of them exist
+		# (if we are in the middle of loading/building a network.)
+		changed = False
+		if prod_ind in self._product_indices:
+			self._product_indices.remove(prod_ind)
+			changed = True
+		if prod_obj in self._products:
+			self._products.remove(prod_obj)
+			changed = True
+		if prod_ind in self._products_by_index:
+			self._products_by_index.pop(prod_ind, None)
+			changed = True
+
+		# If anything changed, rebuild node and product attributes.
+		if changed:	
+			# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
+			if self.network is not None:
+				old_currently_building = self.network._currently_building
+				self.network._currently_building = True
+					
+			if len(self._product_indices) == 0:
+				# No real products in the node. Add dummy product.
+				self._add_dummy_product()
+
+			# Rebuild node- and product-related attributes in network.
+			if self.network is not None:
+				self.network._currently_building = old_currently_building
+				self.network._build_node_attributes()
+				self.network._build_product_attributes()
 
 	def remove_products(self, list_of_products):
 		"""Remove each product in ``list_of_products`` from the node. Products in ``list_of_products``
@@ -758,8 +798,10 @@ class SupplyChainNode(object):
 		"""
 
 		if list_of_products == 'all':
-			for prod in self.products:
-				self.remove_product(prod)
+			# Make static copy to avoid changing list while iterating over it.
+			product_indices = copy.deepcopy(self.product_indices)
+			for prod_ind in product_indices:
+				self.remove_product(prod_ind)
 		else:
 			for prod in list_of_products:
 				self.remove_product(prod)
@@ -780,7 +822,7 @@ class SupplyChainNode(object):
 		
 	def _remove_dummy_product(self):
 		"""Remove the dummy product from the node. Typically this happens when a "real" product is added
-		to the node.
+		to the node. Does nothing if node has no dummy product, i.e., ``self._dummy_product`` is ``None``.
 		"""
 		self.remove_product(self._dummy_product)
 		self._dummy_product = None
@@ -1451,13 +1493,6 @@ class SupplyChainNode(object):
 		"""
 		return not self.__eq__(other)
 
-	# def __hash__(self):
-	# 	"""
-	# 	Return the hash for the node, which equals its index.
-
-	# 	"""
-	# 	return self.index
-
 	def __repr__(self):
 		"""
 		Return a string representation of the |class_node| instance.
@@ -1540,6 +1575,8 @@ class SupplyChainNode(object):
 
 		* Does not check equality of ``network``.
 		* Checks predecessor and successor equality by index only.
+		* Checks product equality by index only, i.e., checks ``_product_indices`` but not
+		  ``_products`` or ``_products_by_index``.
 		* Does not check equality of ``local_holding_cost_function`` or ``stockout_cost_function``.
 		* Does not check equality of ``state_vars``.
 
@@ -1567,6 +1604,13 @@ class SupplyChainNode(object):
 			for attr in self._DEFAULT_VALUES.keys():
 				if attr in ('network', 'local_holding_cost_function', 'stockout_cost_function', 'state_vars'):
 					# Ignore.
+					pass
+				elif attr == '_product_indices':
+					if set(self.product_indices) != set(other.product_indices):
+						viol_attr = attr
+						eq = False
+				elif attr in ('_products', '_products_by_index'):
+					# Do nothing.
 					pass
 				elif attr == '_predecessor_indices':
 					if set(self.predecessor_indices()) != set(other.predecessor_indices()):
@@ -1621,9 +1665,7 @@ class SupplyChainNode(object):
 
 		The following substitutions are made:
 
-		* Successors and predecessors are stored as their indices only, not |class_node| objects.
-		* Values in ``_products_by_index`` dict are replaced with indices only, not |class_product| objects.
-			(This means that the keys and values in the dict are the same.)
+		* ``_products`` and ``_products_by_index`` attributes are not converted; only ``_product_indices``.
 		* Dummy product attributes are replaced with indices only, not |class_product| objects.
 		* ``network`` object is not filled.
 
@@ -1643,9 +1685,14 @@ class SupplyChainNode(object):
 			# A few attributes need special handling.
 			if attr == 'network':
 				node_dict[attr] = None
-			elif attr == '_products_by_index':
-				# Replace product objects with their indices.
-				node_dict[attr] = {prod_ind: prod_ind for prod_ind in self._products_by_index.keys()}
+			elif attr == '_product_indices':
+				node_dict[attr] = copy.deepcopy(self.product_indices)
+			# elif attr == '_products_by_index':
+			# 	# Replace product objects with their indices.
+			# 	node_dict[attr] = {prod_ind: prod_ind for prod_ind in self._products_by_index.keys()}
+			elif attr in ('_products', '_products_by_index'):
+				# Do nothing.
+				pass
 			elif attr in ('_dummy_product', '_external_supplier_dummy_product'):
 				# Replace dummy products with their indices.
 				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).index
@@ -1653,8 +1700,6 @@ class SupplyChainNode(object):
 				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=False))
 			elif attr == '_successor_indices':
 				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=False))
-			# elif attr == '_products_by_index':
-			# 	node_dict[attr] = {prod.index: prod.to_dict() for prod in self.products}
 			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
 				# Determine whether attr is a singleton or a dict (for node-product-level attribute).
 				# Leave a note to the decoder indicating which type of dict this is.
@@ -1680,13 +1725,15 @@ class SupplyChainNode(object):
 		values in ``the_dict``. List attributes
 		are deep-copied so changes to the original dict do not get propagated to the object.
 
-		``_products_by_index`` is set to a dict in which the keys and values are both product indices, 
-		like they are in the dict, but should be converted to |class_product| objects if this function is 
-		called recursively from a |class_network|'s ``from_dict()`` method. 
-		``_dummy_product`` and ``_external_supplier_dummy_product`` are set to indices, like they are
-		in the dict, but should be converted to |class_product| objects if this function is called recursively.
+		Note that:
 
-		Similarly, ``network`` object is not filled, but should be filled with the network object if this
+		* ``_product_indices`` attribute is loaded into the product, but ``_products`` and ``_products_by_index``
+		  attributes are not. (They are set to their default values.) These should be filled by the |class_network|'s ``from_dict()`` method. 
+		* ``_dummy_product`` and ``_external_supplier_dummy_product`` are set to indices, like they are
+		  in the dict.
+		* ``network`` object is not filled.
+
+		These attributes should be completed (i.e., indices replaced by objects, etc.) by the network object if this 
 		function is called recursively from a |class_network|'s ``from_dict()`` method.
 
 		Parameters
@@ -1721,27 +1768,37 @@ class SupplyChainNode(object):
 				# - _predecessor_indices instead of _predecessors (and same for succ)
 				# - None (nil) in preds/succs
 				# - lists instead of sets
-				elif attr_name == '_predecessor_indices':
-					if '_predecessors' in the_dict:
-						value = list(copy.deepcopy(the_dict['_predecessors']))
-					else:
-						value = list(copy.deepcopy(the_dict['_predecessor_indices']))
-					# Remove any None values. (Older versions saved external supplier as None.)
-					if None in value:
-						value.remove(None)
-				elif attr_name == '_successor_indices':
-					if '_successors' in the_dict:
-						value = list(copy.deepcopy(the_dict['_successors']))
-					else:
-						value = list(copy.deepcopy(the_dict['_successor_indices']))
-					# Remove any None values. (Older versions saved external customer as None.)
-					if None in value:
-						value.remove(None)	
-				elif attr_name in ('_products_by_index', '_predecessor_indices', '_successor_indices'):
+				# elif attr_name == '_predecessor_indices':
+				# 	if '_predecessors' in the_dict:
+				# 		value = list(copy.deepcopy(the_dict['_predecessors']))
+				# 	else:
+				# 		value = list(copy.deepcopy(the_dict['_predecessor_indices']))
+				# 	# Remove any None values. (Older versions saved external supplier as None.)
+				# 	if None in value:
+				# 		value.remove(None)
+				# elif attr_name == '_successor_indices':
+				# 	if '_successors' in the_dict:
+				# 		value = list(copy.deepcopy(the_dict['_successors']))
+				# 	else:
+				# 		value = list(copy.deepcopy(the_dict['_successor_indices']))
+				# 	# Remove any None values. (Older versions saved external customer as None.)
+				# 	if None in value:
+				# 		value.remove(None)	
+				# elif attr_name == '_products_by_index':
+				# 	if '_products_by_index' in the_dict:
+				# 		# Convert keys to int (they were probably saved as strings). 
+				# 		# Do not yet convert values to objects. (This will be done in network from_dict().)
+				# 		value = {int(k): int(k) for k in the_dict['_products_by_index'].keys()}
+				# 	else:
+				# 		value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
+				elif attr_name in ('_product_indices', '_predecessor_indices', '_successor_indices'):
 					if attr_name in the_dict:
 						value = copy.deepcopy(the_dict[attr_name])
 					else:
 						value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
+				elif attr_name in ('_products', '_products_by_index'):
+					# Reset to default values.
+					value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
 				elif attr_name == 'demand_source':
 					if attr_name in the_dict:
 						if 'dict_type' in the_dict[attr_name] and the_dict[attr_name]['dict_type'] == 'product_keyed_attribute':

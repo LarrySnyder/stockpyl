@@ -5,14 +5,12 @@
 			"name": "test_figure_6_14",
 			"description": "this is test_figure_6_14",
 			"data": {
-				"nodes": [
+				"_nodes": [
 					{
 						"_index": 1,
 						"name": "Raw_Material",
 						"network": null,
-						"_products_by_index": {
-							"-2": -2
-						},
+						"_product_indices": [-2],
 						"_dummy_product": -2,
 						"_external_supplier_dummy_product": -3,
 						"_predecessor_indices": [],
@@ -80,9 +78,7 @@
 						"_index": 2,
 						"name": "Process_Wafers",
 						"network": null,
-						"_products_by_index": {
-							"-4": -4
-						},
+						"_product_indices": [-4],
 						"_dummy_product": -4,
 						"_external_supplier_dummy_product": -5,
 						"_predecessor_indices": [1],
@@ -150,9 +146,7 @@
 						"_index": 3,
 						"name": "Package_Test_Wafers",
 						"network": null,
-						"_products_by_index": {
-							"-6": -6
-						},
+						"_product_indices": [-6],
 						"_dummy_product": -6,
 						"_external_supplier_dummy_product": -7,
 						"_predecessor_indices": [2],
@@ -220,9 +214,7 @@
 						"_index": 4,
 						"name": "Imager_Base",
 						"network": null,
-						"_products_by_index": {
-							"-8": -8
-						},
+						"_product_indices": [-8],
 						"_dummy_product": -8,
 						"_external_supplier_dummy_product": -9,
 						"_predecessor_indices": [],
@@ -290,9 +282,7 @@
 						"_index": 5,
 						"name": "Imager_Assembly",
 						"network": null,
-						"_products_by_index": {
-							"-10": -10
-						},
+						"_product_indices": [-10],
 						"_dummy_product": -10,
 						"_external_supplier_dummy_product": -11,
 						"_predecessor_indices": [3, 4],
@@ -360,9 +350,7 @@
 						"_index": 6,
 						"name": "Ship_to_Final_Assembly",
 						"network": null,
-						"_products_by_index": {
-							"-12": -12
-						},
+						"_product_indices": [-12],
 						"_dummy_product": -12,
 						"_external_supplier_dummy_product": -13,
 						"_predecessor_indices": [5],
@@ -430,9 +418,7 @@
 						"_index": 7,
 						"name": "Camera",
 						"network": null,
-						"_products_by_index": {
-							"-14": -14
-						},
+						"_product_indices": [-14],
 						"_dummy_product": -14,
 						"_external_supplier_dummy_product": -15,
 						"_predecessor_indices": [],
@@ -500,9 +486,7 @@
 						"_index": 8,
 						"name": "Circuit_Board",
 						"network": null,
-						"_products_by_index": {
-							"-16": -16
-						},
+						"_product_indices": [-16],
 						"_dummy_product": -16,
 						"_external_supplier_dummy_product": -17,
 						"_predecessor_indices": [],
@@ -570,9 +554,7 @@
 						"_index": 9,
 						"name": "Other_Parts",
 						"network": null,
-						"_products_by_index": {
-							"-18": -18
-						},
+						"_product_indices": [-18],
 						"_dummy_product": -18,
 						"_external_supplier_dummy_product": -19,
 						"_predecessor_indices": [],
@@ -640,9 +622,7 @@
 						"_index": 10,
 						"name": "Build_Test_Pack",
 						"network": null,
-						"_products_by_index": {
-							"-20": -20
-						},
+						"_product_indices": [-20],
 						"_dummy_product": -20,
 						"_external_supplier_dummy_product": -21,
 						"_predecessor_indices": [6, 7, 8, 9],
@@ -707,7 +687,7 @@
 						"state_vars": null
 					}
 				],
-				"_local_products": [],
+				"_local_product_indices": [],
 				"_products": [
 					{
 						"_index": -2,
@@ -1570,7 +1550,7 @@
 						"state_vars": []
 					}
 				],
-				"period": 0,
+				"_period": 0,
 				"max_max_replenishment_time": null
 			},
 			"type": "network"

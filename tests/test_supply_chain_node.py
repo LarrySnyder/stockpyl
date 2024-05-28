@@ -2215,6 +2215,10 @@ class TestCustomersByProduct(unittest.TestCase):
 		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		prods = {prod.index: prod for prod in network.products}
 
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[3], return_indices=False, network_BOM=False), [nodes[0], nodes[1]])
+
+
+
 		self.assertListEqual(nodes[0].customers_by_product(product=prods[0], return_indices=False, network_BOM=True), [None])
 		self.assertListEqual(nodes[0].customers_by_product(product=prods[0], return_indices=True, network_BOM=True), [None])
 		self.assertListEqual(nodes[1].customers_by_product(product=prods[1], return_indices=False, network_BOM=True), [None])
@@ -2982,7 +2986,7 @@ class TestNodeToFromDict(unittest.TestCase):
 				n._external_supplier_dummy_product = network.products_by_index[n._external_supplier_dummy_product]
 			n._products_by_index = {k: network.products_by_index[k] for k in n._products_by_index.keys()}
 			
-			prods = n.product_indices
+			prods = copy.deepcopy(n.product_indices)
 			n.remove_products('all')
 			for prod in prods:
 				n.add_product(network.products_by_index[prod])
