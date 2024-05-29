@@ -536,12 +536,12 @@ class TestWriteInstanceAndStates(unittest.TestCase):
 			sim_io.write_instance_and_states(network, filename, 'temp')
 
 			# Correct node 0 demands.
-			node0 = network.get_node_from_index(0)
+			node0 = network.nodes_by_index[0]
 			demand_list = [node0.state_vars[t].inbound_order[None] for t in range(T)]
 
 			# Load instance and check it.
 			new_network = load_instance('temp', filename, ignore_state_vars=True)
-			self.assertListEqual(new_network.get_node_from_index(0).demand_source.demand_list[0:T], demand_list[0:T])
+			self.assertListEqual(new_network.nodes_by_index[0].demand_source.demand_list[0:T], demand_list[0:T])
 			# Remove state variables and demand sources and make sure networks are equal otherwise.
 			for node in network.nodes:
 				node.demand_source = None
@@ -569,7 +569,7 @@ class TestWriteInstanceAndStates(unittest.TestCase):
 		# reindex nodes to 2 -> 1 -> 0
 		network.reindex_nodes({1: 0, 2: 1, 3: 2})
 		# Add disruptions.
-		network.get_node_from_index(1).disruption_process = DisruptionProcess(
+		network.nodes_by_index[1].disruption_process = DisruptionProcess(
 			random_process_type='M',
 			disruption_type='OP',
 			disruption_probability=0.1,
@@ -583,15 +583,15 @@ class TestWriteInstanceAndStates(unittest.TestCase):
 			sim_io.write_instance_and_states(network, filename, 'temp')
 
 			# Correct node 0 demands and node 1 disruptions.
-			node0 = network.get_node_from_index(0)
+			node0 = network.nodes_by_index[0]
 			demand_list = [node0.state_vars[t].inbound_order[None] for t in range(T)]
-			node1 = network.get_node_from_index(1)
+			node1 = network.nodes_by_index[1]
 			disruption_list = [node1.state_vars[t].disrupted for t in range(T)]
 
 			# Load instance and check it.
 			new_network = load_instance('temp', filename, ignore_state_vars=True)
-			self.assertListEqual(new_network.get_node_from_index(0).demand_source.demand_list[0:T], demand_list[0:T])
-			self.assertListEqual(new_network.get_node_from_index(1).disruption_process.disruption_state_list[0:T], disruption_list[0:T])
+			self.assertListEqual(new_network.nodes_by_index[0].demand_source.demand_list[0:T], demand_list[0:T])
+			self.assertListEqual(new_network.nodes_by_index[1].disruption_process.disruption_state_list[0:T], disruption_list[0:T])
 			# Remove state variables, demand sources, and disruption processes and make sure networks are equal otherwise.
 			for node in network.nodes:
 				node.demand_source = None
@@ -661,13 +661,13 @@ class TestWriteInstanceAndStates(unittest.TestCase):
 		# Build network.
 		network = load_instance("rong_atan_snyder_figure_1a")
 		# Add disruptions.
-		network.get_node_from_index(1).disruption_process = DisruptionProcess(
+		network.nodes_by_index[1].disruption_process = DisruptionProcess(
 			random_process_type='M',
 			disruption_type='OP',
 			disruption_probability=0.1,
 			recovery_probability=0.3
 		)
-		network.get_node_from_index(3).disruption_process = DisruptionProcess(
+		network.nodes_by_index[3].disruption_process = DisruptionProcess(
 			random_process_type='M',
 			disruption_type='SP',
 			disruption_probability=0.1,
@@ -739,11 +739,11 @@ class TestDictToHeaderList(unittest.TestCase):
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 
 		# Node 1 IO.
-		header_list = sim_io._dict_to_header_list(network.get_node_from_index(1).state_vars[0].inbound_order, "IO")
+		header_list = sim_io._dict_to_header_list(network.nodes_by_index[1].state_vars[0].inbound_order, "IO")
 		self.assertListEqual(header_list, ['IO:0'])
 
 		# Node 2 IS.
-		header_list = sim_io._dict_to_header_list(network.get_node_from_index(2).state_vars[0].inbound_shipment, "IS")
+		header_list = sim_io._dict_to_header_list(network.nodes_by_index[2].state_vars[0].inbound_shipment, "IS")
 		self.assertListEqual(header_list, ['IS:EXT'])
 
 	def test_mwor(self):
@@ -763,14 +763,14 @@ class TestDictToHeaderList(unittest.TestCase):
 		simulation(network, 100, rand_seed=17, progress_bar=False)
 
 		# Node 0 IS.
-		header_list = sim_io._dict_to_header_list(network.get_node_from_index(0).state_vars[0].inbound_shipment, "IS")
+		header_list = sim_io._dict_to_header_list(network.nodes_by_index[0].state_vars[0].inbound_shipment, "IS")
 		self.assertListEqual(header_list, ['IS:1', 'IS:2', 'IS:3'])
 
 		# Node 2 IS.
-		header_list = sim_io._dict_to_header_list(network.get_node_from_index(2).state_vars[0].inbound_shipment, "IS")
+		header_list = sim_io._dict_to_header_list(network.nodes_by_index[2].state_vars[0].inbound_shipment, "IS")
 		self.assertListEqual(header_list, ['IS:EXT'])
 
 		# Node 0 ISPL.
-		header_list = sim_io._dict_to_header_list(network.get_node_from_index(0).state_vars[0].inbound_shipment_pipeline, "ISPL")
+		header_list = sim_io._dict_to_header_list(network.nodes_by_index[0].state_vars[0].inbound_shipment_pipeline, "ISPL")
 		self.assertListEqual(header_list, ['ISPL:1', 'ISPL:2', 'ISPL:3'])
 

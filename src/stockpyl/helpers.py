@@ -1319,3 +1319,55 @@ def round_dict_values(the_dict, round_type=None):
 
 	return new_dict
 	
+
+### JSON-RELATED FUNCTIONS ###
+
+def serialize_set(obj):
+	"""Serialize a set by converting it to a dict of the form
+	``{'type': 'set', 'elements': elements}``, where ``elements`` are
+	the elements of the set.
+
+	This is used for serializing objects so they can be saved in JSON format. 
+	To use: ``json.dump(json_contents, file, default=serialize_set)``.
+
+	Parameters
+	----------
+	obj : Any
+		The object to serialize.
+
+	Returns
+	-------
+	dict
+		Dictionary representation of ``obj``, if ``obj`` is a set.
+	"""
+	if is_set(obj):
+		return {
+			'type': 'set',
+			'elements': list(obj)
+		}
+
+
+def deserialize_set(obj):
+	"""Deserialize a set of the form ``{'type': 'set', 'elements': elements}``
+	by converting it to a set of the form ``{elements}``.
+		
+	This is used for deserializing objects to they can be loaded from JSON format.
+	To use: ``json.load(file, object_hook=deserialize_set)``.
+
+	Parameters
+	----------
+	obj : Any
+		The object to deserialize.
+
+	Returns
+	-------
+	set
+		Set representation of ``obj``, if ``obj`` is a dict of the appropriate form.
+	"""
+	# https://realpython.com/python-serialize-data/
+	if is_dict(obj) and 'type' in obj and obj['type'] == 'set' and 'elements' in obj:
+		return set(obj['elements'])
+	else:
+		return obj
+			
+

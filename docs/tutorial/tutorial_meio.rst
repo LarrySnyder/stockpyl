@@ -49,7 +49,8 @@ You can then add these nodes to a |class_network|:
 
 The network now contains both nodes, and a (directed) edge from ``my_node`` to ``my_other_node``. Nodes can
 be accessed either from a |class_network| object's :attr:`~stockpyl.supply_chain_network.SupplyChainNetwork.nodes` 
-attribute (a list of nodes), or using its member function :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.get_node_from_index`:
+attribute (a list of nodes), or using its :attr:`~stockpyl.supply_chain_network.SupplyChainNetwork.nodes_by_index`
+attribute (a dict whose keys are indices and whose values are node objects):
  
 .. doctest::
 
@@ -58,7 +59,7 @@ attribute (a list of nodes), or using its member function :meth:`~stockpyl.suppl
 	1
 	>>> n1.local_holding_cost
 	3
-	>>> n2 = network.get_node_from_index(2)
+	>>> n2 = network.nodes_by_index[2]
 	>>> n2.index
 	2
 	>>> n2.echelon_holding_cost

@@ -387,8 +387,8 @@ class TestDescendants(unittest.TestCase):
 			desc[n.index] = n.descendants
 
 		self.assertEqual(desc[1], [])
-		self.assertEqual(desc[2], [network.get_node_from_index(1)])
-		self.assertEqual(desc[3], [network.get_node_from_index(1), network.get_node_from_index(2)])
+		self.assertEqual(desc[2], [network.nodes_by_index[1]])
+		self.assertEqual(desc[3], [network.nodes_by_index[1], network.nodes_by_index[2]])
 
 	def test_4_node_owmr(self):
 		"""Test descendants for 4-node OWMR system.
@@ -422,14 +422,87 @@ class TestDescendants(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		desc = {i: network.get_node_from_index(i).descendants for i in network.node_indices}
+		desc = {i: network.nodes_by_index[i].descendants for i in network.node_indices}
 
 		self.assertEqual(desc[0], [])
 		self.assertEqual(desc[1], [])
-		self.assertEqual(desc[2], [network.get_node_from_index(0), network.get_node_from_index(1)])
-		self.assertEqual(desc[3], [network.get_node_from_index(1)])
-		self.assertEqual(desc[4], [network.get_node_from_index(0), network.get_node_from_index(1), network.get_node_from_index(2), network.get_node_from_index(3)])
+		self.assertEqual(desc[2], [network.nodes_by_index[0], network.nodes_by_index[1]])
+		self.assertEqual(desc[3], [network.nodes_by_index[1]])
+		self.assertEqual(desc[4], [network.nodes_by_index[0], network.nodes_by_index[1], network.nodes_by_index[2], network.nodes_by_index[3]])
 
+
+
+class TestPredecessors(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestPredecessors', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPredecessors', 'tear_down_class()')
+
+	def test_example_6_1(self):
+		"""Test ancestors for 3-node serial system in Example 6.1.
+		"""
+		print_status('TestPredecessors', 'test_example_6_1()')
+
+		network = load_instance("example_6_1")
+		nodes = {n.index: n for n in network.nodes}
+
+		self.assertEqual(nodes[1].predecessor_indices(), [2])
+		self.assertEqual(nodes[2].predecessor_indices(), [3])
+		self.assertEqual(nodes[3].predecessor_indices(), [])
+		self.assertEqual(nodes[1].predecessors(), [nodes[2]])
+		self.assertEqual(nodes[2].predecessors(), [nodes[3]])
+		self.assertEqual(nodes[3].predecessors(), [])
+
+	def test_4_node_owmr(self):
+		"""Test ancestors for 4-node OWMR system.
+		"""
+		print_status('TestPredecessors', 'test_4_node_owmr()')
+
+		network = SupplyChainNetwork()
+
+		nodes = []
+		for i in range(4):
+			nodes.append(SupplyChainNode(i))
+
+		network.add_node(nodes[0])
+		network.add_successor(nodes[0], nodes[1])
+		network.add_successor(nodes[0], nodes[2])
+		network.add_successor(nodes[0], nodes[3])
+
+		nodes = {n.index: n for n in network.nodes}
+
+		self.assertEqual(nodes[0].predecessor_indices(), [])
+		self.assertEqual(nodes[1].predecessor_indices(), [0])
+		self.assertEqual(nodes[2].predecessor_indices(), [0])
+		self.assertEqual(nodes[3].predecessor_indices(), [0])
+		self.assertEqual(nodes[0].predecessors(), [])
+		self.assertEqual(nodes[1].predecessors(), [nodes[0]])
+		self.assertEqual(nodes[2].predecessors(), [nodes[0]])
+		self.assertEqual(nodes[3].predecessors(), [nodes[0]])
+
+	def test_multiproduct_5_7(self):
+		"""Test ancestors for 5-node, 7-product system.
+		"""
+		print_status('TestPredecessors', 'test_multiproduct_5_7()')
+
+		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
+		nodes = {n.index: n for n in network.nodes}
+
+		self.assertEqual(nodes[0].predecessor_indices(), [2])
+		self.assertEqual(nodes[1].predecessor_indices(), [2, 3])
+		self.assertEqual(nodes[2].predecessor_indices(), [4])
+		self.assertEqual(nodes[3].predecessor_indices(), [4])
+		self.assertEqual(nodes[4].predecessor_indices(), [])
+		self.assertEqual(nodes[0].predecessors(), [nodes[2]])
+		self.assertEqual(nodes[1].predecessors(), [nodes[2], nodes[3]])
+		self.assertEqual(nodes[2].predecessors(), [nodes[4]])
+		self.assertEqual(nodes[3].predecessors(), [nodes[4]])
+		self.assertEqual(nodes[4].predecessors(), [])
 
 
 class TestAncestors(unittest.TestCase):
@@ -454,8 +527,8 @@ class TestAncestors(unittest.TestCase):
 		for n in network.nodes:
 			anc[n.index] = n.ancestors
 
-		self.assertEqual(anc[1], [network.get_node_from_index(2), network.get_node_from_index(3)])
-		self.assertEqual(anc[2], [network.get_node_from_index(3)])
+		self.assertEqual(anc[1], [network.nodes_by_index[2], network.nodes_by_index[3]])
+		self.assertEqual(anc[2], [network.nodes_by_index[3]])
 		self.assertEqual(anc[3], [])
 
 	def test_4_node_owmr(self):
@@ -490,12 +563,12 @@ class TestAncestors(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		anc = {i: network.get_node_from_index(i).ancestors for i in network.node_indices}
+		anc = {i: network.nodes_by_index[i].ancestors for i in network.node_indices}
 
-		self.assertEqual(anc[0], [network.get_node_from_index(2), network.get_node_from_index(4)])
-		self.assertEqual(anc[1], [network.get_node_from_index(2), network.get_node_from_index(3), network.get_node_from_index(4)])
-		self.assertEqual(anc[2], [network.get_node_from_index(4)])
-		self.assertEqual(anc[3], [network.get_node_from_index(4)])
+		self.assertEqual(anc[0], [network.nodes_by_index[2], network.nodes_by_index[4]])
+		self.assertEqual(anc[1], [network.nodes_by_index[2], network.nodes_by_index[3], network.nodes_by_index[4]])
+		self.assertEqual(anc[2], [network.nodes_by_index[4]])
+		self.assertEqual(anc[3], [network.nodes_by_index[4]])
 		self.assertEqual(anc[4], [])
 
 
@@ -706,13 +779,13 @@ class TestRemoveProduct(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		network.get_node_from_index(0).remove_product(network.get_node_from_index(0).products_by_index[0])
-		network.get_node_from_index(1).remove_product(1)
-		network.get_node_from_index(2).remove_product(network.get_node_from_index(2).products_by_index[2])
+		network.nodes_by_index[0].remove_product(network.nodes_by_index[0].products_by_index[0])
+		network.nodes_by_index[1].remove_product(1)
+		network.nodes_by_index[2].remove_product(network.nodes_by_index[2].products_by_index[2])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [-_INDEX_BUMP])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [0])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [3, 4])
+		self.assertEqual(network.nodes_by_index[0].product_indices, [-_INDEX_BUMP])
+		self.assertEqual(network.nodes_by_index[1].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[2].product_indices, [3, 4])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
@@ -721,11 +794,11 @@ class TestRemoveProduct(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		network.get_node_from_index(0).remove_product(7)
-		network.get_node_from_index(1).remove_product(7)
+		network.nodes_by_index[0].remove_product(7)
+		network.nodes_by_index[1].remove_product(7)
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [0])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [0, 1])
+		self.assertEqual(network.nodes_by_index[0].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[1].product_indices, [0, 1])
 
 
 class TestAddRemoveDummyProduct(unittest.TestCase):
@@ -807,13 +880,13 @@ class TestRemoveProducts(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		network.get_node_from_index(0).remove_products([network.get_node_from_index(0).products_by_index[0]])
-		network.get_node_from_index(1).remove_products([1])
-		network.get_node_from_index(2).remove_products([3, network.get_node_from_index(2).products_by_index[2]])
+		network.nodes_by_index[0].remove_products([network.nodes_by_index[0].products_by_index[0]])
+		network.nodes_by_index[1].remove_products([1])
+		network.nodes_by_index[2].remove_products([3, network.nodes_by_index[2].products_by_index[2]])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [-_INDEX_BUMP])
-		self.assertEqual(network.get_node_from_index(1).product_indices, [0])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [4])
+		self.assertEqual(network.nodes_by_index[0].product_indices, [-_INDEX_BUMP])
+		self.assertEqual(network.nodes_by_index[1].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[2].product_indices, [4])
 
 	def test_product_does_not_exist(self):
 		"""Test that remove_product() correctly does nothing if product doesn't exist.
@@ -822,11 +895,11 @@ class TestRemoveProducts(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		network.get_node_from_index(0).remove_products([7])
-		network.get_node_from_index(2).remove_products([3, 7])
+		network.nodes_by_index[0].remove_products([7])
+		network.nodes_by_index[2].remove_products([3, 7])
 
-		self.assertEqual(network.get_node_from_index(0).product_indices, [0])
-		self.assertEqual(network.get_node_from_index(2).product_indices, [2, 4])
+		self.assertEqual(network.nodes_by_index[0].product_indices, [0])
+		self.assertEqual(network.nodes_by_index[2].product_indices, [2, 4])
 
 		
 class TestIsSingleMultiProduct(unittest.TestCase):
@@ -884,22 +957,22 @@ class TestIsSingleMultiProduct(unittest.TestCase):
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
 
-		self.assertFalse(network.get_node_from_index(0).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(1).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(2).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(3).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(4).is_multiproduct)
+		self.assertFalse(network.nodes_by_index[0].is_multiproduct)
+		self.assertTrue(network.nodes_by_index[1].is_multiproduct)
+		self.assertTrue(network.nodes_by_index[2].is_multiproduct)
+		self.assertTrue(network.nodes_by_index[3].is_multiproduct)
+		self.assertTrue(network.nodes_by_index[4].is_multiproduct)
 
-		self.assertTrue(network.get_node_from_index(0).is_singleproduct)
-		self.assertFalse(network.get_node_from_index(1).is_singleproduct)
-		self.assertFalse(network.get_node_from_index(2).is_singleproduct)
-		self.assertFalse(network.get_node_from_index(3).is_singleproduct)
-		self.assertFalse(network.get_node_from_index(4).is_singleproduct)
+		self.assertTrue(network.nodes_by_index[0].is_singleproduct)
+		self.assertFalse(network.nodes_by_index[1].is_singleproduct)
+		self.assertFalse(network.nodes_by_index[2].is_singleproduct)
+		self.assertFalse(network.nodes_by_index[3].is_singleproduct)
+		self.assertFalse(network.nodes_by_index[4].is_singleproduct)
 
 		# Add a node with no product loaded.
 		network.add_node(SupplyChainNode(20))
-		self.assertFalse(network.get_node_from_index(20).is_multiproduct)
-		self.assertTrue(network.get_node_from_index(20).is_singleproduct)
+		self.assertFalse(network.nodes_by_index[20].is_multiproduct)
+		self.assertTrue(network.nodes_by_index[20].is_singleproduct)
 
 
 class TestRawMaterialSuppliers(unittest.TestCase):
@@ -919,7 +992,7 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		print_status('TestRawMaterialSuppliers', 'test_mwor_no_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -938,7 +1011,7 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		print_status('TestRawMaterialSuppliers', 'test_mwor_one_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -966,12 +1039,12 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		print_status('TestRawMaterialSuppliers', 'test_mwor_multiple_products()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+		network.nodes_by_index[1].add_products([prods[1], prods[2]])
+		network.nodes_by_index[2].add_products([prods[2], prods[3]])
+		network.nodes_by_index[3].add_products([prods[4], prods[5]])
 
 		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
 
@@ -999,7 +1072,7 @@ class TestRawMaterialSuppliers(unittest.TestCase):
 		print_status('TestRawMaterialSuppliers', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=0), [nodes[2]]))
 		self.assertTrue(compare_unhashable_lists(nodes[1].raw_material_suppliers_by_product(product=0), [nodes[2], nodes[3]]))
@@ -1045,7 +1118,7 @@ class TestGetNetworkBillOfMaterials(unittest.TestCase):
 		print_status('TestGetNetworkBillOfMaterials', 'test_mwor_no_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -1079,7 +1152,7 @@ class TestGetNetworkBillOfMaterials(unittest.TestCase):
 		print_status('TestGetNetworkBillOfMaterials', 'test_mwor_one_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -1130,12 +1203,12 @@ class TestGetNetworkBillOfMaterials(unittest.TestCase):
 		print_status('TestGetNetworkBillOfMaterials', 'test_mwor_multiple_products()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+		network.nodes_by_index[1].add_products([prods[1], prods[2]])
+		network.nodes_by_index[2].add_products([prods[2], prods[3]])
+		network.nodes_by_index[3].add_products([prods[4], prods[5]])
 
 		prods[10] = SupplyChainProduct(10)
 		prods[11] = SupplyChainProduct(11)
@@ -1184,7 +1257,7 @@ class TestGetNetworkBillOfMaterials(unittest.TestCase):
 		print_status('TestGetNetworkBillOfMaterials', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		prods = {i: network.products_by_index[i] for i in network.product_indices}
 
 		self.assertEqual(nodes[0].get_network_bill_of_materials(prods[0], 2, 2), 2.5)
@@ -1232,19 +1305,20 @@ class TestRawMaterials(unittest.TestCase):
 		print_status('TestRawMaterials', 'test_mwor_no_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
 		nodes[2].add_products([prods[2], prods[3]])
 		nodes[3].add_products([prods[4], prods[5]])
+		[node0prod0_ind] = nodes[0].product_indices
 
 		# Raw materials by product, network_BOM=True.
 		self.assertCountEqual(nodes[0].raw_materials_by_product(return_indices=True, network_BOM=True), list(prods.keys()))
-		self.assertCountEqual(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=True), list(prods.keys()))
+		self.assertCountEqual(nodes[0].raw_materials_by_product(product=node0prod0_ind, return_indices=True, network_BOM=True), list(prods.keys()))
 		self.assertCountEqual(nodes[0].raw_materials_by_product(product='all', return_indices=True, network_BOM=True), list(prods.keys()))
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(network_BOM=True), list(prods.values())))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], network_BOM=True), list(prods.values())))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product=node0prod0_ind, network_BOM=True), list(prods.values())))
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product='all', network_BOM=True), list(prods.values())))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_materials_by_product(product=77, network_BOM=True)
@@ -1252,10 +1326,10 @@ class TestRawMaterials(unittest.TestCase):
 
 		# Raw materials by product, network_BOM=False.
 		self.assertCountEqual(nodes[0].raw_materials_by_product(return_indices=True, network_BOM=False), [])
-		self.assertCountEqual(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=False), [])
+		self.assertCountEqual(nodes[0].raw_materials_by_product(product=node0prod0_ind, return_indices=True, network_BOM=False), [])
 		self.assertCountEqual(nodes[0].raw_materials_by_product(product='all', return_indices=True, network_BOM=False), [])
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(network_BOM=False), []))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], network_BOM=False), []))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product=node0prod0_ind, network_BOM=False), []))
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product='all', network_BOM=False), []))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_materials_by_product(product=77, network_BOM=False)
@@ -1263,18 +1337,18 @@ class TestRawMaterials(unittest.TestCase):
 
 		# Raw material suppliers by product, network_BOM=True.
 		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(return_indices=True, network_BOM=True), [1, 2, 3])
-		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=True), [1, 2, 3])
+		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, return_indices=True, network_BOM=True), [1, 2, 3])
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(network_BOM=True), [nodes[1], nodes[2], nodes[3]]))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], network_BOM=True), [nodes[1], nodes[2], nodes[3]]))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, network_BOM=True), [nodes[1], nodes[2], nodes[3]]))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, return_indices=True, network_BOM=True)
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, network_BOM=True)
 
 		# Raw material suppliers by product, network_BOM=False.
 		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(return_indices=True, network_BOM=False), [])
-		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=False), [])
+		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, return_indices=True, network_BOM=False), [])
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(network_BOM=False), []))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], network_BOM=False), []))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, network_BOM=False), []))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, return_indices=True, network_BOM=False)
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, network_BOM=False)
@@ -1315,7 +1389,7 @@ class TestRawMaterials(unittest.TestCase):
 		print_status('TestRawMaterials', 'test_mwor_one_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -1330,12 +1404,14 @@ class TestRawMaterials(unittest.TestCase):
 		prod10.set_bill_of_materials(4, 15)
 		prod10.set_bill_of_materials(5, 6)
 
+		[node0prod0_ind] = nodes[0].product_indices
+
 		# Raw materials by product, network_BOM=True.
 		self.assertCountEqual(nodes[0].raw_materials_by_product(return_indices=True, network_BOM=True), list(prods.keys()))
-		self.assertCountEqual(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=True), list(prods.keys()))
+		self.assertCountEqual(nodes[0].raw_materials_by_product(product=node0prod0_ind, return_indices=True, network_BOM=True), list(prods.keys()))
 		self.assertCountEqual(nodes[0].raw_materials_by_product(product='all', return_indices=True, network_BOM=True), list(prods.keys()))
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(network_BOM=True), list(prods.values())))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], network_BOM=True), list(prods.values())))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product=node0prod0_ind, network_BOM=True), list(prods.values())))
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_materials_by_product(product='all', network_BOM=True), list(prods.values())))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_materials_by_product(product=77, network_BOM=True)
@@ -1343,10 +1419,10 @@ class TestRawMaterials(unittest.TestCase):
 
 		# Raw materials by product, network_BOM=False.
 		self.assertCountEqual(nodes[0].raw_materials_by_product(return_indices=True, network_BOM=False), list(prods.keys()))
-		self.assertCountEqual(nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=False), list(prods.keys()))
+		self.assertCountEqual(nodes[0].raw_materials_by_product(product=node0prod0_ind, return_indices=True, network_BOM=False), list(prods.keys()))
 		self.assertCountEqual(nodes[0].raw_materials_by_product(product='all', return_indices=True, network_BOM=False), list(prods.keys()))
 		self.assertTrue((nodes[0].raw_materials_by_product(network_BOM=False), list(prods.values())))
-		self.assertTrue((nodes[0].raw_materials_by_product(product=nodes[0].product_indices[0], network_BOM=False), list(prods.values())))
+		self.assertTrue((nodes[0].raw_materials_by_product(product=node0prod0_ind, network_BOM=False), list(prods.values())))
 		self.assertTrue((nodes[0].raw_materials_by_product(product='all', network_BOM=False), list(prods.values())))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_materials_by_product(product=77, network_BOM=False)
@@ -1354,18 +1430,18 @@ class TestRawMaterials(unittest.TestCase):
 
 		# Raw material suppliers by product, network_BOM=True.
 		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(return_indices=True, network_BOM=True), [1, 2, 3])
-		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=True), [1, 2, 3])
+		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, return_indices=True, network_BOM=True), [1, 2, 3])
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(network_BOM=True), [nodes[1], nodes[2], nodes[3]]))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], network_BOM=True), [nodes[1], nodes[2], nodes[3]]))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, network_BOM=True), [nodes[1], nodes[2], nodes[3]]))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, return_indices=True, network_BOM=True)
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, network_BOM=True)
 
 		# Raw material suppliers by product, network_BOM=False.
 		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(return_indices=True, network_BOM=False), [1, 2, 3])
-		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], return_indices=True, network_BOM=False), [1, 2, 3])
+		self.assertCountEqual(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, return_indices=True, network_BOM=False), [1, 2, 3])
 		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(network_BOM=False), [nodes[1], nodes[2], nodes[3]]))
-		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=nodes[0].product_indices[0], network_BOM=False), [nodes[1], nodes[2], nodes[3]]))
+		self.assertTrue(compare_unhashable_lists(nodes[0].raw_material_suppliers_by_product(product=node0prod0_ind, network_BOM=False), [nodes[1], nodes[2], nodes[3]]))
 		with self.assertRaises(ValueError):
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, return_indices=True, network_BOM=False)
 			_ = nodes[0].raw_material_suppliers_by_product(product=77, network_BOM=False)
@@ -1406,12 +1482,12 @@ class TestRawMaterials(unittest.TestCase):
 		print_status('TestRawMaterials', 'test_mwor_multiple_products()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+		network.nodes_by_index[1].add_products([prods[1], prods[2]])
+		network.nodes_by_index[2].add_products([prods[2], prods[3]])
+		network.nodes_by_index[3].add_products([prods[4], prods[5]])
 
 		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
 
@@ -1513,7 +1589,7 @@ class TestRawMaterials(unittest.TestCase):
 		print_status('TestRawMaterials', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		prods = network.products_by_index
 
 		# Raw materials by product, network_BOM=True.
@@ -1708,7 +1784,7 @@ class TestProductsByRawMaterial(unittest.TestCase):
 		print_status('TestProductsByRawMaterial', 'test_mwor_no_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -1749,7 +1825,7 @@ class TestProductsByRawMaterial(unittest.TestCase):
 		print_status('TestProductsByRawMaterial', 'test_mwor_one_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
 		nodes[1].add_products([prods[1], prods[2]])
@@ -1797,12 +1873,12 @@ class TestProductsByRawMaterial(unittest.TestCase):
 		print_status('TestProductsByRawMaterial', 'test_mwor_multiple_products()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+		network.nodes_by_index[1].add_products([prods[1], prods[2]])
+		network.nodes_by_index[2].add_products([prods[2], prods[3]])
+		network.nodes_by_index[3].add_products([prods[4], prods[5]])
 
 		nodes[0].add_products([SupplyChainProduct(10), SupplyChainProduct(11), SupplyChainProduct(12)])
 
@@ -1846,7 +1922,7 @@ class TestProductsByRawMaterial(unittest.TestCase):
 		print_status('TestProductsByRawMaterial', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		prods = network.products_by_index
 
 		self.assertCountEqual(nodes[0].products_by_raw_material(raw_material=2, return_indices=True), [0])
@@ -1895,7 +1971,7 @@ class TestSupplierRawMaterialPairsByProduct(unittest.TestCase):
 		print_status('TestSupplierRawMaterialPairsByProduct', 'test_mwor_one_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		nodes[0].demand_source = DemandSource(type='P', mean=5)
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
@@ -1941,13 +2017,13 @@ class TestSupplierRawMaterialPairsByProduct(unittest.TestCase):
 		print_status('TestSupplierRawMaterialPairsByProduct', 'test_mwor_multiple_products()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		nodes[0].demand_source = DemandSource(type='P', mean=5)
 
 		prods = {i: SupplyChainProduct(i) for i in [1, 2, 3, 4, 5, 10, 11, 12]}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+		network.nodes_by_index[1].add_products([prods[1], prods[2]])
+		network.nodes_by_index[2].add_products([prods[2], prods[3]])
+		network.nodes_by_index[3].add_products([prods[4], prods[5]])
 
 		nodes[0].add_products([prods[10], prods[11], prods[12]])
 
@@ -1988,7 +2064,7 @@ class TestSupplierRawMaterialPairsByProduct(unittest.TestCase):
 		print_status('TestSupplierRawMaterialPairsByProduct', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		prods = {prod.index: prod for prod in network.products}
 
 		self.assertTrue(compare_unhashable_lists(nodes[0].supplier_raw_material_pairs_by_product(product=prods[0], return_indices=False, network_BOM=True),
@@ -2033,7 +2109,7 @@ class TestCustomersByProduct(unittest.TestCase):
 		print_status('TestCustomersByProduct', 'test_mwor_no_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		nodes[0].demand_source = DemandSource(type='P', mean=5)
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
@@ -2062,7 +2138,7 @@ class TestCustomersByProduct(unittest.TestCase):
 		print_status('TestCustomersByProduct', 'test_mwor_one_product()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		nodes[0].demand_source = DemandSource(type='P', mean=5)
 
 		prods = {i: SupplyChainProduct(i) for i in range(1, 6)}
@@ -2099,13 +2175,13 @@ class TestCustomersByProduct(unittest.TestCase):
 		print_status('TestCustomersByProduct', 'test_mwor_multiple_products()')
 
 		network = mwor_system(3)
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		nodes[0].demand_source = DemandSource(type='P', mean=5)
 
 		prods = {i: SupplyChainProduct(i) for i in [1, 2, 3, 4, 5, 10, 11, 12]}
-		network.get_node_from_index(1).add_products([prods[1], prods[2]])
-		network.get_node_from_index(2).add_products([prods[2], prods[3]])
-		network.get_node_from_index(3).add_products([prods[4], prods[5]])
+		network.nodes_by_index[1].add_products([prods[1], prods[2]])
+		network.nodes_by_index[2].add_products([prods[2], prods[3]])
+		network.nodes_by_index[3].add_products([prods[4], prods[5]])
 
 		nodes[0].add_products([prods[10], prods[11], prods[12]])
 
@@ -2136,8 +2212,12 @@ class TestCustomersByProduct(unittest.TestCase):
 		print_status('TestCustomersByProduct', 'test_multiproduct_5_7()')
 
 		network = load_instance("bom_structure", "tests/additional_files/test_multiproduct_5_7.json")
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		prods = {prod.index: prod for prod in network.products}
+
+		self.assertListEqual(nodes[2].customers_by_product(product=prods[3], return_indices=False, network_BOM=False), [nodes[0], nodes[1]])
+
+
 
 		self.assertListEqual(nodes[0].customers_by_product(product=prods[0], return_indices=False, network_BOM=True), [None])
 		self.assertListEqual(nodes[0].customers_by_product(product=prods[0], return_indices=True, network_BOM=True), [None])
@@ -2381,13 +2461,13 @@ class TestForwardEchelonLeadTime(unittest.TestCase):
 
 		network = load_instance("rosling_figure_1")
 
-		self.assertEqual(network.get_node_from_index(1).forward_echelon_lead_time, 1)
-		self.assertEqual(network.get_node_from_index(2).forward_echelon_lead_time, 2)
-		self.assertEqual(network.get_node_from_index(3).forward_echelon_lead_time, 4)
-		self.assertEqual(network.get_node_from_index(4).forward_echelon_lead_time, 6)
-		self.assertEqual(network.get_node_from_index(5).forward_echelon_lead_time, 6)
-		self.assertEqual(network.get_node_from_index(6).forward_echelon_lead_time, 7)
-		self.assertEqual(network.get_node_from_index(7).forward_echelon_lead_time, 8)
+		self.assertEqual(network.nodes_by_index[1].forward_echelon_lead_time, 1)
+		self.assertEqual(network.nodes_by_index[2].forward_echelon_lead_time, 2)
+		self.assertEqual(network.nodes_by_index[3].forward_echelon_lead_time, 4)
+		self.assertEqual(network.nodes_by_index[4].forward_echelon_lead_time, 6)
+		self.assertEqual(network.nodes_by_index[5].forward_echelon_lead_time, 6)
+		self.assertEqual(network.nodes_by_index[6].forward_echelon_lead_time, 7)
+		self.assertEqual(network.nodes_by_index[7].forward_echelon_lead_time, 8)
 
 
 class TestEquivalentLeadTime(unittest.TestCase):
@@ -2409,13 +2489,13 @@ class TestEquivalentLeadTime(unittest.TestCase):
 
 		network = load_instance("rosling_figure_1")
 
-		self.assertEqual(network.get_node_from_index(1).equivalent_lead_time, 1)
-		self.assertEqual(network.get_node_from_index(2).equivalent_lead_time, 1)
-		self.assertEqual(network.get_node_from_index(3).equivalent_lead_time, 2)
-		self.assertEqual(network.get_node_from_index(4).equivalent_lead_time, 2)
-		self.assertEqual(network.get_node_from_index(5).equivalent_lead_time, 0)
-		self.assertEqual(network.get_node_from_index(6).equivalent_lead_time, 1)
-		self.assertEqual(network.get_node_from_index(7).equivalent_lead_time, 1)
+		self.assertEqual(network.nodes_by_index[1].equivalent_lead_time, 1)
+		self.assertEqual(network.nodes_by_index[2].equivalent_lead_time, 1)
+		self.assertEqual(network.nodes_by_index[3].equivalent_lead_time, 2)
+		self.assertEqual(network.nodes_by_index[4].equivalent_lead_time, 2)
+		self.assertEqual(network.nodes_by_index[5].equivalent_lead_time, 0)
+		self.assertEqual(network.nodes_by_index[6].equivalent_lead_time, 1)
+		self.assertEqual(network.nodes_by_index[7].equivalent_lead_time, 1)
 
 
 class TestDerivedDemandMean(unittest.TestCase):
@@ -2436,9 +2516,9 @@ class TestDerivedDemandMean(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 5)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 5)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 5)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_mean, 5)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_mean, 5)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_mean, 5)
 
 	def test_assembly(self):
 		"""Test derived_demand_mean() for assembly system (Rosling (1989) Figure 1,
@@ -2451,15 +2531,15 @@ class TestDerivedDemandMean(unittest.TestCase):
 		demand_source.type = 'N'
 		demand_source.mean = 15
 		demand_source.standard_deviation = 2
-		network.get_node_from_index(1).demand_source = demand_source
+		network.nodes_by_index[1].demand_source = demand_source
 
-		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 15)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 15)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 15)
-		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 15)
-		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 15)
-		self.assertEqual(network.get_node_from_index(6).derived_demand_mean, 15)
-		self.assertEqual(network.get_node_from_index(7).derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[4].derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[5].derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[6].derived_demand_mean, 15)
+		self.assertEqual(network.nodes_by_index[7].derived_demand_mean, 15)
 
 	def test_rong_atan_snyder_figure_1a(self):
 		"""Test derived_demand_mean() for distribution system (Rong, Atan, and Snyder (2017),
@@ -2469,13 +2549,13 @@ class TestDerivedDemandMean(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
-		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 32)
-		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 16)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 16)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(6).derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[0].derived_demand_mean, 32)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_mean, 16)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_mean, 16)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[4].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[5].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[6].derived_demand_mean, 8)
 
 	def test_rong_atan_snyder_figure_1b(self):
 		"""Test derived_demand_mean() for distribution system (Rong, Atan, and Snyder (2017),
@@ -2485,17 +2565,17 @@ class TestDerivedDemandMean(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1b")
 
-		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 64)
-		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 40)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 24)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(6).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(7).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(8).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(9).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(10).derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[0].derived_demand_mean, 64)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_mean, 40)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_mean, 24)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[4].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[5].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[6].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[7].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[8].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[9].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[10].derived_demand_mean, 8)
 
 	def test_rong_atan_snyder_figure_1c(self):
 		"""Test derived_demand_mean() for distribution system (Rong, Atan, and Snyder (2017),
@@ -2505,12 +2585,12 @@ class TestDerivedDemandMean(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1c")
 
-		self.assertEqual(network.get_node_from_index(0).derived_demand_mean, 32)
-		self.assertEqual(network.get_node_from_index(1).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_mean, 24)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(4).derived_demand_mean, 8)
-		self.assertEqual(network.get_node_from_index(5).derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[0].derived_demand_mean, 32)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_mean, 24)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[4].derived_demand_mean, 8)
+		self.assertEqual(network.nodes_by_index[5].derived_demand_mean, 8)
 
 
 class TestDerivedDemandStandardDeviation(unittest.TestCase):
@@ -2531,9 +2611,9 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		self.assertEqual(network.get_node_from_index(1).derived_demand_standard_deviation, 1)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_standard_deviation, 1)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_standard_deviation, 1)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_standard_deviation, 1)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_standard_deviation, 1)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_standard_deviation, 1)
 
 	def test_assembly(self):
 		"""Test derived_demand_standard_deviation() for assembly system (Rosling (1989) Figure 1,
@@ -2546,15 +2626,15 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 		demand_source.type = 'N'
 		demand_source.mean = 15
 		demand_source.standard_deviation = 2
-		network.get_node_from_index(1).demand_source = demand_source
+		network.nodes_by_index[1].demand_source = demand_source
 
-		self.assertEqual(network.get_node_from_index(1).derived_demand_standard_deviation, 2)
-		self.assertEqual(network.get_node_from_index(2).derived_demand_standard_deviation, 2)
-		self.assertEqual(network.get_node_from_index(3).derived_demand_standard_deviation, 2)
-		self.assertEqual(network.get_node_from_index(4).derived_demand_standard_deviation, 2)
-		self.assertEqual(network.get_node_from_index(5).derived_demand_standard_deviation, 2)
-		self.assertEqual(network.get_node_from_index(6).derived_demand_standard_deviation, 2)
-		self.assertEqual(network.get_node_from_index(7).derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[1].derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[2].derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[3].derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[4].derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[5].derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[6].derived_demand_standard_deviation, 2)
+		self.assertEqual(network.nodes_by_index[7].derived_demand_standard_deviation, 2)
 
 	def test_rong_atan_snyder_figure_1a(self):
 		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
@@ -2564,13 +2644,13 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
-		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, math.sqrt(32))
-		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, math.sqrt(16))
-		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, math.sqrt(16))
-		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[0].derived_demand_standard_deviation, math.sqrt(32))
+		self.assertAlmostEqual(network.nodes_by_index[1].derived_demand_standard_deviation, math.sqrt(16))
+		self.assertAlmostEqual(network.nodes_by_index[2].derived_demand_standard_deviation, math.sqrt(16))
+		self.assertAlmostEqual(network.nodes_by_index[3].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[4].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[5].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[6].derived_demand_standard_deviation, math.sqrt(8))
 
 	def test_rong_atan_snyder_figure_1b(self):
 		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
@@ -2580,17 +2660,17 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1b")
 
-		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, math.sqrt(64))
-		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, math.sqrt(40))
-		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, math.sqrt(24))
-		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(6).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(7).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(8).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(9).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(10).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[0].derived_demand_standard_deviation, math.sqrt(64))
+		self.assertAlmostEqual(network.nodes_by_index[1].derived_demand_standard_deviation, math.sqrt(40))
+		self.assertAlmostEqual(network.nodes_by_index[2].derived_demand_standard_deviation, math.sqrt(24))
+		self.assertAlmostEqual(network.nodes_by_index[3].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[4].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[5].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[6].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[7].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[8].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[9].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[10].derived_demand_standard_deviation, math.sqrt(8))
 
 	def test_rong_atan_snyder_figure_1c(self):
 		"""Test derived_demand_standard_deviation() for distribution system (Rong, Atan, and Snyder (2017),
@@ -2600,12 +2680,12 @@ class TestDerivedDemandStandardDeviation(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1c")
 
-		self.assertAlmostEqual(network.get_node_from_index(0).derived_demand_standard_deviation, math.sqrt(32))
-		self.assertAlmostEqual(network.get_node_from_index(1).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(2).derived_demand_standard_deviation, math.sqrt(24))
-		self.assertAlmostEqual(network.get_node_from_index(3).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(4).derived_demand_standard_deviation, math.sqrt(8))
-		self.assertAlmostEqual(network.get_node_from_index(5).derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[0].derived_demand_standard_deviation, math.sqrt(32))
+		self.assertAlmostEqual(network.nodes_by_index[1].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[2].derived_demand_standard_deviation, math.sqrt(24))
+		self.assertAlmostEqual(network.nodes_by_index[3].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[4].derived_demand_standard_deviation, math.sqrt(8))
+		self.assertAlmostEqual(network.nodes_by_index[5].derived_demand_standard_deviation, math.sqrt(8))
 
 
 
@@ -2627,9 +2707,9 @@ class TestDeepEqualTo(unittest.TestCase):
 
 		network = load_instance("example_6_1")
 
-		node1 = network.get_node_from_index(1)
-		node2 = network.get_node_from_index(2)
-		node3 = network.get_node_from_index(3)
+		node1 = network.nodes_by_index[1]
+		node2 = network.nodes_by_index[2]
+		node3 = network.nodes_by_index[3]
 
 		# Equal nodes.
 		node1copy = copy.deepcopy(node1)
@@ -2662,9 +2742,9 @@ class TestDeepEqualTo(unittest.TestCase):
 
 		network = load_instance("rong_atan_snyder_figure_1a")
 
-		node0 = network.get_node_from_index(0)
-		node2 = network.get_node_from_index(2)
-		node6 = network.get_node_from_index(6)
+		node0 = network.nodes_by_index[0]
+		node2 = network.nodes_by_index[2]
+		node6 = network.nodes_by_index[6]
 
 		# Equal nodes.
 		node0copy = copy.deepcopy(node0)
@@ -2743,17 +2823,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2779,17 +2850,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2823,17 +2885,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2867,17 +2920,8 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network and product objects.
+		# Replace network and product objects.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2897,24 +2941,24 @@ class TestNodeToFromDict(unittest.TestCase):
 		# In this instance, node 3 is missing the ``local_holding_cost`` attribute.
 		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		n1 = network1.get_node_from_index(3)
-		n2 = network2.get_node_from_index(3)
+		n1 = network1.nodes_by_index[3]
+		n2 = network2.nodes_by_index[3]
 		n2.local_holding_cost = SupplyChainNode._DEFAULT_VALUES['local_holding_cost']
 		self.assertTrue(n1.deep_equal_to(n2))
 
 		# In this instance, node 1 is missing the ``demand_source`` attribute.
 		network1 = load_instance("missing_demand_source_node_1", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		n1 = network1.get_node_from_index(1)
-		n2 = network2.get_node_from_index(1)
+		n1 = network1.nodes_by_index[1]
+		n2 = network2.nodes_by_index[1]
 		n2.demand_source = DemandSource()
 		self.assertTrue(n1.deep_equal_to(n2))
 
 		# In this instance, the ``disruption_process`` attribute at node 1 is missing the ``recovery_probability`` attribute.
 		network1 = load_instance("missing_recovery_probability_node_1", "tests/additional_files/test_supply_chain_node_TestNodeToFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		n1 = network1.get_node_from_index(1)
-		n2 = network2.get_node_from_index(1)
+		n1 = network1.nodes_by_index[1]
+		n2 = network2.nodes_by_index[1]
 		n2.disruption_process.recovery_probability = DisruptionProcess._DEFAULT_VALUES['_recovery_probability']
 		self.assertTrue(n1.deep_equal_to(n2))
 
@@ -2932,18 +2976,9 @@ class TestNodeToFromDict(unittest.TestCase):
 		# Convert dicts back to nodes.
 		dict_nodes = [SupplyChainNode.from_dict(d) for d in node_dicts]
 
-		# Convert successors and predecessors back to node objects. Replace network objects.
+		# Replace network objects.
 		# Fill products.
 		for n in dict_nodes:
-			preds = []
-			succs = []
-			for m in dict_nodes:
-				if m.index in n.predecessors():
-					preds.append(m)
-				if m.index in n.successors():
-					succs.append(m)
-			n._predecessors = preds
-			n._successors = succs
 			n.network = network
 			if n._dummy_product is not None:
 				n._dummy_product = network.products_by_index[n._dummy_product]
@@ -2951,7 +2986,7 @@ class TestNodeToFromDict(unittest.TestCase):
 				n._external_supplier_dummy_product = network.products_by_index[n._external_supplier_dummy_product]
 			n._products_by_index = {k: network.products_by_index[k] for k in n._products_by_index.keys()}
 			
-			prods = n.product_indices
+			prods = copy.deepcopy(n.product_indices)
 			n.remove_products('all')
 			for prod in prods:
 				n.add_product(network.products_by_index[prod])

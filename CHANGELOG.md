@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Option to suppress dummy-product indices in simulation output.
+- ``SupplyChainNetwork.nodes_by_index`` dict, which returns a ``SupplyChainNode`` object for a given index.
+Use this in place of ``SupplyChainNetwork.get_node_from_index()``, which will be deprecated.
+
+### Changed
+- Various speedups.
 
 ### Fixed
 - Bug that caused ``mwor_system()`` to crash when ``demand_source`` is provided as argument 

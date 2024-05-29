@@ -191,9 +191,9 @@ def inbound_cst(tree, node_index, cst):
 	for k in node_index:
 		# Determine inbound CST (= max of CST for all predecessors, and external
 		# inbound CST).
-		k_node = tree.get_node_from_index(k)
+		k_node = tree.nodes_by_index[k]
 		SI[k] = k_node.external_inbound_cst
-		if len(k_node.predecessors()) > 0:
+		if len(k_node.predecessor_indices()) > 0:
 			SI[k] = max(SI[k], np.max([cst[i] for i in k_node.predecessor_indices()]))
 
 	if n_is_iterable:
@@ -252,7 +252,7 @@ def net_lead_time(tree, node_index, cst):
 	nlt = {}
 	for k in node_index:
 		# Determine NLT.
-		nlt[k] = SI[k] + tree.get_node_from_index(k).processing_time - cst[k]
+		nlt[k] = SI[k] + tree.nodes_by_index[k].processing_time - cst[k]
 
 	if n_is_iterable:
 		return nlt
@@ -309,7 +309,7 @@ def cst_to_base_stock_levels(tree, node_index, cst):
 
 	base_stock_level = {}
 	for k in node_index:
-		base_stock_level[k] = tree.get_node_from_index(k).net_demand_mean * nlt[k] + ss[k]
+		base_stock_level[k] = tree.nodes_by_index[k].net_demand_mean * nlt[k] + ss[k]
 
 	if n_is_iterable:
 		return base_stock_level
@@ -365,7 +365,7 @@ def safety_stock_levels(tree, node_index, cst):
 
 	safety_stock_level = {}
 	for k in node_index:
-		node_k = tree.get_node_from_index(k)
+		node_k = tree.nodes_by_index[k]
 		safety_stock_level[k] = node_k.demand_bound_constant * \
 						  node_k.net_demand_standard_deviation * \
 						  math.sqrt(nlt[k])

@@ -529,8 +529,8 @@ class TestBaseStockLevels(unittest.TestCase):
 		print_status('TestBaseStockLevels', 'test_example_6_5()')
 
 		tree = load_instance("example_6_5")
-		tree.get_node_from_index(2).demand_source.mean = 5
-		tree.get_node_from_index(4).demand_source.mean = 5
+		tree.nodes_by_index[2].demand_source.mean = 5
+		tree.nodes_by_index[4].demand_source.mean = 5
 		tree = gsm_tree.preprocess_tree(tree)
 
 		# Optimal solution: S = (0,0,0,1).
@@ -570,7 +570,7 @@ class TestBaseStockLevels(unittest.TestCase):
 		print_status('TestBaseStockLevels', 'test_figure_6_14()')
 
 		tree = load_instance("figure_6_14")
-		tree.get_node_from_index(10).demand_source.mean = 100
+		tree.nodes_by_index[10].demand_source.mean = 100
 		tree = gsm_tree.preprocess_tree(tree)
 
 		# Optimal solution: S = (0,3,5,4,7,0,0,0,0,2).

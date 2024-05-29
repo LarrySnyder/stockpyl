@@ -443,16 +443,16 @@ class TestFromDict(unittest.TestCase):
 		# In this instance, policy at node 3 is missing the ``base_stock_level`` attribute.
 		network1 = load_instance("missing_base_stock_level", "tests/additional_files/test_policy_TestFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		pol1 = network1.get_node_from_index(3).inventory_policy
-		pol2 = network2.get_node_from_index(3).inventory_policy
+		pol1 = network1.nodes_by_index[3].inventory_policy
+		pol2 = network2.nodes_by_index[3].inventory_policy
 		pol2.base_stock_level = Policy._DEFAULT_VALUES['_base_stock_level']
 		self.assertEqual(pol1, pol2)
 
 		# In this instance, policy at node 1 is missing the ``type`` attribute.
 		network1 = load_instance("missing_type", "tests/additional_files/test_policy_TestFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		pol1 = network1.get_node_from_index(1).inventory_policy
-		pol2 = network2.get_node_from_index(1).inventory_policy
+		pol1 = network1.nodes_by_index[1].inventory_policy
+		pol2 = network2.nodes_by_index[1].inventory_policy
 		pol2.type = Policy._DEFAULT_VALUES['_type']
 		self.assertEqual(pol1, pol2)
 

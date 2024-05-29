@@ -369,7 +369,7 @@ class TestDeepEqualTo(unittest.TestCase):
 		network = load_instance("example_6_1")
 
 		# Convert nodes in network to products.
-		products = {n: SupplyChainProduct.from_node(network.get_node_from_index(n)) for n in network.node_indices}
+		products = {n: SupplyChainProduct.from_node(network.nodes_by_index[n]) for n in network.node_indices}
 
 		# Equal products.
 		product1copy = copy.deepcopy(products[1])
@@ -416,7 +416,7 @@ class TestProductToFromDict(unittest.TestCase):
 		network = load_instance("example_6_1")
 
 		# Convert nodes in network to products.
-		products = [SupplyChainProduct.from_node(network.get_node_from_index(n)) for n in network.node_indices]
+		products = [SupplyChainProduct.from_node(network.nodes_by_index[n]) for n in network.node_indices]
 
 		# Convert products to dicts.
 		product_dicts = [prod.to_dict() for prod in products]
@@ -437,7 +437,7 @@ class TestProductToFromDict(unittest.TestCase):
 		network = load_instance("example_6_1")
 
 		# Convert nodes in network to products.
-		products = [SupplyChainProduct.from_node(network.get_node_from_index(n)) for n in network.node_indices]
+		products = [SupplyChainProduct.from_node(network.nodes_by_index[n]) for n in network.node_indices]
 
 		# Convert products to dicts.
 		product_dicts = [prod.to_dict() for prod in products]
@@ -470,7 +470,7 @@ class TestProductFromNode(unittest.TestCase):
 		network = load_instance("example_6_1")
 
 		# Convert nodes in network to products.
-		products = {n: SupplyChainProduct.from_node(network.get_node_from_index(n)) for n in network.node_indices}
+		products = {n: SupplyChainProduct.from_node(network.nodes_by_index[n]) for n in network.node_indices}
 
 		# Build products from scratch.
 		scratch_products = {
@@ -514,7 +514,7 @@ class TestProductFromNode(unittest.TestCase):
 		network = load_instance("assembly_3_stage")
 
 		# Convert nodes in network to products.
-		products = {n: SupplyChainProduct.from_node(network.get_node_from_index(n)) for n in range(3)}
+		products = {n: SupplyChainProduct.from_node(network.nodes_by_index[n]) for n in range(3)}
 
 		# Build products from scratch.
 		scratch_products = {

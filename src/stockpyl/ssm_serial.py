@@ -937,8 +937,8 @@ def _preprocess_parameters(num_nodes=None, node_order_in_system=None, node_order
 	# Build dicts and singletons of parameters.
 	echelon_holding_cost_dict = {node.index: node.echelon_holding_cost for node in local_network.nodes}
 	lead_time_dict = {node.index: node.lead_time for node in local_network.nodes}
-	stockout_cost = local_network.get_node_from_index(1).stockout_cost
-	demand_source = local_network.get_node_from_index(1).demand_source
+	stockout_cost = local_network.nodes_by_index[1].stockout_cost
+	demand_source = local_network.nodes_by_index[1].demand_source
 	
 	# Validate more parameters.
 	if any(c is None for c in echelon_holding_cost_dict.values()): raise ValueError("echelon_holding_cost cannot be None for any node")

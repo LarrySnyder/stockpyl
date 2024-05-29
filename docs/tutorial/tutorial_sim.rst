@@ -516,15 +516,15 @@ methods are the relevant nodes/products, but these arguments can be omitted if t
 
 	.. doctest::
 
-		>>> network.get_node_from_index(1).state_vars[3].get_inventory_level()
+		>>> network.nodes_by_index[1].state_vars[3].get_inventory_level()
 		15
-		>>> network.get_node_from_index(1).state_vars[3].get_order_quantity(predecessor=3)
+		>>> network.nodes_by_index[1].state_vars[3].get_order_quantity(predecessor=3)
 		6
-		>>> network.get_node_from_index(2).state_vars[4].get_inbound_shipment()
+		>>> network.nodes_by_index[2].state_vars[4].get_inbound_shipment()
 		13
-		>>> network.get_node_from_index(2).state_vars[6].get_inbound_order()
+		>>> network.nodes_by_index[2].state_vars[6].get_inbound_order()
 		8
-		>>> network.get_node_from_index(3).state_vars[6].get_inbound_order(successor=2)
+		>>> network.nodes_by_index[3].state_vars[6].get_inbound_order(successor=2)
 		14
 
 Some state variables, in particular those that are not indexed by any node or product,
@@ -532,9 +532,9 @@ are accessed by using the attribute directly:
 
 	.. doctest::
 
-		>>> network.get_node_from_index(1).state_vars[3].holding_cost
+		>>> network.nodes_by_index[1].state_vars[3].holding_cost
 		30
-		>>> network.get_node_from_index(3).state_vars[5].total_cost
+		>>> network.nodes_by_index[3].state_vars[5].total_cost
 		46.0
 
 
@@ -599,7 +599,7 @@ disruptions. First, type-OP disruptions:
 		...     policy_type='BS',
 		...     base_stock_level=[25, 25]
 		... )
-		>>> network.get_node_from_index(2).disruption_process = DisruptionProcess(
+		>>> network.nodes_by_index[2].disruption_process = DisruptionProcess(
 		...     random_process_type='M',
 		...     disruption_type='OP',
 		...     disruption_probability=0.1,
@@ -629,7 +629,7 @@ Next, type-SP disruptions:
 
 	.. doctest::
 
-		>>> network.get_node_from_index(2).disruption_process.disruption_type='SP'
+		>>> network.nodes_by_index[2].disruption_process.disruption_type='SP'
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'])
 		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2    ODI:2|-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4    ODI:EXT|-4
@@ -651,7 +651,7 @@ Next, type-TP disruptions:
 
 	.. doctest::
 
-		>>> network.get_node_from_index(2).disruption_process.disruption_type='TP'
+		>>> network.nodes_by_index[2].disruption_process.disruption_type='TP'
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'])
 		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      OS:EXT|-4    IL:-4
@@ -673,7 +673,7 @@ Finally, type-RP disruptions:
 
 	.. doctest::
 
-		>>> network.get_node_from_index(2).disruption_process.disruption_type='RP'
+		>>> network.nodes_by_index[2].disruption_process.disruption_type='RP'
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'])
 		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      IDI:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      IDI:1|-2    OS:EXT|-4    IL:-4

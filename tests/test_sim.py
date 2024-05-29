@@ -174,7 +174,7 @@ class TestSimulation(unittest.TestCase):
         dummy_prods = {n.index: n._dummy_product.index for n in network.nodes}
         ext_dummy_prod = nodes[2]._external_supplier_dummy_product.index
 
-        network.get_node_from_index(1).order_capacity = 19
+        network.nodes_by_index[1].order_capacity = 19
 
         total_cost = simulation(network, 20, rand_seed=763, progress_bar=False, consistency_checks='E')
 
@@ -474,9 +474,9 @@ class TestMultiproductSimulation(unittest.TestCase):
         )
         # Add supplier nodes for products 1 and 2. (Can't be external supplier because prod 1 and 2
         # need separate RMs to match original system.)
-        network.add_predecessor(network.get_node_from_index(1), SupplyChainNode(index=11, supply_type='U'))
-        network.add_predecessor(network.get_node_from_index(1), SupplyChainNode(index=12, supply_type='U'))
-        network.get_node_from_index(1).supply_type = None
+        network.add_predecessor(network.nodes_by_index[1], SupplyChainNode(index=11, supply_type='U'))
+        network.add_predecessor(network.nodes_by_index[1], SupplyChainNode(index=12, supply_type='U'))
+        network.nodes_by_index[1].supply_type = None
 
         nodes = {n.index: n for n in network.nodes}
 
@@ -578,9 +578,9 @@ class TestMultiproductSimulation(unittest.TestCase):
         # Add supplier nodes for products 5, 6 and 7. (Can't use external supplier for prod 6 and 7 because they
         # need separate RMs to match original system. Can't use external supplier for prod 5 because other products
         # at node 2 would be assumed to have NBOM of 1 with it.)
-        network.add_predecessor(network.get_node_from_index(2), SupplyChainNode(index=22, supply_type='U'))
-        network.add_predecessor(network.get_node_from_index(3), SupplyChainNode(index=33, supply_type='U'))
-        network.get_node_from_index(3).supply_type = None
+        network.add_predecessor(network.nodes_by_index[2], SupplyChainNode(index=22, supply_type='U'))
+        network.add_predecessor(network.nodes_by_index[3], SupplyChainNode(index=33, supply_type='U'))
+        network.nodes_by_index[3].supply_type = None
 
         nodes = {n.index: n for n in network.nodes}
 
@@ -848,7 +848,7 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 
         network = load_instance("example_6_1")
 
-        network.get_node_from_index(2).disruption_process = DisruptionProcess(
+        network.nodes_by_index[2].disruption_process = DisruptionProcess(
             random_process_type='M',
             disruption_type='OP',
             disruption_probability=0.1,
@@ -897,7 +897,7 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 
         network = load_instance("example_6_1")
 
-        network.get_node_from_index(2).disruption_process = DisruptionProcess(
+        network.nodes_by_index[2].disruption_process = DisruptionProcess(
             random_process_type='M',
             disruption_type='SP',
             disruption_probability=0.1,
@@ -946,7 +946,7 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 
         network = load_instance("example_6_1")
 
-        network.get_node_from_index(2).disruption_process = DisruptionProcess(
+        network.nodes_by_index[2].disruption_process = DisruptionProcess(
             random_process_type='M',
             disruption_type='TP',
             disruption_probability=0.1,
@@ -995,7 +995,7 @@ class TestSimulationWithDisruptions(unittest.TestCase):
 
         network = load_instance("example_6_1")
 
-        network.get_node_from_index(2).disruption_process = DisruptionProcess(
+        network.nodes_by_index[2].disruption_process = DisruptionProcess(
             random_process_type='M',
             disruption_type='RP',
             disruption_probability=0.1,
@@ -1224,13 +1224,13 @@ class TestBadBackorders(unittest.TestCase):
         # Build network.
         network = load_instance("rong_atan_snyder_figure_1a")
         # Add disruptions.
-        network.get_node_from_index(1).disruption_process = DisruptionProcess(
+        network.nodes_by_index[1].disruption_process = DisruptionProcess(
             random_process_type='M',
             disruption_type='OP',
             disruption_probability=0.1,
             recovery_probability=0.3
         )
-        network.get_node_from_index(3).disruption_process = DisruptionProcess(
+        network.nodes_by_index[3].disruption_process = DisruptionProcess(
             random_process_type='M',
             disruption_type='SP',
             disruption_probability=0.1,

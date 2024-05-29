@@ -104,7 +104,7 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertTrue(network2.deep_equal_to(network))
 		
 		# Unequal networks due to parameter.
-		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		network2.nodes_by_index[1].in_transit_holding_cost = 99
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 		network2 = copy.deepcopy(network)
@@ -124,7 +124,7 @@ class TestDeepEqualTo(unittest.TestCase):
 
 		# Unequal networks due to missing product.
 		network2 = copy.deepcopy(network)
-		network2.remove_product(network2.products[0])
+		network2.remove_product(network2._local_product_indices[0])
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 
@@ -151,7 +151,7 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertTrue(network2.deep_equal_to(network))
 		
 		# Unequal networks due to parameter.
-		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		network2.nodes_by_index[1].in_transit_holding_cost = 99
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 		network2 = copy.deepcopy(network)
@@ -178,7 +178,7 @@ class TestDeepEqualTo(unittest.TestCase):
 		self.assertTrue(network2.deep_equal_to(network))
 		
 		# Unequal networks due to parameter.
-		network2.get_node_from_index(1).in_transit_holding_cost = 99
+		network2.nodes_by_index[1].in_transit_holding_cost = 99
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 		network2 = copy.deepcopy(network)
@@ -194,7 +194,7 @@ class TestDeepEqualTo(unittest.TestCase):
 
 		# Unequal networks due to missing product.
 		network2 = copy.deepcopy(network)
-		network2.get_node_from_index(0).remove_product(0)
+		network2.nodes_by_index[0].remove_product(0)
 		self.assertFalse(network.deep_equal_to(network2))
 		self.assertFalse(network2.deep_equal_to(network))
 
@@ -466,7 +466,7 @@ class TestAddEdge(unittest.TestCase):
 		self.assertEqual(num_edges, len(network.edges))
 
 		# Check that error is raised if nodes do not exist.
-		with self.assertRaises(ValueError):
+		with self.assertRaises(KeyError):
 			network.add_edge(5, 1)
 
 	def test_4_node_owmr(self):
@@ -548,7 +548,7 @@ class TestAddEdgesFromList(unittest.TestCase):
 		self.assertEqual(num_edges, len(network.edges))
 		
 		# Check that error is raised if nodes do not exist.
-		with self.assertRaises(ValueError):
+		with self.assertRaises(KeyError):
 			network.add_edges_from_list([(5, 1)])
 
 	def test_4_node_owmr(self):
@@ -614,7 +614,7 @@ class TestRemoveNode(unittest.TestCase):
 
 		network.add_edges_from_list([(2, 1), (1, 0)])
 
-		network.remove_node(network.get_node_from_index(1))
+		network.remove_node(network.nodes_by_index[1])
 
 		node0succ = node0.successor_indices()
 		node2succ = node2.successor_indices()
@@ -641,7 +641,7 @@ class TestRemoveNode(unittest.TestCase):
 
 		network.add_edges_from_list([(0, 1), (0, 2), (0, 3)])
 
-		network.remove_node(network.get_node_from_index(2))
+		network.remove_node(network.nodes_by_index[2])
 
 		node0succ = node0.successor_indices()
 		node1succ = node1.successor_indices()
@@ -880,7 +880,7 @@ class TestReindexNodes(unittest.TestCase):
 		network = load_instance("rosling_figure_1")
 		# Name the nodes "a"-"g".
 		for i in range(1, 8):
-			network.get_node_from_index(i).name = chr(97)
+			network.nodes_by_index[i].name = chr(97)
 
 		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17},
 							  new_names={1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "F", 7: "G"})
@@ -898,13 +898,13 @@ class TestReindexNodes(unittest.TestCase):
 		network = load_instance("rosling_figure_1")
 
 		# Make the BS levels a little smaller so there are some stockouts.
-		network.get_node_from_index(1).inventory_policy.base_stock_level = 6
-		network.get_node_from_index(2).inventory_policy.base_stock_level = 20
-		network.get_node_from_index(3).inventory_policy.base_stock_level = 35
-		network.get_node_from_index(4).inventory_policy.base_stock_level = 58
-		network.get_node_from_index(5).inventory_policy.base_stock_level = 45
-		network.get_node_from_index(6).inventory_policy.base_stock_level = 65
-		network.get_node_from_index(7).inventory_policy.base_stock_level = 75
+		network.nodes_by_index[1].inventory_policy.base_stock_level = 6
+		network.nodes_by_index[2].inventory_policy.base_stock_level = 20
+		network.nodes_by_index[3].inventory_policy.base_stock_level = 35
+		network.nodes_by_index[4].inventory_policy.base_stock_level = 58
+		network.nodes_by_index[5].inventory_policy.base_stock_level = 45
+		network.nodes_by_index[6].inventory_policy.base_stock_level = 65
+		network.nodes_by_index[7].inventory_policy.base_stock_level = 75
 
 		network.reindex_nodes({1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17})
 		nodes = {n.index: n for n in network.nodes}
@@ -955,13 +955,13 @@ class TestReindexNodes(unittest.TestCase):
 
 		network = load_instance("rosling_figure_1")
 		# Make the BS levels a little smaller so there are some stockouts.
-		network.get_node_from_index(1).inventory_policy.base_stock_level = 6
-		network.get_node_from_index(2).inventory_policy.base_stock_level = 20
-		network.get_node_from_index(3).inventory_policy.base_stock_level = 35
-		network.get_node_from_index(4).inventory_policy.base_stock_level = 58
-		network.get_node_from_index(5).inventory_policy.base_stock_level = 45
-		network.get_node_from_index(6).inventory_policy.base_stock_level = 65
-		network.get_node_from_index(7).inventory_policy.base_stock_level = 75
+		network.nodes_by_index[1].inventory_policy.base_stock_level = 6
+		network.nodes_by_index[2].inventory_policy.base_stock_level = 20
+		network.nodes_by_index[3].inventory_policy.base_stock_level = 35
+		network.nodes_by_index[4].inventory_policy.base_stock_level = 58
+		network.nodes_by_index[5].inventory_policy.base_stock_level = 45
+		network.nodes_by_index[6].inventory_policy.base_stock_level = 65
+		network.nodes_by_index[7].inventory_policy.base_stock_level = 75
 
 		total_cost = simulation(network, 100, rand_seed=17, progress_bar=False)
 
@@ -1480,8 +1480,8 @@ class TestNetworkFromEdges(unittest.TestCase):
 			shipment_lead_time=[2, 6, 0, 1]
 		)
 		# Change correct_network to account for same means/SDs.
-		correct_network.get_node_from_index(2).demand_source.mean = 50
-		correct_network.get_node_from_index(2).demand_source.standard_deviation = 5
+		correct_network.nodes_by_index[2].demand_source.mean = 50
+		correct_network.nodes_by_index[2].demand_source.standard_deviation = 5
 		self.assertTrue(network.deep_equal_to(correct_network))
 
 	def test_single_node(self):
@@ -1529,18 +1529,18 @@ class TestNetworkFromEdges(unittest.TestCase):
 		"""
 		# Correct network.
 		correct_network = self.get_correct_network()
-		correct_network.get_node_from_index(1).demand_source = DemandSource(
+		correct_network.nodes_by_index[1].demand_source = DemandSource(
 			type='CD',
 			demand_list=[0, 1, 2, 3],
 			probabilities=[0.25, 0.25, 0.4, 0.1]
 		)
-		correct_network.get_node_from_index(2).demand_source = DemandSource(
+		correct_network.nodes_by_index[2].demand_source = DemandSource(
 			type='CD',
 			demand_list=[0, 1, 2, 3],
 			probabilities=[0.25, 0.25, 0.4, 0.1]
 		)
-		correct_network.get_node_from_index(3).demand_source = DemandSource(type=None)
-		correct_network.get_node_from_index(4).demand_source = DemandSource(type=None)
+		correct_network.nodes_by_index[3].demand_source = DemandSource(type=None)
+		correct_network.nodes_by_index[4].demand_source = DemandSource(type=None)
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],
@@ -1724,12 +1724,12 @@ class TestMWORSystem(unittest.TestCase):
 
 		network = mwor_system(3, demand_source=DemandSource(type='P', mean=5))
 
-		self.assertIsInstance(network.get_node_from_index(0).demand_source, DemandSource)
-		self.assertEqual(network.get_node_from_index(0).demand_source.type, 'P')
-		self.assertEqual(network.get_node_from_index(0).demand_source.mean, 5)
+		self.assertIsInstance(network.nodes_by_index[0].demand_source, DemandSource)
+		self.assertEqual(network.nodes_by_index[0].demand_source.type, 'P')
+		self.assertEqual(network.nodes_by_index[0].demand_source.mean, 5)
 		for n in range(1, 4):
-			self.assertIsInstance(network.get_node_from_index(n).demand_source, DemandSource)
-			self.assertIsNone(network.get_node_from_index(n).demand_source.type)
+			self.assertIsInstance(network.nodes_by_index[n].demand_source, DemandSource)
+			self.assertIsNone(network.nodes_by_index[n].demand_source.type)
 
 
 class TestOWMRSystem(unittest.TestCase):
@@ -2213,19 +2213,19 @@ class TestToFromDict(unittest.TestCase):
 		# In this instance, node 3 is missing the ``local_holding_cost`` attribute.
 		network1 = load_instance("missing_local_holding_cost_node_3", "tests/additional_files/test_supply_chain_network_TestToFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		network2.get_node_from_index(3).local_holding_cost = SupplyChainNode._DEFAULT_VALUES['local_holding_cost']
+		network2.nodes_by_index[3].local_holding_cost = SupplyChainNode._DEFAULT_VALUES['local_holding_cost']
 		self.assertTrue(network1.deep_equal_to(network2))
 
 		# In this instance, node 1 is missing the ``demand_source`` attribute.
 		network1 = load_instance("missing_demand_source_node_1", "tests/additional_files/test_supply_chain_network_TestToFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		network2.get_node_from_index(1).demand_source = DemandSource()
+		network2.nodes_by_index[1].demand_source = DemandSource()
 		self.assertTrue(network1.deep_equal_to(network2))
 
 		# In this instance, the ``disruption_process`` attribute at node 1 is missing the ``recovery_probability`` attribute.
 		network1 = load_instance("missing_recovery_probability_node_1", "tests/additional_files/test_supply_chain_network_TestToFromDict_data.json")
 		network2 = load_instance("example_6_1")
-		network2.get_node_from_index(1).disruption_process.recovery_probability = DisruptionProcess._DEFAULT_VALUES['_recovery_probability']
+		network2.nodes_by_index[1].disruption_process.recovery_probability = DisruptionProcess._DEFAULT_VALUES['_recovery_probability']
 		self.assertTrue(network1.deep_equal_to(network2))
 
 

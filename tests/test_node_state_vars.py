@@ -59,7 +59,7 @@ class TestStateVariables(unittest.TestCase):
 		# variables.
 		simulation(network, 23, rand_seed=17, progress_bar=False)
 
-		nodes = {i: network.get_node_from_index(i) for i in range(1, 4)}
+		nodes = {i: network.nodes_by_index[i] for i in range(1, 4)}
 		dps = {n.index: n._dummy_product.index for n in network.nodes}
 
 		self.assertAlmostEqual(nodes[1].state_vars[22].inventory_level[dps[1]], 0.497397132, places=6)
@@ -121,7 +121,7 @@ class TestStateVariables(unittest.TestCase):
 		[IT1, IT2, IT3] = [5.968205296, 5.869623842, 5.567783088742498+5.465282343506053]
 		[OO1, OO2, OO3] = [6.65089457, 6.212689274, 11.03306543]
 
-		nodes = {i: network.get_node_from_index(i) for i in range(1, 4)}
+		nodes = {i: network.nodes_by_index[i] for i in range(1, 4)}
 		dps = {n.index: n._dummy_product.index for n in network.nodes}
 
 		self.assertAlmostEqual(nodes[1].state_vars[37].inventory_level[dps[1]], IL1, places=6)
@@ -183,7 +183,7 @@ class TestStateVariables(unittest.TestCase):
 		[OO01, OO02, OO0, OO1, OO2] = [5, 5, 5, 11, 11]
 		[RM01, RM02, RM0, RM1, RM2] = [0, 0, 0, 0, 0]
 
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		dps = {n.index: n._dummy_product.index for n in network.nodes}
 
 		self.assertEqual(nodes[0].state_vars[22].inventory_level[dps[0]], IL0)
@@ -255,7 +255,7 @@ class TestStateVariables(unittest.TestCase):
 		[OO01, OO02, OO0, OO1, OO2] = [4, 6, 5, 9, 9]
 		[RM01, RM02, RM0, RM1, RM2] = [2, 0, 1, 0, 0]
 
-		nodes = {i: network.get_node_from_index(i) for i in network.node_indices}
+		nodes = {i: network.nodes_by_index[i] for i in network.node_indices}
 		dps = {n.index: n._dummy_product.index for n in network.nodes}
 
 		self.assertEqual(nodes[0].state_vars[per].inventory_level[dps[0]], IL0)
@@ -329,7 +329,7 @@ class TestStateVariables(unittest.TestCase):
 	# 	RM_agg = {}
 	# 	ech_OH = {}
 	# 	for n_ind in range(1, 8):
-	# 		node = network.get_node_from_index(n_ind)
+	# 		node = network.nodes_by_index[n_ind]
 	# 		IT_agg[n_ind] = np.sum([IT[(n_ind, p_ind)] for (m_ind, p_ind) in IT if m_ind == n_ind]) / \
 	# 						 	len(node.predecessors(include_external=True))
 	# 		OO_agg[n_ind] = np.sum([OO[(n_ind, p_ind)] for (m_ind, p_ind) in OO if m_ind == n_ind]) / \
@@ -348,7 +348,7 @@ class TestStateVariables(unittest.TestCase):
 	# 			(7, None): ech_OH[7] - BO[1] + 1}
 	#
 	# 	for n_ind in range(1, 8):
-	# 		node = network.get_node_from_index(n_ind)
+	# 		node = network.nodes_by_index[n_ind]
 	# 		self.assertEqual(node.state_vars[per].inventory_level, IL[n_ind])
 	# 		self.assertEqual(node.state_vars[per].on_hand, OH[n_ind])
 	# 		self.assertEqual(node.state_vars[per].backorders, BO[n_ind])
@@ -397,7 +397,7 @@ class TestGetStateVariables(unittest.TestCase):
 		# variable shortcuts against dicts.
 		simulation(network, 23, rand_seed=17, progress_bar=False)
 
-		nodes = {i: network.get_node_from_index(i) for i in range(1, 4)}
+		nodes = {i: network.nodes_by_index[i] for i in range(1, 4)}
 
 		for n in nodes.values():
 			# Indexed by predecessor and raw material.

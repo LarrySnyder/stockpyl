@@ -34,7 +34,7 @@ The raw materials are products A and B, and the finished good is product C.
 .. note:: "Raw materials" and "finished goods" are |class_product| objects. They are not separate
 	classes. Moreover, a finished good at one node may be a raw material at another node; for example,
 	node 1 might produce product A as its finished good, which it then ships to node 2, where it is
-	used as a raw material to product product B.
+	used as a raw material to produce product B.
 
 Every node has at least one product. If your code does not explicltly create products or
 add them to nodes, |sp| automatically creates and manages "dummy" products at each node.
@@ -269,8 +269,9 @@ class SupplyChainProduct(object):
 			# We are removing a BOM relationship.
 			self._bill_of_materials.pop(rm_ind, None)
 
-		# Rebuild product info throughout network.
+		# Rebuild node and product info throughout network.
 		if self.network:
+			self.network._build_node_attributes()
 			self.network._build_product_attributes()
 	
 	def get_bill_of_materials(self, raw_material):
@@ -351,7 +352,7 @@ class SupplyChainProduct(object):
 		"""A list of all nodes in the network that handle this product, 
 		as |class_node| objects. Read only.
 		"""		
-		return [node for node in self.network.nodes if self in node.products]
+		return [node for node in self.network.nodes if self.index in node.product_indices]
 	
 	@property
 	def handling_node_indices(self):

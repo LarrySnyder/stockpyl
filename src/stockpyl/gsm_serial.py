@@ -211,11 +211,11 @@ def _cst_dp_serial(network):
 	# Calculate max replenishment times (max replenishment time for node k = SI_N + sum
 	# of processing times at nodes k, ..., N).
 	for k_index in range(num_nodes, 0, -1):
-		k = network.get_node_from_index(k_index)
+		k = network.nodes_by_index[k_index]
 		if k_index == num_nodes:
 			k.max_replenishment_time = k.external_inbound_cst + k.processing_time
 		else:
-			upstream = network.get_node_from_index(k_index + 1)
+			upstream = network.nodes_by_index[k_index + 1]
 			k.max_replenishment_time = upstream.max_replenishment_time + k.processing_time
 
 	# Initialize best_cst_adjacent.
@@ -229,13 +229,13 @@ def _cst_dp_serial(network):
 	best_S = {k_index: {} for k_index in network.node_indices}
 
 	# Get shortcuts to some parameters (for conveience).
-	sigma = network.get_node_from_index(1).demand_source.standard_deviation
+	sigma = network.nodes_by_index[1].demand_source.standard_deviation
 
 	# Loop through stages.
 	for k_index in range(1, num_nodes + 1):
 
 		# Get shortcuts to node (for convenience).
-		k = network.get_node_from_index(k_index)
+		k = network.nodes_by_index[k_index]
 
 		# Determine range of SI values to check. (For node N, it's only external_inbound_cst;
 		# for all other nodes, it's 0, ..., max_replenishment_time - T.)
@@ -290,7 +290,7 @@ def _cst_dp_serial(network):
 	for k_index in range(num_nodes, 0, -1):
 
 		# Get node k.
-		k = network.get_node_from_index(k_index)
+		k = network.nodes_by_index[k_index]
 
 		# Determine SI.
 		if k_index == num_nodes:
@@ -302,7 +302,7 @@ def _cst_dp_serial(network):
 		opt_cst[k_index] = best_S[k_index][SI]
 
 	# Get optimal cost.
-	opt_cost = theta[num_nodes][network.get_node_from_index(num_nodes).external_inbound_cst]
+	opt_cost = theta[num_nodes][network.nodes_by_index[num_nodes].external_inbound_cst]
 
 	return opt_cst, opt_cost
 

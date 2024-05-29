@@ -44,6 +44,8 @@ import inspect
 
 from stockpyl.supply_chain_network import *
 from stockpyl.supply_chain_node import *
+from stockpyl.helpers import is_set, is_dict, serialize_set, deserialize_set
+
 
 def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 	"""Load an instance from a JSON file. 
@@ -93,7 +95,7 @@ def load_instance(instance_name, filepath=None, ignore_state_vars=True):
 
 	# Load data from JSON.
 	with open(new_path) as f:
-		json_contents = json.load(f)
+		json_contents = json.load(f, object_hook=deserialize_set)
 
 	# Look for instance. (https://stackoverflow.com/a/8653568/3453768)
 	instance_index = next((i for i, item in enumerate(json_contents["instances"]) \
@@ -252,11 +254,10 @@ def save_instance(instance_name, instance_data, instance_description='', filepat
 	
 	# Write all instances to JSON.
 	with open(filepath, 'w') as f:
-		json.dump(json_contents, f)
+		json.dump(json_contents, f, default=serialize_set)
 
 	# Close file.
 	f.close()
-
 
 
 def _stockpyl_instances_json_path():

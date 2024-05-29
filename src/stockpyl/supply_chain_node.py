@@ -67,7 +67,7 @@ from stockpyl import policy
 from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl import demand_source
 from stockpyl import disruption_process
-from stockpyl.helpers import change_dict_key, is_integer, is_list, is_dict, replace_dict_null_keys, replace_dict_numeric_string_keys
+from stockpyl.helpers import is_integer, is_list, is_dict, is_set, replace_dict_numeric_string_keys
 
 # This number gets added to product indices to avoid conflicts.
 _INDEX_BUMP = 1000
@@ -188,11 +188,13 @@ class SupplyChainNode(object):
 		'_index': None,
 		'name': None,
 		'network': None,
+		'_products': [],
+		'_product_indices': [],	
 		'_products_by_index': {},
 		'_dummy_product': None,
 		'_external_supplier_dummy_product': None,
-		'_predecessors': [],
-		'_successors': [],
+		'_predecessor_indices': [],
+		'_successor_indices': [],
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
@@ -244,8 +246,9 @@ class SupplyChainNode(object):
 		self._external_supplier_dummy_product = \
 			SupplyChainProduct(SupplyChainNode._external_supplier_dummy_product_index_from_node_index(self.index), is_dummy=True)
 		
-		# Rebuild product-related attributes in network.
+		# Rebuild node- and product-related attributes in network.
 		if self.network is not None:
+			self.network._build_node_attributes()
 			self.network._build_product_attributes()
 
 	# Properties related to input parameters.
@@ -290,8 +293,8 @@ class SupplyChainNode(object):
 		``False`` otherwise.
 		"""
 		has_ext_supp = False
-		for product in self.products:
-			if self.get_attribute('supply_type', product=product) is not None:
+		for prod_ind in self.product_indices:
+			if self.get_attribute('supply_type', product=prod_ind) is not None:
 				has_ext_supp = True
 				break
 		
@@ -303,8 +306,8 @@ class SupplyChainNode(object):
 		``False`` otherwise.
 		"""
 		has_ext_cust = False
-		for product in self.products:
-			ds = self.get_attribute('demand_source', product=product)
+		for prod_ind in self.product_indices:
+			ds = self.get_attribute('demand_source', product=prod_ind)
 			if ds is not None and ds.type is not None:
 				has_ext_cust = True
 				break
@@ -323,11 +326,15 @@ class SupplyChainNode(object):
 		-------
 		list
 			List of all predecessors, as |class_node| objects.
+		
+		Raises
+		------
+		AttributeError
+			If ``network`` attribute is ``None``.
 		"""
-		if include_external and self.has_external_supplier:
-			return self._predecessors + [None]
-		else:
-			return self._predecessors
+		if self.network is None:
+			raise ValueError('predecessors() cannot be called if network attribute is None. Use predecessor_indices() instead.')
+		return [self.network.nodes_by_index[pred_ind] for pred_ind in self.predecessor_indices(include_external=include_external)]
 
 	def successors(self, include_external=False):
 		"""Return a list of all successors of the node, as |class_node| objects.
@@ -341,11 +348,15 @@ class SupplyChainNode(object):
 		-------
 		list
 			List of all successors, as |class_node| objects.
+
+		Raises
+		------
+		AttributeError
+			If ``network`` attribute is ``None``.
 		"""
-		if include_external and self.has_external_customer:
-			return self._successors + [None]
-		else:
-			return self._successors
+		if self.network is None:
+			raise ValueError('successors() cannot be called if network attribute is None. Use successor_indices() instead.')
+		return [self.network.nodes_by_index[pred_ind] for pred_ind in self.successor_indices(include_external=include_external)]
 
 	def predecessor_indices(self, include_external=False):
 		"""Return a list of indices of all predecessors of the node.
@@ -360,7 +371,10 @@ class SupplyChainNode(object):
 		list
 			List of all predecessor indices.
 		"""
-		return [node.index if node else None for node in self.predecessors(include_external)]
+		if include_external and self.has_external_supplier:
+			return self._predecessor_indices + [None]
+		else:
+			return self._predecessor_indices
 
 	def successor_indices(self, include_external=False):
 		"""Return a list of indices of all successors of the node.
@@ -375,7 +389,10 @@ class SupplyChainNode(object):
 		list
 			List of all successor indices.
 		"""
-		return [node.index if node else None for node in self.successors(include_external)]
+		if include_external and self.has_external_customer:
+			return self._successor_indices + [None]
+		else:
+			return self._successor_indices
 
 	@property
 	def descendants(self):
@@ -385,7 +402,7 @@ class SupplyChainNode(object):
 		"""
 		G = self.network.networkx_digraph()
 		desc = nx.descendants(G, self.index)
-		return [self.network.get_node_from_index(d) for d in desc]
+		return [self.network.nodes_by_index[d] for d in desc]
 
 	@property
 	def ancestors(self):
@@ -396,24 +413,32 @@ class SupplyChainNode(object):
 		"""
 		G = self.network.networkx_digraph()
 		anc = nx.ancestors(G, self.index)
-		return [self.network.get_node_from_index(a) for a in anc]
+		return [self.network.nodes_by_index[a] for a in anc]
 
 	@property
 	def neighbors(self):
 		"""A list of all neighbors (successors and predecessors) of the node, as
 		|class_node| objects. Read only.
+
+		Raises
+		------
+		AttributeError
+			If ``network`` attribute is ``None``.
 		"""
-		neighbors = copy.deepcopy(self.successors())
-		neighbors.extend(copy.deepcopy(self.predecessors())) # this assumes no predecessor can also be a successor
-	
-		return neighbors
+		if self.network is None:
+			raise ValueError('neighbors() cannot be called if network attribute is None. Use neighbor_indices() instead.')
+
+		return [self.network.nodes_by_index[n_index] for n_index in self.neighbor_indices]
 
 	@property
 	def neighbor_indices(self):
 		"""A list of indices of all neighbors (successors and predecessors) of the node.
 		Read only.
 		"""
-		return [n.index for n in self.neighbors]
+		neighbor_indices = copy.deepcopy(self.successor_indices())
+		neighbor_indices += copy.deepcopy(self.predecessor_indices()) # this assumes no predecessor can also be a successor
+	
+		return neighbor_indices
 
 	def validate_predecessor(self, predecessor, raw_material=None, network_BOM=True, err_on_multiple_preds=True):
 		"""Confirm that ``predecessor`` is a valid predecessor of node:
@@ -465,20 +490,21 @@ class SupplyChainNode(object):
 		"""
 
 		if raw_material is None:
-			preds = self.predecessors(include_external=False)
+			pred_indices = self.predecessor_indices(include_external=False)
 		else:
 			rm_obj, rm_ind = self.network.parse_product(raw_material)
-			preds = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices]
+			pred_indices = [pred_ind for pred_ind in self.predecessor_indices(include_external=False) 
+				if rm_ind in self.network.nodes_by_index[pred_ind].product_indices]
 			if rm_ind == self._external_supplier_dummy_product.index:
-				preds.append(None)
+				pred_indices.append(None)
 		
 		if predecessor is None:
-			if len(preds) == 1:
-				return self.network.parse_node(preds[0])
-			elif None in self.predecessors(include_external=True):
+			if len(pred_indices) == 1:
+				return self.network.parse_node(pred_indices[0])
+			elif None in self.predecessor_indices(include_external=True):
 				return None, None
 			# Now len(preds) = 0 or >1 and node does not have an external supplier.
-			elif len(preds) == 0 or err_on_multiple_preds:
+			elif len(pred_indices) == 0 or err_on_multiple_preds:
 				if raw_material is None:
 					raise ValueError(f'predecessor cannot be None if the node has no external supplier and has 0 or >1 predecessor nodes.')
 				else:
@@ -488,7 +514,7 @@ class SupplyChainNode(object):
 				return None, None
 		else:
 			pred_node, pred_ind = self.network.parse_node(predecessor) # raises TypeError on bad type
-			if pred_node not in preds:
+			if pred_ind not in pred_indices:
 				raise ValueError(f'Node {pred_ind} is not a predecessor of node {self.index}.')
 			else:
 				return pred_node, pred_ind
@@ -529,17 +555,17 @@ class SupplyChainNode(object):
 			and has 0 or >1 successor nodes.
 		"""
 
-		succs = self.successors(include_external=False)
+		succ_indices = self.successor_indices(include_external=False)
 		if successor is None:
-			if len(succs) == 1:
-				return self.network.parse_node(succs[0])
-			elif None in self.successors(include_external=True):
+			if len(succ_indices) == 1:
+				return self.network.parse_node(succ_indices[0])
+			elif None in self.successor_indices(include_external=True):
 				return None, None
 			else:
 				raise ValueError(f'successor cannot be None if the node has no external customer and has 0 or >1 successor nodes.')
 		else:
 			succ_node, succ_ind = self.network.parse_node(successor) # raises TypeError on bad type
-			if succ_node not in succs:
+			if succ_ind not in succ_indices:
 				raise ValueError(f'Node {succ_ind} is not a successor of node {self.index}.')
 			else:
 				return succ_node, succ_ind
@@ -548,32 +574,32 @@ class SupplyChainNode(object):
 
 	@property
 	def products(self):
-		"""A list containing products handled by the node. Read only. """
-		return list(self._products_by_index.values())
+		"""A list containing products handled by the node. Read only."""			
+		return self._products
 
+	@property
+	def product_indices(self):
+		"""A list of indices of all products handled at the node. Read only."""
+		return self._product_indices
+	
 	@property
 	def products_by_index(self):
 		"""A dict containing products handled by the node. The keys of the dict are
 		product indices and the values are the corresponding |class_product| objects.
-		For example, ``self.products_by_index[4]`` returns a |class_product| object for the product 
+		For example, ``self.products_by_index[4]`` is a |class_product| object for the product 
 		with index 4. Read only. """
 		return self._products_by_index
 
 	@property
 	def is_multiproduct(self):
 		"""Returns ``True`` if the node handles multiple products, ``False`` otherwise. Read only."""
-		return len(self.products) > 1
+		return len(self.product_indices) > 1
 
 	@property
 	def is_singleproduct(self):
 		"""Returns ``True`` if the node handles a single product, ``False`` otherwise. Read only."""
 		return not self.is_multiproduct
 
-	@property
-	def product_indices(self):
-		"""A list of indices of all products handled at the node. Read only."""
-		return list(self._products_by_index.keys())
-	
 	def _build_product_attributes(self):
 		"""Build product-related attributes that are derived from other attributes,
 		at the network and the nodes in it.
@@ -605,21 +631,21 @@ class SupplyChainNode(object):
 		# that list suppliers/raw materials. Therefore, those functions can call this one without
 		# triggering an infinite recursion.
 
-		if self.network is not None and not self.network._currently_building:
+		if self.network and not self.network._currently_building:
 
 			# Initialize attributes.
 			self._supplier_raw_material_pairs_by_product_BOM = {prod_ind: [] for prod_ind in self.product_indices}
 			self._supplier_raw_material_pairs_by_product_NBOM = {prod_ind: [] for prod_ind in self.product_indices}
 
 			for prod in self.products:
-				pairs_BOM = set()
-				pairs_NBOM = set()
+				pairs_BOM = []
+				pairs_NBOM = []
 				for pred in self.predecessors(include_external=True):
 					for rm in pred.products if pred is not None else [self._external_supplier_dummy_product]:
 						if prod.BOM(raw_material=rm.index) > 0:
-							pairs_BOM.add((pred.index if pred else None, rm.index))
+							pairs_BOM.append((pred.index if pred else None, rm.index))
 						if self.NBOM(product=prod, predecessor=pred, raw_material=rm) > 0:
-							pairs_NBOM.add((pred.index if pred else None, rm.index))
+							pairs_NBOM.append((pred.index if pred else None, rm.index))
 
 				self._supplier_raw_material_pairs_by_product_BOM[prod.index] = pairs_BOM
 				self._supplier_raw_material_pairs_by_product_NBOM[prod.index] = pairs_NBOM
@@ -645,22 +671,22 @@ class SupplyChainNode(object):
 				# Do any raw materials at predecessor have a BOM relationship with any products at the node?
 				BOM_found = False
 				for prod1 in self.products:
-					for prod2 in prod1.raw_materials:
-						if prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product.index]):
+					for prod2_ind in prod1.raw_material_indices:
+						if prod2_ind in (pred.product_indices if pred is not None else [self._external_supplier_dummy_product.index]):
 							BOM_found = True
 							break
 				
 				# Loop through products at node and predecessor.
 				for prod1 in self.products:
-					for prod2 in (pred.products if pred is not None else [self._external_supplier_dummy_product]):
+					for prod2_ind in (pred.product_indices if pred is not None else [self._external_supplier_dummy_product.index]):
 						# If any BOM relationships were found, use product BOM; otherwise, NBOM = 1.
 						if BOM_found:
-							NBOM = prod1.BOM(prod2.index)
+							NBOM = prod1.BOM(prod2_ind)
 						else:
 							NBOM = 1
 
 						# Set NBOM.
-						self._network_bill_of_materials[prod1.index][pred_ind][prod2.index] = NBOM
+						self._network_bill_of_materials[prod1.index][pred_ind][prod2_ind] = NBOM
 			
 	def add_product(self, product):
 		"""Add ``product`` to the node. If ``product`` is already in the node (as determined by the index),
@@ -679,15 +705,18 @@ class SupplyChainNode(object):
 			old_currently_building = self.network._currently_building
 			self.network._currently_building = True
 				
-		if product not in self.products:
+		if product.index not in self.product_indices:
+			self._product_indices.append(product.index)
+			self._products.append(product)
 			self._products_by_index[product.index] = product
 			if not product.is_dummy:
 				# Remove dummy product. (This also sets `dummy_product` to None.)
 				self._remove_dummy_product()
 
-		# Rebuild product-related attributes in network.
+		# Rebuild node- and product-related attributes in network.
 		if self.network is not None:
 			self.network._currently_building = old_currently_building
+			self.network._build_node_attributes()
 			self.network._build_product_attributes()
 
 	def add_products(self, list_of_products):
@@ -713,24 +742,48 @@ class SupplyChainNode(object):
 		product : |class_product| or int
 			The product to remove from the node.
 		"""
-		# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
-		if self.network is not None:
-			old_currently_building = self.network._currently_building
-			self.network._currently_building = True
-				
+		# Parse product. (Can't use network.parse_product() because network might be None.)
 		if isinstance(product, SupplyChainProduct):
-			self._products_by_index.pop(product.index, None)
+			prod_ind = product.index
+			prod_obj = product
 		else:
-			self._products_by_index.pop(product, None)
-	
-		if len(self._products_by_index) == 0:
-			# No real products in the node. Add dummy product.
-			self._add_dummy_product()
+			prod_ind = product
+			if product in self._products_by_index: 
+				prod_obj = self._products_by_index[product]
+			elif self.network and product in self.network.products_by_index:
+				prod_obj = self.network.products_by_index[product]
+			else:
+				prod_obj = None
 
-		# Rebuild product-related attributes in network.
-		if self.network is not None:
-			self.network._currently_building = old_currently_building
-			self.network._build_product_attributes()
+		# Remove items from lists/dict carefully; it's possible that not all of them exist
+		# (if we are in the middle of loading/building a network.)
+		changed = False
+		if prod_ind in self._product_indices:
+			self._product_indices.remove(prod_ind)
+			changed = True
+		if prod_obj in self._products:
+			self._products.remove(prod_obj)
+			changed = True
+		if prod_ind in self._products_by_index:
+			self._products_by_index.pop(prod_ind, None)
+			changed = True
+
+		# If anything changed, rebuild node and product attributes.
+		if changed:	
+			# Remember value of _currently_building flag, and turn it on to avoid building product attributes prematurely.
+			if self.network is not None:
+				old_currently_building = self.network._currently_building
+				self.network._currently_building = True
+					
+			if len(self._product_indices) == 0:
+				# No real products in the node. Add dummy product.
+				self._add_dummy_product()
+
+			# Rebuild node- and product-related attributes in network.
+			if self.network is not None:
+				self.network._currently_building = old_currently_building
+				self.network._build_node_attributes()
+				self.network._build_product_attributes()
 
 	def remove_products(self, list_of_products):
 		"""Remove each product in ``list_of_products`` from the node. Products in ``list_of_products``
@@ -745,8 +798,10 @@ class SupplyChainNode(object):
 		"""
 
 		if list_of_products == 'all':
-			for prod in self.products:
-				self.remove_product(prod)
+			# Make static copy to avoid changing list while iterating over it.
+			product_indices = copy.deepcopy(self.product_indices)
+			for prod_ind in product_indices:
+				self.remove_product(prod_ind)
 		else:
 			for prod in list_of_products:
 				self.remove_product(prod)
@@ -760,19 +815,21 @@ class SupplyChainNode(object):
 		self.add_product(dummy)
 		self._dummy_product = dummy
 
-		# Rebuild product-related attributes in network.
+		# Rebuild node- and product-related attributes in network.
 		if self.network is not None:
+			self.network._build_node_attributes()
 			self.network._build_product_attributes()
 		
 	def _remove_dummy_product(self):
 		"""Remove the dummy product from the node. Typically this happens when a "real" product is added
-		to the node.
+		to the node. Does nothing if node has no dummy product, i.e., ``self._dummy_product`` is ``None``.
 		"""
 		self.remove_product(self._dummy_product)
 		self._dummy_product = None
 
-		# Rebuild product-related attributes in network.
+		# Rebuild node- and product-related attributes in network.
 		if self.network is not None:
+			self.network._build_node_attributes()
 			self.network._build_product_attributes()
 
 	@classmethod
@@ -861,8 +918,12 @@ class SupplyChainNode(object):
 			rm_obj, rm_ind = self.network.parse_product(raw_material)
 			# If raw material is a non-dummy product, replace pred with an arbitrary predecessor. (See docstring.)
 			if rm_obj is not None and not rm_obj.is_dummy:
-				pred_obj = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices][0]
-				pred_ind = pred_obj.index
+				for pred_ind in self.predecessor_indices(include_external=False):
+					pred_obj = self.network.nodes_by_index[pred_ind]
+					if rm_ind in pred_obj.product_indices:
+						break
+				# pred_obj = [pred for pred in self.predecessors(include_external=False) if rm_ind in pred.product_indices][0]
+				# pred_ind = pred_obj.index
 
 			# If raw material is None, replace it with external supplier dummy product.
 			if rm_ind is None:
@@ -915,15 +976,17 @@ class SupplyChainNode(object):
 
 		# Determine which products to get raw materials for.
 		if product == 'all':
-			products = self.products
+			prod_inds = self.product_indices
 		elif product is None:
-			products = [self.products[0]]
+			if len(self.product_indices) != 1:
+				raise ValueError('product cannot be None unless node has exactly 1 product.')
+			prod_inds = self.product_indices
 		else:
-			products = [prod_obj]
+			prod_inds = [prod_ind]
 
 		rms = []
-		for prod in products:
-			for _, rm in self.supplier_raw_material_pairs_by_product(product=prod, \
+		for prod_ind in prod_inds:
+			for _, rm in self.supplier_raw_material_pairs_by_product(product=prod_ind, \
 										return_indices=return_indices, network_BOM=network_BOM):
 				if rm not in rms:
 					rms.append(rm)
@@ -1060,30 +1123,29 @@ class SupplyChainNode(object):
 		_, rm_ind = self.validate_raw_material(raw_material, network_BOM=network_BOM)
   
 		if network_BOM:
-			prods = []
-			for prod in self.products:
-				if prod not in prods:
+			prod_inds = []
+			for prod_ind in self.product_indices:
+				if prod_ind not in prod_inds:
 					for pred in self.raw_material_suppliers_by_raw_material(rm_ind, return_indices=False, network_BOM=True):
-						if self.NBOM(product=prod, predecessor=pred, raw_material=rm_ind) > 0:
-							prods.append(prod)
+						if self.NBOM(product=prod_ind, predecessor=pred, raw_material=rm_ind) > 0:
+							prod_inds.append(prod_ind)
 							break
-#			[prod for prod in self.products if self.NBOM(product=prod, predecessor=None, raw_material=rm_ind) > 0]
 		else:
-			prods = [prod for prod in self.products if prod.BOM(raw_material=rm_ind) > 0]
+			prod_inds = [prod.index for prod in self.products if prod.BOM(raw_material=rm_ind) > 0]
 		
 		if return_indices:
-			return [prod.index for prod in prods]
+			return prod_inds
 		else:
-			return prods
+			return [self.network.parse_product(prod_ind)[0] for prod_ind in prod_inds]
 	
 	def supplier_raw_material_pairs_by_product(self, product=None, return_indices=False, network_BOM=True):
-		"""A set or list (see below) of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
+		"""A list of all predecessors and raw materials for ``product``, as tuples ``(pred, rm)``.
 		Set ``product`` to ``'all'`` to get predecessors and raw materials for all products at the node.
 		If the node has a single product (either dummy or real), either set ``product`` to the single product,
 		or to ``None`` and the function will determine it automatically. 
 
-		If ``return_indices`` is ``False``, returns a list, with the predecessors as |class_node| objects (or ``None`` for the
-		external supplier) and the products as |class_product| objects. Otherwise, returns a set, with 
+		If ``return_indices`` is ``False``, returns a list with the predecessors as |class_node| objects (or ``None`` for the
+		external supplier) and the products as |class_product| objects. Otherwise, returns a list with 
 		the predecessor and product indices.
 
 		If ``network_BOM`` is ``True``, includes predecessors and raw materials that don't have a 
@@ -1102,9 +1164,8 @@ class SupplyChainNode(object):
 		
 		Returns
 		-------
-		set or list
-			Set (if ``return_indices`` is ``True`` or list (if ``return_indices`` is ``False``) 
-			of (predecessor, raw material) tuples.
+		list
+			List of (predecessor, raw material) tuples.
 
 		Raises
 		------
@@ -1128,22 +1189,26 @@ class SupplyChainNode(object):
 
 		# Determine which products to consider.
 		if product == 'all':
-			products = self.products
+			prod_inds = self.product_indices
 		elif product is None:
-			products = [self.products[0]]
+			if len(self.product_indices) != 1:
+				raise ValueError('product cannot be None unless node has exactly 1 product.')
+			prod_inds = self.product_indices
 		else:
-			products = [prod_obj]
+			prod_inds = [prod_ind]
 
-		pairs = set()
-		for prod in products:
+		pairs = []
+		for prod_ind in prod_inds:
 			if network_BOM:
-				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_NBOM[prod.index])
+				pairs += self._supplier_raw_material_pairs_by_product_NBOM[prod_ind]
 			else:
-				pairs = pairs.union(self._supplier_raw_material_pairs_by_product_BOM[prod.index])
+				pairs += self._supplier_raw_material_pairs_by_product_BOM[prod_ind]
+		# Remove duplicates.
+		pairs = list(set(pairs))
 		
 		# Convert indices to objects, if requested.
 		if not return_indices:
-			pairs = [(self.network.get_node_from_index(pred_ind), self.network.products_by_index[rm_ind]) for pred_ind, rm_ind in pairs]
+			pairs = [(self.network.nodes_by_index[pred_ind], self.network.products_by_index[rm_ind]) for pred_ind, rm_ind in pairs]
 
 		return pairs
 
@@ -1220,15 +1285,15 @@ class SupplyChainNode(object):
 			the dummy product).
 		"""
 
-		prods = self.products
+		prod_indices = self.product_indices
 		if product is None:
-			if len(prods) == 1:
-				return self.network.parse_product(prods[0])
+			if len(prod_indices) == 1:
+				return self.network.parse_product(prod_indices[0])
 			else:
 				raise ValueError(f'product cannot be None if the node has more than 1 product.')
 		else:
 			prod_obj, prod_ind = self.network.parse_product(product) # raises TypeError on bad type
-			if prod_obj not in prods:
+			if prod_ind not in prod_indices:
 				raise ValueError(f'Product {prod_ind} is not a product of node {self.index}.')
 			else:
 				return prod_obj, prod_ind
@@ -1278,11 +1343,11 @@ class SupplyChainNode(object):
 			does not supply this node with ``raw_material``.
 		"""
 
-		rms = self.raw_materials_by_product(product='all', network_BOM=network_BOM)
+		rm_inds = self.raw_materials_by_product(product='all', return_indices=True, network_BOM=network_BOM)
 		if raw_material is None:
 			if predecessor is None:
-				if len(rms) == 1:
-					return self.network.parse_product(rms[0])
+				if len(rm_inds) == 1:
+					return self.network.parse_product(rm_inds[0])
 				else:
 					raise ValueError(f'raw_material and predecessor cannot both be None if the node has more than 1 raw material.')
 			else:
@@ -1297,7 +1362,7 @@ class SupplyChainNode(object):
 		else:
 			rm_obj, rm_ind = self.network.parse_product(raw_material) # raises TypeError on bad type
 			_, pred_ind = self.network.parse_node(predecessor)
-			if rm_obj not in rms:
+			if rm_ind not in rm_inds:
 				raise ValueError(f'Product {rm_ind} is not a raw material of node {self.index}.')
 			elif pred_ind is not None and (pred_ind, rm_ind) not in \
 				self.supplier_raw_material_pairs_by_product(product='all', return_indices=True, network_BOM=True):
@@ -1334,7 +1399,7 @@ class SupplyChainNode(object):
 			return self.forward_echelon_lead_time
 		else:
 			return self.forward_echelon_lead_time - \
-				self.network.get_node_from_index(self.index - 1).forward_echelon_lead_time
+				self.network.nodes_by_index[self.index - 1].forward_echelon_lead_time
 
 	@property
 	def derived_demand_mean(self):
@@ -1428,13 +1493,6 @@ class SupplyChainNode(object):
 		"""
 		return not self.__eq__(other)
 
-	# def __hash__(self):
-	# 	"""
-	# 	Return the hash for the node, which equals its index.
-
-	# 	"""
-	# 	return self.index
-
 	def __repr__(self):
 		"""
 		Return a string representation of the |class_node| instance.
@@ -1477,7 +1535,7 @@ class SupplyChainNode(object):
 		# Remember current index, if any. (If this is first initialization, it doesn't exist yet.)
 		curr_index = self.index if hasattr(self, 'index') else None
 
-		# Loop through attributes. Special handling for list and object attributes.
+		# Loop through attributes. Special handling for list/dict/set and object attributes.
 		for attr in self._DEFAULT_VALUES.keys():
 			if attr == 'demand_source':
 				self.demand_source = demand_source.DemandSource()
@@ -1485,7 +1543,8 @@ class SupplyChainNode(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy(node=self)
-			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
+			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]) or \
+				is_set(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
 				setattr(self, attr, self._DEFAULT_VALUES[attr])
@@ -1516,6 +1575,8 @@ class SupplyChainNode(object):
 
 		* Does not check equality of ``network``.
 		* Checks predecessor and successor equality by index only.
+		* Checks product equality by index only, i.e., checks ``_product_indices`` but not
+		  ``_products`` or ``_products_by_index``.
 		* Does not check equality of ``local_holding_cost_function`` or ``stockout_cost_function``.
 		* Does not check equality of ``state_vars``.
 
@@ -1544,14 +1605,19 @@ class SupplyChainNode(object):
 				if attr in ('network', 'local_holding_cost_function', 'stockout_cost_function', 'state_vars'):
 					# Ignore.
 					pass
-				elif attr == '_predecessors':
-					# Only compare indices.
-					if sorted(self.predecessor_indices()) != sorted(other.predecessor_indices()):
+				elif attr == '_product_indices':
+					if set(self.product_indices) != set(other.product_indices):
 						viol_attr = attr
 						eq = False
-				elif attr == '_successors':
-					# Only compare indices.
-					if sorted(self.successor_indices()) != sorted(other.successor_indices()):
+				elif attr in ('_products', '_products_by_index'):
+					# Do nothing.
+					pass
+				elif attr == '_predecessor_indices':
+					if set(self.predecessor_indices()) != set(other.predecessor_indices()):
+						viol_attr = attr
+						eq = False
+				elif attr == '_successor_indices':
+					if set(self.successor_indices()) != set(other.successor_indices()):
 						viol_attr = attr
 						eq = False
 				elif attr == '_inventory_policy':
@@ -1599,9 +1665,7 @@ class SupplyChainNode(object):
 
 		The following substitutions are made:
 
-		* Successors and predecessors are stored as their indices only, not |class_node| objects.
-		* Values in ``_products_by_index`` dict are replaced with indices only, not |class_product| objects.
-			(This means that the keys and values in the dict are the same.)
+		* ``_products`` and ``_products_by_index`` attributes are not converted; only ``_product_indices``.
 		* Dummy product attributes are replaced with indices only, not |class_product| objects.
 		* ``network`` object is not filled.
 
@@ -1621,18 +1685,21 @@ class SupplyChainNode(object):
 			# A few attributes need special handling.
 			if attr == 'network':
 				node_dict[attr] = None
-			elif attr == '_products_by_index':
-				# Replace product objects with their indices.
-				node_dict[attr] = {prod_ind: prod_ind for prod_ind in self._products_by_index.keys()}
+			elif attr == '_product_indices':
+				node_dict[attr] = copy.deepcopy(self.product_indices)
+			# elif attr == '_products_by_index':
+			# 	# Replace product objects with their indices.
+			# 	node_dict[attr] = {prod_ind: prod_ind for prod_ind in self._products_by_index.keys()}
+			elif attr in ('_products', '_products_by_index'):
+				# Do nothing.
+				pass
 			elif attr in ('_dummy_product', '_external_supplier_dummy_product'):
 				# Replace dummy products with their indices.
 				node_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).index
-			elif attr == '_predecessors':
-				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=True))
-			elif attr == '_successors':
-				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=True))
-			elif attr == '_products_by_index':
-				node_dict[attr] = {prod.index: prod.to_dict() for prod in self.products}
+			elif attr == '_predecessor_indices':
+				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=False))
+			elif attr == '_successor_indices':
+				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=False))
 			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
 				# Determine whether attr is a singleton or a dict (for node-product-level attribute).
 				# Leave a note to the decoder indicating which type of dict this is.
@@ -1658,17 +1725,15 @@ class SupplyChainNode(object):
 		values in ``the_dict``. List attributes
 		are deep-copied so changes to the original dict do not get propagated to the object.
 
-		``_predecessors`` and ``_successors`` attributes are set to the indices of the nodes,
-		like they are in the dict, but should be converted to node objects if this
-		function is called recursively from a |class_network|'s ``from_dict()`` method.
+		Note that:
 
-		``_products_by_index`` is set to a dict in which the keys and values are both product indices, 
-		like they are in the dict, but should be converted to |class_product| objects if this function is 
-		called recursively from a |class_network|'s ``from_dict()`` method. 
-		``_dummy_product`` and ``_external_supplier_dummy_product`` are set to indices, like they are
-		in the dict, but should be converted to |class_product| objects if this function is called recursively.
+		* ``_product_indices`` attribute is loaded into the product, but ``_products`` and ``_products_by_index``
+		  attributes are not. (They are set to their default values.) These should be filled by the |class_network|'s ``from_dict()`` method. 
+		* ``_dummy_product`` and ``_external_supplier_dummy_product`` are set to indices, like they are
+		  in the dict.
+		* ``network`` object is not filled.
 
-		Similarly, ``network`` object is not filled, but should be filled with the network object if this
+		These attributes should be completed (i.e., indices replaced by objects, etc.) by the network object if this 
 		function is called recursively from a |class_network|'s ``from_dict()`` method.
 
 		Parameters
@@ -1699,11 +1764,41 @@ class SupplyChainNode(object):
 				if attr_name == '_index':
 					# This has no effect--we already set the index--but is needed for setattr() below.
 					value = index
-				elif attr_name in ('_products_by_index', '_predecessors', '_successors'):
+				# TODO: remove this and next after test instance files are rebuilt -- or maybe add warning but keep it?
+				# - _predecessor_indices instead of _predecessors (and same for succ)
+				# - None (nil) in preds/succs
+				# - lists instead of sets
+				# elif attr_name == '_predecessor_indices':
+				# 	if '_predecessors' in the_dict:
+				# 		value = list(copy.deepcopy(the_dict['_predecessors']))
+				# 	else:
+				# 		value = list(copy.deepcopy(the_dict['_predecessor_indices']))
+				# 	# Remove any None values. (Older versions saved external supplier as None.)
+				# 	if None in value:
+				# 		value.remove(None)
+				# elif attr_name == '_successor_indices':
+				# 	if '_successors' in the_dict:
+				# 		value = list(copy.deepcopy(the_dict['_successors']))
+				# 	else:
+				# 		value = list(copy.deepcopy(the_dict['_successor_indices']))
+				# 	# Remove any None values. (Older versions saved external customer as None.)
+				# 	if None in value:
+				# 		value.remove(None)	
+				# elif attr_name == '_products_by_index':
+				# 	if '_products_by_index' in the_dict:
+				# 		# Convert keys to int (they were probably saved as strings). 
+				# 		# Do not yet convert values to objects. (This will be done in network from_dict().)
+				# 		value = {int(k): int(k) for k in the_dict['_products_by_index'].keys()}
+				# 	else:
+				# 		value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
+				elif attr_name in ('_product_indices', '_predecessor_indices', '_successor_indices'):
 					if attr_name in the_dict:
 						value = copy.deepcopy(the_dict[attr_name])
 					else:
 						value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
+				elif attr_name in ('_products', '_products_by_index'):
+					# Reset to default values.
+					value = copy.deepcopy(cls._DEFAULT_VALUES[attr_name])
 				elif attr_name == 'demand_source':
 					if attr_name in the_dict:
 						if 'dict_type' in the_dict[attr_name] and the_dict[attr_name]['dict_type'] == 'product_keyed_attribute':
@@ -1763,9 +1858,9 @@ class SupplyChainNode(object):
 	# Neighbor management.
 
 	def add_successor(self, successor):
-		"""Add ``successor`` to the node's list of successors.
+		"""Add ``successor`` to the node's set of successors.
 
-		.. important:: This method simply updates the node's list of successors. It does not
+		.. important:: This method simply updates the node's set of successors. It does not
 			add ``successor`` to the network or add ``self`` as a predecessor of
 			``successor``. Typically, this method is called by the network rather
 			than directly. Use the :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.add_successor` method
@@ -1777,12 +1872,12 @@ class SupplyChainNode(object):
 			The node to add as a successor.
 
 		"""
-		self._successors.append(successor)
+		self._successor_indices.append(successor.index)
 
 	def add_predecessor(self, predecessor):
-		"""Add ``predecessor`` to the node's list of predecessors.
+		"""Add ``predecessor`` to the node's set of predecessors.
 
-		.. important:: This method simply updates the node's list of predecessors. It does not
+		.. important:: This method simply updates the node's set of predecessors. It does not
 			add ``predecessor`` to the network or add ``self`` as a successor of
 			``predecessor``. Typically, this method is called by the network rather
 			than directly. Use the :meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.add_predecessor` method
@@ -1794,12 +1889,13 @@ class SupplyChainNode(object):
 			The node to add as a predecessor.
 
 		"""
-		self._predecessors.append(predecessor)
+		self._predecessor_indices.append(predecessor.index)
 
 	def remove_successor(self, successor):
-		"""Remove ``successor`` from the node's list of successors.
+		"""Remove ``successor`` from the node's set of successors. ``successor`` may
+		be a |class_node| or its index. Does nothing if ``successor`` is not a successor of the node
 
-		.. important:: This method simply updates the node's list of successors. It does not
+		.. important:: This method simply updates the node's set of successors. It does not
 			remove ``successor`` from the network or remove ``self`` as a predecessor of
 			``successor``. Typically, this method is called by the
 			:meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.remove_node` method of the
@@ -1807,16 +1903,22 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		successor : |class_node|
+		successor : |class_node| or int
 			The node to remove as a successor.
 
 		"""
-		self._successors.remove(successor)
+		if isinstance(successor, SupplyChainNode):
+			succ_ind = successor.index
+		else:
+			succ_ind = successor
+
+		self._successor_indices.remove(succ_ind)
 
 	def remove_predecessor(self, predecessor):
-		"""Remove ``predecessor`` from the node's list of predecessors.
+		"""Remove ``predecessor`` from the node's set of predecessors. ``predecessor`` may
+		be a |class_node| or its index. Does nothing if ``predecessor`` is not a predecessor of the node
 
-		.. important:: This method simply updates the node's list of predecessors. It does not
+		.. important:: This method simply updates the node's set of predecessors. It does not
 			remove ``predecessor`` from the network or remove ``self`` as a successor of
 			``predecessor``. Typically, this method is called by the
 			:meth:`~stockpyl.supply_chain_network.SupplyChainNetwork.remove_node` method of the
@@ -1824,11 +1926,16 @@ class SupplyChainNode(object):
 
 		Parameters
 		----------
-		predecessor : |class_node|
+		predecessor : |class_node| or int
 			The node to remove as a predecessor.
 
 		"""
-		self._predecessors.remove(predecessor)
+		if isinstance(predecessor, SupplyChainNode):
+			pred_ind = predecessor.index
+		else:
+			pred_ind = predecessor
+
+		self._predecessor_indices.remove(pred_ind)
 
 	def get_one_successor(self):
 		"""Get one successor of the node. If the node has more than one
@@ -1840,10 +1947,11 @@ class SupplyChainNode(object):
 		successor : |class_node|
 			A successor of the node.
 		"""
-		if len(self._successors) == 0:
+		if len(self.successor_indices()) == 0:
 			return None
 		else:
-			return self._successors[0]
+			return self.network.nodes_by_index[self.successor_indices()[0]]
+#			return self.successors()[0]
 
 	def get_one_predecessor(self):
 		"""Get one predecessor of the node. If the node has more than one
@@ -1855,10 +1963,11 @@ class SupplyChainNode(object):
 		predecessor : |class_node|
 			A predecessor of the node.
 		"""
-		if len(self._predecessors) == 0:
+		if len(self.predecessor_indices()) == 0:
 			return None
 		else:
-			return self._predecessors[0]
+			return self.network.nodes_by_index[self.predecessor_indices()[0]]
+#			return self()[0]
 
 	# Attribute management.
 
@@ -1898,7 +2007,7 @@ class SupplyChainNode(object):
 		ValueError
 			If ``product`` is ``None`` but the node has multiple products.
 		"""
-		if product is None and len(self.products) > 1:
+		if product is None and len(self.product_indices) > 1:
 			raise ValueError(f'You cannot set product = None for a node that has multiple products (node = {self.index}).')
   
 		# Get self.attr and the product and index.
@@ -1910,7 +2019,10 @@ class SupplyChainNode(object):
 			product_obj = product
 			product_ind = product.index
 		else:
-			product_obj = self.products_by_index[product]
+			if product in self.products_by_index:
+				product_obj = self.products_by_index[product]
+			else:
+				product_obj = self.network.products_by_index[product]
 			product_ind = product
 
 		# Is self.attr a dict?
