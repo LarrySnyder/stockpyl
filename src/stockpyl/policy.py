@@ -496,23 +496,27 @@ class Policy(object):
 			# Initialize returned dict with FG order quantity.
 			OQ_dict = {None: {None: OQ}}
 
+			# Keep track of how much is left to order for each raw material (to avoid double-ordering
+			# if there are multiple suppliers). Use raw material units.
+			still_to_order = {rm_index: OQ * self.node.NBOM(product=prod_ind, predecessor=None, raw_material=rm_index) \
+								for rm_index in self.node.raw_materials_by_product(prod_ind, return_indices=True)}
+
 			# Loop through raw materials and predecessors, and calculate order quantities for each.
 			if OQ is not None:
 				for rm_index in self.node.raw_materials_by_product(prod_ind, return_indices=True):
 					for pred_index in self.node.raw_material_suppliers_by_raw_material(rm_index, return_indices=True):
 
-						# Calculate total orders that have already been placed by this node to this supplier for this RM
-						# in the current time period (for other products at the node that use the same RM). These units
-						# will be included in IP_before_demand and so must be added to the order quantity.
-#						units_already_ordered = self.node.state_vars_current.order_quantity[pred_index][rm_index]
-
 						# Create key for pred in outer level of dict, if it doesn't already exist.
 						if pred_index not in OQ_dict:
 							OQ_dict[pred_index] = {}
 
-						# Convert OQ to raw material units and add it to OQ_dict.
-						OQ_dict[pred_index][rm_index] = \
-							OQ * self.node.NBOM(product=prod_ind, predecessor=pred_index, raw_material=rm_index)
+						# Order still_to_order, which just equals the order quantity, or 0
+						# if we have already ordered this RM from a different supplier.
+						# (This may change in the future if we introduce policies or supplier-specific ordering capacities.)
+						OQ_dict[pred_index][rm_index] = still_to_order[rm_index]
+		
+						# Subtract order from still_to_order.
+						still_to_order[rm_index] -= OQ_dict[pred_index][rm_index]
 
 			return OQ_dict
 
