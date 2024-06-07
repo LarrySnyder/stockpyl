@@ -501,9 +501,10 @@ def _generate_downstream_shipments(node_index, network, period, visited, consist
 	# Propagate shipment downstream (i.e., add to successors' inbound_shipment_pipeline).
 	_propagate_shipment_downstream(node)
 
-	# Call generate_downstream_shipments() for all non-visited successors.
-	for s in list(node.successors()):
-		if not visited[s.index]:
+	# Call generate_downstream_shipments() for all successors for which all predecessors
+	# have now been processed.
+	for s in node.successors():
+		if all([visited[p_ind] for p_ind in s.predecessor_indices()]):
 			_generate_downstream_shipments(s.index, network, period, visited, consistency_checks=consistency_checks)
 
 
