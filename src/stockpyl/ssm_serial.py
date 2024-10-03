@@ -45,7 +45,7 @@ API Reference
 # import numpy as np
 # from scipy import stats
 #import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import copy
 
 from stockpyl.demand_source import DemandSource
