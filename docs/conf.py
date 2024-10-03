@@ -102,6 +102,10 @@ autosectionlabel_maxdepth = 3
 # unit titles (such as .. function::). (added LVS 6/7/22)
 add_module_names = False
 
+# This seems to be required in order to avoid an error when building the documentat
+# in readthedocs. Not sure what's going on 
+autodoc_mock_imports = ['numpy']
+
 
 # -- Options for HTML output -------------------------------------------------
 
