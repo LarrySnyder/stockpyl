@@ -42,7 +42,7 @@ API Reference
 
 """
 
-import numpy as np
+#import numpy as np
 from scipy import stats
 #import math
 import matplotlib.pyplot as plt
