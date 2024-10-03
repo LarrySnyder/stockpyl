@@ -18,6 +18,8 @@ Use this in place of ``SupplyChainNetwork.get_node_from_index()``, which will be
 ### Fixed
 - Bug that caused ``mwor_system()`` to crash when ``demand_source`` is provided as argument 
 [#146](https://github.com/LarrySnyder/stockpyl/issues/146).
+- Bugs that caused improper handling of orders and shipments when multiple suppliers provide
+the same raw material. [#171](https://github.com/LarrySnyder/stockpyl/issues/171)
 
 ## [1.0.0] -- 2024-05-13
 
