@@ -10,10 +10,6 @@ Multi-Echelon Inventory Optimization
 	:caption: Contents
 
 	ssm_serial
-	gsm_tree
-	gsm_serial
-	gsm_helpers
-	meio_general
 
 .. seealso::
 
