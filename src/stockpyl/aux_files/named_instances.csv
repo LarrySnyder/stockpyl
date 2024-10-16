@@ -1,0 +1,69 @@
+Name,Description
+example_3_1,Example 3.1 (EOQ)
+problem_3_1,Problem 3.1 (EOQ)
+example_3_8,Example 3.8 (EOQB)
+problem_3_2b,Problem 3.2(b) (EOQB)
+problem_3_22,Problem 3.22 (EPQ)
+example_3_9,Example 3.9 (Wagner-Whitin)
+problem_3_27,Problem 3.27 (Wagner-Whitin)
+problem_3_29,Problem 3.29 (Wagner-Whitin)
+scmo_ww_hw_c,SCMO (Wagner-Whitin with nonstationary purchase cost)
+scmo_jrp_ex,SCMO (JRP example)
+spp_jrp,"Numerical JRP on p. 428 of Silver, Pyke, and Peterson (1998)"
+scmo_jrp_hw_1,SCMO (JRP problem 1)
+scmo_jrp_hw_2,SCMO (JRP problem 2)
+scmo_jrp_hw_3,SCMO (JRP problem 3)
+silver_jrp,Numerical JRP example in Silver (1976)
+example_4_1_network,Example 4.1 (newsvendor) (as ``SupplyChainNetwork``)
+example_4_1,Example 4.1 (newsvendor)
+example_4_2,Example 4.2 (newsvendor explicit)
+example_4_2_network,Example 4.2 (newsvendor explicit) (as ``SupplyChainNetwork``)
+example_4_3,Example 4.3 (newsvendor) (= Example 4.1)
+problem_4_1,Problem 4.1 (newsvendor)
+problem_4_3b,Problem 4.3(b) (newsvendor explicit)
+example_4_4,Example 4.4 (base-stock optimization)
+example_4_7,"Example 4.7 ((s,S) with Poisson demand)"
+problem_4_7b,Problem 4.7(b) (newsvendor with discrete demand)
+problem_4_8a,Problem 4.8(a) (newsvendor with Poisson demand)
+problem_4_8b,Problem 4.8(b) (newsvendor with lognormal demand)
+problem_4_31,"Problem 4.31 ((s,S) with Poisson demand)"
+example_4_8,"Example 4.8 ((s,S))"
+problem_4_32,"Problem 4.32 ((s,S))"
+problem_4_29,Problem 4.29 (finite-horizon)
+problem_4_30,Problem 4.30 (finite-horizon)
+example_5_1,"Example 5.1 ((r,Q))"
+problem_5_1,"Problem 5.1 ((r,Q))"
+problem_5_2,"Problem 5.2 ((r,Q) with Poisson demand)"
+problem_5_3,"Problem 5.3 ((r,Q))"
+example_5_8,"Example 5.8 ((r,Q) with Poisson demand)"
+example_6_1,Example 6.1 (serial SSM)
+problem_6_1,Problem 6.1 (serial SSM)
+problem_6_2a,Problem 6.2(a) (serial SSM)
+problem_6_2a_adj,"Problem 6.2(a) (serial SSM), adjusted for periodic review (since L=0.5 in that problem, here we treat each period as having length 0.5 in the original problem.)"
+problem_6_2b_adj,"Problem 6.2(b) (serial SSM), adjusted for periodic review (since L=0.5 in that problem, here we treat each period as having length 0.5 in the original problem.)"
+problem_6_16,Problem 6.16 (serial SSM)
+example_6_5,Example 6.5 (tree GSM)
+figure_6_12,Figure 6.12 (tree GSM
+figure_6_14,Figure 6.14 (tree GSM)
+problem_6_7,Problem 6.7 (serial GSM)
+problem_6_9,Problem 6.9 (tree GSM)
+example_9_1,Example 9.1 (EOQB)
+problem_9_8,Problem 9.8 (EOQB)
+example_9_3,Example 9.3 (base-stock with disruptions)
+example_9_5,Problem 9.5 (EOQ with multiplicative yield uncertainty)
+example_9_4,Example 9.4 (EOQ with additive yield uncertainty)
+problem_9_4a,Problem 9.4(a) (EOQ with additive yield uncertainty)
+problem_9_4b,Problem 9.4(b) (EOQ with multiplicative yield uncertainty)
+example_9_6,Example 9.6 (newsvendor with additive yield uncertainty)
+problem_9_5,Problem 9.5 (newsvendor with additive yield uncertainty)
+assembly_3_stage,"3-stage assembly system (2 warehouses, 1 retailer)"
+rosling_figure_1,assembly system from Figure 1 in Rosling (1989) (structure and lead times are from Rosling; all other parameters are made up)
+rong_atan_snyder_figure_1a,"distribution system from Figure 1(a) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson)"
+rong_atan_snyder_figure_1b,"distribution system from Figure 1(b) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson, and with costs and lead times omitted)"
+rong_atan_snyder_figure_1c,"distribution system from Figure 1(c) in Rong, Atan, and Snyder (2017) (using normal demand instead of Poisson, and with costs and lead times omitted)"
+example_6_3,Example 6.3 (serial GSM)
+problem_6_8,Problem 6.8 (serial GSM)
+shang_song_1,"serial system in Shang and Song (2003), Table 1, row 1"
+shang_song_9,"serial system in Shang and Song (2003), Table 1, row 8"
+shang_song_17,"serial system in Shang and Song (2003), Table 1, row 17"
+shang_song_25,"serial system in Shang and Song (2003), Table 1, row 25"
