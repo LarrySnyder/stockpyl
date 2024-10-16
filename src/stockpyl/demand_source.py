@@ -672,6 +672,9 @@ class DemandSource(object):
 		"""Return lead-time demand distribution, as a
 		``scipy.stats.rv_continuous`` or ``scipy.stats.rv_discrete`` object.
 
+		.. note:: If ``lead_time`` equals 0, this method returns an ``rv_discrete`` object
+			with a single value (0) and a single probability (1).
+
 		.. note:: For 'UC', 'UD', 'NB', and 'CD' demands, this method calculates the lead-time
 			demand distribution as the sum of ``lead_time`` independent random variables.
 			Therefore, the method requires ``lead_time`` to be an integer for these
@@ -698,7 +701,10 @@ class DemandSource(object):
 			raise ValueError("lead_time must be an integer for 'UC', 'UD', 'NB', or 'CD' demand")
 
 		# Get distribution object.
-		if self.type == 'N':
+		if lead_time == 0:
+			# Return singleton.
+			return scipy.stats.rv_discrete(name='custom', values=([0], [1]))
+		elif self.type == 'N':
 			return scipy.stats.norm(self.mean * lead_time, self.standard_deviation * math.sqrt(lead_time))
 		elif self.type == 'P':
 			return scipy.stats.poisson(self.mean * lead_time)

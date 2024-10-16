@@ -1271,6 +1271,35 @@ class TestLeadTimeDemandDistribution(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			ltd_dist = demand_source.lead_time_demand_distribution(5.5)
 
+	def test_zero_lead_time(self):
+		"""Test that lead_time_demand_distribution() returns singleton if L = 0.
+		"""
+		print_status('TestLeadTimeDemandDistribution', 'test_zero_lead_time()')
 
+		demand_source = DemandSource(type='N', mean=50, standard_deviation=8)
+		ltd_dist = demand_source.lead_time_demand_distribution(0)
+		self.assertAlmostEqual(ltd_dist.mean(), 0)
+		self.assertAlmostEqual(ltd_dist.std(), 0)
+		self.assertEqual(ltd_dist.ppf(0.85), 0)
+		self.assertEqual(ltd_dist.ppf(0.0000000001), 0)
+		self.assertEqual(ltd_dist.ppf(0.9999999999), 0)
+
+		demand_source = DemandSource(type='P', mean=50)
+		ltd_dist = demand_source.lead_time_demand_distribution(0)
+		self.assertAlmostEqual(ltd_dist.mean(), 0)
+		self.assertAlmostEqual(ltd_dist.std(), 0)
+		self.assertEqual(ltd_dist.ppf(0.85), 0)
+		self.assertEqual(ltd_dist.ppf(0.0000000001), 0)
+		self.assertEqual(ltd_dist.ppf(0.9999999999), 0)
+
+		d = [1, 4, 7, 10]
+		p = [0.1, 0.2, 0.3, 0.4]
+		demand_source = DemandSource(type='CD', demand_list=d, probabilities=p)
+		ltd_dist = demand_source.lead_time_demand_distribution(0)
+		self.assertAlmostEqual(ltd_dist.mean(), 0)
+		self.assertAlmostEqual(ltd_dist.std(), 0)
+		self.assertEqual(ltd_dist.ppf(0.85), 0)
+		self.assertEqual(ltd_dist.ppf(0.0000000001), 0)
+		self.assertEqual(ltd_dist.ppf(0.9999999999), 0)
 
 

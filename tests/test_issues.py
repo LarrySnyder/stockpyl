@@ -139,3 +139,4 @@ class TestIssue171(unittest.TestCase):
 		self.assertEqual(nodes[1].state_vars[3].order_quantity[3][20], 7.5)
 		self.assertEqual(nodes[1].state_vars[3].inbound_shipment[2][20], 7.5)
 		self.assertEqual(nodes[1].state_vars[3].inbound_shipment[3][20], 7.5)
+

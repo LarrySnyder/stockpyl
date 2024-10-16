@@ -14,6 +14,8 @@ Use this in place of ``SupplyChainNetwork.get_node_from_index()``, which will be
 
 ### Changed
 - Various speedups.
+- ``DemandSource.lead_time_demand_distribution()`` now returns an ``rv_discrete`` object with a single
+	value (0) and a single probability (1) if the lead time is 0. (In that case, the lead time demand always = 0.)
 
 ### Fixed
 - Bug that caused ``mwor_system()`` to crash when ``demand_source`` is provided as argument 
