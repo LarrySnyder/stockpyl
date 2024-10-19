@@ -455,7 +455,7 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		"""Test that ssm_serial.optimize_base_stock_levels() works when LT = 0. 
 		(Issue 173 reported that this produced an error.)
 		"""
-		print_status('TestIssue173', 'test_multisource_orders()')
+		print_status('TestIssue173', 'test_zero_leadtime()')
 
 		# Build network.
 		network = serial_system(
@@ -471,11 +471,31 @@ class TestOptimizeBaseStockLevels(unittest.TestCase):
 		)
 		# Optimize echelon base-stock levels.
 		S_star, C_star = optimize_base_stock_levels(network=network)
-		print(f"Optimal echelon base-stock levels = {S_star}")
-		print(f"Optimal expected cost per period = {C_star}")
 
 		self.assertDictEqual(S_star, {1: 0, 2:0})
 		self.assertEqual(C_star, 0)
+
+	def test_one_zero_leadtime(self):
+		"""Test that ssm_serial.optimize_base_stock_levels() works when one LT = 0 and the
+		other is non-zero.
+		"""
+		print_status('TestIssue173', 'test_one_zero_leadtime()')
+
+		# Build network.
+		network = serial_system(
+			num_nodes=2,
+			node_order_in_system=[2, 1],
+			echelon_holding_cost=[1, 1],
+			local_holding_cost=[1, 2],
+			shipment_lead_time=[0, 1],
+			stockout_cost=2,
+			demand_type='N',
+			mean=50,
+			standard_deviation=10
+		)
+		# Optimize echelon base-stock levels. 
+		# Just make sure no error raised.
+		S_star, C_star = optimize_base_stock_levels(network=network)
 
 class TestNewsvendorHeuristic(unittest.TestCase):
 

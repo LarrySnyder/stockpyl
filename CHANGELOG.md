@@ -16,12 +16,15 @@ Use this in place of ``SupplyChainNetwork.get_node_from_index()``, which will be
 - Various speedups.
 - ``DemandSource.lead_time_demand_distribution()`` now returns an ``rv_discrete`` object with a single
 	value (0) and a single probability (1) if the lead time is 0. (In that case, the lead time demand always = 0.)
+- Updated dependency for ``setuptools`` package to require v70.0 or later, to avoid [security vulnerability](https://github.com/LarrySnyder/stockpyl/security/dependabot/11).
 
 ### Fixed
 - Bug that caused ``mwor_system()`` to crash when ``demand_source`` is provided as argument 
 [#146](https://github.com/LarrySnyder/stockpyl/issues/146).
 - Bugs that caused improper handling of orders and shipments when multiple suppliers provide
 the same raw material. [#171](https://github.com/LarrySnyder/stockpyl/issues/171)
+- Bug that caused ``ssm_serial.optimize_base_stock_levels()`` to crash when all lead times are 0.
+[[#173](https://github.com/LarrySnyder/stockpyl/issues/173)]
 
 ## [1.0.0] -- 2024-05-13
 
