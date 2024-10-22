@@ -978,8 +978,8 @@ def compare_unhashable_lists(list1, list2):
 	counts, not necessarily in the same order. Return ``True`` if they do, ``False`` otherwise.
 
 	.. note:: Only use this function for lists of unhashable objects (such as |class_node|
-	and |class_product|). For hashable objects, ``collections.Counter`` is faster, e.g.,
-	``Counter(list1) == Counter(list2)``.
+		and |class_product|). For hashable objects, ``collections.Counter`` is faster, e.g.,
+		``Counter(list1) == Counter(list2)``.
 
 	Parameters
 	----------
