@@ -69,7 +69,6 @@ Basic Multi-Product Example
 This tutorial will use the following network:
 
 .. image:: https://raw.githubusercontent.com/LarrySnyder/stockpyl-testing/ac4f0ca30993c53f5e53743a77f4f2d7ae55d05e/intro_to_products_diagram.png
-   :scale: 100 %
    :alt: 3-node network diagram
    :align: center
 
