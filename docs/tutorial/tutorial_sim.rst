@@ -47,12 +47,12 @@ an order lead time of 0, and a shipment lead time of 1.
 		... )
 		>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=4, columns_to_print='basic')
-		  t  | i=0      IO:EXT|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:EXT|-1000    IL:-1000
-		---  -------  --------------  --------------  --------------  --------------  ----------
-		  0  |                    12              12               0              12           1
-		  1  |                     6               6              12               6           7
-		  2  |                    11              11               6              11           2
-		  3  |                    14              14              11              13          -1
+		  t  | i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL
+		---  -------  --------  --------  --------  --------  ----
+		  0  |              12        12         0        12     1
+		  1  |               6         6        12         6     7
+		  2  |              11        11         6        11     2
+		  3  |              14        14        11        13    -1
 
 Interpreting the results:
 
@@ -267,13 +267,12 @@ Both nodes have a (shipment) lead time of 1.
 		... )
 		>>> _ = simulation(network=network, num_periods=4, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=4, columns_to_print='basic')
-		  t  | i=0      IO:1|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:1|-1000    IL:-1000  | i=1      IO:EXT|-2    OQ:0|-1000    IS:0|-1000    OS:EXT|-2    IL:-2
-		---  -------  ------------  --------------  --------------  ------------  ----------  -------  -----------  ------------  ------------  -----------  -------
-		  0  |                  42              50               0            42           8  |                 42            42             0           42        8
-		  1  |                  50              50              50            50           8  |                 50            50            42           50        0
-		  2  |                  37               0              50            37          21  |                 37            37            50           37       13
-		  3  |                  47              50               0            21         -26  |                 47            47            37           47        3
-
+		  t  | i=0      IO:1    OQ:EXT    IS:EXT    OS:1    IL  | i=1      IO:EXT    OQ:0    IS:0    OS:EXT    IL
+		---  -------  ------  --------  --------  ------  ----  -------  --------  ------  ------  --------  ----
+		  0  |            42        50         0      42     8  |              42      42       0        42     8
+		  1  |            50        50        50      50     8  |              50      50      42        50     0
+		  2  |            37         0        50      37    21  |              37      37      50        37    13
+		  3  |            47        50         0      21   -26  |              47      47      37        47     3
 
 .. _sim_output:
 
@@ -453,14 +452,14 @@ columns:
 		...	periods_to_print=list(range(3, 9)), 
 		...	columns_to_print=['OQ', 'IL', 'TC']
 		...	)
-		  t  | i=1      OQ:3|-6    OQ:4|-8    IL:-2    TC  | i=2      OQ:3|-6    IL:-4    TC  | i=3      OQ:EXT|-7    IL:-6    TC  | i=4      OQ:EXT|-9    IL:-8    TC
-		---  -------  ---------  ---------  -------  ----  -------  ---------  -------  ----  -------  -----------  -------  ----  -------  -----------  -------  ----
-		  3  |                6          6       15    30  |               14       -2    20  |                 19       10    38  |                  6        4    19
-		  4  |               11         11       13    26  |               14       -3    30  |                 25       10    41  |                 11       -1    16
-		  5  |               11         11        8    16  |                9        2     4  |                 25       10    46  |                 11       -1    21
-		  6  |               10         10        8    17  |                8        8    16  |                 19       10    40  |                 10        0    22
-		  7  |               15         15        4     9  |                9        8    16  |                 23       10    43  |                 15       -5    21
-		  8  |               17         17       -2    20  |               12        4     8  |                 26       10    51  |                 17       -7    25
+		  t  | i=1      OQ:3    OQ:4    IL    TC  | i=2      OQ:3    IL    TC  | i=3      OQ:EXT    IL    TC  | i=4      OQ:EXT    IL    TC
+		---  -------  ------  ------  ----  ----  -------  ------  ----  ----  -------  --------  ----  ----  -------  --------  ----  ----
+		  3  |             6       6    15    30  |            14    -2    20  |              19    10    38  |               6     4    19
+		  4  |            11      11    13    26  |            14    -3    30  |              25    10    41  |              11    -1    16
+		  5  |            11      11     8    16  |             9     2     4  |              25    10    46  |              11    -1    21
+		  6  |            10      10     8    17  |             8     8    16  |              19    10    40  |              10     0    22
+		  7  |            15      15     4     9  |             9     8    16  |              23    10    43  |              15    -5    21
+		  8  |            17      17    -2    20  |            12     4     8  |              26    10    51  |              17    -7    25
 
 Certain strings serve as shortcuts for groups of columns. (See the docstring for :func:`~stockpyl.sim_io.write_results` for a list
 of allowable strings.) Shortcuts and column names can be combined in one list:
@@ -492,15 +491,14 @@ of allowable strings.) Shortcuts and column names can be combined in one list:
 		...	periods_to_print=list(range(3, 9)), 
 		...	columns_to_print=['OQ', 'IL', 'costs']
 		...	)
-		  t  | i=1      OQ:3|-6    OQ:4|-8    IL:-2    HC    SC    TC  | i=2      OQ:3|-6    IL:-4    HC    SC    TC  | i=3      OQ:EXT|-7    IL:-6    HC    SC    TC  | i=4      OQ:EXT|-9    IL:-8    HC    SC    TC
-		---  -------  ---------  ---------  -------  ----  ----  ----  -------  ---------  -------  ----  ----  ----  -------  -----------  -------  ----  ----  ----  -------  -----------  -------  ----  ----  ----
-		  3  |                6          6       15    30     0    30  |               14       -2     0    20    20  |                 19       10    10     0    38  |                  6        4     4     0    19
-		  4  |               11         11       13    26     0    26  |               14       -3     0    30    30  |                 25       10    10     0    41  |                 11       -1     0     0    16
-		  5  |               11         11        8    16     0    16  |                9        2     4     0     4  |                 25       10    10     0    46  |                 11       -1     0     0    21
-		  6  |               10         10        8    17     0    17  |                8        8    16     0    16  |                 19       10    10     0    40  |                 10        0     0     0    22
-		  7  |               15         15        4     9     0     9  |                9        8    16     0    16  |                 23       10    10     0    43  |                 15       -5     0     0    21
-		  8  |               17         17       -2     0    20    20  |               12        4     8     0     8  |                 26       10    10     0    51  |                 17       -7     0     0    25
-
+		  t  | i=1      OQ:3    OQ:4    IL    HC    SC    TC  | i=2      OQ:3    IL    HC    SC    TC  | i=3      OQ:EXT    IL    HC    SC    TC  | i=4      OQ:EXT    IL    HC    SC    TC
+		---  -------  ------  ------  ----  ----  ----  ----  -------  ------  ----  ----  ----  ----  -------  --------  ----  ----  ----  ----  -------  --------  ----  ----  ----  ----
+		  3  |             6       6    15    30     0    30  |            14    -2     0    20    20  |              19    10    10     0    38  |               6     4     4     0    19
+		  4  |            11      11    13    26     0    26  |            14    -3     0    30    30  |              25    10    10     0    41  |              11    -1     0     0    16
+		  5  |            11      11     8    16     0    16  |             9     2     4     0     4  |              25    10    10     0    46  |              11    -1     0     0    21
+		  6  |            10      10     8    17     0    17  |             8     8    16     0    16  |              19    10    10     0    40  |              10     0     0     0    22
+		  7  |            15      15     4     9     0     9  |             9     8    16     0    16  |              23    10    10     0    43  |              15    -5     0     0    21
+		  8  |            17      17    -2     0    20    20  |            12     4     8     0     8  |              26    10    10     0    51  |              17    -7     0     0    25
 
 
 Accessing the State Variables
@@ -514,27 +512,27 @@ individual state variables. The arguments of these
 methods are the relevant nodes/products, but these arguments can be omitted if they are inferrable
 (e.g., if the node has a single predecessor, or a single product, etc.).
 
-	.. doctest::
+	.. doctest:: col_group2
 
 		>>> network.nodes_by_index[1].state_vars[3].get_inventory_level()
-		15
+		15.0
 		>>> network.nodes_by_index[1].state_vars[3].get_order_quantity(predecessor=3)
-		6
+		6.0
 		>>> network.nodes_by_index[2].state_vars[4].get_inbound_shipment()
-		13
+		13.0
 		>>> network.nodes_by_index[2].state_vars[6].get_inbound_order()
 		8
 		>>> network.nodes_by_index[3].state_vars[6].get_inbound_order(successor=2)
-		14
+		9.0
 
 Some state variables, in particular those that are not indexed by any node or product,
 are accessed by using the attribute directly:
 
-	.. doctest::
+	.. doctest:: col_group2
 
-		>>> network.nodes_by_index[1].state_vars[3].holding_cost
-		30
-		>>> network.nodes_by_index[3].state_vars[5].total_cost
+		>>> network.nodes_by_index[1].state_vars[3].holding_cost_incurred
+		30.0
+		>>> network.nodes_by_index[3].state_vars[5].total_cost_incurred
 		46.0
 
 
@@ -588,8 +586,15 @@ disruption probability 0.04 and recovery probability 0.25:
 **Example:** The code below simulates a 2-node serial system in which the downstream node (node 2) is subject to
 disruptions. First, type-OP disruptions:
 
+	.. testsetup:: *
+
+		from stockpyl.supply_chain_network import serial_system
+		from stockpyl.sim import simulation
+		from stockpyl.sim_io import write_results
+
 	.. doctest::
 
+		>>> from stockpyl.disruption_process import DisruptionProcess
 		>>> network = serial_system(
 		...     num_nodes=2,
 		...     node_order_in_system=[1, 2],
@@ -608,17 +613,17 @@ disruptions. First, type-OP disruptions:
 		>>> T = 100
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL'])
-		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4
-		---  -------  ------  ---------  -----------  -----------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  -------
-		  7  |        False          19           19           14         19        6  |        False            19         19         14           19        6
-		  8  |        False          20           20           19         20        5  |        False            20         20         19           20        5
-		  9  |        False           0            0           20          0       25  |        True             21          0         20           21        4
-		 10  |        False           0            0            0          0       25  |        True             24          0          0            4      -20
-		 11  |        False           0            0            0          0       25  |        True             22          0          0            0      -42
-		 12  |        False           0            0            0          0       25  |        True             20          0          0            0      -62
-		 13  |        False         104          104            0         25      -79  |        False            17        104          0            0      -79
-		 14  |        False          20           20          104         99        5  |        False            20         20         25           25      -74
-		 15  |        False          21           21           20         21        4  |        False            21         21         99           95        4
+		  t  | i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL  | i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL
+		---  -------  ------  ------  --------  --------  ------  ----  -------  ------  --------  ------  ------  --------  ----
+		  7  |        False       19        19        14      19     6  |        False         19      19      14        19     6
+		  8  |        False       20        20        19      20     5  |        False         20      20      19        20     5
+		  9  |        False        0         0        20       0    25  |        True          21       0      20        21     4
+		 10  |        False        0         0         0       0    25  |        True          24       0       0         4   -20
+		 11  |        False        0         0         0       0    25  |        True          22       0       0         0   -42
+		 12  |        False        0         0         0       0    25  |        True          20       0       0         0   -62
+		 13  |        False      104       104         0      25   -79  |        False         17     104       0         0   -79
+		 14  |        False       20        20       104      99     5  |        False         20      20      25        25   -74
+		 15  |        False       21        21        20      21     4  |        False         21      21      99        95     4
 
 Node 2 is disrupted starting in period 9 (``DISR`` column). Since these are order-pausing disruptions, the node cannot place orders, so its
 order quantity for orders to node 1 (``OQ:1``) is 0, starting in period 9 and continuing until the disruption ends in period 13,
@@ -632,17 +637,17 @@ Next, type-SP disruptions:
 		>>> network.nodes_by_index[2].disruption_process.disruption_type='SP'
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ODI'])
-		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3    OS:2|-2    IL:-2    ODI:2|-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2    OS:EXT|-4    IL:-4    ODI:EXT|-4
-		---  -------  ------  ---------  -----------  -----------  ---------  -------  ----------  -------  ------  -----------  ---------  ---------  -----------  -------  ------------
-		  7  |        False          19           19           14         19        6           0  |        False            19         19         14           19        6             0
-		  8  |        False          20           20           19         20        5           0  |        False            20         20         19           20        5             0
-		  9  |        False          21           21           20          0        4          21  |        True             21         21         20           21        4             0
-		 10  |        False          24           24           21          0        1          45  |        True             24         24          0            4      -20             0
-		 11  |        False          22           22           24          0        3          67  |        True             22         22          0            0      -42             0
-		 12  |        False          20           20           22          0        5          87  |        True             20         20          0            0      -62             0
-		 13  |        False          17           17           20        104        8           0  |        False            17         17          0            0      -79             0
-		 14  |        False          20           20           17         20        5           0  |        False            20         20        104           99        5             0
-		 15  |        False          21           21           20         21        4           0  |        False            21         21         20           21        4             0
+		  t  | i=1    DISR      IO:2    OQ:EXT    IS:EXT    OS:2    IL    ODI:2  | i=2    DISR      IO:EXT    OQ:1    IS:1    OS:EXT    IL    ODI:EXT
+		---  -------  ------  ------  --------  --------  ------  ----  -------  -------  ------  --------  ------  ------  --------  ----  ---------
+		  7  |        False       19        19        14      19     6        0  |        False         19      19      14        19     6          0
+		  8  |        False       20        20        19      20     5        0  |        False         20      20      19        20     5          0
+		  9  |        False       21        21        20       0     4       21  |        True          21      21      20        21     4          0
+		 10  |        False       24        24        21       0     1       45  |        True          24      24       0         4   -20          0
+		 11  |        False       22        22        24       0     3       67  |        True          22      22       0         0   -42          0
+		 12  |        False       20        20        22       0     5       87  |        True          20      20       0         0   -62          0
+		 13  |        False       17        17        20     104     8        0  |        False         17      17       0         0   -79          0
+		 14  |        False       20        20        17      20     5        0  |        False         20      20     104        99     5          0
+		 15  |        False       21        21        20      21     4        0  |        False         21      21      20        21     4          0
 
 In this case, node 2 can still place orders during the disruption, but node 1 cannot ship them. Instead, the items are moved to
 node 1's "outbound disrupted items" category (``ODI:2``). When the disruption ends in period 13, node 1 ships those accumulated items (``OS:2``).
@@ -654,18 +659,18 @@ Next, type-TP disruptions:
 		>>> network.nodes_by_index[2].disruption_process.disruption_type='TP'
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'ISPL', 'OS', 'IL'])
-		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      OS:EXT|-4    IL:-4
-		---  -------  ------  ---------  -----------  -----------  -------------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  -----------  -------
-		  7  |        False          19           19           14  [19.0]                19        6  |        False            19         19         14  [19.0]                19        6
-		  8  |        False          20           20           19  [20.0]                20        5  |        False            20         20         19  [20.0]                20        5
-		  9  |        False          21           21           20  [21.0]                21        4  |        True             21         21         20  [21.0]                21        4
-		 10  |        False          24           24           21  [24.0]                24        1  |        True             24         24          0  [45.0]                 4      -20
-		 11  |        False          22           22           24  [22.0]                22        3  |        True             22         22          0  [67.0]                 0      -42
-		 12  |        False          20           20           22  [20.0]                20        5  |        True             20         20          0  [87.0]                 0      -62
-		 13  |        False          17           17           20  [17.0]                17        8  |        False            17         17          0  [104.0]                0      -79
-		 14  |        False          20           20           17  [20.0]                20        5  |        False            20         20        104  [20.0]                99        5
-		 15  |        False          21           21           20  [21.0]                21        4  |        False            21         21         20  [21.0]                21        4
-
+		  t  | i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      OS:2    IL  | i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      OS:EXT    IL
+		---  -------  ------  ------  --------  --------  ----------  ------  ----  -------  ------  --------  ------  ------  --------  --------  ----
+		  7  |        False       19        19        14  [19.0]          19     6  |        False         19      19      14  [19.0]          19     6
+		  8  |        False       20        20        19  [20.0]          20     5  |        False         20      20      19  [20.0]          20     5
+		  9  |        False       21        21        20  [21.0]          21     4  |        True          21      21      20  [21.0]          21     4
+		 10  |        False       24        24        21  [24.0]          24     1  |        True          24      24       0  [45.0]           4   -20
+		 11  |        False       22        22        24  [22.0]          22     3  |        True          22      22       0  [67.0]           0   -42
+		 12  |        False       20        20        22  [20.0]          20     5  |        True          20      20       0  [87.0]           0   -62
+		 13  |        False       17        17        20  [17.0]          17     8  |        False         17      17       0  [104.0]          0   -79
+		 14  |        False       20        20        17  [20.0]          20     5  |        False         20      20     104  [20.0]          99     5
+		 15  |        False       21        21        20  [21.0]          21     4  |        False         21      21      20  [21.0]          21     4
+				
 The disruption means that items in transit to node 2 are paused. This is evident from the inbound shipment pipeline at node 2 from node 1 (``ISPL:1``),
 which increases as the disruption continues and then is cleared when the disruption ends. 
 
@@ -676,17 +681,17 @@ Finally, type-RP disruptions:
 		>>> network.nodes_by_index[2].disruption_process.disruption_type='RP'
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(7, 16)), columns_to_print=['DISR', 'IO', 'OQ', 'IS', 'OS', 'IL', 'ISPL', 'IDI'])
-		  t  | i=1    DISR      IO:2|-2    OQ:EXT|-3    IS:EXT|-3  ISPL:EXT|-3      IDI:EXT|-3    OS:2|-2    IL:-2  | i=2    DISR      IO:EXT|-4    OQ:1|-2    IS:1|-2  ISPL:1|-2      IDI:1|-2    OS:EXT|-4    IL:-4
-		---  -------  ------  ---------  -----------  -----------  -------------  ------------  ---------  -------  -------  ------  -----------  ---------  ---------  -----------  ----------  -----------  -------
-		  7  |        False          19           19           14  [19.0]                    0         19        6  |        False            19         19         14  [19.0]                0           19        6
-		  8  |        False          20           20           19  [20.0]                    0         20        5  |        False            20         20         19  [20.0]                0           20        5
-		  9  |        False          21           21           20  [21.0]                    0         21        4  |        True             21         21          0  [21.0]               20            5      -16
-		 10  |        False          24           24           21  [24.0]                    0         24        1  |        True             24         24          0  [24.0]               41            0      -40
-		 11  |        False          22           22           24  [22.0]                    0         22        3  |        True             22         22          0  [22.0]               65            0      -62
-		 12  |        False          20           20           22  [20.0]                    0         20        5  |        True             20         20          0  [20.0]               87            0      -82
-		 13  |        False          17           17           20  [17.0]                    0         17        8  |        False            17         17        107  [17.0]                0           99        8
-		 14  |        False          20           20           17  [20.0]                    0         20        5  |        False            20         20         17  [20.0]                0           20        5
-		 15  |        False          21           21           20  [21.0]                    0         21        4  |        False            21         21         20  [21.0]                0           21        4
+		  t  | i=1    DISR      IO:2    OQ:EXT    IS:EXT  ISPL:EXT      IDI:EXT    OS:2    IL  | i=2    DISR      IO:EXT    OQ:1    IS:1  ISPL:1      IDI:1    OS:EXT    IL
+		---  -------  ------  ------  --------  --------  ----------  ---------  ------  ----  -------  ------  --------  ------  ------  --------  -------  --------  ----
+		  7  |        False       19        19        14  [19.0]              0      19     6  |        False         19      19      14  [19.0]          0        19     6
+		  8  |        False       20        20        19  [20.0]              0      20     5  |        False         20      20      19  [20.0]          0        20     5
+		  9  |        False       21        21        20  [21.0]              0      21     4  |        True          21      21       0  [21.0]         20         5   -16
+		 10  |        False       24        24        21  [24.0]              0      24     1  |        True          24      24       0  [24.0]         41         0   -40
+		 11  |        False       22        22        24  [22.0]              0      22     3  |        True          22      22       0  [22.0]         65         0   -62
+		 12  |        False       20        20        22  [20.0]              0      20     5  |        True          20      20       0  [20.0]         87         0   -82
+		 13  |        False       17        17        20  [17.0]              0      17     8  |        False         17      17     107  [17.0]          0        99     8
+		 14  |        False       20        20        17  [20.0]              0      20     5  |        False         20      20      17  [20.0]          0        20     5
+		 15  |        False       21        21        20  [21.0]              0      21     4  |        False         21      21      20  [21.0]          0        21     4
 
 In this case, the disruptions prevent node 2 from receiving items. During the disruption, items that would otherwise have been 
 received by node 2 from node 1 are instead moved to node 2's "inbound disrupted items" category (``IDI:1``). They remain there
@@ -767,14 +772,14 @@ and :math:`(-x)^+` is the backorders).
 		>>> T = 100
 		>>> _ = simulation(network=network, num_periods=T, rand_seed=42, progress_bar=False)
 		>>> write_results(network=network, num_periods=T, periods_to_print=list(range(6)), columns_to_print=['basic', 'costs'])
-		  t  | i=0      IO:EXT|-1000    OQ:EXT|-1001    IS:EXT|-1001    OS:EXT|-1000    IL:-1000    HC       SC       TC
-		---  -------  --------------  --------------  --------------  --------------  ----------  ----  -------  -------
-		  0  |                    18              18               0              17          -1   0    10       10
-		  1  |                    10              10              18              11           7  24.5   0       24.5
-		  2  |                    16              16              10              16           1   0.5   0        0.5
-		  3  |                    19              19              16              17          -2   0    14.1421  14.1421
-		  4  |                    11              11              19              13           6  18     0       18
-		  5  |                    13              13              11              13           4   8     0        8
+		  t  | i=0      IO:EXT    OQ:EXT    IS:EXT    OS:EXT    IL    HC       SC       TC
+		---  -------  --------  --------  --------  --------  ----  ----  -------  -------
+		  0  |              18        18         0        17    -1   0    10       10
+		  1  |              10        10        18        11     7  24.5   0       24.5
+		  2  |              16        16        10        16     1   0.5   0        0.5
+		  3  |              19        19        16        17    -2   0    14.1421  14.1421
+		  4  |              11        11        19        13     6  18     0       18
+		  5  |              13        13        11        13     4   8     0        8
 
 
 
