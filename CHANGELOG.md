@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2]
+
+### Added
+- Code to solve EOQ with all-units or incremental quantity discounts (via [@Albert-Z-Guo](https://github.com/Albert-Z-Guo)).
+
+### Changed
+- Stockpyl now uses the MIT license instead of GPLv3.
+
+### Fixed
+- Bug that caused ``wagner_whitin()`` to calculate incorrect fixed costs if a portion of the horizon has 0 demand [#178](https://github.com/LarrySnyder/stockpyl/pull/178).
+
 ## [1.0.1]
 
 ### Added
@@ -41,7 +52,7 @@ the number of units of an upstream product (*raw material*) that are required to
 one unit of a downstream product (*finished goods*). 
 - Only the simulation features of Stockpyl can currently make use of products; MEIO and other features
 still assume a single-product model.
-- For more information about creating and managing products, and simulating multi-product systems in |sp|, see the [``supply_chain_product``](https://stockpyl.readthedocs.io/en/multiproduct/api/datatypes/supply_chain_product.html) module or 
+- For more information about creating and managing products, and simulating multi-product systems in Stockpyl, see the [``supply_chain_product``](https://stockpyl.readthedocs.io/en/multiproduct/api/datatypes/supply_chain_product.html) module or 
 the [tutorial page for multi-product simulation](tutorial_multiproduct_sim_page).
 
 ### Added
