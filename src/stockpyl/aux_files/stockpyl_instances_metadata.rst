@@ -47,6 +47,54 @@
 		}
 
 
+.. collapse:: Example 3.5 (EOQ w/all-units discounts)
+
+	| 
+	| **Name:** ``example_3_5``
+	| **Description:** Example 3.5 (EOQ w/all-units discounts)
+	| **Code to Load Instance:**
+
+	.. code-block:: python
+
+		instance = load_instance('example_3_5')
+
+	| **Code to Build Manually:**
+
+	.. code-block:: python
+
+		instance = {
+			'fixed_cost': 8,
+			'holding_cost_rate': 0.3,
+			'demand_rate': 1300,
+			'breakpoints': [0, 400, 800],
+			'unit_costs': [0.75, 0.72, 0.68]
+		}
+
+
+.. collapse:: Problem 3.12 (EOQ w/all-units discounts)
+
+	| 
+	| **Name:** ``problem_3_12``
+	| **Description:** Problem 3.12 (EOQ w/all-units discounts)
+	| **Code to Load Instance:**
+
+	.. code-block:: python
+
+		instance = load_instance('problem_3_12')
+
+	| **Code to Build Manually:**
+
+	.. code-block:: python
+
+		instance = {
+			'fixed_cost': 2250,
+			'holding_cost_rate': 0.25,
+			'demand_rate': 182500,
+			'breakpoints': [0, 1200, 2400],
+			'unit_costs': [1490, 1220, 1100]
+		}
+
+
 .. collapse:: Example 3.8 (EOQB)
 
 	| 
@@ -1366,7 +1414,7 @@
 			base_stock_level=[7, 13, 11],
 			initial_inventory_level=[7, 13, 11]
 		)
-		instance.nodes_by_index[0].demand_source.round_to_int = True
+		instance.get_node_from_index(0).demand_source.round_to_int = True
 
 
 .. collapse:: Assembly system from Figure 1 in Rosling (1989)

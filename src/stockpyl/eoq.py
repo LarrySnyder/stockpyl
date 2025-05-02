@@ -102,7 +102,8 @@ def economic_order_quantity(fixed_cost, holding_cost, demand_rate, order_quantit
 def economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs):
     """Solve the economic order quantity (EOQ) problem with all-units quantity discounts.
 
-    In the EOQ problem with all-units quantity discounts, the unit cost of all items in an order is discounted based on the order quantity, according to a piecewise constant function defined by the breakpoints and unit costs.
+    In the EOQ problem with all-units quantity discounts, the unit cost of all items in an order is discounted based on the order quantity, 
+    according to a piecewise constant function defined by the breakpoints and unit costs.
 
     Parameters
     ----------
@@ -183,34 +184,34 @@ def economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_ra
     if not all(isinstance(c, (int, float)) and c > 0 for c in unit_costs):
         raise ValueError("unit_costs must contain positive numbers.")
 
-    # Define the cost function for a given Q in region j
+    # Define the cost function for a given Q in region j.
     def g(Q, j):
         return unit_costs[j] * demand_rate + fixed_cost * demand_rate / Q + holding_cost_rate * unit_costs[j] * Q / 2
 
-    # Calculate unconstrained EOQ for each region
+    # Calculate unconstrained EOQ for each region.
     Q_star = [math.sqrt(2 * fixed_cost * demand_rate / (holding_cost_rate * unit_costs[j])) for j in range(len(unit_costs))]
 
-    # Collect candidates: realizable Q*_j and breakpoints
+    # Collect candidates: realizable Q*_j and breakpoints.
     candidates = []
     n = len(breakpoints) - 1  # Index of the last region
     for j in range(len(unit_costs)):
         Q_j = Q_star[j]
-        # Check if Q*_j is realizable
+        # Check if Q*_j is realizable.
         is_realizable = (j == n and Q_j >= breakpoints[j]) or (j < n and breakpoints[j] <= Q_j < breakpoints[j + 1])
         if is_realizable:
             cost = g(Q_j, j)
             candidates.append((Q_j, j, cost))
-    # Add breakpoints b_k for k >= 1 as candidates
+    # Add breakpoints b_k for k >= 1 as candidates.
     for k in range(1, len(breakpoints)):
         Q = breakpoints[k]
         cost = g(Q, k)  # Q = b_k falls in region k since intervals are [b_k, b_{k+1})
         candidates.append((Q, k, cost))
 
-    # Ensure there are candidates (should always be true since breakpoints >= 1 exist)
+    # Ensure there are candidates (should always be true since breakpoints >= 1 exist).
     if not candidates:
         raise ValueError("No feasible order quantity found.")
 
-    # Select the candidate with the lowest cost
+    # Select the candidate with the lowest cost.
     order_quantity, region, cost = min(candidates, key=lambda x: x[2])
 
     return order_quantity, region, cost
@@ -219,7 +220,9 @@ def economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_ra
 def economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs):
     """Solve the economic order quantity (EOQ) problem with incremental quantity discounts.
 
-    In the EOQ problem with incremental quantity discounts, the unit cost decreases incrementally for units above each breakpoint. For an order quantity :math:`Q` in region :math:`j` (i.e., :math:`b_j \\leq Q < b_{j+1}`), the purchase cost is the sum of the costs of units up to :math:`b_j` plus the cost of additional units at :math:`c_j`.
+    In the EOQ problem with incremental quantity discounts, the unit cost decreases incrementally for units above each breakpoint. 
+    For an order quantity :math:`Q` in region :math:`j` (i.e., :math:`b_j \\leq Q < b_{j+1}`), the purchase cost is the sum of the 
+    costs of units up to :math:`b_j` plus the cost of additional units at :math:`c_j`.
 
     Parameters
     ----------
@@ -316,7 +319,7 @@ def economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_
     if not all(isinstance(c, (int, float)) and c > 0 for c in unit_costs):
         raise ValueError("unit_costs must contain positive numbers.")
 
-    # Define helper functions
+    # Define helper functions.
     def c_bar(j):
         """Calculate the fixed cost offset for region j."""
         if j == 0:
@@ -328,10 +331,10 @@ def economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_
         cb = c_bar(j)
         return unit_costs[j] * demand_rate + holding_cost_rate * cb / 2 + (fixed_cost + cb) * demand_rate / Q + holding_cost_rate * unit_costs[j] * Q / 2
 
-    # Calculate modified EOQ for each region
+    # Calculate modified EOQ for each region.
     Q_star = [math.sqrt(2 * (fixed_cost + c_bar(j)) * demand_rate / (holding_cost_rate * unit_costs[j])) for j in range(len(unit_costs))]
 
-    # Collect realizable Q*_j
+    # Collect realizable Q*_j.
     candidates = []
     n = len(breakpoints) - 1  # Index of the last region
     for j in range(len(unit_costs)):
@@ -342,11 +345,11 @@ def economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_
             cost = g(Q_j, j)
             candidates.append((Q_j, j, cost))
 
-    # Check if there are any realizable solutions
+    # Check if there are any realizable solutions.
     if not candidates:
         raise ValueError("No realizable order quantity found.")
 
-    # Select the candidate with the lowest cost
+    # Select the candidate with the lowest cost.
     order_quantity, region, cost = min(candidates, key=lambda x: x[2])
 
     return order_quantity, region, cost

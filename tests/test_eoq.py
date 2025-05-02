@@ -97,6 +97,280 @@ class TestEconomicOrderQuantity(unittest.TestCase):
 			order_quantity, cost = economic_order_quantity(fixed_cost, holding_cost, demand_rate)
 
 
+class TestEconomicOrderQuantityWithAllUnitsDiscounts(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'tear_down_class()')
+
+	def test_example_3_6(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function correctly solves Example 3.6.
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_example_3_6()')
+
+		instance = load_instance("example_3_5")
+
+		order_quantity, region, cost = \
+			economic_order_quantity_with_all_units_discounts(instance['fixed_cost'], instance['holding_cost_rate'], instance['demand_rate'], instance['breakpoints'], instance['unit_costs'])
+		self.assertEqual(order_quantity, 800)
+		self.assertEqual(region, 2)
+		self.assertAlmostEqual(cost, 978.60)
+
+	def test_problem_3_12a(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function correctly solves Problem 3.12(a).
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_problem_3_12a()')
+
+		instance = load_instance("problem_3_12")
+
+		order_quantity, region, cost = \
+			economic_order_quantity_with_all_units_discounts(instance['fixed_cost'], instance['holding_cost_rate'], instance['demand_rate'], instance['breakpoints'], instance['unit_costs'])
+		self.assertEqual(order_quantity, 2400)
+		self.assertEqual(region, 2)
+		self.assertAlmostEqual(cost, 201251093.75)
+
+	def test_docstring_example(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function correctly solves instance in the docstring.
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_docstring_example()')
+
+		fixed_cost = 200
+		holding_cost_rate = 0.2
+		demand_rate = 1000
+		breakpoints = [0, 200, 500]
+		unit_costs = [500, 475, 450]
+
+		order_quantity, region, cost = \
+			economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+		self.assertEqual(order_quantity, 500)
+		self.assertEqual(region, 2)
+		self.assertAlmostEqual(cost, 472900.0)
+
+	def test_bad_type(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function raises exception on bad type.
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_bad_type()')
+
+		fixed_cost = "banana"
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		breakpoints = [0, 400, 800],
+		unit_costs = [0.75, 0.72, 0.68]
+
+		with self.assertRaises(TypeError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+	def test_negative_parameter(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function raises exception on negative parameter.
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_negative_parameter()')
+
+		fixed_cost = -8
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		breakpoints = [0, 400, 800],
+		unit_costs = [0.75, 0.72, 0.68]
+
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+	def test_bad_breapoints(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function raises exception when breakpoint parameters
+		are bad.
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_bad_breapoints()')
+
+		fixed_cost = 8
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		unit_costs = [0.75, 0.72, 0.68]
+
+		breakpoints = 500
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [500, 600, 700],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [0, 600.5, 700],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [0, -400, 700],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [0, 800, 400],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+	def test_bad_unit_costs(self):
+		"""Test that economic_order_quantity_with_all_units_discounts function raises exception when breakpoint parameters
+		are bad.
+		"""
+		print_status('TestEconomicOrderQuantityWithAllUnitsDiscounts', 'test_bad_unit_costs()')
+
+		fixed_cost = 8
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		breakpoints = [0, 400, 800]
+
+		unit_costs = [0.75, 0.72]
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		unit_costs = [0.75, 0.72, 0.68, 0.6]
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		unit_costs = [0.75, 0.72, -0.68]
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+
+class TestEconomicOrderQuantityWithIncrementalDiscounts(unittest.TestCase):
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'tear_down_class()')
+
+	def test_example_3_7(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function correctly solves Example 3.7.
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_example_3_7()')
+
+		instance = load_instance("example_3_5")
+
+		order_quantity, region, cost = \
+			economic_order_quantity_with_incremental_discounts(instance['fixed_cost'], instance['holding_cost_rate'], instance['demand_rate'], instance['breakpoints'], instance['unit_costs'])
+		self.assertAlmostEqual(order_quantity, 304.04678003)
+		self.assertEqual(region, 0)
+		self.assertAlmostEqual(cost, 1043.41052551)
+
+	def test_problem_3_12b(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function correctly solves Problem 3.12(b).
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_problem_3_12b()')
+
+		instance = load_instance("problem_3_12")
+
+		order_quantity, region, cost = \
+			economic_order_quantity_with_incremental_discounts(instance['fixed_cost'], instance['holding_cost_rate'], instance['demand_rate'], instance['breakpoints'], instance['unit_costs'])
+		self.assertAlmostEqual(order_quantity, 28553.06065428)
+		self.assertEqual(region, 2)
+		self.assertAlmostEqual(cost, 208678591.67992835)
+
+	def test_docstring_example(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function correctly solves instance in the docstring.
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_docstring_example()')
+
+		fixed_cost = 150
+		holding_cost_rate = 0.25
+		demand_rate = 2400
+		breakpoints = [0, 300, 600]
+		unit_costs = [100, 90, 80]
+
+		order_quantity, region, cost = \
+			economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+		self.assertEqual(order_quantity, 1481.8906842274164)
+		self.assertEqual(region, 2)
+		self.assertAlmostEqual(cost, 222762.8136845483)
+
+	def test_bad_type(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function raises exception on bad type.
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_bad_type()')
+
+		fixed_cost = "banana"
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		breakpoints = [0, 400, 800],
+		unit_costs = [0.75, 0.72, 0.68]
+
+		with self.assertRaises(TypeError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+	def test_negative_parameter(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function raises exception on negative parameter.
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_negative_parameter()')
+
+		fixed_cost = -8
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		breakpoints = [0, 400, 800],
+		unit_costs = [0.75, 0.72, 0.68]
+
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+	def test_bad_breapoints(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function raises exception when breakpoint parameters
+		are bad.
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_bad_breapoints()')
+
+		fixed_cost = 8
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		unit_costs = [0.75, 0.72, 0.68]
+
+		breakpoints = 500
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [500, 600, 700],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [0, 600.5, 700],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [0, -400, 700],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		breakpoints = [0, 800, 400],
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+	def test_bad_unit_costs(self):
+		"""Test that economic_order_quantity_with_incremental_discounts function raises exception when breakpoint parameters
+		are bad.
+		"""
+		print_status('TestEconomicOrderQuantityWithIncrementalDiscounts', 'test_bad_unit_costs()')
+
+		fixed_cost = 8
+		holding_cost_rate = 0.3
+		demand_rate = 1300
+		breakpoints = [0, 400, 800]
+
+		unit_costs = [0.75, 0.72]
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		unit_costs = [0.75, 0.72, 0.68, 0.6]
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+		unit_costs = [0.75, 0.72, -0.68]
+		with self.assertRaises(ValueError):
+			_ = economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+
+
 class TestEconomicOrderQuantityWithBackorders(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
