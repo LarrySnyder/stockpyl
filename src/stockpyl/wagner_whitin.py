@@ -134,7 +134,7 @@ def wagner_whitin(num_periods, holding_cost, fixed_cost, demand, purchase_cost=0
 		best_cost = BIG_FLOAT
 		for ss in range(t+1, num_periods+2):
 			# Calculate cost if next order is in period ss.
-			cost = fixed_cost[t]
+			cost = fixed_cost[t] * (sum(demand[i] for i in range(t, ss)) > 0) # 0 fixed/setup cost if demand is 0
 			for i in range(t, ss):
 				cost += purchase_cost[t] * demand[i] + holding_cost[t] * (i - t) * demand[i]
 			cost += theta[ss]
