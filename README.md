@@ -93,7 +93,7 @@ using GitHub for this purpose, feel free to e-mail me. My contact info is on [my
 License
 -------
 
-Stockpyl is open-source and released under the [GPLv3 License](https://choosealicense.com/licenses/gpl-3.0/).
+Stockpyl is open-source and released under the [MIT License](https://choosealicense.com/licenses/mit/).
 
 Citation
 --------
