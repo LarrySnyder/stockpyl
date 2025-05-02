@@ -154,3 +154,32 @@ class TestWagnerWhitin(unittest.TestCase):
 		demand = [0, 730, 580, 445, 650, 880]
 		with self.assertRaises(ValueError):
 			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+
+
+class TestPreviousBugs(unittest.TestCase):
+	"""Test issues that have previously failed due to bugs."""
+	@classmethod
+	def set_up_class(cls):
+		"""Called once, before any tests."""
+		print_status('TestPreviousBugs', 'set_up_class()')
+
+	@classmethod
+	def tear_down_class(cls):
+		"""Called once, after all tests, if set_up_class successful."""
+		print_status('TestPreviousBugs', 'tear_down_class()')
+
+	def test_177(self):
+		"""Test instance in PR #177 (handle zero-demand periods correctly).
+		"""
+		print_status('TestPreviousBugs', 'test_177()')
+
+		num_periods = 6
+		holding_cost = [1, 1, 1, 1, 1, 1]
+		fixed_cost = [110, 108, 110, 120, 125, 134]
+		demand = [0, 0, 0, 0, 0, 7]
+		
+		order_quantities, cost, costs_to_go, next_order_periods = \
+			wagner_whitin(num_periods, holding_cost, fixed_cost, demand)
+		
+		self.assertListEqual(order_quantities, [0, 0, 0, 7, 0, 0, 0])
+		self.assertEqual(cost, 131)
