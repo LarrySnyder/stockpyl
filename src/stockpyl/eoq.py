@@ -132,6 +132,7 @@ def economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_ra
     
     1. For each region :math:`j`, computes the EOQ assuming the unit cost :math:`c_j`: :math:`Q^*_j = \\sqrt{\\frac{2K\\lambda}{i c_j}}`.
     2. Identifies candidates, which include:
+    
      	- Each :math:`Q^*_j` that is *realizable* (i.e., falls within its region’s bounds: :math:`b_j \\leq Q^*_j < b_{j+1}` for :math:`j < n`, or :math:`Q^*_j \\geq b_j` for :math:`j = n`).
         - Each breakpoint :math:`b_k` for :math:`k \\geq 1`, evaluated in region :math:`k`.
     3. Evaluates the total cost at each candidate and selects the one with the lowest cost.
@@ -218,141 +219,141 @@ def economic_order_quantity_with_all_units_discounts(fixed_cost, holding_cost_ra
 
 
 def economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs):
-    """Solve the economic order quantity (EOQ) problem with incremental quantity discounts.
+	"""Solve the economic order quantity (EOQ) problem with incremental quantity discounts.
 
-    In the EOQ problem with incremental quantity discounts, the unit cost decreases incrementally for units above each breakpoint. 
-    For an order quantity :math:`Q` in region :math:`j` (i.e., :math:`b_j \\leq Q < b_{j+1}`), the purchase cost is the sum of the 
-    costs of units up to :math:`b_j` plus the cost of additional units at :math:`c_j`.
+	In the EOQ problem with incremental quantity discounts, the unit cost decreases incrementally for units above each breakpoint. 
+	For an order quantity :math:`Q` in region :math:`j` (i.e., :math:`b_j \\leq Q < b_{j+1}`), the purchase cost is the sum of the 
+	costs of units up to :math:`b_j` plus the cost of additional units at :math:`c_j`.
 
-    Parameters
-    ----------
-    fixed_cost : float
-        Fixed cost per order. [:math:`K`]
-    holding_cost_rate : float
-        Holding cost rate per item per unit time as a percentage of the purchase cost. [:math:`i`]
-    demand_rate : float
-        Demand (items) per unit time. [:math:`\\lambda`]
-    breakpoints : list of float
-        Breakpoints for quantity discounts, in increasing order starting with 0. [:math:`[b_0, b_1, \\ldots, b_n]` where :math:`b_0 = 0`]
-    unit_costs : list of float
-        Unit cost for incremental units in each discount region. [:math:`[c_0, c_1, \\ldots, c_n]`]
-
-    Returns
-    -------
-    order_quantity : float
-        Optimal order quantity (items). [:math:`Q^*`]
-    region : int
-        The index of the discount region used (i.e., the index :math:`j` such that :math:`b_j \\leq Q^* < b_{j+1}`). [:math:`j^*`]
-    cost : float
-        Cost per unit time attained by ``order_quantity`` in the chosen region. [:math:`g^*`]
+	Parameters
+	----------
+	fixed_cost : float
+		Fixed cost per order. [:math:`K`]
+	holding_cost_rate : float
+		Holding cost rate per item per unit time as a percentage of the purchase cost. [:math:`i`]
+	demand_rate : float
+		Demand (items) per unit time. [:math:`\\lambda`]
+	breakpoints : list of float
+		Breakpoints for quantity discounts, in increasing order starting with 0. [:math:`[b_0, b_1, \\ldots, b_n]` where :math:`b_0 = 0`]
+	unit_costs : list of float
+		Unit cost for incremental units in each discount region. [:math:`[c_0, c_1, \\ldots, c_n]`]
+        
+	Returns
+	-------
+	order_quantity : float
+		Optimal order quantity (items). [:math:`Q^*`]
+	region : int
+		The index of the discount region used (i.e., the index :math:`j` such that :math:`b_j \\leq Q^* < b_{j+1}`). [:math:`j^*`]
+	cost : float
+		Cost per unit time attained by ``order_quantity`` in the chosen region. [:math:`g^*`]
 
 
 	**Notes**:
+
+	1. For each region :math:`j`, computes a modified EOQ based on the incremental cost structure: :math:`Q^*_j = \\sqrt{\\frac{2(K + \\bar{c}_j)\\lambda}{i c_j}}`, where :math:`\\bar{c}_j` accounts for the fixed cost offset due to incremental discounts.
+	2. Checks if each :math:`Q^*_j` is *realizable* (i.e., :math:`b_j \\leq Q^*_j < b_{j+1}` for :math:`j < n`, or :math:`Q^*_j \\geq b_j` for :math:`j = n`).
+	3. Among realizable :math:`Q^*_j`, selects the one with the lowest total cost.
+
+	**Equations Used** (equations (3.20), (3.21) and (3.22)):
+
+	For :math:`Q` in region :math:`j`, the purchase cost is:
+      
+	.. math::
+
+		C(Q) = \\sum_{i=0}^{j-1} c_i (b_{i+1} - b_i) + c_j (Q - b_j) = \\bar{c}_j + c_j Q
+
+	where:
+
+	.. math::
+
+		\\bar{c}_j = \\sum_{i=0}^{j-1} c_i (b_{i+1} - b_i) - c_j b_j \\text{ if } j > 0, \\text{ else } 0
+
+	The unconstrained EOQ for region :math:`j` is:
+
+	.. math::
+
+		Q^*_j = \\sqrt{\\frac{2(K + \\bar{c}_j)\\lambda}{i c_j}}
+
+	The total cost is:
+
+	.. math::
     
-    1. For each region :math:`j`, computes a modified EOQ based on the incremental cost structure: :math:`Q^*_j = \\sqrt{\\frac{2(K + \\bar{c}_j)\\lambda}{i c_j}}`, where :math:`\\bar{c}_j` accounts for the fixed cost offset due to incremental discounts.
-    2. Checks if each :math:`Q^*_j` is *realizable* (i.e., :math:`b_j \\leq Q^*_j < b_{j+1}` for :math:`j < n`, or :math:`Q^*_j \\geq b_j` for :math:`j = n`).
-    3. Among realizable :math:`Q^*_j`, selects the one with the lowest total cost.
-
-    **Equations Used** (equations (3.20), (3.21) and (3.22)):
-    
-    For :math:`Q` in region :math:`j`, the purchase cost is:
-
-    .. math::
-
-        C(Q) = \\sum_{i=0}^{j-1} c_i (b_{i+1} - b_i) + c_j (Q - b_j) = \\bar{c}_j + c_j Q
-
-    where:
-
-    .. math::
-
-        \\bar{c}_j = \\sum_{i=0}^{j-1} c_i (b_{i+1} - b_i) - c_j b_j \\text{ if } j > 0, \\text{ else } 0
-
-    The unconstrained EOQ for region :math:`j` is:
-
-    .. math::
-
-        Q^*_j = \\sqrt{\\frac{2(K + \\bar{c}_j)\\lambda}{i c_j}}
-
-    The total cost is:
-
-    .. math::
-    
-    	g_j\\left(Q_j^*\\right) = c_j \\lambda + \\frac{i \\bar{c}_j}{2} + \\sqrt{2\\left(K+\\bar{c}_j\\right) \\lambda i c_j}
+		g_j\\left(Q_j^*\\right) = c_j \\lambda + \\frac{i \\bar{c}_j}{2} + \\sqrt{2\\left(K+\\bar{c}_j\\right) \\lambda i c_j}
  
-    or
-    
-    .. math::
-    
-    	g_j(Q) = c_j \\lambda + \\frac{i \\bar{c}_j}{2} + \\frac{(K + \\bar{c}_j)\\lambda}{Q} + \\frac{i c_j Q}{2}
+	or
 
-    **Example**:
-    
-    .. testsetup:: *
+	.. math::
 
-        from stockpyl.eoq import *
+		g_j(Q) = c_j \\lambda + \\frac{i \\bar{c}_j}{2} + \\frac{(K + \\bar{c}_j)\\lambda}{Q} + \\frac{i c_j Q}{2}
 
-    .. doctest::
+	**Example**:
 
-        >>> fixed_cost = 150
-        >>> holding_cost_rate = 0.25
-        >>> demand_rate = 2400
-        >>> breakpoints = [0, 300, 600]
-        >>> unit_costs = [100, 90, 80]
-        >>> economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
-        (1481.8906842274164, 2, 222762.8136845483)
+	.. testsetup:: *
+
+		from stockpyl.eoq import *
+
+	.. doctest::
+
+		>>> fixed_cost = 150
+		>>> holding_cost_rate = 0.25
+		>>> demand_rate = 2400
+		>>> breakpoints = [0, 300, 600]
+		>>> unit_costs = [100, 90, 80]
+		>>> economic_order_quantity_with_incremental_discounts(fixed_cost, holding_cost_rate, demand_rate, breakpoints, unit_costs)
+		(1481.8906842274164, 2, 222762.8136845483)
     """
-    # Input validation
-    if fixed_cost < 0:
-        raise ValueError("fixed_cost must be non-negative.")
-    if holding_cost_rate <= 0:
-        raise ValueError("holding_cost_rate must be positive.")
-    if demand_rate < 0:
-        raise ValueError("demand_rate must be non-negative.")
-    if not isinstance(breakpoints, list) or len(breakpoints) < 1 or breakpoints[0] != 0:
-        raise ValueError("breakpoints must be a list starting with 0.")
-    if not all(isinstance(b, (int, float)) and b >= 0 for b in breakpoints):
-        raise ValueError("breakpoints must contain non-negative numbers.")
-    if not all(breakpoints[i] < breakpoints[i + 1] for i in range(len(breakpoints) - 1)):
-        raise ValueError("breakpoints must be strictly increasing.")
-    if not isinstance(unit_costs, list) or len(unit_costs) != len(breakpoints):
-        raise ValueError("unit_costs must be a list with the same length as breakpoints.")
-    if not all(isinstance(c, (int, float)) and c > 0 for c in unit_costs):
-        raise ValueError("unit_costs must contain positive numbers.")
+	# Input validation
+	if fixed_cost < 0:
+		raise ValueError("fixed_cost must be non-negative.")
+	if holding_cost_rate <= 0:
+		raise ValueError("holding_cost_rate must be positive.")
+	if demand_rate < 0:
+		raise ValueError("demand_rate must be non-negative.")
+	if not isinstance(breakpoints, list) or len(breakpoints) < 1 or breakpoints[0] != 0:
+		raise ValueError("breakpoints must be a list starting with 0.")
+	if not all(isinstance(b, (int, float)) and b >= 0 for b in breakpoints):
+		raise ValueError("breakpoints must contain non-negative numbers.")
+	if not all(breakpoints[i] < breakpoints[i + 1] for i in range(len(breakpoints) - 1)):
+		raise ValueError("breakpoints must be strictly increasing.")
+	if not isinstance(unit_costs, list) or len(unit_costs) != len(breakpoints):
+		raise ValueError("unit_costs must be a list with the same length as breakpoints.")
+	if not all(isinstance(c, (int, float)) and c > 0 for c in unit_costs):
+		raise ValueError("unit_costs must contain positive numbers.")
 
-    # Define helper functions.
-    def c_bar(j):
-        """Calculate the fixed cost offset for region j."""
-        if j == 0:
-            return 0
-        return sum(unit_costs[i] * (breakpoints[i + 1] - breakpoints[i]) for i in range(j)) - unit_costs[j] * breakpoints[j]
+	# Define helper functions.
+	def c_bar(j):
+		"""Calculate the fixed cost offset for region j."""
+		if j == 0:
+			return 0
+		return sum(unit_costs[i] * (breakpoints[i + 1] - breakpoints[i]) for i in range(j)) - unit_costs[j] * breakpoints[j]
 
-    def g(Q, j):
-        """Calculate total cost for Q in region j."""
-        cb = c_bar(j)
-        return unit_costs[j] * demand_rate + holding_cost_rate * cb / 2 + (fixed_cost + cb) * demand_rate / Q + holding_cost_rate * unit_costs[j] * Q / 2
+	def g(Q, j):
+		"""Calculate total cost for Q in region j."""
+		cb = c_bar(j)
+		return unit_costs[j] * demand_rate + holding_cost_rate * cb / 2 + (fixed_cost + cb) * demand_rate / Q + holding_cost_rate * unit_costs[j] * Q / 2
 
-    # Calculate modified EOQ for each region.
-    Q_star = [math.sqrt(2 * (fixed_cost + c_bar(j)) * demand_rate / (holding_cost_rate * unit_costs[j])) for j in range(len(unit_costs))]
+	# Calculate modified EOQ for each region.
+	Q_star = [math.sqrt(2 * (fixed_cost + c_bar(j)) * demand_rate / (holding_cost_rate * unit_costs[j])) for j in range(len(unit_costs))]
 
-    # Collect realizable Q*_j.
-    candidates = []
-    n = len(breakpoints) - 1  # Index of the last region
-    for j in range(len(unit_costs)):
-        Q_j = Q_star[j]
-        # Check if Q*_j is realizable
-        is_realizable = (j == n and Q_j >= breakpoints[j]) or (j < n and breakpoints[j] <= Q_j < breakpoints[j + 1])
-        if is_realizable:
-            cost = g(Q_j, j)
-            candidates.append((Q_j, j, cost))
+	# Collect realizable Q*_j.
+	candidates = []
+	n = len(breakpoints) - 1  # Index of the last region
+	for j in range(len(unit_costs)):
+		Q_j = Q_star[j]
+		# Check if Q*_j is realizable
+		is_realizable = (j == n and Q_j >= breakpoints[j]) or (j < n and breakpoints[j] <= Q_j < breakpoints[j + 1])
+		if is_realizable:
+			cost = g(Q_j, j)
+			candidates.append((Q_j, j, cost))
 
-    # Check if there are any realizable solutions.
-    if not candidates:
-        raise ValueError("No realizable order quantity found.")
+	# Check if there are any realizable solutions.
+	if not candidates:
+		raise ValueError("No realizable order quantity found.")
 
-    # Select the candidate with the lowest cost.
-    order_quantity, region, cost = min(candidates, key=lambda x: x[2])
+	# Select the candidate with the lowest cost.
+	order_quantity, region, cost = min(candidates, key=lambda x: x[2])
 
-    return order_quantity, region, cost
+	return order_quantity, region, cost
 
 
 def economic_order_quantity_with_backorders(fixed_cost, holding_cost, stockout_cost, demand_rate, order_quantity=None, stockout_fraction=None):
