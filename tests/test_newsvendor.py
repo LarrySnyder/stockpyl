@@ -244,7 +244,19 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		demand_sd = 8
 		with self.assertRaises(ValueError):
 			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
+	
+	def test_negative_lead_time(self):
+		"""Test that newsvendor_poisson function raises exception on negative lead time.
+		"""
+		print_status('TestNewsvendorPoisson', 'test_negative_lead_time()')
 
+		holding_cost = 2
+		stockout_cost = 0.7
+		lead_time = -3
+		demand_mean = 50
+		demand_sd = 8
+		with self.assertRaises(ValueError):
+			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, lead_time)
 
 class TestNewsvendorPoissonCost(unittest.TestCase):
 	@classmethod

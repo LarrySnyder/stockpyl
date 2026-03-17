@@ -209,7 +209,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 	return cost
 
 
-def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
+def newsvendor_poisson(holding_cost, stockout_cost, demand_mean, lead_time=0,
 					  base_stock_level=None):
 	"""Solve the newsvendor problem with Poisson distribution, or (if
 	``base_stock_level`` is supplied) calculate cost of given solution.
@@ -278,8 +278,11 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean,
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if lead_time < 0: raise ValueError("lead time must be positive")
 	if base_stock_level is not None and not is_integer(base_stock_level):
 		raise ValueError("base_stock_level must be an integer (or None)")
+	if lead_time > 0: 
+		demand_mean = lead_time*demand_mean
 
 	# Is S provided?
 	if base_stock_level is None:
