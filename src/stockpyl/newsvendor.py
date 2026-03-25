@@ -273,16 +273,15 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean, lead_time=0,
 		(56.0, 1.797235211809178)
 
 	"""
-
 	# Check that parameters are positive.
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
-	if lead_time < 0: raise ValueError("lead time must be positive")
+	if lead_time < 0: raise ValueError("lead time must be positive or zero")
 	if base_stock_level is not None and not is_integer(base_stock_level):
 		raise ValueError("base_stock_level must be an integer (or None)")
 	if lead_time > 0: 
-		demand_mean = lead_time*demand_mean
+		demand_mean = (lead_time+1)*demand_mean
 
 	# Is S provided?
 	if base_stock_level is None:
