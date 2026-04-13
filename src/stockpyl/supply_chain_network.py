@@ -1033,6 +1033,7 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 	network._build_node_attributes()
 	network._currently_building = True
 
+	
 	# Check attributes in kwargs.
 	for a in kwargs.keys():
 		if not hasattr(network.nodes[0], a) and \
@@ -1075,6 +1076,7 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 		n.stockout_cost = data_dict[n.index].get('stockout_cost')
 		n.stockout_cost_function = data_dict[n.index].get('stockout_cost_function')
 		n.purchase_cost = data_dict[n.index].get('purchase_cost')
+		n.fixed_cost = data_dict[n.index].get('fixed_cost')
 		n.revenue = data_dict[n.index].get('revenue')
 		if data_dict[n.index].get('shipment_lead_time') is not None:
 			n.shipment_lead_time = data_dict[n.index].get('shipment_lead_time')
@@ -1672,4 +1674,5 @@ def echelon_to_local_base_stock_levels(network, S_echelon):
 			S_local[n.index] = S_minus[n.index] - S_minus[k.index]
 
 	return S_local
+
 
