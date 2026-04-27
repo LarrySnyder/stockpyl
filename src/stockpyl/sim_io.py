@@ -187,7 +187,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			if 'DMFS'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].demand_met_from_stock)
 			if 'FR'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].fill_rate)
 			if 'IL'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inventory_level)
-			if 'IP'		in cols_to_print: temp += [node.state_vars[t].inventory_position]
+			if 'IP'		in cols_to_print: temp += [node.state_vars[t].inventory_position()]
 			if 'BO'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].backorders_by_successor) 
 			if 'ODI'	in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].outbound_disrupted_items) 
 			if 'HC'		in cols_to_print: temp += [node.state_vars[t].holding_cost_incurred]
