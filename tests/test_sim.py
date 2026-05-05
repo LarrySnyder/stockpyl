@@ -1546,9 +1546,9 @@ class TestCalculatePeriodCosts(unittest.TestCase):
                 self.assertIn(n.state_vars[t].fixed_cost_incurred, [0, K])
 
                 total_ordered = sum(
-                             qty
-                            for p_index, rm_dict in n.state_vars[t].order_quantity.items()
-                            for rm_index, qty in rm_dict.items())
+                            qty
+                            for rm_dict in n.state_vars[t].order_quantity.values()
+                            for qty in rm_dict.values())
                 if total_ordered > 0:
                     self.assertEqual(n.state_vars[t].fixed_cost_incurred, K)
                 else:

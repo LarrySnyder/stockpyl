@@ -742,7 +742,9 @@ def _calculate_period_costs(network, period):
 			order_qty = 0
 			if fixed_cost is not None:
 				if fixed_cost > 0:
-					order_qty = len(n.state_vars[period].order_quantity.items())
+					order_qty = sum(qty 
+									for rm_dict in n.state_vars[period].order_quantity.values() 
+									for qty in rm_dict.values())
 					if order_qty > 0:
 						n.state_vars[period].fixed_cost_incurred += fixed_cost
 	

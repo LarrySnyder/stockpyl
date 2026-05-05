@@ -367,19 +367,7 @@ class SupplyChainProduct(object):
 	def holding_cost(self):
 		"""An alias for ``local_holding_cost``. Read only.
 		"""
-		return self.local_holding_cost
-	
-	@property
-	def fixed_cost(self):
-		"""An alias for ``fixed_cost``. Read only.
-		"""
-		return self._fixed_cost
-	
-	@fixed_cost.setter
-	def fixed_cost(self, value):
-		"""An alias for ``fixed_cost``."""
-		self._fixed_cost = value
-	
+		return self.local_holding_cost	
 	
 	@property
 	def lead_time(self):

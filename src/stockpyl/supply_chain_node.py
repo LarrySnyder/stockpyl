@@ -259,14 +259,6 @@ class SupplyChainNode(object):
 		"""An alias for ``local_holding_cost``. Read only.
 		"""
 		return self.local_holding_cost
-	
-	@property
-	def fixed_cost(self):
-		return self._fixed_cost
-	
-	@fixed_cost.setter
-	def fixed_cost(self, value):
-		self._fixed_cost = value
 
 	@property
 	def lead_time(self):
@@ -295,7 +287,6 @@ class SupplyChainNode(object):
 				self._inventory_policy.node = self
 
 	# Properties and functions related to network structure.
- 
 	@property
 	def has_external_supplier(self):
 		"""``True`` if the node has an external supplier (i.e., if its ``supply_type`` is not ``None``),
