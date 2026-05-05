@@ -246,6 +246,16 @@ class SaveInstance(unittest.TestCase):
 			del saved_json['last_updated']
 			del correct_json['last_updated']
 
+			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
+			# Remove it from the saved JSON to allow the dicts to compare equal.
+			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			for node_dict in saved_json['instances'][0]['data']['_nodes']:
+				if 'fixed_cost' in node_dict:
+					del node_dict['fixed_cost']
+			for product_dict in saved_json['instances'][0]['data']['_products']:
+				if 'fixed_cost' in product_dict:
+					del product_dict['fixed_cost']
+
 			# Compare.
 			self.maxDiff = None
 			self.assertDictEqual(saved_json, correct_json)
@@ -284,6 +294,16 @@ class SaveInstance(unittest.TestCase):
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
 			del correct_json['last_updated']
+
+			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
+			# Remove it from the saved JSON to allow the dicts to compare equal.
+			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			for node_dict in saved_json['instances'][0]['data']['_nodes']:
+				if 'fixed_cost' in node_dict:
+					del node_dict['fixed_cost']
+			for product_dict in saved_json['instances'][0]['data']['_products']:
+				if 'fixed_cost' in product_dict:
+					del product_dict['fixed_cost']
 
 			# Compare.
 			self.assertDictEqual(saved_json, correct_json)
@@ -371,6 +391,16 @@ class SaveInstance(unittest.TestCase):
 			del saved_json['last_updated']
 			del correct_json['last_updated']
 
+			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
+			# Remove it from the saved JSON to allow the dicts to compare equal.
+			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			for node_dict in saved_json['instances'][0]['data']['_nodes']:
+				if 'fixed_cost' in node_dict:
+					del node_dict['fixed_cost']
+			for product_dict in saved_json['instances'][0]['data']['_products']:
+				if 'fixed_cost' in product_dict:
+					del product_dict['fixed_cost']
+
 			# Compare.
 			self.assertDictEqual(saved_json, correct_json)
 
@@ -411,6 +441,19 @@ class SaveInstance(unittest.TestCase):
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
 			del correct_json['last_updated']
+
+			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
+			# Remove it from the saved JSON to allow the dicts to compare equal.
+			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			for node_dict in saved_json['instances'][0]['data']['_nodes']:
+				if 'fixed_cost' in node_dict:
+					del node_dict['fixed_cost']
+				for state_var_dict in node_dict['state_vars']:
+					if 'fixed_cost_incurred' in state_var_dict:
+						del state_var_dict['fixed_cost_incurred']
+			for product_dict in saved_json['instances'][0]['data']['_products']:
+				if 'fixed_cost' in product_dict:
+					del product_dict['fixed_cost']
 
 			# Compare.
 			self.maxDiff = None
@@ -453,6 +496,19 @@ class SaveInstance(unittest.TestCase):
 			# Remove the timestamp entry.
 			del saved_json['last_updated']
 			del correct_json['last_updated']
+
+			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
+			# Remove it from the saved JSON to allow the dicts to compare equal.
+			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			for node_dict in saved_json['instances'][0]['data']['_nodes']:
+				if 'fixed_cost' in node_dict:
+					del node_dict['fixed_cost']
+				for state_var_dict in node_dict['state_vars']:
+					if 'fixed_cost_incurred' in state_var_dict:
+						del state_var_dict['fixed_cost_incurred']
+			for product_dict in saved_json['instances'][0]['data']['_products']:
+				if 'fixed_cost' in product_dict:
+					del product_dict['fixed_cost']
 
 			# Compare.
 			self.maxDiff = None

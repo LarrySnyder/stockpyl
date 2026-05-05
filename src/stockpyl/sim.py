@@ -690,6 +690,7 @@ def _calculate_period_costs(network, period):
 		n.state_vars[period].holding_cost_incurred = 0
 		n.state_vars[period].stockout_cost_incurred = 0
 		n.state_vars[period].in_transit_holding_cost_incurred = 0
+		n.state_vars[period].fixed_cost_incurred = 0
 		n.state_vars[period].revenue_earned = 0
 			
 		# Loop through products at node.
@@ -735,12 +736,24 @@ def _calculate_period_costs(network, period):
 			n.state_vars[period].revenue_earned = (n.get_attribute('revenue', prod_index) or 0) * \
 												float(np.sum([n.state_vars[period].outbound_shipment[s_index][prod_index] \
 																for s_index in n.successor_indices(include_external=True)]))
-
+		
+			#fixed cost.
+			fixed_cost = n.fixed_cost or 0
+			order_qty = 0
+			if fixed_cost is not None:
+				if fixed_cost > 0:
+					order_qty = sum(qty 
+									for rm_dict in n.state_vars[period].order_quantity.values() 
+									for qty in rm_dict.values())
+					if order_qty > 0:
+						n.state_vars[period].fixed_cost_incurred += fixed_cost
+	
 		# Total cost.
 		n.state_vars[period].total_cost_incurred = \
 			n.state_vars[period].holding_cost_incurred + \
 			n.state_vars[period].stockout_cost_incurred + \
-			n.state_vars[period].in_transit_holding_cost_incurred - \
+			n.state_vars[period].in_transit_holding_cost_incurred + \
+			n.state_vars[period].fixed_cost_incurred - \
 			n.state_vars[period].revenue_earned
 
 

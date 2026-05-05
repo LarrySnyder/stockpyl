@@ -1482,6 +1482,77 @@ class TestCalculatePeriodCosts(unittest.TestCase):
                     + n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
                     n.state_vars[t].total_cost_incurred
                 )
+        
+    def test_fixed_cost(self):
+        """Test that _calculate_period_costs() can handle fixed cost
+        Example 6.1.
+        """
+        print_status('TestCalculatePeriodCosts', 'test_fixed_cost')
+
+        #problem 4.7
+        K = 2.5
+        network = single_stage_system(
+            holding_cost=0.75,
+            stockout_cost= 2.25-0.75,
+            demand_type='N',
+            mean = 70, standard_deviation = np.sqrt(30),
+            policy_type='BS',
+            base_stock_level=72.36,
+            lead_time = 1,
+            fixed_cost = K
+        )
+
+        _ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+        # Check costs in a few periods.
+        for t in [0, 2, 17, 52, 80]:
+            for n in network.nodes:
+                self.assertEqual(
+                    n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+                    + n.state_vars[t].in_transit_holding_cost_incurred + n.state_vars[t].fixed_cost_incurred \
+                    - n.state_vars[t].revenue_earned,
+                    n.state_vars[t].total_cost_incurred
+                )
+
+    def test_example_4_7(self):
+        """Test that _calculate_period_costs() returns accurate total cost when fixed cost is incorporated
+        Example 6.1.
+        """
+        print_status('TestCalculatePeriodCosts', 'test_example_4_7')
+
+        #problem 4.7
+        K = 2.5
+        network = single_stage_system(
+                holding_cost=0.75,
+                stockout_cost= 2.25-0.75,
+                demand_type='N',
+                mean = 70, standard_deviation = np.sqrt(30),
+                policy_type='BS',
+                base_stock_level=72.36,
+                lead_time = 1,
+                fixed_cost = K
+        )
+
+        periods = 100
+        tc = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+        
+        for t in range(periods):
+            for n in network.nodes:
+                total_cost = (n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+                    + n.state_vars[t].in_transit_holding_cost_incurred + n.state_vars[t].fixed_cost_incurred \
+                    - n.state_vars[t].revenue_earned)
+
+                self.assertAlmostEqual(n.state_vars[t].total_cost_incurred, total_cost, places=5)
+                self.assertIn(n.state_vars[t].fixed_cost_incurred, [0, K])
+
+                total_ordered = sum(
+                            qty
+                            for rm_dict in n.state_vars[t].order_quantity.values()
+                            for qty in rm_dict.values())
+                if total_ordered > 0:
+                    self.assertEqual(n.state_vars[t].fixed_cost_incurred, K)
+                else:
+                    self.assertEqual(n.state_vars[t].fixed_cost_incurred, 0)
 
 if __name__ == '__main__':
     unittest.main()
