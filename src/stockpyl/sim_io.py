@@ -143,7 +143,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 
 	# Determine columns to print.
 	if columns_to_print is None or columns_to_print == 'all' or 'all' in columns_to_print:
-		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OQFG', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'PFG', 'OS', 'DMFS', 'FR', 'IL', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
+		cols_to_print = ['DISR', 'IO', 'IOPL', 'OQ', 'OQFG', 'OO', 'IS', 'ISPL', 'IDI', 'RM', 'PFG', 'OS', 'DMFS', 'FR', 'IL', 'IP', 'BO', 'ODI', 'HC', 'SC', 'ITHC', 'REV', 'TC']
 	elif not is_list(columns_to_print) and isinstance(columns_to_print, str):
 		# columns_to_print is a string; put it in a list.
 		cols_to_print = [columns_to_print]
@@ -187,6 +187,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 			if 'DMFS'	in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].demand_met_from_stock)
 			if 'FR'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].fill_rate)
 			if 'IL'		in cols_to_print: temp += sort_dict_by_keys(node.state_vars[t].inventory_level)
+			if 'IP'		in cols_to_print: temp += [node.state_vars[t].inventory_position()]
 			if 'BO'		in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].backorders_by_successor) 
 			if 'ODI'	in cols_to_print: temp += sort_nested_dict_by_keys(node.state_vars[t].outbound_disrupted_items) 
 			if 'HC'		in cols_to_print: temp += [node.state_vars[t].holding_cost_incurred]
@@ -230,6 +231,7 @@ def write_results(network, num_periods, periods_to_print=None, columns_to_print=
 		if 'DMFS' 	in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].demand_met_from_stock, "DMFS", omit_negative_keys=suppress_dummy_products)
 		if 'FR'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].fill_rate, "FR", omit_negative_keys=suppress_dummy_products)
 		if 'IL'		in cols_to_print: headers += _dict_to_header_list(node.state_vars[0].inventory_level, "IL", omit_negative_keys=suppress_dummy_products)
+		if 'IP'		in cols_to_print: headers += ["IP"]
 		if 'BO' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].backorders_by_successor, "BO", omit_negative_keys=suppress_dummy_products)
 		if 'ODI' 	in cols_to_print: headers += _nested_dict_to_header_list(node.state_vars[0].outbound_disrupted_items , "ODI", omit_negative_keys=suppress_dummy_products)
 		if 'HC'		in cols_to_print: headers += ["HC"]
