@@ -111,8 +111,6 @@ class NodeStateVars(object):
 		Stockout cost incurred at the node in the period.
 	in_transit_holding_cost_incurred : float
 		In-transit holding cost incurred at the node in the period.
-	fixed_cost_incurred : float
-		fixed cost incurred at the node in the period.
 	revenue_earned : float
 		Revenue earned at the node in the period.
 	total_cost_incurred : float
@@ -254,7 +252,6 @@ class NodeStateVars(object):
 		self.holding_cost_incurred = 0
 		self.stockout_cost_incurred = 0
 		self.in_transit_holding_cost_incurred = 0
-		self.fixed_cost_incurred = 0
 		self.revenue_earned = 0
 		self.total_cost_incurred = 0
 
@@ -1321,7 +1318,6 @@ class NodeStateVars(object):
 		sv_dict['holding_cost_incurred'] = self.holding_cost_incurred
 		sv_dict['stockout_cost_incurred'] = self.stockout_cost_incurred
 		sv_dict['in_transit_holding_cost_incurred'] = self.in_transit_holding_cost_incurred
-		sv_dict['fixed_cost_incurred'] = self.fixed_cost_incurred
 		sv_dict['revenue_earned'] = self.revenue_earned
 		sv_dict['total_cost_incurred'] = self.total_cost_incurred
 		sv_dict['demand_cumul'] = self.demand_cumul
@@ -1376,7 +1372,6 @@ class NodeStateVars(object):
 			nsv.holding_cost_incurred = the_dict['holding_cost_incurred']
 			nsv.stockout_cost_incurred = the_dict['stockout_cost_incurred']
 			nsv.in_transit_holding_cost_incurred = the_dict['in_transit_holding_cost_incurred']
-			nsv.fixed_cost_incurred = the_dict['fixed_cost_incurred']
 			nsv.revenue_earned = the_dict['revenue_earned']
 			nsv.total_cost_incurred = the_dict['total_cost_incurred']
 			nsv.demand_cumul = the_dict['demand_cumul']
@@ -1498,7 +1493,6 @@ class NodeStateVars(object):
 		if self.holding_cost_incurred != other.holding_cost_incurred: return False
 		if self.stockout_cost_incurred != other.stockout_cost_incurred: return False
 		if self.in_transit_holding_cost_incurred != other.in_transit_holding_cost_incurred: return False
-		if self.fixed_cost_incurred != other.fixed_cost_incurred: return False
 		if self.revenue_earned != other.revenue_earned: return False
 		if self.total_cost_incurred != other.total_cost_incurred: return False
 		if self.demand_cumul != other.demand_cumul: return False
