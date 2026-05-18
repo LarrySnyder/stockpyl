@@ -94,6 +94,8 @@ class SupplyChainProduct(object):
 		Function that calculates local holding cost per period, as a function
 		of ending inventory level. Function must take exactly one argument, the
 		ending IL. Function should check that IL > 0.
+	additional_holding_cost: float
+		Holidng cost charged when inventory_level > inventory_capacity, per unit per period.
 	in_transit_holding_cost : float
 		Holding cost coefficient used to calculate in-transit holding cost for
 		shipments en route from a node to its downstream successors, if any.
@@ -117,6 +119,10 @@ class SupplyChainProduct(object):
 		Demand source object.
 	initial_inventory_level : float
 		Initial inventory level.
+	inventory_capacity : float
+		Inventory capacity.
+	inventory_over_capacity : float
+		Inventory_capacity - inventory_level.
 	initial_orders : float
 		Initial outbound order quantity.
 	initial shipments : float
@@ -133,6 +139,8 @@ class SupplyChainProduct(object):
 		Disruption process object (if any).
 	order_capacity : float
 		Maximum size of an order.
+	inventory_capacity : float
+		Maximum on-hand inventory.
 	state_vars : list of |class_state_vars|
 		List of |class_state_vars|, one for each period in a simulation.
 	problem_specific_data : object
@@ -195,6 +203,7 @@ class SupplyChainProduct(object):
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
+		'additional_holding_cost': None,
 		'in_transit_holding_cost': None,
 		'stockout_cost': None,
 		'fixed_cost': None,
@@ -204,6 +213,8 @@ class SupplyChainProduct(object):
 		'order_lead_time': None,
 		'demand_source': None,
 		'initial_inventory_level': None,
+		'inventory_capacity': None,
+		'inventory_over_capacity': None,
 		'initial_orders': None,
 		'initial_shipments': None,
 		'_inventory_policy': None,
@@ -511,9 +522,9 @@ class SupplyChainProduct(object):
 					if self.inventory_policy != other.inventory_policy:
 						viol_attr = attr
 						eq = False
-				elif attr in ('local_holding_cost', 'echelon_holding_cost', 'in_transit_holding_cost', \
+				elif attr in ('local_holding_cost', 'echelon_holding_cost', 'additional_holding_cost', 'in_transit_holding_cost', \
 							  'stockout_cost', 'fixed_cost', 'revenue', 'initial_inventory_level', 'initial_orders',
-							  'initial_shipments', 'order_capacity'):
+							  'initial_shipments', 'order_capacity', 'inventory_capacity'):
 					# These attributes need approximate comparisons.
 					if not isclose(getattr(self, attr) or 0, getattr(other, attr) or 0, rel_tol=rel_tol):
 						viol_attr = attr

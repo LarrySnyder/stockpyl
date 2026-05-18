@@ -1040,7 +1040,7 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 				not hasattr(network.nodes[0].demand_source, a) and \
 				not hasattr(network.nodes[0].inventory_policy, a) and \
 				not hasattr(network.nodes[0].disruption_process, a) and \
-				a not in ('demand_type', 'policy_type', 'order_capacity'):
+				a not in ('demand_type', 'policy_type', 'order_capacity', 'inventory_capacity'):
 			raise AttributeError(f"{a} is not an attribute of SupplyChainNode")
 
 	# Check node_order_in_lists; if not provided, build it.
@@ -1070,7 +1070,9 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 		else:
 			n.local_holding_cost = data_dict[n.index].get('holding_cost')
 		n.echelon_holding_cost = data_dict[n.index].get('echelon_holding_cost')
+		n.additional_holding_cost = data_dict[n.index].get('additional_holding_cost')
 		n.order_capacity = data_dict[n.index].get('order_capacity')
+		n.inventory_capacity = data_dict[n.index].get('inventory_capacity')
 		n.local_holding_cost_function = data_dict[n.index].get('local_holding_cost_function')
 		n.in_transit_holding_cost = data_dict[n.index].get('in_transit_holding_cost')
 		n.stockout_cost = data_dict[n.index].get('stockout_cost')
