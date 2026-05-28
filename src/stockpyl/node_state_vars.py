@@ -88,7 +88,8 @@ class NodeStateVars(object):
 		``s``. If ``s`` is ``None``, refers to external demand. 
 	outbound_disrupted_items : dict
 		``outbound_disrupted_items[s][prod]`` = number of items of product ``prod`` held for successor ``s``
-		due to a type-SP disruption at ``s``. (Since external demand cannot be
+		due to a type-SP 
+		at ``s``. (Since external demand cannot be
 		disrupted, ``outbound_disrupted_items[None][prod]`` always = 0.) 
 		Items held for successor are not included in ``backorders_by_successor``.
 		Sum over all successors of ``backorders_by_successor + outbound_disrupted_items``
@@ -99,8 +100,8 @@ class NodeStateVars(object):
 	raw_material_inventory : dict
 		``raw_material_inventory[rm]`` = number of units of raw material ``rm`` from _all_ predecessors 
 		in raw-material inventory at node. 
-	inventory_over_capacity : dict
-		``inventory_over_capacity[prod]`` = difference (positive, negative, or zero) between current inventory level and inventory_capacity 
+	excess_inventory: dict
+		``excess_inventory[prod]`` = difference (positive, negative, or zero) between current inventory level and inventory_capacity 
 		of product ``prod`` at node.
 	pending_finished_goods : dict
 		``pending_finished_goods[prod]`` = number of units of product ``prod`` that are waiting to be
@@ -169,7 +170,7 @@ class NodeStateVars(object):
 			# Initialize dicts with appropriate keys. (inbound_shipment_pipeline gets
 			# order_lead_time+shipment_lead_time slots for orders to external supplier)
 			self.inventory_level = {prod_index: 0 for prod_index in self.node.product_indices}
-			self.inventory_over_capacity = {prod_index: 0 for prod_index in self.node.product_indices}
+			self.excess_inventory = {prod_index: 0 for prod_index in self.node.product_indices}
 			self.inbound_shipment_pipeline = {}
 			for p_index in self.node.predecessor_indices(include_external=True):
 				self.inbound_shipment_pipeline[p_index] = {}
@@ -494,7 +495,7 @@ class NodeStateVars(object):
 			
 		return self.inventory_level[prod_ind]
 
-	def inventory_over_capacity(self, product=None):
+	def excess_inventory(self, product=None):
 		"""Shortcut to ``self.inventory_level[product]``
 		that does not require ``product`` to be specified if it is inferrable.
 

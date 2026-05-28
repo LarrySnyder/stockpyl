@@ -67,6 +67,7 @@ from stockpyl import policy
 from stockpyl.supply_chain_product import SupplyChainProduct
 from stockpyl import demand_source
 from stockpyl import disruption_process
+from stockpyl import inventory_capacity
 from stockpyl.helpers import is_integer, is_list, is_dict, is_set, replace_dict_numeric_string_keys
 
 # This number gets added to product indices to avoid conflicts.
@@ -135,8 +136,10 @@ class SupplyChainNode(object):
 		Disruption process object (if any).
 	order_capacity : float
 		Maximum size of an order.
+	inventory_capacity_type: string
+		The way excess inventory is handled
 	inventory_capacity : float
-		Maximum on-hand inventory. 
+		Maximum on-hand inventory.
 	state_vars : list of |class_state_vars|
 		List of |class_state_vars|, one for each period in a simulation.
 	problem_specific_data : object
@@ -219,6 +222,7 @@ class SupplyChainNode(object):
 		'disruption_process': None,
 		'order_capacity': None,
 		'inventory_capacity': None,
+		'inventory_capacity_type': None,
 		'processing_time': None,
 		'external_inbound_cst': None,
 		'external_outbound_cst': None,
@@ -1458,6 +1462,30 @@ class SupplyChainNode(object):
 			return False
 		else:
 			return self.disruption_process.disrupted
+	
+	@property
+	def excess_inventory(self):
+		"""Is the inventory_level at node currently over capacity?
+
+		(Works even if the node has no |class_inventory_capacity| object in its
+		``inventory_capacity`` attribute.)
+		"""
+		if self.inventory_capacity_type is None:
+			return False
+		else:
+			return self.inventory_capacity.excess_inventory
+	
+	@property
+	def shutdown(self):
+		"""Is the production at node currently shutdown?
+
+		(Works even if the node has no |class_inventory_capacity| object in its
+		``inventory_capacity`` attribute.)
+		"""
+		if self.inventory_capacity_type is None:
+			return False
+		else:
+			return self.inventory_capacity.shutdown
 
 	# Special methods.
 
@@ -1549,6 +1577,8 @@ class SupplyChainNode(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy(node=self)
+			elif attr == '_inventory_capacity_type':
+				self.inventory_capacity_type = inventory_capacity.InventoryCapacity()
 			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]) or \
 				is_set(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
@@ -1706,7 +1736,7 @@ class SupplyChainNode(object):
 				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=False))
 			elif attr == '_successor_indices':
 				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=False))
-			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
+			elif attr in ('demand_source', 'disruption_process', '_inventory_policy', 'inventory_capacity_type'):
 				# Determine whether attr is a singleton or a dict (for node-product-level attribute).
 				# Leave a note to the decoder indicating which type of dict this is.
 				the_attr = None if getattr(self, attr) is None else getattr(self, attr)

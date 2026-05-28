@@ -1571,9 +1571,11 @@ class TestCalculatePeriodCosts(unittest.TestCase):
             base_stock_level=72.36,
             lead_time = 1,
             fixed_cost = K,
-            inventory_capacity = 5,
-            additional_holding_cost = 1
-        )
+            inventory_capacity = InventoryCapacity(
+                inventory_capacity = 5,
+                additional_holding_cost = 1,
+                inventory_capacity_type = 'HC')
+            )
 
         _ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 

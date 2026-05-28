@@ -702,8 +702,13 @@ def _calculate_period_costs(network, period):
 				n.state_vars[period].holding_cost_incurred += n.get_attribute('local_holding_cost_function', prod_index)(items_held)
 			except TypeError:
 				n.state_vars[period].holding_cost_incurred += (n.get_attribute('local_holding_cost', prod_index) or 0) * items_held
-				if n.state_vars_current.inventory_over_capacity[prod_index] > 0:
-					n.state_vars[period].holding_cost_incurred += (n.get_attribute('additional_holding_cost', prod_index) or 0) * n.state_vars_current.inventory_over_capacity[prod_index]
+				if n.state_vars_current.excess_inventory[prod_index] > 0:
+					if n.inventory_capacity is not None and n.inventory_capacity.inventory_capacity_type == 'HC':						n.state_vars[period].holding_cost_incurred += (n.get_attribute('additional_holding_cost', prod_index) or 0) \
+						* n.state_vars_current.excess_inventory[prod_index]
+					if n.inventory_capacity is not None and n.inventory_capacity.inventory_capacity_type == 'PP':
+						order_qty = 0
+
+
 			# Raw materials holding cost. Includes only products that come from an actual predecessor node, not external supplier.
 			for rm_index in n.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
 				# Determine suppliers for this raw material, excluding external supplier.
@@ -1024,8 +1029,15 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 
 			# Update IL and BO.
 			node.state_vars_current.inventory_level[prod_index] -= node.state_vars_current.inbound_order[s_index][prod_index]
-			node.state_vars_current.inventory_over_capacity[prod_index] = max(0, node.state_vars_current.inventory_level[prod_index] \
-   			- (node.get_attribute('inventory_capacity', prod_index) or 0))
+			inventory_capacity = node.get_attribute('inventory_capacity', prod_index)
+			if inventory_capacity is None:
+				capacity_value = None
+			elif hasattr(inventory_capacity, "inventory_capacity"):
+				capacity_value = inventory_capacity.inventory_capacity
+			else:
+				capacity_value = inventory_capacity
+			node.state_vars_current.excess_inventory[prod_index] = (max(0, node.state_vars_current.inventory_level[prod_index] \
+   			- capacity_value) if capacity_value is not None else 0)
 			# Calculate new backorders_by_successor.
 			node.state_vars_current.backorders_by_successor[s_index][prod_index] -= (BO_OS + BO_to_DI)
 			node.state_vars_current.backorders_by_successor[s_index][prod_index] \
