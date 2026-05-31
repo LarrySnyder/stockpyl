@@ -406,6 +406,22 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			# below to set pending_finished_goods.
 			order_quantity_dict = policy.get_order_quantity(product=prod_ind, order_capacity=order_capac, include_raw_materials=True)
 
+			#shut down orders if inventory_capacity_type = 'PP' and inventory_level is over capacity
+			capacity = node.inventory_capacity
+			pause_production = (capacity is not None
+    			and capacity.inventory_capacity_type == 'PP'
+    			and capacity.inventory_capacity is not None
+    			and node.state_vars_current.inventory_level[prod_ind] >= capacity.inventory_capacity
+			)
+			if pause_production:
+				order_quantity_dict = {
+        		p: {
+            		rm: 0
+            		for rm in rm_dict
+        		}
+        		for p, rm_dict in order_quantity_dict.items()
+    		}
+			
 			# Update FG order quantity and pending finished goods. (Convert to downstream units.)
 			node.state_vars_current.order_quantity_fg[prod_ind] += order_quantity_dict[None][None]
 			node.state_vars_current.pending_finished_goods[prod_ind] += order_quantity_dict[None][None]
@@ -705,8 +721,7 @@ def _calculate_period_costs(network, period):
 				if n.state_vars_current.excess_inventory[prod_index] > 0:
 					if n.inventory_capacity is not None and n.inventory_capacity.inventory_capacity_type == 'HC':						n.state_vars[period].holding_cost_incurred += (n.get_attribute('additional_holding_cost', prod_index) or 0) \
 						* n.state_vars_current.excess_inventory[prod_index]
-					if n.inventory_capacity is not None and n.inventory_capacity.inventory_capacity_type == 'PP':
-						order_qty = 0
+
 
 
 			# Raw materials holding cost. Includes only products that come from an actual predecessor node, not external supplier.

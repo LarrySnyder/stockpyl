@@ -94,7 +94,7 @@ class InventoryCapacity(object):
 
 	_DEFAULT_VALUES = {
 		'_inventory_capacity': None,
-		'_inventory_capacity_type': None,
+		'_inventory_capacity_type': 'HC',
 		'_over_capacity': False,
 		'_additional_holding_cost': None
 	}
