@@ -1682,7 +1682,7 @@ class TestCalculatePeriodCosts(unittest.TestCase):
         self.assertNotEqual(ic1, ic2)
 
     def test_production_shutdown(self):
-        """Test that setting inventory_capacity_type = 'PP works correctly.
+        """Test that setting inventory_capacity_type = 'PP' works correctly.
         """
         print_status('TestProductionShutdown', 'test_production_shutdown')
 
@@ -1709,7 +1709,9 @@ class TestCalculatePeriodCosts(unittest.TestCase):
             write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI', 'costs'], 
 				write_txt=True, txt_filename=txt_filename)
         finally:
-            pass
+            if os.path.exists(txt_filename):
+                os.remove(txt_filename)
+
 
         # Check costs in a few periods.
         for t in [0, 2, 17, 52, 80]:
@@ -1720,28 +1722,6 @@ class TestCalculatePeriodCosts(unittest.TestCase):
                     - n.state_vars[t].revenue_earned,
                     n.state_vars[t].total_cost_incurred
                 )
-        
-        #check that HC is higher for periods where IL > IC 
-        original_network = single_stage_system(
-            holding_cost=0.75,
-            stockout_cost= 2.25-0.75,
-            demand_type='N',
-            mean = 70, standard_deviation = np.sqrt(30),
-            policy_type='BS',
-            base_stock_level=72.36,
-            lead_time = 1,
-        )
-
-        _ = simulation(original_network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
-
-        original_filename_root = 'tests/additional_files/temp_TestCalculatePeriodCosts_test_production_shutdown_original'
-        original_txt_filename = original_filename_root + '.txt'
-        try:
-            write_results(network=original_network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI', 'costs'], 
-				write_txt=True, txt_filename=original_txt_filename)
-            
-        finally:
-            pass
 
         
     
