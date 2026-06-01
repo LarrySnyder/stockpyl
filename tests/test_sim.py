@@ -1561,7 +1561,6 @@ class TestCalculatePeriodCosts(unittest.TestCase):
         print_status('TestAdditionalHoldingCost', 'test_additional_holding_cost')
 
         #problem 4.7 with additional parameters
-        K = 2.5
         network = single_stage_system(
             holding_cost=0.75,
             stockout_cost= 2.25-0.75,
@@ -1570,7 +1569,6 @@ class TestCalculatePeriodCosts(unittest.TestCase):
             policy_type='BS',
             base_stock_level=72.36,
             lead_time = 1,
-            fixed_cost = K,
             inventory_capacity = InventoryCapacity(
                 inventory_capacity = 5,
                 additional_holding_cost = 1,
@@ -1607,12 +1605,11 @@ class TestCalculatePeriodCosts(unittest.TestCase):
             policy_type='BS',
             base_stock_level=72.36,
             lead_time = 1,
-            fixed_cost = K
         )
 
         _ = simulation(original_network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
 
-        original_filename_root = 'tests/additional_files/temp_TestCalculatePeriodCosts_test_fixed_cost'
+        original_filename_root = 'tests/additional_files/temp_TestCalculatePeriodCosts_test_base_case'
         original_txt_filename = original_filename_root + '.txt'
         try:
             write_results(network=original_network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI', 'costs'], 
@@ -1645,6 +1642,8 @@ class TestCalculatePeriodCosts(unittest.TestCase):
                 os.remove(txt_filename)
             if os.path.exists(original_txt_filename):
                 os.remove(original_txt_filename)
+        
+
 
     def test_inventory_capacity(self):
         """Test that InventoryCapacity() class is correct.
@@ -1655,7 +1654,7 @@ class TestCalculatePeriodCosts(unittest.TestCase):
         inv_capacity = InventoryCapacity()
 
         self.assertIsNone(inv_capacity.inventory_capacity)
-        self.assertEqual(inv_capacity.inventory_capacity_type, 'HC')
+        self.assertEqual(inv_capacity.inventory_capacity_type, None)
         self.assertFalse(inv_capacity.over_capacity)
 
         #custom values
@@ -1670,16 +1669,23 @@ class TestCalculatePeriodCosts(unittest.TestCase):
 
         #inequality
         ic1 = InventoryCapacity(
-        inventory_capacity=100,
-        inventory_capacity_type='HC'
+            inventory_capacity=100,
+            inventory_capacity_type='HC',
+            additional_holding_cost = 1
         )
 
         ic2 = InventoryCapacity(
             inventory_capacity=200,
-        inventory_capacity_type='HC'
+            inventory_capacity_type='HC',
+            additional_holding_cost = 2
         )
 
         self.assertNotEqual(ic1, ic2)
+                #check that InventoryCapacity() raises value error when parameters are missing 
+        with self.assertRaises(AttributeError):
+            InventoryCapacity(
+                    inventory_capacity = 5,
+                    inventory_capacity_type = 'HC')
 
     def test_production_shutdown(self):
         """Test that setting inventory_capacity_type = 'PP' works correctly.
@@ -1722,13 +1728,6 @@ class TestCalculatePeriodCosts(unittest.TestCase):
                     - n.state_vars[t].revenue_earned,
                     n.state_vars[t].total_cost_incurred
                 )
-
-        
-    
-        
-        
-
-
 
 
 if __name__ == '__main__':

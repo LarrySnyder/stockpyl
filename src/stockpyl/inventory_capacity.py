@@ -91,10 +91,15 @@ class InventoryCapacity(object):
 				vars(self)[f"_{key}"] = value
 			else:
 				raise AttributeError(f"{key} is not an attribute of InventoryCapacity")
+		
+		#validate parameters
+		self.validate_parameters()
+			
+
 
 	_DEFAULT_VALUES = {
 		'_inventory_capacity': None,
-		'_inventory_capacity_type': 'HC',
+		'_inventory_capacity_type': None,
 		'_over_capacity': False,
 		'_additional_holding_cost': None
 	}
@@ -233,6 +238,7 @@ class InventoryCapacity(object):
 		capacity type. Raise an exception if not.
 		"""
 		if self.inventory_capacity_type not in (None, 'HC', 'PP'): raise AttributeError("Valid random_process_type in (None, 'HC', 'PP') must be provided")
+		if self.inventory_capacity_type == 'HC' and self.additional_holding_cost is None: raise AttributeError("additional_holding_cost not provided")
 
 	# CONVERTING TO/FROM DICTS
 
