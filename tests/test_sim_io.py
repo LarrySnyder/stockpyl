@@ -196,7 +196,7 @@ class TestWriteResults(unittest.TestCase):
 		csv_filename = filename_root + '.csv'
 
 		# Same correct file as for test_columns_to_print_none.
-		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_columns_to_print_none'
+		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_columns_to_print_none_with_IP_output'
 		correct_txt_filename = correct_filename_root + '.txt'
 		correct_csv_filename = correct_filename_root + '.csv'
 
@@ -220,6 +220,7 @@ class TestWriteResults(unittest.TestCase):
 				correct_rows = list(correct_reader)
 			self.assertListEqual(rows, correct_rows)
 
+			self.maxDiff = None
 		finally:
 			# Delete files.
 			if os.path.exists(txt_filename):
@@ -242,7 +243,7 @@ class TestWriteResults(unittest.TestCase):
 		txt_filename = filename_root + '.txt'
 		csv_filename = filename_root + '.csv'
 
-		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_columns_to_print_none'
+		correct_filename_root = 'tests/additional_files/test_sim_io_TestWriteResults_test_columns_to_print_none_with_IP_output'
 		correct_txt_filename = correct_filename_root + '.txt'
 		correct_csv_filename = correct_filename_root + '.csv'
 
