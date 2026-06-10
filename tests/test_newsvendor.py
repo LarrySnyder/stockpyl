@@ -225,7 +225,7 @@ class TestNewsvendorPoisson(unittest.TestCase):
 	def test_bad_type(self):
 		"""Test that newsvendor_poisson function raises exception on bad type.
 		"""
-		print_status('TestNewsvendorPoinsson', 'test_bad_type()')
+		print_status('TestNewsvendorPoisson', 'test_bad_type()')
 
 		holding_cost = "taco"
 		stockout_cost = 0.7
@@ -244,7 +244,45 @@ class TestNewsvendorPoisson(unittest.TestCase):
 		demand_sd = 8
 		with self.assertRaises(ValueError):
 			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean)
+	
+	def test_negative_lead_time(self):
+		"""Test that newsvendor_poisson function raises exception on negative lead time.
+		"""
+		print_status('TestNewsvendorPoisson', 'test_negative_lead_time()')
 
+		holding_cost = 2
+		stockout_cost = 0.7
+		lead_time = -3
+		demand_mean = 50
+		demand_sd = 8
+		with self.assertRaises(ValueError):
+			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, lead_time)
+	
+	def test_base_stock_integer(self):
+		"""Test that newsvendor_poisson function raises exception on continuous base stock value.
+		"""
+		print_status('TestNewsvendorPoisson', 'test_base_stock_integer()')
+
+		holding_cost = 2
+		stockout_cost = 0.7
+		demand_mean = 50
+		demand_sd = 8
+		with self.assertRaises(ValueError):
+			base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, base_stock_level=6.5)
+
+	def test_problem_4_19_SCMO(self):
+		"""Test that newsvendor_poisson function correctly solves Problem 4.19 from SCMO textbook.
+		"""
+		print_status('TestNewsvendorPoisson', 'test_problem_4_19_SCMO()')
+
+		demand_mean = 18
+		lead_time = 4
+		holding_cost = 0.08
+		stockout_cost = 1.25
+
+		base_stock_level, cost = newsvendor.newsvendor_poisson(holding_cost, stockout_cost, demand_mean, lead_time)
+		self.assertEqual(base_stock_level, 105)
+		self.assertAlmostEqual(cost, 1.5450188691551778)
 
 class TestNewsvendorPoissonCost(unittest.TestCase):
 	@classmethod

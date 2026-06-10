@@ -220,6 +220,7 @@ class TestWriteResults(unittest.TestCase):
 				correct_rows = list(correct_reader)
 			self.assertListEqual(rows, correct_rows)
 
+			self.maxDiff = None
 		finally:
 			# Delete files.
 			if os.path.exists(txt_filename):

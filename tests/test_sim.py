@@ -9,6 +9,7 @@ from stockpyl.supply_chain_network import local_to_echelon_base_stock_levels
 from stockpyl.policy import *
 from stockpyl.disruption_process import DisruptionProcess
 
+
 # Module-level functions.
 
 def print_status(class_name, function_name):
@@ -1480,6 +1481,201 @@ class TestCalculatePeriodCosts(unittest.TestCase):
                 self.assertEqual(
                     n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
                     + n.state_vars[t].in_transit_holding_cost_incurred - n.state_vars[t].revenue_earned,
+                    n.state_vars[t].total_cost_incurred
+                )
+
+        periods = 100
+        tc = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+        
+        for t in range(periods):
+            for n in network.nodes:
+                total_cost = (n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+                    + n.state_vars[t].in_transit_holding_cost_incurred + n.state_vars[t].fixed_cost_incurred \
+                    - n.state_vars[t].revenue_earned)
+
+                self.assertAlmostEqual(n.state_vars[t].total_cost_incurred, total_cost, places=5)
+                self.assertIn(n.state_vars[t].fixed_cost_incurred, [0, K])
+
+                total_ordered = sum(
+                            qty
+                            for rm_dict in n.state_vars[t].order_quantity.values()
+                            for qty in rm_dict.values())
+                if total_ordered > 0:
+                    self.assertEqual(n.state_vars[t].fixed_cost_incurred, K)
+                else:
+                    self.assertEqual(n.state_vars[t].fixed_cost_incurred, 0)
+    def test_additional_holding_cost(self):
+        """Test that calculate_period_costs() accounts for additional holding cost for inventory over capacity.
+        Example 6.1.
+        """
+        print_status('TestAdditionalHoldingCost', 'test_additional_holding_cost')
+
+        #problem 4.7 with additional parameters
+        network = single_stage_system(
+            holding_cost=0.75,
+            stockout_cost= 2.25-0.75,
+            demand_type='N',
+            mean = 70, standard_deviation = np.sqrt(30),
+            policy_type='BS',
+            base_stock_level=72.36,
+            lead_time = 1,
+            inventory_capacity = InventoryCapacity(
+                inventory_capacity = 5,
+                additional_holding_cost = 1,
+                inventory_capacity_type = 'HC')
+            )
+
+        _ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+        filename_root = 'tests/additional_files/temp_TestCalculatePeriodCosts_test_additional_holding_cost'
+        txt_filename = filename_root + '.txt'
+        
+        try:
+            write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI', 'costs'], 
+				write_txt=True, txt_filename=txt_filename)
+        finally:
+            pass
+
+        # Check costs in a few periods.
+        for t in [0, 2, 17, 52, 80]:
+            for n in network.nodes:
+                self.assertEqual(
+                    n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+                    + n.state_vars[t].in_transit_holding_cost_incurred + n.state_vars[t].fixed_cost_incurred \
+                    - n.state_vars[t].revenue_earned,
+                    n.state_vars[t].total_cost_incurred
+                )
+        
+        #check that HC is higher for periods where IL > IC 
+        original_network = single_stage_system(
+            holding_cost=0.75,
+            stockout_cost= 2.25-0.75,
+            demand_type='N',
+            mean = 70, standard_deviation = np.sqrt(30),
+            policy_type='BS',
+            base_stock_level=72.36,
+            lead_time = 1,
+        )
+
+        _ = simulation(original_network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+        original_filename_root = 'tests/additional_files/temp_TestCalculatePeriodCosts_test_base_case'
+        original_txt_filename = original_filename_root + '.txt'
+        try:
+            write_results(network=original_network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI', 'costs'], 
+				write_txt=True, txt_filename=original_txt_filename)
+            
+            # Load TXT results and check them.
+            with open(txt_filename) as txtfile:
+                lines = txtfile.read().splitlines()
+                header = next(line.split() for line in lines if 'HC' in line)
+                hc_index = header.index('HC')
+                hc_values = [
+                    float(parts[hc_index])
+                    for parts in (line.split() for line in lines)
+                    if parts and parts[0].isdigit()
+                ]
+            with open(original_txt_filename) as original_txtfile:
+                original_lines = original_txtfile.read().splitlines()
+                header = next(line.split() for line in original_lines if 'HC' in line)
+                hc_index = header.index('HC')
+                original_hc_values = [
+                    float(parts[hc_index])
+                    for parts in (line.split() for line in original_lines)
+                    if parts and parts[0].isdigit()
+                ]
+            for t in range(len(hc_values)):
+                if hc_values[t] != original_hc_values[t]:
+                    self.assertGreater(hc_values[t], original_hc_values[t])
+        finally:
+            if os.path.exists(txt_filename):
+                os.remove(txt_filename)
+            if os.path.exists(original_txt_filename):
+                os.remove(original_txt_filename)
+        
+
+
+    def test_inventory_capacity(self):
+        """Test that InventoryCapacity() class is correct.
+        """
+        print_status('TestInventoryCapacity', 'test_inventory_capacity')
+
+        #default values
+        inv_capacity = InventoryCapacity()
+
+        self.assertIsNone(inv_capacity.inventory_capacity)
+        self.assertEqual(inv_capacity.inventory_capacity_type, None)
+        self.assertFalse(inv_capacity.over_capacity)
+
+        #custom values
+        inv_capacity = InventoryCapacity(
+                inventory_capacity=100,
+                inventory_capacity_type='PP',
+                over_capacity=True)
+         
+        self.assertEqual(inv_capacity.inventory_capacity, 100)
+        self.assertEqual(inv_capacity.inventory_capacity_type, 'PP')
+        self.assertTrue(inv_capacity.over_capacity)
+
+        #inequality
+        ic1 = InventoryCapacity(
+            inventory_capacity=100,
+            inventory_capacity_type='HC',
+            additional_holding_cost = 1
+        )
+
+        ic2 = InventoryCapacity(
+            inventory_capacity=200,
+            inventory_capacity_type='HC',
+            additional_holding_cost = 2
+        )
+
+        self.assertNotEqual(ic1, ic2)
+                #check that InventoryCapacity() raises value error when parameters are missing 
+        with self.assertRaises(AttributeError):
+            InventoryCapacity(
+                    inventory_capacity = 5,
+                    inventory_capacity_type = 'HC')
+
+    def test_production_shutdown(self):
+        """Test that setting inventory_capacity_type = 'PP' works correctly.
+        """
+        print_status('TestProductionShutdown', 'test_production_shutdown')
+
+        #problem 4.7 with additional parameters
+        network = single_stage_system(
+            holding_cost=0.75,
+            stockout_cost= 2.25-0.75,
+            demand_type='N',
+            mean = 70, standard_deviation = np.sqrt(30),
+            policy_type='BS',
+            base_stock_level=72.36,
+            lead_time = 1,
+            inventory_capacity = InventoryCapacity(
+                inventory_capacity = 5,
+                inventory_capacity_type = 'PP')
+            )
+        
+        _ = simulation(network, 100, rand_seed=17, progress_bar=False, consistency_checks='E')
+
+        filename_root = 'tests/additional_files/temp_TestCalculatePeriodCosts_test_production_shutdown'
+        txt_filename = filename_root + '.txt'
+        
+        try:
+            write_results(network=network, num_periods=100, periods_to_print=10, columns_to_print=['SC', 'basic', 'IDI', 'costs'], 
+				write_txt=True, txt_filename=txt_filename)
+        finally:
+            if os.path.exists(txt_filename):
+                os.remove(txt_filename)
+
+
+        # Check costs in a few periods.
+        for t in [0, 2, 17, 52, 80]:
+            for n in network.nodes:
+                self.assertEqual(
+                    n.state_vars[t].holding_cost_incurred + n.state_vars[t].stockout_cost_incurred \
+                    + n.state_vars[t].in_transit_holding_cost_incurred + n.state_vars[t].fixed_cost_incurred \
+                    - n.state_vars[t].revenue_earned,
                     n.state_vars[t].total_cost_incurred
                 )
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `fixed_cost` attribute in `SupplyChainNode` that is used in simulations (via [@LayanSulei](https://github.com/LayanSulei)).
+- `lead_time` parameter in `newsvendor_poisson()` (via [@LayanSulei](https://github.com/LayanSulei)).
+
 ## [1.0.2]
 
 ### Added

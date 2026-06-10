@@ -96,7 +96,7 @@ Simulations in |sp| assume periodic review. In each period :math:`t`, events occ
 	2. Outbound orders are placed to predecessor nodes and/or external suppliers.
 	3. Inbound shipments sent :math:`t-L^s_i` periods ago are received from predecessor nodes and/or external suppliers, where
 	   :math:`L^s_i` is the shipment lead time for node :math:`i`.
-	4. Outbound shipments are sent to predecessor nodes and/or external suppliers.
+	4. Outbound shipments are sent to successor nodes and/or external customers.
 	5. State variables are updated and costs are incurred.
 
 .. note:: This sequence of events (SoE) is somewhat atypical. It is more common to assume that orders are placed *before* demands
