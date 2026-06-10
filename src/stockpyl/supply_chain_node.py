@@ -208,7 +208,6 @@ class SupplyChainNode(object):
 		'local_holding_cost_function': None,
 		'in_transit_holding_cost': None,
 		'stockout_cost': None,
-		'fixed_cost': None,
 		'stockout_cost_function': None,
 		'revenue': None,
 		'shipment_lead_time': None,
@@ -2082,8 +2081,6 @@ class SupplyChainNode(object):
 			# default value for properties.
 			if attr == 'holding_cost':
 				default_val = self._DEFAULT_VALUES['local_holding_cost']
-			elif attr == 'fixed_cost':
-				default_val = self._DEFAULT_VALUES['fixed_cost']
 			elif attr == 'lead_time':
 				default_val = self._DEFAULT_VALUES['shipment_lead_time']
 			else:
@@ -2165,7 +2162,7 @@ class SupplyChainNode(object):
 			else:
 				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index][prod_ind]
 									 for s_index in self.successor_indices(include_external=include_external)]))
-		elif attribute in ('disrupted', 'holding_cost_incurred', 'stockout_cost_incurred', 'fixed_cost_incurred', 'in_transit_holding_cost_incurred',
+		elif attribute in ('disrupted', 'holding_cost_incurred', 'stockout_cost_incurred', 'in_transit_holding_cost_incurred',
 			'revenue_earned', 'total_cost_incurred'):
 			# These attributes are not indexed by product.
 			if period is None:
