@@ -166,7 +166,7 @@ def initialize(network, num_periods, rand_seed=None):
 	if network.has_directed_cycle():
 		raise ValueError("network may not contain a directed cycle")
 
-	# Check that all nodes have inventory policies with node attribute set correctly.
+	# Check that all nodes have inventory policies with node attribute set correctly. 
 	for node in network.nodes:
 		for prod_ind in node.product_indices:
 			policy = node.get_attribute('inventory_policy', product=prod_ind)
@@ -406,6 +406,22 @@ def _generate_downstream_orders(node_index, network, period, visited, order_quan
 			# below to set pending_finished_goods.
 			order_quantity_dict = policy.get_order_quantity(product=prod_ind, order_capacity=order_capac, include_raw_materials=True)
 
+			#shut down orders if inventory_capacity_type = 'PP' and inventory_level is over capacity
+			capacity = node.inventory_capacity
+			pause_production = (capacity is not None
+    			and capacity.inventory_capacity_type == 'PP'
+    			and capacity.inventory_capacity is not None
+    			and node.state_vars_current.inventory_level[prod_ind] >= capacity.inventory_capacity
+			)
+			if pause_production:
+				order_quantity_dict = {
+        		p: {
+            		rm: 0
+            		for rm in rm_dict
+        		}
+        		for p, rm_dict in order_quantity_dict.items()
+    		}
+			
 			# Update FG order quantity and pending finished goods. (Convert to downstream units.)
 			node.state_vars_current.order_quantity_fg[prod_ind] += order_quantity_dict[None][None]
 			node.state_vars_current.pending_finished_goods[prod_ind] += order_quantity_dict[None][None]
@@ -702,6 +718,12 @@ def _calculate_period_costs(network, period):
 				n.state_vars[period].holding_cost_incurred += n.get_attribute('local_holding_cost_function', prod_index)(items_held)
 			except TypeError:
 				n.state_vars[period].holding_cost_incurred += (n.get_attribute('local_holding_cost', prod_index) or 0) * items_held
+				if n.state_vars_current.excess_inventory[prod_index] > 0:
+					if n.inventory_capacity is not None and n.inventory_capacity.inventory_capacity_type == 'HC':						n.state_vars[period].holding_cost_incurred += (n.get_attribute('additional_holding_cost', prod_index) or 0) \
+						* n.state_vars_current.excess_inventory[prod_index]
+
+
+
 			# Raw materials holding cost. Includes only products that come from an actual predecessor node, not external supplier.
 			for rm_index in n.raw_materials_by_product(product=prod_index, return_indices=True, network_BOM=True):
 				# Determine suppliers for this raw material, excluding external supplier.
@@ -716,7 +738,8 @@ def _calculate_period_costs(network, period):
 					n.state_vars[period].holding_cost_incurred += \
 						(p.get_attribute('local_holding_cost', rm_index) or 0) * \
 						(n.state_vars[period].raw_material_inventory[rm_index] \
-							+ n.state_vars[period].inbound_disrupted_items[p.index][rm_index])
+							+ n.state_vars[period].inbound_disrupted_items[p.index][rm_index]) 
+	
 			# Stockout cost.
 			try:
 				n.state_vars[period].stockout_cost_incurred += \
@@ -1021,7 +1044,15 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 
 			# Update IL and BO.
 			node.state_vars_current.inventory_level[prod_index] -= node.state_vars_current.inbound_order[s_index][prod_index]
-
+			inventory_capacity = node.get_attribute('inventory_capacity', prod_index)
+			if inventory_capacity is None:
+				capacity_value = None
+			elif hasattr(inventory_capacity, "inventory_capacity"):
+				capacity_value = inventory_capacity.inventory_capacity
+			else:
+				capacity_value = inventory_capacity
+			node.state_vars_current.excess_inventory[prod_index] = (max(0, node.state_vars_current.inventory_level[prod_index] \
+   			- capacity_value) if capacity_value is not None else 0)
 			# Calculate new backorders_by_successor.
 			node.state_vars_current.backorders_by_successor[s_index][prod_index] -= (BO_OS + BO_to_DI)
 			node.state_vars_current.backorders_by_successor[s_index][prod_index] \

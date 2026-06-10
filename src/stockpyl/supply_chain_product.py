@@ -68,6 +68,7 @@ import math
 from stockpyl import policy
 from stockpyl import demand_source
 from stockpyl import disruption_process
+from stockpyl import inventory_capacity
 from stockpyl.helpers import is_list, is_dict, is_integer
 
 
@@ -94,6 +95,8 @@ class SupplyChainProduct(object):
 		Function that calculates local holding cost per period, as a function
 		of ending inventory level. Function must take exactly one argument, the
 		ending IL. Function should check that IL > 0.
+	additional_holding_cost: float
+		Holidng cost charged when inventory_level > inventory_capacity, per unit per period.
 	in_transit_holding_cost : float
 		Holding cost coefficient used to calculate in-transit holding cost for
 		shipments en route from a node to its downstream successors, if any.
@@ -117,6 +120,10 @@ class SupplyChainProduct(object):
 		Demand source object.
 	initial_inventory_level : float
 		Initial inventory level.
+	inventory_capacity : float
+		Inventory capacity.
+	inventory_over_capacity : float
+		Inventory_capacity - inventory_level.
 	initial_orders : float
 		Initial outbound order quantity.
 	initial shipments : float
@@ -133,6 +140,8 @@ class SupplyChainProduct(object):
 		Disruption process object (if any).
 	order_capacity : float
 		Maximum size of an order.
+	inventory_capacity : float
+		Maximum on-hand inventory.
 	state_vars : list of |class_state_vars|
 		List of |class_state_vars|, one for each period in a simulation.
 	problem_specific_data : object
@@ -195,6 +204,7 @@ class SupplyChainProduct(object):
 		'local_holding_cost': None,
 		'echelon_holding_cost': None,
 		'local_holding_cost_function': None,
+		'additional_holding_cost': None,
 		'in_transit_holding_cost': None,
 		'stockout_cost': None,
 		'stockout_cost_function': None,
@@ -203,11 +213,14 @@ class SupplyChainProduct(object):
 		'order_lead_time': None,
 		'demand_source': None,
 		'initial_inventory_level': None,
+		'inventory_capacity': None,
+		'inventory_over_capacity': None,
 		'initial_orders': None,
 		'initial_shipments': None,
 		'_inventory_policy': None,
 		'supply_type': None,
 #		'disruption_process': None,
+		'inventory_capacity': None,
 		'order_capacity': None,
 		'state_vars': []
 	}
@@ -455,7 +468,7 @@ class SupplyChainProduct(object):
 
 	def initialize(self):
 		"""Initialize the parameters in the object to their default values.
-		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``_inventory_policy``):
+		Also initializes attributes that are objects (``demand_source``, ``disruption_process``, ``_inventory_policy``, ``inventory_capacity_type):
 		"""
 		
 		# Loop through attributes. Special handling for list and object attributes.
@@ -466,6 +479,8 @@ class SupplyChainProduct(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy()
+			elif attr == '_inventory_capacity_type':
+				self.inventory_capacity_type = inventory_capacity.InventoryCapacity()
 			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
@@ -552,7 +567,7 @@ class SupplyChainProduct(object):
 			# A few attributes need special handling.
 			if attr == 'network':
 				product_dict[attr] = None
-			elif attr in ('demand_source', 'disruption_process', '_inventory_policy'):
+			elif attr in ('demand_source', 'disruption_process', '_inventory_policy', 'inventory_capacity_type'):
 				product_dict[attr] = None if getattr(self, attr) is None else getattr(self, attr).to_dict()
 			else:
 				product_dict[attr] = getattr(self, attr)
