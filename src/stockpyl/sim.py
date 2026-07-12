@@ -1045,6 +1045,7 @@ def _process_outbound_shipments(node, starting_inventory_level, new_finished_goo
 			# Update IL and BO.
 			node.state_vars_current.inventory_level[prod_index] -= node.state_vars_current.inbound_order[s_index][prod_index]
 			inventory_capacity = node.get_attribute('inventory_capacity', prod_index)
+
 			if inventory_capacity is None:
 				capacity_value = None
 			elif hasattr(inventory_capacity, "inventory_capacity"):

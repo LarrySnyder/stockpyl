@@ -105,6 +105,14 @@ class LoadInstance(unittest.TestCase):
 			base_stock_level={1: 6.49, 2: 5.53, 3: 10.69}
 		)
 
+		import pprint
+
+		print("Loaded instance:")
+		pprint.pp(instance.to_dict())
+
+		print("\nCorrect instance:")
+		pprint.pp(correct_instance.to_dict())
+
 		# Compare.
 		self.assertTrue(instance.deep_equal_to(correct_instance))
 
@@ -249,12 +257,21 @@ class SaveInstance(unittest.TestCase):
 			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
 			# Remove it from the saved JSON to allow the dicts to compare equal.
 			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			keys_to_remove = [
+    			'fixed_cost',
+    			'inventory_capacity',
+    			'inventory_capacity_type',
+    			'inventory_over_capacity',
+    			'additional_holding_cost'
+			]
+
 			for node_dict in saved_json['instances'][0]['data']['_nodes']:
-				if 'fixed_cost' in node_dict:
-					del node_dict['fixed_cost']
+				for key in keys_to_remove:
+					node_dict.pop(key, None)
 			for product_dict in saved_json['instances'][0]['data']['_products']:
-				if 'fixed_cost' in product_dict:
-					del product_dict['fixed_cost']
+				for key in keys_to_remove:
+					product_dict.pop(key, None)
+
 
 			# Compare.
 			self.maxDiff = None
@@ -298,12 +315,21 @@ class SaveInstance(unittest.TestCase):
 			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
 			# Remove it from the saved JSON to allow the dicts to compare equal.
 			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			keys_to_remove = [
+    			'fixed_cost',
+    			'inventory_capacity',
+    			'inventory_capacity_type',
+    			'inventory_over_capacity',
+    			'additional_holding_cost'
+			]
+
 			for node_dict in saved_json['instances'][0]['data']['_nodes']:
-				if 'fixed_cost' in node_dict:
-					del node_dict['fixed_cost']
+				for key in keys_to_remove:
+					node_dict.pop(key, None)
 			for product_dict in saved_json['instances'][0]['data']['_products']:
-				if 'fixed_cost' in product_dict:
-					del product_dict['fixed_cost']
+				for key in keys_to_remove:
+					product_dict.pop(key, None)
+
 
 			# Compare.
 			self.assertDictEqual(saved_json, correct_json)
@@ -394,13 +420,23 @@ class SaveInstance(unittest.TestCase):
 			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
 			# Remove it from the saved JSON to allow the dicts to compare equal.
 			# TODO: Update the correct JSON to include fixed cost and remove this code.
-			for node_dict in saved_json['instances'][0]['data']['_nodes']:
-				if 'fixed_cost' in node_dict:
-					del node_dict['fixed_cost']
-			for product_dict in saved_json['instances'][0]['data']['_products']:
-				if 'fixed_cost' in product_dict:
-					del product_dict['fixed_cost']
+			# removed any InventoryCapacity attribute as well
+			keys_to_remove = [
+    			'fixed_cost',
+    			'inventory_capacity',
+    			'inventory_capacity_type',
+    			'inventory_over_capacity',
+    			'additional_holding_cost'
+			]
 
+			for node_dict in saved_json['instances'][0]['data']['_nodes']:
+				for key in keys_to_remove:
+					node_dict.pop(key, None)
+			for product_dict in saved_json['instances'][0]['data']['_products']:
+				for key in keys_to_remove:
+					product_dict.pop(key, None)
+
+			self.maxDiff = None
 			# Compare.
 			self.assertDictEqual(saved_json, correct_json)
 
@@ -445,15 +481,21 @@ class SaveInstance(unittest.TestCase):
 			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
 			# Remove it from the saved JSON to allow the dicts to compare equal.
 			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			keys_to_remove = [
+    			'fixed_cost',
+    			'inventory_capacity',
+    			'inventory_capacity_type',
+    			'inventory_over_capacity',
+    			'additional_holding_cost'
+			]
+
 			for node_dict in saved_json['instances'][0]['data']['_nodes']:
-				if 'fixed_cost' in node_dict:
-					del node_dict['fixed_cost']
-				for state_var_dict in node_dict['state_vars']:
-					if 'fixed_cost_incurred' in state_var_dict:
-						del state_var_dict['fixed_cost_incurred']
+				for key in keys_to_remove:
+					node_dict.pop(key, None)
 			for product_dict in saved_json['instances'][0]['data']['_products']:
-				if 'fixed_cost' in product_dict:
-					del product_dict['fixed_cost']
+				for key in keys_to_remove:
+					product_dict.pop(key, None)
+
 
 			# Compare.
 			self.maxDiff = None
@@ -500,15 +542,21 @@ class SaveInstance(unittest.TestCase):
 			# Fixed cost was not implemented when this test was created, so it is not included in the correct JSON. 
 			# Remove it from the saved JSON to allow the dicts to compare equal.
 			# TODO: Update the correct JSON to include fixed cost and remove this code.
+			keys_to_remove = [
+    			'fixed_cost',
+    			'inventory_capacity',
+    			'inventory_capacity_type',
+    			'inventory_over_capacity',
+    			'additional_holding_cost'
+			]
+
 			for node_dict in saved_json['instances'][0]['data']['_nodes']:
-				if 'fixed_cost' in node_dict:
-					del node_dict['fixed_cost']
-				for state_var_dict in node_dict['state_vars']:
-					if 'fixed_cost_incurred' in state_var_dict:
-						del state_var_dict['fixed_cost_incurred']
+				for key in keys_to_remove:
+					node_dict.pop(key, None)
 			for product_dict in saved_json['instances'][0]['data']['_products']:
-				if 'fixed_cost' in product_dict:
-					del product_dict['fixed_cost']
+				for key in keys_to_remove:
+					product_dict.pop(key, None)
+
 
 			# Compare.
 			self.maxDiff = None

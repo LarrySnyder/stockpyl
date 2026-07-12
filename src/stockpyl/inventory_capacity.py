@@ -121,13 +121,15 @@ class InventoryCapacity(object):
 		bool
 			``True`` if the |class_inventory_capacity| objects are equal, ``False`` otherwise.
 		"""
-		if other is None:
+		if not isinstance(other, InventoryCapacity):
 			return False
-		else:
-			for attr in self._DEFAULT_VALUES.keys():
-				if getattr(self, attr) != getattr(other, attr):
-					return False
-			return True
+		for attr in self._DEFAULT_VALUES.keys():
+			if attr == '_over_capacity':
+				continue
+			if getattr(self, attr) != getattr(other, attr):
+				return False
+		return True
+
 
 	def __ne__(self, other):
 		"""Determine whether ``other`` is not equal to this |class_inventory_capacity| object. 

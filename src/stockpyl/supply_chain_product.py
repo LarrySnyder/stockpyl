@@ -207,6 +207,7 @@ class SupplyChainProduct(object):
 		'additional_holding_cost': None,
 		'in_transit_holding_cost': None,
 		'stockout_cost': None,
+		'fixed_cost': None,
 		'stockout_cost_function': None,
 		'revenue': None,
 		'shipment_lead_time': None,
@@ -479,8 +480,8 @@ class SupplyChainProduct(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy()
-			elif attr == '_inventory_capacity_type':
-				self.inventory_capacity_type = inventory_capacity.InventoryCapacity()
+			elif attr == '_inventory_capacity':
+				self.inventory_capacity = inventory_capacity.InventoryCapacity()
 			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
 			else:
@@ -517,7 +518,7 @@ class SupplyChainProduct(object):
 		else:
 			# Special handling for some attributes.
 			for attr in self._DEFAULT_VALUES.keys():
-				if attr in ('network', 'local_holding_cost_function', 'stockout_cost_function'):
+				if attr in ('network', 'local_holding_cost_function', 'stockout_cost_function', 'fixed_cost_network'):
 					# Ignore.
 					pass
 				elif attr == '_inventory_policy':
@@ -526,7 +527,7 @@ class SupplyChainProduct(object):
 						viol_attr = attr
 						eq = False
 				elif attr in ('local_holding_cost', 'echelon_holding_cost', 'in_transit_holding_cost', \
-							  'stockout_cost', 'revenue', 'initial_inventory_level', 'initial_orders',
+							  'stockout_cost', 'fixed_cost', 'revenue', 'initial_inventory_level', 'initial_orders',
 							  'initial_shipments', 'order_capacity'):
 					# These attributes need approximate comparisons.
 					if not isclose(getattr(self, attr) or 0, getattr(other, attr) or 0, rel_tol=rel_tol):

@@ -1317,6 +1317,7 @@ class TestNetworkFromEdges(unittest.TestCase):
 			],
 			shipment_lead_time=[2, 6, 0, 1]
 		)
+
 		self.assertTrue(network.deep_equal_to(correct_network))
 
 	def test_4_node_2(self):
@@ -1504,6 +1505,9 @@ class TestNetworkFromEdges(unittest.TestCase):
 			edges=[],
 			local_holding_cost=2,
 			stockout_cost=20,
+			inventory_capacity = 5,
+			additional_holding_cost = 1,
+			inventory_capacity_type = 'HC',
 			demand_type='N',
 			mean=10,
 			standard_deviation=1
@@ -1541,12 +1545,21 @@ class TestNetworkFromEdges(unittest.TestCase):
 		)
 		correct_network.nodes_by_index[3].demand_source = DemandSource(type=None)
 		correct_network.nodes_by_index[4].demand_source = DemandSource(type=None)
+		correct_network.nodes_by_index[1].inventory_capacity = InventoryCapacity(inventory_capacity = 5, inventory_capacity_type = 'HC', additional_holding_cost = 1)
+		correct_network.nodes_by_index[2].inventory_capacity = InventoryCapacity(inventory_capacity = 5)
+		correct_network.nodes_by_index[3].inventory_capacity = InventoryCapacity(inventory_capacity = 5)
 
 		network = network_from_edges(
 			edges=[(3, 1), (3, 2), (4, 1)],
 			node_order_in_lists=[1, 2, 3, 4],
 			local_holding_cost=[4, 7, 2, 1],
 			stockout_cost=[20, 50, None, None],
+			inventory_capacity = InventoryCapacity(
+                inventory_capacity = 5,
+                additional_holding_cost = 1,
+                inventory_capacity_type = 'HC'
+            ),
+			fixed_cost = 1,
 			demand_type='CD',
 			demand_list=[[0, 1, 2, 3], [0, 1, 2, 3], None, None],
 			probabilities=[[0.25, 0.25, 0.4, 0.1], [0.25, 0.25, 0.4, 0.1], None, None],

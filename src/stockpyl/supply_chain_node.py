@@ -207,6 +207,7 @@ class SupplyChainNode(object):
 		'additional_holding_cost': None,
 		'local_holding_cost_function': None,
 		'in_transit_holding_cost': None,
+		'fixed_cost': None,
 		'stockout_cost': None,
 		'stockout_cost_function': None,
 		'revenue': None,
@@ -1469,10 +1470,9 @@ class SupplyChainNode(object):
 		(Works even if the node has no |class_inventory_capacity| object in its
 		``inventory_capacity`` attribute.)
 		"""
-		if self.inventory_capacity_type is None:
+		if self.inventory_capacity is None:
 			return False
-		else:
-			return self.inventory_capacity.excess_inventory
+		return self.inventory_capacity.excess_inventory
 	
 	@property
 	def shutdown(self):
@@ -1481,12 +1481,12 @@ class SupplyChainNode(object):
 		(Works even if the node has no |class_inventory_capacity| object in its
 		``inventory_capacity`` attribute.)
 		"""
-		if self.inventory_capacity_type is None:
+		if self.inventory_capacity is None:
 			return False
-		else:
-			return self.inventory_capacity.shutdown
-
-	# Special methods.
+		return (
+        	self.inventory_capacity.inventory_capacity_type == 'PP'
+        	and self.inventory_capacity.shutdown
+    	)
 
 	def __eq__(self, other):
 		"""Determine whether ``other`` is equal to the node. Two nodes are
@@ -1576,8 +1576,8 @@ class SupplyChainNode(object):
 				self.disruption_process = disruption_process.DisruptionProcess()
 			elif attr == '_inventory_policy':
 				self.inventory_policy = policy.Policy(node=self)
-			elif attr == '_inventory_capacity_type':
-				self.inventory_capacity_type = inventory_capacity.InventoryCapacity()
+			elif attr == '_inventory_capacity':
+				self.inventory_capacity = inventory_capacity.InventoryCapacity()
 			elif is_list(self._DEFAULT_VALUES[attr]) or is_dict(self._DEFAULT_VALUES[attr]) or \
 				is_set(self._DEFAULT_VALUES[attr]):
 				setattr(self, attr, copy.deepcopy(self._DEFAULT_VALUES[attr]))
@@ -1660,10 +1660,14 @@ class SupplyChainNode(object):
 					if self.inventory_policy != other.inventory_policy:
 						viol_attr = attr
 						eq = False
+				elif attr == 'inventory_capacity':
+					if self.inventory_capacity != other.inventory_capacity:
+						viol_attr = attr
+						eq = False
 				elif attr in ('local_holding_cost', 'echelon_holding_cost', 'additional_holding_cost', 'in_transit_holding_cost','fixed_cost',
 							  'stockout_cost', 'revenue', 'initial_inventory_level', 'initial_orders',
 							  'initial_shipments','demand_bound_constant', 'units_required', 'net_demand_mean',
-							  'net_demand_standard_deviation', 'order_capacity', 'inventory_capacity'):
+							  'net_demand_standard_deviation', 'order_capacity'):
 					# These attributes need approximate comparisons. Check first whether it's a dict or singleton.
 					self_attr = getattr(self, attr)
 					other_attr = getattr(other, attr)
@@ -1735,7 +1739,7 @@ class SupplyChainNode(object):
 				node_dict[attr] = copy.deepcopy(self.predecessor_indices(include_external=False))
 			elif attr == '_successor_indices':
 				node_dict[attr] = copy.deepcopy(self.successor_indices(include_external=False))
-			elif attr in ('demand_source', 'disruption_process', '_inventory_policy', 'inventory_capacity_type'):
+			elif attr in ('demand_source', 'disruption_process', '_inventory_policy', 'inventory_capacity'):
 				# Determine whether attr is a singleton or a dict (for node-product-level attribute).
 				# Leave a note to the decoder indicating which type of dict this is.
 				the_attr = None if getattr(self, attr) is None else getattr(self, attr)
@@ -2081,6 +2085,8 @@ class SupplyChainNode(object):
 			# default value for properties.
 			if attr == 'holding_cost':
 				default_val = self._DEFAULT_VALUES['local_holding_cost']
+			elif attr == 'fixed_cost':
+				default_val = self._DEFAULT_VALUES['fixed_cost']
 			elif attr == 'lead_time':
 				default_val = self._DEFAULT_VALUES['shipment_lead_time']
 			else:
@@ -2162,7 +2168,7 @@ class SupplyChainNode(object):
 			else:
 				return float(np.sum([self.state_vars[period].__dict__[attribute][s_index][prod_ind]
 									 for s_index in self.successor_indices(include_external=include_external)]))
-		elif attribute in ('disrupted', 'holding_cost_incurred', 'stockout_cost_incurred', 'in_transit_holding_cost_incurred',
+		elif attribute in ('disrupted', 'holding_cost_incurred', 'stockout_cost_incurred', 'fixed_cost_incurred', 'in_transit_holding_cost_incurred',
 			'revenue_earned', 'total_cost_incurred'):
 			# These attributes are not indexed by product.
 			if period is None:
