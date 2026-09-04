@@ -246,6 +246,25 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(network.nodes[0].state_vars[16].backorders_by_successor[None][dp], 2)
         self.assertEqual(network.nodes[0].state_vars[86].inventory_level[dp], -1)
 
+    def test_negative_initial_inventory_level(self):
+        """Test that negative initial inventory is recorded as an initial backorder."""
+        print_status('TestSimulation', 'test_negative_initial_inventory_level()')
+
+        network = single_stage_system(
+            demand_type='P',
+            mean=10,
+            policy_type='BS',
+            base_stock_level=10,
+            initial_inventory_level=-10,
+            shipment_lead_time=1
+        )
+        node = network.nodes[0]
+        dp = node._dummy_product.index
+
+        initialize(network, num_periods=1, rand_seed=42)
+
+        self.assertEqual(node.state_vars[0].backorders_by_successor[None][dp], 10)
+
     def test_single_stage(self):
         """Test that simulation() function correctly simulates single-stage
         model with base-stock policy.
