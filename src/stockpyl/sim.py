@@ -551,6 +551,13 @@ def _initialize_state_vars(network):
 				init_IL = n.get_attribute('inventory_policy', prod_ind).get_order_quantity(product=prod_ind, include_raw_materials=False, inventory_position=0)
 			n.state_vars[0].inventory_level[prod_ind] = init_IL
 
+			# A negative initial inventory level represents existing backorders. If there is
+			# only one customer for this product, record those backorders against that
+			# customer so the disaggregated and aggregate state variables are consistent.
+			customers = n.customers_by_product(prod_ind, return_indices=True)
+			if init_IL < 0 and len(customers) == 1:
+				n.state_vars[0].backorders_by_successor[customers[0]][prod_ind] = -init_IL
+
 			# Initialize inbound order pipeline. (Exclude external demand.)
 			for s in n.successors():
 				for l in range(s.get_attribute('order_lead_time', prod_ind) or 0):
