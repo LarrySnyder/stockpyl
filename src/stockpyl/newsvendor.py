@@ -305,7 +305,7 @@ def newsvendor_poisson(holding_cost, stockout_cost, demand_mean, lead_time=0,
 
 
 def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
-						   demand_mean):
+						   demand_mean, lead_time=0):
 	"""Calculate the cost of using ``base_stock_level`` as the solution to the
 	newsvendor problem with Poisson distribution.
 
@@ -335,6 +335,8 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 		If ``demand_mean`` <= 0.
 	ValueError
 		If ``base_stock_level`` is not an integer.
+		ValueError
+		If ``lead_time`` < 0.
 
 
 	**Equations Used** (equation (4.6)):
@@ -364,7 +366,11 @@ def newsvendor_poisson_cost(base_stock_level, holding_cost, stockout_cost,
 	if holding_cost <= 0: raise ValueError("holding_cost must be positive")
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
+	if lead_time < 0: raise ValueError("lead_time must be positive or zero")
 	if not is_integer(base_stock_level): raise ValueError("base_stock_level must be an integer")
+
+	# Calculate lead-time demand mean.
+	demand_mean = (lead_time + 1) * demand_mean
 
 	# Calculate loss functions.
 	n, n_bar = lf.poisson_loss(base_stock_level, demand_mean)

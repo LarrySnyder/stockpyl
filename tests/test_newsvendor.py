@@ -330,6 +330,44 @@ class TestNewsvendorPoissonCost(unittest.TestCase):
 		self.assertAlmostEqual(cost, 1.445751062891969e+03)
 
 
+	def test_lead_time(self):
+		"""Test that newsvendor_poisson_cost function correctly evaluates cost
+		with non-zero lead time, matching newsvendor_poisson() output.
+		"""
+		print_status('TestNewsvendorPoissonCost', 'test_lead_time()')
+
+		# From Problem 4.19 (SCMO textbook): lead_time=4
+		holding_cost = 0.08
+		stockout_cost = 1.25
+		demand_mean = 18
+		lead_time = 4
+
+		# Get optimal base-stock level from optimizer
+		from stockpyl.newsvendor import newsvendor_poisson
+		base_stock_level, expected_cost = newsvendor_poisson(
+			holding_cost, stockout_cost, demand_mean, lead_time=lead_time)
+
+		# Cost function should return the same cost
+		cost = newsvendor.newsvendor_poisson_cost(
+			base_stock_level, holding_cost, stockout_cost, demand_mean,
+			lead_time=lead_time)
+		self.assertAlmostEqual(cost, expected_cost)
+
+		# Also verify with a manually specified base-stock level
+		cost_manual = newsvendor.newsvendor_poisson_cost(
+			100, holding_cost, stockout_cost, demand_mean, lead_time=lead_time)
+		self.assertGreater(cost_manual, expected_cost)
+
+	def test_negative_lead_time(self):
+		"""Test that newsvendor_poisson_cost function raises exception on
+		negative lead time.
+		"""
+		print_status('TestNewsvendorPoissonCost', 'test_negative_lead_time()')
+
+		with self.assertRaises(ValueError):
+			newsvendor.newsvendor_poisson_cost(56, 0.18, 0.70, 50, lead_time=-3)
+
+
 class TestNewsvendorContinuous(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
