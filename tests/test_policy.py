@@ -329,7 +329,9 @@ class TestToDict(unittest.TestCase):
 			'base_stock_level': 100,
 			'order_quantity': None,
 			'reorder_point': None,
-			'order_up_to_level': None
+			'order_up_to_level': None,
+			'minimum_order_quantity': None,
+			'order_quantity_increment': None
 		}
 		self.assertDictEqual(pol_dict, correct_dict)
 
@@ -353,7 +355,9 @@ class TestToDict(unittest.TestCase):
 			'base_stock_level': 100,
 			'order_quantity': None,
 			'reorder_point': None,
-			'order_up_to_level': None
+			'order_up_to_level': None,
+			'minimum_order_quantity': None,
+			'order_quantity_increment': None
 		}
 		self.assertDictEqual(pol_dict, correct_dict)
 
@@ -375,7 +379,9 @@ class TestToDict(unittest.TestCase):
 			'base_stock_level': None,
 			'order_quantity': None,
 			'reorder_point': 100,
-			'order_up_to_level': 500
+			'order_up_to_level': 500,
+			'minimum_order_quantity': None,
+			'order_quantity_increment': None
 		}
 		self.assertDictEqual(pol_dict, correct_dict)
 

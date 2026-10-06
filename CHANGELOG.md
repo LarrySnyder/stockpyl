@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Optional `minimum_order_quantity` and `order_quantity_increment` attributes on
+  `Policy`, with capacity-aware finished-good batching and network-factory support.
+  This implements the ordering-policy part of #155; raw-material batching and
+  indivisible production remain outside this change.
 - `fixed_cost` attribute in `SupplyChainNode` that is used in simulations (via [@LayanSulei](https://github.com/LayanSulei)).
 - `lead_time` parameter in `newsvendor_poisson()` (via [@LayanSulei](https://github.com/LayanSulei)).
 
