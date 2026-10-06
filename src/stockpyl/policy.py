@@ -40,6 +40,8 @@ API Reference
 # ===============================================================================
 
 import numpy as np
+import math
+from numbers import Real
 
 # ===============================================================================
 # Policy Class
@@ -82,6 +84,16 @@ class Policy(object):
 		The reorder point used by the policy, if applicable. Required if ``type`` == 'sS' or 'rQ'.
 	order_up_to_level : float, optional
 		The order-up-to level used by the policy, if applicable. Required if ``type`` == 'sS'.
+	minimum_order_quantity : float, optional
+		Minimum positive order quantity, in units of the policy's finished-good product.
+		Must be finite and nonnegative. ``None`` disables the minimum. A zero policy
+		request stays zero, even when a minimum is specified.
+	order_quantity_increment : float, optional
+		Positive finite batch increment, in finished-good units. Positive orders are
+		multiples of this increment measured from zero, not from the minimum.
+		``None`` disables batching. For example, a minimum of 7 and increment of 5
+		allows orders of 10, 15, 20, etc. These constraints do not make raw materials
+		or production indivisible.
 
 	"""
 
@@ -110,7 +122,9 @@ class Policy(object):
 		'_base_stock_level': None,
 		'_order_quantity': None,
 		'_reorder_point': None,
-		'_order_up_to_level': None
+		'_order_up_to_level': None,
+		'_minimum_order_quantity': None,
+		'_order_quantity_increment': None
 	}
 
 	# SPECIAL METHODS
@@ -218,6 +232,22 @@ class Policy(object):
 	def order_up_to_level(self, value):
 		self._order_up_to_level = value
 
+	@property
+	def minimum_order_quantity(self):
+		return self._minimum_order_quantity
+
+	@minimum_order_quantity.setter
+	def minimum_order_quantity(self, value):
+		self._minimum_order_quantity = value
+
+	@property
+	def order_quantity_increment(self):
+		return self._order_quantity_increment
+
+	@order_quantity_increment.setter
+	def order_quantity_increment(self, value):
+		self._order_quantity_increment = value
+
 	# SPECIAL MEMBERS
 
 	def __repr__(self):
@@ -244,6 +274,10 @@ class Policy(object):
 		else:
 			param_str = ""
 
+		if self.minimum_order_quantity is not None:
+			param_str += ", minimum_order_quantity={:.2f}".format(self.minimum_order_quantity)
+		if self.order_quantity_increment is not None:
+			param_str += ", order_quantity_increment={:.2f}".format(self.order_quantity_increment)
 		return "Policy({:s}: {:s})".format(self.type, param_str)
 
 	def __str__(self):
@@ -269,6 +303,7 @@ class Policy(object):
 		"""Check that appropriate parameters have been provided for the given
 		policy type. Raise an exception if not.
 		"""
+		self._validate_order_quantity_constraints()
 		if self.type not in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS'): raise AttributeError("Valid type in (None, 'BS', 'sS', 'rQ', 'EBS', 'BEBS') must be provided")
 
 		if self.type == 'BS':
@@ -361,6 +396,12 @@ class Policy(object):
 
 		If ``order_capacity`` is provided, the FG order quantity returned will not exceed this capacity,
 		and the RM order quantities will be scaled accordingly.
+		When a minimum or increment is configured, a positive request is rounded up to
+		the smallest admissible finished-good order. If capacity prevents that order,
+		the largest admissible order within capacity is used instead. If no positive
+		order satisfies both the minimum and capacity, the result is zero. Constraints
+		are applied before BOM conversion; raw-material batches and indivisible
+		production are not enforced. With both attributes ``None``, behavior is unchanged.
 
 		If there are multiple predecessors that supply the same raw material, this function will, in general,
 		order all required units of that raw material from a single supplier. The function can be overloaded to
@@ -485,8 +526,10 @@ class Policy(object):
 		else:
 			OQ = None
 		
-		# Adjust OQ to account for capacity, if provided.
-		if order_capacity is not None:
+		# Apply finished-good batching before scaling raw-material quantities.
+		if self.minimum_order_quantity is not None or self.order_quantity_increment is not None:
+			OQ = self._apply_order_quantity_constraints(OQ, order_capacity)
+		elif order_capacity is not None:
 			OQ = min(OQ, order_capacity)
 	
 		# Include raw materials?
@@ -519,6 +562,41 @@ class Policy(object):
 						still_to_order[rm_index] -= OQ_dict[pred_index][rm_index]
 
 			return OQ_dict
+
+	def _validate_order_quantity_constraints(self):
+		"""Validate optional MOQ and increment attributes independently of policy type."""
+		for name, value, positive in (
+			('minimum_order_quantity', self.minimum_order_quantity, False),
+			('order_quantity_increment', self.order_quantity_increment, True)
+		):
+			if value is not None and (not isinstance(value, Real) or not math.isfinite(value)
+					or value < 0 or (positive and value == 0)):
+				raise ValueError(f"{name} must be {'positive' if positive else 'nonnegative'} and finite")
+
+	def _apply_order_quantity_constraints(self, order_quantity, order_capacity):
+		"""Return a feasible FG order, preserving zero requests and the capacity bound."""
+		self._validate_order_quantity_constraints()
+		if order_capacity is not None and (not isinstance(order_capacity, Real)
+				or math.isnan(order_capacity) or order_capacity < 0):
+			raise ValueError("order_capacity must be nonnegative")
+		if order_quantity is None:
+			return None
+		if not isinstance(order_quantity, Real) or not math.isfinite(order_quantity):
+			raise ValueError("order quantity must be finite when batching is enabled")
+		if order_quantity <= 0:
+			return 0.0
+		minimum = self.minimum_order_quantity or 0.0
+		quantity = max(order_quantity, minimum)
+		increment = self.order_quantity_increment
+		if increment is not None:
+			# One ULP prevents a representable decimal multiple from rounding up twice.
+			quantity = math.ceil(np.nextafter(quantity / increment, -np.inf)) * increment
+		if order_capacity is not None and quantity > order_capacity:
+			if increment is None:
+				quantity = order_capacity
+			else:
+				quantity = math.floor(np.nextafter(order_capacity / increment, np.inf)) * increment
+		return quantity if quantity >= minimum else 0.0
 
 	def _get_order_quantity_base_stock(self, inventory_position):
 		"""Calculate order quantity using base-stock policy.

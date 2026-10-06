@@ -1127,6 +1127,8 @@ def network_from_edges(edges, node_order_in_lists=None, **kwargs):
 			pol.order_quantity = data_dict[n.index].get('order_quantity')
 			pol.reorder_point = data_dict[n.index].get('reorder_point')
 			pol.order_up_to_level = data_dict[n.index].get('order_up_to_level')
+			pol.minimum_order_quantity = data_dict[n.index].get('minimum_order_quantity')
+			pol.order_quantity_increment = data_dict[n.index].get('order_quantity_increment')
 			n.inventory_policy = pol
 
 		# Disruption process.
