@@ -71,6 +71,8 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
+	ValueError
+		If ``lead_time`` < 0.
 
 
 	**Equations Used** (equations (4.30), (4.37), and (4.24), modified for non-zero
@@ -112,6 +114,7 @@ def newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd,
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
 	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
+	if lead_time < 0: raise ValueError("lead_time must be positive or zero")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -166,6 +169,8 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 		If ``holding_cost`` <= 0 or ``stockout_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
+	ValueError
+		If ``lead_time`` < 0.
 
 
 	**Equations Used** (equation (4.24)):
@@ -195,6 +200,7 @@ def newsvendor_normal_cost(base_stock_level, holding_cost, stockout_cost,
 	if stockout_cost <= 0: raise ValueError("stockout_cost must be positive")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
 	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
+	if lead_time < 0: raise ValueError("lead_time must be positive or zero")
 
 	# Calculate lead-time demand parameters.
 	ltd_mean = demand_mean * (lead_time + 1)
@@ -968,6 +974,8 @@ def newsvendor_normal_explicit(revenue, purchase_cost, salvage_value,
 		If ``holding_cost`` < 0 or ``stockout_cost`` < 0.
 	ValueError
 		If ``demand_mean`` <= 0 or ``demand_sd`` <= 0.
+	ValueError
+		If ``lead_time`` < 0.
 
 
 	**Equations Used**:
@@ -1002,6 +1010,7 @@ def newsvendor_normal_explicit(revenue, purchase_cost, salvage_value,
 	if stockout_cost < 0: raise ValueError("stockout_cost must be non-negative")
 	if demand_mean <= 0: raise ValueError("mean must be positive")
 	if demand_sd <= 0: raise ValueError("demand_sd must be positive")
+	if lead_time < 0: raise ValueError("lead_time must be positive or zero")
 	if revenue <= purchase_cost: raise ValueError("revenue must be > purchase_cost")
 	if purchase_cost <= salvage_value: raise ValueError("purchase_cost must be > salvage_value")
 
