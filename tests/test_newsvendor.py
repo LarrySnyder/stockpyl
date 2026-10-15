@@ -121,6 +121,16 @@ class TestNewsvendorNormal(unittest.TestCase):
 			base_stock_level, cost = newsvendor.newsvendor_normal(holding_cost, stockout_cost, demand_mean, demand_sd)
 
 
+	def test_negative_lead_time(self):
+		"""Reject negative lead times before optimizing or evaluating cost."""
+		for lead_time in (-0.5, -1, -2):
+			for base_stock_level in (None, 40):
+				with self.subTest(lead_time=lead_time, base_stock_level=base_stock_level):
+					with self.assertRaisesRegex(ValueError, "lead_time must be positive or zero"):
+						newsvendor.newsvendor_normal(0.18, 0.70, 50, 8,
+							lead_time=lead_time, base_stock_level=base_stock_level)
+
+
 class TestNewsvendorNormalCost(unittest.TestCase):
 	@classmethod
 	def set_up_class(cls):
@@ -172,6 +182,15 @@ class TestNewsvendorNormalCost(unittest.TestCase):
 
 		cost = newsvendor.newsvendor_normal_cost(4000, holding_cost, stockout_cost, demand_mean, demand_sd, lead_time=3)
 		self.assertAlmostEqual(cost, 1.720164082024570e+04)
+
+
+	def test_negative_lead_time(self):
+		"""Reject negative lead times before evaluating cost."""
+		for lead_time in (-0.5, -1, -2):
+			with self.subTest(lead_time=lead_time):
+				with self.assertRaisesRegex(ValueError, "lead_time must be positive or zero"):
+					newsvendor.newsvendor_normal_cost(40, 0.18, 0.70, 50, 8,
+						lead_time=lead_time)
 
 
 class TestNewsvendorPoisson(unittest.TestCase):
@@ -1040,6 +1059,27 @@ class TestNewsvendorNormalExplicit(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			base_stock_level, profit = newsvendor.newsvendor_normal_explicit(revenue, purchase_cost,
 				salvage_value, demand_mean, demand_sd, 0, 0)
+
+
+	def test_negative_lead_time(self):
+		"""Reject negative lead times before optimizing or evaluating profit."""
+		for lead_time in (-0.5, -1, -2):
+			for base_stock_level in (None, 40):
+				with self.subTest(lead_time=lead_time, base_stock_level=base_stock_level):
+					with self.assertRaisesRegex(ValueError, "lead_time must be positive or zero"):
+						newsvendor.newsvendor_normal_explicit(1, 0.3, 0.12, 50, 8,
+							lead_time=lead_time, base_stock_level=base_stock_level)
+
+	def test_nonzero_lead_time(self):
+		"""Nonzero lead times agree with the equivalent lead-time demand."""
+		for base_stock_level in (None, 180):
+			with self.subTest(base_stock_level=base_stock_level):
+				actual = newsvendor.newsvendor_normal_explicit(1, 0.3, 0.12, 50, 8,
+					lead_time=4, base_stock_level=base_stock_level)
+				expected = newsvendor.newsvendor_normal_explicit(1, 0.3, 0.12,
+					250, 8 * np.sqrt(5), base_stock_level=base_stock_level)
+				self.assertAlmostEqual(actual[0], expected[0])
+				self.assertAlmostEqual(actual[1], expected[1])
 
 
 class TestNewsvendorPoissonExplicit(unittest.TestCase):
