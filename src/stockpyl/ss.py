@@ -355,7 +355,7 @@ def s_s_discrete_exact(holding_cost, stockout_cost, fixed_cost, use_poisson,
 
 
 def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
-					   demand_mean, demand_sd):
+					   demand_mean, demand_sd, lead_time=1):
 	"""Determine heuristic :math:`s` and :math:`S` for an |ss|
 	policy under a normal demand distribution.
 
@@ -373,6 +373,8 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 		Mean demand per period. [:math:`\\mu`]
 	demand_sd : float
 		Standard deviation of demand per period. [:math:`\\sigma`]
+	lead_time : float, optional
+		Lead time in periods. Default is 1. [:math:`L`]
 
 	Returns
 	-------
@@ -387,6 +389,8 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 		If ``holding_cost``, ``stockout_cost``, or ``fixed_cost`` <= 0.
 	ValueError
 		If ``demand_mean`` or ``demand_sd`` < 0.
+	ValueError
+		If ``lead_time`` <= 0.
 
 
 	References
@@ -399,7 +403,7 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 
 	.. math::
 
-		Q  = 1.30 \\mu^{0.494} \\left(\\frac{K}{h}\\right)^{0.506} \\left(1 + \\frac{\\sigma_L^2}{\\mu^2}\\right)^{
+		Q  = 1.30 \\mu_L^{0.494} \\left(\\frac{K}{h}\\right)^{0.506} \\left(1 + \\frac{\\sigma_L^2}{\\mu_L^2}\\right)^{
 		0.116}
 
 		z  = \\sqrt{\\frac{Q}{\\sigma_L} \\frac{h}{p}}
@@ -430,14 +434,19 @@ def s_s_power_approximation(holding_cost, stockout_cost, fixed_cost,
 	if fixed_cost <= 0: raise ValueError("fixed_cost must be positive")
 	if demand_mean < 0: raise ValueError("mean must be non-negative")
 	if demand_sd < 0: raise ValueError("demand_sd must be non-negative")
+	if lead_time <= 0: raise ValueError("lead_time must be positive")
+
+	# Calculate lead-time demand parameters.
+	mu_L = demand_mean * lead_time
+	sigma_L = demand_sd * math.sqrt(lead_time)
 
 	# Calculate Q and z.
-	Q = 1.30 * (demand_mean**0.494) * (fixed_cost / holding_cost)**0.506 \
-		* (1 + (demand_sd / demand_mean)**2)**0.116
-	z = math.sqrt((Q / demand_sd) * (holding_cost / stockout_cost))
+	Q = 1.30 * (mu_L**0.494) * (fixed_cost / holding_cost)**0.506 \
+		* (1 + (sigma_L / mu_L)**2)**0.116
+	z = math.sqrt((Q / sigma_L) * (holding_cost / stockout_cost))
 
 	# Calculate s and S.
-	s = 0.973 * demand_mean + demand_sd * ((0.183 / z) + 1.063 - 2.192*z)
+	s = 0.973 * mu_L + sigma_L * ((0.183 / z) + 1.063 - 2.192*z)
 	S = s + Q
 
 	return s, S

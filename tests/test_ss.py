@@ -240,3 +240,52 @@ class TestsSPowerApproximation(unittest.TestCase):
 		self.assertAlmostEqual(s, 2.266137928222839e+02)
 		self.assertAlmostEqual(S, 3.243797868133974e+02)
 
+	def test_lead_time(self):
+		"""Test that s_s_power_approximation() works with non-unit lead time.
+		"""
+		print_status('TestsSPowerApproximation', 'test_lead_time()')
+
+		instance = load_instance("example_4_8")
+		holding_cost = instance['holding_cost']
+		stockout_cost = instance['stockout_cost']
+		fixed_cost = instance['fixed_cost']
+		demand_mean = instance['demand_mean']
+		demand_sd = instance['demand_sd']
+
+		# Test default lead_time=1 (backward compatibility)
+		s1, S1 = s_s_power_approximation(holding_cost, stockout_cost,
+										fixed_cost, demand_mean, demand_sd)
+		self.assertAlmostEqual(s1, 40.194616956474071)
+		self.assertAlmostEqual(S1, 74.290170109805786)
+
+		# Test explicit lead_time=1
+		s1, S1 = s_s_power_approximation(holding_cost, stockout_cost,
+										fixed_cost, demand_mean, demand_sd,
+										lead_time=1)
+		self.assertAlmostEqual(s1, 40.194616956474071)
+		self.assertAlmostEqual(S1, 74.290170109805786)
+
+		# Test lead_time=2
+		s2, S2 = s_s_power_approximation(holding_cost, stockout_cost,
+										fixed_cost, demand_mean, demand_sd,
+										lead_time=2)
+		self.assertAlmostEqual(s2, 85.4206389083)
+		self.assertAlmostEqual(S2, 133.3690099574)
+
+		# Test lead_time=0.5
+		s3, S3 = s_s_power_approximation(holding_cost, stockout_cost,
+										fixed_cost, demand_mean, demand_sd,
+										lead_time=0.5)
+		self.assertAlmostEqual(s3, 18.2970416089)
+		self.assertAlmostEqual(S3, 42.5760516237)
+
+		# Test invalid lead_time
+		with self.assertRaises(ValueError):
+			s_s_power_approximation(holding_cost, stockout_cost,
+									fixed_cost, demand_mean, demand_sd,
+									lead_time=0)
+		with self.assertRaises(ValueError):
+			s_s_power_approximation(holding_cost, stockout_cost,
+									fixed_cost, demand_mean, demand_sd,
+									lead_time=-1)
+
